@@ -1,0 +1,30 @@
+{
+  "name": "reminder-joes-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "debug": "^4.3.2",
+    "express": "^4.17.1",
+    "knex": "^0.21.21",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.12",
+    "sqlite3": "^5.0.2"
+  },
+  "nodemonConfig": {
+    "restartable": "rs",
+    "delay": 2500,
+    "env": {
+      "PORT": 4000
+    }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "set DEBUG=* & nodemon app.js",
+    "start": "set DEBUG=app & nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
