@@ -14,6 +14,14 @@ server.use(
   })
 );
 
+const userRouter = require("../api/user/user-router");
+const ingredientListRouter = require("../api/ingredient-list/ingredient-list-router");
+const ingredientRouter = require("../api/ingredient/ingredient-router");
+
+server.use("/user", userRouter);
+server.use("/ingredient-list", ingredientListRouter);
+server.use("/ingredient", ingredientRouter);
+
 server.get("/", (req, res) => {
   res.json({ api: "up" });
 });

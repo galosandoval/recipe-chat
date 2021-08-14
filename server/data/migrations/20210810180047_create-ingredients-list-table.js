@@ -2,7 +2,7 @@ exports.up = function (knex) {
   return knex.schema.createTable("ingredient", (table) => {
     table.increments();
     table.string("name", 128).notNullable();
-    table.float("price", 2).notNullable();
+    table.integer("price");
     table.string("measurement").notNullable();
     table.float("amount").notNullable();
     table
