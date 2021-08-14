@@ -44,6 +44,33 @@ exports.seed = function (knex) {
           "recipe-id": 4,
           description: "Serve with the basmati rice and naan bread!",
           step: 5
+        },
+        {
+          id: 7,
+          "recipe-id": 5,
+          description: "Toast slices of bread",
+          step: 1
+        },
+        {
+          id: 8,
+          "recipe-id": 5,
+          description:
+            'While bread is toasting to desired color, cut up banana in 1/4" slices',
+          step: 2
+        },
+        {
+          id: 9,
+          "recipe-id": 5,
+          description:
+            "Spread jam on one slice of bread, and peanut butter on the other slice",
+          step: 3
+        },
+        {
+          id: 10,
+          "recipe-id": 5,
+          description:
+            "Lay out banana slices on one half of bread. Close up that bad boy and you got yourself a dank PB&J",
+          step: 4
         }
       ]);
     });

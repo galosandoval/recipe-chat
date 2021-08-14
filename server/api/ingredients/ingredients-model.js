@@ -1,11 +1,11 @@
 const db = require("../../data/connection");
 
 const findIngredients = () => {
-  return db("ingredient");
+  return db("ingredients");
 };
 
 const findIngredientById = (id) => {
-  return db("ingredient").where("id", id);
+  return db("ingredients").where("id", id);
 };
 
 module.exports = {

@@ -28,6 +28,12 @@ exports.seed = function (knex) {
           "recipe-name": "Spinach Lentil Dal",
           "user-id": 1,
           "grocery-list-id": 4
+        },
+        {
+          id: 5,
+          "recipe-name": "PB&J",
+          "user-id": 1,
+          "grocery-list-id": 4
         }
       ]);
     });

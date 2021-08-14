@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const Ingredient = require("./ingredient-model");
+const Ingredient = require("./ingredients-model");
 
 router.get("/", (req, res) => {
   Ingredient.findIngredients()
@@ -14,8 +14,8 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
   const { id } = req.params;
   Ingredient.findIngredientById(id)
-    .then((ingredients) => {
-      res.status(200).json({ ingredients });
+    .then((ingredient) => {
+      res.status(200).json({ ingredient });
     })
     .catch((err) => {
       res.status(400).json("Ingredients not found");

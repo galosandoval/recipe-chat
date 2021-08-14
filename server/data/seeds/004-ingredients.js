@@ -184,6 +184,39 @@ exports.seed = function (knex) {
           measurement: "teaspoon",
           amount: 1,
           "recipe-id": 4
+        },
+        {
+          id: 23,
+          name: "bread",
+          price: 50,
+          measurement: "slice",
+          amount: 2,
+          "recipe-id": 5,
+          cutsize: "slices"
+        },
+        {
+          id: 24,
+          name: "your favorite jam",
+          price: 100,
+          measurement: "tablespoon",
+          amount: 2,
+          "recipe-id": 5
+        },
+        {
+          id: 25,
+          name: "your favorite peanut butter",
+          price: 100,
+          measurement: "tablespoons",
+          amount: 2,
+          "recipe-id": 5
+        },
+        {
+          id: 26,
+          name: "banana",
+          price: 100,
+          measurement: "each",
+          amount: 1,
+          "recipe-id": 5
         }
       ]);
     });

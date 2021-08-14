@@ -14,13 +14,17 @@ server.use(
   })
 );
 
-const userRouter = require("../api/user/user-router");
-const ingredientListRouter = require("../api/ingredient-list/ingredient-list-router");
-const ingredientRouter = require("../api/ingredient/ingredient-router");
+const usersRouter = require("./users/users-router");
+const recipesRouter = require("./recipes/recipes-router");
+const ingredientsRouter = require("./ingredients/ingredients-router");
+const recipeInstructionsRouter = require("./recipe-instructions/recipe-instructions-router");
+const groceryListRouter = require("./grocery-lists/grocery-lists-router");
 
-server.use("/user", userRouter);
-server.use("/ingredient-list", ingredientListRouter);
-server.use("/ingredient", ingredientRouter);
+server.use("/users", usersRouter);
+server.use("/recipes", recipesRouter);
+server.use("/ingredients", ingredientsRouter);
+server.use("/instructions", recipeInstructionsRouter);
+server.use("/grocery-lists", groceryListRouter);
 
 server.get("/", (req, res) => {
   res.json({ api: "up" });
