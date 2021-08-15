@@ -6,9 +6,10 @@ const findIngredientsByRecipeId = (id) => {
   return db("recipes")
     .join("ingredients", "recipes.id", "=", "ingredients.recipe-id")
     .select(
+      "recipes.recipe-name",
+      "ingredients.name",
       "ingredients.id",
       "recipes.user-id",
-      "ingredients.name",
       "ingredients.price",
       "ingredients.amount",
       "ingredients.measurement"
@@ -17,5 +18,6 @@ const findIngredientsByRecipeId = (id) => {
 };
 
 module.exports = {
-  findIngredientsByRecipeId, findRecipes
+  findIngredientsByRecipeId,
+  findRecipes
 };
