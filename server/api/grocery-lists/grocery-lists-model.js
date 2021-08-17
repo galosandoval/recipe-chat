@@ -19,27 +19,43 @@ const findAllRecipesInList = () => {
   );
 };
 
-// TODO finish shaping the returned json
-// just added the 2nd join
+const reduceRecipesToGroceryListNames = (recipes) => {
+  let groceryListRecipes = [];
+  let currGroceryListName = recipes[0]["grocery-list-name"];
+  let ingredients = [];
+
+  for (let i = 0; i < recipes.length; i++) {
+    const ingredientName = recipes[i]["name"];
+    const groceryListName = recipes[i]["grocery-list-name"];
+
+    if (currGroceryListName === groceryListName) {
+      ingredients.push(ingredientName);
+    }
+
+    if (currGroceryListName !== groceryListName || i === recipes.length - 1) {
+      const groceryList = {
+        "grocery-list-name": groceryListName,
+        ingredients
+      };
+
+      groceryListRecipes.push(groceryList);
+      ingredients = [ingredientName];
+      currGroceryListName = groceryListName;
+    }
+  }
+
+  return groceryListRecipes;
+};
+
 const findRecipesInList = (userId) => {
   return db("grocery-lists")
+    .select("ingredients.name", "grocery-lists.name as grocery-list-name")
     .where("grocery-lists.user-id", userId)
     .join("recipes", "grocery-lists.id", "=", "recipes.grocery-list-id")
-    .join("ingredients", "ingredients.recipe-id", "=", "recipes.id");
-  // .then((recipe) => {
-  //   const resultMap = recipe.reduce((result, row) => {
-  //     console.log("result", result);
-  //     console.log("row", row);
-  //     console.log("result[row.id]", { ...row, recipe: [] });
-
-  //     result[row.id] = { ...row, ingredients: [] };
-  //     result[row.id].ingredients.push({
-  //       hey: "hello"
-  //     });
-  //     return result;
-  //   }, {});
-  //   return Object.values(resultMap);
-  // });
+    .join("ingredients", "ingredients.recipe-id", "=", "recipes.id")
+    .then((recipes) => {
+      return reduceRecipesToGroceryListNames(recipes);
+    });
 };
 
 module.exports = {
