@@ -35,7 +35,7 @@ router.get("/recipes", (req, res) => {
 
 router.get("/recipes/:id", (req, res) => {
   const { id } = req.params;
-  GroceryLists.findRecipesInList(id)
+  GroceryLists.findRecipesWithIngredients(id)
     .then((groceryListRecipes) => {
       res.status(200).json({ groceryListRecipes });
     })

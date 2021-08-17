@@ -1,6 +1,4 @@
 const db = require("../../data/connection");
-const Recipes = require("../recipes/recipes-model");
-const { use } = require("../users/users-router");
 
 const findGroceryLists = () => {
   return db("grocery-lists");
@@ -47,7 +45,7 @@ const reduceRecipesToGroceryListNames = (recipes) => {
   return groceryListRecipes;
 };
 
-const findRecipesInList = (userId) => {
+const findRecipesWithIngredients = (userId) => {
   return db("grocery-lists")
     .select("ingredients.name", "grocery-lists.name as grocery-list-name")
     .where("grocery-lists.user-id", userId)
@@ -61,6 +59,6 @@ const findRecipesInList = (userId) => {
 module.exports = {
   findGroceryLists,
   findGroceryListsByUserId,
-  findRecipesInList,
+  findRecipesWithIngredients,
   findAllRecipesInList
 };

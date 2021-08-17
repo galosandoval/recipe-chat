@@ -3,7 +3,7 @@ const router = require("express").Router();
 const RecipeInstructions = require("./recipe-instructions-model");
 
 router.get("/", (req, res) => {
-  RecipeInstructions.findAllInstructions()
+  RecipeInstructions.findInstructions()
     .then((instructions) => {
       res.status(200).json({ instructions });
     })
