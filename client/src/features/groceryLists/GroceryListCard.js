@@ -1,17 +1,6 @@
 import { useMemo, useState } from "react";
-import styled from "styled-components";
+import { StyledCard } from "../styles/cardStyle";
 
-const StyledDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 50%;
-  padding: 30px;
-
-  .hidden {
-    display: none;
-  }
-`;
 
 export const GroceryListCard = ({ groceryList }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +24,7 @@ export const GroceryListCard = ({ groceryList }) => {
   };
 
   return (
-    <StyledDiv
+    <StyledCard
       className="grocery-list"
       key={groceryList.id}
       onClick={handleClick}
@@ -54,6 +43,6 @@ export const GroceryListCard = ({ groceryList }) => {
         {memoizedIngredients}
       </div>
       <div className={isOpen ? null : "hidden"}>hello</div>
-    </StyledDiv>
+    </StyledCard>
   );
 };
