@@ -9,7 +9,9 @@ exports.seed = function (knex) {
           id: 1,
           "recipe-name": "test",
           "user-id": 1,
-          "grocery-list-id": 1
+          "grocery-list-id": 1,
+          description:
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem, nisi! Distinctio repellat modi dolore tenetur consectetur? Soluta, quas eaque. Quam iste sapiente voluptatem, nam tenetur alias! Magni pariatur maxime adipisci."
         },
         {
           id: 2,

@@ -25,7 +25,8 @@ const findRecipesByUserId = (userId) => {
       "recipes.id",
       "recipes.grocery-list-id",
       "recipes.recipe-name",
-      "recipes.description"
+      "recipes.description",
+      "recipes.img-url"
     );
 };
 
