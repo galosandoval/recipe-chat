@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
 const StyledDiv = styled.div`
@@ -13,8 +13,21 @@ const StyledDiv = styled.div`
   }
 `;
 
-export const GroceryListContainer = ({ groceryList }) => {
+export const GroceryListCard = ({ groceryList }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const mappedIngredients = (ingredientsArray) => {
+    return ingredientsArray.map((ingredient) => (
+      <div key={ingredient} className="ingredient">
+        {ingredient} <input disabled type="checkbox" />
+      </div>
+    ));
+  };
+
+  const memoizedIngredients = useMemo(
+    () => mappedIngredients(groceryList.ingredients),
+    [groceryList.ingredients]
+  );
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -27,6 +40,7 @@ export const GroceryListContainer = ({ groceryList }) => {
       key={groceryList.id}
       onClick={handleClick}
     >
+      <h2>{groceryList["grocery-list-name"]}</h2>
       <p>
         Lorem ipsum dolor sit, amet consectetur adipisicing elit. Illo fuga
         corporis modi pariatur deserunt porro incidunt nostrum velit possimus
@@ -37,11 +51,7 @@ export const GroceryListContainer = ({ groceryList }) => {
           isOpen ? "ingredients-container" : "ingredients-container hidden"
         }
       >
-        {groceryList.ingredients.map((ingredient) => (
-          <div key={ingredient} className="ingredient">
-            {ingredient} <input disabled type="checkbox" />
-          </div>
-        ))}
+        {memoizedIngredients}
       </div>
       <div className={isOpen ? null : "hidden"}>hello</div>
     </StyledDiv>
