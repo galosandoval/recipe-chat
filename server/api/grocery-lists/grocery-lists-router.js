@@ -2,7 +2,7 @@ const router = require("express").Router();
 
 const GroceryLists = require("./grocery-lists-model");
 
-router.get("/", (req, res) => {
+router.get("/", (_, res) => {
   GroceryLists.findGroceryLists()
     .then((groceryLists) => {
       res.status(200).json({ groceryLists });
@@ -23,7 +23,7 @@ router.get("/user/:id", (req, res) => {
     });
 });
 
-router.get("/recipes", (req, res) => {
+router.get("/recipes", (_, res) => {
   GroceryLists.findAllRecipesInList()
     .then((groceryListRecipes) => {
       res.status(200).json({ groceryListRecipes });

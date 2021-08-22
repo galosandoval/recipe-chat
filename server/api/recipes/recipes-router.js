@@ -18,7 +18,18 @@ router.get("/:id", (req, res) => {
       res.status(200).json({ recipeIngredients });
     })
     .catch((err) => {
-      res.status(404).json("IngredientList not found with id " + id);
+      res.status(404).json("IngredientList not found with id " + id, err);
+    });
+});
+
+router.get("/user/:id", (req, res) => {
+  const { id } = req.params;
+  Recipes.findRecipesByUserId(id)
+    .then((recipes) => {
+      res.status(200).json({ recipes });
+    })
+    .catch((error) => {
+      res.status(500).json(error);
     });
 });
 

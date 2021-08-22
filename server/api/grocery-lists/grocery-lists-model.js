@@ -19,26 +19,32 @@ const findAllRecipesInList = () => {
 
 const reduceRecipesToGroceryListNames = (recipes) => {
   let groceryListRecipes = [];
-  let currGroceryListName = recipes[0]["grocery-list-name"];
   let ingredients = [];
+  let currentRecipe = recipes[0];
+  console.log(recipes);
 
   for (let i = 0; i < recipes.length; i++) {
-    const ingredientName = recipes[i]["name"];
-    const groceryListName = recipes[i]["grocery-list-name"];
+    const recipe = recipes[i];
+    const ingredientName = recipe["name"];
+    const groceryListName = recipe["grocery-list-name"];
 
-    if (currGroceryListName === groceryListName) {
+    if (currentRecipe["grocery-list-name"] === groceryListName) {
       ingredients.push(ingredientName);
     }
 
-    if (currGroceryListName !== groceryListName || i === recipes.length - 1) {
+    if (
+      currentRecipe["grocery-list-name"] !== groceryListName ||
+      i === recipes.length - 1
+    ) {
       const groceryList = {
-        "grocery-list-name": groceryListName,
+        id: currentRecipe.id,
+        "grocery-list-name": currentRecipe["grocery-list-name"],
         ingredients
       };
 
+      currentRecipe = recipes[i];
       groceryListRecipes.push(groceryList);
       ingredients = [ingredientName];
-      currGroceryListName = groceryListName;
     }
   }
 
@@ -47,7 +53,11 @@ const reduceRecipesToGroceryListNames = (recipes) => {
 
 const findRecipesWithIngredients = (userId) => {
   return db("grocery-lists")
-    .select("ingredients.name", "grocery-lists.name as grocery-list-name")
+    .select(
+      "grocery-lists.id",
+      "ingredients.name",
+      "grocery-lists.name as grocery-list-name"
+    )
     .where("grocery-lists.user-id", userId)
     .join("recipes", "grocery-lists.id", "=", "recipes.grocery-list-id")
     .join("ingredients", "ingredients.recipe-id", "=", "recipes.id")

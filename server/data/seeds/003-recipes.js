@@ -26,14 +26,21 @@ exports.seed = function (knex) {
         {
           id: 4,
           "recipe-name": "Spinach Lentil Dal",
+          description:
+            "This Lentil Dal with Spinach Sauce is one of the most delicious, soul-satisfying plant-based, Indian meals! This version is fragrant, flavorful and packed with nutrients- think of this like Saag Paneer, but substituting black lentils instead of the cheese! Super tasty and healthy",
           "user-id": 1,
-          "grocery-list-id": 4
+          "grocery-list-id": 4,
+          "img-url":
+            "https://www.feastingathome.com/wp-content/uploads/2020/06/Lentil-Dal-15.jpg"
         },
         {
           id: 5,
           "recipe-name": "PB&J",
+          description: "Simple, yet classic treat.",
           "user-id": 1,
-          "grocery-list-id": 4
+          "grocery-list-id": 4,
+          "img-url":
+            "https://data.thefeedfeed.com/static/other/15360644095b8e7b992bf55.jpg"
         }
       ]);
     });

@@ -2,7 +2,8 @@ exports.up = function (knex) {
   return knex.schema.createTable("grocery-lists", (table) => {
     table.increments();
     table.string("name").notNullable();
-    table.integer("user-id").references("id").inTable("users").notNullable();
+    table.integer("user-id").references("id").inTable("users").notNullable;
+    table.timestamps(false, true);
   });
 };
 

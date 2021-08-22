@@ -17,7 +17,15 @@ const findIngredientsByRecipeId = (id) => {
     .where("recipes.id", id);
 };
 
+const findRecipesByUserId = (userId) => {
+  return db("recipes")
+    .join("users", "users.id", "=", "recipes.user-id")
+    .where("user-id", userId)
+    .select("recipes.id", "recipes.grocery-list-id", "recipes.recipe-name");
+};
+
 module.exports = {
   findIngredientsByRecipeId,
-  findRecipes
+  findRecipes,
+  findRecipesByUserId
 };
