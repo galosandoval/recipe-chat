@@ -10,7 +10,7 @@ const StyledDiv = styled.div`
     flex-wrap: wrap;
     justify-content: center;
   }
-`
+`;
 
 export const Recipes = ({ recipes }) => {
   return (

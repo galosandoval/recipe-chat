@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { StyledCard } from "../styles/cardStyle";
+import { Accordian } from "./Accordian";
+import { useHistory } from "react-router-dom";
 
 const initialAccordianState = {
   ingredientsClass: "hidden ingredients",
@@ -23,6 +25,9 @@ export const RecipeCard = ({ recipe }) => {
   const [recipeDescription, setRecipeDescription] = useState(initialDescription(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
   const [ingredients, setIngredients] = useState([]);
+  const [instructions, setInstructions] = useState([]);
+
+  const history = useHistory();
 
   const getRecipeIngredients = (id) => {
     axios
@@ -33,11 +38,30 @@ export const RecipeCard = ({ recipe }) => {
       .catch((err) => console.log(err.message));
   };
 
+  const getRecipeInstructions = (id) => {
+    axios
+      .get(`http://localhost:4000/instructions/${id}`)
+      .then((instructions) => {
+        setInstructions(instructions.data.recipeInstructions);
+      })
+      .catch((err) => console.log({ err }));
+  };
+
+  const closeOpenCarrots = () => {
+    const carrots = document.querySelectorAll(".carrot");
+    carrots.forEach((carrot) => {
+      if (carrot.classList[1] === "rotate") carrot.click();
+    });
+  };
+
   const handleClick = (event) => {
     event.preventDefault();
 
     if (event.target.className.includes("carrot")) {
+      closeOpenCarrots();
       const ingredientsScrollHeight = event.target.previousElementSibling.scrollHeight;
+
+      history.push(`/recipes/ingredients/${recipe.id}`);
 
       if (accordian.isOpen) {
         setAccordian(initialAccordianState);
@@ -66,10 +90,12 @@ export const RecipeCard = ({ recipe }) => {
   };
 
   useEffect(() => {
+    getRecipeInstructions(recipe.id);
     getRecipeIngredients(recipe.id);
   }, [recipe.id]);
   return (
     <StyledCard>
+      <h2>{recipe["recipe-name"]}</h2>
       <div className="img-container">
         <img
           src={
@@ -79,7 +105,6 @@ export const RecipeCard = ({ recipe }) => {
           alt={recipe["recipe-name"] || "orange pot"}
         />
       </div>
-      <h2>{recipe["recipe-name"]}</h2>
       <div className="description">
         <p>{recipeDescription.description}</p>
         <button
@@ -88,18 +113,19 @@ export const RecipeCard = ({ recipe }) => {
         >
           {recipeDescription.buttonText}
         </button>
+        <p onClick={handleClick} className={accordian.carrotClass}>
+          {">"}
+        </p>
       </div>
 
       <div className={accordian.ingredientsClass} style={accordian.style}>
-        {ingredients.map((ingredient) => (
+        <Accordian instructions={instructions} ingredients={ingredients} id={recipe.id} />
+        {/* {ingredients.map((ingredient) => (
           <div className="ingredient" key={ingredient.id}>
             <p>{ingredient.name}</p>
           </div>
-        ))}
+        ))} */}
       </div>
-      <p onClick={handleClick} className={accordian.carrotClass}>
-        {">"}
-      </p>
     </StyledCard>
   );
 };

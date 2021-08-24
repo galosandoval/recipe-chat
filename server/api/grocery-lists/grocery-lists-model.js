@@ -21,7 +21,6 @@ const reduceRecipesToGroceryListNames = (recipes) => {
   let groceryListRecipes = [];
   let ingredients = [];
   let currentRecipe = recipes[0];
-  console.log(recipes);
 
   for (let i = 0; i < recipes.length; i++) {
     const recipe = recipes[i];
