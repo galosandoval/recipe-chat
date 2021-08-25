@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { StyledCard } from "../styles/cardStyle";
+import { StyledCard } from "../../styles/cardStyle";
 import { Accordian } from "./Accordian";
 import { useHistory } from "react-router-dom";
 
 const initialAccordianState = {
-  ingredientsClass: "hidden ingredients",
+  ingredientsClass: "hidden",
   carrotClass: "carrot",
   isOpen: false,
   style: { maxHeight: 0 }
@@ -59,7 +59,6 @@ export const RecipeCard = ({ recipe }) => {
 
     if (event.target.className.includes("carrot")) {
       closeOpenCarrots();
-      const ingredientsScrollHeight = event.target.previousElementSibling.scrollHeight;
 
       history.push(`/recipes/ingredients/${recipe.id}`);
 
@@ -69,12 +68,10 @@ export const RecipeCard = ({ recipe }) => {
         setAccordian({
           ingredientsClass: "ingredients",
           carrotClass: "carrot rotate",
-          isOpen: true,
-          style: {
-            maxHeight: `${ingredientsScrollHeight}px`
-          }
+          isOpen: true
         });
       }
+
     } else if (event.target.className.includes("button")) {
       if (recipeDescription.isOpen) {
         setRecipeDescription(initialDescription(recipe));
@@ -118,13 +115,8 @@ export const RecipeCard = ({ recipe }) => {
         </p>
       </div>
 
-      <div className={accordian.ingredientsClass} style={accordian.style}>
+      <div className={accordian.ingredientsClass}>
         <Accordian instructions={instructions} ingredients={ingredients} id={recipe.id} />
-        {/* {ingredients.map((ingredient) => (
-          <div className="ingredient" key={ingredient.id}>
-            <p>{ingredient.name}</p>
-          </div>
-        ))} */}
       </div>
     </StyledCard>
   );

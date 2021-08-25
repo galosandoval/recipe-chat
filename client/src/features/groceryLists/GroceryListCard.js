@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { StyledCard } from "../styles/cardStyle";
+import { StyledCard } from "../../styles/cardStyle";
 
 
 export const GroceryListCard = ({ groceryList }) => {

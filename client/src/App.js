@@ -29,6 +29,7 @@ function App() {
   return (
     <div className="App">
       <Navbar />
+      {/* TODO: create + button which adds recipes and creates grocery lists */}
       <Switch>
         <Route path="/profile">
           <Profile />
