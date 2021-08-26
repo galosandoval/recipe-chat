@@ -1,0 +1,116 @@
+/* ____Recipes Styling____ */
+.recipes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.recipes-container {
+  max-width: 1600px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+/* ____Shared Card Styling____ */
+.card {
+  background: #fff;
+  border-radius: 0.5em;
+  box-shadow: 0 0.25em 1em rgb(0 0 0 / 10%);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  justify-content: center;
+  margin: 0.5em 0;
+  max-width: 400px;
+  overflow: hidden;
+  padding: 0em;
+  width: 40%;
+}
+
+/* ____Recipe Card Styling____ */
+.ingredients {
+  transition: all ease-in-out 0.3s;
+}
+.hidden {
+  overflow: hidden;
+  max-height: 0 !important;
+  transition: all ease 0.3s;
+}
+.img-container {
+  width: 100%;
+  object-fit: contain;
+}
+.button {
+  background: none;
+  border: none;
+  color: lightgray;
+  cursor: pointer;
+}
+.img-container img {
+  width: 100%;
+  height: 20em;
+  object-fit: cover;
+}
+.recipe-name {
+  padding-left: 0.5em;
+}
+.carrot {
+  width: auto;
+  cursor: pointer;
+  transition: all ease-in-out 0.3s;
+}
+.carrot-button {
+  width: 4em;
+  height: 4em;
+  padding: 1em;
+  border-radius: 50px;
+  border: none;
+  background-color: #fff;
+  color: rgba(0, 0, 0, 0.54);
+}
+.carrot-button:hover {
+  background-color: lightgray;
+  transition: all ease 0.3s;
+}
+.rotate {
+  transition: all ease-in-out 0.3s;
+  transform: rotate(180deg);
+}
+.description {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1em;
+}
+
+/* ____Accordian Styling____ */
+.accordian {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: max-height ease 0.3s;
+}
+.links {
+  display: flex;
+  justify-content: space-evenly;
+}
+.link {
+  text-decoration: none;
+}
+
+/* ____Recipe Ingredients Styling____ */
+.ingredients {
+  padding-left: 1em;
+  padding-top: 1em;
+}
+.ingredient {
+  padding-bottom: 0.5em;
+}
+.ingredient p {
+  margin: 0;
+}
+/* ____Recipe Instructions Styling____ */
+.instruction {
+  padding: 0.5em 1em 0.5em 0.5em;
+  margin: 0 0.5em;
+}

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { StyledCard } from "../../styles/cardStyle";
+import "../../styles/recipesStyles.css";
 import { Accordian } from "./Accordian";
 import { useHistory } from "react-router-dom";
 
 const initialAccordianState = {
-  ingredientsClass: "hidden",
+  ingredientsClass: "accordian hidden",
   carrotClass: "carrot",
   isOpen: false,
   style: { maxHeight: 0 }
@@ -21,7 +21,7 @@ const initialDescription = (recipe) => {
   };
 };
 
-export const RecipeCard = ({ recipe }) => {
+export const RecipeCard = ({ recipe, index }) => {
   const [recipeDescription, setRecipeDescription] = useState(initialDescription(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
   const [ingredients, setIngredients] = useState([]);
@@ -29,50 +29,36 @@ export const RecipeCard = ({ recipe }) => {
 
   const history = useHistory();
 
-  const getRecipeIngredients = (id) => {
-    axios
-      .get(`http://localhost:4000/recipes/${id}`)
-      .then((ingredients) => {
-        setIngredients(ingredients.data.recipeIngredients);
-      })
-      .catch((err) => console.log(err.message));
-  };
-
-  const getRecipeInstructions = (id) => {
-    axios
-      .get(`http://localhost:4000/instructions/${id}`)
-      .then((instructions) => {
-        setInstructions(instructions.data.recipeInstructions);
-      })
-      .catch((err) => console.log({ err }));
-  };
-
   const closeOpenCarrots = () => {
     const carrots = document.querySelectorAll(".carrot");
+
     carrots.forEach((carrot) => {
-      if (carrot.classList[1] === "rotate") carrot.click();
+      if (typeof carrot.className === "string" && carrot.className.includes("rotate")) {
+        carrot.click();
+      }
     });
   };
 
   const handleClick = (event) => {
     event.preventDefault();
 
-    if (event.target.className.includes("carrot")) {
+    if (
+      event.target.className.baseVal?.includes("carrot") ||
+      event.target.className?.includes("carrot")
+    ) {
       closeOpenCarrots();
-
-      history.push(`/recipes/ingredients/${recipe.id}`);
 
       if (accordian.isOpen) {
         setAccordian(initialAccordianState);
       } else {
+        history.push(`/recipes/ingredients/${recipe.id}`);
         setAccordian({
-          ingredientsClass: "ingredients",
+          ingredientsClass: "accordian",
           carrotClass: "carrot rotate",
           isOpen: true
         });
       }
-
-    } else if (event.target.className.includes("button")) {
+    } else if (event.target.className.baseVal?.includes("button")) {
       if (recipeDescription.isOpen) {
         setRecipeDescription(initialDescription(recipe));
       } else {
@@ -87,12 +73,31 @@ export const RecipeCard = ({ recipe }) => {
   };
 
   useEffect(() => {
+    const getRecipeIngredients = (id) => {
+      axios
+        .get(`http://localhost:4000/recipes/${id}`)
+        .then((ingredients) => {
+          setIngredients(ingredients.data.recipeIngredients);
+        })
+        .catch((err) => console.log(err.message));
+    };
+
+    const getRecipeInstructions = (id) => {
+      axios
+        .get(`http://localhost:4000/instructions/${id}`)
+        .then((instructions) => {
+          setInstructions(instructions.data.recipeInstructions);
+        })
+        .catch((err) => console.log({ err }));
+    };
     getRecipeInstructions(recipe.id);
     getRecipeIngredients(recipe.id);
   }, [recipe.id]);
+
   return (
-    <StyledCard>
-      <h2>{recipe["recipe-name"]}</h2>
+    <div className="card">
+      <h2 className="recipe-name">{recipe["recipe-name"]}</h2>
+
       <div className="img-container">
         <img
           src={
@@ -102,6 +107,7 @@ export const RecipeCard = ({ recipe }) => {
           alt={recipe["recipe-name"] || "orange pot"}
         />
       </div>
+
       <div className="description">
         <p>{recipeDescription.description}</p>
         <button
@@ -110,14 +116,29 @@ export const RecipeCard = ({ recipe }) => {
         >
           {recipeDescription.buttonText}
         </button>
-        <p onClick={handleClick} className={accordian.carrotClass}>
-          {">"}
-        </p>
+        <button className={`${accordian.carrotClass} carrot-button`} onClick={handleClick}>
+          <svg
+            className="carrot"
+            onClick={handleClick}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="grey"
+          >
+            <path
+              className="carrot"
+              d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z"
+            />
+          </svg>
+        </button>
       </div>
 
-      <div className={accordian.ingredientsClass}>
-        <Accordian instructions={instructions} ingredients={ingredients} id={recipe.id} />
-      </div>
-    </StyledCard>
+      <Accordian
+        accordian={accordian}
+        instructions={instructions}
+        ingredients={ingredients}
+        id={recipe.id}
+        index={index}
+      />
+    </div>
   );
 };

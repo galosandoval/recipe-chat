@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { StyledCard } from "../../styles/cardStyle";
+import  "../../styles/recipesStyles.css";
 
 
 export const GroceryListCard = ({ groceryList }) => {
@@ -24,8 +24,8 @@ export const GroceryListCard = ({ groceryList }) => {
   };
 
   return (
-    <StyledCard
-      className="grocery-list"
+    <div
+      className="card"
       key={groceryList.id}
       onClick={handleClick}
     >
@@ -43,6 +43,6 @@ export const GroceryListCard = ({ groceryList }) => {
         {memoizedIngredients}
       </div>
       <div className={isOpen ? null : "hidden"}>hello</div>
-    </StyledCard>
+    </div>
   );
 };
