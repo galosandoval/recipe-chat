@@ -46,26 +46,27 @@ router.post("/", validateUser, (req, res) => {
     });
 });
 
-router.put("/:id", (req, res) => {
-  const { id } = req.params;
-  const { body } = req;
-
+const changeUpdatedAt = (body) => {
   const now = new Date();
   const date = now.getDate();
-  console.log("length", date.toString());
   const month = now.getMonth();
-  console.log("month", month.toString().length);
   const year = now.getFullYear();
   const minutes = now.getMinutes();
   const hours = now.getHours();
   const secs = now.getSeconds();
-  //  "created_at": "2021-09-01 01:59:51"
 
   const addZero = (date) => (date.toString().length < 2 ? "0" + date : date);
 
-  body["updated_at"] = `${year}-${addZero(month)}-${addZero(date)} ${addZero(hours)}:${addZero(
-    minutes
-  )}:${addZero(secs)}`;
+  return (body["updated_at"] = `${year}-${addZero(month)}-${addZero(date)} ${addZero(
+    hours
+  )}:${addZero(minutes)}:${addZero(secs)}`);
+};
+
+router.put("/:id", (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+
+  changeUpdatedAt(body);
 
   Recipes.updateRecipe(id, body)
     .then((recipe) => {
