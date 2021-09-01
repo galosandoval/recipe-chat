@@ -2,7 +2,7 @@ const router = require("express").Router();
 
 const User = require("./users-model");
 
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
   User.findUsers()
     .then((users) => {
       res.status(200).json({ users });

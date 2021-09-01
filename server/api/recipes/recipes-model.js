@@ -1,5 +1,9 @@
 const db = require("../../data/connection");
 
+const addRecipe = (body) => {
+  return db("recipes").insert(body);
+};
+
 const findRecipes = () => db("recipes");
 
 const findIngredientsByRecipeId = (id) => {
@@ -30,8 +34,22 @@ const findRecipesByUserId = (userId) => {
     );
 };
 
+const updateRecipe = (id, changes) => {
+  return db("recipes").where({ id }).update(changes, [changes]);
+};
+
 module.exports = {
+  addRecipe,
   findIngredientsByRecipeId,
   findRecipes,
-  findRecipesByUserId
+  findRecipesByUserId,
+  updateRecipe
 };
+//  {
+//             "id": 6,
+//             "recipe-name": "test",
+//             "description": "name changed",
+//             "user-id": 1,
+//             "grocery-list-id": 1,
+//             "updated_at": "2021-09-01 01:59:51"
+//         }

@@ -1,7 +1,15 @@
 const db = require("../../data/connection");
 
+const addGroceryList = (groceryList) => {
+  return db("grocery-lists").insert(groceryList);
+};
+
 const findGroceryLists = () => {
   return db("grocery-lists");
+};
+
+const findGroceryListById = (id) => {
+  return db("grocery-lists").where({ id });
 };
 
 const findGroceryListsByUserId = (userId) => {
@@ -9,12 +17,7 @@ const findGroceryListsByUserId = (userId) => {
 };
 
 const findAllRecipesInList = () => {
-  return db("grocery-lists").join(
-    "recipes",
-    "grocery-lists.id",
-    "=",
-    "recipes.grocery-list-id"
-  );
+  return db("grocery-lists").join("recipes", "grocery-lists.id", "=", "recipes.grocery-list-id");
 };
 
 const reduceRecipesToGroceryListNames = (recipes) => {
@@ -31,10 +34,7 @@ const reduceRecipesToGroceryListNames = (recipes) => {
       ingredients.push(ingredientName);
     }
 
-    if (
-      currentRecipe["grocery-list-name"] !== groceryListName ||
-      i === recipes.length - 1
-    ) {
+    if (currentRecipe["grocery-list-name"] !== groceryListName || i === recipes.length - 1) {
       const groceryList = {
         id: currentRecipe.id,
         "grocery-list-name": currentRecipe["grocery-list-name"],
@@ -52,11 +52,7 @@ const reduceRecipesToGroceryListNames = (recipes) => {
 
 const findRecipesWithIngredients = (userId) => {
   return db("grocery-lists")
-    .select(
-      "grocery-lists.id",
-      "ingredients.name",
-      "grocery-lists.name as grocery-list-name"
-    )
+    .select("grocery-lists.id", "ingredients.name", "grocery-lists.name as grocery-list-name")
     .where("grocery-lists.user-id", userId)
     .join("recipes", "grocery-lists.id", "=", "recipes.grocery-list-id")
     .join("ingredients", "ingredients.recipe-id", "=", "recipes.id")
@@ -66,8 +62,10 @@ const findRecipesWithIngredients = (userId) => {
 };
 
 module.exports = {
+  addGroceryList,
+  findAllRecipesInList,
+  findGroceryListById,
   findGroceryLists,
   findGroceryListsByUserId,
-  findRecipesWithIngredients,
-  findAllRecipesInList
+  findRecipesWithIngredients
 };
