@@ -1,6 +1,6 @@
 const Recipes = require("./recipes-model");
 
-const validateRecipe = (req, res, next) => {
+const validateRecipeById = (req, res, next) => {
   const { id } = req.params;
 
   Recipes.findRecipeById(id).then((recipe) => {
@@ -12,5 +12,5 @@ const validateRecipe = (req, res, next) => {
 };
 
 module.exports = {
-  validateRecipe
+  validateRecipeById
 };

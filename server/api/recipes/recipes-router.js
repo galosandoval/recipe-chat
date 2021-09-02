@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { validateUser } = require("../users/users-middleware");
-const { validateRecipe } = require("./recipes-middleware");
+const { validateRecipeById } = require("./recipes-middleware");
 const Recipes = require("./recipes-model");
 
 router.get("/", (_req, res) => {
@@ -63,7 +63,7 @@ const changeUpdatedAt = (body) => {
   )}:${addZero(minutes)}:${addZero(secs)}`);
 };
 
-router.put("/:id", validateRecipe, (req, res) => {
+router.put("/:id", validateRecipeById, (req, res) => {
   const { id } = req.params;
   const { body } = req;
 
@@ -78,7 +78,7 @@ router.put("/:id", validateRecipe, (req, res) => {
     });
 });
 
-router.delete("/:id", validateRecipe, (req, res) => {
+router.delete("/:id", validateRecipeById, (req, res) => {
   const { id } = req.params;
   Recipes.deleteRecipe(id)
     .then((deletedRecipe) => {
