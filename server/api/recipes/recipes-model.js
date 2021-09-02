@@ -6,6 +6,23 @@ const addRecipe = (body) => {
 
 const findRecipes = () => db("recipes");
 
+const findRecipeById = (id) => {
+  return db("recipes").where({ id });
+};
+
+const deleteRecipe = (id) => {
+  let deletedRecipe;
+  findRecipeById(id).then((recipeToDelete) => {
+    deletedRecipe = recipeToDelete;
+  });
+  return db("recipes")
+    .where({ id })
+    .del()
+    .then(() => {
+      return deletedRecipe;
+    });
+};
+
 const findIngredientsByRecipeId = (id) => {
   return db("recipes")
     .join("ingredients", "recipes.id", "=", "ingredients.recipe-id")
@@ -35,21 +52,20 @@ const findRecipesByUserId = (userId) => {
 };
 
 const updateRecipe = (id, changes) => {
-  return db("recipes").where({ id }).update(changes, [changes]);
+  return db("recipes")
+    .where({ id })
+    .update(changes)
+    .then(() => {
+      return findRecipeById(id);
+    });
 };
 
 module.exports = {
   addRecipe,
+  deleteRecipe,
   findIngredientsByRecipeId,
   findRecipes,
+  findRecipeById,
   findRecipesByUserId,
   updateRecipe
 };
-//  {
-//             "id": 6,
-//             "recipe-name": "test",
-//             "description": "name changed",
-//             "user-id": 1,
-//             "grocery-list-id": 1,
-//             "updated_at": "2021-09-01 01:59:51"
-//         }

@@ -1,15 +1,16 @@
-const User = require("../users/users-model");
+const Recipes = require("./recipes-model");
 
 const validateRecipe = (req, res, next) => {
-  const body = req.body;
+  const { id } = req.params;
 
-  if (!body["user-id"]) res.status(400).json({ error: "recipe must have a user-id" });
-  else {
-    User.findUserById(body["user-id"]).then((user) => {
-      if (user.length !== 0) next();
-      else {
-        res.status(404).json({ error: `user with id: ${id} does not exist` });
-      }
-    });
-  }
+  Recipes.findRecipeById(id).then((recipe) => {
+    if (recipe.length > 0) next();
+    else {
+      res.status(404).json({ error: `recipe with id: ${id} was not found` });
+    }
+  });
+};
+
+module.exports = {
+  validateRecipe
 };

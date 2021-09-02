@@ -1,8 +1,9 @@
 const router = require("express").Router();
 const { validateUser } = require("../users/users-middleware");
+const { validateRecipe } = require("./recipes-middleware");
 const Recipes = require("./recipes-model");
 
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
   Recipes.findRecipes()
     .then((allRecipes) => {
       res.status(200).json({ allRecipes });
@@ -12,7 +13,7 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/ingredients/:id", (req, res) => {
   const { id } = req.params;
   Recipes.findIngredientsByRecipeId(id)
     .then((recipeIngredients) => {
@@ -49,28 +50,39 @@ router.post("/", validateUser, (req, res) => {
 const changeUpdatedAt = (body) => {
   const now = new Date();
   const date = now.getDate();
-  const month = now.getMonth();
+  const month = now.getMonth() + 1;
   const year = now.getFullYear();
   const minutes = now.getMinutes();
   const hours = now.getHours();
   const secs = now.getSeconds();
 
-  const addZero = (date) => (date.toString().length < 2 ? "0" + date : date);
+  const addZero = (string) => (string.toString().length < 2 ? "0" + string : string);
 
   return (body["updated_at"] = `${year}-${addZero(month)}-${addZero(date)} ${addZero(
     hours
   )}:${addZero(minutes)}:${addZero(secs)}`);
 };
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateRecipe, (req, res) => {
   const { id } = req.params;
   const { body } = req;
 
   changeUpdatedAt(body);
 
   Recipes.updateRecipe(id, body)
-    .then((recipe) => {
-      res.status(200).json({ recipe });
+    .then((updatedRecipe) => {
+      res.status(200).json({ message: `Recipe with id ${id} successfully updated`, updatedRecipe });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
+});
+
+router.delete("/:id", validateRecipe, (req, res) => {
+  const { id } = req.params;
+  Recipes.deleteRecipe(id)
+    .then((deletedRecipe) => {
+      res.status(200).json({ deletedRecipe });
     })
     .catch((err) => {
       res.status(500).json({ error: err.message });
