@@ -1,6 +1,7 @@
 const router = require("express").Router();
 
 const { validateUser } = require("../users/users-middleware");
+const { validateGroceryListId } = require("./grocery-lists-middleware");
 const GroceryLists = require("./grocery-lists-model");
 
 router.get("/", (_req, res) => {
@@ -59,6 +60,33 @@ router.post("/", validateUser, (req, res) => {
   GroceryLists.addGroceryList(list)
     .then((groceryListId) => {
       res.status(201).json({ groceryListId });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
+});
+
+router.put("/:id", validateGroceryListId, (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+
+  GroceryLists.updateGroceryList(id, body)
+    .then((updatedGroceryList) => {
+      res
+        .status(200)
+        .json({ message: `Grocery list with id ${id} successfully updated`, updatedGroceryList });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
+});
+
+router.delete("/:id", validateGroceryListId, (req, res) => {
+  const { id } = req.params;
+
+  GroceryLists.deleteGroceryList(id)
+    .then((deletedGroceryList) => {
+      res.status(200).json({ deletedGroceryList });
     })
     .catch((err) => {
       res.status(500).json({ error: err.message });

@@ -61,11 +61,35 @@ const findRecipesWithIngredients = (userId) => {
     });
 };
 
+const updateGroceryList = (id, change) => {
+  return db("grocery-lists")
+    .where({ id })
+    .update(change)
+    .then(() => {
+      return findGroceryListById(id);
+    });
+};
+
+const deleteGroceryList = (id) => {
+  let groceryListToDelete;
+  findGroceryListById(id).then((groceryList) => {
+    groceryListToDelete = groceryList;
+  });
+  return db("grocery-lists")
+    .where({ id })
+    .del()
+    .then(() => {
+      return groceryListToDelete;
+    });
+};
+
 module.exports = {
   addGroceryList,
+  deleteGroceryList,
   findAllRecipesInList,
   findGroceryListById,
   findGroceryLists,
   findGroceryListsByUserId,
-  findRecipesWithIngredients
+  findRecipesWithIngredients,
+  updateGroceryList
 };
