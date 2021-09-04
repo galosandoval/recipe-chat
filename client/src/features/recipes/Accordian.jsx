@@ -2,6 +2,7 @@ import React, { useLayoutEffect } from "react";
 import { RecipeIngredients } from "./RecipeIngredients";
 import { RecipeInstructions } from "./RecipeInstructions";
 
+// TODO: make tabs for Recipes and Ingredients
 export const Accordian = ({ instructions, ingredients, accordian, index }) => {
   // const [tab, setTab] = useState();
   // const adjustAccordianHeight = (event) => {
