@@ -3,7 +3,7 @@ import React from "react";
 import "../../styles/recipesStyles.css";
 import { RecipeCard } from "./RecipeCard";
 
-export const Recipes = ({ recipes }) => {
+export const Recipes = ({ recipes, getRecipes }) => {
   const closeOpenCarrots = () => {
     const carrots = document.querySelectorAll(".carrot");
 
@@ -29,6 +29,7 @@ export const Recipes = ({ recipes }) => {
             key={recipe.id}
             recipe={recipe}
             closeOpenCarrots={closeOpenCarrots}
+            getRecipes={getRecipes}
           />
         ))}
       </div>

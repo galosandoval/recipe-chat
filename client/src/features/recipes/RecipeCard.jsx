@@ -3,6 +3,7 @@ import axios from "axios";
 import "../../styles/recipesStyles.css";
 import { Accordian } from "./Accordian";
 import { CardMenu } from "./CardMenu";
+import { EditRecipe } from "./EditRecipe";
 
 const initialAccordianState = {
   ingredientsClass: "accordian hidden",
@@ -11,7 +12,7 @@ const initialAccordianState = {
   style: { maxHeight: 0 }
 };
 
-const initialDescription = (recipe) => {
+const initialDescriptionState = (recipe) => {
   return {
     description:
       recipe.description.length > 65 ? recipe.description.slice(0, 60) + "..." : recipe.description,
@@ -26,22 +27,32 @@ const initialDropdownState = {
   open: false
 };
 
-export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
-  const [recipeDescription, setRecipeDescription] = useState(initialDescription(recipe));
+const initialEditCardState = {
+  class: "edit-recipe",
+  open: false
+};
+
+export const RecipeCard = ({ recipe, index, closeOpenCarrots, getRecipes }) => {
+  const [recipeDescription, setRecipeDescription] = useState(initialDescriptionState(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
   const [ingredients, setIngredients] = useState([]);
   const [instructions, setInstructions] = useState([]);
   const [dropdown, setDropdown] = useState(initialDropdownState);
+  const [editRecipe, setEditRecipe] = useState(initialEditCardState);
 
-  // Handle carrot click and 'Read more'
   const handleClick = (event) => {
-    console.log(event.currentTarget)
-    if (event.currentTarget.className === "dropdown") {
+    const { className } = event.currentTarget;
+    // Edit Menu Click
+    if (className === "dropdown" && !editRecipe.open) {
       !dropdown.open
-      ? setDropdown({ class: "dropdown-content show", open: true })
-      : setDropdown(initialDropdownState);
-      // Carrot click
-    } else if (event.currentTarget.className.includes("carrot")) {
+        ? setDropdown({ class: "dropdown-content show-edit-menu", open: true })
+        : setDropdown(initialDropdownState);
+      // Carrot Click
+    } else if (className === "closebtn") {
+      setEditRecipe(initialEditCardState);
+    } else if (className === "edit") {
+      setEditRecipe({ class: "edit-recipe show-edit-card", open: true });
+    } else if (className.includes("carrot")) {
       closeOpenCarrots();
 
       if (accordian.isOpen) {
@@ -54,9 +65,9 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         });
       }
       // Read more Click
-    } else if (event.target.className.includes("learn-more-button")) {
+    } else if (className === "learn-more-button") {
       if (recipeDescription.isOpen) {
-        setRecipeDescription(initialDescription(recipe));
+        setRecipeDescription(initialDescriptionState(recipe));
       } else {
         setRecipeDescription({
           ...recipeDescription,
@@ -93,11 +104,23 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
 
   return (
     <div className="card">
+      <EditRecipe
+        recipe={recipe}
+        instructions={instructions}
+        ingredients={ingredients}
+        editRecipe={editRecipe}
+        setEditRecipe={setEditRecipe}
+        getRecipes={getRecipes}
+        initialEditCardState={initialEditCardState}
+      />
       <div className="card-header">
         <h2 className="recipe-name">{recipe["recipe-name"]}</h2>
-        {/* <div className="card-menu" onClick={handleClick}> */}
-          <CardMenu className="card-menu" handleClick={handleClick} dropdown={dropdown} />
-        {/* </div>/ */}
+        <CardMenu
+          editRecipe={editRecipe}
+          className="card-menu"
+          handleClick={handleClick}
+          dropdown={dropdown}
+        />
       </div>
 
       <div className="img-container">
@@ -121,7 +144,6 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         <button className={`${accordian.carrotClass} carrot-button`} onClick={handleClick}>
           <svg
             className="carrot"
-            // onClick={handleClick}
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="grey"

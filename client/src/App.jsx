@@ -17,14 +17,14 @@ function App() {
       setGroceryLists(res.data.groceryListRecipes);
     });
   };
-    const getRecipes = () => {
-      axios.get("http://localhost:4000/recipes/user/1").then((recipes) => {
-        setRecipes(recipes.data.recipes);
-      });
-    };
+  const getRecipes = () => {
+    axios.get("http://localhost:4000/recipes/user/1").then((recipes) => {
+      setRecipes(recipes.data.recipes);
+    });
+  };
   useEffect(() => {
     getGroceryLists();
-    getRecipes()
+    getRecipes();
   }, []);
   return (
     <div className="App">
@@ -35,7 +35,7 @@ function App() {
           <Profile />
         </Route>
         <Route path="/recipes">
-          <Recipes recipes={recipes} />
+          <Recipes getRecipes={getRecipes} recipes={recipes} />
         </Route>
         <Route path="/">
           <GroceryLists groceryLists={groceryLists} />

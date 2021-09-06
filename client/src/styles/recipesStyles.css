@@ -30,6 +30,7 @@
   overflow: hidden;
   padding: 0em;
   width: 40%;
+  position: relative;
 }
 
 /* ____Recipe Card Styling____ */
@@ -140,18 +141,13 @@
   background-color: var(--card-button-color);
   transition: all ease 0.3s;
 }
-
 .dropbtn svg {
   fill: var(--card-svg-fill);
 }
-
-/* The container <div> - needed to position the dropdown content */
 .dropdown {
   position: relative;
   display: inline-block;
 }
-
-/* Dropdown Content (Hidden by Default) */
 .dropdown-content {
   display: none;
   position: absolute;
@@ -160,18 +156,33 @@
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
-
-/* Links inside the dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
 .dropdown-content a:hover {
   background-color: #ddd;
 }
-.show {
-  display: block;
+.show-edit-menu {
+  display: flex;
+  flex-direction: column;
   right: 0;
+}
+/* ____Edit Recipe____ */
+.edit-recipe {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: tomato;
+  transition: all ease 0.5s;
+}
+.show-edit-card {
+  top: 0;
+}
+.closebtn {
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  height: 4em;
+  width: 4em;
+  padding: 1em;
 }
