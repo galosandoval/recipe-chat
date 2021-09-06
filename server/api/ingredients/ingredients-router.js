@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { validateRecipeById } = require("../recipes/recipes-middleware");
 const { validateRecipe, validateIngredient } = require("./ingredients-middleware");
 const Ingredients = require("./ingredients-model");
 
@@ -64,7 +65,7 @@ router.delete("/:id", validateIngredient, (req, res) => {
     });
 });
 
-router.delete("/recipe/:id", validateRecipe, (req, res) => {
+router.delete("/recipe/:id", validateRecipeById, (req, res) => {
   const { id } = req.params;
 
   Ingredients.deleteIngredientsByRecipeId(id)

@@ -3,7 +3,8 @@ import axios from "axios";
 import "../../styles/recipesStyles.css";
 import { Accordian } from "./Accordian";
 import { CardMenu } from "./CardMenu";
-import { EditRecipe } from "./EditRecipe";
+import { EditRecipe } from "./edit/EditRecipe";
+import { EditInstructions } from "./edit/EditInstructions";
 
 const initialAccordianState = {
   ingredientsClass: "accordian hidden",
@@ -32,7 +33,7 @@ const initialEditCardState = {
   open: false
 };
 
-export const RecipeCard = ({ recipe, index, closeOpenCarrots, getRecipes }) => {
+export const RecipeCard = ({ recipe, index, closeOpenCarrots  }) => {
   const [recipeDescription, setRecipeDescription] = useState(initialDescriptionState(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
   const [ingredients, setIngredients] = useState([]);
@@ -106,13 +107,9 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots, getRecipes }) => {
     <div className="card">
       <EditRecipe
         recipe={recipe}
-        instructions={instructions}
-        ingredients={ingredients}
         editRecipe={editRecipe}
-        setEditRecipe={setEditRecipe}
-        getRecipes={getRecipes}
-        initialEditCardState={initialEditCardState}
       />
+      <EditInstructions instructions={instructions} />
       <div className="card-header">
         <h2 className="recipe-name">{recipe["recipe-name"]}</h2>
         <CardMenu

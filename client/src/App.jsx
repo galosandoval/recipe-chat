@@ -35,7 +35,7 @@ function App() {
           <Profile />
         </Route>
         <Route path="/recipes">
-          <Recipes getRecipes={getRecipes} recipes={recipes} />
+          <Recipes recipes={recipes} />
         </Route>
         <Route path="/">
           <GroceryLists groceryLists={groceryLists} />

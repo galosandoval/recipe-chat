@@ -40,6 +40,18 @@ router.post("/", validateRecipe, (req, res) => {
     });
 });
 
+router.put("/:id", validateRecipeById, (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+  RecipeInstructions.updateInstructions(id, body)
+    .then((updatedRecipe) => {
+      res
+        .status(200)
+        .json({ message: `Successfully updated recipe with id: ${id}`, updatedRecipe });
+    })
+    .catch((error) => res.status(500).json({ error: error.message }));
+});
+
 router.delete("/:id", validateRecipeById, (req, res) => {
   const { id } = req.params;
 

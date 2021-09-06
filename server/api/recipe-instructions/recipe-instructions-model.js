@@ -10,17 +10,33 @@ const addInstructions = (body) => {
 };
 
 const deleteInstructionsByRecipeid = (id) => {
-  let instructionsToBeDeleted
-  findInstructionsByRecipeId(id).then(instructions => {
-    instructionsToBeDeleted = instructions
-  })
+  let instructionsToBeDeleted;
+  findInstructionsByRecipeId(id).then((instructions) => {
+    instructionsToBeDeleted = instructions;
+  });
 
-  return db('recipe-instructions').where('recipe-id', id).del().then(() => instructionsToBeDeleted)
-}
+  return db("recipe-instructions")
+    .where("recipe-id", id)
+    .del()
+    .then(() => instructionsToBeDeleted);
+};
+
+const updateInstructions = (id, changes) => {
+  changes.forEach((change) => {
+    db("recipe-instructions")
+      .where("id", change.id)
+      .update(change)
+      .then((update) => {
+        console.log(update);
+      });
+  });
+  return findInstructionsByRecipeId(id);
+};
 
 module.exports = {
   findInstructions,
   findInstructionsByRecipeId,
   addInstructions,
-  deleteInstructionsByRecipeid
+  deleteInstructionsByRecipeid,
+  updateInstructions
 };
