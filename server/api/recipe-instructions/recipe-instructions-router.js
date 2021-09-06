@@ -1,8 +1,10 @@
 const router = require("express").Router();
 
+const { validateRecipe } = require("../ingredients/ingredients-middleware");
+const { validateRecipeById } = require("../recipes/recipes-middleware");
 const RecipeInstructions = require("./recipe-instructions-model");
 
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
   RecipeInstructions.findInstructions()
     .then((instructions) => {
       res.status(200).json({ instructions });
@@ -20,6 +22,33 @@ router.get("/:recipeId", (req, res) => {
     })
     .catch((error) => {
       res.status(404).json(error);
+    });
+});
+
+router.post("/", validateRecipe, (req, res) => {
+  const { body } = req;
+  const id = body[0]["recipe-id"];
+
+  RecipeInstructions.addInstructions(body)
+    .then((newInstructions) => {
+      res
+        .status(201)
+        .json({ message: `instructions for recipe with id: ${id} added`, newInstructions });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
+});
+
+router.delete("/:id", validateRecipeById, (req, res) => {
+  const { id } = req.params;
+
+  RecipeInstructions.deleteInstructionsByRecipeid(id)
+    .then((deletedInstructions) => {
+      res.status(200).json({ deletedInstructions });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
     });
 });
 
