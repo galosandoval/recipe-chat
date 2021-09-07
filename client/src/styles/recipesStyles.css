@@ -165,7 +165,9 @@
   right: 0;
 }
 /* ____Edit Recipe____ */
-.edit-recipe, .edit-instructions {
+.edit-recipe,
+.edit-instructions,
+.edit-ingredients {
   position: absolute;
   top: 100%;
   right: 0;

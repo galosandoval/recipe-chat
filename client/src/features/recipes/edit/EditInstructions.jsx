@@ -12,7 +12,7 @@ export const EditInstructions = ({ editInstructions, instructions }) => {
     setForm(tempForm);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = () => {
     axios
       .put(`http://localhost:4000/instructions/${form[0]["recipe-id"]}`, form)
       .then((res) => {
