@@ -169,12 +169,17 @@
 .edit-instructions,
 .edit-ingredients {
   position: absolute;
-  top: 100%;
+  top: 150%;
   right: 0;
   left: 0;
   bottom: 0;
-  background-color: tomato;
+  /* background-color: tomato; */
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
   transition: all ease 0.5s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 .show-edit-card {
   top: 0;
@@ -187,4 +192,31 @@
   height: 4em;
   width: 4em;
   padding: 1em;
+}
+.edit-recipe-form,
+.edit-instructions-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.input {
+  padding: 1em;
+  margin: 1em;
+  border-radius: 1em;
+  border: none;
+}
+.ingredients-input {
+  margin: 0.5em;
+  border-radius: 1em;
+  border: none;
+  padding: 1em;
+  width: 35%;
+}
+.ingredients-form {
+  display: flex;
+  margin: 4em 0em 0em 1em;
+  flex-wrap: wrap;
+  width: 100%;
+  overflow-y: scroll;
+  height: -webkit-fill-available;
 }

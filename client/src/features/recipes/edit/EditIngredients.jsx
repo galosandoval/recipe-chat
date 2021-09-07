@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-export const EditIngredients = ({ editIngredients, ingredients }) => {
+export const EditIngredients = ({ editIngredients, ingredients, recipe }) => {
   const [form, setForm] = useState([]);
   // TODO: make a Put for ingredients by recipe id
   const handleChange = (event, index) => {
@@ -11,18 +12,25 @@ export const EditIngredients = ({ editIngredients, ingredients }) => {
     setForm(tempForm);
   };
 
-  const handleSubmit = () => {};
-  console.log("form", form);
+  const handleSubmit = () => {
+    axios
+      .put(`http://localhost:4000/ingredients/recipe/${recipe.id}`, form)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((error) => console.log(error.message));
+  };
 
   useEffect(() => {
     setForm(ingredients);
   }, [ingredients]);
   return (
     <div className={editIngredients.class}>
-      <form onSubmit={handleSubmit}>
+      <form className="ingredients-form" onSubmit={handleSubmit}>
         {form &&
           form.map((ingredient, index) => (
             <input
+              className="ingredients-input"
               key={ingredient.id}
               value={ingredient.name}
               onChange={(event) => handleChange(event, index)}
