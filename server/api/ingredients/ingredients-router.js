@@ -77,4 +77,11 @@ router.delete("/recipe/:id", validateRecipeById, (req, res) => {
     });
 });
 
+router.put("/recipe/:id", validateRecipeById, (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+
+  Ingredients.updateIngredientsByRecipe(id, body);
+});
+
 module.exports = router;

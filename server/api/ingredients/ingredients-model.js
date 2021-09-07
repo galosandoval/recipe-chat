@@ -48,11 +48,22 @@ const deleteIngredientsByRecipeId = (id) => {
     });
 };
 
+const updateIngredientsByRecipe = (id, changes) => {
+  changes.forEach((change) => {
+    db("ingredients")
+      .where("id", change.id)
+      .insert(change)
+      .then((updated) => console.log(updated));
+  });
+  return findIngredientsByRecipeId(id)
+};
+
 module.exports = {
   findIngredients,
   findIngredientById,
   addNewIngredients,
   updateIngredient,
   deleteIngredientById,
-  deleteIngredientsByRecipeId
+  deleteIngredientsByRecipeId,
+  updateIngredientsByRecipe
 };

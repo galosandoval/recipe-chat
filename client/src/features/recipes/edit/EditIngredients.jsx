@@ -2,9 +2,14 @@ import React, { useEffect, useState } from "react";
 
 export const EditIngredients = ({ editIngredients, ingredients }) => {
   const [form, setForm] = useState([]);
-  // TODO: First make a Put for ingredients by recipe id
-  console.log("ingredients", ingredients);
-  const handleChange = () => {};
+  // TODO: make a Put for ingredients by recipe id
+  const handleChange = (event, index) => {
+    let tempForm = [...form];
+    let tempIngredient = { ...tempForm[index] };
+    tempIngredient.name = event.target.value;
+    tempForm[index] = tempIngredient;
+    setForm(tempForm);
+  };
 
   const handleSubmit = () => {};
   console.log("form", form);
@@ -16,8 +21,12 @@ export const EditIngredients = ({ editIngredients, ingredients }) => {
     <div className={editIngredients.class}>
       <form onSubmit={handleSubmit}>
         {form &&
-          form.map((ingredient) => (
-            <input key={ingredient.id} value={ingredient.name} onChange={handleChange} />
+          form.map((ingredient, index) => (
+            <input
+              key={ingredient.id}
+              value={ingredient.name}
+              onChange={(event) => handleChange(event, index)}
+            />
           ))}
         <button type="submit">Save Changes</button>
       </form>
