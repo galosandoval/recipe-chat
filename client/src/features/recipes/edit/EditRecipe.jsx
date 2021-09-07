@@ -8,6 +8,10 @@ const initialFormState = (recipe) => ({
 });
 export const EditRecipe = ({ editRecipe, recipe }) => {
   const [form, setForm] = useState(initialFormState(recipe));
+  
+  const handleChange = (event) => {
+    setForm({ ...form, [event.target.name]: event.target.value });
+  };
 
   const handleSubmit = () => {
     axios
@@ -18,10 +22,6 @@ export const EditRecipe = ({ editRecipe, recipe }) => {
       .catch((error) => console.log(error));
   };
 
-  const handleChange = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value });
-  };
-
   return (
     <div className={editRecipe.class}>
       <form onSubmit={handleSubmit}>
@@ -30,7 +30,6 @@ export const EditRecipe = ({ editRecipe, recipe }) => {
         <input type="text" name="description" onChange={handleChange} value={form.description} />
         <button type="submit">Save Changes</button>
       </form>
-      <p>Edit Recipe</p>
     </div>
   );
 };

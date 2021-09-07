@@ -32,27 +32,35 @@ const initialEditCardState = {
   class: "edit-recipe",
   open: false
 };
+const initialEditInstructionsState = {
+  class: "edit-instructions",
+  open: false
+};
 
-export const RecipeCard = ({ recipe, index, closeOpenCarrots  }) => {
+export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   const [recipeDescription, setRecipeDescription] = useState(initialDescriptionState(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
   const [ingredients, setIngredients] = useState([]);
   const [instructions, setInstructions] = useState([]);
   const [dropdown, setDropdown] = useState(initialDropdownState);
   const [editRecipe, setEditRecipe] = useState(initialEditCardState);
+  const [editInstructions, setEditInstructions] = useState(initialEditInstructionsState);
 
   const handleClick = (event) => {
     const { className } = event.currentTarget;
     // Edit Menu Click
-    if (className === "dropdown" && !editRecipe.open) {
+    if (className === "dropdown" && !editRecipe.open && !editInstructions.open) {
       !dropdown.open
         ? setDropdown({ class: "dropdown-content show-edit-menu", open: true })
         : setDropdown(initialDropdownState);
       // Carrot Click
     } else if (className === "closebtn") {
       setEditRecipe(initialEditCardState);
+      setEditInstructions(initialEditCardState);
     } else if (className === "edit") {
       setEditRecipe({ class: "edit-recipe show-edit-card", open: true });
+    } else if (className === "instructions") {
+      setEditInstructions({ class: "edit-instructions show-edit-card", open: true });
     } else if (className.includes("carrot")) {
       closeOpenCarrots();
 
@@ -105,16 +113,13 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots  }) => {
 
   return (
     <div className="card">
-      <EditRecipe
-        recipe={recipe}
-        editRecipe={editRecipe}
-      />
-      <EditInstructions instructions={instructions} />
+      <EditRecipe recipe={recipe} editRecipe={editRecipe} />
+      <EditInstructions editInstructions={editInstructions} instructions={instructions} />
       <div className="card-header">
         <h2 className="recipe-name">{recipe["recipe-name"]}</h2>
         <CardMenu
           editRecipe={editRecipe}
-          className="card-menu"
+          editInstructions={editInstructions}
           handleClick={handleClick}
           dropdown={dropdown}
         />
@@ -145,10 +150,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots  }) => {
             viewBox="0 0 24 24"
             fill="grey"
           >
-            <path
-              className="carrot"
-              d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z"
-            />
+            <path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z" />
           </svg>
         </button>
       </div>
