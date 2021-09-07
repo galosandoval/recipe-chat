@@ -3,7 +3,9 @@ import axios from "axios";
 import "../../styles/recipesStyles.css";
 import { Accordian } from "./Accordian";
 import { CardMenu } from "./CardMenu";
-import { EditRecipe } from "./EditRecipe";
+import { EditRecipe } from "./edit/EditRecipe";
+import { EditInstructions } from "./edit/EditInstructions";
+import { EditIngredients } from "./edit/EditIngredients";
 
 const initialAccordianState = {
   ingredientsClass: "accordian hidden",
@@ -11,7 +13,6 @@ const initialAccordianState = {
   isOpen: false,
   style: { maxHeight: 0 }
 };
-
 const initialDescriptionState = (recipe) => {
   return {
     description:
@@ -21,37 +22,56 @@ const initialDescriptionState = (recipe) => {
     showButton: recipe.description.length > 65
   };
 };
-
 const initialDropdownState = {
   class: "dropdown-content",
   open: false
 };
-
 const initialEditCardState = {
   class: "edit-recipe",
   open: false
 };
+const initialEditInstructionsState = {
+  class: "edit-instructions",
+  open: false
+};
+const initialEditIngredientsState = {
+  class: "edit-ingredients",
+  open: false
+};
 
-export const RecipeCard = ({ recipe, index, closeOpenCarrots, getRecipes }) => {
+export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   const [recipeDescription, setRecipeDescription] = useState(initialDescriptionState(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
   const [ingredients, setIngredients] = useState([]);
   const [instructions, setInstructions] = useState([]);
   const [dropdown, setDropdown] = useState(initialDropdownState);
   const [editRecipe, setEditRecipe] = useState(initialEditCardState);
+  const [editInstructions, setEditInstructions] = useState(initialEditInstructionsState);
+  const [editIngredients, setEditIngredients] = useState(initialEditIngredientsState);
 
   const handleClick = (event) => {
     const { className } = event.currentTarget;
     // Edit Menu Click
-    if (className === "dropdown" && !editRecipe.open) {
+    if (
+      className === "dropdown" &&
+      !editRecipe.open &&
+      !editInstructions.open &&
+      !editIngredients.open
+    ) {
       !dropdown.open
         ? setDropdown({ class: "dropdown-content show-edit-menu", open: true })
         : setDropdown(initialDropdownState);
-      // Carrot Click
-    } else if (className === "closebtn") {
-      setEditRecipe(initialEditCardState);
-    } else if (className === "edit") {
-      setEditRecipe({ class: "edit-recipe show-edit-card", open: true });
+      } else if (className === "closebtn") {
+        setEditRecipe(initialEditCardState);
+        setEditInstructions(initialEditCardState);
+        setEditIngredients(initialEditIngredientsState);
+      } else if (className === "edit") {
+        setEditRecipe({ class: "edit-recipe show-edit-card", open: true });
+      } else if (className === "instructions") {
+        setEditInstructions({ class: "edit-instructions show-edit-card", open: true });
+      } else if (className === "ingredients") {
+        setEditIngredients({ class: "edit-ingredients show-edit-card", open: true });
+        // Carrot Click
     } else if (className.includes("carrot")) {
       closeOpenCarrots();
 
@@ -104,20 +124,15 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots, getRecipes }) => {
 
   return (
     <div className="card">
-      <EditRecipe
-        recipe={recipe}
-        instructions={instructions}
-        ingredients={ingredients}
-        editRecipe={editRecipe}
-        setEditRecipe={setEditRecipe}
-        getRecipes={getRecipes}
-        initialEditCardState={initialEditCardState}
-      />
+      <EditRecipe recipe={recipe} editRecipe={editRecipe} />
+      <EditInstructions editInstructions={editInstructions} instructions={instructions} />
+      <EditIngredients editIngredients={editIngredients} ingredients={ingredients} />
       <div className="card-header">
         <h2 className="recipe-name">{recipe["recipe-name"]}</h2>
         <CardMenu
           editRecipe={editRecipe}
-          className="card-menu"
+          editInstructions={editInstructions}
+          editIngredients={editIngredients}
           handleClick={handleClick}
           dropdown={dropdown}
         />
@@ -148,10 +163,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots, getRecipes }) => {
             viewBox="0 0 24 24"
             fill="grey"
           >
-            <path
-              className="carrot"
-              d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z"
-            />
+            <path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z" />
           </svg>
         </button>
       </div>
