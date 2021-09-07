@@ -81,7 +81,10 @@ router.put("/recipe/:id", validateRecipeById, (req, res) => {
   const { id } = req.params;
   const { body } = req;
 
-  Ingredients.updateIngredientsByRecipe(id, body);
+  Ingredients.updateIngredientsByRecipe(id, body)
+    .then(updatedIngredients => {
+    res.status(200).json({message: 'Updated ingredients with recipe id: ' + id, updatedIngredients})
+  })
 });
 
 module.exports = router;

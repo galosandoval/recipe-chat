@@ -26,9 +26,10 @@ const updateInstructions = (id, changes) => {
     db("recipe-instructions")
       .where("id", change.id)
       .update(change)
-      .then((update) => {
-        console.log(update);
-      });
+      .then((updated) => {
+        console.log(updated);
+      })
+      .catch((error) => console.log(error.message));
   });
   return findInstructionsByRecipeId(id);
 };

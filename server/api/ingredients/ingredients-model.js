@@ -52,10 +52,11 @@ const updateIngredientsByRecipe = (id, changes) => {
   changes.forEach((change) => {
     db("ingredients")
       .where("id", change.id)
-      .insert(change)
-      .then((updated) => console.log(updated));
+      .update(change)
+      .then((updated) => console.log(updated))
+      .catch((error) => console.log(error.message));
   });
-  return findIngredientsByRecipeId(id)
+  return findIngredientsByRecipeId(id);
 };
 
 module.exports = {
