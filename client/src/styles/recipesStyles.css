@@ -217,6 +217,4 @@
   margin: 4em 0em 0em 1em;
   flex-wrap: wrap;
   width: 100%;
-  overflow-y: scroll;
-  height: -webkit-fill-available;
 }
