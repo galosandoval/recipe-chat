@@ -21,17 +21,17 @@ export const EditInstructions = ({ editInstructions, instructions }) => {
       .catch((error) => console.log(error.message));
   };
 
-  console.log(form);
-
   useEffect(() => {
     setForm(instructions);
   }, [instructions]);
+
   return (
     <div className={editInstructions.class}>
-      <form onSubmit={handleSubmit}>
+      <form className="edit-instructions-form" onSubmit={handleSubmit}>
         {form &&
           form.map((instruction, index) => (
             <input
+              className="input"
               type="text"
               key={instruction.id}
               value={instruction.description}

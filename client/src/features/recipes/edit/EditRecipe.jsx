@@ -8,7 +8,7 @@ const initialFormState = (recipe) => ({
 });
 export const EditRecipe = ({ editRecipe, recipe }) => {
   const [form, setForm] = useState(initialFormState(recipe));
-  
+
   const handleChange = (event) => {
     setForm({ ...form, [event.target.name]: event.target.value });
   };
@@ -24,10 +24,34 @@ export const EditRecipe = ({ editRecipe, recipe }) => {
 
   return (
     <div className={editRecipe.class}>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="recipe-name" onChange={handleChange} value={form["recipe-name"]} />
-        <input type="text" name="img-url" onChange={handleChange} value={form["img-url"]} />
-        <input type="text" name="description" onChange={handleChange} value={form.description} />
+      <form className="edit-recipe-form" onSubmit={handleSubmit}>
+        <input
+          className="input"
+          placeholder="Recipe Name"
+          type="text"
+          name="recipe-name"
+          onChange={handleChange}
+          value={form["recipe-name"]}
+        />
+        <input
+          className="input"
+          placeholder="Image URL"
+          type="text"
+          name="img-url"
+          onChange={handleChange}
+          value={form["img-url"]}
+        />
+        <textarea
+          style={{ resize: "none" }}
+          cols={35}
+          rows={10}
+          className="input"
+          placeholder="Description"
+          type="text"
+          name="description"
+          onChange={handleChange}
+          value={form.description}
+        />
         <button type="submit">Save Changes</button>
       </form>
     </div>
