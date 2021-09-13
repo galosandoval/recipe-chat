@@ -58,20 +58,21 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
       !editInstructions.open &&
       !editIngredients.open
     ) {
+      closeOpenCarrots();
       !dropdown.open
         ? setDropdown({ class: "dropdown-content show-edit-menu", open: true })
         : setDropdown(initialDropdownState);
-      } else if (className === "closebtn") {
-        setEditRecipe(initialEditCardState);
-        setEditInstructions(initialEditCardState);
-        setEditIngredients(initialEditIngredientsState);
-      } else if (className === "edit") {
-        setEditRecipe({ class: "edit-recipe show-edit-card", open: true });
-      } else if (className === "instructions") {
-        setEditInstructions({ class: "edit-instructions show-edit-card", open: true });
-      } else if (className === "ingredients") {
-        setEditIngredients({ class: "edit-ingredients show-edit-card", open: true });
-        // Carrot Click
+    } else if (className === "closebtn") {
+      setEditRecipe(initialEditCardState);
+      setEditInstructions(initialEditCardState);
+      setEditIngredients(initialEditIngredientsState);
+    } else if (className === "edit") {
+      setEditRecipe({ class: "edit-recipe show-edit-card", open: true });
+    } else if (className === "instructions") {
+      setEditInstructions({ class: "edit-instructions show-edit-card", open: true });
+    } else if (className === "ingredients") {
+      setEditIngredients({ class: "edit-ingredients show-edit-card", open: true });
+      // Carrot Click
     } else if (className.includes("carrot")) {
       closeOpenCarrots();
 
@@ -99,25 +100,25 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
     }
   };
 
+  const getRecipeIngredients = (id) => {
+    axios
+      .get(`http://localhost:4000/recipes/ingredients/${id}`)
+      .then((ingredients) => {
+        setIngredients(ingredients.data.recipeIngredients);
+      })
+      .catch((err) => console.log(err.message));
+  };
+
+  const getRecipeInstructions = (id) => {
+    axios
+      .get(`http://localhost:4000/instructions/${id}`)
+      .then((instructions) => {
+        setInstructions(instructions.data.recipeInstructions);
+      })
+      .catch((err) => console.log({ err }));
+  };
+
   useEffect(() => {
-    const getRecipeIngredients = (id) => {
-      axios
-        .get(`http://localhost:4000/recipes/ingredients/${id}`)
-        .then((ingredients) => {
-          setIngredients(ingredients.data.recipeIngredients);
-        })
-        .catch((err) => console.log(err.message));
-    };
-
-    const getRecipeInstructions = (id) => {
-      axios
-        .get(`http://localhost:4000/instructions/${id}`)
-        .then((instructions) => {
-          setInstructions(instructions.data.recipeInstructions);
-        })
-        .catch((err) => console.log({ err }));
-    };
-
     getRecipeInstructions(recipe.id);
     getRecipeIngredients(recipe.id);
   }, [recipe.id]);
@@ -125,8 +126,18 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   return (
     <div className="card">
       <EditRecipe recipe={recipe} editRecipe={editRecipe} />
-      <EditInstructions editInstructions={editInstructions} instructions={instructions} />
-      <EditIngredients recipe={recipe} editIngredients={editIngredients} ingredients={ingredients} />
+      <EditInstructions
+        getRecipeInstructions={getRecipeInstructions}
+        editInstructions={editInstructions}
+        instructions={instructions}
+        recipe={recipe}
+      />
+      <EditIngredients
+        getRecipeIngredients={getRecipeIngredients}
+        recipe={recipe}
+        editIngredients={editIngredients}
+        ingredients={ingredients}
+      />
       <div className="card-header">
         <h2 className="recipe-name">{recipe["recipe-name"]}</h2>
         <CardMenu
