@@ -73,14 +73,19 @@
   border: none;
   background-color: #fff;
   color: rgba(0, 0, 0, 0.54);
+  margin-bottom: 0.6em;
 }
 .carrot-button:hover {
   background-color: var(--card-button-color);
   transition: all ease 0.3s;
+  transform: scale(1.07);
 }
 .rotate {
   transition: all ease-in-out 0.3s;
   transform: rotate(180deg);
+}
+.rotate:hover {
+  transform: rotate(180deg) scale(1.07);
 }
 .description {
   display: flex;
@@ -136,10 +141,12 @@
   height: 4em;
   width: 4em;
   padding: 1em;
+  transition: all ease 0.3s;
 }
 .dropbtn:hover {
   background-color: var(--card-button-color);
   transition: all ease 0.3s;
+  transform: scale(1.08);
 }
 .dropbtn svg {
   fill: var(--card-svg-fill);
@@ -174,7 +181,7 @@
   left: 0;
   bottom: 0;
   /* background-color: tomato; */
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
   transition: all ease 0.5s;
   display: flex;
   justify-content: center;
@@ -183,6 +190,7 @@
 }
 .show-edit-card {
   top: 0;
+  overflow-y: scroll;
 }
 .closebtn {
   background-color: #fff;
@@ -217,4 +225,16 @@
   margin: 4em 0em 0em 1em;
   flex-wrap: wrap;
   width: 100%;
+}
+.add-instruction,
+.add-ingredient {
+  max-height: 0;
+  padding: 0;
+  transition: all ease 0.5s;
+  overflow: hidden;
+}
+.show-input {
+  transition: all ease 0.5s;
+  max-height: 80px;
+  padding: 1em;
 }
