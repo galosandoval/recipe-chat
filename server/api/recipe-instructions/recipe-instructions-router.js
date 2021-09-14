@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 const { validateRecipe } = require("../ingredients/ingredients-middleware");
 const { validateRecipeById } = require("../recipes/recipes-middleware");
+const { validateInstructionId } = require("./recipe-instructions-middleware");
 const RecipeInstructions = require("./recipe-instructions-model");
 
 router.get("/", (_req, res) => {
@@ -14,7 +15,7 @@ router.get("/", (_req, res) => {
     });
 });
 
-router.get("/:recipeId", (req, res) => {
+router.get("/recipes/:recipeId", (req, res) => {
   const { recipeId } = req.params;
   RecipeInstructions.findInstructionsByRecipeId(recipeId)
     .then((recipeInstructions) => {
@@ -52,7 +53,16 @@ router.put("/:id", validateRecipeById, (req, res) => {
     .catch((error) => res.status(500).json({ error: error.message }));
 });
 
-router.delete("/:id", validateRecipeById, (req, res) => {
+router.delete("/:id", validateInstructionId, (req, res) => {
+  const { id } = req.params;
+  RecipeInstructions.deleteInstructionsById(id)
+    .then((instruction) => {
+      res.status(200).json({ instruction });
+    })
+    .catch((error) => res.status(500).json({ error: error.message }));
+});
+
+router.delete("/recipes/:id", validateRecipeById, (req, res) => {
   const { id } = req.params;
 
   RecipeInstructions.deleteInstructionsByRecipeid(id)

@@ -5,6 +5,8 @@ const findInstructions = () => db("recipe-instructions");
 const findInstructionsByRecipeId = (recipeId) =>
   db("recipe-instructions").where("recipe-id", recipeId).orderBy("step");
 
+const findInstructionById = (id) => db("recipe-instructions").where({ id });
+
 const addInstructions = (body) => {
   return db("recipe-instructions").insert(body);
 };
@@ -34,10 +36,21 @@ const updateInstructions = (id, changes) => {
   return findInstructionsByRecipeId(id);
 };
 
+const deleteInstructionById = (id) => {
+  let instructionToDelete;
+  findInstructionById(id).then((instruction) => (instructionToDelete = instruction));
+  return db("recipe-instructions")
+    .where({ id })
+    .del()
+    .then(() => instructionToDelete);
+};
+
 module.exports = {
   findInstructions,
+  findInstructionById,
   findInstructionsByRecipeId,
   addInstructions,
   deleteInstructionsByRecipeid,
-  updateInstructions
+  updateInstructions,
+  deleteInstructionById
 };
