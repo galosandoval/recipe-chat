@@ -15,7 +15,7 @@ router.get("/", (_req, res) => {
     });
 });
 
-router.get("/recipes/:recipeId", (req, res) => {
+router.get("/recipe/:recipeId", (req, res) => {
   const { recipeId } = req.params;
   RecipeInstructions.findInstructionsByRecipeId(recipeId)
     .then((recipeInstructions) => {
@@ -55,7 +55,7 @@ router.put("/:id", validateRecipeById, (req, res) => {
 
 router.delete("/:id", validateInstructionId, (req, res) => {
   const { id } = req.params;
-  RecipeInstructions.deleteInstructionsById(id)
+  RecipeInstructions.deleteInstructionById(id)
     .then((instruction) => {
       res.status(200).json({ instruction });
     })

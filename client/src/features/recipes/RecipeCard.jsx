@@ -111,7 +111,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
 
   const getRecipeInstructions = (id) => {
     axios
-      .get(`http://localhost:4000/instructions/${id}`)
+      .get(`http://localhost:4000/instructions/recipe/${id}`)
       .then((instructions) => {
         setInstructions(instructions.data.recipeInstructions);
       })

@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { DeleteInstruction } from "../delete/DeleteInstruction";
+import { DeleteItem } from "../delete/DeleteItem";
 
 const addInitialState = {
   open: false,
@@ -86,17 +86,21 @@ export const EditInstructions = ({
         <div className="instructions">
           {form &&
             form.map((instruction, index) => (
-              <>
+              <div key={instruction.id}>
                 <input
                   className="input"
                   type="text"
-                  key={instruction.id}
                   value={instruction.description}
                   onChange={(event) => handleChange(event, index)}
                   name="edit-description"
                 />
-                <DeleteInstruction instruction={instruction} />
-              </>
+                <DeleteItem
+                  api={"http://localhost:4000/instructions/"}
+                  id={instruction.id}
+                  getItem={getRecipeInstructions}
+                  itemId={instruction["recipe-id"]}
+                />
+              </div>
             ))}
         </div>
         <div className={add.class}>
