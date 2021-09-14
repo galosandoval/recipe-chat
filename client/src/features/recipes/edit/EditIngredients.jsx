@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { DeleteItem } from "../delete/DeleteItem";
 
 const initialAddState = { open: false, class: "add-ingredient input" };
 
@@ -7,7 +8,7 @@ export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecip
   const [form, setForm] = useState([]);
   const [ingredientToAdd, setIngredientToAdd] = useState("");
   const [add, setAdd] = useState(initialAddState);
-  
+
   const handleChange = (event, index) => {
     const { name, value } = event.target;
     if (name === "edit") {
@@ -34,7 +35,7 @@ export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecip
   const handleSubmit = (event) => {
     event.preventDefault();
     const { name } = document.activeElement;
-    
+
     if (name === "edit") {
       axios
         .put(`http://localhost:4000/ingredients/recipe/${recipe.id}`, form)
@@ -71,13 +72,20 @@ export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecip
       <form className="ingredients-form" onSubmit={handleSubmit}>
         {form &&
           form.map((ingredient, index) => (
-            <input
-              className="ingredients-input"
-              key={ingredient.id}
-              value={ingredient.name}
-              onChange={(event) => handleChange(event, index)}
-              name="edit"
-            />
+            <div key={ingredient.id}>
+              <input
+                className="ingredients-input"
+                value={ingredient.name}
+                onChange={(event) => handleChange(event, index)}
+                name="edit"
+              />
+              <DeleteItem
+                api={"http://localhost:4000/ingredients/"}
+                id={ingredient.id}
+                getItem={getRecipeIngredients}
+                itemId={recipe.id}
+              />
+            </div>
           ))}
         <div className={add.class}>
           <input
