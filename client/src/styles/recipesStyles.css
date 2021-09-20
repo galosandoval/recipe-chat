@@ -238,3 +238,13 @@
   max-height: 80px;
   padding: 1em;
 }
+/* ____Recipe Button____ */
+.recipes-button {
+  position: absolute;
+  right: 1.5em;
+  top: 5em;
+}
+.recipes-text-area {
+  resize: none;
+  
+}
