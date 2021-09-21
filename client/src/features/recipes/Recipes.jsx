@@ -23,7 +23,7 @@ export const Recipes = ({ recipes }) => {
   return (
     <div className="recipes" onClick={handleClick}>
       <h1>Recipes</h1>
-      <AddRecipe recipes={recipes}/>
+      <AddRecipe recipes={recipes} />
       <div className="recipes-container">
         {recipes.map((recipe, index) => (
           <RecipeCard
