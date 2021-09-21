@@ -28,8 +28,6 @@ export const AddRecipe = ({ recipes }) => {
       "img-url": recipeToAdd.imageUrl
     };
 
-    let newLine = "STEP ";
-    console.log("newline", newLine.split("\n"));
     let instructionsBody = recipeToAdd.instructions.split(" ");
     let instructions = [];
     let instruction = [];
@@ -51,7 +49,6 @@ export const AddRecipe = ({ recipes }) => {
         count++;
         continue;
       }
-
       if (instructionsBody[i] !== undefined) instruction.push(instructionsBody[i]);
 
       if (instructionsBody.length === i) instructions.push(instruction);
@@ -59,8 +56,27 @@ export const AddRecipe = ({ recipes }) => {
 
     // TODO: Figure out how to add a recipeID to the recipe body
 
-    console.log("instruction body", instructionsBody);
-    console.log("instruction body", instructions);
+    let ingredientsBody = recipeToAdd.ingredients.split(" ");
+
+    let ingredient = "";
+    let ingredients = [];
+    let ingredientCount = 0;
+    for (let i = 0; i < ingredientsBody.length + ingredientCount; i++) {
+      if (ingredientsBody[i]?.includes("\n")) {
+        let toAdd = ingredientsBody[i].split("\n");
+        console.log(toAdd);
+        ingredient += toAdd[0];
+        ingredients.push(ingredient);
+        ingredient = "";
+        ingredient += toAdd[1] + " ";
+        ingredientCount++;
+        continue;
+      }
+      if (ingredientsBody[i] !== undefined) ingredient += ingredientsBody[i] + " ";
+      if (ingredientsBody.length === i) ingredients.push(ingredient.trim());
+    }
+    console.log("ingredient body", ingredientsBody);
+    console.log("ingredient body", ingredients);
     // axios
     //   .post("http://localhost:4000/recipes/", recipeBody)
     //   .then((recipeAdded) => {
