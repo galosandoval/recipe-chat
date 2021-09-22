@@ -9,7 +9,7 @@ router.get("/", (_req, res) => {
       res.status(200).json({ allRecipes });
     })
     .catch((err) => {
-      res.status(404).json("Ingredients not found");
+      res.status(404).json("Ingredients not found", err);
     });
 });
 
