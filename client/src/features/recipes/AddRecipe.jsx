@@ -64,19 +64,31 @@ export const AddRecipe = ({ recipes }) => {
     for (let i = 0; i < ingredientsBody.length + ingredientCount; i++) {
       if (ingredientsBody[i]?.includes("\n")) {
         let toAdd = ingredientsBody[i].split("\n");
-        console.log(toAdd);
-        ingredient += toAdd[0];
-        ingredients.push(ingredient);
+        if (toAdd.length > 2) toAdd = toAdd.filter(Boolean);
+
+        if (toAdd.length === 2) {
+          ingredient += toAdd[0] + " ";
+          if (ingredient.length < 3) {
+            ingredient += toAdd[1] + " ";
+            continue;
+          }
+          ingredients.push(ingredient.trim());
+          ingredient = "";
+          ingredient += toAdd[1] + " ";
+          ingredientCount++;
+          continue;
+        }
+        if (toAdd.length === 3) ingredient += toAdd[0] + " ";
+        ingredients.push(ingredient.trim());
         ingredient = "";
-        ingredient += toAdd[1] + " ";
+        ingredient += toAdd[1] + " " + toAdd[2] + " ";
         ingredientCount++;
         continue;
       }
       if (ingredientsBody[i] !== undefined) ingredient += ingredientsBody[i] + " ";
       if (ingredientsBody.length === i) ingredients.push(ingredient.trim());
     }
-    console.log("ingredient body", ingredientsBody);
-    console.log("ingredient body", ingredients);
+    console.log(ingredients);
     // axios
     //   .post("http://localhost:4000/recipes/", recipeBody)
     //   .then((recipeAdded) => {
