@@ -88,7 +88,7 @@ export const AddRecipe = ({ recipes }) => {
       if (ingredientsBody[i] !== undefined) ingredient += ingredientsBody[i] + " ";
       if (ingredientsBody.length === i) ingredients.push(ingredient.trim());
     }
-    console.log(ingredients);
+    
     // axios
     //   .post("http://localhost:4000/recipes/", recipeBody)
     //   .then((recipeAdded) => {

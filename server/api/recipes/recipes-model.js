@@ -26,13 +26,7 @@ const deleteRecipe = (id) => {
 const findIngredientsByRecipeId = (id) => {
   return db("recipes")
     .join("ingredients", "recipes.id", "=", "ingredients.recipe-id")
-    .select(
-      "ingredients.name",
-      "ingredients.id",
-      "ingredients.price",
-      "ingredients.amount",
-      "ingredients.measurement"
-    )
+    .select("ingredients.name", "ingredients.id", "ingredients.price", "ingredients.recipe-id")
     .where("recipes.id", id);
 };
 
