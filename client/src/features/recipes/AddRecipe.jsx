@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { parseInstructions } from "./utils/addRecipe";
 
 const initialTextAreaState = {
   name: "",
@@ -10,6 +11,7 @@ const initialTextAreaState = {
 };
 
 export const AddRecipe = ({ recipes }) => {
+  console.log("recipe", recipes);
   const [recipeToAdd, SetRecipetToAdd] = useState(initialTextAreaState);
 
   const handleChange = (event) => {
@@ -23,8 +25,7 @@ export const AddRecipe = ({ recipes }) => {
     const recipeBody = {
       "recipe-name": recipeToAdd.name,
       description: recipeToAdd.description,
-      // TODO: Hard coded with 1, replace with user-id
-      "user-id": 1,
+      "user-id": recipes["user-id"],
       "img-url": recipeToAdd.imageUrl
     };
 
@@ -53,8 +54,8 @@ export const AddRecipe = ({ recipes }) => {
 
       if (instructionsBody.length === i) instructions.push(instruction);
     }
-
-    // TODO: Figure out how to add a recipeID to the recipe body
+    console.log(instructionsBody);
+    // console.log(parseInstructions(recipeToAdd.instructions));
 
     let ingredientsBody = recipeToAdd.ingredients.split(" ");
 
@@ -64,19 +65,31 @@ export const AddRecipe = ({ recipes }) => {
     for (let i = 0; i < ingredientsBody.length + ingredientCount; i++) {
       if (ingredientsBody[i]?.includes("\n")) {
         let toAdd = ingredientsBody[i].split("\n");
-        console.log(toAdd);
-        ingredient += toAdd[0];
-        ingredients.push(ingredient);
+        if (toAdd.length > 2) toAdd = toAdd.filter(Boolean);
+
+        if (toAdd.length === 2) {
+          ingredient += toAdd[0] + " ";
+          if (ingredient.length < 3) {
+            ingredient += toAdd[1] + " ";
+            continue;
+          }
+          ingredients.push(ingredient.trim());
+          ingredient = "";
+          ingredient += toAdd[1] + " ";
+          ingredientCount++;
+          continue;
+        }
+        if (toAdd.length === 3) ingredient += toAdd[0] + " ";
+        ingredients.push(ingredient.trim());
         ingredient = "";
-        ingredient += toAdd[1] + " ";
+        ingredient += toAdd[1] + " " + toAdd[2] + " ";
         ingredientCount++;
         continue;
       }
       if (ingredientsBody[i] !== undefined) ingredient += ingredientsBody[i] + " ";
       if (ingredientsBody.length === i) ingredients.push(ingredient.trim());
     }
-    console.log("ingredient body", ingredientsBody);
-    console.log("ingredient body", ingredients);
+
     // axios
     //   .post("http://localhost:4000/recipes/", recipeBody)
     //   .then((recipeAdded) => {

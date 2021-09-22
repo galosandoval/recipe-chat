@@ -7,215 +7,158 @@ exports.seed = function (knex) {
       return knex("ingredients").insert([
         {
           id: 1,
-          name: "onion",
+          name: "1 cup of chopped onions",
           price: 100,
-          measurement: "cups",
-          amount: 0.5,
           "recipe-id": 1
         },
         {
           id: 2,
-          name: "red bellpepper",
+          name: "1 cup of chopped red bellpepper",
           price: 50,
-          measurement: "cups",
-          amount: 0.5,
           "recipe-id": 1
         },
         {
           id: 3,
-          name: "garlic",
+          name: "3 cloves of minced garlic",
           price: 100,
-          measurement: "cloves",
-          amount: 3,
           "recipe-id": 1
         },
         {
           id: 4,
-          name: "eggs",
+          name: "2 eggs",
           price: 50,
-          measurement: "each",
-          amount: 6,
           "recipe-id": 2
         },
         {
           id: 5,
-          name: "onion",
+          name: "half a cup of onions",
           price: 100,
-          measurement: "cups",
-          amount: 0.5,
           "recipe-id": 3
         },
         {
           id: 6,
-          name: "ghee",
+          name: "3 Tbls ghee",
           price: 300,
-          measurement: "tablespoons",
-          amount: 3,
           "recipe-id": 4
         },
         {
           id: 7,
-          name: "large onion",
+          name: "1 large onion diced",
           price: 50,
-          measurement: "each",
-          amount: 1,
-          "recipe-id": 4,
-          cutsize: "diced"
+          "recipe-id": 4
         },
         {
           id: 8,
-          name: "cloves",
+          name: "4 cloves roughly chopped",
           price: 20,
-          measurement: "each",
-          amount: 4,
-          "recipe-id": 4,
-          cutsize: "rough chopped"
+          "recipe-id": 4  
         },
         {
           id: 9,
-          name: "ginger",
+          name: "2 tbls ginger finely chopped",
           price: 10,
-          measurement: "tablespoons",
-          amount: 2,
-          "recipe-id": 4,
-          cutsize: "finely chopped"
+          "recipe-id": 4
         },
         {
           id: 10,
-          name: "medium jalapeno",
+          name: "1 medium jalapeno finely chopped",
           price: 100,
-          measurement: "each",
-          amount: 1,
-          "recipe-id": 4,
-          cutsize: "finely chopped"
+          "recipe-id": 4
         },
         {
           id: 11,
-          name: "fennel seeds",
+          name: "1/2 tsp fennel seeds",
           price: 100,
-          measurement: "teaspoon",
-          amount: 0.5,
           "recipe-id": 4
         },
         {
           id: 12,
-          name: "black mustard seeds",
+          name: "1 tsp black mustard seeds",
           price: 100,
-          measurement: "teaspoon",
-          amount: 1,
           "recipe-id": 4
         },
         {
           id: 13,
-          name: "cumin seeds",
+          name: "2 tsp cumin seeds",
           price: 100,
-          measurement: "teaspoons",
-          amount: 2,
           "recipe-id": 4
         },
         {
           id: 14,
-          name: "garam masala",
+          name: "2 tsp garam masala",
           price: 100,
-          measurement: "teaspoons",
-          amount: 2,
           "recipe-id": 4
         },
         {
           id: 15,
-          name: "baby spinach (fresh or frozen)",
+          name: "1 lb baby spinach (fresh or frozen)",
           price: 100,
-          measurement: "lb",
-          amount: 1,
           "recipe-id": 4
         },
         {
           id: 16,
-          name: "fresh mint leaves",
+          name: "15 fresh mint leaves",
           price: 100,
-          measurement: "each",
-          amount: 15,
           "recipe-id": 4
         },
         {
           id: 17,
-          name: "dried fenugreek leaves",
+          name: "1 tsp dried fenugreek leaves",
           price: 100,
-          measurement: "teaspoon",
-          amount: 1,
           "recipe-id": 4
         },
         {
           id: 18,
-          name: "water (if using fresh spinach)",
+          name: "2 tbls water (if using fresh spinach)",
           price: 100,
-          measurement: "tablespoons",
-          amount: 2,
           "recipe-id": 4
         },
         {
           id: 19,
-          name: "water",
+          name: "3/4 cups water",
           price: 100,
-          measurement: "cup",
-          amount: 0.75,
           "recipe-id": 4
         },
         {
           id: 20,
-          name: "plain yogurt (or vegan yogurt)",
+          name: "1/2 cup plain yogurt (or vegan yogurt)",
           price: 100,
-          measurement: "cup",
-          amount: 0.5,
           "recipe-id": 4
         },
         {
           id: 21,
-          name: "cooked black lentils",
+          name: "3 cups cooked black lentils",
           price: 100,
-          measurement: "cups",
-          amount: 3,
           "recipe-id": 4
         },
         {
           id: 22,
-          name: "salt, more to taste!",
+          name: "1 tsp salt, more to taste!",
           price: 100,
-          measurement: "teaspoon",
-          amount: 1,
           "recipe-id": 4
         },
         {
           id: 23,
-          name: "bread",
+          name: "2 slices of bread",
           price: 50,
-          measurement: "slice",
-          amount: 2,
-          "recipe-id": 5,
-          cutsize: "slices"
+          "recipe-id": 5
         },
         {
           id: 24,
-          name: "your favorite jam",
+          name: "2 tbls of your favorite jam",
           price: 100,
-          measurement: "tablespoon",
-          amount: 2,
           "recipe-id": 5
         },
         {
           id: 25,
-          name: "your favorite peanut butter",
+          name: "2 tbls of your favorite peanut butter",
           price: 100,
-          measurement: "tablespoons",
-          amount: 2,
           "recipe-id": 5
         },
         {
           id: 26,
-          name: "banana",
+          name: "1 banana",
           price: 100,
-          measurement: "each",
-          amount: 1,
           "recipe-id": 5
         }
       ]);
