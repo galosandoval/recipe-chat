@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { parseInstructions } from "./utils/addRecipe";
+import { parseIngredients, parseInstructions } from "./utils/addRecipe";
 
 const initialTextAreaState = {
   name: "",
@@ -11,7 +11,6 @@ const initialTextAreaState = {
 };
 
 export const AddRecipe = ({ recipes }) => {
-  console.log("recipe", recipes);
   const [recipeToAdd, SetRecipetToAdd] = useState(initialTextAreaState);
 
   const handleChange = (event) => {
@@ -28,68 +27,10 @@ export const AddRecipe = ({ recipes }) => {
       "user-id": recipes["user-id"],
       "img-url": recipeToAdd.imageUrl
     };
-
-    let instructionsBody = recipeToAdd.instructions.split(" ");
-    let instructions = [];
-    let instruction = [];
-    let count = 0;
-    for (let i = 0; i < instructionsBody.length + count; i++) {
-      if (instructionsBody[i]?.includes("\n")) {
-        let toAdd = instructionsBody[i].split("\n");
-
-        instruction.push(toAdd[0]);
-
-        if (instruction.length > 2) instructions.push(instruction);
-
-        instruction = [];
-
-        if (toAdd.length === 3) instruction.push(toAdd[2]);
-        else if (toAdd.length === 4) instruction.push(toAdd[3]);
-        else instruction.push(toAdd[1]);
-
-        count++;
-        continue;
-      }
-      if (instructionsBody[i] !== undefined) instruction.push(instructionsBody[i]);
-
-      if (instructionsBody.length === i) instructions.push(instruction);
-    }
-    console.log(instructionsBody);
-    // console.log(parseInstructions(recipeToAdd.instructions));
-
-    let ingredientsBody = recipeToAdd.ingredients.split(" ");
-
-    let ingredient = "";
-    let ingredients = [];
-    let ingredientCount = 0;
-    for (let i = 0; i < ingredientsBody.length + ingredientCount; i++) {
-      if (ingredientsBody[i]?.includes("\n")) {
-        let toAdd = ingredientsBody[i].split("\n");
-        if (toAdd.length > 2) toAdd = toAdd.filter(Boolean);
-
-        if (toAdd.length === 2) {
-          ingredient += toAdd[0] + " ";
-          if (ingredient.length < 3) {
-            ingredient += toAdd[1] + " ";
-            continue;
-          }
-          ingredients.push(ingredient.trim());
-          ingredient = "";
-          ingredient += toAdd[1] + " ";
-          ingredientCount++;
-          continue;
-        }
-        if (toAdd.length === 3) ingredient += toAdd[0] + " ";
-        ingredients.push(ingredient.trim());
-        ingredient = "";
-        ingredient += toAdd[1] + " " + toAdd[2] + " ";
-        ingredientCount++;
-        continue;
-      }
-      if (ingredientsBody[i] !== undefined) ingredient += ingredientsBody[i] + " ";
-      if (ingredientsBody.length === i) ingredients.push(ingredient.trim());
-    }
-
+    const parsedInstructions = parseInstructions(recipeToAdd.instructions);
+    const parsedIngredients = parseIngredients(recipeToAdd.ingredients);
+    console.log("ingredients", parsedIngredients);
+    console.log("instructions", parsedInstructions);
     // axios
     //   .post("http://localhost:4000/recipes/", recipeBody)
     //   .then((recipeAdded) => {
