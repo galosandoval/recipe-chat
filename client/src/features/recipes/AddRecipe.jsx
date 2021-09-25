@@ -10,7 +10,7 @@ const initialTextAreaState = {
   imageUrl: ""
 };
 
-export const AddRecipe = ({ recipes }) => {
+export const AddRecipe = ({ recipes, getRecipes }) => {
   const [recipeToAdd, SetRecipetToAdd] = useState(initialTextAreaState);
 
   const handleChange = (event) => {
@@ -63,7 +63,10 @@ export const AddRecipe = ({ recipes }) => {
         }));
         axios
           .post("http://localhost:4000/instructions/", instructionsBody)
-          .then((res) => console.log(res))
+          .then((res) => {
+            getRecipes(recipes[0]["user-id"]);
+            console.log(res);
+          })
           .catch((err) => console.log(err));
       });
   };
