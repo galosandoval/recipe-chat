@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { parseIngredients, parseInstructions } from "./utils/addRecipe";
 
-const initialTextAreaState = {
+const initialRecipeToAddState = {
   name: "",
   description: "",
   ingredients: "",
@@ -11,11 +11,11 @@ const initialTextAreaState = {
 };
 
 export const AddRecipe = ({ recipes, getRecipes }) => {
-  const [recipeToAdd, SetRecipetToAdd] = useState(initialTextAreaState);
+  const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
 
   const handleChange = (event) => {
     const { name } = event.target;
-    SetRecipetToAdd({ ...recipeToAdd, [name]: event.target.value });
+    setRecipetToAdd({ ...recipeToAdd, [name]: event.target.value });
   };
 
   const handleSubmit = (event) => {
@@ -65,6 +65,7 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
           .post("http://localhost:4000/instructions/", instructionsBody)
           .then((res) => {
             getRecipes(recipes[0]["user-id"]);
+            setRecipetToAdd(initialRecipeToAddState);
             console.log(res);
           })
           .catch((err) => console.log(err));

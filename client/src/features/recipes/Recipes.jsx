@@ -1,10 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 
 import "../../styles/recipesStyles.css";
 import { AddRecipe } from "./AddRecipe";
 import { RecipeCard } from "./RecipeCard";
 
+const initialFormState = {
+  formClassName: "recipes-add-form",
+  buttonClassName: "recipes-button",
+  isOpen: false
+};
+
 export const Recipes = ({ recipes, getRecipes }) => {
+  const [formState, setFormState] = useState(initialFormState);
   const closeOpenCarrots = () => {
     const carrots = document.querySelectorAll(".carrot");
 
@@ -16,14 +23,27 @@ export const Recipes = ({ recipes, getRecipes }) => {
   };
 
   const handleClick = (event) => {
-    if (event.target.className === "recipes-container") {
+    const { className } = event.currentTarget;
+
+    if (className === "recipes-container") {
       closeOpenCarrots();
+    }
+    if (className.includes("recipes-button")) {
+      formState.isOpen
+        ? setFormState(initialFormState)
+        : setFormState({
+            formClassName: "recipes-add-form show-form",
+            buttonClassName: "recipes-button rotate-button",
+            isOpen: true
+          });
     }
   };
   return (
     <div className="recipes" onClick={handleClick}>
       <h1>Recipes</h1>
-      <AddRecipe recipes={recipes} getRecipes={getRecipes} />
+      <div className={formState.formClassName}>
+        <AddRecipe recipes={recipes} getRecipes={getRecipes} />
+      </div>
       <div className="recipes-container">
         {recipes.map((recipe, index) => (
           <RecipeCard
@@ -34,8 +54,8 @@ export const Recipes = ({ recipes, getRecipes }) => {
           />
         ))}
       </div>
-      <div className="recipes-button">
-        <button>
+      <div className="recipes-button-container">
+        <button className={formState.buttonClassName} onClick={handleClick}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6 13h-5v5h-2v-5h-5v-2h5v-5h2v5h5v2z" />
           </svg>
