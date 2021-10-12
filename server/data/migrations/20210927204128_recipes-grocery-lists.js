@@ -3,6 +3,7 @@ exports.up = function (knex) {
     table.increments();
     table.integer("recipe-id").notNullable().references("id").inTable("recipes");
     table.integer("grocery-list-id").notNullable().references("id").inTable("grocery-lists");
+    table.integer("user-id").notNullable().references("id").inTable("users");
   });
 };
 
