@@ -2,15 +2,6 @@ const db = require("../../data/connection");
 const { findIngredientsByRecipeId } = require("../recipes/recipes-model");
 
 const findRecipesAndGroceryLists = () => db("recipes-grocery-lists");
-const findGroceryListIdsByUserId = async (id) => {
-  const ids = await db("recipes-grocery-lists").where("user-id", id).select("grocery-list-id");
-  return ids.reduce((prev, curr) => {
-    if (prev.indexOf(curr["grocery-list-id"]) === -1) {
-      prev.push(curr["grocery-list-id"]);
-    }
-    return prev;
-  }, []);
-};
 
 const findRecipesAndGroceryListsByUserId = (id) => {
   return db("recipes-grocery-lists")
@@ -50,7 +41,7 @@ const findRecipesByGroceryListId = async (id) => {
     descriptions.push(recipeGroceryLists[i]["description"]);
     imgUrls.push(recipeGroceryLists[i]["img-url"]);
   }
-  console.log("list ids", recipesGroceryListsIds);
+
   return {
     "recipes-grocery-lists-id": 1,
     "recipe-id": recipeIds,
@@ -64,6 +55,25 @@ const findRecipesByGroceryListId = async (id) => {
     created_at: recipeGroceryLists[0]["created_at"],
     updated_at: recipeGroceryLists[0]["updated_at"]
   };
+};
+
+const findGroceryListIdsByUserId = async (id) => {
+  const ids = await db("recipes-grocery-lists").where("user-id", id).select("grocery-list-id");
+  const reducedIds = ids.reduce((prev, curr) => {
+    if (prev.indexOf(curr["grocery-list-id"]) === -1) {
+      prev.push(curr["grocery-list-id"]);
+    }
+    return prev;
+  }, []);
+
+  const mappedGroceryListInfo = [];
+
+  for (let i = 0; i < reducedIds.length; i++) {
+    let result = await findRecipesByGroceryListId(reducedIds[i]);
+    mappedGroceryListInfo.push(result);
+  }
+
+  return mappedGroceryListInfo;
 };
 
 const findRecipeIdsByGroceryListId = (id) => {
