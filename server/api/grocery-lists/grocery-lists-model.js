@@ -51,7 +51,7 @@ const reduceRecipesToGroceryListNames = (recipes) => {
 };
 
 const findRecipesWithIngredients = (userId) => {
-  return db("grocery-lists")
+  return db("recipes-grocery-lists")
     .select("grocery-lists.id", "ingredients.name", "grocery-lists.name as grocery-list-name")
     .where("grocery-lists.user-id", userId)
     .join("recipes", "grocery-lists.id", "=", "recipes.grocery-list-id")

@@ -1,7 +1,7 @@
-exports.seed = function (knex) {
+exports.seed = function (knex, Promise) {
   // Deletes ALL existing entries
   return knex("recipe-instructions")
-    .truncate()
+    .del()
     .then(function () {
       // Inserts seed entries
       return knex("recipe-instructions").insert([
@@ -14,8 +14,7 @@ exports.seed = function (knex) {
         {
           id: 2,
           "recipe-id": 4,
-          description:
-            "If cooking black lentils and basmati rice, start them first",
+          description: "If cooking black lentils and basmati rice, start them first",
           step: 1
         },
         {
@@ -54,15 +53,13 @@ exports.seed = function (knex) {
         {
           id: 8,
           "recipe-id": 5,
-          description:
-            'While bread is toasting to desired color, cut up banana in 1/4" slices',
+          description: 'While bread is toasting to desired color, cut up banana in 1/4" slices',
           step: 2
         },
         {
           id: 9,
           "recipe-id": 5,
-          description:
-            "Spread jam on one slice of bread, and peanut butter on the other slice",
+          description: "Spread jam on one slice of bread, and peanut butter on the other slice",
           step: 3
         },
         {
@@ -71,6 +68,30 @@ exports.seed = function (knex) {
           description:
             "Lay out banana slices on one half of bread. Close up that bad boy and you got yourself a dank PB&J",
           step: 4
+        },
+        {
+          id: 11,
+          "recipe-id": 6,
+          description: "Test 1",
+          step: 1
+        },
+        {
+          id: 12,
+          "recipe-id": 6,
+          description: "Test 2",
+          step: 2
+        },
+        {
+          id: 13,
+          "recipe-id": 6,
+          description: "Test 3",
+          step: 3
+        },
+        {
+          id: 14,
+          "recipe-id": 3,
+          description: "Don't do anything",
+          step: 1
         }
       ]);
     });

@@ -36,7 +36,6 @@ const findRecipesByUserId = (userId) => {
     .where("user-id", userId)
     .select(
       "recipes.id",
-      "recipes.grocery-list-id",
       "recipes.recipe-name",
       "recipes.description",
       "recipes.img-url",
