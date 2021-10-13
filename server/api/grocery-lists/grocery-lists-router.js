@@ -55,6 +55,7 @@ router.get("/recipes/:id", (req, res) => {
     });
 });
 
+//TODO: Everytime a new grocery list is made, recipes-grocery-lists gets a post request
 router.post("/", validateUser, (req, res) => {
   const list = req.body;
   GroceryLists.addGroceryList(list)

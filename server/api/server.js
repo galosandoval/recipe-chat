@@ -19,14 +19,16 @@ const recipesRouter = require("./recipes/recipes-router");
 const ingredientsRouter = require("./ingredients/ingredients-router");
 const recipeInstructionsRouter = require("./recipe-instructions/recipe-instructions-router");
 const groceryListRouter = require("./grocery-lists/grocery-lists-router");
+const recipesGroceryListsRouter = require("./recipes-grocery-lists/recipes-grocery-lists-router");
 
 server.use("/users", usersRouter);
 server.use("/recipes", recipesRouter);
 server.use("/ingredients", ingredientsRouter);
 server.use("/instructions", recipeInstructionsRouter);
 server.use("/grocery-lists", groceryListRouter);
+server.use("/recipes-grocery-lists", recipesGroceryListsRouter);
 
-server.get("/", (req, res) => {
+server.get("/", (_req, res) => {
   res.json({ api: "up" });
 });
 
