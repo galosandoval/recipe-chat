@@ -1,29 +1,74 @@
 .images-container {
   width: 100%;
-  object-fit: contain;
-  display: flex;
   position: relative;
   transition: 0.3s;
+  display: flex;
+  align-items: center;
 }
 .images-container img {
   min-width: 25em;
   height: 20em;
   object-fit: cover;
 }
-.images-button {
-  position: absolute;
-  height: 2em;
-  opacity: 0.2;
+.images {
+  display: flex;
   transition: 0.3s;
 }
-.left {
-  top: 50%;
+.buttons-container {
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  opacity: 0.3;
+}
+.images-button {
+  width: 4em;
+  height: 4em;
+  padding: 1em;
+  border-radius: 50px;
+  border: none;
+  background-color: transparent;
+  margin: 0 1em 0 1em;
+  transition: 0.3s;
+  fill: black;
+}
+.circle-container {
+  position: absolute;
+  bottom: 1em;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  opacity: 0.3;
+  transition: 0.3s;
+  z-index: 1;
 }
 .right {
-  top: 50%;
-  right: 2em;
+  transform: rotate(-90deg);
 }
-.images-container:hover .images-button:not(:hover),
+.left {
+  transform: rotate(90deg);
+}
+.right:hover {
+  transform: rotate(-90deg) scale(1.08);
+}
+.left:hover {
+  transform: rotate(90deg) scale(1.08);
+}
 .images-button:hover {
+  background-color: rgba(128, 128, 128, 0.3);
+  transition: 0.3s;
+}
+.images-container:hover .buttons-container:not(:hover),
+.images-container:hover .circle-container:not(:hover),
+.buttons-container:hover,
+.circle-container:hover {
   opacity: 1;
+}
+.circle-svg {
+  fill: gray;
+  padding: 0 0.5em 0 0.5em;
+}
+.no-opacity {
+  fill: white;
 }
