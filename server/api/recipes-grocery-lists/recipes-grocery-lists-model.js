@@ -39,7 +39,7 @@ const findRecipesByGroceryListId = async (id) => {
     recipeIds.push(recipeGroceryLists[i]["recipe-id"]);
     recipeNames.push(recipeGroceryLists[i]["recipe-name"]);
     descriptions.push(recipeGroceryLists[i]["description"]);
-    imgUrls.push(recipeGroceryLists[i]["img-url"]);
+    if (recipeGroceryLists[i]["img-url"] !== null) imgUrls.push(recipeGroceryLists[i]["img-url"]);
   }
 
   return {

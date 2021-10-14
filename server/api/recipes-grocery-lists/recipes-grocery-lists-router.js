@@ -11,11 +11,11 @@ router.get("/", (_req, res) => {
     });
 });
 
-router.get("/glid/user/:id", (req, res) => {
+router.get("/gl/user/:id", (req, res) => {
   const { id } = req.params;
   RecipesGroceryLists.findGroceryListIdsByUserId(id)
-    .then((groceryListIds) => {
-      res.status(200).json({ groceryListIds });
+    .then((groceryLists) => {
+      res.status(200).json({ groceryLists });
     })
     .catch((error) => {
       res.status(404).json({ message: "Not Found", error });
