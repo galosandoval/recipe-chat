@@ -1,9 +1,13 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "../../styles/recipesStyles.css";
 import "../../styles/grocerylistStyles.css";
 
 export const GroceryListCard = ({ list }) => {
-  const [carousel, setCarousel] = useState(true);
+  const [carousel, setCarousel] = useState(0);
+  const [leftButton, setLeftButton] = useState(2);
+  const [rightButton, setRightButton] = useState(2);
+  const [page, setPage] = useState(1);
+  console.log("page", page);
   console.log("list", list);
   //  const list = {
   //    completed: 0
@@ -19,28 +23,48 @@ export const GroceryListCard = ({ list }) => {
   //    user-id: 1
   //   }
 
-  const handleClick = (event) => {};
+  const handleClick = (event) => {
+    const { name } = event.target;
+    if (name === "right-button") {
+      setCarousel((state) => (state -= 25));
+      setLeftButton((state) => (state += 30));
+      setRightButton((state) => (state -= 30));
+      setPage((state) => (state += 1));
+    }
+    if (name === "left-button") {
+      setCarousel((state) => (state += 25));
+      setLeftButton((state) => (state -= 30));
+      setRightButton((state) => (state += 30));
+      setPage((state) => (state -= 1));
+    }
+  };
 
   return (
     <div className="card" key={list.id} onClick={handleClick}>
       <h2>{list["grocery-list-name"]}</h2>
-      <div className="images-container">
-        {carousel && (
+      <div className="images-container" style={{ transform: `translateX(${carousel}em)` }}>
+        {list["img-url"].length > 1 && (
           <>
-            <button name="left-button" className="images-button left">
+            <button
+              style={{ left: `${leftButton}em`, display: page === 1 ? "none" : null }}
+              name="left-button"
+              className="images-button left"
+            >
               {"<"}
             </button>
-            <button name="right-button" className="images-button right">
+            <button
+              style={{
+                right: `${rightButton}em`,
+                display: page === list["img-url"].length ? "none" : null
+              }}
+              name="right-button"
+              className="images-button right"
+            >
               {">"}
             </button>
           </>
         )}
         {list["img-url"].map((img, index) => {
-          if (img === null) {
-            return null;
-          }
-          // if ()
-          // setCarousel(false);
           return <img src={img} alt={list.descriptions} key={list.description[index]} />;
         })}
       </div>

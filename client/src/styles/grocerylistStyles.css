@@ -3,6 +3,7 @@
   object-fit: contain;
   display: flex;
   position: relative;
+  transition: 0.3s;
 }
 .images-container img {
   min-width: 25em;
@@ -12,12 +13,17 @@
 .images-button {
   position: absolute;
   height: 2em;
+  opacity: 0.2;
+  transition: 0.3s;
 }
 .left {
   top: 50%;
-  left: 2em;
 }
 .right {
   top: 50%;
   right: 2em;
+}
+.images-container:hover .images-button:not(:hover),
+.images-button:hover {
+  opacity: 1;
 }
