@@ -1,0 +1,23 @@
+.images-container {
+  width: 100%;
+  object-fit: contain;
+  display: flex;
+  position: relative;
+}
+.images-container img {
+  min-width: 25em;
+  height: 20em;
+  object-fit: cover;
+}
+.images-button {
+  position: absolute;
+  height: 2em;
+}
+.left {
+  top: 50%;
+  left: 2em;
+}
+.right {
+  top: 50%;
+  right: 2em;
+}

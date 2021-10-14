@@ -6,6 +6,7 @@ const Nav = styled.nav`
   display: flex;
   justify-content: space-between;
   width: 100%;
+  max-width: 700px;
   ul {
     display: flex;
     justify-content: space-between;
@@ -24,12 +25,6 @@ export const Navbar = () => {
         </li>
         <li>
           <Link to="/recipes">Recipes</Link>
-        </li>
-        <li>
-          <Link to="/profile">Profile</Link>
-        </li>
-        <li>
-          <Link to="/archived">Archived</Link>
         </li>
       </ul>
     </Nav>

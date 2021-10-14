@@ -1,34 +1,18 @@
-import React, { useMemo } from "react";
-import styled from "styled-components";
+import React from "react";
 import { GroceryListCard } from "./GroceryListCard";
 
-const StyledDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  .grocery-list-container {
-    display: flex;
-    justify-content: space-evenly;
-    width: 100%;
-  }
-`;
-
 export const GroceryLists = ({ groceryLists }) => {
-  const mappedGroceryLists = (groceryListsArray) => {
-    return groceryListsArray.map((groceryList) => (
-      <GroceryListCard key={groceryList.id} groceryList={groceryList} />
-    ));
-  };
-  const memoizedGroceryLists = useMemo(
-    () => mappedGroceryLists(groceryLists),
-    [groceryLists]
-  );
-
+  console.log(groceryLists);
   return (
-    <StyledDiv>
+    <div className="grocery-lists">
       <div className="title">
         <h1>GroceryLists</h1>
       </div>
-      <div className="grocery-list-container">{memoizedGroceryLists}</div>
-    </StyledDiv>
+      <div className="grocery-lists-container">
+        {groceryLists.map((list) => (
+          <GroceryListCard list={list} key={list["grocery-list-id"]} />
+        ))}
+      </div>
+    </div>
   );
 };
