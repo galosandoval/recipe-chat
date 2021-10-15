@@ -1,3 +1,4 @@
+/* ____Grocerylist Card____ */
 .images-container {
   width: 100%;
   position: relative;
@@ -12,8 +13,9 @@
 }
 .images {
   display: flex;
-  transition: 0.3s;
+  transition: all 0.5s ease-in-out;
 }
+/* ____Carousel____ */
 .buttons-container {
   position: absolute;
   width: 100%;
@@ -30,8 +32,8 @@
   border: none;
   background-color: transparent;
   margin: 0 1em 0 1em;
-  transition: 0.3s;
-  fill: black;
+  transition: 0.5s;
+  fill: #a4f0d8;
 }
 .circle-container {
   position: absolute;
@@ -64,6 +66,7 @@
 .buttons-container:hover,
 .circle-container:hover {
   opacity: 1;
+  transition: 0.5s;
 }
 .circle-svg {
   fill: gray;
@@ -71,4 +74,8 @@
 }
 .no-opacity {
   fill: white;
+}
+/* ____Todo____ */
+.todo {
+  position: absolute;
 }

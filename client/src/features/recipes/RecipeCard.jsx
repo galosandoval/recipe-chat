@@ -124,7 +124,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   }, [recipe.id]);
 
   return (
-    <div className="card">
+    <div id={recipe["recipe-name"]} className="card">
       <EditRecipe recipe={recipe} editRecipe={editRecipe} />
       <EditInstructions
         getRecipeInstructions={getRecipeInstructions}

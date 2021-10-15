@@ -1,6 +1,8 @@
 import React, { useLayoutEffect, useState } from "react";
 import "../../styles/recipesStyles.css";
 import "../../styles/grocerylistStyles.css";
+import { Carousel } from "./Carousel";
+import { Todo } from "./Todo";
 
 export const GroceryListCard = ({ list }) => {
   const [carousel, setCarousel] = useState(0);
@@ -47,53 +49,22 @@ export const GroceryListCard = ({ list }) => {
       <h2>{list["grocery-list-name"]}</h2>
       <div className="images-container">
         {list["img-url"].length > 1 && (
-          <>
-            <div className="buttons-container">
-              {page !== 1 ? (
-                <button name="left-button" className="images-button left" onClick={handleClick}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                    <path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z" />
-                  </svg>
-                </button>
-              ) : (
-                <span></span>
-              )}
-              {page !== list["img-url"].length ? (
-                <button name="right-button" className="images-button right" onClick={handleClick}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                    <path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z" />
-                  </svg>
-                </button>
-              ) : (
-                <span></span>
-              )}
-            </div>
-            <div className="circle-container">
-              {[...Array(list["img-url"].length)].map((_element, index) => (
-                <svg
-                  key={index}
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  className={`circle-svg circle${index}`}
-                >
-                  <circle cx="12" cy="12" r="12" />
-                </svg>
-              ))}
-            </div>
-          </>
+          <Carousel page={page} handleClick={handleClick} list={list} />
         )}
         <div className="images" style={{ transform: `translateX(${carousel}em)` }}>
-          {list["img-url"].map((img, index) => {
-            return <img src={img} alt={list.descriptions} key={list.description[index]} />;
-          })}
+          {list["img-url"].map((img, index) => (
+            <img src={img} alt={list.descriptions} key={list.description[index]} />
+          ))}
         </div>
       </div>
-      <p>
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Illo fuga corporis modi pariatur
-        deserunt porro incidunt nostrum velit possimus recusandae.
-      </p>
+      <div className="info">
+        <h2>Recipes</h2>
+        {list["recipe-name"].map((name, index) => (
+          <li key={`${name}-${index}`}>{name}</li>
+        ))}
+        <button>Ingredients {">"}</button>
+      </div>
+      <Todo />
     </div>
   );
 };

@@ -87,7 +87,7 @@ const findRecipeIdsByGroceryListId = (id) => {
 const findIngredientsByGroceryListId = async (id) => {
   const recipeIds = await findRecipeIdsByGroceryListId(id);
 
-  let combinedIngredients = [];
+  const combinedIngredients = [];
 
   for (let i = 0; i < recipeIds.length; i++) {
     const ingredientToAdd = await findIngredientsByRecipeId(recipeIds[i].id);
@@ -96,7 +96,7 @@ const findIngredientsByGroceryListId = async (id) => {
     }
   }
 
-  return combinedIngredients.select("recipe-name");
+  return combinedIngredients;
 };
 
 module.exports = {

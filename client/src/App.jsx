@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import axios from "axios";
 
@@ -9,6 +9,7 @@ import { Recipes } from "./features/recipes/Recipes";
 function App() {
   const [groceryLists, setGroceryLists] = useState([]);
   const [recipes, setRecipes] = useState([]);
+  const myRef = useRef(null);
 
   // TODO: Replace hardcoded '1' with logged in users ID
   const getGroceryLists = () => {
@@ -30,7 +31,7 @@ function App() {
       <Navbar />
       <Switch>
         <Route path="/recipes">
-          <Recipes recipes={recipes} getRecipes={getRecipes} />
+          <Recipes myRef={myRef} recipes={recipes} getRecipes={getRecipes} />
         </Route>
         <Route path="/">
           <GroceryLists groceryLists={groceryLists} />
