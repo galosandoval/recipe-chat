@@ -1,0 +1,81 @@
+/* ____Grocerylist Card____ */
+.images-container {
+  width: 100%;
+  position: relative;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+}
+.images-container img {
+  min-width: 25em;
+  height: 20em;
+  object-fit: cover;
+}
+.images {
+  display: flex;
+  transition: all 0.5s ease-in-out;
+}
+/* ____Carousel____ */
+.buttons-container {
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  opacity: 0.3;
+}
+.images-button {
+  width: 4em;
+  height: 4em;
+  padding: 1em;
+  border-radius: 50px;
+  border: none;
+  background-color: transparent;
+  margin: 0 1em 0 1em;
+  transition: 0.5s;
+  fill: #a4f0d8;
+}
+.circle-container {
+  position: absolute;
+  bottom: 1em;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  opacity: 0.3;
+  transition: 0.3s;
+  z-index: 1;
+}
+.right {
+  transform: rotate(-90deg);
+}
+.left {
+  transform: rotate(90deg);
+}
+.right:hover {
+  transform: rotate(-90deg) scale(1.08);
+}
+.left:hover {
+  transform: rotate(90deg) scale(1.08);
+}
+.images-button:hover {
+  background-color: rgba(128, 128, 128, 0.3);
+  transition: 0.3s;
+}
+.images-container:hover .buttons-container:not(:hover),
+.images-container:hover .circle-container:not(:hover),
+.buttons-container:hover,
+.circle-container:hover {
+  opacity: 1;
+  transition: 0.5s;
+}
+.circle-svg {
+  fill: gray;
+  padding: 0 0.5em 0 0.5em;
+}
+.no-opacity {
+  fill: white;
+}
+/* ____Todo____ */
+.todo {
+  position: absolute;
+}

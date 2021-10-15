@@ -11,6 +11,28 @@ router.get("/", (_req, res) => {
     });
 });
 
+router.get("/gl/user/:id", (req, res) => {
+  const { id } = req.params;
+  RecipesGroceryLists.findGroceryListIdsByUserId(id)
+    .then((groceryLists) => {
+      res.status(200).json({ groceryLists });
+    })
+    .catch((error) => {
+      res.status(404).json({ message: "Not Found", error });
+    });
+});
+
+router.get("/user/:id", (req, res) => {
+  const { id } = req.params;
+  RecipesGroceryLists.findRecipesAndGroceryListsByUserId(id)
+    .then((list) => {
+      res.status(200).json({ list });
+    })
+    .catch((error) => {
+      res.status(404).json({ message: "Not found", error });
+    });
+});
+
 router.get("/recipe/:id", (req, res) => {
   const { id } = req.params;
   RecipesGroceryLists.findRecipesByGroceryListId(id)

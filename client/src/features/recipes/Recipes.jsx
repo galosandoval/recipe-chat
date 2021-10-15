@@ -10,7 +10,7 @@ const initialFormState = {
   isOpen: false
 };
 
-export const Recipes = ({ recipes, getRecipes }) => {
+export const Recipes = ({ recipes, getRecipes, myRef }) => {
   const [formState, setFormState] = useState(initialFormState);
   const closeOpenCarrots = () => {
     const carrots = document.querySelectorAll(".carrot");
@@ -44,7 +44,7 @@ export const Recipes = ({ recipes, getRecipes }) => {
       <div className={formState.formClassName}>
         <AddRecipe recipes={recipes} getRecipes={getRecipes} />
       </div>
-      <div className="recipes-container">
+      <div id="recipe-container" className="recipes-container">
         {recipes.map((recipe, index) => (
           <RecipeCard
             index={index}

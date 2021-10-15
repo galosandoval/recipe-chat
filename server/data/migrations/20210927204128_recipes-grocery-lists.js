@@ -4,6 +4,7 @@ exports.up = function (knex) {
     table.integer("recipe-id").notNullable().references("id").inTable("recipes");
     table.integer("grocery-list-id").notNullable().references("id").inTable("grocery-lists");
     table.integer("user-id").notNullable().references("id").inTable("users");
+    table.timestamps(false, true);
   });
 };
 

@@ -1,7 +1,7 @@
-exports.seed = function (knex) {
+exports.seed = function (knex, Promise) {
   // Deletes ALL existing entries
   return knex("recipes")
-    .truncate()
+    .del()
     .then(function () {
       // Inserts seed entries
       return knex("recipes").insert([
@@ -15,12 +15,14 @@ exports.seed = function (knex) {
         {
           id: 2,
           "recipe-name": "test1",
-          "user-id": 2
+          "user-id": 1,
+          description: "A test description"
         },
         {
           id: 3,
           "recipe-name": "test2",
-          "user-id": 3
+          "user-id": 1,
+          description: "A test recipe"
         },
         {
           id: 4,
@@ -28,7 +30,6 @@ exports.seed = function (knex) {
           description:
             "This Lentil Dal with Spinach Sauce is one of the most delicious, soul-satisfying plant-based, Indian meals! This version is fragrant, flavorful and packed with nutrients- think of this like Saag Paneer, but substituting black lentils instead of the cheese! Super tasty and healthy",
           "user-id": 1,
-
           "img-url": "https://www.feastingathome.com/wp-content/uploads/2020/06/Lentil-Dal-15.jpg"
         },
         {
@@ -37,6 +38,12 @@ exports.seed = function (knex) {
           description: "Simple, yet classic treat.",
           "user-id": 1,
           "img-url": "https://data.thefeedfeed.com/static/other/15360644095b8e7b992bf55.jpg"
+        },
+        {
+          id: 6,
+          "recipe-name": "Another Test",
+          description: "Testing",
+          "user-id": 1
         }
       ]);
     });

@@ -29,7 +29,6 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
     };
 
     const parsedIngredients = parseIngredients(recipeToAdd.ingredients);
-    console.log("parsed ingredients", parsedIngredients);
     const parsedInstructions = parseInstructions(recipeToAdd.instructions);
 
     let newRecipeId;
@@ -37,18 +36,14 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
     axios
       .post("http://localhost:4000/recipes/", recipeBody)
       .then((recipeAdded) => {
-        console.log(recipeAdded.data.recipe[0]);
         newRecipeId = recipeAdded.data.recipe[0];
-        console.log("newID", newRecipeId);
       })
       .catch((err) => console.log(err))
       .then(() => {
-        console.log("outiside", newRecipeId);
         const ingredientsBody = parsedIngredients.map((ingredientToAdd) => ({
           "recipe-id": newRecipeId,
           name: ingredientToAdd
         }));
-        console.log("ingredient body", ingredientsBody);
 
         axios
           .post("http://localhost:4000/ingredients/", ingredientsBody)
@@ -66,7 +61,6 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
           .then((res) => {
             getRecipes(recipes[0]["user-id"]);
             setRecipetToAdd(initialRecipeToAddState);
-            console.log(res);
           })
           .catch((err) => console.log(err));
       });
