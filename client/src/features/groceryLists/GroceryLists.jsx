@@ -2,7 +2,6 @@ import React from "react";
 import { GroceryListCard } from "./GroceryListCard";
 
 export const GroceryLists = ({ groceryLists }) => {
-  console.log(groceryLists);
   return (
     <div className="grocery-lists">
       <div className="title">
