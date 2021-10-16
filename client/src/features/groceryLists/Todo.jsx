@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import "../../styles/grocerylistStyles.css";
-import { LineItem } from "./LineItem";
+import { TodoList } from "./TodoList";
 export const Todo = ({ listState, handleClick, grocerylistId }) => {
   const [ingredients, setIngredients] = useState(null);
   useEffect(() => {
@@ -9,7 +9,12 @@ export const Todo = ({ listState, handleClick, grocerylistId }) => {
       axios
         .get(`http://localhost:4000/recipes-grocery-lists/ingredients/${id}`)
         .then((ingredients) => {
-          setIngredients(ingredients.data.ingredients);
+          console.log(ingredients.data.ingredients);
+          const notCompletedIngredients = ingredients.data.ingredients.map((ingredient) => ({
+            name: ingredient,
+            isComplete: false
+          }));
+          setIngredients(notCompletedIngredients);
         });
     };
     getIngredients(grocerylistId);
@@ -20,11 +25,8 @@ export const Todo = ({ listState, handleClick, grocerylistId }) => {
         <div className="pattern">
           <div className="content">
             <h1>Todos</h1>
-            <div className="map-container">
-              {ingredients &&
-                ingredients.map((ingredient, index) => (
-                  <LineItem ingredient={ingredient} key={`${ingredient}-${index}`} />
-                ))}
+            <div className="todo-list-container">
+              {ingredients && <TodoList ingredients={ingredients} setIngredients={setIngredients} />}
             </div>
             <button name="list" onClick={handleClick}>
               Close
