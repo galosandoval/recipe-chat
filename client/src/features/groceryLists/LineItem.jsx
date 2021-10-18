@@ -1,32 +1,30 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React from "react";
 
-export const LineItem = ({ ingredient, setIngredients, name, index }) => {
-  const [checked, setChecked] = useState(ingredient.isComplete);
+export const LineItem = ({ ingredient, state, setState, name, oldSetState }) => {
+  const handleChange = () => {
+    const body = {
+      id: ingredient.id,
+      "recipe-id": ingredient["recipe-id"],
+      name: ingredient.name,
+      isComplete: !ingredient.isComplete
+    };
 
-  const changeState = (stateChange) => {
-    setIngredients((state) => {
-      let newObject = state[index];
-      newObject.isComplete = stateChange;
-      return [...state.slice(0, index), newObject, ...state.slice(index + 1)];
-    });
-  };
-
-  const handleChange = (event) => {
-    const { name } = event.target;
-
-    if (name === "check") {
-      setChecked(true);
-      changeState(true);
-    }
-    if (name === "uncheck") {
-      setChecked(false);
-      changeState(false);
-    }
+    axios
+      .put(`http://localhost:4000/ingredients/${ingredient.id}`, body)
+      .then((change) => {
+        const newArr = [...state, change.data.updatedIngredient[0]];
+        setState(newArr);
+      })
+      .then(() => {
+        oldSetState((state) => state.filter((change) => change.id !== ingredient.id));
+      })
+      .catch((error) => console.log(error));
   };
   return (
-    <div className="line-item">
-      <p>{ingredient.name}</p>
-      <input type="checkbox" name={name} checked={checked} onChange={handleChange} />
-    </div>
+    <label className="line-item">
+      {ingredient.name}
+      <input type="checkbox" name={name} checked={ingredient.isComplete} onChange={handleChange} />
+    </label>
   );
 };
