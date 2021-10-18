@@ -92,7 +92,8 @@ const findIngredientsByGroceryListId = async (id) => {
   for (let i = 0; i < recipeIds.length; i++) {
     const ingredientToAdd = await findIngredientsByRecipeId(recipeIds[i].id);
     for (let j = 0; j < ingredientToAdd.length; j++) {
-      combinedIngredients.push(ingredientToAdd[j].name);
+      const objToAdd = { name: ingredientToAdd[j].name, grocerylistId: id };
+      combinedIngredients.push(objToAdd);
     }
   }
 
