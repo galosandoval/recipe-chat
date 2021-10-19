@@ -91,18 +91,20 @@ const findIngredientsByGroceryListId = async (id) => {
 
   for (let i = 0; i < recipeIds.length; i++) {
     const ingredientToAdd = await findIngredientsByRecipeId(recipeIds[i].id);
+    console.log("ingredient", ingredientToAdd);
     for (let j = 0; j < ingredientToAdd.length; j++) {
-      combinedIngredients.push(ingredientToAdd[j].name);
+      combinedIngredients.push(ingredientToAdd[j]);
     }
   }
 
   return combinedIngredients;
 };
 
+
 module.exports = {
   findRecipesAndGroceryLists,
   findRecipesAndGroceryListsByUserId,
   findGroceryListIdsByUserId,
   findRecipesByGroceryListId,
-  findIngredientsByGroceryListId
+  findIngredientsByGroceryListId,
 };

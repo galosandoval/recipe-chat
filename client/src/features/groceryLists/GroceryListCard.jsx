@@ -71,8 +71,8 @@ export const GroceryListCard = ({ list }) => {
       </div>
       <Todo
         grocerylistId={list["grocery-list-id"]}
-        handleClick={handleClick}
         listState={listState}
+        handleClick={handleClick}
       />
     </div>
   );

@@ -86,6 +86,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         });
       }
       // Read more Click
+      // TODO: Fix this
     } else if (className === "learn-more-button") {
       if (recipeDescription.isOpen) {
         setRecipeDescription(initialDescriptionState(recipe));
@@ -125,6 +126,9 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
 
   return (
     <div id={recipe["recipe-name"]} className="card">
+      {/**
+       * TODO: Make toast for when something is updated or deleted
+       */}
       <EditRecipe recipe={recipe} editRecipe={editRecipe} />
       <EditInstructions
         getRecipeInstructions={getRecipeInstructions}
