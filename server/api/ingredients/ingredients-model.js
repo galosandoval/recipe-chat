@@ -50,6 +50,7 @@ const deleteIngredientsByRecipeId = (id) => {
 
 const updateIngredientsByRecipe = (id, changes) => {
   changes.forEach((change) => {
+    console.log("change", change);
     db("ingredients")
       .where("id", change.id)
       .update(change)

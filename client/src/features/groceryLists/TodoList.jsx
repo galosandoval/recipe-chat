@@ -31,6 +31,7 @@ export const TodoList = ({ grocerylistId }) => {
   return (
     <div className="todo-list">
       <div className="not-completed">
+        {incomplete.length > 0 && <h2>Incomplete</h2>}
         {incomplete.map((ingredient, index) => (
           <LineItem
             ingredient={ingredient}
@@ -44,17 +45,19 @@ export const TodoList = ({ grocerylistId }) => {
         ))}
       </div>
       <div className="completed">
-        {complete.map((ingredient, index) => (
-          <LineItem
-            ingredient={ingredient}
-            state={incomplete}
-            setState={setIncomplete}
-            oldSetState={setComplete}
-            name="uncheck"
-            index={index}
-            key={`${ingredient.name}-${index}`}
-          />
-        ))}
+        {complete.length > 0 && <h2>Completed</h2>}
+        {complete.length > 0 &&
+          complete.map((ingredient, index) => (
+            <LineItem
+              ingredient={ingredient}
+              state={incomplete}
+              setState={setIncomplete}
+              oldSetState={setComplete}
+              name="uncheck"
+              index={index}
+              key={`${ingredient.name}-${index}`}
+            />
+          ))}
       </div>
     </div>
   );

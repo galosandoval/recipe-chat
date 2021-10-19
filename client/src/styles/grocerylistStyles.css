@@ -93,6 +93,7 @@
   padding-top: 40px;
   padding-bottom: 40px;
   background-color: #fdf3b6;
+  height: inherit;
 }
 .paper::before {
   content: "";

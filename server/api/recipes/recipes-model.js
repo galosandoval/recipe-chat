@@ -29,7 +29,6 @@ const findIngredientsByRecipeId = (id) => {
     .select(
       "ingredients.name",
       "ingredients.id",
-      "recipes.user-id",
       "recipes.id as recipe-id",
       "ingredients.isComplete"
     )

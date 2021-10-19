@@ -7,7 +7,6 @@ export const Todo = ({ listState, handleClick, grocerylistId }) => {
       <div className="paper">
         <div className="pattern">
           <div className="content">
-            <h1>Todos</h1>
             <div className="todo-list-container">
               <TodoList grocerylistId={grocerylistId} />
             </div>
