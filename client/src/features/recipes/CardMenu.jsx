@@ -10,23 +10,26 @@ export const CardMenu = ({
   initialDropdownState
 }) => {
   const wrapperRef = useRef(null);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         wrapperRef.current &&
-        event.target.className !== ("edit" || "instructions" || "ingredients")
+        !wrapperRef.current.contains(event.target)
+        // wrapperRef.current.className !== "dropdown-content show-edit-menu"
       ) {
+        // TODO: Fix close button
         setDropdown(initialDropdownState);
       }
     };
 
-    // Bind the event listener
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
-      // Unbind the event listener on clean up
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [initialDropdownState, setDropdown]);
+
   return (
     <div className="dropdown" onClick={handleClick}>
       {editRecipe.open || editInstructions.open || editIngredients.open ? (
@@ -36,15 +39,16 @@ export const CardMenu = ({
           </svg>
         </button>
       ) : (
-        <button className="dropbtn">
+        <button className="dropbtn" onClick={handleClick}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path d="M6 12c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm9 0c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm9 0c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z" />
           </svg>
         </button>
       )}
+
       <div className={dropdown.class} ref={wrapperRef}>
         <button className="edit" onClick={handleClick}>
-          Edit Recipe Description
+          Edit Description
         </button>
         <button className="instructions" onClick={handleClick}>
           Edit Instructions

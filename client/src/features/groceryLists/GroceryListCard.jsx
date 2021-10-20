@@ -13,7 +13,7 @@ export const GroceryListCard = ({ list }) => {
   const [carousel, setCarousel] = useState(0);
   const [page, setPage] = useState(1);
   const [listState, setListState] = useState(initialListState);
-
+  
   const card = useRef(null);
 
   const handleClick = (event) => {

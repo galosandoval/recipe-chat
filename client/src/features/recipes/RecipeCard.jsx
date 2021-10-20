@@ -56,21 +56,23 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
       className === "dropdown" &&
       !editRecipe.open &&
       !editInstructions.open &&
-      !editIngredients.open
+      !editIngredients.open &&
+      !dropdown.open
     ) {
       closeOpenCarrots();
-      !dropdown.open
-        ? setDropdown({ class: "dropdown-content show-edit-menu", open: true })
-        : setDropdown(initialDropdownState);
+      !dropdown.open && setDropdown({ class: "dropdown-content show-edit-menu", open: true });
     } else if (className === "closebtn") {
       setEditRecipe(initialEditCardState);
       setEditInstructions(initialEditCardState);
       setEditIngredients(initialEditIngredientsState);
     } else if (className === "edit") {
+      setDropdown(initialDropdownState);
       setEditRecipe({ class: "edit-recipe show-edit-card", open: true });
     } else if (className === "instructions") {
+      setDropdown(initialDropdownState);
       setEditInstructions({ class: "edit-instructions show-edit-card", open: true });
     } else if (className === "ingredients") {
+      setDropdown(initialDropdownState);
       setEditIngredients({ class: "edit-ingredients show-edit-card", open: true });
       // Carrot Click
     } else if (className.includes("carrot")) {
