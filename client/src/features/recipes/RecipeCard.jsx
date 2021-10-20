@@ -127,7 +127,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   return (
     <div id={recipe["recipe-name"]} className="card">
       {/**
-       * TODO: Make toast for when something is updated or deleted
+       * TODO: Make toast when something is updated or deleted
        */}
       <EditRecipe recipe={recipe} editRecipe={editRecipe} />
       <EditInstructions
@@ -150,6 +150,8 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
           editIngredients={editIngredients}
           handleClick={handleClick}
           dropdown={dropdown}
+          setDropdown={setDropdown}
+          initialDropdownState={initialDropdownState}
         />
       </div>
 

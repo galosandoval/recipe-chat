@@ -8,10 +8,7 @@ export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecip
   const [form, setForm] = useState([]);
   const [ingredientToAdd, setIngredientToAdd] = useState("");
   const [add, setAdd] = useState(initialAddState);
-
-  console.log("ingredients", ingredients);
-  console.log("form", form);
-
+  
   const handleChange = (event, index) => {
     const { name, value } = event.target;
     if (name === "edit") {

@@ -1,6 +1,32 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
-export const CardMenu = ({ dropdown, handleClick, editRecipe, editInstructions, editIngredients }) => {
+export const CardMenu = ({
+  dropdown,
+  handleClick,
+  editRecipe,
+  editInstructions,
+  editIngredients,
+  setDropdown,
+  initialDropdownState
+}) => {
+  const wrapperRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        wrapperRef.current &&
+        event.target.className !== ("edit" || "instructions" || "ingredients")
+      ) {
+        setDropdown(initialDropdownState);
+      }
+    };
+
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [initialDropdownState, setDropdown]);
   return (
     <div className="dropdown" onClick={handleClick}>
       {editRecipe.open || editInstructions.open || editIngredients.open ? (
@@ -16,14 +42,16 @@ export const CardMenu = ({ dropdown, handleClick, editRecipe, editInstructions, 
           </svg>
         </button>
       )}
-      <div id="myDropdown" className={dropdown.class}>
+      <div className={dropdown.class} ref={wrapperRef}>
         <button className="edit" onClick={handleClick}>
           Edit Recipe Description
         </button>
         <button className="instructions" onClick={handleClick}>
           Edit Instructions
         </button>
-        <button className="ingredients" onClick={handleClick}>Edit Ingredients</button>
+        <button className="ingredients" onClick={handleClick}>
+          Edit Ingredients
+        </button>
       </div>
     </div>
   );
