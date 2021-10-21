@@ -53,14 +53,15 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
     const { className } = event.currentTarget;
     // Edit Menu Click
     if (
-      className === "dropdown" &&
+      className === "dropbtn" &&
       !editRecipe.open &&
       !editInstructions.open &&
-      !editIngredients.open &&
-      !dropdown.open
+      !editIngredients.open
     ) {
       closeOpenCarrots();
-      !dropdown.open && setDropdown({ class: "dropdown-content show-edit-menu", open: true });
+      !dropdown.open
+        ? setDropdown({ class: "dropdown-content show-edit-menu", open: true })
+        : setDropdown(initialDropdownState);
     } else if (className === "closebtn") {
       setEditRecipe(initialEditCardState);
       setEditInstructions(initialEditCardState);
