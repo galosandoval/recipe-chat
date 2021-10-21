@@ -53,7 +53,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
     const { className } = event.currentTarget;
     // Edit Menu Click
     if (
-      className === "dropdown" &&
+      className === "dropbtn" &&
       !editRecipe.open &&
       !editInstructions.open &&
       !editIngredients.open
@@ -67,10 +67,13 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
       setEditInstructions(initialEditCardState);
       setEditIngredients(initialEditIngredientsState);
     } else if (className === "edit") {
+      setDropdown(initialDropdownState);
       setEditRecipe({ class: "edit-recipe show-edit-card", open: true });
     } else if (className === "instructions") {
+      setDropdown(initialDropdownState);
       setEditInstructions({ class: "edit-instructions show-edit-card", open: true });
     } else if (className === "ingredients") {
+      setDropdown(initialDropdownState);
       setEditIngredients({ class: "edit-ingredients show-edit-card", open: true });
       // Carrot Click
     } else if (className.includes("carrot")) {
@@ -127,7 +130,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   return (
     <div id={recipe["recipe-name"]} className="card">
       {/**
-       * TODO: Make toast for when something is updated or deleted
+       * TODO: Make toast when something is updated or deleted
        */}
       <EditRecipe recipe={recipe} editRecipe={editRecipe} />
       <EditInstructions
@@ -150,6 +153,8 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
           editIngredients={editIngredients}
           handleClick={handleClick}
           dropdown={dropdown}
+          setDropdown={setDropdown}
+          initialDropdownState={initialDropdownState}
         />
       </div>
 

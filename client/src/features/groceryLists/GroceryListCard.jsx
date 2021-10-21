@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "../../styles/recipesStyles.css";
 import "../../styles/grocerylistStyles.css";
 import { Carousel } from "./Carousel";
-import { Todo } from "./Todo";
+import { Paper } from "./Paper";
 
 const initialListState = {
   isVisible: false,
@@ -13,7 +13,7 @@ export const GroceryListCard = ({ list }) => {
   const [carousel, setCarousel] = useState(0);
   const [page, setPage] = useState(1);
   const [listState, setListState] = useState(initialListState);
-
+  
   const card = useRef(null);
 
   const handleClick = (event) => {
@@ -48,7 +48,7 @@ export const GroceryListCard = ({ list }) => {
   }, []);
 
   return (
-    <div ref={card} className=" card" key={list.id}>
+    <div ref={card} className="card" key={list.id}>
       <h2>{list["grocery-list-name"]}</h2>
       <div className="images-container">
         {list["img-url"].length > 1 && (
@@ -69,7 +69,7 @@ export const GroceryListCard = ({ list }) => {
           Ingredients {">"}
         </button>
       </div>
-      <Todo
+      <Paper
         grocerylistId={list["grocery-list-id"]}
         listState={listState}
         handleClick={handleClick}
