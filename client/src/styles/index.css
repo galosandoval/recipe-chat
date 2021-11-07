@@ -1,0 +1,541 @@
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margin */
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+/* Remove list styles on ul, ol elements with a list role, which suggests default styling will be removed */
+ul[role=list],
+ol[role=list] {
+  list-style: none;
+}
+
+/* Set core root defaults */
+html:focus-within {
+  scroll-behavior: smooth;
+}
+
+/* Set core body defaults */
+body {
+  min-height: 100vh;
+  text-rendering: optimizeSpeed;
+  line-height: 1.5;
+}
+
+/* A elements that don't have a class get default styles */
+a:not([class]) {
+  text-decoration-skip-ink: auto;
+}
+
+/* Make images easier to work with */
+img,
+picture {
+  max-width: 100%;
+  display: block;
+}
+
+/* Inherit fonts for inputs and buttons */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Remove all animations, transitions and smooth scroll for people that prefer not to see them */
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+*::before,
+*::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* ____Variables___ */
+/* ____Recipes Styling____ */
+.recipes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.recipes-container,
+.grocery-lists-container {
+  max-width: 1550px;
+  width: -webkit-fill-available;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+/* ____Shared Card Styling____ */
+.card {
+  background: #fff;
+  border-radius: 0.5em;
+  box-shadow: 0 0.25em 1em rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  justify-content: center;
+  margin: 0.5em 0;
+  max-width: 400px;
+  overflow: hidden;
+  padding: 0em;
+  width: 40%;
+  position: relative;
+  min-width: 22em;
+}
+
+/* ____Recipe Card Styling____ */
+.ingredients {
+  transition: all ease-in-out 0.3s;
+}
+
+.hidden {
+  overflow: hidden;
+  max-height: 0 !important;
+  transition: all ease 0.3s;
+}
+
+.img-container {
+  width: 100%;
+  object-fit: contain;
+}
+
+.img-container img {
+  width: 100%;
+  height: 20em;
+  object-fit: cover;
+}
+
+.learn-more-button {
+  background: none;
+  border: none;
+  color: var(--card-button-color);
+  cursor: pointer;
+}
+
+.recipe-name {
+  padding-left: 0.5em;
+}
+
+.carrot {
+  width: auto;
+  cursor: pointer;
+  transition: all ease-in-out 0.3s;
+}
+
+.carrot-button {
+  width: 4em;
+  height: 4em;
+  padding: 1em;
+  border-radius: 50px;
+  border: none;
+  background-color: #fff;
+  color: rgba(0, 0, 0, 0.54);
+  margin-bottom: 0.6em;
+}
+
+.carrot-button:hover {
+  background-color: var(--card-button-color);
+  transition: all ease 0.3s;
+  transform: scale(1.07);
+}
+
+.rotate {
+  transition: all ease-in-out 0.3s;
+  transform: rotate(180deg);
+}
+
+.rotate:hover {
+  transform: rotate(180deg) scale(1.07);
+}
+
+.description {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1em;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ____Accordian Styling____ */
+.accordian {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: max-height ease 0.3s;
+}
+
+.links {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.link {
+  text-decoration: none;
+}
+
+/* ____Recipe Ingredients Styling____ */
+.ingredients {
+  padding-left: 1em;
+  padding-top: 1em;
+}
+
+.ingredient {
+  padding-bottom: 0.5em;
+}
+
+.ingredient p {
+  margin: 0;
+}
+
+/* ____Recipe Instructions Styling____ */
+.instruction {
+  padding: 0.5em 1em 0.5em 0.5em;
+  margin: 0 0.5em;
+}
+
+/* ____Card Menu____ */
+.dropdown {
+  padding: 0.8em 1em 0 0;
+}
+
+.dropbtn {
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  height: 4em;
+  width: 4em;
+  padding: 1em;
+  transition: all ease 0.3s;
+}
+
+.dropbtn:hover {
+  background-color: var(--card-button-color);
+  transition: all ease 0.3s;
+  transform: scale(1.08);
+}
+
+.dropbtn svg {
+  fill: var(--card-svg-fill);
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+.show-edit-menu {
+  display: flex;
+  flex-direction: column;
+  right: 0;
+}
+
+/* ____Edit Recipe____ */
+.edit-recipe,
+.edit-instructions,
+.edit-ingredients {
+  position: absolute;
+  top: 150%;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
+  transition: all ease 0.5s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.show-edit-card {
+  top: 0;
+  overflow-y: scroll;
+}
+
+.closebtn {
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  height: 4em;
+  width: 4em;
+  padding: 1em;
+}
+
+.edit-recipe-form,
+.edit-instructions-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input {
+  padding: 1em;
+  margin: 1em;
+  border-radius: 1em;
+  border: none;
+}
+
+.ingredients-input {
+  margin: 0.5em;
+  border-radius: 1em;
+  border: none;
+  padding: 1em;
+  width: 35%;
+}
+
+.ingredients-form {
+  display: flex;
+  margin: 4em 0em 0em 1em;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.add-instruction,
+.add-ingredient {
+  max-height: 0;
+  padding: 0;
+  transition: all ease 0.5s;
+  overflow: hidden;
+}
+
+.show-input {
+  transition: all ease 0.5s;
+  max-height: 80px;
+  padding: 1em;
+}
+
+/* ____Recipe Button____ */
+.recipes-button-container {
+  position: absolute;
+  right: 1.5em;
+  top: 5em;
+}
+
+.recipes-text-area {
+  resize: none;
+}
+
+.recipes-add-form {
+  width: 100%;
+  display: flex;
+  background-color: tomato;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height ease 0.3s;
+}
+
+.show-form {
+  max-height: 600px;
+  transition: max-height ease-in-out 0.3s;
+}
+
+.recipes-button {
+  border: none;
+  background-color: #f8f8f8;
+}
+
+.recipes-button:hover {
+  transform: scale(1.06);
+  transition: all ease 0.3s;
+}
+
+.rotate-button {
+  transition: all ease 0.3s;
+  transform: rotate(45deg);
+}
+
+.rotate-button:hover {
+  transition: all ease 0.3s;
+  transform: rotate(45deg) scale(1.06);
+}
+
+/* ____Grocerylist Card____ */
+.images-container {
+  width: 100%;
+  position: relative;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+}
+
+.images-container img {
+  min-width: 25em;
+  height: 20em;
+  object-fit: cover;
+}
+
+.images {
+  display: flex;
+  transition: all 0.5s ease-in-out;
+}
+
+/* ____Carousel____ */
+.buttons-container {
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  opacity: 0.3;
+}
+
+.images-button {
+  width: 4em;
+  height: 4em;
+  padding: 1em;
+  border-radius: 50px;
+  border: none;
+  background-color: transparent;
+  margin: 0 1em 0 1em;
+  transition: 0.5s;
+  fill: #a4f0d8;
+}
+
+.circle-container {
+  position: absolute;
+  bottom: 1em;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  opacity: 0.3;
+  transition: 0.3s;
+  z-index: 1;
+}
+
+.right {
+  transform: rotate(-90deg);
+}
+
+.left {
+  transform: rotate(90deg);
+}
+
+.right:hover {
+  transform: rotate(-90deg) scale(1.08);
+}
+
+.left:hover {
+  transform: rotate(90deg) scale(1.08);
+}
+
+.images-button:hover {
+  background-color: rgba(128, 128, 128, 0.3);
+  transition: 0.3s;
+}
+
+.images-container:hover .buttons-container:not(:hover),
+.images-container:hover .circle-container:not(:hover),
+.buttons-container:hover,
+.circle-container:hover {
+  opacity: 1;
+  transition: 0.5s;
+}
+
+.circle-svg {
+  fill: gray;
+  padding: 0 0.5em 0 0.5em;
+}
+
+.no-opacity {
+  fill: white;
+}
+
+/* ____Todo____ */
+.todo {
+  position: absolute;
+  height: -webkit-fill-available;
+  z-index: 1;
+  transition: all 0.5s ease;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+.paper {
+  position: relative;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #fdf3b6;
+}
+
+.fullscreen {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.paper::before {
+  content: "";
+  width: 2px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 40px;
+  background-color: rgba(255, 0, 0, 0.6);
+}
+
+.pattern {
+  height: 100%;
+  background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 24px, teal 25px);
+}
+
+.content {
+  padding-top: 6px;
+  padding-left: 56px;
+  padding-right: 16px;
+  line-height: 25px;
+  font-size: 19px;
+  letter-spacing: 1px;
+  word-spacing: 5px;
+}
+
+.line-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/*# sourceMappingURL=index.css.map */

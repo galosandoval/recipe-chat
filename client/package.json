@@ -19,7 +19,13 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+
+    "watch:sass": "sass --watch src/sass/main.scss src/styles/index.css",
+    "compile:sass": "sass src/sass/main.scss src/css/style.comp.css",
+    "concat:css": "concat -o src/css/style.concat.css src/css/icon-font.css src/css/style.comp.css",
+    "compress:css": "sass --style=compressed src/css/style.concat.css:src/css/style.css",
+    "build:css": "npm-run-all compile:sass concat:css compress:css"
   },
   "eslintConfig": {
     "extends": "react-app"

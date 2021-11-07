@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-import "../../styles/recipesStyles.css";
 import { AddRecipe } from "./AddRecipe";
 import { RecipeCard } from "./RecipeCard";
 

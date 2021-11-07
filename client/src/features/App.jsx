@@ -2,19 +2,19 @@ import React, { useEffect, useRef, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import axios from "axios";
 
-import { GroceryLists } from "./features/groceryLists/GroceryLists";
-import { Navbar } from "./features/navbar/Navbar";
-import { Recipes } from "./features/recipes/Recipes";
+import { Grocerylist } from "./Grocerylist/Grocerylist";
+import { Navbar } from "./navbar/Navbar";
+import { Recipes } from "./recipes/Recipes";
 
 function App() {
-  const [groceryLists, setGroceryLists] = useState([]);
+  const [grocerylist, setGrocerylist] = useState([]);
   const [recipes, setRecipes] = useState([]);
   const myRef = useRef(null);
 
   // TODO: Replace hardcoded '1' with logged in users ID
   const getGroceryLists = () => {
     axios.get("http://localhost:4000/recipes-grocery-lists/gl/user/1").then((res) => {
-      setGroceryLists(res.data.groceryLists);
+      setGrocerylist(res.data.groceryLists);
     });
   };
   const getRecipes = () => {
@@ -34,7 +34,7 @@ function App() {
           <Recipes myRef={myRef} recipes={recipes} getRecipes={getRecipes} />
         </Route>
         <Route path="/">
-          <GroceryLists groceryLists={groceryLists} />
+          <Grocerylist grocerylist={grocerylist} />
         </Route>
       </Switch>
     </div>

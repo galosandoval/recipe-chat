@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "../../styles/grocerylistStyles.css";
 import { TodoList } from "./TodoList";
 
 const initialPaperState = {

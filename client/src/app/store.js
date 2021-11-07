@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import groceryListReducer from "../features/groceryLists/groceryListSlice";
+import groceryListReducer from "../features/GroceryList/groceryListSlice";
 
 export default configureStore({
   reducer: { grocerylist: groceryListReducer }

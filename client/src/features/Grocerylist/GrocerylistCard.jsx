@@ -1,6 +1,4 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import "../../styles/recipesStyles.css";
-import "../../styles/grocerylistStyles.css";
 import { Carousel } from "./Carousel";
 import { Paper } from "./Paper";
 
@@ -9,7 +7,7 @@ const initialListState = {
   setTop: null
 };
 
-export const GroceryListCard = ({ list }) => {
+export const GrocerylistCard = ({ list }) => {
   const [carousel, setCarousel] = useState(0);
   const [page, setPage] = useState(1);
   const [listState, setListState] = useState(initialListState);
