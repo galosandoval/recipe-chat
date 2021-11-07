@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { TodoList } from "./TodoList";
 
 const initialPaperState = {
-  class: "paper",
+  class: "paper new-paper__container",
   isExpanded: false
 };
 
@@ -15,7 +15,7 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
       console.log("hello");
       // card.current.requestFullscreen();
       setPaperState({
-        class: "paper fullscreen",
+        class: "paper fullscreen new-paper__container new-paper__container--fullscreen",
         isExpanded: true
       });
     }
@@ -25,7 +25,7 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
     }
   };
   return (
-    <div className="todo" style={{ top: `${listState.setTop}px` }}>
+    <div className="todo new-paper" style={{ top: `${listState.setTop}px` }}>
       <div className={paperState.class}>
         {paperState.isExpanded ? (
           <button name="contain" onClick={handleFullscreen}>
@@ -46,9 +46,9 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
             <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" />
           </svg>
         </button>
-        <div className="pattern">
-          <div className="content">
-            <div className="todo-list-container">
+        <div className="pattern new-paper__pattern">
+          <div className="content new-paper__content">
+            <div className="todo-list-container new-paper__todo-list">
               <TodoList grocerylistId={grocerylistId} />
             </div>
           </div>

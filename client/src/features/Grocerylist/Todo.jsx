@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 
-export const LineItem = ({ ingredient, state, setState, name, oldSetState }) => {
+export const Todo = ({ ingredient, state, setState, name, oldSetState }) => {
   const handleChange = () => {
     const body = {
       id: ingredient.id,

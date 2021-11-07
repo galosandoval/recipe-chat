@@ -1,80 +1,114 @@
+// .images-button:hover {
+//   background-color: rgba(128, 128, 128, 0.3);
+//   transition: 0.5s;
+// }
+
 /* ____Grocerylist Card____ */
-.images-container {
-  width: 100%;
-  position: relative;
-  transition: 0.3s;
-  display: flex;
-  align-items: center;
+.grocerylist-card {
+  &__carousel {
+    position: relative;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+  }
+  &__images {
+    display: flex;
+    transition: all 0.5s ease-in-out;
+  }
+  &__image {
+    min-width: 25em;
+    height: 20em;
+    object-fit: cover;
+  }
 }
-.images-container img {
-  min-width: 25em;
-  height: 20em;
-  object-fit: cover;
-}
-.images {
-  display: flex;
-  transition: all 0.5s ease-in-out;
-}
-/* ____Carousel____ */
-.buttons-container {
-  position: absolute;
-  width: 100%;
-  z-index: 1;
-  display: flex;
-  justify-content: space-between;
-  opacity: 0.3;
-}
-.images-button {
-  width: 4em;
-  height: 4em;
-  padding: 1em;
-  border-radius: 50px;
-  border: none;
-  background-color: transparent;
-  margin: 0 1em 0 1em;
-  transition: 0.5s;
-  fill: #a4f0d8;
-}
-.circle-container {
-  position: absolute;
-  bottom: 1em;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  opacity: 0.3;
-  transition: 0.3s;
-  z-index: 1;
-}
-.right {
-  transform: rotate(-90deg);
-}
-.left {
-  transform: rotate(90deg);
-}
-.right:hover {
-  transform: rotate(-90deg) scale(1.08);
-}
-.left:hover {
-  transform: rotate(90deg) scale(1.08);
-}
-.images-button:hover {
-  background-color: rgba(128, 128, 128, 0.3);
-  transition: 0.3s;
-}
-.images-container:hover .buttons-container:not(:hover),
-.images-container:hover .circle-container:not(:hover),
-.buttons-container:hover,
-.circle-container:hover {
+
+/* ____Hover Effect ____ */
+.grocerylist-card__carousel:hover .carousel__circles:not(:hover),
+.carousel__buttons:hover,
+.carousel__circles:hover {
   opacity: 1;
   transition: 0.5s;
 }
-.circle-svg {
-  fill: gray;
-  padding: 0 0.5em 0 0.5em;
+
+/* ____Carousel____ */
+.carousel {
+  &__buttons {
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0.3;
+    inset: 0;
+  }
+  &__button {
+    width: 4em;
+    height: 4em;
+    padding: 1em;
+    border-radius: 50px;
+    border: none;
+    background-color: transparent;
+    margin: 0 1em 0 1em;
+    transition: 0.5s;
+    fill: #a4f0d8;
+    background-color: rgba(128, 128, 128, 0.3);
+
+    &--left {
+      transform: rotate(90deg);
+
+      &:hover {
+        transform: rotate(90deg) scale(1.08);
+      }
+    }
+    &--right {
+      transform: rotate(-90deg);
+
+      &:hover {
+        transform: rotate(-90deg) scale(1.08);
+      }
+    }
+  }
+  &__circles {
+    position: absolute;
+    bottom: 1em;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    opacity: 0.3;
+    transition: 0.3s;
+    z-index: 1;
+  }
+  &__svg-circle {
+    fill: gray;
+    margin-left: 0.5rem;
+
+    &--no-opacity {
+      fill: #fff;
+    }
+  }
 }
-.no-opacity {
-  fill: white;
+
+/* ____TodoList____ */
+
+/* ____Paper____ */
+.new-paper {
+  position: absolute;
+  height: -webkit-fill-available;
+  z-index: 1;
+  transition: all 0.5s ease;
+  width: 100%;
+  overflow-y: scroll;
+
+  &__container {
+    position: relative;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: #fdf3b6;
+  }
+  // &__
+  //: TODO keep going
 }
+
 /* ____Todo____ */
 .todo {
   position: absolute;

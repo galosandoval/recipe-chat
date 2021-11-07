@@ -392,36 +392,41 @@ select {
 }
 
 /* ____Grocerylist Card____ */
-.images-container {
-  width: 100%;
+.grocerylist-card__carousel {
   position: relative;
   transition: 0.3s;
   display: flex;
   align-items: center;
 }
-
-.images-container img {
+.grocerylist-card__images {
+  display: flex;
+  transition: all 0.5s ease-in-out;
+}
+.grocerylist-card__image {
   min-width: 25em;
   height: 20em;
   object-fit: cover;
 }
 
-.images {
-  display: flex;
-  transition: all 0.5s ease-in-out;
+/* ____Hover Effect ____ */
+.grocerylist-card__carousel:hover .carousel__circles:not(:hover),
+.carousel__buttons:hover,
+.carousel__circles:hover {
+  opacity: 1;
+  transition: 0.5s;
 }
 
 /* ____Carousel____ */
-.buttons-container {
+.carousel__buttons {
   position: absolute;
-  width: 100%;
   z-index: 1;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   opacity: 0.3;
+  inset: 0;
 }
-
-.images-button {
+.carousel__button {
   width: 4em;
   height: 4em;
   padding: 1em;
@@ -431,9 +436,21 @@ select {
   margin: 0 1em 0 1em;
   transition: 0.5s;
   fill: #a4f0d8;
+  background-color: rgba(128, 128, 128, 0.3);
 }
-
-.circle-container {
+.carousel__button--left {
+  transform: rotate(90deg);
+}
+.carousel__button--left:hover {
+  transform: rotate(90deg) scale(1.08);
+}
+.carousel__button--right {
+  transform: rotate(-90deg);
+}
+.carousel__button--right:hover {
+  transform: rotate(-90deg) scale(1.08);
+}
+.carousel__circles {
   position: absolute;
   bottom: 1em;
   display: flex;
@@ -443,43 +460,29 @@ select {
   transition: 0.3s;
   z-index: 1;
 }
-
-.right {
-  transform: rotate(-90deg);
-}
-
-.left {
-  transform: rotate(90deg);
-}
-
-.right:hover {
-  transform: rotate(-90deg) scale(1.08);
-}
-
-.left:hover {
-  transform: rotate(90deg) scale(1.08);
-}
-
-.images-button:hover {
-  background-color: rgba(128, 128, 128, 0.3);
-  transition: 0.3s;
-}
-
-.images-container:hover .buttons-container:not(:hover),
-.images-container:hover .circle-container:not(:hover),
-.buttons-container:hover,
-.circle-container:hover {
-  opacity: 1;
-  transition: 0.5s;
-}
-
-.circle-svg {
+.carousel__svg-circle {
   fill: gray;
-  padding: 0 0.5em 0 0.5em;
+  margin-left: 0.5rem;
+}
+.carousel__svg-circle--no-opacity {
+  fill: #fff;
 }
 
-.no-opacity {
-  fill: white;
+/* ____TodoList____ */
+/* ____Paper____ */
+.new-paper {
+  position: absolute;
+  height: -webkit-fill-available;
+  z-index: 1;
+  transition: all 0.5s ease;
+  width: 100%;
+  overflow-y: scroll;
+}
+.new-paper__container {
+  position: relative;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #fdf3b6;
 }
 
 /* ____Todo____ */

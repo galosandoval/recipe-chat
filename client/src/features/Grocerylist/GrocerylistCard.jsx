@@ -11,7 +11,7 @@ export const GrocerylistCard = ({ list }) => {
   const [carousel, setCarousel] = useState(0);
   const [page, setPage] = useState(1);
   const [listState, setListState] = useState(initialListState);
-  
+
   const card = useRef(null);
 
   const handleClick = (event) => {
@@ -32,13 +32,13 @@ export const GrocerylistCard = ({ list }) => {
   };
 
   useLayoutEffect(() => {
-    const circles = document.querySelectorAll(".circle-svg");
+    const circles = document.querySelectorAll(".carousel__svg-circle");
     if (circles[page - 2]) {
-      circles[page - 2].classList.remove("no-opacity");
+      circles[page - 2].classList.remove("carousel__svg-circle--no-opacity");
     } else {
-      circles[page].classList.remove("no-opacity");
+      circles[page].classList.remove("carousel__svg-circle--no-opacity");
     }
-    circles[page - 1].classList.add("no-opacity");
+    circles[page - 1].classList.add("carousel__svg-circle--no-opacity");
   }, [page]);
 
   useEffect(() => {
@@ -46,19 +46,27 @@ export const GrocerylistCard = ({ list }) => {
   }, []);
 
   return (
-    <div ref={card} className="card" key={list.id}>
+    <div ref={card} className="card grocerylist-card" key={list.id}>
       <h2>{list["grocery-list-name"]}</h2>
-      <div className="images-container">
+      <div className="grocerylist-card__carousel">
         {list["img-url"].length > 1 && (
           <Carousel page={page} handleClick={handleClick} list={list} />
         )}
-        <div className="images" style={{ transform: `translateX(${carousel}em)` }}>
+        <div
+          className="grocerylist-card__images"
+          style={{ transform: `translateX(${carousel}em)` }}
+        >
           {list["img-url"].map((img, index) => (
-            <img src={img} alt={list.descriptions} key={list.description[index]} />
+            <img
+              className="grocerylist-card__image"
+              src={img}
+              alt={list.descriptions}
+              key={list.description[index]}
+            />
           ))}
         </div>
       </div>
-      <div className="info">
+      <div className="grocerylist-card__text">
         <h2>Recipes</h2>
         {list["recipe-name"].map((name, index) => (
           <li key={`${name}-${index}`}>{name}</li>
