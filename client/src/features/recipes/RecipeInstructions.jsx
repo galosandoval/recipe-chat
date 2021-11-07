@@ -1,5 +1,4 @@
 import React from "react";
-import '../../styles/recipesStyles.css'
 
 export const RecipeInstructions = ({ instructions }) => {
   return (

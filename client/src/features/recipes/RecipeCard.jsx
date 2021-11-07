@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "../../styles/recipesStyles.css";
 import { Accordian } from "./Accordian";
 import { CardMenu } from "./CardMenu";
 import { EditRecipe } from "./edit/EditRecipe";

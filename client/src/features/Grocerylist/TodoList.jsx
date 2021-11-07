@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { LineItem } from "./LineItem";
+import { Todo } from "./Todo";
 
 export const TodoList = ({ grocerylistId }) => {
   const [incomplete, setIncomplete] = useState([]);
@@ -30,10 +30,10 @@ export const TodoList = ({ grocerylistId }) => {
   }, [grocerylistId]);
   return (
     <div className="todo-list">
-      <div className="not-completed">
+      <div className="todo-list__incomplete">
         {incomplete.length > 0 && <h2>Incomplete</h2>}
         {incomplete.map((ingredient, index) => (
-          <LineItem
+          <Todo
             ingredient={ingredient}
             state={complete}
             setState={setComplete}
@@ -44,11 +44,11 @@ export const TodoList = ({ grocerylistId }) => {
           />
         ))}
       </div>
-      <div className="completed">
+      <div className="todo-list__complete">
         {complete.length > 0 && <h2>Completed</h2>}
         {complete.length > 0 &&
           complete.map((ingredient, index) => (
-            <LineItem
+            <Todo
               ingredient={ingredient}
               state={incomplete}
               setState={setIncomplete}

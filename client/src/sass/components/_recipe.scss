@@ -1,7 +1,3 @@
-:root {
-  --card-button-color: lightgrey;
-  --card-svg-fill: grey;
-}
 /* ____Recipes Styling____ */
 .recipes {
   display: flex;
@@ -182,7 +178,6 @@
   right: 0;
   left: 0;
   bottom: 0;
-  /* background-color: tomato; */
   background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
   transition: all ease 0.5s;
   display: flex;
