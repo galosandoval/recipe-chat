@@ -5,10 +5,11 @@ import { CardMenu } from "./CardMenu";
 import { EditRecipe } from "./edit/EditRecipe";
 import { EditInstructions } from "./edit/EditInstructions";
 import { EditIngredients } from "./edit/EditIngredients";
+import { useHistory } from "react-router-dom";
 
 const initialAccordianState = {
-  ingredientsClass: "accordian hidden",
-  carrotClass: "carrot",
+  ingredientsClass: "accordian accordian--hidden",
+  carrotClass: "recipe-card__carrot-button",
   isOpen: false,
   style: { maxHeight: 0 }
 };
@@ -22,19 +23,19 @@ const initialDescriptionState = (recipe) => {
   };
 };
 const initialDropdownState = {
-  class: "dropdown-content",
+  class: "card-menu__content",
   open: false
 };
 const initialEditCardState = {
-  class: "edit-recipe",
+  class: "edit-card",
   open: false
 };
 const initialEditInstructionsState = {
-  class: "edit-instructions",
+  class: "edit-card",
   open: false
 };
 const initialEditIngredientsState = {
-  class: "edit-ingredients",
+  class: "edit-card",
   open: false
 };
 
@@ -47,49 +48,53 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   const [editRecipe, setEditRecipe] = useState(initialEditCardState);
   const [editInstructions, setEditInstructions] = useState(initialEditInstructionsState);
   const [editIngredients, setEditIngredients] = useState(initialEditIngredientsState);
+  const history = useHistory();
 
   const handleClick = (event) => {
     const { className } = event.currentTarget;
+    console.log("class", className);
     // Edit Menu Click
     if (
-      className === "dropbtn" &&
+      className === "card-menu__dropdown-btn" &&
       !editRecipe.open &&
       !editInstructions.open &&
       !editIngredients.open
     ) {
       closeOpenCarrots();
       !dropdown.open
-        ? setDropdown({ class: "dropdown-content show-edit-menu", open: true })
+        ? setDropdown({
+            class: "card-menu__content card-menu__content--show",
+            open: true
+          })
         : setDropdown(initialDropdownState);
-    } else if (className === "closebtn") {
+    } else if (className === "card-menu__closedrop-btn") {
       setEditRecipe(initialEditCardState);
       setEditInstructions(initialEditCardState);
       setEditIngredients(initialEditIngredientsState);
-    } else if (className === "edit") {
+    } else if (className === "card-menu__edit-btn") {
       setDropdown(initialDropdownState);
-      setEditRecipe({ class: "edit-recipe show-edit-card", open: true });
-    } else if (className === "instructions") {
+      setEditRecipe({ class: "edit-card edit-card--show", open: true });
+    } else if (className === "card-menu__instructions-btn") {
       setDropdown(initialDropdownState);
-      setEditInstructions({ class: "edit-instructions show-edit-card", open: true });
-    } else if (className === "ingredients") {
+      setEditInstructions({ class: "edit-card edit-card--show", open: true });
+    } else if (className === "card-menu__ingredients-btn") {
       setDropdown(initialDropdownState);
-      setEditIngredients({ class: "edit-ingredients show-edit-card", open: true });
+      setEditIngredients({ class: "edit-card edit-card--show", open: true });
       // Carrot Click
-    } else if (className.includes("carrot")) {
+    } else if (className.includes("recipe-card__carrot-button")) {
       closeOpenCarrots();
+      history.push("/recipes/ingredients");
 
       if (accordian.isOpen) {
         setAccordian(initialAccordianState);
       } else if (!accordian.isOpen) {
         setAccordian({
           ingredientsClass: "accordian",
-          carrotClass: "carrot rotate",
+          carrotClass: "recipe-card__carrot-button recipe-card__carrot-button--rotate",
           isOpen: true
         });
       }
-      // Read more Click
-      // TODO: Fix this
-    } else if (className === "learn-more-button") {
+    } else if (className === "recipe-card__learn-button") {
       if (recipeDescription.isOpen) {
         setRecipeDescription(initialDescriptionState(recipe));
       } else {
@@ -127,7 +132,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   }, [recipe.id]);
 
   return (
-    <div id={recipe["recipe-name"]} className="card">
+    <div id={recipe["recipe-name"]} className="card recipe-card">
       {/**
        * TODO: Make toast when something is updated or deleted
        */}
@@ -144,8 +149,8 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         editIngredients={editIngredients}
         ingredients={ingredients}
       />
-      <div className="card-header">
-        <h2 className="recipe-name">{recipe["recipe-name"]}</h2>
+      <div className="card-header recipe-card__header">
+        <h2 className="recipe-name recipe-card__name">{recipe["recipe-name"]}</h2>
         <CardMenu
           editRecipe={editRecipe}
           editInstructions={editInstructions}
@@ -157,8 +162,9 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         />
       </div>
 
-      <div className="img-container">
+      <div className="recipe-card__img-container">
         <img
+          className="recipe-card__img"
           src={
             recipe["img-url"] ||
             "https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8Y29va2luZyUyMHBvdHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=60"
@@ -167,17 +173,21 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         />
       </div>
 
-      <div className="description">
+      <div className="recipe-card__description">
         <p>{recipeDescription.description}</p>
         <button
-          className={`learn-more-button ${recipeDescription.showButton ? "" : "hidden"}`}
+          className={
+            recipeDescription.showButton
+              ? "recipe-card__learn-button"
+              : "recipe-card__learn-button recipe-card__learn-button--hidden"
+          }
           onClick={handleClick}
         >
           {recipeDescription.buttonText}
         </button>
-        <button className={`${accordian.carrotClass} carrot-button`} onClick={handleClick}>
+        <button className={`${accordian.carrotClass}`} onClick={handleClick}>
           <svg
-            className="carrot"
+            className="recipe-card__carrot-button--svg"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="grey"

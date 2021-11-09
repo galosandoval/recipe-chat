@@ -11,7 +11,13 @@ export const CardMenu = ({
   initialDropdownState
 }) => {
   const svg = (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <svg
+      className="card-menu__dropdown-btn--svg"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+    >
       <path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z" />
     </svg>
   );
@@ -25,32 +31,38 @@ export const CardMenu = ({
   };
 
   return (
-    <div className="dropdown">
+    <div className="card-menu">
       <OutsideClickHandler onOutsideClick={handleOutsideClick}>
         {editRecipe.open || editInstructions.open || editIngredients.open ? (
-          <button className="closebtn" onClick={handleClick}>
+          <button className="card-menu__closedrop-btn" onClick={handleClick}>
             {svg}
           </button>
         ) : dropdown.open ? (
-          <button className="dropbtn" onClick={handleCloseMenu} name="closedrop">
+          <button className="card-menu__dropdown-btn" onClick={handleCloseMenu} name="closedrop">
             {svg}
           </button>
         ) : (
-          <button className="dropbtn" name="dropbtn" onClick={handleClick}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <button className="card-menu__dropdown-btn" name="dropbtn" onClick={handleClick}>
+            <svg
+              className="card-menu__dropdown-btn--svg"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+            >
               <path d="M6 12c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm9 0c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm9 0c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z" />
             </svg>
           </button>
         )}
       </OutsideClickHandler>
       <div className={dropdown.class}>
-        <button className="edit" onClick={handleClick}>
+        <button className="card-menu__edit-btn" onClick={handleClick}>
           Edit Description
         </button>
-        <button className="instructions" onClick={handleClick}>
+        <button className="card-menu__instructions-btn" onClick={handleClick}>
           Edit Instructions
         </button>
-        <button className="ingredients" onClick={handleClick}>
+        <button className="card-menu__ingredients-btn" onClick={handleClick}>
           Edit Ingredients
         </button>
       </div>

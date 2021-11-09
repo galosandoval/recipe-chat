@@ -1,0 +1,17 @@
+/* ____Shared Card Styling____ */
+.card {
+  background: #fff;
+  border-radius: 0.5em;
+  box-shadow: 0 0.25em 1em rgb(0 0 0 / 10%);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  justify-content: center;
+  margin: 0.5em 0;
+  max-width: 400px;
+  overflow: hidden;
+  padding: 0em;
+  width: 40%;
+  position: relative;
+  min-width: 22em;
+}

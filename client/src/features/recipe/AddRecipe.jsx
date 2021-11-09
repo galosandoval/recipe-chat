@@ -89,7 +89,7 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
         onChange={handleChange}
       />
       <textarea
-        className="recipes-text-area"
+        className="add-recipe__textarea"
         name="ingredients"
         cols="30"
         rows="10"
@@ -98,7 +98,7 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
         onChange={handleChange}
       />
       <textarea
-        className="recipes-text-area"
+        className="add-recipe__textarea"
         name="instructions"
         cols="30"
         rows="10"

@@ -1,114 +1,276 @@
-/* ____Recipes Styling____ */
-.recipes {
+/* ____Recipe____ */
+.recipe {
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  &__add-form {
+    width: 100%;
+    display: flex;
+    background-color: tomato;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height ease 0.3s;
+    &--show {
+      max-height: 600px;
+      transition: max-height ease-in-out 0.3s;
+    }
+  }
+  &__button-container {
+    position: absolute;
+    right: 1.5em;
+    top: 5em;
+  }
+  &__button {
+    border: none;
+    background-color: $color-white;
+    display: inline-grid;
+    place-items: center;
+
+    &:hover {
+      transform: scale(1.06);
+      transition: all ease 0.3s;
+    }
+    &--rotate {
+      transition: all ease 0.3s;
+      transform: rotate(225deg);
+      &:hover {
+        transition: all ease 0.3s;
+        transform: rotate(225deg) scale(1.06);
+      }
+    }
+  }
 }
-.recipes-container,
-.grocery-lists-container {
-  max-width: 1550px;
-  width: -webkit-fill-available;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
+/* ____AddRecipe____ */
+.add-recipe {
+  &__textarea {
+    resize: none;
+  }
 }
 
-/* ____Shared Card Styling____ */
-.card {
-  background: #fff;
-  border-radius: 0.5em;
-  box-shadow: 0 0.25em 1em rgb(0 0 0 / 10%);
-  display: flex;
-  flex-direction: column;
-  height: fit-content;
-  justify-content: center;
-  margin: 0.5em 0;
-  max-width: 400px;
-  overflow: hidden;
-  padding: 0em;
-  width: 40%;
-  position: relative;
-  min-width: 22em;
-}
+/* ____RecipeCard____ */
+.recipe-card {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+  }
+  &__name {
+    padding-left: 0.5em;
+  }
+  &__img-container {
+    width: 100%;
+    object-fit: contain;
+  }
+  &__img {
+    width: 100%;
+    height: 20em;
+    object-fit: cover;
+  }
+  &__description {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1em;
+  }
+  &__learn-button {
+    background: none;
+    border: none;
+    color: var(--card-button-color);
+    cursor: pointer;
 
-/* ____Recipe Card Styling____ */
+    &--hidden {
+      overflow: hidden;
+      max-height: 0;
+      transition: all ease 0.3s;
+    }
+  }
+  &__carrot-button {
+    width: auto;
+    cursor: pointer;
+    transition: all ease-in-out 0.3s;
+    width: 4em;
+    height: 4em;
+    padding: 1em;
+    border-radius: 50px;
+    border: none;
+    background-color: #fff;
+    color: rgba(0, 0, 0, 0.54);
+    margin-bottom: 0.6em;
+
+    &:hover {
+      background-color: $color-grey-dark;
+      transition: all ease 0.3s;
+      transform: scale(1.07);
+      color: #fff;
+    }
+    &--svg {
+      transition: all 0.3s;
+    }
+    &:hover &--svg {
+      fill: #fff;
+    }
+    &--rotate {
+      transition: all ease-in-out 0.3s;
+      transform: rotate(180deg);
+
+      &:hover {
+        transform: rotate(180deg) scale(1.07);
+      }
+    }
+  }
+}
 .ingredients {
   transition: all ease-in-out 0.3s;
 }
-.hidden {
+
+/* ____Edit Recipe____ */
+.edit-card {
+  position: absolute;
+  top: 150%;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
+  transition: all ease 0.5s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
-  max-height: 0 !important;
-  transition: all ease 0.3s;
+
+  &--show {
+    top: 0;
+    overflow-y: scroll;
+  }
 }
-.img-container {
-  width: 100%;
-  object-fit: contain;
-}
-.img-container img {
-  width: 100%;
-  height: 20em;
-  object-fit: cover;
-}
-.learn-more-button {
-  background: none;
-  border: none;
-  color: var(--card-button-color);
-  cursor: pointer;
-}
-.recipe-name {
-  padding-left: 0.5em;
-}
-.carrot {
-  width: auto;
-  cursor: pointer;
-  transition: all ease-in-out 0.3s;
-}
-.carrot-button {
-  width: 4em;
-  height: 4em;
-  padding: 1em;
-  border-radius: 50px;
-  border: none;
-  background-color: #fff;
-  color: rgba(0, 0, 0, 0.54);
-  margin-bottom: 0.6em;
-}
-.carrot-button:hover {
-  background-color: var(--card-button-color);
-  transition: all ease 0.3s;
-  transform: scale(1.07);
-}
-.rotate {
-  transition: all ease-in-out 0.3s;
-  transform: rotate(180deg);
-}
-.rotate:hover {
-  transform: rotate(180deg) scale(1.07);
-}
-.description {
+
+.recipe-form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 1em;
-}
-.card-header {
-  display: flex;
-  justify-content: space-between;
+
+  &__input {
+    padding: 1em;
+    margin: 1em;
+    border-radius: 1em;
+    border: none;
+  }
+
+  &__add-input {
+    max-height: 0;
+    padding: 0;
+    transition: all ease 0.5s;
+    overflow: hidden;
+
+    &--show {
+      transition: all ease 0.5s;
+      max-height: fit-content;
+      padding: 1em;
+    }
+  }
 }
 
-/* ____Accordian Styling____ */
+.edit-ingredients {
+  display: flex;
+  margin: 4em 0em 0em 1em;
+  flex-wrap: wrap;
+  width: 100%;
+
+  &__input {
+    margin: 0.5em;
+    border-radius: 1em;
+    border: none;
+    padding: 1em;
+    width: 35%;
+  }
+}
+
+/* ____CardMenu____ */
+.card-menu {
+  padding: 0.8em 1em 0 0;
+  position: relative;
+  display: inline-block;
+
+  &__closedrop-btn {
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    height: 4em;
+    width: 4em;
+    padding: 1em;
+  }
+
+  &__dropdown-btn {
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    height: 4em;
+    width: 4em;
+    padding: 1em;
+    transition: all ease 0.3s;
+
+    &--svg {
+      fill: $color-grey-dark;
+      transition: all ease 0.3s;
+    }
+
+    &:hover {
+      background-color: $color-grey-dark;
+      transition: all ease 0.3s;
+      transform: scale(1.08);
+    }
+
+    &:hover > &--svg {
+      fill: $color-white;
+    }
+  }
+
+  &__content {
+    display: none;
+    position: absolute;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+
+    & > button {
+      border: none;
+      padding: 0.5rem 0;
+    }
+
+    & > button:hover {
+      background-color: $color-grey-dark-2;
+      color: #fff;
+      transition: all 0.3s;
+    }
+
+    &--show {
+      display: flex;
+      flex-direction: column;
+      right: 0;
+      border-radius: 0.25rem;
+      overflow: hidden;
+    }
+  }
+}
+
+/* ____Accordian____ */
 .accordian {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition: max-height ease 0.3s;
+
+  &--hidden {
+    overflow: hidden;
+    max-height: 0 !important;
+    transition: all ease 0.3s;
+  }
 }
+
 .links {
   display: flex;
   justify-content: space-evenly;
-}
-.link {
-  text-decoration: none;
 }
 
 /* ____Recipe Ingredients Styling____ */
@@ -126,149 +288,4 @@
 .instruction {
   padding: 0.5em 1em 0.5em 0.5em;
   margin: 0 0.5em;
-}
-/* ____Card Menu____ */
-.dropdown {
-  padding: 0.8em 1em 0 0;
-}
-.dropbtn {
-  background-color: #fff;
-  border: none;
-  cursor: pointer;
-  border-radius: 50%;
-  height: 4em;
-  width: 4em;
-  padding: 1em;
-  transition: all ease 0.3s;
-}
-.dropbtn:hover {
-  background-color: var(--card-button-color);
-  transition: all ease 0.3s;
-  transform: scale(1.08);
-}
-.dropbtn svg {
-  fill: var(--card-svg-fill);
-}
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-}
-.dropdown-content a:hover {
-  background-color: #ddd;
-}
-.show-edit-menu {
-  display: flex;
-  flex-direction: column;
-  right: 0;
-}
-/* ____Edit Recipe____ */
-.edit-recipe,
-.edit-instructions,
-.edit-ingredients {
-  position: absolute;
-  top: 150%;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
-  transition: all ease 0.5s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-.show-edit-card {
-  top: 0;
-  overflow-y: scroll;
-}
-.closebtn {
-  background-color: #fff;
-  border: none;
-  cursor: pointer;
-  border-radius: 50%;
-  height: 4em;
-  width: 4em;
-  padding: 1em;
-}
-.edit-recipe-form,
-.edit-instructions-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.input {
-  padding: 1em;
-  margin: 1em;
-  border-radius: 1em;
-  border: none;
-}
-.ingredients-input {
-  margin: 0.5em;
-  border-radius: 1em;
-  border: none;
-  padding: 1em;
-  width: 35%;
-}
-.ingredients-form {
-  display: flex;
-  margin: 4em 0em 0em 1em;
-  flex-wrap: wrap;
-  width: 100%;
-}
-.add-instruction,
-.add-ingredient {
-  max-height: 0;
-  padding: 0;
-  transition: all ease 0.5s;
-  overflow: hidden;
-}
-.show-input {
-  transition: all ease 0.5s;
-  max-height: 80px;
-  padding: 1em;
-}
-/* ____Recipe Button____ */
-.recipes-button-container {
-  position: absolute;
-  right: 1.5em;
-  top: 5em;
-}
-.recipes-text-area {
-  resize: none;
-}
-.recipes-add-form {
-  width: 100%;
-  display: flex;
-  background-color: tomato;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height ease 0.3s;
-}
-.show-form {
-  max-height: 600px;
-  transition: max-height ease-in-out 0.3s;
-}
-.recipes-button {
-  border: none;
-  background-color: #f8f8f8;
-}
-.recipes-button:hover {
-  transform: scale(1.06);
-  transition: all ease 0.3s;
-}
-.rotate-button {
-  transition: all ease 0.3s;
-  transform: rotate(45deg);
-}
-.rotate-button:hover {
-  transition: all ease 0.3s;
-  transform: rotate(45deg) scale(1.06);
 }

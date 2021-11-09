@@ -22,7 +22,7 @@ export const Todo = ({ ingredient, state, setState, name, oldSetState }) => {
       .catch((error) => console.log(error));
   };
   return (
-    <label className="line-item">
+    <label className="todo">
       {ingredient.name}
       <input type="checkbox" name={name} checked={ingredient.isComplete} onChange={handleChange} />
     </label>

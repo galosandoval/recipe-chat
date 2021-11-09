@@ -73,15 +73,8 @@ select {
   }
 }
 /* ____Variables___ */
-/* ____Recipes Styling____ */
-.recipes {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.recipes-container,
-.grocery-lists-container {
+.recipe__card-container,
+.grocerylist__card-container {
   max-width: 1550px;
   width: -webkit-fill-available;
   display: flex;
@@ -107,46 +100,91 @@ select {
   min-width: 22em;
 }
 
-/* ____Recipe Card Styling____ */
-.ingredients {
-  transition: all ease-in-out 0.3s;
+/* ____Recipe____ */
+.recipe {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-
-.hidden {
+.recipe__add-form {
+  width: 100%;
+  display: flex;
+  background-color: tomato;
+  max-height: 0;
   overflow: hidden;
-  max-height: 0 !important;
+  transition: max-height ease 0.3s;
+}
+.recipe__add-form--show {
+  max-height: 600px;
+  transition: max-height ease-in-out 0.3s;
+}
+.recipe__button-container {
+  position: absolute;
+  right: 1.5em;
+  top: 5em;
+}
+.recipe__button {
+  border: none;
+  background-color: #fff;
+  display: inline-grid;
+  place-items: center;
+}
+.recipe__button:hover {
+  transform: scale(1.06);
   transition: all ease 0.3s;
 }
+.recipe__button--rotate {
+  transition: all ease 0.3s;
+  transform: rotate(225deg);
+}
+.recipe__button--rotate:hover {
+  transition: all ease 0.3s;
+  transform: rotate(225deg) scale(1.06);
+}
 
-.img-container {
+/* ____AddRecipe____ */
+.add-recipe__textarea {
+  resize: none;
+}
+
+/* ____RecipeCard____ */
+.recipe-card__header {
+  display: flex;
+  justify-content: space-between;
+}
+.recipe-card__name {
+  padding-left: 0.5em;
+}
+.recipe-card__img-container {
   width: 100%;
   object-fit: contain;
 }
-
-.img-container img {
+.recipe-card__img {
   width: 100%;
   height: 20em;
   object-fit: cover;
 }
-
-.learn-more-button {
+.recipe-card__description {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1em;
+}
+.recipe-card__learn-button {
   background: none;
   border: none;
   color: var(--card-button-color);
   cursor: pointer;
 }
-
-.recipe-name {
-  padding-left: 0.5em;
+.recipe-card__learn-button--hidden {
+  overflow: hidden;
+  max-height: 0;
+  transition: all ease 0.3s;
 }
-
-.carrot {
+.recipe-card__carrot-button {
   width: auto;
   cursor: pointer;
   transition: all ease-in-out 0.3s;
-}
-
-.carrot-button {
   width: 4em;
   height: 4em;
   padding: 1em;
@@ -156,49 +194,163 @@ select {
   color: rgba(0, 0, 0, 0.54);
   margin-bottom: 0.6em;
 }
-
-.carrot-button:hover {
-  background-color: var(--card-button-color);
+.recipe-card__carrot-button:hover {
+  background-color: #b1b1b1;
   transition: all ease 0.3s;
   transform: scale(1.07);
+  color: #fff;
 }
-
-.rotate {
+.recipe-card__carrot-button--svg {
+  transition: all 0.3s;
+}
+.recipe-card__carrot-button:hover .recipe-card__carrot-button--svg {
+  fill: #fff;
+}
+.recipe-card__carrot-button--rotate {
   transition: all ease-in-out 0.3s;
   transform: rotate(180deg);
 }
-
-.rotate:hover {
+.recipe-card__carrot-button--rotate:hover {
   transform: rotate(180deg) scale(1.07);
 }
 
-.description {
+.ingredients {
+  transition: all ease-in-out 0.3s;
+}
+
+/* ____Edit Recipe____ */
+.edit-card {
+  position: absolute;
+  top: 150%;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
+  transition: all ease 0.5s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.edit-card--show {
+  top: 0;
+  overflow-y: scroll;
+}
+
+.recipe-form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 1em;
+}
+.recipe-form__input {
+  padding: 1em;
+  margin: 1em;
+  border-radius: 1em;
+  border: none;
+}
+.recipe-form__add-input {
+  max-height: 0;
+  padding: 0;
+  transition: all ease 0.5s;
+  overflow: hidden;
+}
+.recipe-form__add-input--show {
+  transition: all ease 0.5s;
+  max-height: fit-content;
+  padding: 1em;
 }
 
-.card-header {
+.edit-ingredients {
   display: flex;
-  justify-content: space-between;
+  margin: 4em 0em 0em 1em;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.edit-ingredients__input {
+  margin: 0.5em;
+  border-radius: 1em;
+  border: none;
+  padding: 1em;
+  width: 35%;
 }
 
-/* ____Accordian Styling____ */
+/* ____CardMenu____ */
+.card-menu {
+  padding: 0.8em 1em 0 0;
+  position: relative;
+  display: inline-block;
+}
+.card-menu__closedrop-btn {
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  height: 4em;
+  width: 4em;
+  padding: 1em;
+}
+.card-menu__dropdown-btn {
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  height: 4em;
+  width: 4em;
+  padding: 1em;
+  transition: all ease 0.3s;
+}
+.card-menu__dropdown-btn--svg {
+  fill: #b1b1b1;
+  transition: all ease 0.3s;
+}
+.card-menu__dropdown-btn:hover {
+  background-color: #b1b1b1;
+  transition: all ease 0.3s;
+  transform: scale(1.08);
+}
+.card-menu__dropdown-btn:hover > .card-menu__dropdown-btn--svg {
+  fill: #fff;
+}
+.card-menu__content {
+  display: none;
+  position: absolute;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+.card-menu__content > button {
+  border: none;
+  padding: 0.5rem 0;
+}
+.card-menu__content > button:hover {
+  background-color: #777;
+  color: #fff;
+  transition: all 0.3s;
+}
+.card-menu__content--show {
+  display: flex;
+  flex-direction: column;
+  right: 0;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+/* ____Accordian____ */
 .accordian {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition: max-height ease 0.3s;
 }
+.accordian--hidden {
+  overflow: hidden;
+  max-height: 0 !important;
+  transition: all ease 0.3s;
+}
 
 .links {
   display: flex;
   justify-content: space-evenly;
-}
-
-.link {
-  text-decoration: none;
 }
 
 /* ____Recipe Ingredients Styling____ */
@@ -219,176 +371,6 @@ select {
 .instruction {
   padding: 0.5em 1em 0.5em 0.5em;
   margin: 0 0.5em;
-}
-
-/* ____Card Menu____ */
-.dropdown {
-  padding: 0.8em 1em 0 0;
-}
-
-.dropbtn {
-  background-color: #fff;
-  border: none;
-  cursor: pointer;
-  border-radius: 50%;
-  height: 4em;
-  width: 4em;
-  padding: 1em;
-  transition: all ease 0.3s;
-}
-
-.dropbtn:hover {
-  background-color: var(--card-button-color);
-  transition: all ease 0.3s;
-  transform: scale(1.08);
-}
-
-.dropbtn svg {
-  fill: var(--card-svg-fill);
-}
-
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-}
-
-.dropdown-content a:hover {
-  background-color: #ddd;
-}
-
-.show-edit-menu {
-  display: flex;
-  flex-direction: column;
-  right: 0;
-}
-
-/* ____Edit Recipe____ */
-.edit-recipe,
-.edit-instructions,
-.edit-ingredients {
-  position: absolute;
-  top: 150%;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
-  transition: all ease 0.5s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-.show-edit-card {
-  top: 0;
-  overflow-y: scroll;
-}
-
-.closebtn {
-  background-color: #fff;
-  border: none;
-  cursor: pointer;
-  border-radius: 50%;
-  height: 4em;
-  width: 4em;
-  padding: 1em;
-}
-
-.edit-recipe-form,
-.edit-instructions-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.input {
-  padding: 1em;
-  margin: 1em;
-  border-radius: 1em;
-  border: none;
-}
-
-.ingredients-input {
-  margin: 0.5em;
-  border-radius: 1em;
-  border: none;
-  padding: 1em;
-  width: 35%;
-}
-
-.ingredients-form {
-  display: flex;
-  margin: 4em 0em 0em 1em;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.add-instruction,
-.add-ingredient {
-  max-height: 0;
-  padding: 0;
-  transition: all ease 0.5s;
-  overflow: hidden;
-}
-
-.show-input {
-  transition: all ease 0.5s;
-  max-height: 80px;
-  padding: 1em;
-}
-
-/* ____Recipe Button____ */
-.recipes-button-container {
-  position: absolute;
-  right: 1.5em;
-  top: 5em;
-}
-
-.recipes-text-area {
-  resize: none;
-}
-
-.recipes-add-form {
-  width: 100%;
-  display: flex;
-  background-color: tomato;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height ease 0.3s;
-}
-
-.show-form {
-  max-height: 600px;
-  transition: max-height ease-in-out 0.3s;
-}
-
-.recipes-button {
-  border: none;
-  background-color: #f8f8f8;
-}
-
-.recipes-button:hover {
-  transform: scale(1.06);
-  transition: all ease 0.3s;
-}
-
-.rotate-button {
-  transition: all ease 0.3s;
-  transform: rotate(45deg);
-}
-
-.rotate-button:hover {
-  transition: all ease 0.3s;
-  transform: rotate(45deg) scale(1.06);
 }
 
 /* ____Grocerylist Card____ */
@@ -468,49 +450,22 @@ select {
   fill: #fff;
 }
 
-/* ____TodoList____ */
 /* ____Paper____ */
-.new-paper {
-  position: absolute;
-  height: -webkit-fill-available;
-  z-index: 1;
-  transition: all 0.5s ease;
-  width: 100%;
-  overflow-y: scroll;
-}
-.new-paper__container {
-  position: relative;
-  padding-top: 40px;
-  padding-bottom: 40px;
-  background-color: #fdf3b6;
-}
-
-/* ____Todo____ */
-.todo {
-  position: absolute;
-  height: -webkit-fill-available;
-  z-index: 1;
-  transition: all 0.5s ease;
-  width: 100%;
-  overflow-y: scroll;
-}
-
 .paper {
+  position: absolute;
+  height: -webkit-fill-available;
+  z-index: 1;
+  transition: all 0.5s ease;
+  width: 100%;
+  overflow-y: scroll;
+}
+.paper__container {
   position: relative;
   padding-top: 40px;
   padding-bottom: 40px;
   background-color: #fdf3b6;
 }
-
-.fullscreen {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.paper::before {
+.paper__container::before {
   content: "";
   width: 2px;
   height: 100%;
@@ -519,13 +474,18 @@ select {
   left: 40px;
   background-color: rgba(255, 0, 0, 0.6);
 }
-
-.pattern {
+.paper__container--fullscreen {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.paper__pattern {
   height: 100%;
   background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 24px, teal 25px);
 }
-
-.content {
+.paper__content {
   padding-top: 6px;
   padding-left: 56px;
   padding-right: 16px;
@@ -535,7 +495,9 @@ select {
   word-spacing: 5px;
 }
 
-.line-item {
+/* ____TodoList____ */
+/* ____Todo____ */
+.todo {
   display: flex;
   justify-content: space-between;
   align-items: center;

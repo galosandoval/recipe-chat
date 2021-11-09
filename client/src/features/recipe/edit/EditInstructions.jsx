@@ -4,7 +4,7 @@ import { DeleteItem } from "../delete/DeleteItem";
 
 const addInitialState = {
   open: false,
-  class: "add-instruction input"
+  class: "recipe-form__input recipe-form__add-input"
 };
 
 const instructionInitialState = [
@@ -49,7 +49,10 @@ export const EditInstructions = ({
     event.preventDefault();
     add.open
       ? setAdd(addInitialState)
-      : setAdd({ open: true, class: "add-instruction input show-input" });
+      : setAdd({
+          open: true,
+          class: "recipe-form__input recipe-form__add-input recipe-form__add-input--show"
+        });
   };
 
   const handleSubmit = (event) => {
@@ -82,13 +85,13 @@ export const EditInstructions = ({
 
   return (
     <div className={editInstructions.class}>
-      <form className="edit-instructions-form" onSubmit={handleSubmit}>
+      <form className="recipe-form edit-instructions" onSubmit={handleSubmit}>
         <div className="instructions">
           {form &&
             form.map((instruction, index) => (
               <div key={instruction.id}>
                 <input
-                  className="input"
+                  className="recipe-form__input edit-instruction__input"
                   type="text"
                   value={instruction.description}
                   onChange={(event) => handleChange(event, index)}
@@ -109,7 +112,7 @@ export const EditInstructions = ({
             value={instructionToAdd[0].description}
             onChange={handleChange}
             name="add-instruction"
-            className="input"
+            className="recipe-form__input edit-instructions__input"
             placeholder="Add an instruction"
           />
         </div>
