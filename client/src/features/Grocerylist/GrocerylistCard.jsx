@@ -14,6 +14,14 @@ export const GrocerylistCard = ({ list }) => {
 
   const card = useRef(null);
 
+  const closeOtherLists = () => {
+    const closeButtons = document.querySelectorAll(".paper__close-btn");
+    console.log(closeButtons);
+
+    closeButtons.forEach((button) => button.click());
+    // if (closeButtons.innerHTML === "Close") closeButtons.click();
+  };
+
   const handleClick = (event) => {
     const { name } = event.currentTarget;
     if (name === "right-button") {
@@ -24,10 +32,12 @@ export const GrocerylistCard = ({ list }) => {
       setCarousel((state) => (state += 25));
       setPage((state) => (state -= 1));
     }
-    if (name === "list") {
-      listState.isVisible
-        ? setListState({ isVisible: false, setTop: card.current.offsetHeight })
-        : setListState({ isVisible: true, setTop: 0 });
+    if (name === "open-list") {
+      closeOtherLists();
+      setListState({ isVisible: true, setTop: 0 });
+    }
+    if (name === "close-list") {
+      setListState({ isVisible: false, setTop: card.current.offsetHeight });
     }
   };
 
@@ -71,7 +81,7 @@ export const GrocerylistCard = ({ list }) => {
         {list["recipe-name"].map((name, index) => (
           <li key={`${name}-${index}`}>{name}</li>
         ))}
-        <button name="list" onClick={handleClick}>
+        <button name="open-list" onClick={handleClick}>
           Ingredients {">"}
         </button>
       </div>

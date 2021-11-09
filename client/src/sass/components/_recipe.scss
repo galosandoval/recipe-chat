@@ -266,26 +266,26 @@
     max-height: 0 !important;
     transition: all ease 0.3s;
   }
+
+  &__tabs {
+  }
 }
 
-.links {
-  display: flex;
-  justify-content: space-evenly;
-}
-
-/* ____Recipe Ingredients Styling____ */
-.ingredients {
+/* ____RecipeIngredients____ */
+.recipe-ingredients {
   padding-left: 1em;
   padding-top: 1em;
+  &__item {
+    padding-bottom: 0.5em;
+  }
+  &__paragraph {
+    margin: 0;
+  }
 }
-.ingredient {
-  padding-bottom: 0.5em;
-}
-.ingredient p {
-  margin: 0;
-}
-/* ____Recipe Instructions Styling____ */
-.instruction {
-  padding: 0.5em 1em 0.5em 0.5em;
-  margin: 0 0.5em;
+/* ____RecipeInstructions____ */
+.recipe-instructions {
+  &__item {
+    padding: 0.5em 1em 0.5em 0.5em;
+    margin: 0 0.5em;
+  }
 }

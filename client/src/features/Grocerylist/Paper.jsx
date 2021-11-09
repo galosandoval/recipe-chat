@@ -15,7 +15,7 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
       console.log("hello");
       // card.current.requestFullscreen();
       setPaperState({
-        class: "paper__container new-paper__container--fullscreen",
+        class: "paper__container paper__container--fullscreen",
         isExpanded: true
       });
     }
@@ -28,12 +28,12 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
     <div className="paper" style={{ top: `${listState.setTop}px` }}>
       <div className={paperState.class}>
         {paperState.isExpanded ? (
-          <button name="contain" onClick={handleFullscreen}>
+          <button className="paper__contain" name="contain" onClick={handleFullscreen}>
             contain
           </button>
         ) : (
           <>
-            <button name="list" onClick={handleClick}>
+            <button className="paper__close-btn" name="close-list" onClick={handleClick}>
               Close
             </button>
             <button name="expand" onClick={handleFullscreen}>
