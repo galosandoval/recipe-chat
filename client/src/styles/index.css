@@ -109,7 +109,7 @@ select {
 .recipe__add-form {
   width: 100%;
   display: flex;
-  background-color: tomato;
+  background-color: #ff6347;
   max-height: 0;
   overflow: hidden;
   transition: max-height ease 0.3s;
@@ -372,7 +372,7 @@ select {
   display: flex;
   align-items: center;
 }
-.grocerylist-card__images {
+.grocerylist-card__image-container {
   display: flex;
   transition: all 0.5s ease-in-out;
 }
@@ -380,6 +380,53 @@ select {
   min-width: 25em;
   height: 20em;
   object-fit: cover;
+}
+.grocerylist-card__info {
+  display: flex;
+  padding: 1rem;
+  align-items: center;
+}
+.grocerylist-card__tag-container {
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+  flex-wrap: wrap;
+  margin: 0;
+}
+.grocerylist-card__tag {
+  list-style: none;
+  background-color: #ff6347;
+  border-radius: 0.3rem;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  transition: all ease 0.4s;
+}
+.grocerylist-card__tag:not(:first-child) {
+  margin-left: 0.5rem;
+}
+.grocerylist-card__tag:hover {
+  background-color: #ff2f0a;
+}
+.grocerylist-card__page-btn {
+  background-color: #fff;
+  border: none;
+  border-radius: 50%;
+  height: 5rem;
+  width: 5rem;
+  align-self: center;
+  transition: all ease 0.4s;
+}
+.grocerylist-card__page-btn:hover {
+  background-color: #ff6347;
+}
+.grocerylist-card__page-btn--svg {
+  fill: #ff9785;
+  transition: all ease 0.4s;
+}
+.grocerylist-card__page-btn:hover .grocerylist-card__page-btn--svg {
+  fill: #fff;
 }
 
 /* ____Hover Effect ____ */
@@ -457,6 +504,7 @@ select {
   padding-bottom: 40px;
   background-color: #fdf3b6;
   z-index: 500;
+  min-height: 100%;
 }
 .paper__container::before {
   content: "";
@@ -473,7 +521,7 @@ select {
   z-index: 1000;
 }
 .paper__pattern {
-  height: 100%;
+  min-height: 23rem;
   background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 24px, teal 25px);
 }
 .paper__content {

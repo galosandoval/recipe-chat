@@ -6,7 +6,7 @@
     display: flex;
     align-items: center;
   }
-  &__images {
+  &__image-container {
     display: flex;
     transition: all 0.5s ease-in-out;
   }
@@ -14,6 +14,58 @@
     min-width: 25em;
     height: 20em;
     object-fit: cover;
+  }
+  &__info {
+    display: flex;
+    padding: 1rem;
+    align-items: center;
+  }
+  &__tag-container {
+    display: flex;
+    justify-content: flex-end;
+    flex: 1;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  &__tag {
+    list-style: none;
+    background-color: $color-primary;
+    border-radius: 0.3rem;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: $color-white;
+    transition: all ease 0.4s;
+
+    &:not(:first-child) {
+      margin-left: 0.5rem;
+    }
+
+    &:hover {
+      background-color: $color-primary-dark;
+    }
+  }
+
+  &__page-btn {
+    background-color: $color-white;
+    border: none;
+    border-radius: 50%;
+    height: 5rem;
+    width: 5rem;
+    align-self: center;
+    transition: all ease 0.4s;
+
+    &:hover {
+      background-color: $color-primary;
+    }
+    &--svg {
+      fill: $color-primary-light;
+      transition: all ease 0.4s;
+    }
+
+    &:hover &--svg {
+      fill: $color-white;
+    }
   }
 }
 
@@ -98,6 +150,8 @@
     padding-bottom: 40px;
     background-color: #fdf3b6;
     z-index: 500;
+    min-height: 100%;
+
     &::before {
       content: "";
       width: 2px;
@@ -116,7 +170,7 @@
   }
 
   &__pattern {
-    height: 100%;
+    min-height: 23rem;
     background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 24px, teal 25px);
   }
 

@@ -7,7 +7,7 @@
   &__add-form {
     width: 100%;
     display: flex;
-    background-color: tomato;
+    background-color: $color-primary;
     max-height: 0;
     overflow: hidden;
     transition: max-height ease 0.3s;

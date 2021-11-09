@@ -25,7 +25,7 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
     }
   };
   return (
-    <div className="paper" style={{ top: `${listState.setTop}px` }}>
+    <div className="paper" style={{ top: `${listState.setTop + 40}px` }}>
       <div className={paperState.class}>
         {paperState.isExpanded ? (
           <button className="paper__contain" name="contain" onClick={handleFullscreen}>
@@ -41,11 +41,6 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
             </button>
           </>
         )}
-        <button>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" />
-          </svg>
-        </button>
         <div className="paper__pattern">
           <div className="paper__content">
             <div className="paper__todo-list">
