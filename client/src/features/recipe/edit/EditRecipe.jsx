@@ -24,9 +24,9 @@ export const EditRecipe = ({ editRecipe, recipe }) => {
 
   return (
     <div className={editRecipe.class}>
-      <form className="edit-recipe-form" onSubmit={handleSubmit}>
+      <form className="edit-recipe-form recipe-form edit-recipe" onSubmit={handleSubmit}>
         <input
-          className="input"
+          className="recipe-form__input edit-recipe__input"
           placeholder="Recipe Name"
           type="text"
           name="recipe-name"
@@ -34,7 +34,7 @@ export const EditRecipe = ({ editRecipe, recipe }) => {
           value={form["recipe-name"]}
         />
         <input
-          className="input"
+          className="recipe-form__input edit-recipe__input"
           placeholder="Image URL"
           type="text"
           name="img-url"
@@ -45,7 +45,7 @@ export const EditRecipe = ({ editRecipe, recipe }) => {
           style={{ resize: "none" }}
           cols={35}
           rows={10}
-          className="input"
+          className="recipe-form__input edit-recipe__input"
           placeholder="Description"
           type="text"
           name="description"

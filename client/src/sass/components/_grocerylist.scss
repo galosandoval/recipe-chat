@@ -88,10 +88,8 @@
   }
 }
 
-/* ____TodoList____ */
-
 /* ____Paper____ */
-.new-paper {
+.paper {
   position: absolute;
   height: -webkit-fill-available;
   z-index: 1;
@@ -104,56 +102,51 @@
     padding-top: 40px;
     padding-bottom: 40px;
     background-color: #fdf3b6;
+
+    &::before {
+      content: "";
+      width: 2px;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 40px;
+      background-color: rgba(255, 0, 0, 0.6);
+    }
+
+    &--fullscreen {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
   }
-  // &__
-  //: TODO keep going
+
+  &__pattern {
+    height: 100%;
+    background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 24px, teal 25px);
+  }
+
+  &__content {
+    padding-top: 6px;
+    padding-left: 56px;
+    padding-right: 16px;
+    line-height: 25px;
+    font-size: 19px;
+    letter-spacing: 1px;
+    word-spacing: 5px;
+  }
 }
+/* ____TodoList____ */
+// .todo-list {
+
+//   &__incomplete{}
+
+//   &__complete{}
+// }
 
 /* ____Todo____ */
 .todo {
-  position: absolute;
-  height: -webkit-fill-available;
-  z-index: 1;
-  transition: all 0.5s ease;
-  width: 100%;
-  overflow-y: scroll;
-}
-.paper {
-  position: relative;
-  padding-top: 40px;
-  padding-bottom: 40px;
-  background-color: #fdf3b6;
-}
-.fullscreen {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-}
-.paper::before {
-  content: "";
-  width: 2px;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 40px;
-  background-color: rgba(255, 0, 0, 0.6);
-}
-.pattern {
-  height: 100%;
-  background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 24px, teal 25px);
-}
-.content {
-  padding-top: 6px;
-  padding-left: 56px;
-  padding-right: 16px;
-  line-height: 25px;
-  font-size: 19px;
-  letter-spacing: 1px;
-  word-spacing: 5px;
-}
-.line-item {
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { DeleteItem } from "../delete/DeleteItem";
 
-const initialAddState = { open: false, class: "add-ingredient input" };
+const initialAddState = { open: false, class: "recipe-form__input recipe-form__add-input" };
 
 export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecipeIngredients }) => {
   const [form, setForm] = useState([]);
   const [ingredientToAdd, setIngredientToAdd] = useState("");
   const [add, setAdd] = useState(initialAddState);
-  
+
   const handleChange = (event, index) => {
     const { name, value } = event.target;
     if (name === "edit") {
@@ -29,7 +29,7 @@ export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecip
   const handleClick = () => {
     add.open
       ? setAdd(initialAddState)
-      : setAdd({ open: true, class: "add-ingredient input show-input" });
+      : setAdd({ open: true, class: "recipe-form__input recipe-form__add-input recipe-form__add-input--show" });
   };
 
   const handleSubmit = (event) => {
@@ -69,12 +69,12 @@ export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecip
   }, [ingredients]);
   return (
     <div className={editIngredients.class}>
-      <form className="ingredients-form" onSubmit={handleSubmit}>
+      <form className="recipe-form edit-ingredients" onSubmit={handleSubmit}>
         {form &&
           form.map((ingredient, index) => (
             <div key={ingredient.id}>
               <input
-                className="ingredients-input"
+                className="recipe-form__input edit-ingredients__input"
                 value={ingredient.name}
                 onChange={(event) => handleChange(event, index)}
                 name="edit"
@@ -93,7 +93,7 @@ export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecip
             value={ingredientToAdd}
             onChange={(event) => setIngredientToAdd(event.target.value)}
             name="add-ingredient"
-            className="input"
+            className="recipe-form__input"
             placeholder="Add an ingredient"
           />
         </div>
