@@ -1,3 +1,4 @@
+/* ____Variables___ */
 /* Box sizing rules */
 *,
 *::before,
@@ -35,6 +36,7 @@ body {
   min-height: 100vh;
   text-rendering: optimizeSpeed;
   line-height: 1.5;
+  font-family: "Montserrat", sans-serif;
 }
 
 /* A elements that don't have a class get default styles */
@@ -72,7 +74,6 @@ select {
     scroll-behavior: auto !important;
   }
 }
-/* ____Variables___ */
 .recipe__card-container,
 .grocerylist__card-container {
   max-width: 1550px;
@@ -417,16 +418,20 @@ select {
   width: 5rem;
   align-self: center;
   transition: all ease 0.4s;
+  padding-top: 0.5rem;
+  color: #ff9785;
 }
 .grocerylist-card__page-btn:hover {
   background-color: #ff6347;
 }
-.grocerylist-card__page-btn--svg {
-  fill: #ff9785;
+.grocerylist-card__page-btn svg {
   transition: all ease 0.4s;
+  height: 3rem;
+  width: 3rem;
+  transform: rotate(180deg);
 }
-.grocerylist-card__page-btn:hover .grocerylist-card__page-btn--svg {
-  fill: #fff;
+.grocerylist-card__page-btn:hover svg {
+  color: #fff;
 }
 
 /* ____Hover Effect ____ */
@@ -456,20 +461,14 @@ select {
   background-color: transparent;
   margin: 0 1em 0 1em;
   transition: 0.5s;
-  fill: #a4f0d8;
   background-color: rgba(128, 128, 128, 0.3);
-}
-.carousel__button--left {
-  transform: rotate(90deg);
+  color: #fff;
 }
 .carousel__button--left:hover {
-  transform: rotate(90deg) scale(1.08);
-}
-.carousel__button--right {
-  transform: rotate(-90deg);
+  transform: scale(1.08);
 }
 .carousel__button--right:hover {
-  transform: rotate(-90deg) scale(1.08);
+  transform: scale(1.08);
 }
 .carousel__circles {
   position: absolute;
@@ -505,6 +504,7 @@ select {
   background-color: #fdf3b6;
   z-index: 500;
   min-height: 100%;
+  font-family: "Cedarville Cursive", cursive;
 }
 .paper__container::before {
   content: "";
@@ -519,6 +519,42 @@ select {
   position: fixed;
   inset: 0;
   z-index: 1000;
+}
+.paper__btn-container {
+  display: flex;
+  justify-content: flex-end;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.3rem;
+}
+.paper__btn {
+  background-color: transparent;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #b1b1b1;
+  transition: all ease-in-out 0.3s;
+  border-radius: 0.3rem;
+  margin-left: 0.3rem;
+}
+.paper__btn:hover {
+  color: #ff6347;
+  background-color: #b1b1b1;
+}
+.paper__btn-svg {
+  height: 2rem;
+  width: 2rem;
+}
+.paper__btn-expand-svg {
+  height: 1.5rem;
+}
+.paper__btn-minimize {
+  margin-right: 3rem;
+}
+.paper__btn-minimize-svg {
+  height: 3rem;
+  width: 3rem;
 }
 .paper__pattern {
   min-height: 23rem;

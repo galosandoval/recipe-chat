@@ -1,4 +1,5 @@
 import React from "react";
+import { leftArrowSVG, rightArrowSVG } from "../../utils/svgs";
 
 export const Carousel = ({ page, handleClick, list }) => {
   return (
@@ -10,14 +11,7 @@ export const Carousel = ({ page, handleClick, list }) => {
             className="carousel__button carousel__button--left"
             onClick={handleClick}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="white"
-              filter="drop-shadow(0 0 4px rgba(0, 0, 0, 1))"
-            >
-              <path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z" />
-            </svg>
+            {leftArrowSVG}
           </button>
         ) : (
           <span></span>
@@ -28,14 +22,7 @@ export const Carousel = ({ page, handleClick, list }) => {
             className="carousel__button carousel__button--right"
             onClick={handleClick}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="white"
-              filter="drop-shadow(0 0  4px rgba(0, 0, 0, 1))"
-            >
-              <path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z" />
-            </svg>
+            {rightArrowSVG}
           </button>
         ) : (
           <span></span>

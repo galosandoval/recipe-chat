@@ -1,3 +1,36 @@
+/* ____Variables___ */
+// COLORS
+$color-primary: #ff6347;
+$color-primary-light: #ff9785;
+$color-primary-dark: #ff2f0a;
+
+$color-secondary-light: #0bafc1;
+$color-secondary-dark: #087e8b;
+
+$color-tertiary-light: #2998ff;
+$color-tertiary-dark: #5643fa;
+
+$color-grey-light-1: #f7f7f7;
+$color-grey-light-2: #eee;
+
+$color-grey-dark: rgb(177, 177, 177);
+$color-grey-dark-2: #777;
+$color-grey-dark-3: #333;
+
+$color-white: #fff;
+$color-black: #000;
+
+// FONT
+$ff-kaushan: "Kaushan Script", cursive;
+$ff-mochiy: "Mochiy Pop One", sans-serif;
+$ff-montserrat: "Montserrat", sans-serif;
+$ff-cedearville: "Cedarville Cursive", cursive;
+
+// font-family: 'Kaushan Script', cursive;
+// font-family: 'Mochiy Pop One', sans-serif;
+// font-family: 'Montserrat', sans-serif;
+// font-family: 'Cedarville Cursive', cursive;
+
 /* Box sizing rules */
 *,
 *::before,
@@ -35,6 +68,7 @@ body {
   min-height: 100vh;
   text-rendering: optimizeSpeed;
   line-height: 1.5;
+  font-family: $ff-montserrat;
 }
 
 /* A elements that don't have a class get default styles */
@@ -72,25 +106,3 @@ select {
     scroll-behavior: auto !important;
   }
 }
-
-/* ____Variables___ */
-// COLORS
-$color-primary: #ff6347;
-$color-primary-light: #ff9785;
-$color-primary-dark: #ff2f0a;
-
-$color-secondary-light: #0bafc1;
-$color-secondary-dark: #087e8b;
-
-$color-tertiary-light: #2998ff;
-$color-tertiary-dark: #5643fa;
-
-$color-grey-light-1: #f7f7f7;
-$color-grey-light-2: #eee;
-
-$color-grey-dark: rgb(177, 177, 177);
-$color-grey-dark-2: #777;
-$color-grey-dark-3: #333;
-
-$color-white: #fff;
-$color-black: #000;
