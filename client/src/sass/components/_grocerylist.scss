@@ -1,5 +1,8 @@
 /* ____Grocerylist Card____ */
 .grocerylist-card {
+  &__heading {
+    display: flex;
+  }
   &__carousel {
     position: relative;
     transition: 0.3s;
@@ -47,29 +50,13 @@
   }
 
   &__page-btn {
-    background-color: $color-white;
-    border: none;
-    border-radius: 50%;
     height: 5rem;
     width: 5rem;
-    align-self: center;
-    transition: all ease 0.4s;
-    padding-top: 0.5rem;
-    color: $color-primary-light;
-
-    &:hover {
-      background-color: $color-primary;
-    }
-
     svg {
-      transition: all ease 0.4s;
+      transform: rotate(180deg);
+      margin-top: 0.1rem;
       height: 3rem;
       width: 3rem;
-      transform: rotate(180deg);
-    }
-
-    &:hover svg {
-      color: $color-white;
     }
   }
 }
@@ -102,18 +89,29 @@
     background-color: transparent;
     margin: 0 1em 0 1em;
     transition: 0.5s;
-    background-color: rgba(128, 128, 128, 0.3);
+    background-color: rgba($color-grey-dark, 0.5);
     color: $color-white;
+    display: grid;
+    place-content: center;
 
     &--left {
       &:hover {
         transform: scale(1.08);
+        color: $color-primary;
+        background-color: rgba($color-grey-dark, 0.8);
       }
     }
     &--right {
       &:hover {
         transform: scale(1.08);
+        color: $color-primary;
+        background-color: rgba($color-grey-dark, 0.8);
       }
+    }
+
+    svg {
+      height: 2.5rem;
+      width: 2.5rem;
     }
   }
   &__circles {
@@ -153,6 +151,7 @@
     z-index: 500;
     min-height: 100%;
     font-family: $ff-cedearville;
+    text-transform: capitalize;
 
     &::before {
       content: "";

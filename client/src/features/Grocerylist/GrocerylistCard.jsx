@@ -57,7 +57,9 @@ export const GrocerylistCard = ({ list }) => {
 
   return (
     <div ref={card} className="card grocerylist-card" key={list.id}>
-      <h2>{list["grocery-list-name"]}</h2>
+      <div className="grocerylist-card__heading">
+        <h2 className="u-card-heading">{list["grocery-list-name"]}</h2>
+      </div>
       <div className="grocerylist-card__carousel">
         {list["img-url"].length > 1 && (
           <Carousel page={page} handleClick={handleClick} list={list} />
@@ -86,7 +88,11 @@ export const GrocerylistCard = ({ list }) => {
           ))}
         </ul>
       </div>
-      <button className="grocerylist-card__page-btn" name="open-list" onClick={handleClick}>
+      <button
+        className="btn-round grocerylist-card__page-btn"
+        name="open-list"
+        onClick={handleClick}
+      >
         {listSVG}
       </button>
       <Paper

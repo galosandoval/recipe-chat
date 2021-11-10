@@ -86,19 +86,53 @@ select {
 /* ____Shared Card Styling____ */
 .card {
   background: #fff;
-  border-radius: 0.5em;
-  box-shadow: 0 0.25em 1em rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  height: fit-content;
   justify-content: center;
-  margin: 0.5em 0;
-  max-width: 400px;
+  margin: 1.5rem 1rem;
   overflow: hidden;
-  padding: 0em;
   width: 40%;
-  position: relative;
   min-width: 22em;
+  max-width: 25rem;
+  position: relative;
+  align-self: flex-start;
+}
+
+.btn-round {
+  background-color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  align-self: center;
+  transition: all ease-in-out 0.4s;
+  padding-top: 0.5rem;
+  color: #ff9785;
+  height: 4rem;
+  width: 4rem;
+}
+.btn-round svg {
+  height: 2rem;
+  width: 2rem;
+}
+.btn-round:hover {
+  background-color: #ff6347;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+  color: #fff;
+  transform: scale(1.08);
+}
+.btn-round:active {
+  background-color: #ff9785;
+  transition: transform 0.2s;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transform: translateY(1px);
+}
+
+.u-card-heading {
+  font-weight: 600;
+  text-transform: capitalize;
+  padding: 1rem;
 }
 
 /* ____Recipe____ */
@@ -183,36 +217,20 @@ select {
   transition: all ease 0.3s;
 }
 .recipe-card__carrot-button {
-  width: auto;
-  cursor: pointer;
-  transition: all ease-in-out 0.3s;
-  width: 4em;
-  height: 4em;
-  padding: 1em;
-  border-radius: 50px;
-  border: none;
-  background-color: #fff;
-  color: rgba(0, 0, 0, 0.54);
   margin-bottom: 0.6em;
 }
 .recipe-card__carrot-button:hover {
-  background-color: #b1b1b1;
-  transition: all ease 0.3s;
   transform: scale(1.07);
   color: #fff;
 }
-.recipe-card__carrot-button--svg {
-  transition: all 0.3s;
-}
-.recipe-card__carrot-button:hover .recipe-card__carrot-button--svg {
-  fill: #fff;
-}
 .recipe-card__carrot-button--rotate {
-  transition: all ease-in-out 0.3s;
+  transition: all ease-in-out 0.4s;
   transform: rotate(180deg);
 }
 .recipe-card__carrot-button--rotate:hover {
   transform: rotate(180deg) scale(1.07);
+  box-shadow: 0rem -0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transition: box-shadow none;
 }
 
 .ingredients {
@@ -281,37 +299,6 @@ select {
   position: relative;
   display: inline-block;
 }
-.card-menu__closedrop-btn {
-  background-color: #fff;
-  border: none;
-  cursor: pointer;
-  border-radius: 50%;
-  height: 4em;
-  width: 4em;
-  padding: 1em;
-}
-.card-menu__dropdown-btn {
-  background-color: #fff;
-  border: none;
-  cursor: pointer;
-  border-radius: 50%;
-  height: 4em;
-  width: 4em;
-  padding: 1em;
-  transition: all ease 0.3s;
-}
-.card-menu__dropdown-btn--svg {
-  fill: #b1b1b1;
-  transition: all ease 0.3s;
-}
-.card-menu__dropdown-btn:hover {
-  background-color: #b1b1b1;
-  transition: all ease 0.3s;
-  transform: scale(1.08);
-}
-.card-menu__dropdown-btn:hover > .card-menu__dropdown-btn--svg {
-  fill: #fff;
-}
 .card-menu__content {
   display: none;
   position: absolute;
@@ -367,6 +354,9 @@ select {
 }
 
 /* ____Grocerylist Card____ */
+.grocerylist-card__heading {
+  display: flex;
+}
 .grocerylist-card__carousel {
   position: relative;
   transition: 0.3s;
@@ -411,27 +401,14 @@ select {
   background-color: #ff2f0a;
 }
 .grocerylist-card__page-btn {
-  background-color: #fff;
-  border: none;
-  border-radius: 50%;
   height: 5rem;
   width: 5rem;
-  align-self: center;
-  transition: all ease 0.4s;
-  padding-top: 0.5rem;
-  color: #ff9785;
-}
-.grocerylist-card__page-btn:hover {
-  background-color: #ff6347;
 }
 .grocerylist-card__page-btn svg {
-  transition: all ease 0.4s;
+  transform: rotate(180deg);
+  margin-top: 0.1rem;
   height: 3rem;
   width: 3rem;
-  transform: rotate(180deg);
-}
-.grocerylist-card__page-btn:hover svg {
-  color: #fff;
 }
 
 /* ____Hover Effect ____ */
@@ -461,14 +438,24 @@ select {
   background-color: transparent;
   margin: 0 1em 0 1em;
   transition: 0.5s;
-  background-color: rgba(128, 128, 128, 0.3);
+  background-color: rgba(177, 177, 177, 0.5);
   color: #fff;
+  display: grid;
+  place-content: center;
 }
 .carousel__button--left:hover {
   transform: scale(1.08);
+  color: #ff6347;
+  background-color: rgba(177, 177, 177, 0.8);
 }
 .carousel__button--right:hover {
   transform: scale(1.08);
+  color: #ff6347;
+  background-color: rgba(177, 177, 177, 0.8);
+}
+.carousel__button svg {
+  height: 2.5rem;
+  width: 2.5rem;
 }
 .carousel__circles {
   position: absolute;
@@ -505,6 +492,7 @@ select {
   z-index: 500;
   min-height: 100%;
   font-family: "Cedarville Cursive", cursive;
+  text-transform: capitalize;
 }
 .paper__container::before {
   content: "";

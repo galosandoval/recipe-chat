@@ -1,5 +1,6 @@
 import React from "react";
 import OutsideClickHandler from "react-outside-click-handler";
+import { menuSVG, xSVG } from "../../utils/svgs";
 
 export const CardMenu = ({
   dropdown,
@@ -10,18 +11,6 @@ export const CardMenu = ({
   setDropdown,
   initialDropdownState
 }) => {
-  const svg = (
-    <svg
-      className="card-menu__dropdown-btn--svg"
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-    >
-      <path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z" />
-    </svg>
-  );
-
   const handleOutsideClick = () => {
     setDropdown(initialDropdownState);
   };
@@ -34,35 +23,43 @@ export const CardMenu = ({
     <div className="card-menu">
       <OutsideClickHandler onOutsideClick={handleOutsideClick}>
         {editRecipe.open || editInstructions.open || editIngredients.open ? (
-          <button className="card-menu__closedrop-btn" onClick={handleClick}>
-            {svg}
+          <button
+            name="closedrop"
+            className="btn-round card-menu__btn card-menu__btn-closedrop"
+            onClick={handleClick}
+          >
+            {xSVG}
           </button>
         ) : dropdown.open ? (
-          <button className="card-menu__dropdown-btn" onClick={handleCloseMenu} name="closedrop">
-            {svg}
+          <button
+            className="btn-round card-menu__btn card-menu__btn-dropdown"
+            onClick={handleCloseMenu}
+            name="closedrop"
+          >
+            {xSVG}
           </button>
         ) : (
-          <button className="card-menu__dropdown-btn" name="dropbtn" onClick={handleClick}>
-            <svg
-              className="card-menu__dropdown-btn--svg"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path d="M6 12c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm9 0c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm9 0c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z" />
-            </svg>
+          <button
+            className="btn-round card-menu__btn card-menu__btn-dropdown"
+            name="dropbtn"
+            onClick={handleClick}
+          >
+            {menuSVG}
           </button>
         )}
       </OutsideClickHandler>
       <div className={dropdown.class}>
-        <button className="card-menu__edit-btn" onClick={handleClick}>
+        <button className="card-menu__edit-btn" name="desc-btn" onClick={handleClick}>
           Edit Description
         </button>
-        <button className="card-menu__instructions-btn" onClick={handleClick}>
+        <button
+          className="card-menu__instructions-btn"
+          name="instructions-btn"
+          onClick={handleClick}
+        >
           Edit Instructions
         </button>
-        <button className="card-menu__ingredients-btn" onClick={handleClick}>
+        <button className="card-menu__ingredients-btn" name="ingredients-btn" onClick={handleClick}>
           Edit Ingredients
         </button>
       </div>
