@@ -53,6 +53,7 @@
   &__header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
   &__name {
     padding-left: 0.5em;
@@ -170,9 +171,15 @@
 
 /* ____CardMenu____ */
 .card-menu {
-  padding: 0.8em 1em 0 0;
   position: relative;
   display: inline-block;
+
+  &__btn {
+    border-radius: 0.6rem;
+    height: 3rem;
+    width: 3rem;
+    margin-right: 0.7rem;
+  }
 
   &__content {
     display: none;
@@ -213,9 +220,6 @@
     overflow: hidden;
     max-height: 0 !important;
     transition: all ease 0.3s;
-  }
-
-  &__tabs {
   }
 }
 
