@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { listSVG } from "../../utils/svgs";
 import { Carousel } from "./Carousel";
 import { Paper } from "./Paper";
 
@@ -14,6 +15,13 @@ export const GrocerylistCard = ({ list }) => {
 
   const card = useRef(null);
 
+  const closeOtherLists = () => {
+    const closeButtons = document.querySelectorAll(".paper__close-btn");
+    console.log(closeButtons);
+
+    closeButtons.forEach((button) => button.click());
+  };
+
   const handleClick = (event) => {
     const { name } = event.currentTarget;
     if (name === "right-button") {
@@ -24,10 +32,12 @@ export const GrocerylistCard = ({ list }) => {
       setCarousel((state) => (state += 25));
       setPage((state) => (state -= 1));
     }
-    if (name === "list") {
-      listState.isVisible
-        ? setListState({ isVisible: false, setTop: card.current.offsetHeight })
-        : setListState({ isVisible: true, setTop: 0 });
+    if (name === "open-list") {
+      closeOtherLists();
+      setListState({ isVisible: true, setTop: 0 });
+    }
+    if (name === "close-list") {
+      setListState({ isVisible: false, setTop: card.current.offsetHeight });
     }
   };
 
@@ -53,7 +63,7 @@ export const GrocerylistCard = ({ list }) => {
           <Carousel page={page} handleClick={handleClick} list={list} />
         )}
         <div
-          className="grocerylist-card__images"
+          className="grocerylist-card__image-container"
           style={{ transform: `translateX(${carousel}em)` }}
         >
           {list["img-url"].map((img, index) => (
@@ -66,15 +76,19 @@ export const GrocerylistCard = ({ list }) => {
           ))}
         </div>
       </div>
-      <div className="grocerylist-card__text">
+      <div className="grocerylist-card__info">
         <h2>Recipes</h2>
-        {list["recipe-name"].map((name, index) => (
-          <li key={`${name}-${index}`}>{name}</li>
-        ))}
-        <button name="list" onClick={handleClick}>
-          Ingredients {">"}
-        </button>
+        <ul className="grocerylist-card__tag-container">
+          {list["recipe-name"].map((name, index) => (
+            <li className="grocerylist-card__tag" key={`${name}-${index}`}>
+              {name}
+            </li>
+          ))}
+        </ul>
       </div>
+      <button className="grocerylist-card__page-btn" name="open-list" onClick={handleClick}>
+        {listSVG}
+      </button>
       <Paper
         grocerylistId={list["grocery-list-id"]}
         listState={listState}
