@@ -1,5 +1,8 @@
 /* ____Grocerylist Card____ */
 .grocerylist-card {
+  &__heading {
+    display: flex;
+  }
   &__carousel {
     position: relative;
     transition: 0.3s;
@@ -47,29 +50,15 @@
   }
 
   &__page-btn {
-    background-color: $color-white;
-    border: none;
-    border-radius: 50%;
     height: 5rem;
     width: 5rem;
-    align-self: center;
-    transition: all ease 0.4s;
-    padding-top: 0.5rem;
-    color: $color-primary-light;
-
-    &:hover {
-      background-color: $color-primary;
-    }
+    margin: -0.5rem 0 1rem 0;
 
     svg {
-      transition: all ease 0.4s;
+      transform: rotate(180deg);
+      margin-top: 0.1rem;
       height: 3rem;
       width: 3rem;
-      transform: rotate(180deg);
-    }
-
-    &:hover svg {
-      color: $color-white;
     }
   }
 }
@@ -102,18 +91,29 @@
     background-color: transparent;
     margin: 0 1em 0 1em;
     transition: 0.5s;
-    background-color: rgba(128, 128, 128, 0.3);
+    background-color: rgba($color-grey-dark, 0.5);
     color: $color-white;
+    display: grid;
+    place-content: center;
 
     &--left {
       &:hover {
         transform: scale(1.08);
+        color: $color-primary;
+        background-color: rgba($color-grey-dark, 0.8);
       }
     }
     &--right {
       &:hover {
         transform: scale(1.08);
+        color: $color-primary;
+        background-color: rgba($color-grey-dark, 0.8);
       }
+    }
+
+    svg {
+      height: 2.5rem;
+      width: 2.5rem;
     }
   }
   &__circles {
@@ -153,6 +153,7 @@
     z-index: 500;
     min-height: 100%;
     font-family: $ff-cedearville;
+    text-transform: capitalize;
 
     &::before {
       content: "";
@@ -238,7 +239,43 @@
 
 /* ____Todo____ */
 .todo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  &__input {
+    display: none;
+  }
+
+  &__label {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  &__checkbox {
+    height: 1.2rem;
+    width: 1.2rem;
+    aspect-ratio: 1;
+    border: 3px solid #b1b1b1;
+    border-radius: 50%;
+    order: 1;
+    position: relative;
+    align-self: start;
+    margin-left: 1rem;
+  }
+  &__check {
+    display: block;
+    opacity: 0;
+    color: $color-primary;
+    position: absolute;
+    top: -1rem;
+    right: -0.9rem;
+    transition: opacity cubic-bezier(1, 0, 0, 1);
+
+    svg {
+      height: 2.2rem;
+      width: 2.2rem;
+    }
+  }
+
+  &__input:checked ~ &__label &__check {
+    opacity: 1;
+  }
 }

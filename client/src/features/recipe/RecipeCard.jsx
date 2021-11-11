@@ -6,6 +6,7 @@ import { EditRecipe } from "./edit/EditRecipe";
 import { EditInstructions } from "./edit/EditInstructions";
 import { EditIngredients } from "./edit/EditIngredients";
 import { useHistory } from "react-router-dom";
+import { downArrowSVG } from "../../utils/svgs";
 
 const initialAccordianState = {
   ingredientsClass: "accordian accordian--hidden",
@@ -51,15 +52,10 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   const history = useHistory();
 
   const handleClick = (event) => {
-    const { className } = event.currentTarget;
-    console.log("class", className);
+    const { name } = event.currentTarget;
+    console.log("class", name);
     // Edit Menu Click
-    if (
-      className === "card-menu__dropdown-btn" &&
-      !editRecipe.open &&
-      !editInstructions.open &&
-      !editIngredients.open
-    ) {
+    if (name === "dropbtn" && !editRecipe.open && !editInstructions.open && !editIngredients.open) {
       closeOpenCarrots();
       !dropdown.open
         ? setDropdown({
@@ -67,21 +63,21 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
             open: true
           })
         : setDropdown(initialDropdownState);
-    } else if (className === "card-menu__closedrop-btn") {
+    } else if (name === "closedrop") {
       setEditRecipe(initialEditCardState);
       setEditInstructions(initialEditCardState);
       setEditIngredients(initialEditIngredientsState);
-    } else if (className === "card-menu__edit-btn") {
+    } else if (name === "desc-btn") {
       setDropdown(initialDropdownState);
       setEditRecipe({ class: "edit-card edit-card--show", open: true });
-    } else if (className === "card-menu__instructions-btn") {
+    } else if (name === "instructions-btn") {
       setDropdown(initialDropdownState);
       setEditInstructions({ class: "edit-card edit-card--show", open: true });
-    } else if (className === "card-menu__ingredients-btn") {
+    } else if (name === "ingredients-btn") {
       setDropdown(initialDropdownState);
       setEditIngredients({ class: "edit-card edit-card--show", open: true });
       // Carrot Click
-    } else if (className.includes("recipe-card__carrot-button")) {
+    } else if (name === "carrot-btn") {
       closeOpenCarrots();
       history.push("/recipes/ingredients");
 
@@ -94,7 +90,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
           isOpen: true
         });
       }
-    } else if (className === "recipe-card__learn-button") {
+    } else if (name === "learn-btn") {
       if (recipeDescription.isOpen) {
         setRecipeDescription(initialDescriptionState(recipe));
       } else {
@@ -150,7 +146,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         ingredients={ingredients}
       />
       <div className="card-header recipe-card__header">
-        <h2 className="recipe-name recipe-card__name">{recipe["recipe-name"]}</h2>
+        <h2 className="recipe-name recipe-card__name u-card-heading">{recipe["recipe-name"]}</h2>
         <CardMenu
           editRecipe={editRecipe}
           editInstructions={editInstructions}
@@ -181,19 +177,13 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
               ? "recipe-card__learn-button"
               : "recipe-card__learn-button recipe-card__learn-button--hidden"
           }
+          name="learn-btn"
           onClick={handleClick}
         >
           {recipeDescription.buttonText}
         </button>
-        <button className={`${accordian.carrotClass}`} onClick={handleClick}>
-          <svg
-            className="recipe-card__carrot-button--svg"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="grey"
-          >
-            <path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z" />
-          </svg>
+        <button className={`btn-round ${accordian.carrotClass}`} name="carrot-btn" onClick={handleClick}>
+          {downArrowSVG}
         </button>
       </div>
 

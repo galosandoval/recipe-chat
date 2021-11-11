@@ -53,6 +53,7 @@
   &__header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
   &__name {
     padding-left: 0.5em;
@@ -85,36 +86,20 @@
     }
   }
   &__carrot-button {
-    width: auto;
-    cursor: pointer;
-    transition: all ease-in-out 0.3s;
-    width: 4em;
-    height: 4em;
-    padding: 1em;
-    border-radius: 50px;
-    border: none;
-    background-color: #fff;
-    color: rgba(0, 0, 0, 0.54);
     margin-bottom: 0.6em;
 
     &:hover {
-      background-color: $color-grey-dark;
-      transition: all ease 0.3s;
       transform: scale(1.07);
       color: #fff;
     }
-    &--svg {
-      transition: all 0.3s;
-    }
-    &:hover &--svg {
-      fill: #fff;
-    }
     &--rotate {
-      transition: all ease-in-out 0.3s;
+      transition: all ease-in-out 0.4s;
       transform: rotate(180deg);
 
       &:hover {
         transform: rotate(180deg) scale(1.07);
+        box-shadow: 0rem -0.5rem 1rem rgba(#000, 0.15);
+        transition: box-shadow none;
       }
     }
   }
@@ -186,44 +171,14 @@
 
 /* ____CardMenu____ */
 .card-menu {
-  padding: 0.8em 1em 0 0;
   position: relative;
   display: inline-block;
 
-  &__closedrop-btn {
-    background-color: #fff;
-    border: none;
-    cursor: pointer;
-    border-radius: 50%;
-    height: 4em;
-    width: 4em;
-    padding: 1em;
-  }
-
-  &__dropdown-btn {
-    background-color: #fff;
-    border: none;
-    cursor: pointer;
-    border-radius: 50%;
-    height: 4em;
-    width: 4em;
-    padding: 1em;
-    transition: all ease 0.3s;
-
-    &--svg {
-      fill: $color-grey-dark;
-      transition: all ease 0.3s;
-    }
-
-    &:hover {
-      background-color: $color-grey-dark;
-      transition: all ease 0.3s;
-      transform: scale(1.08);
-    }
-
-    &:hover > &--svg {
-      fill: $color-white;
-    }
+  &__btn {
+    border-radius: 0.6rem;
+    height: 3rem;
+    width: 3rem;
+    margin-right: 0.7rem;
   }
 
   &__content {
@@ -265,9 +220,6 @@
     overflow: hidden;
     max-height: 0 !important;
     transition: all ease 0.3s;
-  }
-
-  &__tabs {
   }
 }
 
