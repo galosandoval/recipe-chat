@@ -52,6 +52,8 @@
   &__page-btn {
     height: 5rem;
     width: 5rem;
+    margin: -0.5rem 0 1rem 0;
+
     svg {
       transform: rotate(180deg);
       margin-top: 0.1rem;
@@ -237,7 +239,43 @@
 
 /* ____Todo____ */
 .todo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  &__input {
+    display: none;
+  }
+
+  &__label {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  &__checkbox {
+    height: 1.2rem;
+    width: 1.2rem;
+    aspect-ratio: 1;
+    border: 3px solid #b1b1b1;
+    border-radius: 50%;
+    order: 1;
+    position: relative;
+    align-self: start;
+    margin-left: 1rem;
+  }
+  &__check {
+    display: block;
+    opacity: 0;
+    color: $color-primary;
+    position: absolute;
+    top: -1rem;
+    right: -0.9rem;
+    transition: opacity cubic-bezier(1, 0, 0, 1);
+
+    svg {
+      height: 2.2rem;
+      width: 2.2rem;
+    }
+  }
+
+  &__input:checked ~ &__label &__check {
+    opacity: 1;
+  }
 }

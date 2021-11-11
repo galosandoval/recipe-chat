@@ -1,5 +1,6 @@
 import axios from "axios";
 import React from "react";
+import { checkSVG } from "../../utils/svgs";
 
 export const Todo = ({ ingredient, state, setState, name, oldSetState }) => {
   const handleChange = () => {
@@ -22,9 +23,21 @@ export const Todo = ({ ingredient, state, setState, name, oldSetState }) => {
       .catch((error) => console.log(error));
   };
   return (
-    <label className="todo">
-      {ingredient.name}
-      <input type="checkbox" name={name} checked={ingredient.isComplete} onChange={handleChange} />
-    </label>
+    <div className="todo">
+      <input
+        className="todo__input"
+        id="todo"
+        type="checkbox"
+        name={name}
+        checked={ingredient.isComplete}
+        onChange={handleChange}
+      />
+      <label htmlFor="todo" className="todo__label">
+        <span className="todo__checkbox">
+          <span className="todo__check">{checkSVG}</span>
+        </span>
+        {ingredient.name}
+      </label>
+    </div>
   );
 };
