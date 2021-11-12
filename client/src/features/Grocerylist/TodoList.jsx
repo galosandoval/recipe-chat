@@ -3,8 +3,9 @@ import React, { useEffect, useState } from "react";
 import { Todo } from "./Todo";
 
 export const TodoList = ({ grocerylistId }) => {
-  const [incomplete, setIncomplete] = useState([]);
-  const [complete, setComplete] = useState([]);
+  const [todoList, setTodoList] = useState(() =>
+    JSON.parse(localStorage.getItem(`incomplete-${grocerylistId}`))
+  );
 
   useEffect(() => {
     const getIngredients = (id) => {
@@ -12,17 +13,17 @@ export const TodoList = ({ grocerylistId }) => {
         .get(`http://localhost:4000/recipes-grocery-lists/ingredients/${id}`)
         .then((ingredients) => {
           const incompleteArray = [];
-          const completeArray = [];
           ingredients.data.ingredients.forEach((ingredient) => {
-            if (ingredient.isComplete) {
-              completeArray.push(ingredient);
-            } else {
-              incompleteArray.push(ingredient);
-            }
+            const ingredientData = {
+              name: ingredient.name,
+              isComplete: 0,
+              id: ingredient.id,
+              recipeId: ingredient["recipe-id"]
+            };
+            incompleteArray.push(ingredientData);
           });
 
-          setIncomplete(incompleteArray);
-          setComplete(completeArray);
+          localStorage.setItem(`incomplete-${grocerylistId}`, JSON.stringify(incompleteArray));
         })
         .catch((error) => console.log(error));
     };
@@ -31,31 +32,32 @@ export const TodoList = ({ grocerylistId }) => {
   return (
     <div className="todo-list">
       <div className="todo-list__incomplete">
-        {incomplete.length > 0 && <h2>Incomplete</h2>}
-        {incomplete.map((ingredient, index) => (
-          <Todo
-            ingredient={ingredient}
-            state={complete}
-            setState={setComplete}
-            oldSetState={setIncomplete}
-            name="check"
-            index={index}
-            key={`${ingredient.name}-${index}`}
-          />
-        ))}
-      </div>
-      <div className="todo-list__complete">
-        {complete.length > 0 && <h2>Completed</h2>}
-        {complete.length > 0 &&
-          complete.map((ingredient, index) => (
+        {todoList.length > 0 && <h2>Incomplete</h2>}
+        {todoList
+          .filter((incomplete) => !incomplete.isComplete)
+          .map((ingredient, index) => (
             <Todo
               ingredient={ingredient}
-              state={incomplete}
-              setState={setIncomplete}
-              oldSetState={setComplete}
-              name="uncheck"
+              todoList={todoList}
+              setTodoList={setTodoList}
+              name="check"
+              key={ingredient.id}
               index={index}
-              key={`${ingredient.name}-${index}`}
+            />
+          ))}
+      </div>
+      <div className="todo-list__incomplete">
+        {todoList.length > 0 && <h2>Completed</h2>}
+        {todoList
+          .filter((incomplete) => incomplete.isComplete)
+          .map((ingredient, index) => (
+            <Todo
+              ingredient={ingredient}
+              todoList={todoList}
+              setTodoList={setTodoList}
+              name="un-check"
+              key={ingredient.id}
+              index={index}
             />
           ))}
       </div>
