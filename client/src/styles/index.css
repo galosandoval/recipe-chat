@@ -489,8 +489,8 @@ select {
   height: -webkit-fill-available;
   z-index: 1;
   transition: all 0.5s ease;
-  width: 100%;
   overflow-y: scroll;
+  width: 100%;
 }
 .paper__container {
   position: relative;
@@ -568,6 +568,9 @@ select {
 
 /* ____TodoList____ */
 /* ____Todo____ */
+.todo {
+  width: 100%;
+}
 .todo__input {
   display: none;
 }

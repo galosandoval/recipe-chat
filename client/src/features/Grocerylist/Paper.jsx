@@ -12,17 +12,15 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
 
   const handleFullscreen = (event) => {
     const { name } = event.currentTarget;
-    console.log("name", name);
+
     if (name === "expand") {
-      console.log("expand");
-      // card.current.requestFullscreen();
       setPaperState({
         class: "paper__container paper__container--fullscreen",
         isExpanded: true
       });
     }
+
     if (name === "minimize") {
-      // document.exitFullscreen();
       setPaperState(initialPaperState);
     }
   };
