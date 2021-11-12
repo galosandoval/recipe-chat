@@ -1,14 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { checkSVG } from "../../utils/svgs";
 
 export const Todo = ({ ingredient, todoList, setTodoList, name, grocerylistId, todoClass }) => {
-  const [isChecked, setIsChecked] = useState(false);
-
   const handleChange = (event) => {
+    console.log("ingredient", ingredient);
     const { name } = event.target;
     if (name === "check") {
-      setIsChecked(true);
-      console.log("checked", isChecked);
       ingredient.isComplete = 1;
       const newList = [...todoList];
 
@@ -17,8 +14,6 @@ export const Todo = ({ ingredient, todoList, setTodoList, name, grocerylistId, t
     }
 
     if (name === "uncheck") {
-      setIsChecked(false);
-
       ingredient.isComplete = 0;
       const newList = [...todoList];
 
@@ -30,13 +25,13 @@ export const Todo = ({ ingredient, todoList, setTodoList, name, grocerylistId, t
     <div className="todo">
       <input
         className="todo__input"
-        id={ingredient.name}
+        id={`${ingredient.name}-${grocerylistId}`}
         type="checkbox"
         name={name}
         checked={ingredient.isComplete}
         onChange={handleChange}
       />
-      <label htmlFor={ingredient.name} className={todoClass}>
+      <label htmlFor={`${ingredient.name}-${grocerylistId}`} className={todoClass}>
         <span className="todo__checkbox">
           <span className="todo__check">{checkSVG}</span>
         </span>
