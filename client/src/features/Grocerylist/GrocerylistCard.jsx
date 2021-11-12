@@ -5,7 +5,7 @@ import { Paper } from "./Paper";
 
 const initialListState = {
   isVisible: false,
-  setTop: 1000
+  setTop: 100
 };
 
 export const GrocerylistCard = ({ list }) => {
@@ -36,7 +36,7 @@ export const GrocerylistCard = ({ list }) => {
       setListState({ isVisible: true, setTop: 0 });
     }
     if (name === "close-list") {
-      setListState({ isVisible: false, setTop: card.current.offsetHeight });
+      setListState({ isVisible: false, setTop: 100 });
     }
   };
 

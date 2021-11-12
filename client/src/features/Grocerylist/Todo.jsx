@@ -1,19 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { checkSVG } from "../../utils/svgs";
 
-export const Todo = ({ ingredient, todoList, setTodoList, name, index }) => {
-  console.log("ingredient", ingredient);
+export const Todo = ({ ingredient, todoList, setTodoList, name, grocerylistId, todoClass }) => {
+  const [isChecked, setIsChecked] = useState(false);
+
   const handleChange = (event) => {
     const { name } = event.target;
     if (name === "check") {
+      setIsChecked(true);
+      console.log("checked", isChecked);
       ingredient.isComplete = 1;
-      const newList = [...todoList, ingredient];
+      const newList = [...todoList];
+
+      localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(newList));
       setTodoList(newList);
-      console.log("check", ingredient);
+    }
 
-      console.log("incomplete", todoList);
+    if (name === "uncheck") {
+      setIsChecked(false);
 
-      // const oldArray = JSON.parse(localStorage.getItem(``));
+      ingredient.isComplete = 0;
+      const newList = [...todoList];
+
+      localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(newList));
+      setTodoList(newList);
     }
   };
   return (
@@ -26,7 +36,7 @@ export const Todo = ({ ingredient, todoList, setTodoList, name, index }) => {
         checked={ingredient.isComplete}
         onChange={handleChange}
       />
-      <label htmlFor={ingredient.name} className="todo__label">
+      <label htmlFor={ingredient.name} className={todoClass}>
         <span className="todo__checkbox">
           <span className="todo__check">{checkSVG}</span>
         </span>

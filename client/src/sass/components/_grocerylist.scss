@@ -249,6 +249,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    &--checked {
+      text-decoration: line-through;
+      text-decoration-color: $color-grey-dark;
+      color: $color-grey-dark;
+    }
   }
   &__checkbox {
     height: 1.2rem;

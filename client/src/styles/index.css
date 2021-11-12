@@ -580,6 +580,11 @@ select {
   justify-content: space-between;
   align-items: center;
 }
+.todo__label--checked {
+  text-decoration: line-through;
+  text-decoration-color: #b1b1b1;
+  color: #b1b1b1;
+}
 .todo__checkbox {
   height: 1.2rem;
   width: 1.2rem;

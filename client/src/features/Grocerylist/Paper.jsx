@@ -26,7 +26,7 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
   };
 
   return (
-    <div className="paper" style={{ top: `${listState.setTop}px` }}>
+    <div className="paper" style={{ top: `${listState.setTop}%` }}>
       <div className={paperState.class}>
         {paperState.isExpanded ? (
           <div className="paper__btn-container">
