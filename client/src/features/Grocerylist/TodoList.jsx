@@ -1,12 +1,13 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Todo } from "./Todo";
+import { TodoComplete } from "./TodoComplete";
 
 export const TodoList = ({ grocerylistId }) => {
   const [todoList, setTodoList] = useState(() =>
     JSON.parse(localStorage.getItem(`gl-${grocerylistId}`))
   );
-  const incomplete =
+  const complete =
     todoList !== null &&
     todoList
       .filter((incomplete) => incomplete.isComplete)
@@ -22,9 +23,25 @@ export const TodoList = ({ grocerylistId }) => {
         />
       ));
 
+  const incomplete =
+    todoList !== null &&
+    todoList
+      .filter((incomplete) => !incomplete.isComplete)
+      .map((ingredient) => (
+        <Todo
+          ingredient={ingredient}
+          todoList={todoList}
+          setTodoList={setTodoList}
+          name="check"
+          key={ingredient.id}
+          grocerylistId={grocerylistId}
+          todoClass="todo__label"
+        />
+      ));
+
   useEffect(() => {
-    const getIngredients = (id) => {
-      if (localStorage.getItem(`gl-${grocerylistId}`) === null) {
+    if (localStorage.getItem(`gl-${grocerylistId}`) === null) {
+      const getIngredients = (id) => {
         axios
           .get(`http://localhost:4000/recipes-grocery-lists/ingredients/${id}`)
           .then((ingredients) => {
@@ -42,37 +59,29 @@ export const TodoList = ({ grocerylistId }) => {
             localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(incompleteArray));
           })
           .catch((error) => console.log(error));
-      }
-    };
-    getIngredients(grocerylistId);
+      };
+      getIngredients(grocerylistId);
+    }
   }, [grocerylistId]);
   return (
     <div className="todo-list">
-      <div className="todo-list__incomplete">
-        {todoList !== null && <h2>Incomplete</h2>}
-        {todoList !== null &&
-          todoList
-            .filter((incomplete) => !incomplete.isComplete)
-            .map((ingredient) => (
-              <Todo
-                ingredient={ingredient}
-                todoList={todoList}
-                setTodoList={setTodoList}
-                name="check"
-                key={ingredient.id}
-                grocerylistId={grocerylistId}
-                todoClass="todo__label"
-              />
-            ))}
-      </div>
-      <div className="todo-list__incomplete">
-        {incomplete.length > 0 ? (
-          <>
-            <h2>Completed</h2>
+      {todoList !== null &&
+      todoList.filter((todo) => todo.isComplete).length === todoList.length ? (
+        <TodoComplete setTodoList={setTodoList} grocerylistId={grocerylistId} />
+      ) : (
+        <>
+          <div className="todo-list__incomplete">
+            <h2>Incomplete</h2>
             {incomplete}
-          </>
-        ) : null}
-      </div>
+          </div>
+          {todoList !== null && todoList.filter((todo) => todo.isComplete).length > 0 && (
+            <div className="todo-list__incomplete">
+              <h2>Completed</h2>
+              {complete}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

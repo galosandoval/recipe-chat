@@ -3,8 +3,8 @@ import { checkSVG } from "../../utils/svgs";
 
 export const Todo = ({ ingredient, todoList, setTodoList, name, grocerylistId, todoClass }) => {
   const handleChange = (event) => {
-    console.log("ingredient", ingredient);
     const { name } = event.target;
+
     if (name === "check") {
       ingredient.isComplete = 1;
       const newList = [...todoList];
