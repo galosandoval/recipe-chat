@@ -16,8 +16,8 @@ export const GrocerylistCard = ({ list }) => {
   const card = useRef(null);
 
   const closeOtherLists = () => {
-    const closeButtons = document.querySelectorAll(".paper__close-btn");
-
+    const closeButtons = document.querySelectorAll(".paper__btn-close");
+    
     closeButtons.forEach((button) => button.click());
   };
 

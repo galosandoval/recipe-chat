@@ -1,7 +1,7 @@
 import React from "react";
 
 export const TodoComplete = ({ setTodoList, grocerylistId }) => {
-  const handleClick = () => {
+  const handleResetTodos = () => {
     const todoListToReset = JSON.parse(localStorage.getItem(`gl-${grocerylistId}`));
 
     todoListToReset.forEach((todo) => (todo.isComplete = 0));
@@ -12,8 +12,8 @@ export const TodoComplete = ({ setTodoList, grocerylistId }) => {
 
   return (
     <div className="todo-complete">
-      All done
-      <button className="btn-round todo-complete__btn" onClick={handleClick}>
+      <h1 className="todo-complete__heading">All Done</h1>
+      <button className="btn-round todo-complete__btn" onClick={handleResetTodos}>
         Refresh
       </button>
     </div>
