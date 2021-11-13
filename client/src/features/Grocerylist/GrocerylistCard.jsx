@@ -5,7 +5,7 @@ import { Paper } from "./Paper";
 
 const initialListState = {
   isVisible: false,
-  setTop: 1000
+  setTop: 100
 };
 
 export const GrocerylistCard = ({ list }) => {
@@ -16,8 +16,8 @@ export const GrocerylistCard = ({ list }) => {
   const card = useRef(null);
 
   const closeOtherLists = () => {
-    const closeButtons = document.querySelectorAll(".paper__close-btn");
-
+    const closeButtons = document.querySelectorAll(".paper__btn-close");
+    
     closeButtons.forEach((button) => button.click());
   };
 
@@ -36,7 +36,7 @@ export const GrocerylistCard = ({ list }) => {
       setListState({ isVisible: true, setTop: 0 });
     }
     if (name === "close-list") {
-      setListState({ isVisible: false, setTop: card.current.offsetHeight });
+      setListState({ isVisible: false, setTop: 100 });
     }
   };
 

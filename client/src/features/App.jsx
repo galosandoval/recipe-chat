@@ -4,11 +4,11 @@ import axios from "axios";
 
 import { Grocerylist } from "./Grocerylist/Grocerylist";
 import { Navbar } from "./navbar/Navbar";
-import { Recipe } from "./recipe/Recipe";
+// import { Recipe } from "./recipe/Recipe";
 
 function App() {
   const [grocerylist, setGrocerylist] = useState([]);
-  const [recipes, setRecipes] = useState([]);
+  // const [recipes, setRecipes] = useState([]);
 
   // TODO: Replace hardcoded '1' with logged in users ID
   const getGroceryLists = () => {
@@ -16,22 +16,22 @@ function App() {
       setGrocerylist(res.data.groceryLists);
     });
   };
-  const getRecipes = () => {
-    axios.get("http://localhost:4000/recipes/user/1").then((recipes) => {
-      setRecipes(recipes.data.recipes);
-    });
-  };
+  // const getRecipes = () => {
+  //   axios.get("http://localhost:4000/recipes/user/1").then((recipes) => {
+  //     setRecipes(recipes.data.recipes);
+  //   });
+  // };
   useEffect(() => {
     getGroceryLists();
-    getRecipes();
+    // getRecipes();
   }, []);
   return (
     <div className="App">
       <Navbar />
       <Switch>
-        <Route path="/recipes">
+        {/* <Route path="/recipes">
           <Recipe recipes={recipes} getRecipes={getRecipes} />
-        </Route>
+        </Route> */}
         <Route path="/">
           <Grocerylist grocerylist={grocerylist} />
         </Route>

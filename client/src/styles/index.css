@@ -512,8 +512,6 @@ select {
   background-color: rgba(255, 0, 0, 0.6);
 }
 .paper__container--fullscreen {
-  position: fixed;
-  inset: 0;
   z-index: 1000;
 }
 .paper__btn-container {
@@ -553,7 +551,7 @@ select {
   width: 3rem;
 }
 .paper__pattern {
-  min-height: 23rem;
+  min-height: 31rem;
   background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 24px, teal 25px);
 }
 .paper__content {
@@ -567,6 +565,30 @@ select {
 }
 
 /* ____TodoList____ */
+.todo-list {
+  display: grid;
+  place-content: center;
+}
+
+/* ____TodoComplete____ */
+.todo-complete {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 26rem;
+}
+.todo-complete__heading {
+  font-size: 1.7rem;
+}
+.todo-complete__btn {
+  margin-top: 1rem;
+  height: 5rem;
+  width: 5rem;
+  display: grid;
+  place-content: center;
+}
+
 /* ____Todo____ */
 .todo {
   width: 100%;
@@ -579,6 +601,12 @@ select {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: 1s all ease-in-out;
+}
+.todo__label--checked {
+  text-decoration: line-through;
+  text-decoration-color: #b1b1b1;
+  color: #b1b1b1;
 }
 .todo__checkbox {
   height: 1.2rem;
