@@ -451,15 +451,10 @@ select {
   display: grid;
   place-content: center;
 }
-.carousel__button--left:hover {
+.carousel__button:hover {
   transform: scale(1.08);
   color: #ff6347;
-  background-color: rgba(177, 177, 177, 0.8);
-}
-.carousel__button--right:hover {
-  transform: scale(1.08);
-  color: #ff6347;
-  background-color: rgba(177, 177, 177, 0.8);
+  background-color: rgba(177, 177, 177, 0.9);
 }
 .carousel__button svg {
   height: 2.5rem;
@@ -513,6 +508,10 @@ select {
 }
 .paper__container--fullscreen {
   z-index: 1000;
+  position: fixed;
+  inset: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 .paper__btn-container {
   display: flex;
@@ -544,7 +543,8 @@ select {
   height: 1.5rem;
 }
 .paper__btn-minimize {
-  margin-right: 3rem;
+  height: 3rem;
+  width: 3rem;
 }
 .paper__btn-minimize-svg {
   height: 3rem;

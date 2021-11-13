@@ -6,22 +6,14 @@ export const Carousel = ({ page, handleClick, list }) => {
     <div className="carousel">
       <div className="carousel__buttons">
         {page !== 1 ? (
-          <button
-            name="left-button"
-            className="carousel__button carousel__button--left"
-            onClick={handleClick}
-          >
+          <button name="left-button" className="carousel__button" onClick={handleClick}>
             {leftArrowSVG}
           </button>
         ) : (
           <span></span>
         )}
         {page !== list["img-url"].length ? (
-          <button
-            name="right-button"
-            className="carousel__button carousel__button--right"
-            onClick={handleClick}
-          >
+          <button name="right-button" className="carousel__button" onClick={handleClick}>
             {rightArrowSVG}
           </button>
         ) : (
