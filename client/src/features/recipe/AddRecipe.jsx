@@ -29,6 +29,7 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
     };
 
     const parsedIngredients = parseIngredients(recipeToAdd.ingredients);
+    console.log("parsedIngredients: ", parsedIngredients);
     const parsedInstructions = parseInstructions(recipeToAdd.instructions);
 
     let newRecipeId;

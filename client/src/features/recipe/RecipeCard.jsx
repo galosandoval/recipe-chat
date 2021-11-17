@@ -53,7 +53,6 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
 
   const handleClick = (event) => {
     const { name } = event.currentTarget;
-    console.log("class", name);
     // Edit Menu Click
     if (name === "dropbtn" && !editRecipe.open && !editInstructions.open && !editIngredients.open) {
       closeOpenCarrots();
