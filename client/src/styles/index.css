@@ -163,9 +163,10 @@ select {
   background-color: #fff;
   display: inline-grid;
   place-items: center;
+  transform: rotate(45deg);
 }
 .recipe__button:hover {
-  transform: scale(1.06);
+  transform: rotate(45deg) scale(1.06);
   transition: all ease 0.3s;
 }
 .recipe__button--rotate {
