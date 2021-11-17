@@ -4,11 +4,11 @@
 
 - I worked with tasks on a kanban board:
 
-  ![](images/TJ%20Trello.png)
+  ![](readme-images/TJ%20Trello.png)
 
 - I wrote a descriptive commit with every feature I completed:
 
-  ![](images/TJ%20Commit%20History.png)
+  ![](readme-images/TJ%20Commit%20History.png)
 
 ## How to navigate this project
 
