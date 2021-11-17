@@ -96,21 +96,11 @@
     display: grid;
     place-content: center;
 
-    &--left {
-      &:hover {
-        transform: scale(1.08);
-        color: $color-primary;
-        background-color: rgba($color-grey-dark, 0.8);
-      }
+    &:hover {
+      transform: scale(1.08);
+      color: $color-primary;
+      background-color: rgba($color-grey-dark, 0.9);
     }
-    &--right {
-      &:hover {
-        transform: scale(1.08);
-        color: $color-primary;
-        background-color: rgba($color-grey-dark, 0.8);
-      }
-    }
-
     svg {
       height: 2.5rem;
       width: 2.5rem;
@@ -136,6 +126,7 @@
   }
 }
 
+// TODO: consider taking off fullscreen feature on desktop
 /* ____Paper____ */
 .paper {
   position: absolute;
@@ -167,6 +158,10 @@
 
     &--fullscreen {
       z-index: 1000;
+      position: fixed;
+      inset: 0;
+      overflow-y: scroll;
+      overflow-x: hidden;
     }
   }
 
@@ -203,7 +198,8 @@
     }
 
     &-minimize {
-      margin-right: 3rem;
+      height: 3rem;
+      width: 3rem;
 
       &-svg {
         height: 3rem;

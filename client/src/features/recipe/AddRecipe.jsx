@@ -88,6 +88,12 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
         value={recipeToAdd.imageUrl}
         onChange={handleChange}
       />
+      {/**
+       * TODO: Add text to placeholder so it
+       * looks like a recipe is being added
+       * maybe add input then change placeholder
+       * to solely have the recipe
+       */}
       <textarea
         className="add-recipe__textarea"
         name="ingredients"
