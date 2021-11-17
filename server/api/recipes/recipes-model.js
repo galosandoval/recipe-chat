@@ -1,13 +1,15 @@
 const db = require("../../data/connection");
 
+const recipes = "recipes";
+
 const addRecipe = (body) => {
-  return db("recipes").insert(body);
+  return db(recipes).insert(body);
 };
 
-const findRecipes = () => db("recipes");
+const findRecipes = () => db(recipes);
 
 const findRecipeById = (id) => {
-  return db("recipes").where({ id });
+  return db(recipes).where({ id });
 };
 
 const deleteRecipe = (id) => {
@@ -15,7 +17,7 @@ const deleteRecipe = (id) => {
   findRecipeById(id).then((recipeToDelete) => {
     deletedRecipe = recipeToDelete;
   });
-  return db("recipes")
+  return db(recipes)
     .where({ id })
     .del()
     .then(() => {
@@ -24,14 +26,14 @@ const deleteRecipe = (id) => {
 };
 
 const findIngredientsByRecipeId = (id) => {
-  return db("recipes")
+  return db(recipes)
     .join("ingredients", "recipes.id", "=", "ingredients.recipe-id")
     .select("ingredients.name", "ingredients.id", "recipes.id as recipe-id")
     .where("recipes.id", id);
 };
 
 const findRecipesByUserId = (userId) => {
-  return db("recipes")
+  return db(recipes)
     .join("users", "users.id", "=", "recipes.user-id")
     .where("user-id", userId)
     .select(
@@ -44,7 +46,7 @@ const findRecipesByUserId = (userId) => {
 };
 
 const updateRecipe = (id, changes) => {
-  return db("recipes")
+  return db(recipes)
     .where({ id })
     .update(changes)
     .then(() => {

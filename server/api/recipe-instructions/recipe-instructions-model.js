@@ -1,14 +1,16 @@
 const db = require("../../data/connection");
 
-const findInstructions = () => db("recipe-instructions");
+const recipeInstructions = "recipe-instructions";
+
+const findInstructions = () => db(recipeInstructions);
 
 const findInstructionsByRecipeId = (recipeId) =>
-  db("recipe-instructions").where("recipe-id", recipeId).orderBy("step");
+  db(recipeInstructions).where("recipe-id", recipeId).orderBy("step");
 
-const findInstructionById = (id) => db("recipe-instructions").where({ id });
+const findInstructionById = (id) => db(recipeInstructions).where({ id });
 
 const addInstructions = (body) => {
-  return db("recipe-instructions").insert(body);
+  return db(recipeInstructions).insert(body);
 };
 
 const deleteInstructionsByRecipeid = (id) => {
@@ -17,7 +19,7 @@ const deleteInstructionsByRecipeid = (id) => {
     instructionsToBeDeleted = instructions;
   });
 
-  return db("recipe-instructions")
+  return db(recipeInstructions)
     .where("recipe-id", id)
     .del()
     .then(() => instructionsToBeDeleted);
@@ -25,7 +27,7 @@ const deleteInstructionsByRecipeid = (id) => {
 
 const updateInstructions = (id, changes) => {
   changes.forEach((change) => {
-    db("recipe-instructions")
+    db(recipeInstructions)
       .where("id", change.id)
       .update(change)
       .then((updated) => {
@@ -39,7 +41,7 @@ const updateInstructions = (id, changes) => {
 const deleteInstructionById = (id) => {
   let instructionToDelete;
   findInstructionById(id).then((instruction) => (instructionToDelete = instruction));
-  return db("recipe-instructions")
+  return db(recipeInstructions)
     .where({ id })
     .del()
     .then(() => instructionToDelete);

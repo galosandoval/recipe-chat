@@ -1,21 +1,23 @@
 const db = require("../../data/connection");
 const { findIngredientsByRecipeId } = require("../recipes/recipes-model");
 
+const ingredients = "ingredients";
+
 const findIngredients = () => {
-  return db("ingredients");
+  return db(ingredients);
 };
 
 const findIngredientById = (id) => {
-  return db("ingredients").where("id", id);
+  return db(ingredients).where("id", id);
 };
 
 const addNewIngredients = (newIngredients) => {
   console.log("newIngredients", newIngredients);
-  return db("ingredients").insert(newIngredients);
+  return db(ingredients).insert(newIngredients);
 };
 
 const updateIngredient = (id, change) => {
-  return db("ingredients")
+  return db(ingredients)
     .where({ id })
     .update(change)
     .then(() => {
@@ -28,7 +30,7 @@ const deleteIngredientById = (id) => {
   findIngredientById(id).then((ingredientToDelete) => {
     deletedIngredient = ingredientToDelete;
   });
-  return db("ingredients")
+  return db(ingredients)
     .where({ id })
     .del()
     .then(() => {
@@ -41,7 +43,7 @@ const deleteIngredientsByRecipeId = (id) => {
   findIngredientsByRecipeId(id).then((ingredientsToDelete) => {
     deletedIngredients = ingredientsToDelete;
   });
-  return db("ingredients")
+  return db(ingredients)
     .where("recipe-id", id)
     .del()
     .then(() => {
@@ -52,7 +54,7 @@ const deleteIngredientsByRecipeId = (id) => {
 const updateIngredientsByRecipe = (id, changes) => {
   changes.forEach((change) => {
     console.log("change", change);
-    db("ingredients")
+    db(ingredients)
       .where("id", change.id)
       .update(change)
       .then((updated) => console.log(updated))
