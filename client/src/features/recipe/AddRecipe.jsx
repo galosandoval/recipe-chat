@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { checkSVG } from "../../utils/svgs";
 import { parseIngredients, parseInstructions } from "./utils/addRecipe";
 
 const initialRecipeToAddState = {
@@ -9,11 +10,14 @@ const initialRecipeToAddState = {
   instructions: "",
   imageUrl: ""
 };
+const initialAddButtonState = { class: "add-recipe__btn-svg--hidden", isAdded: false };
 
 export const AddRecipe = ({ recipes, getRecipes }) => {
   const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
+  const [addButton, setAddButton] = useState(initialAddButtonState);
 
   const handleChange = (event) => {
+    if (addButton.isAdded) setAddButton(initialAddButtonState);
     const { name } = event.target;
     setRecipetToAdd({ ...recipeToAdd, [name]: event.target.value });
   };
@@ -27,7 +31,6 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
       "user-id": recipes[0]["user-id"],
       "img-url": recipeToAdd.imageUrl
     };
-
     const parsedIngredients = parseIngredients(recipeToAdd.ingredients);
     const parsedInstructions = parseInstructions(recipeToAdd.instructions);
 
@@ -58,61 +61,86 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
         }));
         axios
           .post("http://localhost:4000/instructions/", instructionsBody)
-          .then((res) => {
+          .then((_res) => {
             getRecipes(recipes[0]["user-id"]);
             setRecipetToAdd(initialRecipeToAddState);
+            setAddButton((state) => ({ ...state, isAdded: true, class: "add-recipe__btn-svg" }));
           })
           .catch((err) => console.log(err));
       });
   };
   return (
     <form className="add-recipe" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Recipe Name"
-        name="name"
-        value={recipeToAdd.name}
-        onChange={handleChange}
-      />
-      <input
-        type="text"
-        placeholder="Recipe Description"
-        name="description"
-        value={recipeToAdd.description}
-        onChange={handleChange}
-      />
-      <input
-        type="text"
-        placeholder="Image URL"
-        name="imageUrl"
-        value={recipeToAdd.imageUrl}
-        onChange={handleChange}
-      />
-      {/**
-       * TODO: Add text to placeholder so it
-       * looks like a recipe is being added
-       * maybe add input then change placeholder
-       * to solely have the recipe
-       */}
-      <textarea
-        className="add-recipe__textarea"
-        name="ingredients"
-        cols="30"
-        rows="10"
-        placeholder="Paste recipe ingredients here!"
-        value={recipeToAdd.ingredients}
-        onChange={handleChange}
-      />
-      <textarea
-        className="add-recipe__textarea"
-        name="instructions"
-        cols="30"
-        rows="10"
-        placeholder="Paste recipe intructions here!"
-        value={recipeToAdd.instructions}
-        onChange={handleChange}
-      />
-      <button type="submit">Add Recipe</button>
+      <div className="add-recipe__form add-recipe__form--top">
+        <label className="add-recipe__label add-recipe__label--name">
+          Recipe Name
+          <input
+            type="text"
+            placeholder="Creamy Mushroom Toast With Soft Egg & Gruyère"
+            name="name"
+            value={recipeToAdd.name}
+            onChange={handleChange}
+            className="add-recipe__input"
+          />
+        </label>
+        <label className="add-recipe__label">
+          Recipe Description
+          <input
+            type="text"
+            placeholder="A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner."
+            name="description"
+            value={recipeToAdd.description}
+            onChange={handleChange}
+            className="add-recipe__input"
+          />
+        </label>
+        <label className="add-recipe__label">
+          Image Address
+          <input
+            type="text"
+            placeholder="https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage108081050-50-Mushroomtoast.jpg"
+            name="imageUrl"
+            value={recipeToAdd.imageUrl}
+            onChange={handleChange}
+            className="add-recipe__input"
+          />
+        </label>
+      </div>
+
+      <div className="add-recipe__form add-recipe__form--bottom">
+        <label className="add-recipe__label add-recipe__label-textarea">
+          Ingredients
+          <textarea
+            className="add-recipe__textarea"
+            name="ingredients"
+            cols="30"
+            rows="10"
+            placeholder="2 tablespoons unsalted butter
+              8 ounces mushrooms
+              3 cloves garlic, smashed
+              3 large sprigs of thyme
+              ½ shallot..."
+            value={recipeToAdd.ingredients}
+            onChange={handleChange}
+          />
+        </label>
+        <label className="add-recipe__label add-recipe__label-textarea">
+          Instructions
+          <textarea
+            className="add-recipe__textarea"
+            name="instructions"
+            cols="30"
+            rows="10"
+            placeholder="Make the Mushrooms: Heat a large skillet over medium-high heat and melt butter. Once melted, add mushrooms (working in batches if needed to not..."
+            value={recipeToAdd.instructions}
+            onChange={handleChange}
+          />
+        </label>
+      </div>
+      <button className="add-recipe__btn-submit" type="submit">
+        {addButton.isAdded ? "Recipe Added" : "Add Recipe"}
+        <span className={addButton.class}>{checkSVG}</span>
+      </button>
     </form>
   );
 };

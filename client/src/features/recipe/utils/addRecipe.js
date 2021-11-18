@@ -3,21 +3,35 @@ export const parseInstructions = (string) => {
   let instructions = [];
   let instruction = "";
   let count = 0;
+
   for (let i = 0; i < instructionsBody.length + count; i++) {
+    // i is each word
     if (instructionsBody[i]?.includes("\n")) {
       let toAdd = instructionsBody[i].split("\n");
-      if (toAdd.length > 2) toAdd = toAdd.filter(Boolean);
-      instruction += toAdd[0];
 
-      if (instruction.length > 10) instructions.push(instruction);
+      if (toAdd[0] === "" && toAdd.length > 2) {
+        instructions.push(instruction);
+        instruction = toAdd[2] + " ";
+        count++;
+        continue;
+      } else if (toAdd.length > 2) {
+        toAdd = toAdd.filter(Boolean);
+      }
+
+      instruction += toAdd[0];
+      if (instruction.length > 10) {
+        instructions.push(instruction);
+      }
 
       instruction = toAdd[1] + " ";
-
       count++;
       continue;
     }
-    if (instructionsBody[i] !== undefined) instruction += instructionsBody[i] + " ";
+    if (instructionsBody[i] !== undefined) {
+      instruction += instructionsBody[i] + " ";
+    }
 
+    // At the end of array
     if (instructionsBody.length === i) instructions.push(instruction);
   }
   return instructions;

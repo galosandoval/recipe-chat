@@ -1,23 +1,25 @@
 const db = require("../../data/connection");
 
+const grocerylists = "grocery-lists";
+
 const addGroceryList = (groceryList) => {
-  return db("grocery-lists").insert(groceryList);
+  return db(grocerylists).insert(groceryList);
 };
 
 const findGroceryLists = () => {
-  return db("grocery-lists");
+  return db(grocerylists);
 };
 
 const findGroceryListById = (id) => {
-  return db("grocery-lists").where({ id });
+  return db(grocerylists).where({ id });
 };
 
 const findGroceryListsByUserId = (userId) => {
-  return db("grocery-lists").where("user-id", userId);
+  return db(grocerylists).where("user-id", userId);
 };
 
 const findAllRecipesInList = () => {
-  return db("grocery-lists").join("recipes", "grocery-lists.id", "=", "recipes.grocery-list-id");
+  return db(grocerylists).join("recipes", "grocery-lists.id", "=", "recipes.grocery-list-id");
 };
 
 const reduceRecipesToGroceryListNames = (recipes) => {
@@ -62,7 +64,7 @@ const findRecipesWithIngredients = (userId) => {
 };
 
 const updateGroceryList = (id, change) => {
-  return db("grocery-lists")
+  return db(grocerylists)
     .where({ id })
     .update(change)
     .then(() => {
@@ -75,7 +77,7 @@ const deleteGroceryList = (id) => {
   findGroceryListById(id).then((groceryList) => {
     groceryListToDelete = groceryList;
   });
-  return db("grocery-lists")
+  return db(grocerylists)
     .where({ id })
     .del()
     .then(() => {

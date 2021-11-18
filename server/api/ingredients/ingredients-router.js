@@ -26,7 +26,7 @@ router.get("/:id", (req, res) => {
 
 router.post("/", validateRecipe, (req, res) => {
   const body = req.body;
-
+  console.log("body", body);
   Ingredients.addNewIngredients(body)
     .then((ingredients) => {
       res
@@ -81,10 +81,11 @@ router.put("/recipe/:id", validateRecipeById, (req, res) => {
   const { id } = req.params;
   const { body } = req;
 
-  Ingredients.updateIngredientsByRecipe(id, body)
-    .then(updatedIngredients => {
-    res.status(200).json({message: 'Updated ingredients with recipe id: ' + id, updatedIngredients})
-  })
+  Ingredients.updateIngredientsByRecipe(id, body).then((updatedIngredients) => {
+    res
+      .status(200)
+      .json({ message: "Updated ingredients with recipe id: " + id, updatedIngredients });
+  });
 });
 
 module.exports = router;

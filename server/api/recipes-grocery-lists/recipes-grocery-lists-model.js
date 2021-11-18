@@ -1,17 +1,19 @@
 const db = require("../../data/connection");
 const { findIngredientsByRecipeId } = require("../recipes/recipes-model");
 
-const findRecipesAndGroceryLists = () => db("recipes-grocery-lists");
+const recipesGrocerylists = "recipes-grocery-lists";
+
+const findRecipesAndGroceryLists = () => db(recipesGrocerylists);
 
 const findRecipesAndGroceryListsByUserId = (id) => {
-  return db("recipes-grocery-lists")
+  return db(recipesGrocerylists)
     .join("recipes", "recipes.id", "=", "recipes-grocery-lists.recipe-id")
     .join("grocery-lists", "grocery-lists.id", "=", "recipes-grocery-lists.grocery-list-id")
     .where("recipes.user-id", id);
 };
 
 const findRecipesByGroceryListId = async (id) => {
-  const recipeGroceryLists = await db("recipes-grocery-lists")
+  const recipeGroceryLists = await db(recipesGrocerylists)
     .join("recipes", "recipes.id", "=", "recipes-grocery-lists.recipe-id")
     .join("grocery-lists", "grocery-lists.id", "=", "recipes-grocery-lists.grocery-list-id")
     .where("recipes-grocery-lists.grocery-list-id", id)
@@ -58,7 +60,7 @@ const findRecipesByGroceryListId = async (id) => {
 };
 
 const findGroceryListIdsByUserId = async (id) => {
-  const ids = await db("recipes-grocery-lists").where("user-id", id).select("grocery-list-id");
+  const ids = await db(recipesGrocerylists).where("user-id", id).select("grocery-list-id");
   const reducedIds = ids.reduce((prev, curr) => {
     if (prev.indexOf(curr["grocery-list-id"]) === -1) {
       prev.push(curr["grocery-list-id"]);
@@ -77,7 +79,7 @@ const findGroceryListIdsByUserId = async (id) => {
 };
 
 const findRecipeIdsByGroceryListId = (id) => {
-  return db("recipes-grocery-lists")
+  return db(recipesGrocerylists)
     .join("recipes", "recipes.id", "=", "recipes-grocery-lists.recipe-id")
     .join("grocery-lists", "grocery-lists.id", "=", "recipes-grocery-lists.grocery-list-id")
     .where("recipes-grocery-lists.grocery-list-id", id)
@@ -100,11 +102,10 @@ const findIngredientsByGroceryListId = async (id) => {
   return combinedIngredients;
 };
 
-
 module.exports = {
   findRecipesAndGroceryLists,
   findRecipesAndGroceryListsByUserId,
   findGroceryListIdsByUserId,
   findRecipesByGroceryListId,
-  findIngredientsByGroceryListId,
+  findIngredientsByGroceryListId
 };
