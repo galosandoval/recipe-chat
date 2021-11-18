@@ -12,7 +12,6 @@ const findIngredientById = (id) => {
 };
 
 const addNewIngredients = (newIngredients) => {
-  console.log("newIngredients", newIngredients);
   return db(ingredients).insert(newIngredients);
 };
 

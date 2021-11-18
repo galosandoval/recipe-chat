@@ -5,6 +5,8 @@ const recipesGrocerylists = "recipes-grocery-lists";
 
 const findRecipesAndGroceryLists = () => db(recipesGrocerylists);
 
+const findRecipeGroceryListById = (id) => db(recipesGrocerylists).where({ id });
+
 const findRecipesAndGroceryListsByUserId = (id) => {
   return db(recipesGrocerylists)
     .join("recipes", "recipes.id", "=", "recipes-grocery-lists.recipe-id")
@@ -36,6 +38,7 @@ const findRecipesByGroceryListId = async (id) => {
   const recipeNames = [];
   const descriptions = [];
   const imgUrls = [];
+
   for (let i = 0; i < recipeGroceryLists.length; i++) {
     recipesGroceryListsIds.push(recipeGroceryLists[i]["recipes-grocery-lists-id"]);
     recipeIds.push(recipeGroceryLists[i]["recipe-id"]);
@@ -93,7 +96,7 @@ const findIngredientsByGroceryListId = async (id) => {
 
   for (let i = 0; i < recipeIds.length; i++) {
     const ingredientToAdd = await findIngredientsByRecipeId(recipeIds[i].id);
-    console.log("ingredient", ingredientToAdd);
+
     for (let j = 0; j < ingredientToAdd.length; j++) {
       combinedIngredients.push(ingredientToAdd[j]);
     }
@@ -102,10 +105,50 @@ const findIngredientsByGroceryListId = async (id) => {
   return combinedIngredients;
 };
 
+const addRecipeGroceryList = (body) => {
+  return db(recipesGrocerylists).insert(body);
+};
+
+const deleteRecipeGroceryListByGrocerylistId = (id) => {
+  let dataDeleted;
+
+  findRecipesAndGroceryLists()
+    .then((r) => {
+      dataDeleted = r.filter((r) => r["grocery-list-id"] === parseInt(id, 10));
+    })
+    .catch((error) => console.log(error));
+
+  return db(recipesGrocerylists)
+    .where("grocery-list-id", id)
+    .del()
+    .then(() => {
+      return dataDeleted;
+    });
+};
+
+const editRecipeGrocerylistByGrocerylistId = (id, changes) => {
+  changes.forEach((c) => {
+    db(recipesGrocerylists)
+      .where("id", c.id)
+      .update(c)
+      .then((changed) => {
+        console.log({ changed });
+      })
+      .catch((error) => console.log(error));
+  });
+  return db(recipesGrocerylists)
+    .where("grocery-list-id", id)
+    .then((items) => items)
+    .catch((error) => console.log(error));
+};
+
 module.exports = {
   findRecipesAndGroceryLists,
   findRecipesAndGroceryListsByUserId,
   findGroceryListIdsByUserId,
   findRecipesByGroceryListId,
-  findIngredientsByGroceryListId
+  findIngredientsByGroceryListId,
+  addRecipeGroceryList,
+  deleteRecipeGroceryListByGrocerylistId,
+  editRecipeGrocerylistByGrocerylistId
 };

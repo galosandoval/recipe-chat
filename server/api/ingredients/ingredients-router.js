@@ -26,7 +26,6 @@ router.get("/:id", (req, res) => {
 
 router.post("/", validateRecipe, (req, res) => {
   const body = req.body;
-  console.log("body", body);
   Ingredients.addNewIngredients(body)
     .then((ingredients) => {
       res

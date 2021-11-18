@@ -53,5 +53,33 @@ router.get("/ingredients/:id", (req, res) => {
     });
 });
 
+router.post("/", (req, res) => {
+  const { body } = req;
+  RecipesGroceryLists.addRecipeGroceryList(body)
+    .then((recipesGroceryList) => {
+      res.status(201).json({ recipesGroceryList });
+    })
+    .catch((error) => res.status(500).json({ message: error }));
+});
+
+router.delete("/grocerylist/:id", (req, res) => {
+  const { id } = req.params;
+  RecipesGroceryLists.deleteRecipeGroceryListByGrocerylistId(id)
+    .then((deletedItems) => {
+      res.status(200).json(deletedItems);
+    })
+    .catch((error) => res.status(404).json({ message: "Not found", error }));
+});
+
+router.put("/grocerylist/:id", (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+
+  RecipesGroceryLists.editRecipeGrocerylistByGrocerylistId(id, body)
+    .then((editedItems) => {
+      res.status(200).json(editedItems);
+    })
+    .catch((error) => res.status(500).json(error));
+});
 
 module.exports = router;

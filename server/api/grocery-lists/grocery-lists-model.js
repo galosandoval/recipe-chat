@@ -52,15 +52,19 @@ const reduceRecipesToGroceryListNames = (recipes) => {
   return groceryListRecipes;
 };
 
+// TODO: Fix or delete
 const findRecipesWithIngredients = (userId) => {
-  return db("recipes-grocery-lists")
-    .select("grocery-lists.id", "ingredients.name", "grocery-lists.name as grocery-list-name")
-    .where("grocery-lists.user-id", userId)
-    .join("recipes", "grocery-lists.id", "=", "recipes.grocery-list-id")
-    .join("ingredients", "ingredients.recipe-id", "=", "recipes.id")
-    .then((recipes) => {
-      return reduceRecipesToGroceryListNames(recipes);
-    });
+  return (
+    db("recipes-grocery-lists")
+      .select("grocery-lists.id", "ingredients.name", "grocery-lists.name as grocery-list-name")
+      .where("grocery-lists.user-id", userId)
+      // no longer recipes.grocery-list-id
+      .join("recipes", "grocery-lists.id", "=", "recipes.grocery-list-id")
+      .join("ingredients", "ingredients.recipe-id", "=", "recipes.id")
+      .then((recipes) => {
+        return reduceRecipesToGroceryListNames(recipes);
+      })
+  );
 };
 
 const updateGroceryList = (id, change) => {
