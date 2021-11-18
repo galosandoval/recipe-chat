@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { checkSVG } from "../../utils/svgs";
 import { parseIngredients, parseInstructions } from "./utils/addRecipe";
 
 const initialRecipeToAddState = {
@@ -9,12 +10,14 @@ const initialRecipeToAddState = {
   instructions: "",
   imageUrl: ""
 };
+const initialAddButtonState = { class: "add-recipe__btn-svg--hidden", isAdded: false };
 
 export const AddRecipe = ({ recipes, getRecipes }) => {
   const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
-  const [isAdded, setIsAdded] = useState(false);
+  const [addButton, setAddButton] = useState(initialAddButtonState);
 
   const handleChange = (event) => {
+    if (addButton.isAdded) setAddButton(initialAddButtonState);
     const { name } = event.target;
     setRecipetToAdd({ ...recipeToAdd, [name]: event.target.value });
   };
@@ -61,6 +64,7 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
           .then((_res) => {
             getRecipes(recipes[0]["user-id"]);
             setRecipetToAdd(initialRecipeToAddState);
+            setAddButton((state) => ({ ...state, isAdded: true, class: "add-recipe__btn-svg" }));
           })
           .catch((err) => console.log(err));
       });
@@ -133,7 +137,10 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
           />
         </label>
       </div>
-      <button type="submit">Add Recipe</button>
+      <button className="add-recipe__btn-submit" type="submit">
+        {addButton.isAdded ? "Recipe Added" : "Add Recipe"}
+        <span className={addButton.class}>{checkSVG}</span>
+      </button>
     </form>
   );
 };
