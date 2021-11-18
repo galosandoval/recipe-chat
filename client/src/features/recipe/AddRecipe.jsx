@@ -12,6 +12,7 @@ const initialRecipeToAddState = {
 
 export const AddRecipe = ({ recipes, getRecipes }) => {
   const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
+  const [isAdded, setIsAdded] = useState(false);
 
   const handleChange = (event) => {
     const { name } = event.target;
@@ -27,7 +28,6 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
       "user-id": recipes[0]["user-id"],
       "img-url": recipeToAdd.imageUrl
     };
-
     const parsedIngredients = parseIngredients(recipeToAdd.ingredients);
     const parsedInstructions = parseInstructions(recipeToAdd.instructions);
 
@@ -58,7 +58,7 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
         }));
         axios
           .post("http://localhost:4000/instructions/", instructionsBody)
-          .then((res) => {
+          .then((_res) => {
             getRecipes(recipes[0]["user-id"]);
             setRecipetToAdd(initialRecipeToAddState);
           })
@@ -102,12 +102,6 @@ export const AddRecipe = ({ recipes, getRecipes }) => {
           />
         </label>
       </div>
-      {/**
-       * TODO: Add text to placeholder so it
-       * looks like a recipe is being added
-       * maybe add input then change placeholder
-       * to solely have the recipe
-       */}
 
       <div className="add-recipe__form add-recipe__form--bottom">
         <label className="add-recipe__label add-recipe__label-textarea">

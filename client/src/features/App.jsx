@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import axios from "axios";
 
-import { Grocerylist } from "./Grocerylist/Grocerylist";
+import { Grocerylist } from "./grocerylist/Grocerylist";
 import { Navbar } from "./navbar/Navbar";
 import { Recipe } from "./recipe/Recipe";
 
