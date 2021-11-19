@@ -332,7 +332,7 @@ select {
   margin: 0 0.5em;
 }
 
-/* ____GrocerylistCard____ */
+/* ____Grocerylist____ */
 .grocerylist__header {
   display: flex;
   padding: 0 2rem;
@@ -343,11 +343,72 @@ select {
 .grocerylist__header button {
   margin-left: auto;
 }
-.add-grocerylist {
-  background-color: #ff6347;
-  position: relative;
+.grocerylist .add-form {
+  /* The slider */
+}
+.grocerylist .add-form__container {
   display: flex;
   flex-direction: column;
+  align-items: center;
+}
+.grocerylist .add-form__label {
+  width: 70%;
+}
+.grocerylist .add-form__switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  /* Hide default HTML checkbox */
+}
+.grocerylist .add-form__switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.grocerylist .add-form__slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #b1b1b1;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+.grocerylist .add-form__slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+.grocerylist .add-form__checkbox:checked + .add-form__slider {
+  background-color: #20bf55;
+}
+.grocerylist .add-form__checkbox:focus + .add-form__slider {
+  box-shadow: 0 0 1px #20bf55;
+}
+.grocerylist .add-form__checkbox:checked + .add-form__slider:before {
+  transform: translateX(26px);
+}
+.grocerylist .add-form__switch-container {
+  display: flex;
+  justify-self: center;
+}
+.grocerylist .add-form__switch-container:not(:last-child) {
+  margin-bottom: 1rem;
+}
+.grocerylist .add-form__switch-container p {
+  margin-right: 10rem;
+}
+.grocerylist .add-form__btn {
+  margin: 1rem 0;
 }
 
 /* ____GrocerylistCard____ */

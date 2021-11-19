@@ -33,7 +33,7 @@ function App() {
           <Recipe recipes={recipes} getRecipes={getRecipes} />
         </Route>
         <Route path="/">
-          <Grocerylist grocerylist={grocerylist} />
+          <Grocerylist recipes={recipes} grocerylist={grocerylist} />
         </Route>
       </Switch>
     </div>
