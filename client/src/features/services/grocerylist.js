@@ -7,7 +7,7 @@ import axios from "axios";
 /**
  * POST
  */
-export const addNewGrocerylist = (grocerylistToAdd, recipes, checked, getGroceryLists) => {
+export const addNewGrocerylist = (grocerylistToAdd, recipes, checked, getGroceryLists, setForm) => {
   // TODO: Change user id
   let newGrocerylistId;
   const grocerylistBody = {
@@ -26,7 +26,7 @@ export const addNewGrocerylist = (grocerylistToAdd, recipes, checked, getGrocery
         .filter((_r, i) => checked[i])
         .map((r) => ({
           "recipe-id": r.id,
-          "grocery-list-id": newGrocerylistId,
+          "grocery-list-id": newGrocerylistId,  
           // TODO: change user id
           "user-id": recipes[0]["user-id"]
         }));
@@ -36,6 +36,7 @@ export const addNewGrocerylist = (grocerylistToAdd, recipes, checked, getGrocery
         .post("http://localhost:4000/recipes-grocery-lists", recipeBody)
         .then((recipesAdded) => {
           console.log(recipesAdded);
+          setForm((state) => ({ ...state, addButtonClass: "add-btn-svg" }));
           getGroceryLists();
         })
         .catch((err) => console.log(err));

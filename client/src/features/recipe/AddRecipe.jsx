@@ -10,7 +10,7 @@ const initialRecipeToAddState = {
   instructions: "",
   imageUrl: ""
 };
-const initialAddButtonState = { class: "add__btn-svg--hidden", isAdded: false };
+const initialAddButtonState = { class: "add-btn-svg--hidden", isAdded: false };
 
 export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
   const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
@@ -64,7 +64,7 @@ export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
           .then((_res) => {
             getRecipes(recipes[0]["user-id"]);
             setRecipetToAdd(initialRecipeToAddState);
-            setAddButton((state) => ({ ...state, isAdded: true, class: "add__btn-svg" }));
+            setAddButton((state) => ({ ...state, isAdded: true, class: "add-btn-svg" }));
           })
           .catch((err) => console.log(err));
       });
@@ -75,6 +75,7 @@ export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
         <label className="add-form__label add-form__label--name">
           Recipe Name
           <input
+            required
             type="text"
             placeholder="Creamy Mushroom Toast With Soft Egg & Gruyère"
             name="name"
@@ -86,6 +87,7 @@ export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
         <label className="add-form__label">
           Recipe Description
           <input
+            required
             type="text"
             placeholder="A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner."
             name="description"
@@ -97,6 +99,7 @@ export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
         <label className="add-form__label">
           Image Address
           <input
+            required
             type="text"
             placeholder="https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage108081050-50-Mushroomtoast.jpg"
             name="imageUrl"
@@ -111,6 +114,7 @@ export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
         <label className="add-form__label add-form__label-textarea">
           Ingredients
           <textarea
+            required
             className="add-form__textarea"
             name="ingredients"
             cols="30"
@@ -127,6 +131,7 @@ export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
         <label className="add-form__label add-form__label-textarea">
           Instructions
           <textarea
+            required
             className="add-form__textarea"
             name="instructions"
             cols="30"

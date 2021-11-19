@@ -3,24 +3,22 @@ import { checkSVG } from "../../utils/svgs";
 import { addNewGrocerylist } from "../services/grocerylist";
 import { AddGrocerylistCheckboxes } from "./AddGrocerylistCheckboxes";
 
-const initialAddButtonState = { class: "add__btn-svg--hidden", isAdded: false };
 const initialGrocerylistState = "";
 
-export const AddGrocerylist = ({ recipes, getGroceryLists }) => {
-  const [addButton, setAddButton] = useState(initialAddButtonState);
+export const AddGrocerylist = ({ recipes, getGroceryLists, form, setForm }) => {
   const [checked, setChecked] = useState(() => new Array(recipes.length).fill(false));
   const [grocerylistToAdd, setGrocerylistToAdd] = useState(initialGrocerylistState);
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    addNewGrocerylist(grocerylistToAdd, recipes, checked, getGroceryLists);
+    addNewGrocerylist(grocerylistToAdd, recipes, checked, getGroceryLists, setForm);
     setGrocerylistToAdd(initialGrocerylistState);
     setChecked(checked.map((c) => (c ? !c : c)));
   };
 
   return (
-    <form className="add-form" onSubmit={handleSubmit}>
+    <form className={form.formClass} onSubmit={handleSubmit}>
       <div className="add-form__container">
         <label htmlFor="name" className="add-form__label add-form__label-name">
           Name
@@ -44,8 +42,8 @@ export const AddGrocerylist = ({ recipes, getGroceryLists }) => {
         ))}
       </div>
       <button className="add-form__btn add-btn-submit" type="submit">
-        {addButton.isAdded ? "Grocerylist Added" : "Add Grocerylist"}
-        <span className={addButton.class}>{checkSVG}</span>
+        {form.isAdded ? "Grocerylist Added" : "Add Grocerylist"}
+        <span className={form.addButtonClass}>{checkSVG}</span>
       </button>
     </form>
   );

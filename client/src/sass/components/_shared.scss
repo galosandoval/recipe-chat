@@ -11,10 +11,10 @@
   }
   &--rotate {
     transition: all ease 0.3s;
-    transform: rotate(225deg);
+    transform: rotate(180deg);
     &:hover {
       transition: all ease 0.3s;
-      transform: rotate(225deg) scale(1.06);
+      transform: rotate(180deg) scale(1.06);
     }
   }
 }
@@ -48,6 +48,7 @@
       height: 1.5rem;
       width: 1.5rem;
       transition: all ease-in-out 0.3s;
+      margin-left: 1rem;
     }
 
     &--hidden {
@@ -113,16 +114,14 @@
 /* ____Form____ */
 .add-form {
   width: 100%;
-  display: flex;
   background-color: $color-primary;
-  // max-height: 0;
+  max-height: 0;
   overflow: hidden;
   transition: max-height ease 0.3s;
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
-
 
   &--show {
     max-height: 600px;

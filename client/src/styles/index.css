@@ -344,6 +344,8 @@ select {
   margin-left: auto;
 }
 .grocerylist .add-form {
+  overflow-y: scroll;
+  justify-content: flex-start;
   /* The slider */
 }
 .grocerylist .add-form__container {
@@ -374,7 +376,7 @@ select {
   right: 0;
   bottom: 0;
   background-color: #b1b1b1;
-  transition: 0.4s;
+  transition: 0.4s all ease-in-out;
   border-radius: 34px;
 }
 .grocerylist .add-form__slider:before {
@@ -388,6 +390,9 @@ select {
   transition: 0.4s;
   border-radius: 50%;
 }
+.grocerylist .add-form__slider:hover {
+  background-color: #3fde74;
+}
 .grocerylist .add-form__checkbox:checked + .add-form__slider {
   background-color: #20bf55;
 }
@@ -400,7 +405,7 @@ select {
 .grocerylist .add-form__switch-container {
   display: flex;
   justify-content: space-between;
-  width: 40%;
+  width: 45%;
 }
 .grocerylist .add-form__switch-container:not(:last-child) {
   margin-bottom: 1rem;
@@ -408,6 +413,7 @@ select {
 .grocerylist .add-form__switch-container p {
   margin-right: 10rem;
   color: #fff;
+  text-transform: lowercase;
 }
 .grocerylist .add-form__btn {
   margin: 1rem 0;
@@ -688,11 +694,11 @@ select {
 }
 .x-svg-btn--rotate {
   transition: all ease 0.3s;
-  transform: rotate(225deg);
+  transform: rotate(180deg);
 }
 .x-svg-btn--rotate:hover {
   transition: all ease 0.3s;
-  transform: rotate(225deg) scale(1.06);
+  transform: rotate(180deg) scale(1.06);
 }
 
 .add-btn-submit {
@@ -720,6 +726,7 @@ select {
   height: 1.5rem;
   width: 1.5rem;
   transition: all ease-in-out 0.3s;
+  margin-left: 1rem;
 }
 .add-btn-svg--hidden {
   display: none;
@@ -780,8 +787,8 @@ select {
 /* ____Form____ */
 .add-form {
   width: 100%;
-  display: flex;
   background-color: #ff6347;
+  max-height: 0;
   overflow: hidden;
   transition: max-height ease 0.3s;
   display: flex;
