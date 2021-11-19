@@ -357,7 +357,7 @@ select {
 .grocerylist .add-form__switch {
   position: relative;
   display: inline-block;
-  width: 60px;
+  min-width: 60px;
   height: 34px;
   /* Hide default HTML checkbox */
 }
@@ -399,13 +399,15 @@ select {
 }
 .grocerylist .add-form__switch-container {
   display: flex;
-  justify-self: center;
+  justify-content: space-between;
+  width: 40%;
 }
 .grocerylist .add-form__switch-container:not(:last-child) {
   margin-bottom: 1rem;
 }
 .grocerylist .add-form__switch-container p {
   margin-right: 10rem;
+  color: #fff;
 }
 .grocerylist .add-form__btn {
   margin: 1rem 0;

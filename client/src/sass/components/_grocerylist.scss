@@ -25,7 +25,7 @@
     &__switch {
       position: relative;
       display: inline-block;
-      width: 60px;
+      min-width: 60px;
       height: 34px;
 
       /* Hide default HTML checkbox */
@@ -75,7 +75,8 @@
 
     &__switch-container {
       display: flex;
-      justify-self: center;
+      justify-content: space-between;
+      width: 40%;
 
       &:not(:last-child) {
         margin-bottom: 1rem;
@@ -83,6 +84,7 @@
 
       p {
         margin-right: 10rem;
+        color: $color-white;
       }
     }
     &__btn {

@@ -3,7 +3,7 @@ import { xSVG } from "../../utils/svgs";
 import { AddGrocerylist } from "./AddGrocerylist";
 import { GrocerylistCard } from "./GrocerylistCard";
 
-export const Grocerylist = ({ recipes, grocerylist }) => {
+export const Grocerylist = ({ recipes, grocerylist , getGroceryLists}) => {
   console.log({ grocerylist });
   return (
     <div className="grocerylist">
@@ -11,7 +11,7 @@ export const Grocerylist = ({ recipes, grocerylist }) => {
         <h1>Grocerylist</h1>
         <button className="x-svg-btn grocerylist__btn">{xSVG}</button>
       </div>
-      <AddGrocerylist recipes={recipes} />
+      {recipes.length > 0 && <AddGrocerylist getGroceryLists={getGroceryLists} recipes={recipes} />}
       <div className="grocerylist__card-container">
         {grocerylist.map((list) => (
           <GrocerylistCard list={list} key={list["grocery-list-id"]} />
