@@ -1,4 +1,25 @@
-/* ____Grocerylist Card____ */
+/* ____GrocerylistCard____ */
+.grocerylist {
+  &__header{
+    display: flex;
+    padding: 0 2rem;
+
+    & h1 {
+     margin-left: auto;
+    }
+    & button {
+      margin-left: auto;
+    }
+  }
+  &__add-grocerylist {}
+  
+}
+.add-grocerylist{
+  background-color: $color-primary;
+}
+
+
+/* ____GrocerylistCard____ */
 .grocerylist-card {
   &__heading {
     display: flex;
@@ -174,20 +195,6 @@
   }
 
   &__btn {
-    background-color: transparent;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: $color-grey-dark;
-    transition: all ease-in-out 0.3s;
-    border-radius: 0.3rem;
-    margin-left: 0.3rem;
-    &:hover {
-      color: $color-primary;
-      background-color: $color-grey-dark;
-    }
-
     &-svg {
       height: 2rem;
       width: 2rem;

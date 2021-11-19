@@ -6,7 +6,7 @@ import { RecipeCard } from "./RecipeCard";
 
 const initialFormState = {
   formClassName: "recipe__add-form",
-  buttonClassName: "recipe__button",
+  buttonClassName: "x-svg-btn",
   isOpen: false
 };
 
@@ -28,12 +28,12 @@ export const Recipe = ({ recipes, getRecipes }) => {
     if (className === "recipe__card-container") {
       closeOpenCarrots();
     }
-    if (className.includes("recipe__button")) {
+    if (className.includes("x-svg-btn")) {
       formState.isOpen
         ? setFormState(initialFormState)
         : setFormState({
             formClassName: "recipe__add-form recipe__add-form--show",
-            buttonClassName: "recipe__button recipe__button--rotate",
+            buttonClassName: "x-svg-btn x-svg-btn--rotate",
             isOpen: true
           });
     }

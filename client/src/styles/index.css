@@ -160,25 +160,6 @@ select {
   right: 1.5em;
   top: 5em;
 }
-.recipe__button {
-  border: none;
-  background-color: #fff;
-  display: inline-grid;
-  place-items: center;
-  transform: rotate(45deg);
-}
-.recipe__button:hover {
-  transform: rotate(45deg) scale(1.06);
-  transition: all ease 0.3s;
-}
-.recipe__button--rotate {
-  transition: all ease 0.3s;
-  transform: rotate(270deg);
-}
-.recipe__button--rotate:hover {
-  transition: all ease 0.3s;
-  transform: rotate(270deg) scale(1.06);
-}
 
 /* ____AddRecipe____ */
 .add-recipe {
@@ -444,7 +425,22 @@ select {
   margin: 0 0.5em;
 }
 
-/* ____Grocerylist Card____ */
+/* ____GrocerylistCard____ */
+.grocerylist__header {
+  display: flex;
+  padding: 0 2rem;
+}
+.grocerylist__header h1 {
+  margin-left: auto;
+}
+.grocerylist__header button {
+  margin-left: auto;
+}
+.add-grocerylist {
+  background-color: #ff6347;
+}
+
+/* ____GrocerylistCard____ */
 .grocerylist-card__heading {
   display: flex;
 }
@@ -604,21 +600,6 @@ select {
   top: 0.5rem;
   right: 0.3rem;
 }
-.paper__btn {
-  background-color: transparent;
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #b1b1b1;
-  transition: all ease-in-out 0.3s;
-  border-radius: 0.3rem;
-  margin-left: 0.3rem;
-}
-.paper__btn:hover {
-  color: #ff6347;
-  background-color: #b1b1b1;
-}
 .paper__btn-svg {
   height: 2rem;
   width: 2rem;
@@ -718,6 +699,26 @@ select {
 }
 .todo__input:checked ~ .todo__label .todo__check {
   opacity: 1;
+}
+
+.x-svg-btn {
+  border: none;
+  background-color: #fff;
+  display: inline-grid;
+  place-items: center;
+  transform: rotate(45deg);
+}
+.x-svg-btn:hover {
+  transform: rotate(45deg) scale(1.06);
+  transition: all ease 0.3s;
+}
+.x-svg-btn--rotate {
+  transition: all ease 0.3s;
+  transform: rotate(225deg);
+}
+.x-svg-btn--rotate:hover {
+  transition: all ease 0.3s;
+  transform: rotate(225deg) scale(1.06);
 }
 
 /*# sourceMappingURL=index.css.map */

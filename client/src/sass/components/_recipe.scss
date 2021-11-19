@@ -24,25 +24,25 @@
     right: 1.5em;
     top: 5em;
   }
-  &__button {
-    border: none;
-    background-color: $color-white;
-    display: inline-grid;
-    place-items: center;
-    transform: rotate(45deg);
-    &:hover {
-      transform: rotate(45deg) scale(1.06);
-      transition: all ease 0.3s;
-    }
-    &--rotate {
-      transition: all ease 0.3s;
-      transform: rotate(270deg);
-      &:hover {
-        transition: all ease 0.3s;
-        transform: rotate(270deg) scale(1.06);
-      }
-    }
-  }
+  // &__button {
+  //   border: none;
+  //   background-color: $color-white;
+  //   display: inline-grid;
+  //   place-items: center;
+  //   transform: rotate(45deg);
+  //   &:hover {
+  //     transform: rotate(45deg) scale(1.06);
+  //     transition: all ease 0.3s;
+  //   }
+  //   &--rotate {
+  //     transition: all ease 0.3s;
+  //     transform: rotate(270deg);
+  //     &:hover {
+  //       transition: all ease 0.3s;
+  //       transform: rotate(270deg) scale(1.06);
+  //     }
+  //   }
+  // }
 }
 /* ____AddRecipe____ */
 .add-recipe {
