@@ -1,0 +1,131 @@
+/* ___Buttons____ */
+.x-svg-btn {
+  border: none;
+  background-color: $color-white;
+  display: inline-grid;
+  place-items: center;
+  transform: rotate(45deg);
+  &:hover {
+    transform: rotate(45deg) scale(1.06);
+    transition: all ease 0.3s;
+  }
+  &--rotate {
+    transition: all ease 0.3s;
+    transform: rotate(225deg);
+    &:hover {
+      transition: all ease 0.3s;
+      transform: rotate(225deg) scale(1.06);
+    }
+  }
+}
+
+.add-btn {
+  &-submit {
+    padding: 1rem 2rem;
+    background-color: $color-white;
+    border: none;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    transition: all ease-in-out 0.3s;
+    align-self: center;
+    margin-bottom: 1rem;
+
+    &:hover {
+      background-color: #20bf55;
+      color: $color-white;
+
+      & span {
+        color: $color-white;
+      }
+    }
+  }
+
+  &-svg {
+    color: #20bf55;
+
+    & svg {
+      height: 1.5rem;
+      width: 1.5rem;
+      transition: all ease-in-out 0.3s;
+    }
+
+    &--hidden {
+      display: none;
+    }
+  }
+}
+
+.btn-round {
+  background-color: $color-white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  align-self: center;
+  transition: all ease-in-out 0.4s;
+  padding-top: 0.5rem;
+  color: $color-primary-light;
+  height: 4rem;
+  width: 4rem;
+
+  svg {
+    height: 2rem;
+    width: 2rem;
+  }
+
+  &:hover {
+    background-color: $color-primary;
+    box-shadow: 0 1rem 2rem rgba(#000, 0.15);
+    color: $color-white;
+    transform: scale(1.08);
+  }
+
+  &:active {
+    background-color: $color-primary-light;
+    transition: transform 0.2s;
+    box-shadow: 0 0.5rem 1rem rgba(#000, 0.15);
+    transform: translateY(1px);
+  }
+}
+/* ____Card____ */
+.card {
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 10%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 1.5rem 1rem;
+  overflow: hidden;
+  width: 40%;
+  min-width: 22em;
+  max-width: 25rem;
+  position: relative;
+  align-self: flex-start;
+}
+
+.u-card-heading {
+  font-weight: 600;
+  text-transform: lowercase;
+  padding: 1rem;
+}
+
+/* ____Form____ */
+.add-form {
+  width: 100%;
+  display: flex;
+  background-color: $color-primary;
+  // max-height: 0;
+  overflow: hidden;
+  transition: max-height ease 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+
+
+  &--show {
+    max-height: 600px;
+    transition: max-height ease-in-out 0.3s;
+  }
+}

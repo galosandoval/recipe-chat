@@ -1,8 +1,20 @@
-import React from "react";
-import { xSVG } from "../../utils/svgs";
+import React, { useState } from "react";
+import { checkSVG, xSVG } from "../../utils/svgs";
 import { GrocerylistCard } from "./GrocerylistCard";
 
+const initialRecipeToAddState = {
+  name: "",
+  description: "",
+  ingredients: "",
+  instructions: "",
+  imageUrl: ""
+};
+const initialAddButtonState = { class: "add__btn-svg--hidden", isAdded: false };
+
 export const Grocerylist = ({ grocerylist }) => {
+  const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
+  const [addButton, setAddButton] = useState(initialAddButtonState);
+
   console.log({ grocerylist });
   return (
     <div className="grocerylist">
@@ -10,24 +22,29 @@ export const Grocerylist = ({ grocerylist }) => {
         <h1>Grocerylist</h1>
         <button className="x-svg-btn grocerylist__btn">{xSVG}</button>
       </div>
-      <div className="grocerylist__add-grocerylist">
-        <form className="add-grocerylist">
-          <label htmlFor="name" className="add-grocerylist__label-name">Name
-            <input type="text" className="add-grocerylist__input-name" />
+      <form className="add-form">
+        <div className="add-form__container">
+          <label htmlFor="name" className="add-form__label add-form__label-name">
+            Name
+            <input type="text" className="add-form__input" />
           </label>
-          <label className="add-grocerylist__label" htmlFor="add-recipe">
+          <label className="add-form__label add-form__label" htmlFor="add-recipe">
             Recipe 1
-            <input type="checkbox" className="add-grocerylist__input" />
+            <input type="checkbox" className="add-form__input" />
           </label>
-          <label className="add-grocerylist__label" htmlFor="add-recipe">
-            Recipe 2 <input type="checkbox" className="add-grocerylist__input" />
+          <label className="add-form__label add-form__label" htmlFor="add-recipe">
+            Recipe 2 <input type="checkbox" className="add-form__input" />
           </label>
-          <label className="add-grocerylist__label" htmlFor="add-recipe">
+          <label className="add-form__label add-form__label" htmlFor="add-recipe">
             Recipe 3
-            <input type="checkbox" className="add-grocerylist__input" />
+            <input type="checkbox" className="add-form__input" />
           </label>
-        </form>
-      </div>
+          <button className="add-btn-submit" type="submit">
+            {addButton.isAdded ? "Grocerylist Added" : "Add Grocerylist"}
+            <span className={addButton.class}>{checkSVG}</span>
+          </button>
+        </div>
+      </form>
       <div className="grocerylist__card-container">
         {grocerylist.map((list) => (
           <GrocerylistCard list={list} key={list["grocery-list-id"]} />

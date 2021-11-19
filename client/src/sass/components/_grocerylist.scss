@@ -11,11 +11,16 @@
       margin-left: auto;
     }
   }
-  &__add-grocerylist {}
+  &__add-grocerylist {
+    
+  }
   
 }
 .add-grocerylist{
   background-color: $color-primary;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 
