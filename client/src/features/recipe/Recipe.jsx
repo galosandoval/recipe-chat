@@ -5,7 +5,7 @@ import { AddRecipe } from "./AddRecipe";
 import { RecipeCard } from "./RecipeCard";
 
 const initialFormState = {
-  formClassName: "recipe__add-form",
+  formClassName: "add-form",
   buttonClassName: "x-svg-btn",
   isOpen: false
 };
@@ -32,7 +32,7 @@ export const Recipe = ({ recipes, getRecipes }) => {
       formState.isOpen
         ? setFormState(initialFormState)
         : setFormState({
-            formClassName: "recipe__add-form recipe__add-form--show",
+            formClassName: "add-form add-form--show",
             buttonClassName: "x-svg-btn x-svg-btn--rotate",
             isOpen: true
           });
@@ -41,9 +41,11 @@ export const Recipe = ({ recipes, getRecipes }) => {
   return (
     <div className="recipe" onClick={handleClick}>
       <h1>Recipes</h1>
-      <div className={formState.formClassName}>
-        <AddRecipe recipes={recipes} getRecipes={getRecipes} />
-      </div>
+      <AddRecipe
+        recipes={recipes}
+        getRecipes={getRecipes}
+        formStateClass={formState.formClassName}
+      />
       <div id="recipe-container" className="recipe__card-container">
         {recipes.map((recipe, index) => (
           <RecipeCard
