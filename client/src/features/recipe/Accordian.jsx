@@ -15,8 +15,20 @@ export const Accordian = ({ instructions, ingredients, accordian, index }) => {
   return (
     <div className={accordian.ingredientsClass}>
       <div className="accordian__tabs">
-        <NavLink to={`${match.url}/ingredients`}>Ingredients</NavLink>
-        <NavLink to={`${match.url}/instructions`}>Instructions</NavLink>
+        <NavLink
+          className="navbar__link accordian__link"
+          activeClassName="navbar__active"
+          to={`${match.url}/ingredients`}
+        >
+          Ingredients
+        </NavLink>
+        <NavLink
+          className="navbar__link accordian__link"
+          activeClassName="navbar__active"
+          to={`${match.url}/instructions`}
+        >
+          Instructions
+        </NavLink>
       </div>
       <Route path={`${match.url}/ingredients`}>
         <RecipeIngredients ingredients={ingredients} />

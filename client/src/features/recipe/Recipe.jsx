@@ -40,7 +40,12 @@ export const Recipe = ({ recipes, getRecipes }) => {
   };
   return (
     <div className="recipe" onClick={handleClick}>
-      <h1>Recipes</h1>
+      <div className="recipe__header">
+        <h1>Recipes</h1>
+        <button className={formState.buttonClassName} onClick={handleClick}>
+          {xSVG}
+        </button>
+      </div>
       <AddRecipe
         recipes={recipes}
         getRecipes={getRecipes}
@@ -55,11 +60,6 @@ export const Recipe = ({ recipes, getRecipes }) => {
             closeOpenCarrots={closeOpenCarrots}
           />
         ))}
-      </div>
-      <div className="recipe__button-container">
-        <button className={formState.buttonClassName} onClick={handleClick}>
-          {xSVG}
-        </button>
       </div>
     </div>
   );

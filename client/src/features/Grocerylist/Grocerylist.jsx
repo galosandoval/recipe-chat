@@ -32,7 +32,7 @@ export const Grocerylist = ({ recipes, grocerylist, getGroceryLists }) => {
   return (
     <div className="grocerylist">
       <div className="grocerylist__header">
-        <h1>Grocerylist</h1>
+        <h1>Grocery Lists</h1>
         <button name="form-btn" className={form.plusButtonClass} onClick={handleClick}>
           {xSVG}
         </button>

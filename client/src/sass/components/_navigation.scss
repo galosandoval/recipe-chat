@@ -1,0 +1,49 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  // background-color: $color-grey-dark-2;
+  color: $color-black;
+  position: relative;
+  z-index: 1;
+
+  &__logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 10%;
+  }
+
+  &__list {
+    display: flex;
+    align-items: center;
+    flex: 0 0 90%;
+  }
+
+  &__item {
+    list-style: none;
+    margin-left: 2rem;
+  }
+
+  &__link,
+  &__link:visited {
+    text-decoration: none;
+    color: $color-black;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+  &__active,
+  &__active:visited {
+    text-decoration: none;
+    color: $color-white;
+    background-color: $color-primary;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+
+    &:hover {
+      color: $color-white;
+    }
+  }
+}

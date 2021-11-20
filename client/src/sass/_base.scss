@@ -8,8 +8,7 @@ $color-secondary: #20bf55;
 $color-secondary-light: #3fde74;
 $color-secondary-dark: #157a37;
 
-$color-tertiary-light: #2998ff;
-$color-tertiary-dark: #5643fa;
+$color-tertiary: antiquewhite;
 
 $color-grey-light-1: #f7f7f7;
 $color-grey-light-2: #eee;
@@ -105,4 +104,7 @@ select {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+.App {
+  background-color: $color-tertiary;
 }
