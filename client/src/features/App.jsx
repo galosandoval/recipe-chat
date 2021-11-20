@@ -32,7 +32,7 @@ function App() {
         <Route path="/recipes">
           <Recipe recipes={recipes} getRecipes={getRecipes} />
         </Route>
-        <Route path="/">
+        <Route path="/grocerylists">
           <Grocerylist recipes={recipes} grocerylist={grocerylist} getGroceryLists={getGroceryLists} />
         </Route>
       </Switch>

@@ -74,6 +74,10 @@ select {
     scroll-behavior: auto !important;
   }
 }
+.App {
+  background-color: antiquewhite;
+}
+
 .recipe__card-container,
 .grocerylist__card-container {
   max-width: 1550px;
@@ -81,6 +85,47 @@ select {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  color: #000;
+  position: relative;
+  z-index: 1;
+}
+.navbar__logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 0 0 10%;
+}
+.navbar__list {
+  display: flex;
+  align-items: center;
+  flex: 0 0 90%;
+}
+.navbar__item {
+  list-style: none;
+  margin-left: 2rem;
+}
+.navbar__link, .navbar__link:visited {
+  text-decoration: none;
+  color: #000;
+  transition: all 0.3s ease;
+}
+.navbar__link:hover, .navbar__link:visited:hover {
+  color: #ff6347;
+}
+.navbar__active, .navbar__active:visited {
+  -decoration: none;
+  color: #fff;
+  background-color: #ff6347;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+}
+.navbar__active:hover, .navbar__active:visited:hover {
+  color: #fff;
 }
 
 /* ____Recipe____ */
@@ -683,7 +728,7 @@ select {
 /* ___Buttons____ */
 .x-svg-btn {
   border: none;
-  background-color: #fff;
+  background-color: antiquewhite;
   display: inline-grid;
   place-items: center;
   transform: rotate(45deg);
