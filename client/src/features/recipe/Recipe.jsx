@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { xSVG } from "../../utils/svgs";
+import { Error } from "../Error";
+import { Loading } from "../Loading";
+import { useGetRecipes } from "../services/recipes";
 
 import { AddRecipe } from "./AddRecipe";
 import { RecipeCard } from "./RecipeCard";
@@ -10,7 +13,10 @@ const initialFormState = {
   isOpen: false
 };
 
-export const Recipe = ({ recipes, getRecipes }) => {
+export const Recipe = ({ getRecipes }) => {
+  // TODO: Replace with dynamic user id
+  const { data, isLoading, isError, error } = useGetRecipes(1);
+
   const [formState, setFormState] = useState(initialFormState);
   const closeOpenCarrots = () => {
     const carrots = document.querySelectorAll(".recipe-card__carrot-button");
@@ -38,6 +44,8 @@ export const Recipe = ({ recipes, getRecipes }) => {
           });
     }
   };
+
+  if (isError) return <Error />;
   return (
     <div className="recipe" onClick={handleClick}>
       <div className="recipe__header">
@@ -46,20 +54,20 @@ export const Recipe = ({ recipes, getRecipes }) => {
           {xSVG}
         </button>
       </div>
-      <AddRecipe
-        recipes={recipes}
-        getRecipes={getRecipes}
-        formStateClass={formState.formClassName}
-      />
+      <AddRecipe recipes={data} getRecipes={getRecipes} formStateClass={formState.formClassName} />
       <div id="recipe-container" className="recipe__card-container">
-        {recipes.map((recipe, index) => (
-          <RecipeCard
-            index={index}
-            key={recipe.id}
-            recipe={recipe}
-            closeOpenCarrots={closeOpenCarrots}
-          />
-        ))}
+        {isLoading ? (
+          <Loading />
+        ) : (
+          data.map((recipe, index) => (
+            <RecipeCard
+              index={index}
+              key={recipe.id}
+              recipe={recipe}
+              closeOpenCarrots={closeOpenCarrots}
+            />
+          ))
+        )}
       </div>
     </div>
   );

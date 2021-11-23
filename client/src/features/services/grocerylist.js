@@ -1,44 +1,52 @@
 import axios from "axios";
+import { useMutation, useQuery } from "react-query";
+import { queryClient } from "./react-query-client";
 
 /**
  * GET
  */
+const getGrocerylistsByUserId = async (userId) => {
+  const { data } = await axios.get(`http://localhost:4000/recipes-grocery-lists/gl/user/${userId}`);
+  return data.groceryLists;
+};
+
+export const getIngredientsByGrocerylistId = async (grocerylistId) => {
+  const { data } = await axios.get(
+    `http://localhost:4000/recipes-grocery-lists/ingredients/${grocerylistId}`
+  );
+  return data.ingredients;
+};
 
 /**
  * POST
  */
-export const addNewGrocerylist = (grocerylistToAdd, recipes, checked, getGroceryLists, setForm) => {
-  // TODO: Change user id
-  let newGrocerylistId;
-  const grocerylistBody = {
-    name: grocerylistToAdd,
-    "user-id": recipes[0]["user-id"]
-  };
+const addGrocerylist = (reqBody) => {
+  return axios.post("http://localhost:4000/grocery-lists/", reqBody);
+};
 
-  axios
-    .post("http://localhost:4000/grocery-lists/", grocerylistBody)
-    .then((grocerylistAdded) => {
-      newGrocerylistId = grocerylistAdded.data.groceryListId[0];
-    })
-    .catch((err) => console.log(err))
-    .then(() => {
-      const recipeBody = recipes
-        .filter((_r, i) => checked[i])
-        .map((r) => ({
-          "recipe-id": r.id,
-          "grocery-list-id": newGrocerylistId,  
-          // TODO: change user id
-          "user-id": recipes[0]["user-id"]
-        }));
-      console.log({ recipeBody });
+const addRecipesToGrocerylist = (recipes) => {
+  return axios.post("http://localhost:4000/recipes-grocery-lists", recipes);
+};
 
-      axios
-        .post("http://localhost:4000/recipes-grocery-lists", recipeBody)
-        .then((recipesAdded) => {
-          console.log(recipesAdded);
-          setForm((state) => ({ ...state, addButtonClass: "add-btn-svg" }));
-          getGroceryLists();
-        })
-        .catch((err) => console.log(err));
-    });
+/**
+ * HOOKS
+ */
+export const useGrocerylist = (userId) => {
+  return useQuery(["grocerylist", userId], () => getGrocerylistsByUserId(userId));
+};
+
+export const useCreateGrocerylist = (recipes) => {
+  return useMutation(addGrocerylist, {
+    onSuccess: (data) => {
+      queryClient.setQueryData(["grocerylist", { "user-id": recipes[0]["user-id"] }], data);
+    }
+  });
+};
+
+export const useCreateRecipes = () => {
+  return useMutation(addRecipesToGrocerylist, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("grocerylist");
+    }
+  });
 };
