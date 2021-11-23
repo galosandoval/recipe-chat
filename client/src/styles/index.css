@@ -211,9 +211,12 @@ select {
 .navbar {
   display: flex;
   align-items: center;
+  max-width: 1550px;
   color: #000;
   position: relative;
   z-index: 1;
+  margin: 0 auto;
+  padding: 0 5rem;
 }
 .navbar__logo {
   display: flex;
@@ -234,6 +237,7 @@ select {
   text-decoration: none;
   color: #000;
   transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
 }
 .navbar__link:hover, .navbar__link:visited:hover {
   color: #ff6347;
@@ -242,7 +246,6 @@ select {
   text-decoration: none;
   color: #fff;
   background-color: #ff6347;
-  padding: 0.5rem 1rem;
   border-radius: 5px;
 }
 .navbar__active:hover, .navbar__active:visited:hover {
@@ -519,9 +522,16 @@ select {
 }
 
 /* ____Grocerylist____ */
+.grocerylist {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 .grocerylist__header {
   display: flex;
   padding: 0 2rem;
+  width: 100%;
 }
 .grocerylist__header h1 {
   margin-left: auto;

@@ -2,17 +2,17 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./styles/index.css";
 import App from "./features/App";
-import store from "./app/store";
-import { Provider } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
+import { QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+import { queryClient } from "./features/services/react-query-client";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <Router>
-        <App />
-      </Router>
-    </Provider>
-  </React.StrictMode>,
+  <QueryClientProvider client={queryClient}>
+    <Router>
+      <App />
+    </Router>
+    <ReactQueryDevtools initialIsOpen={false} />
+  </QueryClientProvider>,
   document.getElementById("root")
 );

@@ -1,14 +1,23 @@
 /* ____Grocerylist____ */
 .grocerylist {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
   &__header {
     display: flex;
     padding: 0 2rem;
+    width: 100%;
 
     & h1 {
       margin-left: auto;
     }
     & button {
       margin-left: auto;
+    }
+
+    &__card-container {
     }
   }
   .add-form {

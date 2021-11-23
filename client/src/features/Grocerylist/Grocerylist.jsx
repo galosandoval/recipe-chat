@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { xSVG } from "../../utils/svgs";
+import { useGrocerylist } from "../services/grocerylist";
 import { AddGrocerylist } from "./AddGrocerylist";
 import { GrocerylistCard } from "./GrocerylistCard";
-
+import { Loading } from "../Loading";
 const initialFormState = {
   addButtonClass: "add-btn-svg--hidden",
   plusButtonClass: "x-svg-btn grocerylist__btn",
@@ -11,8 +12,12 @@ const initialFormState = {
   formClass: "add-form"
 };
 
-export const Grocerylist = ({ recipes, grocerylist, getGroceryLists }) => {
+export const Grocerylist = () => {
   const [form, setForm] = useState(initialFormState);
+
+  const { data: grocerylists, isLoading, isError, error } = useGrocerylist(1);
+
+  if (isError) return <h1>{error}</h1>;
 
   const handleClick = (event) => {
     const { name } = event.currentTarget;
@@ -37,18 +42,13 @@ export const Grocerylist = ({ recipes, grocerylist, getGroceryLists }) => {
           {xSVG}
         </button>
       </div>
-      {recipes.length > 0 && (
-        <AddGrocerylist
-          form={form}
-          setForm={setForm}
-          getGroceryLists={getGroceryLists}
-          recipes={recipes}
-        />
-      )}
+      <AddGrocerylist form={form} />
       <div className="grocerylist__card-container">
-        {grocerylist.map((list) => (
-          <GrocerylistCard list={list} key={list["grocery-list-id"]} />
-        ))}
+        {isLoading ? (
+          <Loading />
+        ) : (
+          grocerylists.map((list) => <GrocerylistCard list={list} key={list["grocery-list-id"]} />)
+        )}
       </div>
     </div>
   );
