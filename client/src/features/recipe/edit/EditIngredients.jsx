@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { DeleteItem } from "../delete/DeleteItem";
+import { useGetIngredients } from "../../services/recipes";
+import { Loading } from "../../Loading";
 
 const initialAddState = { open: false, class: "recipe-form__input recipe-form__add-input" };
 
-export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecipeIngredients }) => {
+export const EditIngredients = ({ editIngredients, recipe, getRecipeIngredients }) => {
+  const { data: ingredients, isLoading: ingredientsIsLoading } = useGetIngredients(recipe.id);
+
   const [form, setForm] = useState([]);
   const [ingredientToAdd, setIngredientToAdd] = useState("");
   const [add, setAdd] = useState(initialAddState);
@@ -29,7 +33,10 @@ export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecip
   const handleClick = () => {
     add.open
       ? setAdd(initialAddState)
-      : setAdd({ open: true, class: "recipe-form__input recipe-form__add-input recipe-form__add-input--show" });
+      : setAdd({
+          open: true,
+          class: "recipe-form__input recipe-form__add-input recipe-form__add-input--show"
+        });
   };
 
   const handleSubmit = (event) => {
@@ -67,6 +74,7 @@ export const EditIngredients = ({ editIngredients, ingredients, recipe, getRecip
   useEffect(() => {
     setForm(ingredients);
   }, [ingredients]);
+  if (ingredientsIsLoading) return <Loading />;
   return (
     <div className={editIngredients.class}>
       <form className="recipe-form edit-ingredients" onSubmit={handleSubmit}>

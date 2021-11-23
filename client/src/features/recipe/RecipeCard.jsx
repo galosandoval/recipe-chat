@@ -7,6 +7,8 @@ import { EditInstructions } from "./edit/EditInstructions";
 import { EditIngredients } from "./edit/EditIngredients";
 import { useHistory } from "react-router-dom";
 import { downArrowSVG } from "../../utils/svgs";
+import { useGetIngredients, useGetInstructions } from "../services/recipes";
+import { Loading } from "../Loading";
 
 const initialAccordianState = {
   ingredientsClass: "accordian accordian--hidden",
@@ -41,15 +43,21 @@ const initialEditIngredientsState = {
 };
 
 export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
+  const {
+    data: instructions,
+    isLoading: instructionsIsLoading,
+    isError: instructionsIsError
+  } = useGetInstructions(recipe.id);
+
   const [recipeDescription, setRecipeDescription] = useState(initialDescriptionState(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
-  const [ingredients, setIngredients] = useState([]);
-  const [instructions, setInstructions] = useState([]);
   const [dropdown, setDropdown] = useState(initialDropdownState);
   const [editRecipe, setEditRecipe] = useState(initialEditCardState);
   const [editInstructions, setEditInstructions] = useState(initialEditInstructionsState);
   const [editIngredients, setEditIngredients] = useState(initialEditIngredientsState);
   const history = useHistory();
+
+  const [_instructions, setInstructions] = useState([]);
 
   const handleClick = (event) => {
     const { name } = event.currentTarget;
@@ -103,15 +111,6 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
     }
   };
 
-  const getRecipeIngredients = (id) => {
-    axios
-      .get(`http://localhost:4000/recipes/ingredients/${id}`)
-      .then((ingredients) => {
-        setIngredients(ingredients.data.recipeIngredients);
-      })
-      .catch((err) => console.log(err.message));
-  };
-
   const getRecipeInstructions = (id) => {
     axios
       .get(`http://localhost:4000/instructions/recipe/${id}`)
@@ -123,7 +122,6 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
 
   useEffect(() => {
     getRecipeInstructions(recipe.id);
-    getRecipeIngredients(recipe.id);
   }, [recipe.id]);
 
   return (
@@ -131,19 +129,19 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
       {/**
        * TODO: Make toast when something is updated or deleted
        */}
-      <EditRecipe recipe={recipe} editRecipe={editRecipe} />
-      <EditInstructions
-        getRecipeInstructions={getRecipeInstructions}
-        editInstructions={editInstructions}
-        instructions={instructions}
-        recipe={recipe}
-      />
-      <EditIngredients
-        getRecipeIngredients={getRecipeIngredients}
-        recipe={recipe}
-        editIngredients={editIngredients}
-        ingredients={ingredients}
-      />
+      <EditRecipe handleClick={handleClick} recipe={recipe} editRecipe={editRecipe} />
+      {instructionsIsLoading ? (
+        <Loading />
+      ) : (
+        <EditInstructions
+          getRecipeInstructions={getRecipeInstructions}
+          editInstructions={editInstructions}
+          instructions={instructions}
+          recipe={recipe}
+        />
+      )}
+
+      <EditIngredients recipe={recipe} editIngredients={editIngredients} />
       <div className="card-header recipe-card__header">
         <h2 className="recipe-name recipe-card__name u-card-heading">{recipe["recipe-name"]}</h2>
         <CardMenu
@@ -181,18 +179,16 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         >
           {recipeDescription.buttonText}
         </button>
-        <button className={`btn-round ${accordian.carrotClass}`} name="carrot-btn" onClick={handleClick}>
+        <button
+          className={`btn-round ${accordian.carrotClass}`}
+          name="carrot-btn"
+          onClick={handleClick}
+        >
           {downArrowSVG}
         </button>
       </div>
 
-      <Accordian
-        accordian={accordian}
-        instructions={instructions}
-        ingredients={ingredients}
-        id={recipe.id}
-        index={index}
-      />
+      <Accordian accordian={accordian} id={recipe.id} index={index} />
     </div>
   );
 };

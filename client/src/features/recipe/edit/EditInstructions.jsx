@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { queryClient } from "../../services/react-query-client";
 import { DeleteItem } from "../delete/DeleteItem";
 
 const addInitialState = {
@@ -64,7 +65,8 @@ export const EditInstructions = ({
         .put(`http://localhost:4000/instructions/${form[0]["recipe-id"]}`, form)
         .then((res) => {
           console.log("edit", res.data);
-          getRecipeInstructions(form[0]["recipe-id"]);
+          // getRecipeInstructions(form[0]["recipe-id"]);
+          queryClient.invalidateQueries(["instructions", recipe.id]);
         })
         .catch((error) => console.log(error.message));
     } else if (name === "add") {

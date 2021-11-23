@@ -1,6 +1,7 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { checkSVG } from "../../utils/svgs";
+import { queryClient } from "../services/react-query-client";
+import { useCreateIngredients, useCreateInstructions, useCreateRecipe } from "../services/recipes";
 import { parseIngredients, parseInstructions } from "./utils/addRecipe";
 
 const initialRecipeToAddState = {
@@ -12,7 +13,11 @@ const initialRecipeToAddState = {
 };
 const initialAddButtonState = { class: "add-btn-svg--hidden", isAdded: false };
 
-export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
+export const AddRecipe = ({ recipes, formStateClass }) => {
+  const recipe = useCreateRecipe(recipes);
+  const instructions = useCreateInstructions();
+  const ingredients = useCreateIngredients();
+
   const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
   const [addButton, setAddButton] = useState(initialAddButtonState);
 
@@ -22,7 +27,7 @@ export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
     setRecipetToAdd({ ...recipeToAdd, [name]: event.target.value });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const recipeBody = {
@@ -34,40 +39,28 @@ export const AddRecipe = ({ recipes, getRecipes, formStateClass }) => {
     const parsedIngredients = parseIngredients(recipeToAdd.ingredients);
     const parsedInstructions = parseInstructions(recipeToAdd.instructions);
 
-    let newRecipeId;
+    await recipe.mutateAsync(recipeBody);
 
-    axios
-      .post("http://localhost:4000/recipes/", recipeBody)
-      .then((recipeAdded) => {
-        newRecipeId = recipeAdded.data.recipe[0];
-      })
-      .catch((err) => console.log(err))
-      .then(() => {
-        const ingredientsBody = parsedIngredients.map((ingredientToAdd) => ({
-          "recipe-id": newRecipeId,
-          name: ingredientToAdd
-        }));
+    const newRecipeId = queryClient.getQueryData(["recipe", { "user-id": recipes[0]["user-id"] }])
+      .data.recipe[0];
+    console.log({ newRecipeId });
 
-        axios
-          .post("http://localhost:4000/ingredients/", ingredientsBody)
-          .then((res) => console.log(res.data))
-          .catch((err) => console.log(err));
-      })
-      .then(() => {
-        const instructionsBody = parsedInstructions.map((instruction, index) => ({
-          "recipe-id": newRecipeId,
-          description: instruction,
-          step: index + 1
-        }));
-        axios
-          .post("http://localhost:4000/instructions/", instructionsBody)
-          .then((_res) => {
-            getRecipes(recipes[0]["user-id"]);
-            setRecipetToAdd(initialRecipeToAddState);
-            setAddButton((state) => ({ ...state, isAdded: true, class: "add-btn-svg" }));
-          })
-          .catch((err) => console.log(err));
-      });
+    const ingredientsBody = parsedIngredients.map((ingredientToAdd) => ({
+      "recipe-id": newRecipeId,
+      name: ingredientToAdd
+    }));
+
+    const instructionsBody = parsedInstructions.map((instruction, index) => ({
+      "recipe-id": newRecipeId,
+      description: instruction,
+      step: index + 1
+    }));
+
+    ingredients.mutate(ingredientsBody);
+    instructions.mutate(instructionsBody);
+
+    setRecipetToAdd(initialRecipeToAddState);
+    setAddButton((state) => ({ ...state, isAdded: true, class: "add-btn-svg" }));
   };
   return (
     <form className={formStateClass} onSubmit={handleSubmit}>

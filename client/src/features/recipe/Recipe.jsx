@@ -13,9 +13,9 @@ const initialFormState = {
   isOpen: false
 };
 
-export const Recipe = ({ getRecipes }) => {
+export const Recipe = () => {
   // TODO: Replace with dynamic user id
-  const { data, isLoading, isError, error } = useGetRecipes(1);
+  const { data: recipes, isLoading, isError } = useGetRecipes(1);
 
   const [formState, setFormState] = useState(initialFormState);
   const closeOpenCarrots = () => {
@@ -54,12 +54,12 @@ export const Recipe = ({ getRecipes }) => {
           {xSVG}
         </button>
       </div>
-      <AddRecipe recipes={data} getRecipes={getRecipes} formStateClass={formState.formClassName} />
+      <AddRecipe recipes={recipes} formStateClass={formState.formClassName} />
       <div id="recipe-container" className="recipe__card-container">
         {isLoading ? (
           <Loading />
         ) : (
-          data.map((recipe, index) => (
+          recipes.map((recipe, index) => (
             <RecipeCard
               index={index}
               key={recipe.id}
