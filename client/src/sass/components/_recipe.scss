@@ -190,6 +190,14 @@
       padding: 1em;
     }
   }
+
+  &__btn {
+    & svg {
+      height: 1.2rem;
+      width: 1.2rem;
+      transform: rotate(45deg);
+    }
+  }
 }
 
 .edit-ingredients {

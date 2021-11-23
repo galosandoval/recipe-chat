@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { Accordian } from "./Accordian";
 import { CardMenu } from "./CardMenu";
 import { EditRecipe } from "./edit/EditRecipe";
@@ -7,8 +6,6 @@ import { EditInstructions } from "./edit/EditInstructions";
 import { EditIngredients } from "./edit/EditIngredients";
 import { useHistory } from "react-router-dom";
 import { downArrowSVG } from "../../utils/svgs";
-import { useGetInstructions } from "../services/recipes";
-import { Loading } from "../Loading";
 
 const initialAccordianState = {
   ingredientsClass: "accordian accordian--hidden",
@@ -43,8 +40,6 @@ const initialEditIngredientsState = {
 };
 
 export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
-  const { data: instructions, isLoading: instructionsIsLoading } = useGetInstructions(recipe.id);
-
   const [recipeDescription, setRecipeDescription] = useState(initialDescriptionState(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
   const [dropdown, setDropdown] = useState(initialDropdownState);
@@ -52,8 +47,6 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   const [editInstructions, setEditInstructions] = useState(initialEditInstructionsState);
   const [editIngredients, setEditIngredients] = useState(initialEditIngredientsState);
   const history = useHistory();
-
-  const [_instructions, setInstructions] = useState([]);
 
   const handleClick = (event) => {
     const { name } = event.currentTarget;
@@ -107,19 +100,6 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
     }
   };
 
-  const getRecipeInstructions = (id) => {
-    axios
-      .get(`http://localhost:4000/instructions/recipe/${id}`)
-      .then((instructions) => {
-        setInstructions(instructions.data.recipeInstructions);
-      })
-      .catch((err) => console.log({ err }));
-  };
-
-  useEffect(() => {
-    getRecipeInstructions(recipe.id);
-  }, [recipe.id]);
-
   return (
     <div id={recipe["recipe-name"]} className="card recipe-card">
       {/**
@@ -131,18 +111,15 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         recipe={recipe}
         editRecipe={editRecipe}
       />
-      {instructionsIsLoading ? (
-        <Loading />
-      ) : (
-        <EditInstructions
-          getRecipeInstructions={getRecipeInstructions}
-          editInstructions={editInstructions}
-          instructions={instructions}
-          recipe={recipe}
-        />
-      )}
 
-      <EditIngredients recipe={recipe} editIngredients={editIngredients} />
+      <EditInstructions
+        editInstructions={editInstructions}
+        recipe={recipe}
+        setEditInstructions={setEditInstructions}
+        initialEditInstructionsState={initialEditInstructionsState}
+      />
+
+      <EditIngredients recipe={recipe} editIngredients={editIngredients} setEditIngredients={setEditIngredients} initialEditIngredientsState={initialEditIngredientsState} />
       <div className="card-header recipe-card__header">
         <h2 className="recipe-name recipe-card__name u-card-heading">{recipe["recipe-name"]}</h2>
         <CardMenu

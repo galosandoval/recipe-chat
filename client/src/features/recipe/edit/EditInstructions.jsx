@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { addSVG, checkSVG } from "../../../utils/svgs";
 import { Loading } from "../../Loading";
 import { useChangeInstructions, useCreateInstructions } from "../../services/instructionsService";
 import { useGetInstructions } from "../../services/recipes";
@@ -9,7 +10,12 @@ const addInitialState = {
   class: "recipe-form__input recipe-form__add-input"
 };
 
-export const EditInstructions = ({ editInstructions, recipe }) => {
+export const EditInstructions = ({
+  editInstructions,
+  recipe,
+  setEditInstructions,
+  initialEditInstructionsState
+}) => {
   const changeMutation = useChangeInstructions(recipe.id);
   const createMutation = useCreateInstructions(recipe.id);
   const { data: instructions, isLoading } = useGetInstructions(recipe.id);
@@ -40,9 +46,10 @@ export const EditInstructions = ({ editInstructions, recipe }) => {
       }));
 
       changeMutation.mutate({ id: recipe.id, formBody });
-    }
-
-    if (name === "add") {
+      setTimeout(() => {
+        setEditInstructions(initialEditInstructionsState);
+      }, 1000);
+    } else if (name === "add") {
       const formBody = [
         {
           description: formData.get("add-instruction"),
@@ -86,16 +93,20 @@ export const EditInstructions = ({ editInstructions, recipe }) => {
           />
         </div>
         {add.open ? (
-          <button name="add" type="submit">
+          <button className="add-btn-submit" name="add" type="submit">
             Add
           </button>
+        ) : changeMutation.isSuccess ? (
+          <button className="add-btn-submit">
+            Recipe Saved<span className="add-btn-svg">{checkSVG}</span>
+          </button>
         ) : (
-          <button name="edit" type="submit">
-            Save Changes
+          <button name="edit" type="submit" className="add-btn-submit">
+            Save Changes <span className="add-btn-svg--hidden">{checkSVG}</span>
           </button>
         )}
-        <button name="add-btn" onClick={handleClick}>
-          {add.open ? "Cancel" : "+"}
+        <button name="add-btn" className="add-btn-submit recipe-form__btn" onClick={handleClick}>
+          {add.open ? "Done" : addSVG}
         </button>
       </form>
     </div>

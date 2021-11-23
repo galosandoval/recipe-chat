@@ -426,6 +426,11 @@ select {
   max-height: fit-content;
   padding: 1em;
 }
+.recipe-form__btn svg {
+  height: 1.2rem;
+  width: 1.2rem;
+  transform: rotate(45deg);
+}
 
 .edit-ingredients {
   display: flex;
