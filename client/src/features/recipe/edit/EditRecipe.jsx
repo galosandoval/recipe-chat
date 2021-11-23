@@ -1,21 +1,9 @@
-import axios from "axios";
-import React, { useState } from "react";
-import { queryClient } from "../../services/react-query-client";
+import React from "react";
+import { checkSVG } from "../../../utils/svgs";
 import { useChangeRecipe } from "../../services/recipes";
 
-const initialFormState = (recipe) => ({
-  "recipe-name": recipe["recipe-name"],
-  "img-url": recipe["img-url"] || "",
-  description: recipe.description
-});
-export const EditRecipe = ({ editRecipe, recipe, handleClick }) => {
+export const EditRecipe = ({ editRecipe, recipe, setEditRecipe, initialEditCardState }) => {
   const recipeMutation = useChangeRecipe();
-
-  // const [form, setForm] = useState(initialFormState(recipe));
-
-  // const handleChange = (event) => {
-  //   setForm({ ...form, [event.target.name]: event.target.value });
-  // };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -28,6 +16,9 @@ export const EditRecipe = ({ editRecipe, recipe, handleClick }) => {
     };
 
     recipeMutation.mutate({ id: recipe.id, formBody });
+    setTimeout(() => {
+      setEditRecipe(initialEditCardState);
+    }, 1000);
   };
 
   return (
@@ -57,7 +48,16 @@ export const EditRecipe = ({ editRecipe, recipe, handleClick }) => {
           name="description"
           defaultValue={recipe.description}
         />
-        <button type="submit">Save Changes</button>
+
+        {recipeMutation.isSuccess ? (
+          <button className="add-btn-submit">
+            Recipe Saved<span className="add-btn-svg">{checkSVG}</span>
+          </button>
+        ) : (
+          <button className="add-btn-submit">
+            Save Changes <span className="add-btn-svg--hidden">{checkSVG}</span>
+          </button>
+        )}
       </form>
     </div>
   );

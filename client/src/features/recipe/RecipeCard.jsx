@@ -7,7 +7,7 @@ import { EditInstructions } from "./edit/EditInstructions";
 import { EditIngredients } from "./edit/EditIngredients";
 import { useHistory } from "react-router-dom";
 import { downArrowSVG } from "../../utils/svgs";
-import { useGetIngredients, useGetInstructions } from "../services/recipes";
+import { useGetInstructions } from "../services/recipes";
 import { Loading } from "../Loading";
 
 const initialAccordianState = {
@@ -43,11 +43,7 @@ const initialEditIngredientsState = {
 };
 
 export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
-  const {
-    data: instructions,
-    isLoading: instructionsIsLoading,
-    isError: instructionsIsError
-  } = useGetInstructions(recipe.id);
+  const { data: instructions, isLoading: instructionsIsLoading } = useGetInstructions(recipe.id);
 
   const [recipeDescription, setRecipeDescription] = useState(initialDescriptionState(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
@@ -129,7 +125,12 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
       {/**
        * TODO: Make toast when something is updated or deleted
        */}
-      <EditRecipe handleClick={handleClick} recipe={recipe} editRecipe={editRecipe} />
+      <EditRecipe
+        setEditRecipe={setEditRecipe}
+        initialEditCardState={initialEditCardState}
+        recipe={recipe}
+        editRecipe={editRecipe}
+      />
       {instructionsIsLoading ? (
         <Loading />
       ) : (

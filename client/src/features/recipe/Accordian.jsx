@@ -7,17 +7,11 @@ import { useGetIngredients, useGetInstructions } from "../services/recipes";
 
 // TODO: make tabs for Recipes and Ingredients
 export const Accordian = ({ accordian, index, id }) => {
-  const {
-    data: ingredients,
-    isLoading: ingredientsIsLoading,
-    isError: ingredientsIsError
-  } = useGetIngredients(id);
-  const {
-    data: instructions,
-    isLoading: instructionsIsLoading,
-    isError: instructionsIsError
-  } = useGetInstructions(id);
+  const { data: ingredients, isLoading: ingredientsIsLoading } = useGetIngredients(id);
+  const { data: instructions, isLoading: instructionsIsLoading } = useGetInstructions(id);
   const match = useRouteMatch();
+
+  // TODO: Fix accordian
 
   // useLayoutEffect(() => {
   //   const openAccordian = document.querySelectorAll(".accordian--hidden");

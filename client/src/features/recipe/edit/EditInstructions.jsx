@@ -1,6 +1,7 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { queryClient } from "../../services/react-query-client";
+import React, { useState } from "react";
+import { Loading } from "../../Loading";
+import { useChangeInstructions, useCreateInstructions } from "../../services/instructionsService";
+import { useGetInstructions } from "../../services/recipes";
 import { DeleteItem } from "../delete/DeleteItem";
 
 const addInitialState = {
@@ -8,43 +9,12 @@ const addInitialState = {
   class: "recipe-form__input recipe-form__add-input"
 };
 
-const instructionInitialState = [
-  {
-    "recipe-id": null,
-    description: "",
-    step: null
-  }
-];
+export const EditInstructions = ({ editInstructions, recipe }) => {
+  const changeMutation = useChangeInstructions(recipe.id);
+  const createMutation = useCreateInstructions(recipe.id);
+  const { data: instructions, isLoading } = useGetInstructions(recipe.id);
 
-export const EditInstructions = ({
-  editInstructions,
-  instructions,
-  getRecipeInstructions,
-  recipe
-}) => {
-  const [form, setForm] = useState([]);
-  const [instructionToAdd, setInstructionToAdd] = useState(instructionInitialState);
   const [add, setAdd] = useState(addInitialState);
-
-  const handleChange = (event, index) => {
-    const { name, value } = event.target;
-    if (name === "edit-description") {
-      let tempForm = [...form];
-      let tempInstruction = { ...tempForm[index] };
-      tempInstruction.description = value;
-      tempForm[index] = tempInstruction;
-      setForm(tempForm);
-    }
-    if (name === "add-instruction") {
-      let tempForm = [...instructionToAdd];
-      let tempObj = { ...tempForm[0] };
-      tempObj.description = value;
-      tempObj["recipe-id"] = recipe.id;
-      tempObj.step = form.length + 1;
-      tempForm[0] = tempObj;
-      setInstructionToAdd(tempForm);
-    }
-  };
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -59,60 +29,57 @@ export const EditInstructions = ({
   const handleSubmit = (event) => {
     event.preventDefault();
     const { name } = document.activeElement;
+    const formData = new FormData(event.target);
 
     if (name === "edit") {
-      axios
-        .put(`http://localhost:4000/instructions/${form[0]["recipe-id"]}`, form)
-        .then((res) => {
-          console.log("edit", res.data);
-          // getRecipeInstructions(form[0]["recipe-id"]);
-          queryClient.invalidateQueries(["instructions", recipe.id]);
-        })
-        .catch((error) => console.log(error.message));
-    } else if (name === "add") {
-      axios
-        .post("http://localhost:4000/instructions/", instructionToAdd)
-        .then((res) => {
-          console.log(res.data);
-          getRecipeInstructions(form[0]["recipe-id"]);
-          setInstructionToAdd(instructionInitialState);
-        })
-        .catch((error) => console.log("error", error));
+      const formBody = instructions.map((input) => ({
+        id: input.id,
+        "recipe-id": input["recipe-id"],
+        description: formData.get(`${input.id}`),
+        step: input.step
+      }));
+
+      changeMutation.mutate({ id: recipe.id, formBody });
+    }
+
+    if (name === "add") {
+      const formBody = [
+        {
+          description: formData.get("add-instruction"),
+          "recipe-id": recipe.id,
+          step: instructions.length + 1
+        }
+      ];
+
+      const inputToClear = document.querySelector(".recipe-form__input .edit-instructions__input");
+      inputToClear.value = "";
+      createMutation.mutate(formBody);
     }
   };
-
-  useEffect(() => {
-    setForm(instructions);
-  }, [instructions]);
 
   return (
     <div className={editInstructions.class}>
       <form className="recipe-form edit-instructions" onSubmit={handleSubmit}>
         <div className="instructions">
-          {form &&
-            form.map((instruction, index) => (
+          {isLoading ? (
+            <Loading />
+          ) : (
+            instructions.map((instruction) => (
               <div key={instruction.id}>
                 <input
                   className="recipe-form__input edit-instruction__input"
                   type="text"
-                  value={instruction.description}
-                  onChange={(event) => handleChange(event, index)}
-                  name="edit-description"
+                  defaultValue={instruction.description}
+                  name={instruction.id}
                 />
-                <DeleteItem
-                  api={"http://localhost:4000/instructions/"}
-                  id={instruction.id}
-                  getItem={getRecipeInstructions}
-                  itemId={instruction["recipe-id"]}
-                />
+                <DeleteItem api={"http://localhost:4000/instructions/"} id={instruction.id} />
               </div>
-            ))}
+            ))
+          )}
         </div>
         <div className={add.class}>
           <input
             type="text"
-            value={instructionToAdd[0].description}
-            onChange={handleChange}
             name="add-instruction"
             className="recipe-form__input edit-instructions__input"
             placeholder="Add an instruction"
