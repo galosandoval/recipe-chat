@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { checkSVG } from "../../utils/svgs";
-import { Loading } from "../Loading";
+import { Loading } from "../status/Loading";
 import { useCreateGrocerylist, useCreateRecipes } from "../services/grocerylist";
 import { queryClient } from "../services/react-query-client";
 import { useGetRecipes } from "../services/recipes";
 import { AddGrocerylistCheckboxes } from "./AddGrocerylistCheckboxes";
 
 const initialGrocerylistState = "";
-
 
 export const AddGrocerylist = ({ form }) => {
   // TODO:  change user id in here

@@ -2,7 +2,7 @@ import React from "react";
 import { RecipeIngredients } from "./RecipeIngredients";
 import { RecipeInstructions } from "./RecipeInstructions";
 import { NavLink, Route, useRouteMatch } from "react-router-dom";
-import { Loading } from "../Loading";
+import { Loading } from "../status/Loading";
 import { useGetIngredients, useGetInstructions } from "../services/recipes";
 
 // TODO: make tabs for Recipes and Ingredients

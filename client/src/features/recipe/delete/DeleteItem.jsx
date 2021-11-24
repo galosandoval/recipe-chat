@@ -1,5 +1,5 @@
 import React from "react";
-import { xSVG } from "../../../utils/svgs";
+import { deleteSVG } from "../../../utils/svgs";
 
 export const DeleteItem = ({ setToBeDeleted, instruction, setDeleteModal }) => {
   const openDeleteModal = () => {
@@ -14,7 +14,7 @@ export const DeleteItem = ({ setToBeDeleted, instruction, setDeleteModal }) => {
   };
   return (
     <button className="delete-btn" onClick={openDeleteModal}>
-      {xSVG}
+      {deleteSVG}
     </button>
   );
 };

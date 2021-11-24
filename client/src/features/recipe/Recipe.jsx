@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { xSVG } from "../../utils/svgs";
 import { Error } from "../Error";
-import { Loading } from "../Loading";
+import { Loading } from "../status/Loading";
 import { useGetRecipes } from "../services/recipes";
 
 import { AddRecipe } from "./AddRecipe";
