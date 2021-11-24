@@ -1,30 +1,21 @@
 import React from "react";
 // import styled from "styled-components";
-import { Link } from "react-router-dom";
-
-// const Nav = styled.nav`
-//   display: flex;
-//   justify-content: space-between;
-//   width: 100%;
-//   max-width: 700px;
-//   ul {
-//     display: flex;
-//     justify-content: space-between;
-//     list-style: none;
-//     width: 60%;
-//   }
-// `;
+import { NavLink } from "react-router-dom";
 
 export const Navbar = () => {
   return (
-    <div>
-      <div className="logo">GS</div>
-      <ul>
-        <li>
-          <Link to="/">Grocery Lists</Link>
+    <div className="navbar">
+      <div className="navbar__logo">GS</div>
+      <ul className="navbar__list">
+        <li className="navbar__item">
+          <NavLink className="navbar__link" activeClassName="navbar__active" exact to="/">
+            Grocery Lists
+          </NavLink>
         </li>
-        <li>
-          <Link to="/recipes">Recipes</Link>
+        <li className="navbar__item">
+          <NavLink className="navbar__link" activeClassName="navbar__active" to="/recipes">
+            Recipes
+          </NavLink>
         </li>
       </ul>
     </div>

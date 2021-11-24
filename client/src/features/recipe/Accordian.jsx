@@ -1,22 +1,46 @@
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import { RecipeIngredients } from "./RecipeIngredients";
 import { RecipeInstructions } from "./RecipeInstructions";
 import { NavLink, Route, useRouteMatch } from "react-router-dom";
+import { Loading } from "../Loading";
+import { useGetIngredients, useGetInstructions } from "../services/recipes";
 
 // TODO: make tabs for Recipes and Ingredients
-export const Accordian = ({ instructions, ingredients, accordian, index }) => {
+export const Accordian = ({ accordian, id }) => {
+  const { data: ingredients, isLoading: ingredientsIsLoading } = useGetIngredients(id);
+  const { data: instructions, isLoading: instructionsIsLoading } = useGetInstructions(id);
   const match = useRouteMatch();
-  useLayoutEffect(() => {
-    const openAccordian = document.querySelectorAll(".accordian");
-    if (openAccordian) {
-      openAccordian[index].style.maxHeight = `${openAccordian[index].scrollHeight}px`;
-    }
-  });
+
+  // TODO: Fix accordian
+
+  // useLayoutEffect(() => {
+  //   const openAccordian = document.querySelectorAll(".accordian--hidden");
+  //   console.log("openaccordian:", openAccordian);
+  //   if (openAccordian && openAccordian.length > 0) {
+  //     openAccordian[index].style.maxHeight = `${openAccordian[index].scrollHeight}px`;
+  //   }
+  // });
+
+  if (ingredientsIsLoading || instructionsIsLoading) {
+    return <Loading />;
+  }
   return (
     <div className={accordian.ingredientsClass}>
       <div className="accordian__tabs">
-        <NavLink to={`${match.url}/ingredients`}>Ingredients</NavLink>
-        <NavLink to={`${match.url}/instructions`}>Instructions</NavLink>
+        <NavLink
+          className="navbar__link accordian__link"
+          activeClassName="navbar__active"
+          to={`${match.url}/ingredients`}
+        >
+          Ingredients
+        </NavLink>
+        <NavLink
+          className="navbar__link accordian__link"
+          activeClassName="navbar__active"
+          to={`${match.url}/instructions`}
+        >
+          Instructions
+        </NavLink>
       </div>
       <Route path={`${match.url}/ingredients`}>
         <RecipeIngredients ingredients={ingredients} />

@@ -1,16 +1,22 @@
 import React, { useState } from "react";
 import { xSVG } from "../../utils/svgs";
+import { Error } from "../Error";
+import { Loading } from "../Loading";
+import { useGetRecipes } from "../services/recipes";
 
 import { AddRecipe } from "./AddRecipe";
 import { RecipeCard } from "./RecipeCard";
 
 const initialFormState = {
-  formClassName: "recipe__add-form",
+  formClassName: "add-form",
   buttonClassName: "x-svg-btn",
   isOpen: false
 };
 
-export const Recipe = ({ recipes, getRecipes }) => {
+export const Recipe = () => {
+  // TODO: Replace with dynamic user id
+  const { data: recipes, isLoading, isError } = useGetRecipes(1);
+
   const [formState, setFormState] = useState(initialFormState);
   const closeOpenCarrots = () => {
     const carrots = document.querySelectorAll(".recipe-card__carrot-button");
@@ -32,32 +38,36 @@ export const Recipe = ({ recipes, getRecipes }) => {
       formState.isOpen
         ? setFormState(initialFormState)
         : setFormState({
-            formClassName: "recipe__add-form recipe__add-form--show",
+            formClassName: "add-form add-form--show",
             buttonClassName: "x-svg-btn x-svg-btn--rotate",
             isOpen: true
           });
     }
   };
+
+  if (isError) return <Error />;
   return (
     <div className="recipe" onClick={handleClick}>
-      <h1>Recipes</h1>
-      <div className={formState.formClassName}>
-        <AddRecipe recipes={recipes} getRecipes={getRecipes} />
-      </div>
-      <div id="recipe-container" className="recipe__card-container">
-        {recipes.map((recipe, index) => (
-          <RecipeCard
-            index={index}
-            key={recipe.id}
-            recipe={recipe}
-            closeOpenCarrots={closeOpenCarrots}
-          />
-        ))}
-      </div>
-      <div className="recipe__button-container">
+      <div className="recipe__header">
+        <h1>Recipes</h1>
         <button className={formState.buttonClassName} onClick={handleClick}>
           {xSVG}
         </button>
+      </div>
+      <AddRecipe recipes={recipes} formStateClass={formState.formClassName} />
+      <div id="recipe-container" className="recipe__card-container">
+        {isLoading ? (
+          <Loading />
+        ) : (
+          recipes.map((recipe, index) => (
+            <RecipeCard
+              index={index}
+              key={recipe.id}
+              recipe={recipe}
+              closeOpenCarrots={closeOpenCarrots}
+            />
+          ))
+        )}
       </div>
     </div>
   );

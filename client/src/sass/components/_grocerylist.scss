@@ -1,23 +1,113 @@
-/* ____GrocerylistCard____ */
+/* ____Grocerylist____ */
 .grocerylist {
-  &__header{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  &__header {
     display: flex;
     padding: 0 2rem;
+    width: 100%;
 
     & h1 {
-     margin-left: auto;
+      margin-left: auto;
     }
     & button {
       margin-left: auto;
     }
-  }
-  &__add-grocerylist {}
-  
-}
-.add-grocerylist{
-  background-color: $color-primary;
-}
 
+    &__card-container {
+    }
+  }
+  .add-form {
+    overflow-y: scroll;
+    justify-content: flex-start;
+    &__container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    &__label {
+      width: 70%;
+    }
+
+    &__switch {
+      position: relative;
+      display: inline-block;
+      min-width: 60px;
+      height: 34px;
+
+      /* Hide default HTML checkbox */
+      & input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+    }
+
+    /* The slider */
+    &__slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: $color-grey-dark;
+      transition: 0.4s all ease-in-out;
+      border-radius: 34px;
+
+      &:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      &:hover {
+        background-color: $color-secondary-light;
+      }
+    }
+
+    &__checkbox {
+      &:checked + .add-form__slider {
+        background-color: $color-secondary;
+      }
+      &:focus + .add-form__slider {
+        box-shadow: 0 0 1px $color-secondary;
+      }
+      &:checked + .add-form__slider:before {
+        transform: translateX(26px);
+      }
+    }
+
+    &__switch-container {
+      display: flex;
+      justify-content: space-between;
+      width: 45%;
+
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+
+      p {
+        margin-right: 10rem;
+        color: $color-white;
+        text-transform: lowercase;
+      }
+    }
+    &__btn {
+      margin: 1rem 0;
+    }
+  }
+}
 
 /* ____GrocerylistCard____ */
 .grocerylist-card {
@@ -235,12 +325,6 @@
 .todo-list {
   display: grid;
   place-content: center;
-
-  // &__incomplete {
-  // }
-
-  // &__complete {
-  // }
 }
 
 /* ____TodoComplete____ */

@@ -1,12 +1,20 @@
-import axios from "axios";
 import React from "react";
+import { xSVG } from "../../../utils/svgs";
 
-export const DeleteItem = ({ api, id, getItem, itemId }) => {
-  const handleClick = () => {
-    axios.delete(`${api}${id}`).then((deletedItem) => {
-      console.log(deletedItem);
-      getItem(itemId);
+export const DeleteItem = ({ setToBeDeleted, instruction, setDeleteModal }) => {
+  const openDeleteModal = () => {
+    const modal = document.querySelector("body");
+
+    setToBeDeleted(instruction);
+    modal.classList.add("modal-blur");
+    setDeleteModal({
+      isOpen: true,
+      className: "delete-confirmation"
     });
   };
-  return <button onClick={handleClick}>Delete</button>;
+  return (
+    <button className="delete-btn" onClick={openDeleteModal}>
+      {xSVG}
+    </button>
+  );
 };

@@ -4,11 +4,13 @@ $color-primary: #ff6347;
 $color-primary-light: #ff9785;
 $color-primary-dark: #ff2f0a;
 
-$color-secondary-light: #0bafc1;
-$color-secondary-dark: #087e8b;
+$color-secondary: #20bf55;
+$color-secondary-light: #3fde74;
+$color-secondary-dark: #157a37;
 
-$color-tertiary-light: #2998ff;
-$color-tertiary-dark: #5643fa;
+$color-tertiary: antiquewhite;
+
+$color-delete: #a50104;
 
 $color-grey-light-1: #f7f7f7;
 $color-grey-light-2: #eee;
@@ -104,4 +106,7 @@ select {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+.App {
+  background-color: $color-tertiary;
 }

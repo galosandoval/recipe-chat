@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { Accordian } from "./Accordian";
 import { CardMenu } from "./CardMenu";
 import { EditRecipe } from "./edit/EditRecipe";
@@ -43,8 +42,6 @@ const initialEditIngredientsState = {
 export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   const [recipeDescription, setRecipeDescription] = useState(initialDescriptionState(recipe));
   const [accordian, setAccordian] = useState(initialAccordianState);
-  const [ingredients, setIngredients] = useState([]);
-  const [instructions, setInstructions] = useState([]);
   const [dropdown, setDropdown] = useState(initialDropdownState);
   const [editRecipe, setEditRecipe] = useState(initialEditCardState);
   const [editInstructions, setEditInstructions] = useState(initialEditInstructionsState);
@@ -103,46 +100,30 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
     }
   };
 
-  const getRecipeIngredients = (id) => {
-    axios
-      .get(`http://localhost:4000/recipes/ingredients/${id}`)
-      .then((ingredients) => {
-        setIngredients(ingredients.data.recipeIngredients);
-      })
-      .catch((err) => console.log(err.message));
-  };
-
-  const getRecipeInstructions = (id) => {
-    axios
-      .get(`http://localhost:4000/instructions/recipe/${id}`)
-      .then((instructions) => {
-        setInstructions(instructions.data.recipeInstructions);
-      })
-      .catch((err) => console.log({ err }));
-  };
-
-  useEffect(() => {
-    getRecipeInstructions(recipe.id);
-    getRecipeIngredients(recipe.id);
-  }, [recipe.id]);
-
   return (
     <div id={recipe["recipe-name"]} className="card recipe-card">
       {/**
        * TODO: Make toast when something is updated or deleted
        */}
-      <EditRecipe recipe={recipe} editRecipe={editRecipe} />
-      <EditInstructions
-        getRecipeInstructions={getRecipeInstructions}
-        editInstructions={editInstructions}
-        instructions={instructions}
+      <EditRecipe
+        setEditRecipe={setEditRecipe}
+        initialEditCardState={initialEditCardState}
         recipe={recipe}
+        editRecipe={editRecipe}
       />
+
+      <EditInstructions
+        editInstructions={editInstructions}
+        recipe={recipe}
+        setEditInstructions={setEditInstructions}
+        initialEditInstructionsState={initialEditInstructionsState}
+      />
+
       <EditIngredients
-        getRecipeIngredients={getRecipeIngredients}
         recipe={recipe}
         editIngredients={editIngredients}
-        ingredients={ingredients}
+        setEditIngredients={setEditIngredients}
+        initialEditIngredientsState={initialEditIngredientsState}
       />
       <div className="card-header recipe-card__header">
         <h2 className="recipe-name recipe-card__name u-card-heading">{recipe["recipe-name"]}</h2>
@@ -181,18 +162,16 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         >
           {recipeDescription.buttonText}
         </button>
-        <button className={`btn-round ${accordian.carrotClass}`} name="carrot-btn" onClick={handleClick}>
+        <button
+          className={`btn-round ${accordian.carrotClass}`}
+          name="carrot-btn"
+          onClick={handleClick}
+        >
           {downArrowSVG}
         </button>
       </div>
 
-      <Accordian
-        accordian={accordian}
-        instructions={instructions}
-        ingredients={ingredients}
-        id={recipe.id}
-        index={index}
-      />
+      <Accordian accordian={accordian} id={recipe.id} index={index} />
     </div>
   );
 };

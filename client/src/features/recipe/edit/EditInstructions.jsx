@@ -1,49 +1,39 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { addSVG } from "../../../utils/svgs";
+import { Loading } from "../../Loading";
+import {
+  useChangeInstructions,
+  useCreateInstructions,
+  useRemoveInstruction
+} from "../../services/instructionsService";
+import { useGetInstructions } from "../../services/recipes";
+import { AddButton } from "../../shared/AddButton";
+import { DeleteConfirmation } from "../delete/DeleteConfirmation";
 import { DeleteItem } from "../delete/DeleteItem";
 
 const addInitialState = {
   open: false,
   class: "recipe-form__input recipe-form__add-input"
 };
-
-const instructionInitialState = [
-  {
-    "recipe-id": null,
-    description: "",
-    step: null
-  }
-];
+const initialDeleteModalState = {
+  isOpen: false,
+  className: "delete-confirmation delete-confirmation--hidden"
+};
 
 export const EditInstructions = ({
   editInstructions,
-  instructions,
-  getRecipeInstructions,
-  recipe
+  recipe,
+  setEditInstructions,
+  initialEditInstructionsState
 }) => {
-  const [form, setForm] = useState([]);
-  const [instructionToAdd, setInstructionToAdd] = useState(instructionInitialState);
-  const [add, setAdd] = useState(addInitialState);
+  const { data: instructions, isLoading } = useGetInstructions(recipe.id);
+  const changeMutation = useChangeInstructions(recipe.id);
+  const createMutation = useCreateInstructions(recipe.id);
+  const removeMutation = useRemoveInstruction(recipe.id);
 
-  const handleChange = (event, index) => {
-    const { name, value } = event.target;
-    if (name === "edit-description") {
-      let tempForm = [...form];
-      let tempInstruction = { ...tempForm[index] };
-      tempInstruction.description = value;
-      tempForm[index] = tempInstruction;
-      setForm(tempForm);
-    }
-    if (name === "add-instruction") {
-      let tempForm = [...instructionToAdd];
-      let tempObj = { ...tempForm[0] };
-      tempObj.description = value;
-      tempObj["recipe-id"] = recipe.id;
-      tempObj.step = form.length + 1;
-      tempForm[0] = tempObj;
-      setInstructionToAdd(tempForm);
-    }
-  };
+  const [add, setAdd] = useState(addInitialState);
+  const [deleteModal, setDeleteModal] = useState(initialDeleteModalState);
+  const [toBeDeleted, setToBeDeleted] = useState(null);
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -55,78 +45,101 @@ export const EditInstructions = ({
         });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const { name } = document.activeElement;
+    const formData = new FormData(event.target);
 
     if (name === "edit") {
-      axios
-        .put(`http://localhost:4000/instructions/${form[0]["recipe-id"]}`, form)
-        .then((res) => {
-          console.log("edit", res.data);
-          getRecipeInstructions(form[0]["recipe-id"]);
-        })
-        .catch((error) => console.log(error.message));
+      const formBody = instructions.map((input) => ({
+        id: input.id,
+        "recipe-id": input["recipe-id"],
+        description: formData.get(`${input.id}`),
+        step: input.step
+      }));
+
+      await changeMutation.mutateAsync({ id: recipe.id, formBody });
+      await setTimeout(() => {
+        setEditInstructions(initialEditInstructionsState);
+        changeMutation.reset();
+      }, 1000);
     } else if (name === "add") {
-      axios
-        .post("http://localhost:4000/instructions/", instructionToAdd)
-        .then((res) => {
-          console.log(res.data);
-          getRecipeInstructions(form[0]["recipe-id"]);
-          setInstructionToAdd(instructionInitialState);
-        })
-        .catch((error) => console.log("error", error));
+      const formBody = [
+        {
+          description: formData.get("add-instruction"),
+          "recipe-id": recipe.id,
+          step: instructions.length + 1
+        }
+      ];
+
+      const inputToClear = document.querySelector(".recipe-form__input .edit-instructions__input");
+      inputToClear.value = "";
+      await createMutation.mutateAsync(formBody);
+      setTimeout(() => {
+        createMutation.reset();
+      }, 1000);
     }
   };
-
-  useEffect(() => {
-    setForm(instructions);
-  }, [instructions]);
-
   return (
     <div className={editInstructions.class}>
       <form className="recipe-form edit-instructions" onSubmit={handleSubmit}>
         <div className="instructions">
-          {form &&
-            form.map((instruction, index) => (
-              <div key={instruction.id}>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            instructions.map((instruction) => (
+              <div className="recipe-form__input-container" key={instruction.id}>
                 <input
                   className="recipe-form__input edit-instruction__input"
                   type="text"
-                  value={instruction.description}
-                  onChange={(event) => handleChange(event, index)}
-                  name="edit-description"
+                  defaultValue={instruction.description}
+                  name={instruction.id}
                 />
                 <DeleteItem
-                  api={"http://localhost:4000/instructions/"}
-                  id={instruction.id}
-                  getItem={getRecipeInstructions}
-                  itemId={instruction["recipe-id"]}
+                  setToBeDeleted={setToBeDeleted}
+                  instruction={instruction}
+                  deleteModal={deleteModal}
+                  setDeleteModal={setDeleteModal}
+                  initialDeleteModalState={initialDeleteModalState}
                 />
               </div>
-            ))}
+            ))
+          )}
+          <DeleteConfirmation
+            name="instruction"
+            deleteModal={deleteModal}
+            setDeleteModal={setDeleteModal}
+            toBeDeleted={toBeDeleted}
+            mutation={removeMutation}
+            initialDeleteModalState={initialDeleteModalState}
+          />
         </div>
         <div className={add.class}>
           <input
             type="text"
-            value={instructionToAdd[0].description}
-            onChange={handleChange}
             name="add-instruction"
             className="recipe-form__input edit-instructions__input"
             placeholder="Add an instruction"
           />
         </div>
         {add.open ? (
-          <button name="add" type="submit">
-            Add
-          </button>
+          <AddButton
+            defaultValue="Add"
+            mutation={createMutation}
+            name="add"
+            type="submit"
+            className={null}
+          />
         ) : (
-          <button name="edit" type="submit">
-            Save Changes
-          </button>
+          <AddButton
+            name="edit"
+            defaultValue="Save Changes"
+            mutation={changeMutation}
+            type="submit"
+          />
         )}
-        <button name="add-btn" onClick={handleClick}>
-          {add.open ? "Cancel" : "+"}
+        <button name="add-btn" className="add-btn-submit recipe-form__btn" onClick={handleClick}>
+          {add.open ? "Done" : addSVG}
         </button>
       </form>
     </div>
