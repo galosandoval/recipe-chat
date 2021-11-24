@@ -136,6 +136,13 @@ select {
   align-self: center;
   margin-bottom: 1rem;
 }
+.add-btn-submit span {
+  color: #000;
+  height: 1.5rem;
+  width: 1.5rem;
+  margin-left: 0.5rem;
+  transition: all ease-in-out 0.3s;
+}
 .add-btn-submit:hover {
   background-color: #20bf55;
   color: #fff;
@@ -228,6 +235,7 @@ select {
 /* ____DeleteConfirmation____ */
 .delete-confirmation {
   position: fixed;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.5);
   inset: 0;
   background-color: #fff;
   width: 56%;
@@ -247,6 +255,49 @@ select {
 .delete-confirmation--hidden {
   opacity: 0;
   transform: translateY(100%);
+}
+.delete-confirmation h1 {
+  width: 65%;
+  padding-bottom: 1rem;
+}
+.delete-confirmation__btns {
+  margin-top: 2rem;
+  display: flex;
+  width: 40%;
+  justify-content: space-around;
+  gap: 2rem;
+}
+.delete-confirmation__btn {
+  padding: 1rem 3rem;
+  transition: 0.3s all ease;
+  border-radius: 5px;
+  border: none;
+}
+.delete-confirmation__btn:hover {
+  color: #fff;
+}
+.delete-confirmation__btn--cancel {
+  background-color: transparent;
+}
+.delete-confirmation__btn--cancel:hover {
+  background-color: #b1b1b1;
+}
+.delete-confirmation__btn--confirm {
+  background-color: rgba(165, 1, 4, 0.3);
+  display: flex;
+  align-items: center;
+}
+.delete-confirmation__btn--confirm:hover {
+  background-color: #a50104;
+  color: #fff;
+}
+.delete-confirmation__btn--confirm span {
+  height: 1.5rem;
+  width: 1.5rem;
+  margin-left: 0.5rem;
+}
+.delete-confirmation__btn--confirm span:hover {
+  color: #fff;
 }
 
 .modal-blur {

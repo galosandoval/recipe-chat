@@ -119,7 +119,12 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         initialEditInstructionsState={initialEditInstructionsState}
       />
 
-      <EditIngredients recipe={recipe} editIngredients={editIngredients} setEditIngredients={setEditIngredients} initialEditIngredientsState={initialEditIngredientsState} />
+      <EditIngredients
+        recipe={recipe}
+        editIngredients={editIngredients}
+        setEditIngredients={setEditIngredients}
+        initialEditIngredientsState={initialEditIngredientsState}
+      />
       <div className="card-header recipe-card__header">
         <h2 className="recipe-name recipe-card__name u-card-heading">{recipe["recipe-name"]}</h2>
         <CardMenu

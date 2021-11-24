@@ -6,6 +6,8 @@ const api = axios.create({
   baseURL: "http://localhost:4000/instructions"
 });
 
+const key = "instructions";
+
 /**
  * POST
  */
@@ -33,7 +35,7 @@ const deleteInstruction = (id) => {
 export const useCreateInstructions = (recipeId) => {
   return useMutation(createInstructions, {
     onSuccess: () => {
-      queryClient.invalidateQueries(["instructions", recipeId]);
+      queryClient.invalidateQueries([key, recipeId]);
     }
   });
 };
@@ -41,7 +43,15 @@ export const useCreateInstructions = (recipeId) => {
 export const useChangeInstructions = (recipeId) => {
   return useMutation(editInstructions, {
     onSuccess: () => {
-      queryClient.invalidateQueries(["instructions", recipeId]);
+      queryClient.invalidateQueries([key, recipeId]);
+    }
+  });
+};
+
+export const useRemoveInstruction = (recipeId) => {
+  return useMutation(deleteInstruction, {
+    onSuccess: () => {
+      queryClient.invalidateQueries([key, recipeId]);
     }
   });
 };

@@ -50,6 +50,13 @@
     align-self: center;
     margin-bottom: 1rem;
 
+    & span {
+      color: $color-black;
+      height: 1.5rem;
+      width: 1.5rem;
+      margin-left: 0.5rem;
+      transition: all ease-in-out 0.3s;
+    }
     &:hover {
       background-color: $color-secondary;
       color: $color-white;
@@ -151,6 +158,7 @@
 /* ____DeleteConfirmation____ */
 .delete-confirmation {
   position: fixed;
+  box-shadow: 0 1rem 2rem rgba(#000, 0.5);
   inset: 0;
   background-color: $color-white;
   width: 56%;
@@ -170,6 +178,57 @@
   &--hidden {
     opacity: 0;
     transform: translateY(100%);
+  }
+
+  h1 {
+    width: 65%;
+    padding-bottom: 1rem;
+  }
+
+  &__btns {
+    margin-top: 2rem;
+    display: flex;
+    width: 40%;
+    justify-content: space-around;
+    gap: 2rem;
+  }
+  &__btn {
+    padding: 1rem 3rem;
+    transition: 0.3s all ease;
+    border-radius: 5px;
+    border: none;
+
+    &:hover {
+      color: $color-white;
+    }
+
+    &--cancel {
+      background-color: transparent;
+      &:hover {
+        background-color: $color-grey-dark;
+      }
+    }
+
+    &--confirm {
+      background-color: rgba($color-delete, 0.3);
+      display: flex;
+      align-items: center;
+
+      &:hover {
+        background-color: $color-delete;
+        color: $color-white;
+      }
+
+      & span {
+        height: 1.5rem;
+        width: 1.5rem;
+        margin-left: 0.5rem;
+
+        &:hover {
+          color: $color-white;
+        }
+      }
+    }
   }
 }
 

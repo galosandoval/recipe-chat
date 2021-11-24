@@ -1,8 +1,13 @@
 import React, { useState } from "react";
-import { addSVG, checkSVG } from "../../../utils/svgs";
+import { addSVG } from "../../../utils/svgs";
 import { Loading } from "../../Loading";
-import { useChangeInstructions, useCreateInstructions } from "../../services/instructionsService";
+import {
+  useChangeInstructions,
+  useCreateInstructions,
+  useRemoveInstruction
+} from "../../services/instructionsService";
 import { useGetInstructions } from "../../services/recipes";
+import { AddButton } from "../../shared/AddButton";
 import { DeleteConfirmation } from "../delete/DeleteConfirmation";
 import { DeleteItem } from "../delete/DeleteItem";
 
@@ -21,12 +26,14 @@ export const EditInstructions = ({
   setEditInstructions,
   initialEditInstructionsState
 }) => {
+  const { data: instructions, isLoading } = useGetInstructions(recipe.id);
   const changeMutation = useChangeInstructions(recipe.id);
   const createMutation = useCreateInstructions(recipe.id);
-  const { data: instructions, isLoading } = useGetInstructions(recipe.id);
+  const removeMutation = useRemoveInstruction(recipe.id);
 
   const [add, setAdd] = useState(addInitialState);
   const [deleteModal, setDeleteModal] = useState(initialDeleteModalState);
+  const [toBeDeleted, setToBeDeleted] = useState(null);
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -38,21 +45,7 @@ export const EditInstructions = ({
         });
   };
 
-  const openDeleteModal = () => {
-    const modal = document.querySelector("body");
-    if (deleteModal.isOpen) {
-      modal.classList.remove("modal-blur");
-      setDeleteModal(initialDeleteModalState);
-    } else {
-      modal.classList.add("modal-blur");
-      setDeleteModal({
-        isOpen: true,
-        className: "delete-confirmation"
-      });
-    }
-  };
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const { name } = document.activeElement;
     const formData = new FormData(event.target);
@@ -65,9 +58,10 @@ export const EditInstructions = ({
         step: input.step
       }));
 
-      changeMutation.mutate({ id: recipe.id, formBody });
-      setTimeout(() => {
+      await changeMutation.mutateAsync({ id: recipe.id, formBody });
+      await setTimeout(() => {
         setEditInstructions(initialEditInstructionsState);
+        changeMutation.reset();
       }, 1000);
     } else if (name === "add") {
       const formBody = [
@@ -80,10 +74,12 @@ export const EditInstructions = ({
 
       const inputToClear = document.querySelector(".recipe-form__input .edit-instructions__input");
       inputToClear.value = "";
-      createMutation.mutate(formBody);
+      await createMutation.mutateAsync(formBody);
+      setTimeout(() => {
+        createMutation.reset();
+      }, 1000);
     }
   };
-
   return (
     <div className={editInstructions.class}>
       <form className="recipe-form edit-instructions" onSubmit={handleSubmit}>
@@ -99,14 +95,23 @@ export const EditInstructions = ({
                   defaultValue={instruction.description}
                   name={instruction.id}
                 />
-                <DeleteItem handleClick={openDeleteModal} />
+                <DeleteItem
+                  setToBeDeleted={setToBeDeleted}
+                  instruction={instruction}
+                  deleteModal={deleteModal}
+                  setDeleteModal={setDeleteModal}
+                  initialDeleteModalState={initialDeleteModalState}
+                />
               </div>
             ))
           )}
           <DeleteConfirmation
             name="instruction"
-            openDeleteModal={openDeleteModal}
             deleteModal={deleteModal}
+            setDeleteModal={setDeleteModal}
+            toBeDeleted={toBeDeleted}
+            mutation={removeMutation}
+            initialDeleteModalState={initialDeleteModalState}
           />
         </div>
         <div className={add.class}>
@@ -118,17 +123,20 @@ export const EditInstructions = ({
           />
         </div>
         {add.open ? (
-          <button className="add-btn-submit" name="add" type="submit">
-            Add
-          </button>
-        ) : changeMutation.isSuccess ? (
-          <button className="add-btn-submit">
-            Recipe Saved<span className="add-btn-svg">{checkSVG}</span>
-          </button>
+          <AddButton
+            defaultValue="Add"
+            mutation={createMutation}
+            name="add"
+            type="submit"
+            className={null}
+          />
         ) : (
-          <button name="edit" type="submit" className="add-btn-submit">
-            Save Changes <span className="add-btn-svg--hidden">{checkSVG}</span>
-          </button>
+          <AddButton
+            name="edit"
+            defaultValue="Save Changes"
+            mutation={changeMutation}
+            type="submit"
+          />
         )}
         <button name="add-btn" className="add-btn-submit recipe-form__btn" onClick={handleClick}>
           {add.open ? "Done" : addSVG}
