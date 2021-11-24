@@ -21,6 +21,13 @@ const editInstructions = ({ id, formBody }) => {
 };
 
 /**
+ * DELETE
+ */
+const deleteInstruction = (id) => {
+  return api.delete(`${id}`);
+};
+
+/**
  * HOOKS
  */
 export const useCreateInstructions = (recipeId) => {

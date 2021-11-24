@@ -1,11 +1,11 @@
 import axios from "axios";
 import React from "react";
+import { xSVG } from "../../../utils/svgs";
 
-export const DeleteItem = ({ api, id }) => {
-  const handleClick = () => {
-    axios.delete(`${api}${id}`).then((deletedItem) => {
-      console.log(deletedItem);
-    });
-  };
-  return <button onClick={handleClick}>Delete</button>;
+export const DeleteItem = ({ handleClick }) => {
+  return (
+    <button className="delete-btn" onClick={handleClick}>
+      {xSVG}
+    </button>
+  );
 };

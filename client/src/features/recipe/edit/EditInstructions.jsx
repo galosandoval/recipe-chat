@@ -3,11 +3,16 @@ import { addSVG, checkSVG } from "../../../utils/svgs";
 import { Loading } from "../../Loading";
 import { useChangeInstructions, useCreateInstructions } from "../../services/instructionsService";
 import { useGetInstructions } from "../../services/recipes";
+import { DeleteConfirmation } from "../delete/DeleteConfirmation";
 import { DeleteItem } from "../delete/DeleteItem";
 
 const addInitialState = {
   open: false,
   class: "recipe-form__input recipe-form__add-input"
+};
+const initialDeleteModalState = {
+  isOpen: false,
+  className: "delete-confirmation delete-confirmation--hidden"
 };
 
 export const EditInstructions = ({
@@ -21,6 +26,7 @@ export const EditInstructions = ({
   const { data: instructions, isLoading } = useGetInstructions(recipe.id);
 
   const [add, setAdd] = useState(addInitialState);
+  const [deleteModal, setDeleteModal] = useState(initialDeleteModalState);
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -30,6 +36,20 @@ export const EditInstructions = ({
           open: true,
           class: "recipe-form__input recipe-form__add-input recipe-form__add-input--show"
         });
+  };
+
+  const openDeleteModal = () => {
+    const modal = document.querySelector("body");
+    if (deleteModal.isOpen) {
+      modal.classList.remove("modal-blur");
+      setDeleteModal(initialDeleteModalState);
+    } else {
+      modal.classList.add("modal-blur");
+      setDeleteModal({
+        isOpen: true,
+        className: "delete-confirmation"
+      });
+    }
   };
 
   const handleSubmit = (event) => {
@@ -72,17 +92,22 @@ export const EditInstructions = ({
             <Loading />
           ) : (
             instructions.map((instruction) => (
-              <div key={instruction.id}>
+              <div className="recipe-form__input-container" key={instruction.id}>
                 <input
                   className="recipe-form__input edit-instruction__input"
                   type="text"
                   defaultValue={instruction.description}
                   name={instruction.id}
                 />
-                <DeleteItem api={"http://localhost:4000/instructions/"} id={instruction.id} />
+                <DeleteItem handleClick={openDeleteModal} />
               </div>
             ))
           )}
+          <DeleteConfirmation
+            name="instruction"
+            openDeleteModal={openDeleteModal}
+            deleteModal={deleteModal}
+          />
         </div>
         <div className={add.class}>
           <input
