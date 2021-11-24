@@ -62,6 +62,15 @@ const updateIngredientsByRecipe = (id, changes) => {
   return findIngredientsByRecipeId(id);
 };
 
+const updateIsChecked = async (id, currentState) => {
+  if (currentState.isChecked === 0) {
+    await db(ingredients).where({ id }).update("isChecked", 1);
+  } else {
+    await db(ingredients).where({ id }).update("isChecked", 0);
+  }
+  return findIngredientById(id);
+};
+
 module.exports = {
   findIngredients,
   findIngredientById,
@@ -69,5 +78,6 @@ module.exports = {
   updateIngredient,
   deleteIngredientById,
   deleteIngredientsByRecipeId,
-  updateIngredientsByRecipe
+  updateIngredientsByRecipe,
+  updateIsChecked
 };

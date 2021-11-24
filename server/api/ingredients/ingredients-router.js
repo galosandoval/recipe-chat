@@ -87,4 +87,16 @@ router.put("/recipe/:id", validateRecipeById, (req, res) => {
   });
 });
 
+router.patch("/:id", (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+  Ingredients.updateIsChecked(id, body)
+    .then((update) => {
+      res.status(200).json({ message: "Updated ingredients with id: " + id, update });
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
+});
+
 module.exports = router;
