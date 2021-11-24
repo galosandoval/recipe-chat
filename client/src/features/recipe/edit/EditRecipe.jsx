@@ -1,25 +1,24 @@
-import axios from "axios";
-import React, { useState } from "react";
+import React from "react";
+import { checkSVG } from "../../../utils/svgs";
+import { useChangeRecipe } from "../../services/recipes";
 
-const initialFormState = (recipe) => ({
-  "recipe-name": recipe["recipe-name"],
-  "img-url": recipe["img-url"] || "",
-  description: recipe.description
-});
-export const EditRecipe = ({ editRecipe, recipe }) => {
-  const [form, setForm] = useState(initialFormState(recipe));
+export const EditRecipe = ({ editRecipe, recipe, setEditRecipe, initialEditCardState }) => {
+  const recipeMutation = useChangeRecipe();
 
-  const handleChange = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value });
-  };
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-  const handleSubmit = () => {
-    axios
-      .put(`http://localhost:4000/recipes/${recipe.id}`, form)
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((error) => console.log(error));
+    const formData = new FormData(event.target);
+    const formBody = {
+      "recipe-name": formData.get("recipe-name"),
+      "img-url": formData.get("img-url"),
+      description: formData.get("description")
+    };
+
+    recipeMutation.mutate({ id: recipe.id, formBody });
+    setTimeout(() => {
+      setEditRecipe(initialEditCardState);
+    }, 1000);
   };
 
   return (
@@ -30,16 +29,14 @@ export const EditRecipe = ({ editRecipe, recipe }) => {
           placeholder="Recipe Name"
           type="text"
           name="recipe-name"
-          onChange={handleChange}
-          value={form["recipe-name"]}
+          defaultValue={recipe["recipe-name"]}
         />
         <input
           className="recipe-form__input edit-recipe__input"
           placeholder="Image URL"
           type="text"
           name="img-url"
-          onChange={handleChange}
-          value={form["img-url"]}
+          defaultValue={recipe["img-url"] || ""}
         />
         <textarea
           style={{ resize: "none" }}
@@ -49,10 +46,18 @@ export const EditRecipe = ({ editRecipe, recipe }) => {
           placeholder="Description"
           type="text"
           name="description"
-          onChange={handleChange}
-          value={form.description}
+          defaultValue={recipe.description}
         />
-        <button type="submit">Save Changes</button>
+
+        {recipeMutation.isSuccess ? (
+          <button className="add-btn-submit">
+            Recipe Saved<span className="add-btn-svg">{checkSVG}</span>
+          </button>
+        ) : (
+          <button className="add-btn-submit">
+            Save Changes <span className="add-btn-svg--hidden">{checkSVG}</span>
+          </button>
+        )}
       </form>
     </div>
   );

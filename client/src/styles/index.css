@@ -88,6 +88,23 @@ select {
 }
 
 /* ___Buttons____ */
+.delete-btn {
+  display: grid;
+  place-items: center;
+  background-color: transparent;
+  border: none;
+  border-radius: 5px;
+  transition: all ease-in-out 0.3s;
+  color: #fff;
+}
+.delete-btn svg {
+  height: 2.5rem;
+  width: 2.5rem;
+}
+.delete-btn:hover {
+  background-color: #a50104;
+}
+
 .x-svg-btn {
   border: none;
   background-color: antiquewhite;
@@ -118,6 +135,13 @@ select {
   transition: all ease-in-out 0.3s;
   align-self: center;
   margin-bottom: 1rem;
+}
+.add-btn-submit span {
+  color: #000;
+  height: 1.5rem;
+  width: 1.5rem;
+  margin-left: 0.5rem;
+  transition: all ease-in-out 0.3s;
 }
 .add-btn-submit:hover {
   background-color: #20bf55;
@@ -206,6 +230,88 @@ select {
 .add-form--show {
   max-height: 600px;
   transition: max-height ease-in-out 0.3s;
+}
+
+/* ____DeleteConfirmation____ */
+.delete-confirmation {
+  position: fixed;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background-color: #fff;
+  width: 56%;
+  height: 60%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  margin: auto auto;
+  border-radius: 5px;
+  text-align: center;
+  opacity: 1;
+  transition: all 0.4s ease-in;
+  transform: translateY(0);
+}
+.delete-confirmation--hidden {
+  opacity: 0;
+  transform: translateY(100%);
+}
+.delete-confirmation h1 {
+  width: 65%;
+  padding-bottom: 1rem;
+}
+.delete-confirmation__btns {
+  margin-top: 2rem;
+  display: flex;
+  width: 40%;
+  justify-content: space-around;
+  gap: 2rem;
+}
+.delete-confirmation__btn {
+  padding: 1rem 3rem;
+  transition: 0.3s all ease;
+  border-radius: 5px;
+  border: none;
+}
+.delete-confirmation__btn:hover {
+  color: #fff;
+}
+.delete-confirmation__btn--cancel {
+  background-color: transparent;
+}
+.delete-confirmation__btn--cancel:hover {
+  background-color: #b1b1b1;
+}
+.delete-confirmation__btn--confirm {
+  background-color: rgba(165, 1, 4, 0.3);
+  display: flex;
+  align-items: center;
+}
+.delete-confirmation__btn--confirm:hover {
+  background-color: #a50104;
+  color: #fff;
+}
+.delete-confirmation__btn--confirm span {
+  height: 1.5rem;
+  width: 1.5rem;
+  margin-left: 0.5rem;
+}
+.delete-confirmation__btn--confirm span:hover {
+  color: #fff;
+}
+
+.modal-blur {
+  position: fixed;
+}
+.modal-blur::before {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  content: "";
+  z-index: 100;
+  opacity: 0.5;
 }
 
 .navbar {
@@ -412,8 +518,12 @@ select {
 .recipe-form__input {
   padding: 1em;
   margin: 1em;
-  border-radius: 1em;
+  border-radius: 5px;
   border: none;
+}
+.recipe-form__input-container {
+  display: flex;
+  align-items: center;
 }
 .recipe-form__add-input {
   max-height: 0;
@@ -425,6 +535,11 @@ select {
   transition: all ease 0.5s;
   max-height: fit-content;
   padding: 1em;
+}
+.recipe-form__btn svg {
+  height: 1.2rem;
+  width: 1.2rem;
+  transform: rotate(45deg);
 }
 
 .edit-ingredients {

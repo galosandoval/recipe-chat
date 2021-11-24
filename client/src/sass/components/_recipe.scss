@@ -174,8 +174,13 @@
   &__input {
     padding: 1em;
     margin: 1em;
-    border-radius: 1em;
+    border-radius: 5px;
     border: none;
+
+    &-container {
+      display: flex;
+      align-items: center;
+    }
   }
 
   &__add-input {
@@ -188,6 +193,14 @@
       transition: all ease 0.5s;
       max-height: fit-content;
       padding: 1em;
+    }
+  }
+
+  &__btn {
+    & svg {
+      height: 1.2rem;
+      width: 1.2rem;
+      transform: rotate(45deg);
     }
   }
 }
