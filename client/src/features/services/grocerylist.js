@@ -29,6 +29,14 @@ const addRecipesToGrocerylist = (recipes) => {
 };
 
 /**
+ * PATCH
+ */
+const updateIsChecked = ({ id, isChecked }) => {
+  console.log({ id, isChecked });
+  return axios.patch(`http://localhost:4000/ingredients/${id}`, { isChecked });
+};
+
+/**
  * HOOKS
  */
 export const useGrocerylist = (userId) => {
@@ -36,12 +44,8 @@ export const useGrocerylist = (userId) => {
 };
 
 export const useGetIngredients = (grocerylistId) => {
-  return useQuery(
-    ["grocerylist", grocerylistId, "ingredients"],
-    () => getIngredientsByGrocerylistId(grocerylistId),
-    {// No need to make request if localstorage has data
-      enabled: !!!JSON.parse(localStorage.getItem(`gl-${grocerylistId}`))
-    }
+  return useQuery(["grocerylist", grocerylistId, "ingredients"], () =>
+    getIngredientsByGrocerylistId(grocerylistId)
   );
 };
 
@@ -57,6 +61,14 @@ export const useCreateRecipes = () => {
   return useMutation(addRecipesToGrocerylist, {
     onSuccess: () => {
       queryClient.invalidateQueries("grocerylist");
+    }
+  });
+};
+
+export const useUpdateChecked = (grocerylistId) => {
+  return useMutation(updateIsChecked, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["grocerylist", grocerylistId, "ingredients"]);
     }
   });
 };

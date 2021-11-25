@@ -1,24 +1,22 @@
 import React from "react";
 import { checkSVG } from "../../utils/svgs";
+import { useUpdateChecked } from "../services/grocerylist";
 
-export const Todo = ({ ingredient, todoList, setTodoList, name, grocerylistId, todoClass }) => {
+export const Todo = ({ ingredient, name, grocerylistId, todoClass }) => {
+  const updateChecked = useUpdateChecked(grocerylistId);
+
   const handleChange = (event) => {
     const { name } = event.target;
 
     if (name === "check") {
-      ingredient.isComplete = 1;
-      const newList = [...todoList];
-
-      localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(newList));
-      setTodoList(newList);
+      updateChecked.mutate({ id: ingredient.id, isChecked: 0 });
     }
 
     if (name === "uncheck") {
-      ingredient.isComplete = 0;
-      const newList = [...todoList];
-
-      localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(newList));
-      setTodoList(newList);
+      // ingredient.isComplete = 0;
+      // const newList = [...todoList];
+      // localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(newList));
+      // setTodoList(newList);
     }
   };
   return (
