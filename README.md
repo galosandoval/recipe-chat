@@ -22,8 +22,6 @@
 - I used SCSS for this project because the transpiler picks up bugs in CSS and nesting allows for faster styling.
 - My plan become a fullstack developer but first I'd like to focus on the frontend so there is quite a bit more work done on the client for this project.
 - Lately, I've been learning react-query and have been changing the way I make http requests. Heres an example:
-### Look at how much code I've replaced! 
-![](readme-images/react-query-example.png)
 
 ### Look at how much code I've replaced!
 
