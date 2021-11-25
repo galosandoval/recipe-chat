@@ -44,7 +44,7 @@ export const Grocerylist = () => {
       </div>
       <AddGrocerylist form={form} />
       <div className="grocerylist__card-container">
-        {true ? (
+        {isLoading ? (
           <LoadingCards />
         ) : (
           grocerylists.map((list) => <GrocerylistCard list={list} key={list["grocery-list-id"]} />)

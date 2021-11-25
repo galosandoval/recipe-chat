@@ -10,7 +10,7 @@ const getGrocerylistsByUserId = async (userId) => {
   return data.groceryLists;
 };
 
-export const getIngredientsByGrocerylistId = async (grocerylistId) => {
+const getIngredientsByGrocerylistId = async (grocerylistId) => {
   const { data } = await axios.get(
     `http://localhost:4000/recipes-grocery-lists/ingredients/${grocerylistId}`
   );
@@ -33,6 +33,16 @@ const addRecipesToGrocerylist = (recipes) => {
  */
 export const useGrocerylist = (userId) => {
   return useQuery(["grocerylist", userId], () => getGrocerylistsByUserId(userId));
+};
+
+export const useGetIngredients = (grocerylistId) => {
+  return useQuery(
+    ["grocerylist", grocerylistId, "ingredients"],
+    () => getIngredientsByGrocerylistId(grocerylistId),
+    {// No need to make request if localstorage has data
+      enabled: !!!JSON.parse(localStorage.getItem(`gl-${grocerylistId}`))
+    }
+  );
 };
 
 export const useCreateGrocerylist = (recipes) => {

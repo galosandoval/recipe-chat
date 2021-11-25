@@ -2,7 +2,6 @@ import React from "react";
 
 export const LoadingCards = () => {
   const cards = (
-    <div className="loading-cards">
       <div className="loading-cards__card card">
         <span className="loading-cards__heading">
           <span className="loading-cards__heading-h1"></span>
@@ -20,16 +19,17 @@ export const LoadingCards = () => {
           <span className="loading-cards__button-content"></span>
         </span>
       </div>
-    </div>
   );
   return (
     <>
-      {cards}
-      {cards}
-      {cards}
-      {cards}
-      {cards}
-      {cards}
+      <div className="loading-cards">
+        {cards}
+        {cards}
+        {cards}
+        {cards}
+        {cards}
+        {cards}
+    </div>
     </>
   );
 };

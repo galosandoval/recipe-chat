@@ -1,12 +1,25 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useGetIngredients } from "../services/grocerylist";
+import { Loading } from "../status/Loading";
 import { Todo } from "./Todo";
 import { TodoComplete } from "./TodoComplete";
 
 export const TodoList = ({ grocerylistId }) => {
+  const { data: ingredients, isIdle, isLoading, isSuccess } = useGetIngredients(grocerylistId);
+
+  console.log({ ingredients, isIdle });
+
   const [todoList, setTodoList] = useState(() =>
-    JSON.parse(localStorage.getItem(`gl-${grocerylistId}`))
+    JSON.parse(localStorage.getItem(`gl-${grocerylistId}`) || ingredients)
   );
+
+  // const unchecked =
+  //   isIdle || isSuccess ? JSON.parse(localStorage.getItem(`gl-${grocerylistId}`)) : null;
+  // console.log({ unchecked });
+
+  console.log({ todoList });
+
   const complete =
     todoList !== null &&
     todoList
@@ -40,33 +53,45 @@ export const TodoList = ({ grocerylistId }) => {
       ));
 
   useEffect(() => {
-    if (localStorage.getItem(`gl-${grocerylistId}`) === null) {
-      const getIngredients = (id) => {
-        axios
-          .get(`http://localhost:4000/recipes-grocery-lists/ingredients/${id}`)
-          .then((ingredients) => {
-            const incompleteArray = [];
-            ingredients.data.ingredients.forEach((ingredient) => {
-              const ingredientData = {
-                name: ingredient.name,
-                isComplete: 0,
-                id: ingredient.id,
-                recipeId: ingredient["recipe-id"]
-              };
-              incompleteArray.push(ingredientData);
-            });
-            setTodoList(incompleteArray);
-            localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(incompleteArray));
-          })
-          .catch((error) => console.log(error));
-      };
-      getIngredients(grocerylistId);
+    if (isSuccess) {
+      const toLocalStorage = ingredients.map((i) => ({
+        name: i.name,
+        isComplete: 0,
+        id: i.id,
+        recipeId: i["recipe-id"]
+      }));
+
+      localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(toLocalStorage));
+      
     }
-  }, [grocerylistId]);
+    // if (localStorage.getItem(`gl-${grocerylistId}`) === null) {
+    //   const getIngredients = (id) => {
+    //     axios
+    //       .get(`http://localhost:4000/recipes-grocery-lists/ingredients/${id}`)
+    //       .then((ingredients) => {
+    //         const incompleteArray = [];
+    //         ingredients.data.ingredients.forEach((ingredient) => {
+    //           const ingredientData = {
+    //             name: ingredient.name,
+    //             isComplete: 0,
+    //             id: ingredient.id,
+    //             recipeId: ingredient["recipe-id"]
+    //           };
+    //           incompleteArray.push(ingredientData);
+    //         });
+    //         setTodoList(incompleteArray);
+    //         localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(incompleteArray));
+    //       })
+    //       .catch((error) => console.log(error));
+    //   };
+    //   getIngredients(grocerylistId);
+    // }
+  }, [grocerylistId, isLoading, ingredients, isSuccess]);
   return (
     <div className="todo-list">
-      {todoList !== null &&
-      todoList.filter((todo) => todo.isComplete).length === todoList.length ? (
+      {isLoading ? (
+        <Loading />
+      ) : todoList.filter((todo) => todo.isComplete).length === todoList.length ? (
         <TodoComplete setTodoList={setTodoList} grocerylistId={grocerylistId} />
       ) : (
         <>

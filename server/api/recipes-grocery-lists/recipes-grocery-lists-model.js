@@ -5,8 +5,6 @@ const recipesGrocerylists = "recipes-grocery-lists";
 
 const findRecipesAndGroceryLists = () => db(recipesGrocerylists);
 
-const findRecipeGroceryListById = (id) => db(recipesGrocerylists).where({ id });
-
 const findRecipesAndGroceryListsByUserId = (id) => {
   return db(recipesGrocerylists)
     .join("recipes", "recipes.id", "=", "recipes-grocery-lists.recipe-id")
