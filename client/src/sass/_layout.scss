@@ -1,7 +1,7 @@
 .recipe__card-container,
 .grocerylist__card-container {
   max-width: 1550px;
-  width: -webkit-fill-available;
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;

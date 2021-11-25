@@ -28,7 +28,12 @@ const deleteRecipe = (id) => {
 const findIngredientsByRecipeId = (id) => {
   return db(recipes)
     .join("ingredients", "recipes.id", "=", "ingredients.recipe-id")
-    .select("ingredients.name", "ingredients.id", "recipes.id as recipe-id")
+    .select(
+      "ingredients.name",
+      "ingredients.id",
+      "recipes.id as recipe-id",
+      "ingredients.isChecked"
+    )
     .where("recipes.id", id);
 };
 

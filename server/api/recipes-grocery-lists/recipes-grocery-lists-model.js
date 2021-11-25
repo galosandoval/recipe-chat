@@ -1,11 +1,10 @@
 const db = require("../../data/connection");
+const { updateIsChecked } = require("../ingredients/ingredients-model");
 const { findIngredientsByRecipeId } = require("../recipes/recipes-model");
 
 const recipesGrocerylists = "recipes-grocery-lists";
 
 const findRecipesAndGroceryLists = () => db(recipesGrocerylists);
-
-const findRecipeGroceryListById = (id) => db(recipesGrocerylists).where({ id });
 
 const findRecipesAndGroceryListsByUserId = (id) => {
   return db(recipesGrocerylists)
@@ -142,6 +141,14 @@ const editRecipeGrocerylistByGrocerylistId = (id, changes) => {
     .catch((error) => console.log(error));
 };
 
+const uncheckIngredientsByGrocerylistId = async (id) => {
+  const checkedIngredients = await findIngredientsByGroceryListId(id);
+  checkedIngredients.forEach(async (checked) => {
+    await updateIsChecked(checked.id, { isChecked: 1 });
+  });
+  return findIngredientsByGroceryListId(id);
+};
+
 module.exports = {
   findRecipesAndGroceryLists,
   findRecipesAndGroceryListsByUserId,
@@ -150,5 +157,6 @@ module.exports = {
   findIngredientsByGroceryListId,
   addRecipeGroceryList,
   deleteRecipeGroceryListByGrocerylistId,
-  editRecipeGrocerylistByGrocerylistId
+  editRecipeGrocerylistByGrocerylistId,
+  uncheckIngredientsByGrocerylistId
 };

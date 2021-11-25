@@ -70,6 +70,7 @@ body {
   min-height: 100vh;
   text-rendering: optimizeSpeed;
   line-height: 1.5;
+  background-color: $color-tertiary;
   font-family: $ff-montserrat;
 }
 
@@ -106,7 +107,4 @@ select {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-.App {
-  background-color: $color-tertiary;
 }

@@ -3,7 +3,7 @@ import { xSVG } from "../../utils/svgs";
 import { useGrocerylist } from "../services/grocerylist";
 import { AddGrocerylist } from "./AddGrocerylist";
 import { GrocerylistCard } from "./GrocerylistCard";
-import { Loading } from "../Loading";
+import { LoadingCards } from "../status/Loading.Cards";
 const initialFormState = {
   addButtonClass: "add-btn-svg--hidden",
   plusButtonClass: "x-svg-btn grocerylist__btn",
@@ -45,7 +45,7 @@ export const Grocerylist = () => {
       <AddGrocerylist form={form} />
       <div className="grocerylist__card-container">
         {isLoading ? (
-          <Loading />
+          <LoadingCards />
         ) : (
           grocerylists.map((list) => <GrocerylistCard list={list} key={list["grocery-list-id"]} />)
         )}

@@ -7,7 +7,7 @@ const initialPaperState = {
   isExpanded: false
 };
 
-export const Paper = ({ listState, handleClick, grocerylistId }) => {
+const Paper = ({ listState, handleClick, grocerylistId }) => {
   const [paperState, setPaperState] = useState(initialPaperState);
 
   const handleFullscreen = (event) => {
@@ -63,3 +63,5 @@ export const Paper = ({ listState, handleClick, grocerylistId }) => {
     </div>
   );
 };
+
+export default Paper;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { addSVG } from "../../../utils/svgs";
-import { Loading } from "../../Loading";
+import { Loading } from "../../status/Loading";
 import {
   useChangeInstructions,
   useCreateInstructions,

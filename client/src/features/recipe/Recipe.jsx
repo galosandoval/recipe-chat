@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { xSVG } from "../../utils/svgs";
 import { Error } from "../Error";
-import { Loading } from "../Loading";
 import { useGetRecipes } from "../services/recipes";
 
 import { AddRecipe } from "./AddRecipe";
 import { RecipeCard } from "./RecipeCard";
+import { LoadingCards } from "../status/Loading.Cards";
 
 const initialFormState = {
   formClassName: "add-form",
@@ -13,7 +13,7 @@ const initialFormState = {
   isOpen: false
 };
 
-export const Recipe = () => {
+const Recipe = () => {
   // TODO: Replace with dynamic user id
   const { data: recipes, isLoading, isError } = useGetRecipes(1);
 
@@ -57,7 +57,7 @@ export const Recipe = () => {
       <AddRecipe recipes={recipes} formStateClass={formState.formClassName} />
       <div id="recipe-container" className="recipe__card-container">
         {isLoading ? (
-          <Loading />
+          <LoadingCards />
         ) : (
           recipes.map((recipe, index) => (
             <RecipeCard
@@ -72,3 +72,5 @@ export const Recipe = () => {
     </div>
   );
 };
+
+export default Recipe;

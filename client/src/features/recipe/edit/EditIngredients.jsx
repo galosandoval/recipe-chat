@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { DeleteItem } from "../delete/DeleteItem";
 import { useGetIngredients } from "../../services/recipes";
-import { Loading } from "../../Loading";
+import { Loading } from "../../status/Loading";
 import { useChangeIngredients, useCreateIngredients } from "../../services/ingredientsService";
 import { addSVG, checkSVG } from "../../../utils/svgs";
+import { AddButton } from "../../shared/AddButton";
 
 const initialAddState = { open: false, class: "recipe-form__input recipe-form__add-input" };
 
@@ -58,15 +59,15 @@ export const EditIngredients = ({
       console.log({ formBody });
     }
   };
-
   return (
+    // classname=edit-card edit-card--show
     <div className={editIngredients.class}>
       <form className="recipe-form edit-ingredients" onSubmit={handleSubmit}>
         {isLoading ? (
           <Loading />
         ) : (
           ingredients.map((ingredient) => (
-            <div key={ingredient.id}>
+            <div className="recipe-form__input-container" key={ingredient.id}>
               <input
                 className="recipe-form__input edit-ingredients__input"
                 defaultValue={ingredient.name}
@@ -85,9 +86,7 @@ export const EditIngredients = ({
           />
         </div>
         {add.open ? (
-          <button className="add-btn-submit" name="add" type="submit">
-            Add
-          </button>
+          <AddButton name="add" type="submit" mutation={changeMutation} defaultValue="Add" />
         ) : changeMutation.isSuccess ? (
           <button className="add-btn-submit">
             Recipe Saved<span className="add-btn-svg">{checkSVG}</span>

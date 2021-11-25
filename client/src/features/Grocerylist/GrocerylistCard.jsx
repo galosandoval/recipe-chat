@@ -1,7 +1,9 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { listSVG } from "../../utils/svgs";
+import { Loading } from "../status/Loading";
 import { Carousel } from "./Carousel";
-import { Paper } from "./Paper";
+
+const Paper = lazy(() => import("./Paper"));
 
 const initialListState = {
   isVisible: false,
@@ -17,7 +19,7 @@ export const GrocerylistCard = ({ list }) => {
 
   const closeOtherLists = () => {
     const closeButtons = document.querySelectorAll(".paper__btn-close");
-    
+
     closeButtons.forEach((button) => button.click());
   };
 
@@ -94,11 +96,13 @@ export const GrocerylistCard = ({ list }) => {
       >
         {listSVG}
       </button>
-      <Paper
-        grocerylistId={list["grocery-list-id"]}
-        listState={listState}
-        handleClick={handleClick}
-      />
+      <Suspense fallback={<Loading />}>
+        <Paper
+          grocerylistId={list["grocery-list-id"]}
+          listState={listState}
+          handleClick={handleClick}
+        />
+      </Suspense>
     </div>
   );
 };

@@ -1,26 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { checkSVG } from "../../utils/svgs";
+import { useUpdateChecked } from "../services/grocerylist";
 
-export const Todo = ({ ingredient, todoList, setTodoList, name, grocerylistId, todoClass }) => {
-  const handleChange = (event) => {
-    const { name } = event.target;
+export const Todo = ({ ingredient, name, grocerylistId, todoClass }) => {
+  const updateChecked = useUpdateChecked(grocerylistId);
+  const [isChecked, setIsChecked] = useState(() => ingredient.isChecked);
 
-    if (name === "check") {
-      ingredient.isComplete = 1;
-      const newList = [...todoList];
-
-      localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(newList));
-      setTodoList(newList);
-    }
-
-    if (name === "uncheck") {
-      ingredient.isComplete = 0;
-      const newList = [...todoList];
-
-      localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(newList));
-      setTodoList(newList);
-    }
+  const handleChange = () => {
+    setIsChecked((state) => !state);
+    updateChecked.mutate({ id: ingredient.id, isChecked: ingredient.isChecked });
   };
+
   return (
     <div className="todo">
       <input
@@ -28,7 +18,7 @@ export const Todo = ({ ingredient, todoList, setTodoList, name, grocerylistId, t
         id={`${ingredient.name}-${grocerylistId}`}
         type="checkbox"
         name={name}
-        checked={ingredient.isComplete}
+        checked={isChecked}
         onChange={handleChange}
       />
       <label htmlFor={`${ingredient.name}-${grocerylistId}`} className={todoClass}>

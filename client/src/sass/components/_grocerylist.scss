@@ -16,9 +16,6 @@
     & button {
       margin-left: auto;
     }
-
-    &__card-container {
-    }
   }
   .add-form {
     overflow-y: scroll;
@@ -285,6 +282,19 @@
   }
 
   &__btn {
+    display: grid;
+    place-items: center;
+    border: none;
+    background-color: transparent;
+    border-radius: 5px;
+    transition: 0.3s ease all;
+    color: $color-grey-dark;
+
+    &:hover {
+      background-color: rgba($color-black, 0.3);
+      color: $color-primary;
+    }
+
     &-svg {
       height: 2rem;
       width: 2rem;
