@@ -39,7 +39,7 @@ const Recipe = () => {
         ? setFormState(initialFormState)
         : setFormState({
             formClassName: "add-form add-form--show",
-            buttonClassName: "x-svg-btn x-svg-btn--rotate",
+            buttonClassName: "x-svg-btn <x-svg-btn--rota></x-svg-btn--rota>te",
             isOpen: true
           });
     }
