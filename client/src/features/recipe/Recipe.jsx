@@ -13,7 +13,7 @@ const initialFormState = {
   isOpen: false
 };
 
-export const Recipe = () => {
+const Recipe = () => {
   // TODO: Replace with dynamic user id
   const { data: recipes, isLoading, isError } = useGetRecipes(1);
 
@@ -72,3 +72,5 @@ export const Recipe = () => {
     </div>
   );
 };
+
+export default Recipe;

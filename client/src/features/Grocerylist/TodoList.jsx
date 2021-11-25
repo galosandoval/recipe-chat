@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef } from "react";
 import { useGetIngredients } from "../services/grocerylist";
 import { Loading } from "../status/Loading";
 import { Todo } from "./Todo";
@@ -7,7 +7,11 @@ import { TodoComplete } from "./TodoComplete";
 export const TodoList = ({ grocerylistId }) => {
   const { data: ingredients, isLoading } = useGetIngredients(grocerylistId);
 
+  const todoRef = useRef(null)
   if (isLoading) return <Loading />;
+
+  const todoList = document.querySelector(`#todo-list-${grocerylistId}`);
+  console.log({ todoList });
 
   const checked = ingredients.reduce((checkedArray, ingredient) => {
     if (ingredient.isChecked) {
@@ -20,13 +24,12 @@ export const TodoList = ({ grocerylistId }) => {
           todoClass="todo__label todo__label--checked"
         />
       );
-      console.log({ todo });
       checkedArray.push(todo);
     }
     return checkedArray;
   }, []);
 
-  const unChecked = ingredients.reduce((unCheckedArray, ingredient) => {
+  const unChecked = ingredients.reduce((uncheckedArray, ingredient) => {
     if (!ingredient.isChecked) {
       const todo = (
         <Todo
@@ -37,13 +40,13 @@ export const TodoList = ({ grocerylistId }) => {
           todoClass="todo__label"
         />
       );
-      unCheckedArray.push(todo);
+      uncheckedArray.push(todo);
     }
-    return unCheckedArray;
+    return uncheckedArray;
   }, []);
 
   return (
-    <div className="todo-list">
+    <div className="todo-list" id={`todo-list-${grocerylistId}`} ref={todoRef}>
       {ingredients.length === checked.length ? (
         <TodoComplete grocerylistId={grocerylistId} />
       ) : (

@@ -157,7 +157,7 @@
   transition: all ease 0.5s;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
   overflow: hidden;
 
   &--show {
@@ -295,11 +295,12 @@
   }
   &__paragraph {
     margin: 0;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
   }
 }
 /* ____RecipeInstructions____ */
 .recipe-instructions {
+  letter-spacing: 1.4px;
   padding: 1rem;
   margin-left: 1rem;
   &__item {

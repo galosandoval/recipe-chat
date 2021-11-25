@@ -62,7 +62,6 @@ const updateIngredientsByRecipe = (id, changes) => {
 };
 
 const updateIsChecked = async (id, currentState) => {
-  console.log({ id, currentState });
   if (currentState.isChecked === 0) {
     console.log("checked");
     await db(ingredients).where({ id }).update("isChecked", 1);

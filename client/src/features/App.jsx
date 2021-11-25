@@ -1,25 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { lazy, Suspense } from "react";
 import { Route, Switch } from "react-router-dom";
-import axios from "axios";
 
 import { Grocerylist } from "./grocerylist/Grocerylist";
 import { Navbar } from "./navbar/Navbar";
-import { Recipe } from "./recipe/Recipe";
+import { LoadingCards } from "./status/Loading.Cards";
+
+const Recipe = lazy(() => import("./recipe/Recipe"));
 
 function App() {
-  const [recipes, setRecipes] = useState([]);
-
   // TODO: Replace hardcoded '1' with logged in users ID
 
-  const getRecipes = () => {
-    axios.get("http://localhost:4000/recipes/user/1").then((recipes) => {
-      setRecipes(recipes.data.recipes);
-    });
-  };
-
-  useEffect(() => {
-    getRecipes();
-  }, []);
   return (
     <div className="App">
       <Navbar />
@@ -28,7 +18,9 @@ function App() {
           <Grocerylist />
         </Route>
         <Route path="/recipes">
-          <Recipe recipes={recipes} getRecipes={getRecipes} />
+          <Suspense fallback={<LoadingCards />}>
+            <Recipe />
+          </Suspense>
         </Route>
       </Switch>
     </div>

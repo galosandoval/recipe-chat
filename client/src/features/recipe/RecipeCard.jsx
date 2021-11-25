@@ -1,11 +1,14 @@
-import React, { useState } from "react";
-import { Accordian } from "./Accordian";
+import React, { lazy, Suspense, useState } from "react";
 import { CardMenu } from "./CardMenu";
 import { EditRecipe } from "./edit/EditRecipe";
 import { EditInstructions } from "./edit/EditInstructions";
 import { EditIngredients } from "./edit/EditIngredients";
 import { useHistory } from "react-router-dom";
 import { downArrowSVG } from "../../utils/svgs";
+import { Loading } from "../status/Loading";
+
+// import { Accordian } from "./Accordian";
+const Accordian = lazy(() => import("./Accordian"));
 
 const initialAccordianState = {
   ingredientsClass: "accordian accordian--hidden",
@@ -170,8 +173,9 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
           {downArrowSVG}
         </button>
       </div>
-
-      <Accordian accordian={accordian} id={recipe.id} index={index} />
+      <Suspense fallback={<Loading />}>
+        <Accordian accordian={accordian} id={recipe.id} index={index} />
+      </Suspense>
     </div>
   );
 };
