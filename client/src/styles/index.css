@@ -314,9 +314,11 @@ select {
 }
 
 .login {
-  display: grid;
-  place-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100vh;
+  flex-direction: column;
   position: relative;
 }
 .login__background {
@@ -406,6 +408,32 @@ select {
 }
 .login__form-btn:hover {
   background-color: #ff5233;
+}
+.login__register, .login__register:visited {
+  text-decoration: none;
+  color: #b1b1b1;
+  transition: 0.3s ease all;
+}
+.login__register:hover, .login__register:visited:hover {
+  color: #ff6347;
+}
+
+.register .login__top {
+  height: 40%;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1rem;
+}
+.register .login__form {
+  gap: 0.5rem;
+  height: 50%;
+}
+.register .login__form-input:first-child {
+  margin-bottom: 0;
+  margin-top: 0.9rem;
 }
 
 .navbar {

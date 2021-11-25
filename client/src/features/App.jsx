@@ -2,9 +2,10 @@ import React, { lazy, Suspense } from "react";
 import { Route, Switch } from "react-router-dom";
 
 import { Grocerylist } from "./grocerylist/Grocerylist";
-import { Login } from "./login/Login";
+import { Login } from "./auth/Login";
 import { Navbar } from "./navbar/Navbar";
 import { LoadingCards } from "./status/Loading.Cards";
+import { Register } from "./auth/Register";
 
 const Recipe = lazy(() => import("./recipe/Recipe"));
 
@@ -13,7 +14,14 @@ function App() {
 
   return (
     <div className="App">
-      <Login />
+      <Switch>
+        <Route path="/" exact>
+          <Login />
+        </Route>
+      </Switch>
+      <Route path="/register" exact>
+        <Register />
+      </Route>
       {/* <Navbar />
       <Switch>
         <Route path="/" exact>

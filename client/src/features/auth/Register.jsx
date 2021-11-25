@@ -1,19 +1,19 @@
 import React from "react";
 
-export const Login = () => {
+export const Register = () => {
   return (
-    <div className="login">
+    <div className="login register">
       <div className="login__background">
         <div className="login__primary-color"></div>
         <div className="login__top">
-          <h1>Login Form</h1>
-          <button className="add-btn-submit login__btn">Demo Login</button>
+          <h1>Sign Up</h1>
         </div>
         <form className="login__form">
           <input type="text" className="login__form-input" placeholder="Username" />
-          <input type="text" className="login__form-input" placeholder="Account Password" />
+          <input type="text" className="login__form-input" placeholder="Password" />
+          <input type="text" className="login__form-input" placeholder="Confirm Password" />
           <button type="submit" className="login__form-btn add-btn-submit">
-            Login
+            Register
           </button>
         </form>
       </div>
