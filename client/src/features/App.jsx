@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { Route, Switch } from "react-router-dom";
 
 import { Grocerylist } from "./grocerylist/Grocerylist";
+import { Login } from "./login/Login";
 import { Navbar } from "./navbar/Navbar";
 import { LoadingCards } from "./status/Loading.Cards";
 
@@ -12,7 +13,8 @@ function App() {
 
   return (
     <div className="App">
-      <Navbar />
+      <Login />
+      {/* <Navbar />
       <Switch>
         <Route path="/" exact>
           <Grocerylist />
@@ -22,7 +24,7 @@ function App() {
             <Recipe />
           </Suspense>
         </Route>
-      </Switch>
+      </Switch> */}
     </div>
   );
 }

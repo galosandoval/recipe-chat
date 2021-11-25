@@ -1,0 +1,99 @@
+.login {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  position: relative;
+
+  &__background {
+    height: 60%;
+    width: 30%;
+    background-color: #fff;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.15);
+  }
+  &__primary-color {
+    background-color: $color-primary;
+    position: absolute;
+    width: 100%;
+    height: 65%;
+    z-index: -1;
+  }
+  &__top {
+    height: 50%;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 1rem;
+
+    h1 {
+      padding-bottom: 3rem;
+      font-size: 1rem;
+      color: $color-white;
+    }
+  }
+  &__btn {
+    align-self: stretch;
+    height: 5rem;
+    border-radius: 7px;
+    margin-bottom: -2rem;
+    background-color: $color-primary-dark;
+    color: $color-white;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.15);
+    cursor: pointer;
+    &:hover {
+      background-color: $color-white;
+      color: $color-primary-dark;
+    }
+  }
+  &__form {
+    background-color: #fff;
+    border-radius: 7px;
+    height: 43%;
+    width: 80%;
+    box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.15);
+    display: grid;
+    place-items: center;
+    margin: 0 auto;
+
+    &-input {
+      width: 80%;
+      border: 1px solid $color-grey-dark;
+      border-radius: 3px;
+      padding: 0.5rem 1rem;
+
+      transition: all 0.4s ease-in-out;
+      &:first-child {
+        margin-bottom: -0.5rem;
+        margin-top: 0.9rem;
+      }
+      &:focus {
+        outline: none;
+        box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.15);
+      }
+    }
+    &-btn {
+      align-self: center;
+      width: 80%;
+      display: grid;
+      place-items: center;
+      background-color: $color-primary;
+      transition: all 0.4s ease-in-out;
+      color: $color-white;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $color-primary-dark;
+      }
+    }
+  }
+}

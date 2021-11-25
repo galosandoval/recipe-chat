@@ -13,14 +13,6 @@ const Accordian = ({ accordian, id }) => {
 
   // TODO: Fix accordian
 
-  // useLayoutEffect(() => {
-  //   const openAccordian = document.querySelectorAll(".accordian--hidden");
-  //   console.log("openaccordian:", openAccordian);
-  //   if (openAccordian && openAccordian.length > 0) {
-  //     openAccordian[index].style.maxHeight = `${openAccordian[index].scrollHeight}px`;
-  //   }
-  // });
-
   if (ingredientsIsLoading || instructionsIsLoading) {
     return <Loading />;
   }
