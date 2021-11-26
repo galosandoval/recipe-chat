@@ -11,8 +11,8 @@ export const Login = () => {
           <button className="add-btn-submit login__btn">Demo Login</button>
         </div>
         <form className="login__form">
-          <input type="text" className="login__form-input" placeholder="Username" />
-          <input type="text" className="login__form-input" placeholder="Password" />
+          <input type="text" name="username" className="login__form-input" placeholder="Username" />
+          <input type="text" name="password" className="login__form-input" placeholder="Password" />
           <button type="submit" className="login__form-btn add-btn-submit">
             Login
           </button>
