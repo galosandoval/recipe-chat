@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { xSVG } from "../../styles/svgs";
-import { useGetRecipes } from "../services/recipes";
+import { useGetRecipes } from "../services/recipeService";
 
 import { AddRecipe } from "./create/AddRecipe.jsx";
 import { RecipeCard } from "./RecipeCard";

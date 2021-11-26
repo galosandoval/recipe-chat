@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { checkSVG } from "../../styles/svgs";
-import { useUpdateChecked } from "../services/grocerylist";
+import { useUpdateChecked } from "../services/grocerylistService";
 
 export const Todo = ({ ingredient, name, grocerylistId, todoClass }) => {
   const updateChecked = useUpdateChecked(grocerylistId);

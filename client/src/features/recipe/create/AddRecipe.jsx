@@ -5,7 +5,7 @@ import {
   useCreateIngredients,
   useCreateInstructions,
   useCreateRecipe
-} from "../../services/recipes";
+} from "../../services/recipeService";
 import { parseIngredients, parseInstructions } from "./addRecipe";
 
 const initialRecipeToAddState = {

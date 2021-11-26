@@ -10,3 +10,11 @@ const addUser = async (creds) => {
 export const useAddUser = () => {
   return useMutation(addUser);
 };
+
+const loginUser = async (creds) => {
+  return axios.post("http://localhost:4000/auth/login", creds);
+};
+
+export const useLogin = () => {
+  return useMutation(loginUser);
+};

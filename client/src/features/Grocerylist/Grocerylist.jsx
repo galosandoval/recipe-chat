@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { xSVG } from "../../styles/svgs";
-import { useGrocerylist } from "../services/grocerylist";
+import { useGrocerylist } from "../services/grocerylistService";
 import { AddGrocerylist } from "./AddGrocerylist";
 import { GrocerylistCard } from "./GrocerylistCard";
 import { LoadingCards } from "../status/Loading.Cards";

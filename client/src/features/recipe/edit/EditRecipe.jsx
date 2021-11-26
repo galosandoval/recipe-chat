@@ -1,6 +1,6 @@
 import React from "react";
 import { checkSVG } from "../../../styles/svgs";
-import { useChangeRecipe } from "../../services/recipes";
+import { useChangeRecipe } from "../../services/recipeService";
 
 export const EditRecipe = ({ editRecipe, recipe, setEditRecipe, initialEditCardState }) => {
   const recipeMutation = useChangeRecipe();

@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { useGetIngredients } from "../services/grocerylist";
+import { useGetIngredients } from "../services/grocerylistService";
 import { Loading } from "../status/Loading";
 import { Todo } from "./Todo";
 import { TodoComplete } from "./TodoComplete";
