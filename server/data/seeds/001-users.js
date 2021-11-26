@@ -9,21 +9,21 @@ exports.seed = function (knex, Promise) {
           id: 1,
           firstName: "Galo",
           lastName: "Sandoval",
-          email: "galo@gmail.com",
-          password: "password"
+          username: "demo",
+          password: "demo"
         },
         {
           id: 2,
           firstName: "Raymond",
           lastName: "Rowe",
-          email: "rowe@gmail.com",
+          username: "rowe@gmail.com",
           password: "password"
         },
         {
           id: 3,
           firstName: "Kendrick",
           lastName: "Lamar",
-          email: "kendrick@gmail.com",
+          username: "kendrick@gmail.com",
           password: "password"
         }
       ]);
