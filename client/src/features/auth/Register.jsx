@@ -1,8 +1,9 @@
 import React from "react";
 import { useAddUser } from "../services/authService";
+import { ErrorToast } from "../status/ErrorToast";
 
 export const Register = () => {
-  const addUser = useAddUser();
+  const { mutate, isSuccess, data } = useAddUser();
 
   return (
     <div className="login register">
@@ -21,7 +22,7 @@ export const Register = () => {
               password: formData.get("password")
             };
             console.log({ creds });
-            addUser.mutate(creds);
+            mutate(creds);
           }}
         >
           <input type="text" name="username" className="login__form-input" placeholder="Username" />
@@ -37,6 +38,7 @@ export const Register = () => {
           </button>
         </form>
       </div>
+      {isSuccess && data.data.status === "error" && <ErrorToast errorMessage={data.data.error} />}
     </div>
   );
 };

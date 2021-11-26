@@ -16,11 +16,11 @@ function App() {
   return (
     <div className="App">
       <Switch>
-        <Route path="/" exact>
+        <Route path="/login">
           <Login />
         </Route>
       </Switch>
-      <Route path="/register" exact>
+      <Route path="/register">
         <Register />
       </Route>
       {/* <Navbar />
