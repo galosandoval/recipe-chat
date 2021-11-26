@@ -436,6 +436,58 @@ select {
   margin-top: 0.9rem;
 }
 
+.error-toast {
+  position: absolute;
+  bottom: 2rem;
+  margin-left: auto;
+  background-color: #ff000453;
+  align-items: center;
+  left: 0;
+  right: 0;
+  width: 35%;
+  margin-right: auto;
+  border-radius: 10px;
+  color: #a50104;
+  border: 1px solid #a50104;
+  transform: translateY(300%);
+  transition: all 0.6s ease-in-out;
+  display: flex;
+  justify-content: space-evenly;
+  opacity: 0;
+}
+.error-toast--show {
+  transform: translateY(0);
+  opacity: 1;
+}
+.error-toast__message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 26ch;
+}
+.error-toast__message h3 {
+  padding-right: 1rem;
+}
+.error-toast__slash {
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  min-height: 2rem;
+}
+.error-toast__cross {
+  color: rgba(165, 1, 4, 0.4);
+  background-color: transparent;
+  border: 3px solid transparent;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  transition: all 0.4s ease-in-out;
+}
+.error-toast__cross:hover {
+  border: 3px solid rgba(165, 1, 4, 0.8);
+  color: rgba(165, 1, 4, 0.8);
+}
+
 .navbar {
   display: flex;
   align-items: center;

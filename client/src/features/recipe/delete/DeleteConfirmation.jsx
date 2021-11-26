@@ -1,5 +1,5 @@
 import React from "react";
-import { checkSVG } from "../../../utils/svgs";
+import { checkSVG } from "../../../styles/svgs";
 
 export const DeleteConfirmation = ({
   name,

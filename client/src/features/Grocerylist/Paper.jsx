@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { expandSVG, minimizeSVG, xSVG } from "../../utils/svgs";
+import { expandSVG, minimizeSVG, xSVG } from "../../styles/svgs";
 import { TodoList } from "./TodoList";
 
 const initialPaperState = {

@@ -1,5 +1,5 @@
 import React from "react";
-import { leftArrowSVG, rightArrowSVG } from "../../utils/svgs";
+import { leftArrowSVG, rightArrowSVG } from "../../styles/svgs";
 
 export const Carousel = ({ page, handleClick, list }) => {
   return (

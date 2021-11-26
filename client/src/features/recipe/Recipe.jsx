@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { xSVG } from "../../utils/svgs";
+import { xSVG } from "../../styles/svgs";
 import { Error } from "../Error";
 import { useGetRecipes } from "../services/recipes";
 
-import { AddRecipe } from "./AddRecipe";
+import { AddRecipe } from "./create/AddRecipe";
 import { RecipeCard } from "./RecipeCard";
 import { LoadingCards } from "../status/Loading.Cards";
 

@@ -6,6 +6,7 @@ import { Login } from "./auth/Login";
 import { Navbar } from "./navbar/Navbar";
 import { LoadingCards } from "./status/Loading.Cards";
 import { Register } from "./auth/Register";
+import { ErrorToast } from "./status/ErrorToast";
 
 const Recipe = lazy(() => import("./recipe/Recipe"));
 
@@ -33,6 +34,7 @@ function App() {
           </Suspense>
         </Route>
       </Switch> */}
+      <ErrorToast errorMessage="Username already exists" />
     </div>
   );
 }

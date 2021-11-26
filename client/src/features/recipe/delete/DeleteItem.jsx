@@ -1,5 +1,5 @@
 import React from "react";
-import { deleteSVG } from "../../../utils/svgs";
+import { deleteSVG } from "../../../styles/svgs";
 
 export const DeleteItem = ({ setToBeDeleted, instruction, setDeleteModal }) => {
   const openDeleteModal = () => {

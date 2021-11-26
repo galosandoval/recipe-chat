@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { checkSVG } from "../../utils/svgs";
+import { checkSVG } from "../../styles/svgs";
 import { Loading } from "../status/Loading";
 import { useCreateGrocerylist, useCreateRecipes } from "../services/grocerylist";
 import { queryClient } from "../services/react-query-client";
