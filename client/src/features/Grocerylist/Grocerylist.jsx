@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { xSVG } from "../../utils/svgs";
+import { xSVG } from "../../styles/svgs";
 import { useGrocerylist } from "../services/grocerylist";
 import { AddGrocerylist } from "./AddGrocerylist";
 import { GrocerylistCard } from "./GrocerylistCard";

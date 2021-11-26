@@ -4,7 +4,7 @@ import { EditRecipe } from "./edit/EditRecipe";
 import { EditInstructions } from "./edit/EditInstructions";
 import { EditIngredients } from "./edit/EditIngredients";
 import { useHistory } from "react-router-dom";
-import { downArrowSVG } from "../../utils/svgs";
+import { downArrowSVG } from "../../styles/svgs";
 import { Loading } from "../status/Loading";
 
 // import { Accordian } from "./Accordian";

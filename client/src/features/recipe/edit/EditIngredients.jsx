@@ -3,7 +3,7 @@ import { DeleteItem } from "../delete/DeleteItem";
 import { useGetIngredients } from "../../services/recipes";
 import { Loading } from "../../status/Loading";
 import { useChangeIngredients, useCreateIngredients } from "../../services/ingredientsService";
-import { addSVG, checkSVG } from "../../../utils/svgs";
+import { addSVG, checkSVG } from "../../../styles/svgs";
 import { AddButton } from "../../shared/AddButton";
 
 const initialAddState = { open: false, class: "recipe-form__input recipe-form__add-input" };

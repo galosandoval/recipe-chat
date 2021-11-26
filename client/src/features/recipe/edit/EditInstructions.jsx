@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { addSVG } from "../../../utils/svgs";
+import { addSVG } from "../../../styles/svgs";
 import { Loading } from "../../status/Loading";
 import {
   useChangeInstructions,

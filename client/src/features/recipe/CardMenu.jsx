@@ -1,6 +1,6 @@
 import React from "react";
 import OutsideClickHandler from "react-outside-click-handler";
-import { menuSVG, xSVG } from "../../utils/svgs";
+import { menuSVG, xSVG } from "../../styles/svgs";
 
 export const CardMenu = ({
   dropdown,

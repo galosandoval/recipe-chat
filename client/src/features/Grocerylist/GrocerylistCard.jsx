@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { listSVG } from "../../utils/svgs";
+import { listSVG } from "../../styles/svgs";
 import { Loading } from "../status/Loading";
 import { Carousel } from "./Carousel";
 

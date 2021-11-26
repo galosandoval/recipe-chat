@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { checkSVG } from "../../utils/svgs";
-import { queryClient } from "../services/react-query-client";
-import { useCreateIngredients, useCreateInstructions, useCreateRecipe } from "../services/recipes";
-import { parseIngredients, parseInstructions } from "./utils/addRecipe";
+import { checkSVG } from "../../../styles/svgs";
+import { queryClient } from "../../services/react-query-client";
+import {
+  useCreateIngredients,
+  useCreateInstructions,
+  useCreateRecipe
+} from "../../services/recipes";
+import { parseIngredients, parseInstructions } from "./addRecipe";
 
 const initialRecipeToAddState = {
   name: "",
