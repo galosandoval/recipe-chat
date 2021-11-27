@@ -2,9 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLogin } from "../services/authService";
 import { ErrorToast } from "../status/ErrorToast";
+import { useHistory } from "react-router-dom";
 
 export const Login = () => {
-  const { mutate, isSuccess, data } = useLogin();
+  const { mutateAsync, isSuccess, data, isError, error } = useLogin();
+
+  if (isError) console.log({ error });
+  const history = useHistory();
   return (
     <div className="login">
       <div className="login__background">
@@ -15,7 +19,7 @@ export const Login = () => {
         </div>
         <form
           className="login__form"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
 
             const formData = new FormData(event.target);
@@ -23,8 +27,9 @@ export const Login = () => {
               username: formData.get("username"),
               password: formData.get("password")
             };
-
-            mutate(creds);
+            await mutateAsync(creds);
+            // console.log({ data });
+            history.push("/grocerylist");
           }}
         >
           <input type="text" name="username" className="login__form-input" placeholder="Username" />

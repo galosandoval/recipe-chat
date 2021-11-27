@@ -3,7 +3,10 @@ import { useMutation, useQuery } from "react-query";
 import { queryClient } from "./react-query-client";
 
 const api = axios.create({
-  baseURL: "http://localhost:4000"
+  baseURL: "http://localhost:4000",
+  headers: {
+    Authorization: JSON.parse(localStorage.getItem("token"))
+  }
 });
 
 /**

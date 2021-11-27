@@ -12,7 +12,9 @@ export const useAddUser = () => {
 };
 
 const loginUser = async (creds) => {
-  return axios.post("http://localhost:4000/auth/login", creds);
+  const user = await axios.post("http://localhost:4000/auth/login", creds);
+  localStorage.setItem("token", JSON.stringify(user.data.token));
+  return user;
 };
 
 export const useLogin = () => {
