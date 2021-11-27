@@ -1,29 +1,21 @@
 const router = require("express").Router();
 const bcryptjs = require("bcryptjs");
 const Users = require("../users/users-model");
+const { validateBody } = require("./auth-middleware");
+const jwt = require("jsonwebtoken");
 
-router.post("/register", async (req, res) => {
+router.post("/register", validateBody, async (req, res) => {
   const { username, password: plainPassword } = req.body;
 
-  if (!username || typeof username !== "string") {
-    return res.json({ status: "error", error: "Invalid username" });
-  }
-  if (!plainPassword || typeof plainPassword !== "string") {
-    return res.json({ status: "error", error: "Invalid password" });
-  }
-  if (plainPassword.length < 6) {
-    return res.json({ status: "error", error: "Invalid password: must be at least 6 characters" });
-  }
-
-  const password = await bcryptjs.hash(plainPassword, 10);
-
   try {
-    const response = await Users.addUser({ username, password });
-    console.log("Created new user", response);
+    const password = bcryptjs.hashSync(plainPassword);
+    const addedUser = await Users.addUser({ username, password });
+    const token = makeJwt(addedUser[0]);
+
+    res.status(201).json({ status: "ok", user: addedUser[0], token });
   } catch (error) {
-    console.log("BE TRUE", error.code === "SQLITE_CONSTRAINT");
     if (error.code === "SQLITE_CONSTRAINT") {
-      // dublictate username
+      // duplicate username
 
       return res.json({ status: "error", error: "Username already exists" });
     } else {
@@ -31,8 +23,33 @@ router.post("/register", async (req, res) => {
       throw error;
     }
   }
-
-  res.json({ status: "ok" });
 });
+
+router.post("/login", validateBody, async (req, res) => {
+  const { username, password } = req.body;
+  const user = await Users.findUserByUsername(username);
+
+  if ((await bcryptjs.compare(password, user[0].password)) && user[0]) {
+    const token = makeJwt(user[0]);
+    res.json({ status: "ok", user: user[0], token });
+  } else {
+    res.json({ status: "error", error: "Invalid username/password" });
+  }
+});
+
+function makeJwt(user) {
+  const payload = {
+    subject: user.id,
+    username: user.username
+  };
+
+  const secret = process.env.JWT_TOKEN || "is it secret, is it safe?";
+
+  const options = {
+    expiresIn: "8h"
+  };
+
+  return jwt.sign(payload, secret, options);
+}
 
 module.exports = router;

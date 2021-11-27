@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { DeleteItem } from "../delete/DeleteItem";
-import { useGetIngredients } from "../../services/recipes";
+import { useGetIngredients } from "../../services/recipeService";
 import { Loading } from "../../status/Loading";
 import { useChangeIngredients, useCreateIngredients } from "../../services/ingredientsService";
 import { addSVG, checkSVG } from "../../../styles/svgs";

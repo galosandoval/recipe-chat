@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { xSVG } from "../../styles/svgs";
-import { Error } from "../Error";
-import { useGetRecipes } from "../services/recipes";
+import { useGetRecipes } from "../services/recipeService";
 
-import { AddRecipe } from "./create/AddRecipe";
+import { AddRecipe } from "./create/AddRecipe.jsx";
 import { RecipeCard } from "./RecipeCard";
 import { LoadingCards } from "../status/Loading.Cards";
+import { ErrorToast } from "../status/ErrorToast";
 
 const initialFormState = {
   formClassName: "add-form",
@@ -45,7 +45,7 @@ const Recipe = () => {
     }
   };
 
-  if (isError) return <Error />;
+  if (isError) return <ErrorToast errorMessage="Something went wrong" />;
   return (
     <div className="recipe" onClick={handleClick}>
       <div className="recipe__header">

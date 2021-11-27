@@ -3,7 +3,7 @@ import { RecipeIngredients } from "./RecipeIngredients";
 import { RecipeInstructions } from "./RecipeInstructions";
 import { NavLink, Route, useRouteMatch } from "react-router-dom";
 import { Loading } from "../status/Loading";
-import { useGetIngredients, useGetInstructions } from "../services/recipes";
+import { useGetIngredients, useGetInstructions } from "../services/recipeService";
 
 // TODO: make tabs for Recipes and Ingredients
 const Accordian = ({ accordian, id }) => {
