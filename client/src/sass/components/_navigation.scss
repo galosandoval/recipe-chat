@@ -24,6 +24,9 @@
   &__item {
     list-style: none;
     margin-left: 2rem;
+    &:last-child {
+      margin-left: auto;
+    }
   }
 
   &__link,
@@ -46,6 +49,15 @@
 
     &:hover {
       color: $color-white;
+    }
+  }
+
+  &__logout {
+    margin-bottom: 0;
+    padding: 0.5rem 1rem;
+
+    &:hover {
+      background-color: $color-grey-dark;
     }
   }
 }

@@ -22,8 +22,6 @@ export const Login = () => {
       };
     }
 
-    console.log(typeof creds.password);
-
     console.log(creds);
     try {
       await login(creds);
