@@ -17,7 +17,7 @@ router.post("/register", validateBody, async (req, res) => {
     if (error.code === "SQLITE_CONSTRAINT") {
       // duplicate username
 
-      return res.json({ status: "error", error: "Username already exists" });
+      return res.status(401).json({ status: "error", error: "Username already exists" });
     } else {
       // otherwise something else has gone wrong
       throw error;
@@ -31,15 +31,15 @@ router.post("/login", validateBody, async (req, res) => {
 
   if ((await bcryptjs.compare(password, user[0].password)) && user[0]) {
     const token = makeJwt(user[0]);
-    res.json({ status: "ok", user: user[0], token });
+    res.status(200).json({ status: "ok", user: user[0], token });
   } else {
-    res.json({ status: "error", error: "Invalid username/password" });
+    res.status(401).json({ status: "error", error: "Invalid username/password" });
   }
 });
 
 function makeJwt(user) {
   const payload = {
-    subject: user.id,
+    id: user.id,
     username: user.username
   };
 

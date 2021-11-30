@@ -1,9 +1,13 @@
 import React from "react";
 import { useAddUser } from "../services/authService";
+import { useLogin } from "../services/authService";
+import { useHistory } from "react-router-dom";
 import { ErrorToast } from "../status/ErrorToast";
 
 export const Register = () => {
-  const { mutate, isSuccess, data } = useAddUser();
+  const { mutateAsync: addUser, isSuccess, data } = useAddUser();
+  const { mutate: login } = useLogin();
+  const history = useHistory();
 
   return (
     <div className="login register">
@@ -14,7 +18,7 @@ export const Register = () => {
         </div>
         <form
           className="login__form"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
             const creds = {
@@ -22,7 +26,9 @@ export const Register = () => {
               password: formData.get("password")
             };
             console.log({ creds });
-            mutate(creds);
+            await addUser(creds);
+            login();
+            history.push("/grocerylist");
           }}
         >
           <input type="text" name="username" className="login__form-input" placeholder="Username" />

@@ -23,11 +23,11 @@ const recipesGroceryListsRouter = require("./recipes-grocery-lists/recipes-groce
 const authRouter = require("./auth/auth-router");
 const requiresToken = require("./auth/restricted-middleware");
 
-server.use("/users", usersRouter);
-server.use("/recipes", recipesRouter);
-server.use("/ingredients", ingredientsRouter);
-server.use("/instructions", recipeInstructionsRouter);
-server.use("/grocery-lists", groceryListRouter);
+server.use("/users", requiresToken, usersRouter);
+server.use("/recipes", requiresToken, recipesRouter);
+server.use("/ingredients", requiresToken, ingredientsRouter);
+server.use("/instructions", requiresToken, recipeInstructionsRouter);
+server.use("/grocery-lists", requiresToken, groceryListRouter);
 server.use("/recipes-grocery-lists", requiresToken, recipesGroceryListsRouter);
 server.use("/auth", authRouter);
 

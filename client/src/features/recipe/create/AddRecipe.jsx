@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { checkSVG } from "../../../styles/svgs";
-import { queryClient } from "../../services/react-query-client";
+import { queryClient } from "../../utils/react-query-client";
 import {
   useCreateIngredients,
   useCreateInstructions,

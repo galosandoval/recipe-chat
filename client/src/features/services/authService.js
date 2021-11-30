@@ -1,8 +1,8 @@
-import axios from "axios";
 import { useMutation } from "react-query";
+import { api } from "./api";
 
-const addUser = async (creds) => {
-  const result = await axios.post("http://localhost:4000/auth/register", creds);
+export const addUser = async (creds) => {
+  const result = await api().post("/auth/register", creds);
   console.log({ result });
   return result;
 };
@@ -11,12 +11,17 @@ export const useAddUser = () => {
   return useMutation(addUser);
 };
 
-const loginUser = async (creds) => {
-  const user = await axios.post("http://localhost:4000/auth/login", creds);
+export const loginUser = async (creds) => {
+  const user = await api().post("/auth/login", creds);
   localStorage.setItem("token", JSON.stringify(user.data.token));
-  return user;
+  return user.data;
 };
 
 export const useLogin = () => {
   return useMutation(loginUser);
+};
+
+export const getUserById = async (id) => {
+  const result = await api().get(`/users/${id}`);
+  return result;
 };

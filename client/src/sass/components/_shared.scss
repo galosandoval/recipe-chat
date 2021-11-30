@@ -180,6 +180,7 @@
   &--hidden {
     opacity: 0;
     transform: translateY(100%);
+    z-index: -5;
   }
 
   h1 {

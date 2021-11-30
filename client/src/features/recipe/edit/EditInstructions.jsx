@@ -7,7 +7,7 @@ import {
   useRemoveInstruction
 } from "../../services/instructionsService";
 import { useGetInstructions } from "../../services/recipeService";
-import { AddButton } from "../../shared/AddButton";
+import { AddButton } from "../../recipe/create/AddButton";
 import { DeleteConfirmation } from "../delete/DeleteConfirmation";
 import { DeleteItem } from "../delete/DeleteItem";
 

@@ -4,6 +4,8 @@ import { useGrocerylist } from "../services/grocerylistService";
 import { AddGrocerylist } from "./AddGrocerylist";
 import { GrocerylistCard } from "./GrocerylistCard";
 import { LoadingCards } from "../status/Loading.Cards";
+import { useAuth } from "../utils/auth";
+
 const initialFormState = {
   addButtonClass: "add-btn-svg--hidden",
   plusButtonClass: "x-svg-btn grocerylist__btn",
@@ -14,10 +16,8 @@ const initialFormState = {
 
 export const Grocerylist = () => {
   const [form, setForm] = useState(initialFormState);
-
-  const { data: grocerylists, isLoading, isError, error } = useGrocerylist(1);
-
-  if (isError) return <h1>{error}</h1>;
+  const { user } = useAuth();
+  const { data: grocerylists, isLoading, isError, error, isSuccess } = useGrocerylist(user.id);
 
   const handleClick = (event) => {
     const { name } = event.currentTarget;
@@ -34,6 +34,7 @@ export const Grocerylist = () => {
     }
   };
 
+  if (isError) return <h1>{error}</h1>;
   return (
     <div className="grocerylist">
       <div className="grocerylist__header">
@@ -47,6 +48,7 @@ export const Grocerylist = () => {
         {isLoading ? (
           <LoadingCards />
         ) : (
+          isSuccess &&
           grocerylists.map((list) => <GrocerylistCard list={list} key={list["grocery-list-id"]} />)
         )}
       </div>
