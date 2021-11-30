@@ -36,9 +36,27 @@ exports.seed = function (knex, Promise) {
           "user-id": 1
         },
         {
-          id: 5,
+          id: 6,
           "recipe-id": 2,
           "grocery-list-id": 3,
+          "user-id": 1
+        },
+        {
+          id: 7,
+          "recipe-id": 4,
+          "grocery-list-id": 4,
+          "user-id": 1
+        },
+        {
+          id: 8,
+          "recipe-id": 2,
+          "grocery-list-id": 4,
+          "user-id": 1
+        },
+        {
+          id: 9,
+          "recipe-id": 3,
+          "grocery-list-id": 4,
           "user-id": 1
         }
       ]);
