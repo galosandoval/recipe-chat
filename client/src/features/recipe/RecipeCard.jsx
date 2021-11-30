@@ -139,17 +139,13 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
           setDropdown={setDropdown}
           initialDropdownState={initialDropdownState}
         />
+        <p className="recipe-card__author">
+          <span className="recipe-card__author-span">by</span> {recipe.author}
+        </p>
       </div>
 
       <div className="recipe-card__img-container">
-        <img
-          className="recipe-card__img"
-          src={
-            recipe["img-url"] ||
-            "https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8Y29va2luZyUyMHBvdHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=60"
-          }
-          alt={recipe["recipe-name"] || "orange pot"}
-        />
+        <img className="recipe-card__img" src={recipe["img-url"]} alt={recipe["recipe-name"]} />
       </div>
 
       <div className="recipe-card__description">
