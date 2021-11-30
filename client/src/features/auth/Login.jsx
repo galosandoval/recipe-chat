@@ -1,40 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useLogin } from "../services/authService";
-import { ErrorToast } from "../status/ErrorToast";
-import { useHistory } from "react-router-dom";
+import { useAuth } from "../utils/auth";
 
 export const Login = () => {
-  const { mutateAsync, isSuccess, data, isError, error } = useLogin();
+  const { login } = useAuth();
+  const [isDemo, setIsDemo] = useState(false);
 
-  if (isError) console.log({ error });
-  const history = useHistory();
+  const handleLogin = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+
+    let creds;
+
+    if (isDemo) {
+      creds = { username: "demo", password: "password" };
+    } else {
+      creds = {
+        username: formData.get("username").toLowerCase().trim(),
+        password: formData.get("password")
+      };
+    }
+
+    console.log(typeof creds.password);
+
+    console.log(creds);
+    try {
+      await login(creds);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDemoLogin = (event) => {
+    event.preventDefault();
+
+    setIsDemo(true);
+    const loginButton = document.querySelector("#login-user");
+    loginButton.click();
+  };
+
   return (
     <div className="login">
       <div className="login__background">
         <div className="login__primary-color"></div>
         <div className="login__top">
           <h1>Login Form</h1>
-          <button className="add-btn-submit login__btn">Demo Login</button>
+          <button onClick={(event) => handleDemoLogin(event)} className="add-btn-submit login__btn">
+            Demo Login
+          </button>
         </div>
-        <form
-          className="login__form"
-          onSubmit={async (event) => {
-            event.preventDefault();
-
-            const formData = new FormData(event.target);
-            const creds = {
-              username: formData.get("username"),
-              password: formData.get("password")
-            };
-            await mutateAsync(creds);
-            // console.log({ data });
-            history.push("/grocerylist");
-          }}
-        >
-          <input type="text" name="username" className="login__form-input" placeholder="Username" />
-          <input type="text" name="password" className="login__form-input" placeholder="Password" />
-          <button type="submit" className="login__form-btn add-btn-submit">
+        <form className="login__form" onSubmit={handleLogin}>
+          <input
+            type="text"
+            name="username"
+            className="login__form-input"
+            placeholder="Username"
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            className="login__form-input"
+            placeholder="Password"
+            required
+          />
+          <button id="login-user" type="submit" className="login__form-btn add-btn-submit">
             Login
           </button>
         </form>
@@ -42,7 +73,6 @@ export const Login = () => {
       <Link className="login__register" to="/register">
         Create an account
       </Link>
-      {isSuccess && data.data.status === "error" && <ErrorToast errorMessage={data.data.error} />}
     </div>
   );
 };

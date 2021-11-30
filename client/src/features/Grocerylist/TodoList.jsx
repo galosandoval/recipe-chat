@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { useGetIngredients } from "../services/grocerylistService";
 import { Loading } from "../status/Loading";
 import { Todo } from "./Todo";
@@ -7,11 +7,7 @@ import { TodoComplete } from "./TodoComplete";
 export const TodoList = ({ grocerylistId }) => {
   const { data: ingredients, isLoading } = useGetIngredients(grocerylistId);
 
-  const todoRef = useRef(null)
   if (isLoading) return <Loading />;
-
-  const todoList = document.querySelector(`#todo-list-${grocerylistId}`);
-  console.log({ todoList });
 
   const checked = ingredients.reduce((checkedArray, ingredient) => {
     if (ingredient.isChecked) {
@@ -46,7 +42,7 @@ export const TodoList = ({ grocerylistId }) => {
   }, []);
 
   return (
-    <div className="todo-list" id={`todo-list-${grocerylistId}`} ref={todoRef}>
+    <div className="todo-list" id={`todo-list-${grocerylistId}`}>
       {ingredients.length === checked.length ? (
         <TodoComplete grocerylistId={grocerylistId} />
       ) : (

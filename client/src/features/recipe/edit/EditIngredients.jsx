@@ -4,7 +4,7 @@ import { useGetIngredients } from "../../services/recipeService";
 import { Loading } from "../../status/Loading";
 import { useChangeIngredients, useCreateIngredients } from "../../services/ingredientsService";
 import { addSVG, checkSVG } from "../../../styles/svgs";
-import { AddButton } from "../../shared/AddButton";
+import { AddButton } from "../../recipe/create/AddButton";
 
 const initialAddState = { open: false, class: "recipe-form__input recipe-form__add-input" };
 

@@ -1,24 +1,17 @@
-import axios from "axios";
 import { useMutation, useQuery } from "react-query";
-import { queryClient } from "./react-query-client";
-
-const api = axios.create({
-  baseURL: "http://localhost:4000",
-  headers: {
-    Authorization: JSON.parse(localStorage.getItem("token"))
-  }
-});
+import { queryClient } from "../utils/react-query-client";
+import { api } from "./api";
 
 /**
  * GET
  */
 const getGrocerylistsByUserId = async (userId) => {
-  const { data } = await api.get(`/recipes-grocery-lists/gl/user/${userId}`);
-  return data.groceryLists;
+  const { data } = await api().get(`/recipes-grocery-lists/gl/user/${userId}`);
+  return data;
 };
 
 const getIngredientsByGrocerylistId = async (grocerylistId) => {
-  const { data } = await api.get(`/recipes-grocery-lists/ingredients/${grocerylistId}`);
+  const { data } = await api().get(`/recipes-grocery-lists/ingredients/${grocerylistId}`);
   return data.ingredients;
 };
 
@@ -26,11 +19,11 @@ const getIngredientsByGrocerylistId = async (grocerylistId) => {
  * POST
  */
 const addGrocerylist = (reqBody) => {
-  return api.post("/grocery-lists/", reqBody);
+  return api().post("/grocery-lists/", reqBody);
 };
 
 const addRecipesToGrocerylist = (recipes) => {
-  return api.post("/recipes-grocery-lists", recipes);
+  return api().post("/recipes-grocery-lists", recipes);
 };
 
 /**
@@ -38,14 +31,16 @@ const addRecipesToGrocerylist = (recipes) => {
  */
 const updateIsChecked = ({ id, isChecked }) => {
   console.log({ id, isChecked });
-  return api.patch(`/ingredients/${id}`, { isChecked });
+  return api().patch(`/ingredients/${id}`, { isChecked });
 };
 
 /**
  * HOOKS
  */
 export const useGrocerylist = (userId) => {
-  return useQuery(["grocerylist", userId], () => getGrocerylistsByUserId(userId));
+  return useQuery(["grocerylist", userId], () => getGrocerylistsByUserId(userId), {
+    enabled: !!userId
+  });
 };
 
 export const useGetIngredients = (grocerylistId) => {

@@ -1,30 +1,23 @@
-import axios from "axios";
 import { useMutation, useQuery } from "react-query";
-import { queryClient } from "./react-query-client";
-
-const api = axios.create({
-  baseURL: "http://localhost:4000",
-  headers: {
-    Authorization: JSON.parse(localStorage.getItem("token"))
-  }
-});
+import { queryClient } from "../utils/react-query-client";
+import { api } from "./api";
 
 /**
  * GET
  */
 
 const getRecipesByUserId = async (userId) => {
-  const { data } = await api.get(`/recipes/user/${userId}`);
+  const { data } = await api().get(`/recipes/user/${userId}`);
   return data.recipes;
 };
 
 const getIngredientsByRecipeId = async (id) => {
-  const { data } = await api.get(`/recipes/ingredients/${id}`);
+  const { data } = await api().get(`/recipes/ingredients/${id}`);
   return data.recipeIngredients;
 };
 
 const getInstructionsByRecipeId = async (id) => {
-  const { data } = await api.get(`/instructions/recipe/${id}`);
+  const { data } = await api().get(`/instructions/recipe/${id}`);
   return data.recipeInstructions;
 };
 
@@ -33,22 +26,22 @@ const getInstructionsByRecipeId = async (id) => {
  */
 
 const addRecipe = (recipeBody) => {
-  return api.post("/recipes/", recipeBody);
+  return api().post("/recipes/", recipeBody);
 };
 
 const addIngredients = (ingredientsBody) => {
-  return api.post("/ingredients/", ingredientsBody);
+  return api().post("/ingredients/", ingredientsBody);
 };
 
 const addInstructions = (instructionsBody) => {
-  return api.post("/instructions/", instructionsBody);
+  return api().post("/instructions/", instructionsBody);
 };
 
 /**
  * PUT
  */
 const editRecipe = ({ id, formBody }) => {
-  return api.put(`/recipes/${id}`, formBody);
+  return api().put(`/recipes/${id}`, formBody);
 };
 
 /**
@@ -56,7 +49,9 @@ const editRecipe = ({ id, formBody }) => {
  */
 
 export const useGetRecipes = (userId) => {
-  return useQuery(["recipe", userId], () => getRecipesByUserId(userId));
+  return useQuery(["recipe", userId], () => getRecipesByUserId(userId), {
+    enabled: !!userId
+  });
 };
 
 export const useGetIngredients = (id) => {
