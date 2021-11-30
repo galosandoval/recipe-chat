@@ -1,14 +1,11 @@
 import { useMutation, useQuery } from "react-query";
 import { queryClient } from "../utils/react-query-client";
-import { storage } from "../utils/storage";
 import { api } from "./api";
 
 /**
  * GET
  */
 const getGrocerylistsByUserId = async (userId) => {
-  console.log("token in get: ", storage.getToken());
-  console.log("userID in get: ", userId);
   const { data } = await api().get(`/recipes-grocery-lists/gl/user/${userId}`);
   return data;
 };
@@ -41,7 +38,6 @@ const updateIsChecked = ({ id, isChecked }) => {
  * HOOKS
  */
 export const useGrocerylist = (userId) => {
-  console.log("userId in hook: ", userId);
   return useQuery(["grocerylist", userId], () => getGrocerylistsByUserId(userId), {
     enabled: !!userId
   });

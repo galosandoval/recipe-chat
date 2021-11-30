@@ -24,8 +24,8 @@ export const Navbar = () => {
             <button
               className="navbar__logout add-btn-submit"
               onClick={() => {
-                logout();
                 history.replace("/");
+                logout();
               }}
             >
               Logout

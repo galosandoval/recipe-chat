@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { xSVG } from "../../styles/svgs";
-import { api, useGrocerylist } from "../services/grocerylistService";
+import { useGrocerylist } from "../services/grocerylistService";
 import { AddGrocerylist } from "./AddGrocerylist";
 import { GrocerylistCard } from "./GrocerylistCard";
 import { LoadingCards } from "../status/Loading.Cards";
@@ -17,9 +17,7 @@ const initialFormState = {
 export const Grocerylist = () => {
   const [form, setForm] = useState(initialFormState);
   const { user } = useAuth();
-  // const [grocerylists, setGrocerylists] = useState([]);
   const { data: grocerylists, isLoading, isError, error, isSuccess } = useGrocerylist(user.id);
-  console.log({ grocerylists });
 
   const handleClick = (event) => {
     const { name } = event.currentTarget;
@@ -36,17 +34,6 @@ export const Grocerylist = () => {
     }
   };
 
-  // console.log({ error });
-
-  // useEffect(() => {
-  //   const getGrocerylists = async (userId) => {
-  //     console.log("PLEASE WORK");
-  //     const response = await api().get(`/recipes-grocery-lists/gl/user/${userId}`);
-  //     setGrocerylists(response.data);
-  //     console.log({ response });
-  //   };
-  //   getGrocerylists(user.id);
-  // }, [user.id]);
   if (isError) return <h1>{error}</h1>;
   return (
     <div className="grocerylist">

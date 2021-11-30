@@ -5,12 +5,13 @@ import { useCreateGrocerylist, useCreateRecipes } from "../services/grocerylistS
 import { queryClient } from "../utils/react-query-client";
 import { useGetRecipes } from "../services/recipeService";
 import { AddGrocerylistCheckboxes } from "./AddGrocerylistCheckboxes";
+import { useAuth } from "../utils/auth";
 
 const initialGrocerylistState = "";
 
 export const AddGrocerylist = ({ form }) => {
-  // TODO:  change user id in here
-  const { data: recipes, isLoading, isError, error } = useGetRecipes(1);
+  const { user } = useAuth();
+  const { data: recipes, isLoading, isError, error } = useGetRecipes(user.id);
   const createGrocerylist = useCreateGrocerylist(recipes);
   const createRecipes = useCreateRecipes();
 
@@ -23,7 +24,7 @@ export const AddGrocerylist = ({ form }) => {
     const grocerylistBody = { name: grocerylistToAdd, "user-id": recipes[0]["user-id"] };
     await createGrocerylist.mutateAsync(grocerylistBody);
 
-    const newGroceryListId = queryClient.getQueryData(["grocerylist", { "user-id": 1 }]).data
+    const newGroceryListId = queryClient.getQueryData(["grocerylist", { "user-id": user.id }]).data
       .groceryListId[0];
     const recipesBody = recipes
       .filter((_r, i) => checked[i])

@@ -10,13 +10,11 @@ export async function handleUserResponse(data) {
 }
 
 async function loadUser() {
-  console.log("LOADING_USER");
   let user = null;
   if (storage.getToken() && storage.getUserId()) {
     const id = storage.getUserId();
     const data = await getUserById(id);
     user = data.data;
-    console.log("user in auth", user);
   }
   return user;
 }
@@ -24,7 +22,6 @@ async function loadUser() {
 async function loginFn(data) {
   const response = await loginUser(data);
   const user = await handleUserResponse(response);
-  console.log({ response, user });
   return user;
 }
 

@@ -5,13 +5,11 @@ import { NavLink, Route, useRouteMatch } from "react-router-dom";
 import { Loading } from "../status/Loading";
 import { useGetIngredients, useGetInstructions } from "../services/recipeService";
 
-// TODO: make tabs for Recipes and Ingredients
 const Accordian = ({ accordian, id }) => {
   const { data: ingredients, isLoading: ingredientsIsLoading } = useGetIngredients(id);
   const { data: instructions, isLoading: instructionsIsLoading } = useGetInstructions(id);
   const match = useRouteMatch();
 
-  // TODO: Fix accordian
 
   if (ingredientsIsLoading || instructionsIsLoading) {
     return <Loading />;

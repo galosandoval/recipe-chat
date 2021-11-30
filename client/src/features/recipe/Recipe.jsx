@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { xSVG } from "../../styles/svgs";
 import { useGetRecipes } from "../services/recipeService";
 
@@ -6,7 +6,6 @@ import { AddRecipe } from "./create/AddRecipe.jsx";
 import { RecipeCard } from "./RecipeCard";
 import { LoadingCards } from "../status/Loading.Cards";
 import { ErrorToast } from "../status/ErrorToast";
-import { UserContext } from "../auth/context";
 import { useAuth } from "../utils/auth";
 
 const initialFormState = {
@@ -16,7 +15,6 @@ const initialFormState = {
 };
 
 const Recipe = () => {
-  // TODO: Replace with dynamic user id
   const { user } = useAuth();
   const { data: recipes, isLoading, isError } = useGetRecipes(user.id);
 
