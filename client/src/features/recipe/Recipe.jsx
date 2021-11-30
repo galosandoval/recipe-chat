@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { xSVG } from "../../styles/svgs";
 import { useGetRecipes } from "../services/recipeService";
 
@@ -6,6 +6,8 @@ import { AddRecipe } from "./create/AddRecipe.jsx";
 import { RecipeCard } from "./RecipeCard";
 import { LoadingCards } from "../status/Loading.Cards";
 import { ErrorToast } from "../status/ErrorToast";
+import { UserContext } from "../auth/context";
+import { useAuth } from "../utils/auth";
 
 const initialFormState = {
   formClassName: "add-form",
@@ -15,7 +17,8 @@ const initialFormState = {
 
 const Recipe = () => {
   // TODO: Replace with dynamic user id
-  const { data: recipes, isLoading, isError } = useGetRecipes(1);
+  const { user } = useAuth();
+  const { data: recipes, isLoading, isError } = useGetRecipes(user.id);
 
   const [formState, setFormState] = useState(initialFormState);
   const closeOpenCarrots = () => {
@@ -46,6 +49,7 @@ const Recipe = () => {
   };
 
   if (isError) return <ErrorToast errorMessage="Something went wrong" />;
+
   return (
     <div className="recipe" onClick={handleClick}>
       <div className="recipe__header">

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { checkSVG } from "../../styles/svgs";
 import { Loading } from "../status/Loading";
 import { useCreateGrocerylist, useCreateRecipes } from "../services/grocerylistService";
-import { queryClient } from "../services/react-query-client";
+import { queryClient } from "../utils/react-query-client";
 import { useGetRecipes } from "../services/recipeService";
 import { AddGrocerylistCheckboxes } from "./AddGrocerylistCheckboxes";
 

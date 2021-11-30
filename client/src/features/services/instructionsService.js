@@ -1,13 +1,6 @@
-import axios from "axios";
 import { useMutation } from "react-query";
-import { queryClient } from "./react-query-client";
-
-const api = axios.create({
-  baseURL: "http://localhost:4000/instructions",
-  headers: {
-    Authorization: JSON.parse(localStorage.getItem("token"))
-  }
-});
+import { queryClient } from "../utils/react-query-client";
+import { api } from "./api";
 
 const key = "instructions";
 
@@ -15,21 +8,21 @@ const key = "instructions";
  * POST
  */
 const createInstructions = (formBody) => {
-  return api.post("/", formBody);
+  return api().post("/", formBody);
 };
 
 /**
  * PUT
  */
 const editInstructions = ({ id, formBody }) => {
-  return api.put(`/${id}`, formBody);
+  return api().put(`/${id}`, formBody);
 };
 
 /**
  * DELETE
  */
 const deleteInstruction = (id) => {
-  return api.delete(`${id}`);
+  return api().delete(`${id}`);
 };
 
 /**

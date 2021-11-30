@@ -254,6 +254,7 @@ select {
 .delete-confirmation--hidden {
   opacity: 0;
   transform: translateY(100%);
+  z-index: -5;
 }
 .delete-confirmation h1 {
   width: 65%;

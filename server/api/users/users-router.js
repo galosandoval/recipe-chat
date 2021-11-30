@@ -16,7 +16,7 @@ router.get("/:id", (req, res) => {
   const { id } = req.params;
   User.findUserById(id)
     .then((user) => {
-      res.status(200).json({ user });
+      res.status(200).json(user[0]);
     })
     .catch((err) => {
       res.status(400).json("Member not found by id " + id);
