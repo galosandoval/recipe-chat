@@ -92,6 +92,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+  }
+  &__author {
+    position: absolute;
+    bottom: 0;
+    left: 1rem;
+    color: $color-grey-dark;
+    text-transform: lowercase;
+    font-size: 0.8rem;
+
+    &-span {
+      color: $color-primary;
+    }
   }
   &__name {
     padding-left: 0.5em;

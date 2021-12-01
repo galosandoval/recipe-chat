@@ -30,7 +30,6 @@ const addRecipesToGrocerylist = (recipes) => {
  * PATCH
  */
 const updateIsChecked = ({ id, isChecked }) => {
-  console.log({ id, isChecked });
   return api().patch(`/ingredients/${id}`, { isChecked });
 };
 

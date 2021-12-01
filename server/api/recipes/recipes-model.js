@@ -46,7 +46,9 @@ const findRecipesByUserId = (userId) => {
       "recipes.recipe-name",
       "recipes.description",
       "recipes.img-url",
-      "recipes.user-id"
+      "recipes.user-id",
+      "recipes.address",
+      "recipes.author"
     );
 };
 
