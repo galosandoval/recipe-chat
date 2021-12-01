@@ -1,12 +1,10 @@
 import React from "react";
+import { useResetChecks } from "../services/ingredientsService";
 
 export const TodoComplete = ({ grocerylistId }) => {
+  const { mutate } = useResetChecks(grocerylistId);
   const handleResetTodos = () => {
-    const todoListToReset = JSON.parse(localStorage.getItem(`gl-${grocerylistId}`));
-
-    todoListToReset.forEach((todo) => (todo.isComplete = 0));
-
-    localStorage.setItem(`gl-${grocerylistId}`, JSON.stringify(todoListToReset));
+    mutate();
   };
 
   return (

@@ -82,16 +82,4 @@ router.put("/grocerylist/:id", (req, res) => {
     .catch((error) => res.status(500).json(error));
 });
 
-router.put("/:id/ingredients", (req, res) => {
-  const { id } = req.params;
-
-  RecipesGroceryLists.uncheckIngredientsByGrocerylistId(id)
-    .then((uncheckedIngredients) => {
-      res.status(200).json(uncheckedIngredients);
-    })
-    .catch((error) => {
-      res.status(500).json({ error: error.message });
-    });
-});
-
 module.exports = router;

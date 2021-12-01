@@ -1,4 +1,7 @@
 const db = require("../../data/connection");
+const {
+  findIngredientsByGroceryListId
+} = require("../recipes-grocery-lists/recipes-grocery-lists-model");
 const { findIngredientsByRecipeId } = require("../recipes/recipes-model");
 
 const ingredients = "ingredients";
@@ -63,13 +66,20 @@ const updateIngredientsByRecipe = (id, changes) => {
 
 const updateIsChecked = async (id, currentState) => {
   if (currentState.isChecked === 0) {
-    console.log("checked");
     await db(ingredients).where({ id }).update("isChecked", 1);
   } else {
-    console.log("unchecked");
     await db(ingredients).where({ id }).update("isChecked", 0);
   }
   return findIngredientById(id);
+};
+
+const resetIsCheckedByGrocerylist = async (id) => {
+  const ingredients = await findIngredientsByGroceryListId(id);
+  console.log({ ingredients });
+  ingredients.forEach(async (i) => {
+    await updateIsChecked(i.id, { isChecked: 1 });
+  });
+  return findIngredientsByGroceryListId(id);
 };
 
 module.exports = {
@@ -80,5 +90,6 @@ module.exports = {
   deleteIngredientById,
   deleteIngredientsByRecipeId,
   updateIngredientsByRecipe,
-  updateIsChecked
+  updateIsChecked,
+  resetIsCheckedByGrocerylist
 };

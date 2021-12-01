@@ -99,5 +99,15 @@ router.patch("/:id", (req, res) => {
     });
 });
 
+router.patch("/reset/:id", (req, res) => {
+  const { id } = req.params;
+  Ingredients.resetIsCheckedByGrocerylist(id)
+    .then((ingredients) => {
+      res.status(200).json(ingredients);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
+});
 
 module.exports = router;
