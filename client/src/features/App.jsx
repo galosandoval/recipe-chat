@@ -11,10 +11,11 @@ import { useAuth } from "./utils/auth";
 const Recipe = lazy(() => import("./recipe/Recipe"));
 
 function App() {
-  const { user } = useAuth();
+  const { user, error } = useAuth();
+  console.log({ error });
   return (
     <div className="App">
-      {!!user ? (
+      {!!!error && !!user ? (
         <>
           <Navbar />
           <Switch>

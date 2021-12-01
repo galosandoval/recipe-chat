@@ -396,6 +396,10 @@ select {
 .login__form-input:focus {
   outline: none;
   box-shadow: 0 0.2rem 0.2rem rgba(0, 0, 0, 0.15);
+  border-bottom: 2px solid #20bf55;
+}
+.login__form-input:invalid {
+  border-bottom: 2px solid #a50104;
 }
 .login__form-btn {
   align-self: center;

@@ -1,13 +1,10 @@
-import React from "react";
-import { useAddUser } from "../services/authService";
-import { useLogin } from "../services/authService";
-import { useHistory } from "react-router-dom";
+import React, { useState } from "react";
 import { ErrorToast } from "../status/ErrorToast";
+import { useAuth } from "../utils/auth";
 
 export const Register = () => {
-  const { mutateAsync: addUser, isSuccess, data } = useAddUser();
-  const { mutate: login } = useLogin();
-  const history = useHistory();
+  const { register } = useAuth();
+  const [error, setError] = useState(null);
 
   return (
     <div className="login register">
@@ -25,14 +22,20 @@ export const Register = () => {
               username: formData.get("username"),
               password: formData.get("password")
             };
-            console.log({ creds });
-            await addUser(creds);
-            login();
-            history.push("/grocerylist");
+            try {
+              await register(creds);
+            } catch (error) {
+              setError(error);
+            }
           }}
         >
           <input type="text" name="username" className="login__form-input" placeholder="Username" />
-          <input type="text" name="password" className="login__form-input" placeholder="Password" />
+          <input
+            type="password"
+            name="password"
+            className="login__form-input"
+            placeholder="Password"
+          />
           {/* <input
             type="text"
             name="confirm-password"
@@ -44,7 +47,7 @@ export const Register = () => {
           </button>
         </form>
       </div>
-      {isSuccess && data.data.status === "error" && <ErrorToast errorMessage={data.data.error} />}
+      {error && <ErrorToast errorMessage={error.message} location="register" />}
     </div>
   );
 };

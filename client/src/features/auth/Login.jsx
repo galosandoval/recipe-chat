@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { ErrorToast } from "../status/ErrorToast";
 import { useAuth } from "../utils/auth";
 
 export const Login = () => {
   const { login } = useAuth();
   const [isDemo, setIsDemo] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -22,11 +24,10 @@ export const Login = () => {
       };
     }
 
-    console.log(creds);
     try {
       await login(creds);
     } catch (error) {
-      console.log(error);
+      setError(error);
     }
   };
 
@@ -71,6 +72,7 @@ export const Login = () => {
       <Link className="login__register" to="/register">
         Create an account
       </Link>
+      {error && <ErrorToast errorMessage={error.message} location="login" />}
     </div>
   );
 };
