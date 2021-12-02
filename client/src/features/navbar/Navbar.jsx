@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, useHistory } from "react-router-dom";
-import { useAuth } from "../utils/auth";
+import { useAuth } from "../utils/auth-config";
 
 export const Navbar = () => {
   const { logout } = useAuth();

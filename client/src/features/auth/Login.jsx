@@ -1,17 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ErrorToast } from "../status/ErrorToast";
-import { useAuth } from "../utils/auth";
+import { useAuth } from "../utils/auth-config";
+import schema from "../utils/formValidation";
+import * as yup from "yup";
+
+const initialFormErrors = {
+  username: "",
+  password: ""
+};
+
+const initialForm = {
+  username: "",
+  password: ""
+};
 
 export const Login = () => {
   const { login } = useAuth();
   const [isDemo, setIsDemo] = useState(false);
   const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState(initialFormErrors);
+  const [form, setForm] = useState(initialForm);
+  const [disabled, setDisabled] = useState(true);
+
+  console.log(schema.isValid(form));
+
+  const validation = (name, value) => {
+    yup
+      .reach(schema, name)
+      .validate(value)
+      .then((res) => {
+        setFormErrors({ ...formErrors, [name]: "" });
+      })
+      .catch((err) => {
+        setFormErrors({ ...formErrors, [name]: err.message });
+      });
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setForm((state) => ({ ...state, [name]: value }));
+
+    validation(name, value);
+  };
 
   const handleLogin = async (event) => {
     event.preventDefault();
-
-    const formData = new FormData(event.target);
 
     let creds;
 
@@ -19,8 +53,8 @@ export const Login = () => {
       creds = { username: "demo", password: "password" };
     } else {
       creds = {
-        username: formData.get("username").toLowerCase().trim(),
-        password: formData.get("password")
+        username: form.username.toLowerCase().trim(),
+        password: form.password
       };
     }
 
@@ -39,6 +73,12 @@ export const Login = () => {
     loginButton.click();
   };
 
+  useEffect(() => {
+    schema.isValid(form).then((valid) => {
+      setDisabled(!valid);
+    });
+  }, [form]);
+
   return (
     <div className="login">
       <div className="login__background">
@@ -56,6 +96,8 @@ export const Login = () => {
             className="login__form-input"
             placeholder="Username"
             required
+            value={form.username}
+            onChange={handleChange}
           />
           <input
             type="password"
@@ -63,8 +105,17 @@ export const Login = () => {
             className="login__form-input"
             placeholder="Password"
             required
+            value={form.password}
+            onChange={handleChange}
           />
-          <button id="login-user" type="submit" className="login__form-btn add-btn-submit">
+          <p>{formErrors.username}</p>
+          <p>{formErrors.password}</p>
+          <button
+            id="login-user"
+            type="submit"
+            className="login__form-btn add-btn-submit"
+            disabled={disabled}
+          >
             Login
           </button>
         </form>

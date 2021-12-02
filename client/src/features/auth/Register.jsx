@@ -1,10 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ErrorToast } from "../status/ErrorToast";
-import { useAuth } from "../utils/auth";
+import * as yup from "yup";
+import schema from "../utils/formValidation";
+import { useAuth } from "../utils/auth-config";
+
+const initialFormErrors = {
+  username: "",
+  password: "",
+  passwordConfirmation: ""
+};
+
+const initialForm = {
+  username: "",
+  password: "",
+  passwordConfirmation: ""
+};
 
 export const Register = () => {
   const { register } = useAuth();
   const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState(initialFormErrors);
+  const [form, setForm] = useState(initialForm);
+  const [disabled, setDisabled] = useState(true);
+
+  const validation = (name, value) => {
+    yup
+      .reach(schema, name)
+      .validate(value)
+      .then((res) => {
+        setFormErrors({ ...formErrors, [name]: "" });
+      })
+      .catch((err) => {
+        setFormErrors({ ...formErrors, [name]: err.message });
+      });
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setForm((state) => ({ ...state, [name]: value }));
+
+    validation(name, value);
+    console.log(form);
+  };
+
+  useEffect(() => {
+    schema.isValid(form).then((valid) => {
+      setDisabled(!valid);
+    });
+  }, [form]);
 
   return (
     <div className="login register">
@@ -29,20 +72,37 @@ export const Register = () => {
             }
           }}
         >
-          <input type="text" name="username" className="login__form-input" placeholder="Username" />
+          <input
+            type="text"
+            name="username"
+            className="login__form-input"
+            placeholder="Username"
+            required
+            value={form.username}
+            onChange={handleChange}
+          />
           <input
             type="password"
             name="password"
             className="login__form-input"
             placeholder="Password"
+            required
+            value={form.password}
+            onChange={handleChange}
           />
-          {/* <input
-            type="text"
-            name="confirm-password"
+          <input
+            type="password"
+            name="passwordConfirmation"
             className="login__form-input"
             placeholder="Confirm Password"
-          /> */}
-          <button type="submit" className="login__form-btn add-btn-submit">
+            required
+            value={form.passwordConfirmation}
+            onChange={handleChange}
+          />
+          <p>{formErrors.username}</p>
+          <p>{formErrors.password}</p>
+          {disabled && <p>{formErrors.passwordConfirmation}</p>}
+          <button type="submit" className="login__form-btn add-btn-submit" disabled={disabled}>
             Register
           </button>
         </form>

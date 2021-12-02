@@ -4,7 +4,7 @@ import { useGrocerylist } from "../services/grocerylistService";
 import { AddGrocerylist } from "./AddGrocerylist";
 import { GrocerylistCard } from "./GrocerylistCard";
 import { LoadingCards } from "../status/Loading.Cards";
-import { useAuth } from "../utils/auth";
+import { useAuth } from "../utils/auth-config";
 
 const initialFormState = {
   addButtonClass: "add-btn-svg--hidden",

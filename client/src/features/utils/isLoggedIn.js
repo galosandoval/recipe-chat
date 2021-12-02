@@ -1,3 +1,5 @@
+const { storage } = require("./storage");
+
 module.exports = () => {
-  return !!localStorage.getItem("token");
+  return !!storage.getToken && !!storage.getUserId;
 };

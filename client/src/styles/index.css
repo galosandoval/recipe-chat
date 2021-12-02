@@ -398,7 +398,7 @@ select {
   box-shadow: 0 0.2rem 0.2rem rgba(0, 0, 0, 0.15);
   border-bottom: 2px solid #20bf55;
 }
-.login__form-input:invalid {
+.login__form-input:focus:invalid {
   border-bottom: 2px solid #a50104;
 }
 .login__form-btn {
@@ -413,6 +413,9 @@ select {
 }
 .login__form-btn:hover {
   background-color: #ff5233;
+}
+.login__form-btn:disabled {
+  background-color: #b1b1b1;
 }
 .login__register, .login__register:visited {
   text-decoration: none;

@@ -82,9 +82,9 @@
         outline: none;
         box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.15);
         border-bottom: 2px solid $color-secondary;
-      }
-      &:invalid {
-        border-bottom: 2px solid $color-delete;
+        &:invalid {
+          border-bottom: 2px solid $color-delete;
+        }
       }
     }
     &-btn {
@@ -99,6 +99,9 @@
 
       &:hover {
         background-color: $color-primary-dark;
+      }
+      &:disabled {
+        background-color: $color-grey-dark;
       }
     }
   }
