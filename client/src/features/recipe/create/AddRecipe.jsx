@@ -17,13 +17,14 @@ const initialRecipeToAddState = {
 };
 const initialAddButtonState = { class: "add-btn-svg--hidden", isAdded: false };
 
-export const AddRecipe = ({ recipes, formStateClass }) => {
+export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormState }) => {
   const recipe = useCreateRecipe(recipes);
   const instructions = useCreateInstructions();
   const ingredients = useCreateIngredients();
 
   const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
   const [addButton, setAddButton] = useState(initialAddButtonState);
+  const [show, setShow] = useState(false);
 
   const handleChange = (event) => {
     if (addButton.isAdded) setAddButton(initialAddButtonState);
@@ -65,8 +66,16 @@ export const AddRecipe = ({ recipes, formStateClass }) => {
 
     setRecipetToAdd(initialRecipeToAddState);
     setAddButton((state) => ({ ...state, isAdded: true, class: "add-btn-svg" }));
+    setShow(true);
+
+    setTimeout(() => {
+      setShow(false);
+      setAddButton(initialAddButtonState);
+      setFormState(initialFormState);
+    }, 1000);
   };
   return (
+    // classname=add-form > add-from--show
     <form className={formStateClass} onSubmit={handleSubmit}>
       <div className="add-form__container add-form__container--top">
         <label className="add-form__label add-form__label--name">
@@ -140,7 +149,7 @@ export const AddRecipe = ({ recipes, formStateClass }) => {
         </label>
       </div>
       <button className="add-btn-submit" type="submit">
-        {addButton.isAdded ? "Recipe Added" : "Add Recipe"}
+        {addButton.isAdded && show ? "Recipe Added" : "Add Recipe"}
         <span className={addButton.class}>{checkSVG}</span>
       </button>
     </form>

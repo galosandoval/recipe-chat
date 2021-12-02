@@ -18,7 +18,6 @@ const Recipe = () => {
   const { user } = useAuth();
   const { data: recipes, isLoading, isError } = useGetRecipes(user.id);
 
-
   const [formState, setFormState] = useState(initialFormState);
   const closeOpenCarrots = () => {
     const carrots = document.querySelectorAll(".recipe-card__carrot-button");
@@ -41,7 +40,7 @@ const Recipe = () => {
         ? setFormState(initialFormState)
         : setFormState({
             formClassName: "add-form add-form--show",
-            buttonClassName: "x-svg-btn <x-svg-btn--rota></x-svg-btn--rota>te",
+            buttonClassName: "x-svg-btn x-svg-btn--rotate",
             isOpen: true
           });
     }
@@ -57,7 +56,7 @@ const Recipe = () => {
           {xSVG}
         </button>
       </div>
-      <AddRecipe recipes={recipes} formStateClass={formState.formClassName} />
+      <AddRecipe recipes={recipes} initialFormState={initialFormState} setFormState={setFormState} formStateClass={formState.formClassName} />
       <div id="recipe-container" className="recipe__card-container">
         {isLoading ? (
           <LoadingCards />

@@ -155,7 +155,6 @@ select {
 .add-btn-svg svg {
   height: 1.5rem;
   width: 1.5rem;
-  transition: all ease-in-out 0.3s;
   margin-left: 1rem;
 }
 .add-btn-svg--hidden {
