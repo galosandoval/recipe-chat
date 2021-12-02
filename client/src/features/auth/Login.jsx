@@ -23,8 +23,6 @@ export const Login = () => {
   const [form, setForm] = useState(initialForm);
   const [disabled, setDisabled] = useState(true);
 
-  console.log(schema.isValid(form));
-
   const validation = (name, value) => {
     yup
       .reach(schema, name)
@@ -98,6 +96,7 @@ export const Login = () => {
             required
             value={form.username}
             onChange={handleChange}
+            autoComplete={false}
           />
           <input
             type="password"
@@ -108,8 +107,10 @@ export const Login = () => {
             value={form.password}
             onChange={handleChange}
           />
-          <p>{formErrors.username}</p>
-          <p>{formErrors.password}</p>
+          <div className="login__errors">
+            <p className="login__errors-p">{formErrors.username}</p>
+            <p className="login__errors-p">{formErrors.password}</p>
+          </div>
           <button
             id="login-user"
             type="submit"

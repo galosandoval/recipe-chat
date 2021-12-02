@@ -99,9 +99,11 @@ export const Register = () => {
             value={form.passwordConfirmation}
             onChange={handleChange}
           />
-          <p>{formErrors.username}</p>
-          <p>{formErrors.password}</p>
-          {disabled && <p>{formErrors.passwordConfirmation}</p>}
+          <div className="login__errors">
+            <p className="login__errors-p">{formErrors.username}</p>
+            <p className="login__errors-p">{formErrors.password}</p>
+            {disabled && <p className="login__errors-p">{formErrors.passwordConfirmation}</p>}
+          </div>
           <button type="submit" className="login__form-btn add-btn-submit" disabled={disabled}>
             Register
           </button>

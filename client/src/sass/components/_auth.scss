@@ -60,20 +60,20 @@
   &__form {
     background-color: #fff;
     border-radius: 7px;
-    height: 43%;
     width: 80%;
     box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.15);
     display: grid;
     place-items: center;
     margin: 0 auto;
+    gap: 1rem;
 
     &-input {
       width: 80%;
       border: 1px solid $color-grey-dark;
       border-radius: 3px;
       padding: 0.5rem 1rem;
-
       transition: all 0.4s ease-in-out;
+
       &:first-child {
         margin-bottom: -0.5rem;
         margin-top: 0.9rem;
@@ -81,10 +81,9 @@
       &:focus {
         outline: none;
         box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.15);
-        border-bottom: 2px solid $color-secondary;
-        &:invalid {
-          border-bottom: 2px solid $color-delete;
-        }
+      }
+      &::placeholder {
+        font-size: 0.9rem;
       }
     }
     &-btn {
@@ -115,6 +114,14 @@
       color: $color-primary;
     }
   }
+
+  &__errors {
+    &-p {
+      font-size: 0.8rem;
+      color: $color-delete;
+      text-align: center;
+    }
+  }
 }
 
 .register .login {
@@ -129,7 +136,6 @@
   }
   &__form {
     gap: 0.5rem;
-    height: 50%;
     &-input {
       &:first-child {
         margin-bottom: 0;
