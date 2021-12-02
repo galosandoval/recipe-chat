@@ -366,10 +366,15 @@ select {
   place-items: center;
   box-shadow: 0 0.2rem 0.2rem rgba(0, 0, 0, 0.15);
   cursor: pointer;
+  transition: transform 0ms, background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 .login__btn:hover {
   background-color: #fff;
   color: #ff5233;
+}
+.login__btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
 }
 .login__form {
   background-color: #fff;
@@ -414,6 +419,10 @@ select {
 }
 .login__form-btn:disabled {
   background-color: #b1b1b1;
+}
+.login__form-btn:active {
+  transition: background-color 0s;
+  background-color: #ff9785;
 }
 .login__register, .login__register:visited {
   text-decoration: none;
@@ -474,6 +483,7 @@ select {
   justify-content: center;
   align-items: center;
   width: 26ch;
+  font-size: 0.9rem;
 }
 .error-toast__message h3 {
   padding-right: 1rem;
@@ -483,19 +493,6 @@ select {
   height: 2rem;
   min-width: 2rem;
   min-height: 2rem;
-}
-.error-toast__cross {
-  color: rgba(165, 1, 4, 0.4);
-  background-color: transparent;
-  border: 3px solid transparent;
-  border-radius: 5px;
-  display: grid;
-  place-items: center;
-  transition: all 0.4s ease-in-out;
-}
-.error-toast__cross:hover {
-  border: 3px solid rgba(165, 1, 4, 0.8);
-  color: rgba(165, 1, 4, 0.8);
 }
 
 .navbar {

@@ -52,9 +52,14 @@
     place-items: center;
     box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.15);
     cursor: pointer;
+    transition: transform 0ms, background-color 0.3s ease-in-out, color 0.3s ease-in-out;
     &:hover {
       background-color: $color-white;
       color: $color-primary-dark;
+    }
+    &:active {
+      transform: translateY(1px);
+      box-shadow: none;
     }
   }
   &__form {
@@ -101,6 +106,10 @@
       }
       &:disabled {
         background-color: $color-grey-dark;
+      }
+      &:active {
+        transition: background-color 0s;
+        background-color: $color-primary-light;
       }
     }
   }

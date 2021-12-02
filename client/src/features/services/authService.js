@@ -12,6 +12,7 @@ export const useAddUser = () => {
 
 export const loginUser = async (creds) => {
   const user = await api().post("/auth/login", creds);
+  console.log({ user });
   return user.data;
 };
 

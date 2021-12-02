@@ -29,7 +29,7 @@ router.post("/login", validateBody, async (req, res) => {
   const { username, password } = req.body;
   const user = await Users.findUserByUsername(username);
 
-  if ((await bcryptjs.compare(password, user[0].password)) && user[0]) {
+  if (user[0] && (await bcryptjs.compare(password, user[0].password))) {
     const token = makeJwt(user[0]);
     res.status(200).json({ status: "ok", user: user[0], token });
   } else {
