@@ -5,7 +5,7 @@ import { useCreateGrocerylist, useCreateRecipes } from "../services/grocerylistS
 import { queryClient } from "../utils/react-query-client";
 import { useGetRecipes } from "../services/recipeService";
 import { AddGrocerylistCheckboxes } from "./AddGrocerylistCheckboxes";
-import { useAuth } from "../utils/auth";
+import { useAuth } from "../utils/auth-config";
 
 const initialGrocerylistState = "";
 

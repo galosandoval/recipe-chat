@@ -1,12 +1,12 @@
 import React, { useState } from "react";
+
 import { xSVG } from "../../styles/svgs";
 import { useGetRecipes } from "../services/recipeService";
-
 import { AddRecipe } from "./create/AddRecipe.jsx";
 import { RecipeCard } from "./RecipeCard";
 import { LoadingCards } from "../status/Loading.Cards";
 import { ErrorToast } from "../status/ErrorToast";
-import { useAuth } from "../utils/auth";
+import { useAuth } from "../utils/auth-config";
 
 const initialFormState = {
   formClassName: "add-form",
@@ -17,6 +17,7 @@ const initialFormState = {
 const Recipe = () => {
   const { user } = useAuth();
   const { data: recipes, isLoading, isError } = useGetRecipes(user.id);
+
 
   const [formState, setFormState] = useState(initialFormState);
   const closeOpenCarrots = () => {

@@ -113,6 +113,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         initialEditCardState={initialEditCardState}
         recipe={recipe}
         editRecipe={editRecipe}
+        handleClick={handleClick}
       />
 
       <EditInstructions
@@ -120,6 +121,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         recipe={recipe}
         setEditInstructions={setEditInstructions}
         initialEditInstructionsState={initialEditInstructionsState}
+        handleClick={handleClick}
       />
 
       <EditIngredients
@@ -127,6 +129,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         editIngredients={editIngredients}
         setEditIngredients={setEditIngredients}
         initialEditIngredientsState={initialEditIngredientsState}
+        handleClick={handleClick}
       />
       <div className="card-header recipe-card__header">
         <h2 className="recipe-name recipe-card__name u-card-heading">{recipe["recipe-name"]}</h2>

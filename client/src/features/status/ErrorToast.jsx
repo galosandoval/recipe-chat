@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { slashSVG, xSVG } from "../../styles/svgs";
 
-export const ErrorToast = ({ errorMessage }) => {
-  const [toastClass, setToastClass] = useState("error-toast error-toast");
+export const ErrorToast = ({ errorMessage, location }) => {
+  const [message, setMessage] = useState(errorMessage);
+  const [toastClass, setToastClass] = useState("error-toast");
+
+  if (message.includes("401") && location === "login") {
+    setMessage("Invalid Username/Password");
+  }
+  if (message.includes("401") && location === "register") {
+    setMessage("Username already exists");
+  }
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
         setToastClass("error-toast error-toast--show");
       }, 500);
       setTimeout(() => {
-        setToastClass("error-toast error-toast");
+        setToastClass("error-toast");
       }, 5000);
     }
   }, [errorMessage]);
@@ -19,7 +27,7 @@ export const ErrorToast = ({ errorMessage }) => {
       <div className="error-toast__slash">{slashSVG}</div>
       <div className="error-toast__message">
         <h3>Error:</h3>
-        <p>{errorMessage}</p>
+        <p>{message}</p>
       </div>
       <button className="error-toast__cross">{xSVG}</button>
     </div>

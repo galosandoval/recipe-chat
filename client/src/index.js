@@ -6,7 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { queryClient } from "./features/utils/react-query-client";
-import { AuthProvider } from "./features/utils/auth";
+import { AuthProvider } from "./features/utils/auth-config";
 
 ReactDOM.render(
   <QueryClientProvider client={queryClient}>

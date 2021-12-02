@@ -8,21 +8,21 @@ const key = "instructions";
  * POST
  */
 const createInstructions = (formBody) => {
-  return api().post("/", formBody);
+  return api().post("/instructions", formBody);
 };
 
 /**
  * PUT
  */
 const editInstructions = ({ id, formBody }) => {
-  return api().put(`/${id}`, formBody);
+  return api().put(`/instructions/${id}`, formBody);
 };
 
 /**
  * DELETE
  */
 const deleteInstruction = (id) => {
-  return api().delete(`${id}`);
+  return api().delete(`instructions/${id}`);
 };
 
 /**
