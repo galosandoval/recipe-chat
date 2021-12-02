@@ -165,13 +165,6 @@
   position: relative;
   display: inline-block;
 
-  &__btn {
-    border-radius: 0.6rem;
-    height: 3rem;
-    width: 3rem;
-    margin-right: 0.7rem;
-  }
-
   &__content {
     display: none;
     position: absolute;
@@ -184,18 +177,38 @@
       padding: 0.5rem 0;
     }
 
-    & > button:hover {
-      background-color: $color-grey-dark-2;
-      color: #fff;
-      transition: all 0.3s;
-    }
-
     &--show {
       display: flex;
       flex-direction: column;
       right: 0;
       border-radius: 0.25rem;
       overflow: hidden;
+    }
+  }
+
+  &__btn {
+    border-radius: 0.6rem;
+    height: 3rem;
+    width: 3rem;
+    margin-right: 0.7rem;
+
+    &-description,
+    &-instruction,
+    &-ingredients {
+      &:hover {
+        background-color: $color-grey-dark-2;
+        color: $color-white;
+        transition: all 0.3s;
+      }
+    }
+
+    &-delete {
+      background-color: lighten($color-delete, 50%);
+      transition: 0.3s all ease;
+      &:hover {
+        background-color: $color-delete;
+        color: $color-white;
+      }
     }
   }
 }

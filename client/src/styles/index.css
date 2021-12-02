@@ -703,12 +703,6 @@ select {
   position: relative;
   display: inline-block;
 }
-.card-menu__btn {
-  border-radius: 0.6rem;
-  height: 3rem;
-  width: 3rem;
-  margin-right: 0.7rem;
-}
 .card-menu__content {
   display: none;
   position: absolute;
@@ -720,17 +714,31 @@ select {
   border: none;
   padding: 0.5rem 0;
 }
-.card-menu__content > button:hover {
-  background-color: #777;
-  color: #fff;
-  transition: all 0.3s;
-}
 .card-menu__content--show {
   display: flex;
   flex-direction: column;
   right: 0;
   border-radius: 0.25rem;
   overflow: hidden;
+}
+.card-menu__btn {
+  border-radius: 0.6rem;
+  height: 3rem;
+  width: 3rem;
+  margin-right: 0.7rem;
+}
+.card-menu__btn-description:hover, .card-menu__btn-instruction:hover, .card-menu__btn-ingredients:hover {
+  background-color: #777;
+  color: #fff;
+  transition: all 0.3s;
+}
+.card-menu__btn-delete {
+  background-color: #fea7a8;
+  transition: 0.3s all ease;
+}
+.card-menu__btn-delete:hover {
+  background-color: #a50104;
+  color: #fff;
 }
 
 .edit-card {

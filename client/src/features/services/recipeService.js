@@ -45,6 +45,13 @@ const editRecipe = ({ id, formBody }) => {
 };
 
 /**
+ * DELETE
+ */
+const deleteRecipe = (id) => {
+  return api().delete(`recipes/${id}`);
+};
+
+/**
  * HOOKS
  */
 
@@ -86,6 +93,14 @@ export const useChangeRecipe = () => {
   return useMutation(editRecipe, {
     onSuccess: () => {
       queryClient.invalidateQueries("recipe");
+    }
+  });
+};
+
+export const useDeleteRecipe = (recipeId) => {
+  return useMutation(deleteRecipe, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["recipe", recipeId]);
     }
   });
 };

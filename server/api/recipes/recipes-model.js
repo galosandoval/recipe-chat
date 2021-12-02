@@ -12,17 +12,16 @@ const findRecipeById = (id) => {
   return db(recipes).where({ id });
 };
 
-const deleteRecipe = (id) => {
-  let deletedRecipe;
-  findRecipeById(id).then((recipeToDelete) => {
-    deletedRecipe = recipeToDelete;
+const deleteRecipe = async (id) => {
+  let recipeToDelete;
+  findRecipeById(id).then((recipe) => {
+    recipeToDelete = recipe;
   });
-  return db(recipes)
-    .where({ id })
-    .del()
-    .then(() => {
-      return deletedRecipe;
-    });
+  await db("recipe-instructions").where("recipe-id", id).del();
+  await db("ingredients").where("recipe-id", id).del();
+  await db("recipes-grocery-lists").where("recipe-id", id).del();
+  await db(recipes).where({ id }).del();
+  return recipeToDelete;
 };
 
 const findIngredientsByRecipeId = (id) => {
