@@ -49,7 +49,7 @@ export const Grocerylist = () => {
           <LoadingCards />
         ) : (
           isSuccess &&
-          grocerylists.map((list) => <GrocerylistCard list={list} key={list["grocery-list-id"]} />)
+          grocerylists.map((list, index) => <GrocerylistCard index={index} list={list} key={list["grocery-list-id"]} />)
         )}
       </div>
     </div>

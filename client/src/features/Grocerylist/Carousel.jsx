@@ -1,7 +1,7 @@
 import React from "react";
 import { leftArrowSVG, rightArrowSVG } from "../../styles/svgs";
 
-export const Carousel = ({ page, handleClick, list }) => {
+export const Carousel = ({ page, handleClick, list, listIndex }) => {
   return (
     <div className="carousel">
       <div className="carousel__buttons">
@@ -29,7 +29,7 @@ export const Carousel = ({ page, handleClick, list }) => {
             height="16"
             filter="drop-shadow(0 1.5rem 3rem rgba(0, 0, 0, 1))"
             viewBox="0 0 24 24"
-            className={`carousel__svg-circle circle${index}`}
+            className={`carousel__svg-circle carousel__svg-circle-${listIndex}`}
           >
             <circle cx="12" cy="12" r="12" />
           </svg>

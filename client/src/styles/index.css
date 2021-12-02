@@ -1049,23 +1049,20 @@ select {
   inset: 0;
 }
 .carousel__button {
-  width: 4em;
-  height: 4em;
-  padding: 1em;
-  border-radius: 50px;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
   border: none;
-  background-color: transparent;
   margin: 0 1em 0 1em;
-  transition: 0.5s;
-  background-color: rgba(177, 177, 177, 0.5);
+  transition: 0.4s all ease;
+  background-color: rgba(0, 0, 0, 0.5);
   color: #fff;
   display: grid;
-  place-content: center;
+  place-items: center;
 }
 .carousel__button:hover {
-  transform: scale(1.08);
   color: #ff6347;
-  background-color: rgba(177, 177, 177, 0.9);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 .carousel__button svg {
   height: 2.5rem;
@@ -1085,7 +1082,7 @@ select {
   fill: gray;
   margin-left: 0.5rem;
 }
-.carousel__svg-circle--no-opacity {
+.carousel__svg-circle--fill-white {
   fill: #fff;
 }
 
