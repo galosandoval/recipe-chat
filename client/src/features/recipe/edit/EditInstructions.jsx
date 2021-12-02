@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { addSVG } from "../../../styles/svgs";
+import { addSVG, xSVG } from "../../../styles/svgs";
 import { Loading } from "../../status/Loading";
 import {
   useChangeInstructions,
@@ -24,7 +24,8 @@ export const EditInstructions = ({
   editInstructions,
   recipe,
   setEditInstructions,
-  initialEditInstructionsState
+  initialEditInstructionsState,
+  handleClick
 }) => {
   const { data: instructions, isLoading } = useGetInstructions(recipe.id);
   const changeMutation = useChangeInstructions(recipe.id);
@@ -35,7 +36,7 @@ export const EditInstructions = ({
   const [deleteModal, setDeleteModal] = useState(initialDeleteModalState);
   const [toBeDeleted, setToBeDeleted] = useState(null);
 
-  const handleClick = (event) => {
+  const handleOpen = (event) => {
     event.preventDefault();
     add.open
       ? setAdd(addInitialState)
@@ -59,7 +60,7 @@ export const EditInstructions = ({
       }));
 
       await changeMutation.mutateAsync({ id: recipe.id, formBody });
-      await setTimeout(() => {
+      setTimeout(() => {
         setEditInstructions(initialEditInstructionsState);
         changeMutation.reset();
       }, 1000);
@@ -83,6 +84,13 @@ export const EditInstructions = ({
   return (
     <div className={editInstructions.class}>
       <form className="recipe-form edit-instructions" onSubmit={handleSubmit}>
+        <button
+          className="edit-card-btn card-menu__btn btn-round"
+          name="closedrop"
+          onClick={handleClick}
+        >
+          {xSVG}
+        </button>
         <div className="instructions">
           {isLoading ? (
             <Loading />
@@ -97,7 +105,7 @@ export const EditInstructions = ({
                 />
                 <DeleteItem
                   setToBeDeleted={setToBeDeleted}
-                  instruction={instruction}
+                  item={instruction}
                   deleteModal={deleteModal}
                   setDeleteModal={setDeleteModal}
                   initialDeleteModalState={initialDeleteModalState}
@@ -138,7 +146,7 @@ export const EditInstructions = ({
             type="submit"
           />
         )}
-        <button name="add-btn" className="add-btn-submit recipe-form__btn" onClick={handleClick}>
+        <button name="add-btn" className="add-btn-submit recipe-form__btn" onClick={handleOpen}>
           {add.open ? "Done" : addSVG}
         </button>
       </form>

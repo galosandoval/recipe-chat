@@ -9,6 +9,7 @@ export const DeleteConfirmation = ({
   initialDeleteModalState,
   mutation
 }) => {
+  console.log({ toBeDeleted });
   const closeDeleteModal = () => {
     const modal = document.querySelector("body");
 
@@ -26,8 +27,8 @@ export const DeleteConfirmation = ({
   return (
     // classname "delete-confirmation"
     <div className={deleteModal.className}>
-      <h1>Are you sure you want to delete this {name}:</h1>
-      {toBeDeleted && <h2>{toBeDeleted.description}</h2>}
+      <h1>Are you sure you want to delete this {name}</h1>
+
       <div className="delete-confirmation__btns">
         <button
           onClick={closeDeleteModal}

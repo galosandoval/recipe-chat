@@ -1,9 +1,16 @@
-import React from "react";
-import { checkSVG } from "../../../styles/svgs";
+import React, { useState } from "react";
+import { checkSVG, xSVG } from "../../../styles/svgs";
 import { useChangeRecipe } from "../../services/recipeService";
 
-export const EditRecipe = ({ editRecipe, recipe, setEditRecipe, initialEditCardState }) => {
+export const EditRecipe = ({
+  editRecipe,
+  recipe,
+  setEditRecipe,
+  initialEditCardState,
+  handleClick
+}) => {
   const recipeMutation = useChangeRecipe();
+  const [show, setShow] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -16,13 +23,23 @@ export const EditRecipe = ({ editRecipe, recipe, setEditRecipe, initialEditCardS
     };
 
     recipeMutation.mutate({ id: recipe.id, formBody });
+    setShow(true);
     setTimeout(() => {
       setEditRecipe(initialEditCardState);
+      setShow(false);
     }, 1000);
   };
 
   return (
+    // className=edit-card > edit-card--show
     <div className={editRecipe.class}>
+      <button
+        className="edit-card-btn card-menu__btn btn-round"
+        name="closedrop"
+        onClick={handleClick}
+      >
+        {xSVG}
+      </button>
       <form className="edit-recipe-form recipe-form edit-recipe" onSubmit={handleSubmit}>
         <input
           className="recipe-form__input edit-recipe__input"
@@ -49,7 +66,7 @@ export const EditRecipe = ({ editRecipe, recipe, setEditRecipe, initialEditCardS
           defaultValue={recipe.description}
         />
 
-        {recipeMutation.isSuccess ? (
+        {recipeMutation.isSuccess && show ? (
           <button className="add-btn-submit">
             Recipe Saved<span className="add-btn-svg">{checkSVG}</span>
           </button>
