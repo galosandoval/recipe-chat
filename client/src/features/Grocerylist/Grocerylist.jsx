@@ -7,10 +7,8 @@ import { LoadingCards } from "../status/Loading.Cards";
 import { useAuth } from "../utils/auth-config";
 
 const initialFormState = {
-  addButtonClass: "add-btn-svg--hidden",
   plusButtonClass: "x-svg-btn grocerylist__btn",
   isOpen: false,
-  isAdded: false,
   formClass: "add-form"
 };
 
@@ -43,13 +41,15 @@ export const Grocerylist = () => {
           {xSVG}
         </button>
       </div>
-      <AddGrocerylist form={form} />
+      <AddGrocerylist form={form} initialFormState={initialFormState} setForm={setForm} />
       <div className="grocerylist__card-container">
         {isLoading ? (
           <LoadingCards />
         ) : (
           isSuccess &&
-          grocerylists.map((list, index) => <GrocerylistCard index={index} list={list} key={list["grocery-list-id"]} />)
+          grocerylists.map((list, index) => (
+            <GrocerylistCard index={index} list={list} key={list["grocery-list-id"]} />
+          ))
         )}
       </div>
     </div>

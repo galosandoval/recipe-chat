@@ -9,7 +9,7 @@ import { useAuth } from "../utils/auth-config";
 
 const initialGrocerylistState = "";
 
-export const AddGrocerylist = ({ form }) => {
+export const AddGrocerylist = ({ form, initialFormState, setForm }) => {
   const { user } = useAuth();
   const { data: recipes, isLoading, isError, error } = useGetRecipes(user.id);
   const createGrocerylist = useCreateGrocerylist(recipes);
@@ -37,6 +37,11 @@ export const AddGrocerylist = ({ form }) => {
 
     setGrocerylistToAdd(initialGrocerylistState);
     setChecked(checked.map((c) => (c ? !c : c)));
+
+    setTimeout(() => {
+      createGrocerylist.reset();
+      setForm(initialFormState);
+    }, 2000);
   };
 
   useEffect(() => {
@@ -73,8 +78,8 @@ export const AddGrocerylist = ({ form }) => {
         )}
       </div>
       <button className="add-form__btn add-btn-submit" type="submit">
-        {form.isAdded ? "Grocerylist Added" : "Add Grocerylist"}
-        <span className={form.addButtonClass}>{checkSVG}</span>
+        {createGrocerylist.isSuccess ? "Grocerylist Added" : "Add Grocerylist"}
+        {createGrocerylist.isSuccess ? <span>{checkSVG}</span> : null}
       </button>
     </form>
   );

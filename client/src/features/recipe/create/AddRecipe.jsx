@@ -13,7 +13,9 @@ const initialRecipeToAddState = {
   description: "",
   ingredients: "",
   instructions: "",
-  imageUrl: ""
+  imageUrl: "",
+  author: "",
+  address: ""
 };
 const initialAddButtonState = { class: "add-btn-svg--hidden", isAdded: false };
 
@@ -25,6 +27,8 @@ export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormSt
   const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
   const [addButton, setAddButton] = useState(initialAddButtonState);
   const [show, setShow] = useState(false);
+
+  console.log({ recipes });
 
   const handleChange = (event) => {
     if (addButton.isAdded) setAddButton(initialAddButtonState);
@@ -39,7 +43,9 @@ export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormSt
       "recipe-name": recipeToAdd.name,
       description: recipeToAdd.description,
       "user-id": recipes[0]["user-id"],
-      "img-url": recipeToAdd.imageUrl
+      "img-url": recipeToAdd.imageUrl,
+      author: recipeToAdd.author,
+      address: recipeToAdd.address
     };
     const parsedIngredients = parseIngredients(recipeToAdd.ingredients);
     const parsedInstructions = parseInstructions(recipeToAdd.instructions);
@@ -110,6 +116,30 @@ export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormSt
             placeholder="https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage108081050-50-Mushroomtoast.jpg"
             name="imageUrl"
             value={recipeToAdd.imageUrl}
+            onChange={handleChange}
+            className="add-form__input"
+          />
+        </label>
+        <label className="add-form__label">
+          Author
+          <input
+            required
+            type="text"
+            placeholder="Gordon Ramsay"
+            name="author"
+            value={recipeToAdd.author}
+            onChange={handleChange}
+            className="add-form__input"
+          />
+        </label>
+        <label className="add-form__label">
+          Web Address
+          <input
+            required
+            type="text"
+            placeholder="https://www.gordonramsay.com/gr/recipes/mushroomtoast/"
+            name="address"
+            value={recipeToAdd.address}
             onChange={handleChange}
             className="add-form__input"
           />
