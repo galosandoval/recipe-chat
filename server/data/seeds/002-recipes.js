@@ -18,7 +18,7 @@ exports.seed = function (knex, Promise) {
         },
         {
           id: 2,
-          "recipe-name": "the only ice cream recipe you'll ever neeed",
+          "recipe-name": "the only ice cream recipe you'll ever need",
           description:
             "This silky, luscious and very classic custard can be used as the base for any ice cream flavor you can dream up. These particular proportions of milk and cream to egg yolk will give you a thick but not sticky ice cream that feels decadent but not heavy. For something a little lighter, use more milk and less cream, as long as the dairy adds up to 3 cups. You can also cut down on egg yolks for a thinner base, but don’t go below three.",
           "img-url":

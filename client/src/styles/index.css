@@ -109,10 +109,13 @@ select {
   display: inline-grid;
   place-items: center;
   transform: rotate(45deg);
+  border-radius: 50%;
+  padding: 0.6rem;
+  transition: all ease-in-out 0.3s;
 }
 .x-svg-btn:hover {
-  transform: rotate(45deg) scale(1.06);
-  transition: all ease 0.3s;
+  background-color: #20bf55;
+  color: #fff;
 }
 .x-svg-btn--rotate {
   transition: all ease 0.3s;
@@ -219,7 +222,7 @@ select {
   background-color: #ff6347;
   max-height: 0;
   overflow: hidden;
-  transition: max-height ease 0.3s;
+  transition: max-height ease 0.8s;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -227,7 +230,6 @@ select {
 }
 .add-form--show {
   max-height: 600px;
-  transition: max-height ease-in-out 0.3s;
 }
 
 /* ____DeleteConfirmation____ */
@@ -559,6 +561,7 @@ select {
   display: flex;
   padding: 0 2rem;
   width: 100%;
+  margin-bottom: 0.5rem;
 }
 .recipe__header h1 {
   margin-left: auto;
@@ -594,15 +597,7 @@ select {
   transition: all 0.6s;
 }
 .add-form__label:focus-within {
-  margin: 1rem -0.4rem;
-}
-.add-form__label-textarea:focus-within {
-  margin: 1rem;
-  flex: 0 0 60%;
-  width: 25ch;
-}
-.add-form__label-textarea:focus-within .add-recipe__textarea::placeholder {
-  width: 30ch;
+  box-shadow: 0 0.2rem 0.2rem rgba(0, 0, 0, 0.5);
 }
 .add-form__textarea {
   resize: none;
@@ -613,9 +608,6 @@ select {
 }
 .add-form__textarea::placeholder {
   width: 15ch;
-}
-.add-form__textarea:focus {
-  width: 65%;
 }
 .add-form__input {
   border: none;
@@ -806,6 +798,7 @@ select {
   border: none;
   padding: 1em;
   width: 35%;
+  flex: 1;
 }
 
 /* ____Accordian____ */
@@ -865,6 +858,7 @@ select {
   display: flex;
   padding: 0 2rem;
   width: 100%;
+  margin-bottom: 0.5rem;
 }
 .grocerylist__header h1 {
   margin-left: auto;

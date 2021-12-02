@@ -7,6 +7,7 @@
     display: flex;
     padding: 0 2rem;
     width: 100%;
+    margin-bottom: 0.5rem;
 
     & h1 {
       margin-left: auto;
@@ -45,18 +46,7 @@
     transition: all 0.6s;
 
     &:focus-within {
-      margin: 1rem -0.4rem;
-    }
-
-    &-textarea {
-      &:focus-within {
-        margin: 1rem;
-        flex: 0 0 60%;
-        width: 25ch;
-        & .add-recipe__textarea::placeholder {
-          width: 30ch;
-        }
-      }
+      box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.5);
     }
   }
 
@@ -69,9 +59,6 @@
 
     &::placeholder {
       width: 15ch;
-    }
-    &:focus {
-      width: 65%;
     }
   }
 
@@ -290,6 +277,7 @@
     border: none;
     padding: 1em;
     width: 35%;
+    flex: 1;
   }
 }
 

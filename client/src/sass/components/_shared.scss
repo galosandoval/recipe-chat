@@ -25,9 +25,13 @@
   display: inline-grid;
   place-items: center;
   transform: rotate(45deg);
+  border-radius: 50%;
+  padding: 0.6rem;
+  transition: all ease-in-out 0.3s;
+
   &:hover {
-    transform: rotate(45deg) scale(1.06);
-    transition: all ease 0.3s;
+    background-color: $color-secondary;
+    color: $color-white;
   }
   &--rotate {
     transition: all ease 0.3s;
@@ -144,7 +148,7 @@
   background-color: $color-primary;
   max-height: 0;
   overflow: hidden;
-  transition: max-height ease 0.3s;
+  transition: max-height ease 0.8s;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -152,7 +156,6 @@
 
   &--show {
     max-height: 600px;
-    transition: max-height ease-in-out 0.3s;
   }
 }
 
