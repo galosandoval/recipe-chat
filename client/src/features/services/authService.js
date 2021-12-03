@@ -9,10 +9,8 @@ export const addUser = async (creds) => {
 export const useAddUser = () => {
   return useMutation(addUser);
 };
-
 export const loginUser = async (creds) => {
   const user = await api().post("/auth/login", creds);
-  console.log({ user });
   return user.data;
 };
 

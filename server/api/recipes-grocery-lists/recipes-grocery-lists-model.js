@@ -61,7 +61,9 @@ const findRecipesByGroceryListId = async (id) => {
 };
 
 const findGroceryListIdsByUserId = async (id) => {
-  const ids = await db(recipesGrocerylists).where("user-id", id).select("grocery-list-id");
+  const ids = await db(recipesGrocerylists)
+    .whereIn("user-id", [id === 1 ? id : 1, id])
+    .select("grocery-list-id");
   const reducedIds = ids.reduce((prev, curr) => {
     if (prev.indexOf(curr["grocery-list-id"]) === -1) {
       prev.push(curr["grocery-list-id"]);

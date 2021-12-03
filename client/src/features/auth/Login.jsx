@@ -22,8 +22,6 @@ export const Login = () => {
   const [form, setForm] = useState(initialForm);
   const [disabled, setDisabled] = useState(true);
 
-  console.log({ form });
-
   const validation = (name, value) => {
     yup
       .reach(schema, name)

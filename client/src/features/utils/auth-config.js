@@ -48,9 +48,7 @@ async function loginFn(data) {
 
 async function registerFn(data) {
   const response = await addUser(data);
-  console.log({ response });
   const user = await handleUserResponse(response.data);
-  console.log({ user });
   return user;
 }
 

@@ -118,7 +118,7 @@ module.exports = {
     },
     {
       name: "Your choice of flavoring ",
-      isChecked: 0  // index 18
+      isChecked: 0 // index 18
     },
 
     {
@@ -278,55 +278,46 @@ module.exports = {
 
   recipeGrocerylists: [
     {
-      id: 1,
       "recipe-id": 2,
       "grocery-list-id": 1,
       "user-id": 1
     },
     {
-      id: 2,
       "recipe-id": 4,
       "grocery-list-id": 1,
       "user-id": 1
     },
     {
-      id: 3,
       "recipe-id": 1,
       "grocery-list-id": 2,
       "user-id": 1
     },
     {
-      id: 4,
       "recipe-id": 3,
       "grocery-list-id": 2,
       "user-id": 1
     },
     {
-      id: 5,
       "recipe-id": 3,
       "grocery-list-id": 3,
       "user-id": 1
     },
     {
-      id: 6,
       "recipe-id": 2,
       "grocery-list-id": 3,
       "user-id": 1
     },
     {
-      id: 7,
       "recipe-id": 4,
       "grocery-list-id": 4,
       "user-id": 1
     },
     {
-      id: 8,
       "recipe-id": 2,
       "grocery-list-id": 4,
       "user-id": 1
     },
     {
-      id: 9,
       "recipe-id": 3,
       "grocery-list-id": 4,
       "user-id": 1

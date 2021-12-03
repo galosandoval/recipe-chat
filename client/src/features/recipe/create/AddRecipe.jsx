@@ -7,6 +7,7 @@ import {
   useCreateRecipe
 } from "../../services/recipeService";
 import { parseIngredients, parseInstructions } from "./addRecipe";
+import { storage } from "../../utils/storage";
 
 const initialRecipeToAddState = {
   name: "",
@@ -28,8 +29,6 @@ export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormSt
   const [addButton, setAddButton] = useState(initialAddButtonState);
   const [show, setShow] = useState(false);
 
-  console.log({ recipes });
-
   const handleChange = (event) => {
     if (addButton.isAdded) setAddButton(initialAddButtonState);
     const { name } = event.target;
@@ -42,7 +41,7 @@ export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormSt
     const recipeBody = {
       "recipe-name": recipeToAdd.name,
       description: recipeToAdd.description,
-      "user-id": recipes[0]["user-id"],
+      "user-id": storage.getUserId(),
       "img-url": recipeToAdd.imageUrl,
       author: recipeToAdd.author,
       address: recipeToAdd.address
@@ -52,7 +51,7 @@ export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormSt
 
     await recipe.mutateAsync(recipeBody);
 
-    const newRecipeId = queryClient.getQueryData(["recipe", { "user-id": recipes[0]["user-id"] }])
+    const newRecipeId = queryClient.getQueryData(["recipe", { "user-id": storage.getUserId() }])
       .data.recipe[0];
     console.log({ newRecipeId });
 

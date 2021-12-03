@@ -40,7 +40,6 @@ export const Register = () => {
     setForm((state) => ({ ...state, [name]: value }));
 
     validation(name, value);
-    console.log(form);
   };
 
   useEffect(() => {

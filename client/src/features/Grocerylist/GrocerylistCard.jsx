@@ -59,7 +59,7 @@ export const GrocerylistCard = ({ list, index }) => {
   }, []);
 
   return (
-    <div ref={card} className="card grocerylist-card" key={list.id}>
+    <div ref={card} className="card grocerylist-card">
       <div className="grocerylist-card__heading">
         <h2 className="u-card-heading">{list["grocery-list-name"]}</h2>
       </div>
@@ -76,7 +76,7 @@ export const GrocerylistCard = ({ list, index }) => {
               className="grocerylist-card__image"
               src={img}
               alt={list.descriptions}
-              key={list.description[index]}
+              key={`${list.id}-${index}`}
             />
           ))}
         </div>

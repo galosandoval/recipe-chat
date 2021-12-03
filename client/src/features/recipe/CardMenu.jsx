@@ -21,7 +21,7 @@ export const CardMenu = ({
 }) => {
   const [toBeDeleted, setToBeDeleted] = useState(null);
   const [deleteModal, setDeleteModal] = useState(initialDeleteModalState);
-  const deleteMutation = useDeleteRecipe(recipe.id);
+  const deleteMutation = useDeleteRecipe();
 
   const handleOutsideClick = () => {
     setDropdown(initialDropdownState);
