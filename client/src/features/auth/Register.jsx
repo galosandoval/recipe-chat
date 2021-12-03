@@ -69,6 +69,9 @@ export const Register = () => {
               await register(creds);
             } catch (error) {
               setError(error);
+              setTimeout(() => {
+                setError(null);
+              }, 5000);
             }
           }}
         >

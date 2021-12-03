@@ -7,6 +7,7 @@
     display: flex;
     padding: 0 2rem;
     width: 100%;
+    margin-bottom: 0.5rem;
 
     & h1 {
       margin-left: auto;
@@ -45,18 +46,7 @@
     transition: all 0.6s;
 
     &:focus-within {
-      margin: 1rem -0.4rem;
-    }
-
-    &-textarea {
-      &:focus-within {
-        margin: 1rem;
-        flex: 0 0 60%;
-        width: 25ch;
-        & .add-recipe__textarea::placeholder {
-          width: 30ch;
-        }
-      }
+      box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.5);
     }
   }
 
@@ -69,9 +59,6 @@
 
     &::placeholder {
       width: 15ch;
-    }
-    &:focus {
-      width: 65%;
     }
   }
 
@@ -165,13 +152,6 @@
   position: relative;
   display: inline-block;
 
-  &__btn {
-    border-radius: 0.6rem;
-    height: 3rem;
-    width: 3rem;
-    margin-right: 0.7rem;
-  }
-
   &__content {
     display: none;
     position: absolute;
@@ -184,18 +164,38 @@
       padding: 0.5rem 0;
     }
 
-    & > button:hover {
-      background-color: $color-grey-dark-2;
-      color: #fff;
-      transition: all 0.3s;
-    }
-
     &--show {
       display: flex;
       flex-direction: column;
       right: 0;
       border-radius: 0.25rem;
       overflow: hidden;
+    }
+  }
+
+  &__btn {
+    border-radius: 0.6rem;
+    height: 3rem;
+    width: 3rem;
+    margin-right: 0.7rem;
+
+    &-description,
+    &-instruction,
+    &-ingredients {
+      &:hover {
+        background-color: $color-grey-dark-2;
+        color: $color-white;
+        transition: all 0.3s;
+      }
+    }
+
+    &-delete {
+      background-color: lighten($color-delete, 50%);
+      transition: 0.3s all ease;
+      &:hover {
+        background-color: $color-delete;
+        color: $color-white;
+      }
     }
   }
 }
@@ -277,6 +277,7 @@
     border: none;
     padding: 1em;
     width: 35%;
+    flex: 1;
   }
 }
 

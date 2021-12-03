@@ -11,4 +11,3 @@ exports.up = function (knex) {
 exports.down = function (knex) {
   return knex.schema.dropTableIfExists("grocery-lists");
 };
-// 20210814114159_create-grocery-lists-table

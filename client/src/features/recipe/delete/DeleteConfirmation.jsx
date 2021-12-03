@@ -9,7 +9,6 @@ export const DeleteConfirmation = ({
   initialDeleteModalState,
   mutation
 }) => {
-  console.log({ toBeDeleted });
   const closeDeleteModal = () => {
     const modal = document.querySelector("body");
 

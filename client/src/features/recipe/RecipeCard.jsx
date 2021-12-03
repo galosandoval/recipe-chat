@@ -49,6 +49,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
   const [editRecipe, setEditRecipe] = useState(initialEditCardState);
   const [editInstructions, setEditInstructions] = useState(initialEditInstructionsState);
   const [editIngredients, setEditIngredients] = useState(initialEditIngredientsState);
+
   const history = useHistory();
 
   const handleClick = (event) => {
@@ -75,8 +76,10 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
     } else if (name === "ingredients-btn") {
       setDropdown(initialDropdownState);
       setEditIngredients({ class: "edit-card edit-card--show", open: true });
-      // Carrot Click
-    } else if (name === "carrot-btn") {
+    } else if (name === "delete-recipe") {
+    }
+    // Carrot Click
+    else if (name === "carrot-btn") {
       closeOpenCarrots();
       history.push("/recipes/ingredients");
 
@@ -141,6 +144,7 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
           dropdown={dropdown}
           setDropdown={setDropdown}
           initialDropdownState={initialDropdownState}
+          recipe={recipe}
         />
         <p className="recipe-card__author">
           <span className="recipe-card__author-span">by</span> {recipe.author}

@@ -17,11 +17,12 @@ const initialForm = {
 
 export const Login = () => {
   const { login } = useAuth();
-  const [isDemo, setIsDemo] = useState(false);
   const [error, setError] = useState(null);
   const [formErrors, setFormErrors] = useState(initialFormErrors);
   const [form, setForm] = useState(initialForm);
   const [disabled, setDisabled] = useState(true);
+
+  console.log({ form });
 
   const validation = (name, value) => {
     yup
@@ -44,31 +45,32 @@ export const Login = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    const creds = {
+      username: form.username.toLowerCase().trim(),
+      password: form.password
+    };
 
-    let creds;
-
-    if (isDemo) {
-      creds = { username: "demo", password: "password" };
-    } else {
-      creds = {
-        username: form.username.toLowerCase().trim(),
-        password: form.password
-      };
+    try {
+      await login(creds);
+    } catch (error) {
+      setError(error);
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
     }
+  };
+
+  const handleDemoLogin = async () => {
+    const creds = {
+      username: "demo",
+      password: "password"
+    };
 
     try {
       await login(creds);
     } catch (error) {
       setError(error);
     }
-  };
-
-  const handleDemoLogin = (event) => {
-    event.preventDefault();
-
-    setIsDemo(true);
-    const loginButton = document.querySelector("#login-user");
-    loginButton.click();
   };
 
   useEffect(() => {
@@ -83,7 +85,7 @@ export const Login = () => {
         <div className="login__primary-color"></div>
         <div className="login__top">
           <h1>Login Form</h1>
-          <button onClick={(event) => handleDemoLogin(event)} className="add-btn-submit login__btn">
+          <button onClick={handleDemoLogin} className="add-btn-submit login__btn">
             Demo Login
           </button>
         </div>
@@ -96,7 +98,7 @@ export const Login = () => {
             required
             value={form.username}
             onChange={handleChange}
-            autoComplete={false}
+            autoComplete="false"
           />
           <input
             type="password"
@@ -124,7 +126,7 @@ export const Login = () => {
       <Link className="login__register" to="/register">
         Create an account
       </Link>
-      {error && <ErrorToast errorMessage={error.message} location="login" />}
+      {error && <ErrorToast errorMessage={JSON.stringify(error)} location="login" />}
     </div>
   );
 };

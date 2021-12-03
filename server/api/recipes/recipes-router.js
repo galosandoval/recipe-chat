@@ -81,8 +81,8 @@ router.put("/:id", validateRecipeById, (req, res) => {
 router.delete("/:id", validateRecipeById, (req, res) => {
   const { id } = req.params;
   Recipes.deleteRecipe(id)
-    .then((deletedRecipe) => {
-      res.status(200).json({ deletedRecipe });
+    .then((recipeDeleted) => {
+      res.status(200).json(recipeDeleted);
     })
     .catch((err) => {
       res.status(500).json({ error: err.message });

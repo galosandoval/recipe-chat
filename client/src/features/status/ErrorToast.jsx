@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { slashSVG, xSVG } from "../../styles/svgs";
+import { slashSVG } from "../../styles/svgs";
 
 export const ErrorToast = ({ errorMessage, location }) => {
   const [message, setMessage] = useState(errorMessage);
@@ -13,9 +13,7 @@ export const ErrorToast = ({ errorMessage, location }) => {
   }
   useEffect(() => {
     if (errorMessage) {
-      setTimeout(() => {
-        setToastClass("error-toast error-toast--show");
-      }, 500);
+      setToastClass("error-toast error-toast--show");
       setTimeout(() => {
         setToastClass("error-toast");
       }, 5000);
@@ -29,7 +27,6 @@ export const ErrorToast = ({ errorMessage, location }) => {
         <h3>Error:</h3>
         <p>{message}</p>
       </div>
-      <button className="error-toast__cross">{xSVG}</button>
     </div>
   );
 };

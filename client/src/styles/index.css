@@ -109,10 +109,13 @@ select {
   display: inline-grid;
   place-items: center;
   transform: rotate(45deg);
+  border-radius: 50%;
+  padding: 0.6rem;
+  transition: all ease-in-out 0.3s;
 }
 .x-svg-btn:hover {
-  transform: rotate(45deg) scale(1.06);
-  transition: all ease 0.3s;
+  background-color: #20bf55;
+  color: #fff;
 }
 .x-svg-btn--rotate {
   transition: all ease 0.3s;
@@ -155,7 +158,6 @@ select {
 .add-btn-svg svg {
   height: 1.5rem;
   width: 1.5rem;
-  transition: all ease-in-out 0.3s;
   margin-left: 1rem;
 }
 .add-btn-svg--hidden {
@@ -220,7 +222,7 @@ select {
   background-color: #ff6347;
   max-height: 0;
   overflow: hidden;
-  transition: max-height ease 0.3s;
+  transition: max-height ease 0.8s;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -228,7 +230,6 @@ select {
 }
 .add-form--show {
   max-height: 600px;
-  transition: max-height ease-in-out 0.3s;
 }
 
 /* ____DeleteConfirmation____ */
@@ -367,10 +368,15 @@ select {
   place-items: center;
   box-shadow: 0 0.2rem 0.2rem rgba(0, 0, 0, 0.15);
   cursor: pointer;
+  transition: transform 0ms, background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 .login__btn:hover {
   background-color: #fff;
   color: #ff5233;
+}
+.login__btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
 }
 .login__form {
   background-color: #fff;
@@ -415,6 +421,10 @@ select {
 }
 .login__form-btn:disabled {
   background-color: #b1b1b1;
+}
+.login__form-btn:active {
+  transition: background-color 0s;
+  background-color: #ff9785;
 }
 .login__register, .login__register:visited {
   text-decoration: none;
@@ -475,6 +485,7 @@ select {
   justify-content: center;
   align-items: center;
   width: 26ch;
+  font-size: 0.9rem;
 }
 .error-toast__message h3 {
   padding-right: 1rem;
@@ -484,19 +495,6 @@ select {
   height: 2rem;
   min-width: 2rem;
   min-height: 2rem;
-}
-.error-toast__cross {
-  color: rgba(165, 1, 4, 0.4);
-  background-color: transparent;
-  border: 3px solid transparent;
-  border-radius: 5px;
-  display: grid;
-  place-items: center;
-  transition: all 0.4s ease-in-out;
-}
-.error-toast__cross:hover {
-  border: 3px solid rgba(165, 1, 4, 0.8);
-  color: rgba(165, 1, 4, 0.8);
 }
 
 .navbar {
@@ -563,6 +561,7 @@ select {
   display: flex;
   padding: 0 2rem;
   width: 100%;
+  margin-bottom: 0.5rem;
 }
 .recipe__header h1 {
   margin-left: auto;
@@ -598,15 +597,7 @@ select {
   transition: all 0.6s;
 }
 .add-form__label:focus-within {
-  margin: 1rem -0.4rem;
-}
-.add-form__label-textarea:focus-within {
-  margin: 1rem;
-  flex: 0 0 60%;
-  width: 25ch;
-}
-.add-form__label-textarea:focus-within .add-recipe__textarea::placeholder {
-  width: 30ch;
+  box-shadow: 0 0.2rem 0.2rem rgba(0, 0, 0, 0.5);
 }
 .add-form__textarea {
   resize: none;
@@ -617,9 +608,6 @@ select {
 }
 .add-form__textarea::placeholder {
   width: 15ch;
-}
-.add-form__textarea:focus {
-  width: 65%;
 }
 .add-form__input {
   border: none;
@@ -704,12 +692,6 @@ select {
   position: relative;
   display: inline-block;
 }
-.card-menu__btn {
-  border-radius: 0.6rem;
-  height: 3rem;
-  width: 3rem;
-  margin-right: 0.7rem;
-}
 .card-menu__content {
   display: none;
   position: absolute;
@@ -721,17 +703,31 @@ select {
   border: none;
   padding: 0.5rem 0;
 }
-.card-menu__content > button:hover {
-  background-color: #777;
-  color: #fff;
-  transition: all 0.3s;
-}
 .card-menu__content--show {
   display: flex;
   flex-direction: column;
   right: 0;
   border-radius: 0.25rem;
   overflow: hidden;
+}
+.card-menu__btn {
+  border-radius: 0.6rem;
+  height: 3rem;
+  width: 3rem;
+  margin-right: 0.7rem;
+}
+.card-menu__btn-description:hover, .card-menu__btn-instruction:hover, .card-menu__btn-ingredients:hover {
+  background-color: #777;
+  color: #fff;
+  transition: all 0.3s;
+}
+.card-menu__btn-delete {
+  background-color: #fea7a8;
+  transition: 0.3s all ease;
+}
+.card-menu__btn-delete:hover {
+  background-color: #a50104;
+  color: #fff;
 }
 
 .edit-card {
@@ -802,6 +798,7 @@ select {
   border: none;
   padding: 1em;
   width: 35%;
+  flex: 1;
 }
 
 /* ____Accordian____ */
@@ -861,6 +858,7 @@ select {
   display: flex;
   padding: 0 2rem;
   width: 100%;
+  margin-bottom: 0.5rem;
 }
 .grocerylist__header h1 {
   margin-left: auto;
@@ -1042,23 +1040,20 @@ select {
   inset: 0;
 }
 .carousel__button {
-  width: 4em;
-  height: 4em;
-  padding: 1em;
-  border-radius: 50px;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
   border: none;
-  background-color: transparent;
   margin: 0 1em 0 1em;
-  transition: 0.5s;
-  background-color: rgba(177, 177, 177, 0.5);
+  transition: 0.4s all ease;
+  background-color: rgba(0, 0, 0, 0.5);
   color: #fff;
   display: grid;
-  place-content: center;
+  place-items: center;
 }
 .carousel__button:hover {
-  transform: scale(1.08);
   color: #ff6347;
-  background-color: rgba(177, 177, 177, 0.9);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 .carousel__button svg {
   height: 2.5rem;
@@ -1078,7 +1073,7 @@ select {
   fill: gray;
   margin-left: 0.5rem;
 }
-.carousel__svg-circle--no-opacity {
+.carousel__svg-circle--fill-white {
   fill: #fff;
 }
 

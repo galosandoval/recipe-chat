@@ -10,10 +10,11 @@ const initialListState = {
   setTop: 100
 };
 
-export const GrocerylistCard = ({ list }) => {
+export const GrocerylistCard = ({ list, index }) => {
   const [carousel, setCarousel] = useState(0);
   const [page, setPage] = useState(1);
   const [listState, setListState] = useState(initialListState);
+  const circles = document.querySelectorAll(`.carousel__svg-circle-${index}`);
 
   const card = useRef(null);
 
@@ -23,14 +24,19 @@ export const GrocerylistCard = ({ list }) => {
     closeButtons.forEach((button) => button.click());
   };
 
+  const fillWhite = "carousel__svg-circle--fill-white";
+
   const handleClick = (event) => {
     const { name } = event.currentTarget;
+
     if (name === "right-button") {
       setCarousel((state) => (state -= 25));
       setPage((state) => (state += 1));
+      circles[page - 1].classList.remove(fillWhite);
     }
     if (name === "left-button") {
       setCarousel((state) => (state += 25));
+      circles[page - 1].classList.remove(fillWhite);
       setPage((state) => (state -= 1));
     }
     if (name === "open-list") {
@@ -43,14 +49,10 @@ export const GrocerylistCard = ({ list }) => {
   };
 
   useLayoutEffect(() => {
-    const circles = document.querySelectorAll(".carousel__svg-circle");
-    if (circles[page - 2]) {
-      circles[page - 2].classList.remove("carousel__svg-circle--no-opacity");
-    } else {
-      circles[page].classList.remove("carousel__svg-circle--no-opacity");
+    if (circles[page - 1]) {
+      circles[page - 1].classList.add(fillWhite);
     }
-    circles[page - 1].classList.add("carousel__svg-circle--no-opacity");
-  }, [page]);
+  }, [page, circles]);
 
   useEffect(() => {
     setListState((state) => ({ ...state, setTop: card.current.offsetHeight }));
@@ -63,7 +65,7 @@ export const GrocerylistCard = ({ list }) => {
       </div>
       <div className="grocerylist-card__carousel">
         {list["img-url"].length > 1 && (
-          <Carousel page={page} handleClick={handleClick} list={list} />
+          <Carousel listIndex={index} page={page} handleClick={handleClick} list={list} />
         )}
         <div
           className="grocerylist-card__image-container"
