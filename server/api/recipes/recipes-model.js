@@ -39,7 +39,7 @@ const findIngredientsByRecipeId = (id) => {
 const findRecipesByUserId = (userId) => {
   return db(recipes)
     .join("users", "users.id", "=", "recipes.user-id")
-    .where("user-id", userId)
+    .whereIn("user-id", [userId === 1 ? 1 : 1, userId])
     .select(
       "recipes.id",
       "recipes.recipe-name",
