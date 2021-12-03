@@ -6,22 +6,25 @@ import { queryClient } from "../utils/react-query-client";
 import { useGetRecipes } from "../services/recipeService";
 import { AddGrocerylistCheckboxes } from "./AddGrocerylistCheckboxes";
 import { useAuth } from "../utils/auth-config";
+import { storage } from "../utils/storage";
 
 const initialGrocerylistState = "";
 
 export const AddGrocerylist = ({ form, initialFormState, setForm }) => {
   const { user } = useAuth();
   const { data: recipes, isLoading, isError, error } = useGetRecipes(user.id);
-  const createGrocerylist = useCreateGrocerylist(recipes);
+  const createGrocerylist = useCreateGrocerylist();
   const createRecipes = useCreateRecipes();
 
   const [checked, setChecked] = useState([]);
   const [grocerylistToAdd, setGrocerylistToAdd] = useState(initialGrocerylistState);
 
+  const userId = storage.getUserId();
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const grocerylistBody = { name: grocerylistToAdd, "user-id": recipes[0]["user-id"] };
+    const grocerylistBody = { name: grocerylistToAdd, "user-id": userId };
     await createGrocerylist.mutateAsync(grocerylistBody);
 
     const newGroceryListId = queryClient.getQueryData(["grocerylist", { "user-id": user.id }]).data
@@ -31,7 +34,7 @@ export const AddGrocerylist = ({ form, initialFormState, setForm }) => {
       .map((r) => ({
         "recipe-id": r.id,
         "grocery-list-id": newGroceryListId,
-        "user-id": recipes[0]["user-id"]
+        "user-id": userId
       }));
     createRecipes.mutate(recipesBody);
 

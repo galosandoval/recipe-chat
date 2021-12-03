@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "react-query";
 import { queryClient } from "../utils/react-query-client";
+import { storage } from "../utils/storage";
 import { api } from "./api";
 
 /**
@@ -48,10 +49,10 @@ export const useGetIngredients = (grocerylistId) => {
   );
 };
 
-export const useCreateGrocerylist = (recipes) => {
+export const useCreateGrocerylist = () => {
   return useMutation(addGrocerylist, {
     onSuccess: (data) => {
-      queryClient.setQueryData(["grocerylist", { "user-id": recipes[0]["user-id"] }], data);
+      queryClient.setQueryData(["grocerylist", { "user-id": storage.getUserId() }], data);
     }
   });
 };

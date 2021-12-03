@@ -15,13 +15,13 @@ export const Todo = ({ ingredient, name, grocerylistId, todoClass }) => {
     <div className="todo">
       <input
         className="todo__input"
-        id={`${ingredient.name}-${grocerylistId}`}
+        id={`${ingredient.id}-${grocerylistId}`}
         type="checkbox"
         name={name}
         checked={isChecked}
         onChange={handleChange}
       />
-      <label htmlFor={`${ingredient.name}-${grocerylistId}`} className={todoClass}>
+      <label htmlFor={`${ingredient.id}-${grocerylistId}`} className={todoClass}>
         <span className="todo__checkbox">
           <span className="todo__check">{checkSVG}</span>
         </span>

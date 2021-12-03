@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "react-query";
 import { queryClient } from "../utils/react-query-client";
+import { storage } from "../utils/storage";
 import { api } from "./api";
 
 /**
@@ -72,7 +73,7 @@ export const useGetInstructions = (id) => {
 export const useCreateRecipe = (recipes) => {
   return useMutation(addRecipe, {
     onSuccess: (data) => {
-      queryClient.setQueryData(["recipe", { "user-id": recipes[0]["user-id"] }], data);
+      queryClient.setQueryData(["recipe", { "user-id": storage.getUserId() }], data);
     }
   });
 };
@@ -97,10 +98,10 @@ export const useChangeRecipe = () => {
   });
 };
 
-export const useDeleteRecipe = (recipeId) => {
+export const useDeleteRecipe = () => {
   return useMutation(deleteRecipe, {
     onSuccess: () => {
-      queryClient.invalidateQueries(["recipe", recipeId]);
+      queryClient.invalidateQueries("recipe");
     }
   });
 };

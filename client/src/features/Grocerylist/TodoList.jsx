@@ -9,13 +9,13 @@ export const TodoList = ({ grocerylistId }) => {
 
   if (isLoading) return <Loading />;
 
-  const checked = ingredients.reduce((checkedArray, ingredient) => {
+  const checked = ingredients.reduce((checkedArray, ingredient, index) => {
     if (ingredient.isChecked) {
       const todo = (
         <Todo
           ingredient={ingredient}
           name="uncheck"
-          key={ingredient.id}
+          key={`${ingredient.id}-${grocerylistId}-${index}`}
           grocerylistId={grocerylistId}
           todoClass="todo__label todo__label--checked"
         />
@@ -25,13 +25,13 @@ export const TodoList = ({ grocerylistId }) => {
     return checkedArray;
   }, []);
 
-  const unChecked = ingredients.reduce((uncheckedArray, ingredient) => {
+  const unChecked = ingredients.reduce((uncheckedArray, ingredient, index) => {
     if (!ingredient.isChecked) {
       const todo = (
         <Todo
           ingredient={ingredient}
           name="check"
-          key={ingredient.id}
+          key={`${ingredient.id}-${grocerylistId}-${index}`}
           grocerylistId={grocerylistId}
           todoClass="todo__label"
         />
