@@ -4,11 +4,11 @@
 
 - I worked with tasks on a kanban board:
 
-  ![](readme-images/TJ%20Trello.png)
+  ![](public/TJ%20Trello.png)
 
 - I wrote a descriptive commit with every feature I completed:
 
-  ![](readme-images/TJ%20Commit%20History.png)
+  ![](public/TJ%20Commit%20History.png)
 
 ## How to navigate this project
 
@@ -25,4 +25,4 @@
 
 ### Look at how much code I've replaced!
 
-![](readme-images/react-query-example.png)
+![](public/react-query-example.png)
