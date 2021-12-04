@@ -3,6 +3,7 @@ import { ErrorToast } from "../status/ErrorToast";
 import * as yup from "yup";
 import schema from "../utils/formValidation";
 import { useAuth } from "../utils/auth-config";
+import { useHistory } from "react-router-dom";
 
 const initialFormErrors = {
   username: "",
@@ -22,6 +23,7 @@ export const Register = () => {
   const [formErrors, setFormErrors] = useState(initialFormErrors);
   const [form, setForm] = useState(initialForm);
   const [disabled, setDisabled] = useState(true);
+  const history = useHistory();
 
   const validation = (name, value) => {
     yup
@@ -66,6 +68,7 @@ export const Register = () => {
             };
             try {
               await register(creds);
+              history.replace("/");
             } catch (error) {
               setError(error);
               setTimeout(() => {
