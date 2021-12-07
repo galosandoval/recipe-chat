@@ -23,8 +23,9 @@ $color-white: #fff;
 $color-black: #000;
 
 // FONT
-$ff-kaushan: "Kaushan Script", cursive;
-$ff-mochiy: "Mochiy Pop One", sans-serif;
+// $ff-kaushan: "Kaushan Script", cursive;
+// $ff-mochiy: "Mochiy Pop One", sans-serif;
+$ff-lobster: "Lobster Two", cursive;
 $ff-montserrat: "Montserrat", sans-serif;
 $ff-cedearville: "Cedarville Cursive", cursive;
 
@@ -106,5 +107,28 @@ select {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@mixin respond($breakpoint) {
+  @if $breakpoint == phone {
+    @media only screen and (max-width: 575.98px) {
+      @content;
+    }
+  }
+  @if $breakpoint == tab-port {
+    @media only screen and (max-width: 767.98px) {
+      @content;
+    }
+  }
+  @if $breakpoint == tab-land {
+    @media only screen and (max-width: 991.98px) {
+      @content;
+    }
+  }
+  @if $breakpoint == desktop {
+    @media only screen and (max-width: 1199.98px) {
+      @content;
+    }
   }
 }

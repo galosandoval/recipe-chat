@@ -1,36 +1,37 @@
-import React from "react";
-import { NavLink, useHistory } from "react-router-dom";
-import { useAuth } from "../utils/auth-config";
+import React, { useEffect, useState } from "react";
+import { menuSVG } from "../../styles/svgs";
+import { debounce } from "../utils/debounce";
+import { NavLinks } from "./NavLinks";
 
 export const Navbar = () => {
-  const { logout } = useAuth();
-  const history = useHistory();
+  const [visible, setVisible] = useState(true);
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+
+  const handleScroll = debounce(() => {
+    const currentScrollPos = window.pageYOffset;
+
+    setVisible(
+      (prevScrollPos > currentScrollPos && prevScrollPos - currentScrollPos > 70) ||
+        currentScrollPos < 10
+    );
+
+    setPrevScrollPos(currentScrollPos);
+  }, 100);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [prevScrollPos, visible, handleScroll]);
   return (
     <>
-      <div className="navbar">
-        <div className="navbar__logo">GS</div>
-        <ul className="navbar__list">
-          <li className="navbar__item">
-            <NavLink className="navbar__link" activeClassName="navbar__active" exact to="/">
-              Grocery Lists
-            </NavLink>
-          </li>
-          <li className="navbar__item">
-            <NavLink className="navbar__link" activeClassName="navbar__active" to="/recipes">
-              Recipes
-            </NavLink>
-          </li>
-          <li className="navbar__item">
-            <button
-              className="navbar__logout add-btn-submit"
-              onClick={() => {
-                history.replace("/");
-                logout();
-              }}
-            >
-              Logout
-            </button>
-          </li>
+      <div className="navbar navbar--hidden">
+        <h1 className="navbar__logo logo">listy</h1>
+        <ul className="navbar__list navbar__list--default">
+          <NavLinks />
+        </ul>
+        <ul className="navbar__list navbar__list--phone">
+          <button className="navbar__list-btn">{menuSVG}</button>
         </ul>
       </div>
     </>

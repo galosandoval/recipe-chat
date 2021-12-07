@@ -13,12 +13,45 @@
     justify-content: center;
     align-items: center;
     flex: 0 0 10%;
+
+    @include respond(phone) {
+      margin: auto;
+      font-size: 2.5rem;
+    }
   }
 
   &__list {
     display: flex;
     align-items: center;
     flex: 0 0 90%;
+
+    &--phone {
+      display: none;
+    }
+
+    @include respond(phone) {
+      &--default {
+        display: none;
+      }
+
+      &--phone {
+        display: flex;
+        flex: 0;
+        position: relative;
+      }
+
+      &-btn {
+        height: 3.4rem;
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        background-color: transparent;
+        border: none;
+        position: absolute;
+        right: 2rem;
+        color: $color-primary;
+      }
+    }
   }
 
   &__item {
@@ -59,5 +92,12 @@
     &:hover {
       background-color: $color-grey-dark;
     }
+  }
+
+  @include respond(phone) {
+    padding: 0.5rem 0;
+    width: 100%;
+    background-color: $color-white;
+    position: sticky;
   }
 }
