@@ -55,6 +55,7 @@ export const Register = () => {
       <div className="login__background">
         <div className="login__primary-color"></div>
         <div className="login__top">
+          <h1 className="logo">listy</h1>
           <h1>Sign Up</h1>
         </div>
         <form

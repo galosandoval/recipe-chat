@@ -84,6 +84,29 @@ select {
   justify-content: space-evenly;
 }
 
+@media only screen and (max-width: 1199.98px) {
+  html {
+    font-size: 105%;
+  }
+}
+@media only screen and (max-width: 991.98px) {
+  html {
+    font-size: 95%;
+  }
+}
+
+@media only screen and (max-width: 767.98px) {
+  .App {
+    overflow: auto;
+  }
+}
+
+.logo {
+  font-family: "Lobster Two", cursive;
+  font-style: italic;
+  color: #ff6347;
+}
+
 /* ___Buttons____ */
 .delete-btn {
   display: grid;
@@ -335,6 +358,12 @@ select {
   flex-direction: column;
   align-items: center;
   box-shadow: 0 0.2rem 0.2rem rgba(0, 0, 0, 0.15);
+  max-width: 320px;
+}
+@media only screen and (max-width: 575.98px) {
+  .login__background {
+    width: 100%;
+  }
 }
 .login__primary-color {
   background-color: #ff6347;
@@ -513,10 +542,40 @@ select {
   align-items: center;
   flex: 0 0 10%;
 }
+@media only screen and (max-width: 575.98px) {
+  .navbar__logo {
+    margin: auto;
+    font-size: 2.5rem;
+  }
+}
 .navbar__list {
   display: flex;
   align-items: center;
   flex: 0 0 90%;
+}
+.navbar__list--phone {
+  display: none;
+}
+@media only screen and (max-width: 575.98px) {
+  .navbar__list--default {
+    display: none;
+  }
+  .navbar__list--phone {
+    display: flex;
+    flex: 0;
+    position: relative;
+  }
+  .navbar__list-btn {
+    height: 3.4rem;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    right: 2rem;
+    color: #ff6347;
+  }
 }
 .navbar__item {
   list-style: none;
@@ -549,6 +608,14 @@ select {
 }
 .navbar__logout:hover {
   background-color: #b1b1b1;
+}
+@media only screen and (max-width: 575.98px) {
+  .navbar {
+    padding: 0.5rem 0;
+    width: 100%;
+    background-color: #fff;
+    position: sticky;
+  }
 }
 
 /* ____Recipe____ */
