@@ -1,5 +1,7 @@
 # reminder-joes-app
 
+Deployed Link: https://awesome-jackson-9126be.netlify.app/
+
 ## My goal for this project was to simulate a profesisonal work environment
 
 - I worked with tasks on a kanban board:
@@ -14,6 +16,7 @@
 
 - The main feature of this app parses a recipe from a website and adds it to the users list of recipes: https://github.com/galosandoval/reminder-joes-app/blob/main/client/src/features/recipe/create/AddRecipe.jsx#L13
 - Responsive CSS using SCSS and BEM. Here's a link to the sass folder: https://github.com/galosandoval/reminder-joes-app/tree/main/client/src/sass
+- Deployment here so I can use it on my phone to make improvements: https://awesome-jackson-9126be.netlify.app/
 
 ## Why I built the project this way
 
