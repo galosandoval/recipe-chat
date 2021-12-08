@@ -26,7 +26,7 @@ export const Login = () => {
     yup
       .reach(schema, name)
       .validate(value)
-      .then((res) => {
+      .then((_res) => {
         setFormErrors({ ...formErrors, [name]: "" });
       })
       .catch((err) => {
