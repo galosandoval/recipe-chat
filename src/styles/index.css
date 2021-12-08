@@ -632,7 +632,7 @@ select {
   border-radius: 50%;
   position: absolute;
   right: 2.1rem;
-  background-image: radial-gradient(#ff9785, #ff5233);
+  background-color: #ff6347;
   z-index: 1000;
   transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
 }
@@ -853,6 +853,7 @@ select {
 .card-menu__content > button {
   border: none;
   padding: 0.5rem 0;
+  background-color: #eee;
 }
 .card-menu__content--show {
   display: flex;
