@@ -82,7 +82,7 @@ export const Login = () => {
       <div className="login__background">
         <div className="login__primary-color"></div>
         <div className="login__top">
-          <h1>Login Form</h1>
+          <h1>listy</h1>
           <button onClick={handleDemoLogin} className="add-btn-submit login__btn">
             Demo Login
           </button>

@@ -385,6 +385,9 @@ select {
   padding-bottom: 3rem;
   font-size: 1rem;
   color: #fff;
+  font-family: "Lobster Two", cursive;
+  font-style: italic;
+  font-size: 2.9rem;
 }
 .login__btn {
   align-self: stretch;
@@ -476,7 +479,7 @@ select {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 1rem;
+  padding-top: 4rem;
 }
 .register .login__form {
   gap: 0.5rem;
@@ -616,7 +619,7 @@ select {
   background-color: #fff;
   position: absolute;
   border-radius: 50%;
-  z-index: 2000;
+  z-index: 2001;
   cursor: pointer;
 }
 .navbar__list-btn svg {
@@ -642,7 +645,7 @@ select {
   width: 500px;
 }
 .navbar__checkbox:checked ~ .navbar__background {
-  transform: scale(80);
+  transform: scale(45);
 }
 .navbar__checkbox:checked ~ .navbar__nav {
   opacity: 1;
@@ -669,10 +672,32 @@ select {
   bottom: 0;
   justify-content: center;
   align-items: center;
+  gap: 2rem;
+  transition: all 0.8s cubic-bezier(0.68, 0.55, 0.31, 1.32);
 }
 
 .sidebar .navbar__item {
   margin-left: 0;
+}
+.sidebar .navbar__logout {
+  margin-bottom: 0;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: #fff;
+  text-transform: lowercase;
+}
+.sidebar .navbar__active {
+  background-color: transparent;
+}
+.sidebar .navbar__link {
+  color: #fff;
+}
+.sidebar .navbar__checkbox {
+  display: flex;
+}
+.sidebar .navbar__item {
+  text-transform: lowercase;
+  font-size: 2rem;
 }
 
 /* ____Recipe____ */

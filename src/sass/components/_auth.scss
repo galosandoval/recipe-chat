@@ -44,6 +44,9 @@
       padding-bottom: 3rem;
       font-size: 1rem;
       color: $color-white;
+      font-family: $ff-lobster;
+      font-style: italic;
+      font-size: 2.9rem;
     }
   }
   &__btn {
@@ -148,7 +151,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-top: 1rem;
+    padding-top: 4rem;
   }
   &__form {
     gap: 0.5rem;

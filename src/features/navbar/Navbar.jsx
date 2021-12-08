@@ -5,7 +5,7 @@ import { NavLinks } from "./NavLinks";
 import { Sidebar } from "./Sidebar";
 
 const initialSidebarState = {
-  transform: "translateY(-100%)"
+  left: "-100%"
 };
 
 export const Navbar = () => {
@@ -14,27 +14,22 @@ export const Navbar = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [sidebarStyle, setSidebarStyle] = useState(initialSidebarState);
 
-  const handleSidebar = () => {
-    // const modal = document.querySelector("body");
-    // const sidebar = document.querySelector(".navbar__sidebar");
-    // if (sidebarVisible) {
-    //   modal.classList.remove("modal-blur");
-    //   sidebar.classList.add("navbar__sidebar--hidden");
-    // } else {
-    //   sidebar.classList.remove("navbar__sidebar--hidden");
-    //   modal.classList.add("modal-blur");
-    // }
-
+  const handleSidebar = (event) => {
     const circles = document.querySelectorAll(".carousel__circles");
     const arrows = document.querySelectorAll(".carousel__buttons");
+    const body = document.querySelector("body");
 
-    console.log({ circles });
+    if (event.target.name === "sidebar") {
+      const closebtn = document.querySelector(".navbar__checkbox");
+      closebtn.click();
+    }
 
     if (sidebarVisible) {
       console.log("showem");
       setTimeout(() => {
         circles.forEach((c) => (c.style.zIndex = 1));
         arrows.forEach((c) => (c.style.zIndex = 1));
+        body.style.overflowY = "auto";
       }, 800);
       setSidebarVisible(false);
       setSidebarStyle(initialSidebarState);
@@ -42,8 +37,9 @@ export const Navbar = () => {
       console.log("dont showem");
       circles.forEach((c) => (c.style.zIndex = 0));
       arrows.forEach((c) => (c.style.zIndex = 0));
+      body.style.overflowY = "clip";
       setSidebarVisible(true);
-      setSidebarStyle({ transform: "translateY(0)" });
+      setSidebarStyle({ left: "0" });
     }
   };
 
@@ -65,7 +61,7 @@ export const Navbar = () => {
   }, [prevScrollPos, visible, handleScroll]);
   return (
     <>
-      <div className="navbar navbar--hidden">
+      <header className="navbar navbar--hidden">
         <h1 className="navbar__logo logo">listy</h1>
         <ul className="navbar__list navbar__list--default">
           <NavLinks />
@@ -77,8 +73,8 @@ export const Navbar = () => {
           </label>
           <div className="navbar__background">{""}</div>
         </div>
-        <Sidebar sidebarStyle={sidebarStyle} />
-      </div>
+        <Sidebar handleSidebar={handleSidebar} sidebarStyle={sidebarStyle} />
+      </header>
     </>
   );
 };
