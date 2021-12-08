@@ -17,6 +17,7 @@ export const Navbar = () => {
   const handleSidebar = (event) => {
     const circles = document.querySelectorAll(".carousel__circles");
     const arrows = document.querySelectorAll(".carousel__buttons");
+    const body = document.querySelector("body");
 
     if (event.target.name === "sidebar") {
       const closebtn = document.querySelector(".navbar__checkbox");
@@ -28,6 +29,7 @@ export const Navbar = () => {
       setTimeout(() => {
         circles.forEach((c) => (c.style.zIndex = 1));
         arrows.forEach((c) => (c.style.zIndex = 1));
+        body.style.overflowY = "auto";
       }, 800);
       setSidebarVisible(false);
       setSidebarStyle(initialSidebarState);
@@ -35,6 +37,7 @@ export const Navbar = () => {
       console.log("dont showem");
       circles.forEach((c) => (c.style.zIndex = 0));
       arrows.forEach((c) => (c.style.zIndex = 0));
+      body.style.overflowY = "clip";
       setSidebarVisible(true);
       setSidebarStyle({ left: "0" });
     }

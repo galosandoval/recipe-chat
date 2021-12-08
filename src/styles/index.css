@@ -681,6 +681,7 @@ select {
   padding: 0.5rem 1rem;
   background-color: transparent;
   color: #fff;
+  text-transform: lowercase;
 }
 .sidebar .navbar__active {
   background-color: transparent;
@@ -692,6 +693,7 @@ select {
   display: flex;
 }
 .sidebar .navbar__item {
+  text-transform: lowercase;
   font-size: 2rem;
 }
 
