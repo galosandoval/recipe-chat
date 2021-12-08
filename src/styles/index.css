@@ -646,6 +646,7 @@ select {
 }
 .navbar__checkbox:checked ~ .navbar__background {
   transform: scale(45);
+  -webkit-transform: scale(45);
 }
 .navbar__checkbox:checked ~ .navbar__nav {
   opacity: 1;
