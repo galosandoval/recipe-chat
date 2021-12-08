@@ -133,7 +133,7 @@
 
   // Functionality
   &__checkbox:checked ~ &__background {
-    transform: scale(80);
+    transform: scale(45);
   }
   &__checkbox:checked ~ &__nav {
     opacity: 1;
@@ -160,11 +160,31 @@
   bottom: 0;
   justify-content: center;
   align-items: center;
+  gap: 2rem;
   transition: all 0.8s cubic-bezier(0.68, 0.55, 0.31, 1.32);
 }
 
 .sidebar .navbar {
   &__item {
     margin-left: 0;
+  }
+
+  &__logout {
+    margin-bottom: 0;
+    padding: 0.5rem 1rem;
+    background-color: transparent;
+    color: $color-white;
+  }
+  &__active {
+    background-color: transparent;
+  }
+  &__link {
+    color: $color-white;
+  }
+  &__checkbox {
+    display: flex;
+  }
+  &__item {
+    font-size: 2rem;
   }
 }

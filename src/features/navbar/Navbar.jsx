@@ -14,21 +14,14 @@ export const Navbar = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [sidebarStyle, setSidebarStyle] = useState(initialSidebarState);
 
-  const handleSidebar = () => {
-    // const modal = document.querySelector("body");
-    // const sidebar = document.querySelector(".navbar__sidebar");
-    // if (sidebarVisible) {
-    //   modal.classList.remove("modal-blur");
-    //   sidebar.classList.add("navbar__sidebar--hidden");
-    // } else {
-    //   sidebar.classList.remove("navbar__sidebar--hidden");
-    //   modal.classList.add("modal-blur");
-    // }
-
+  const handleSidebar = (event) => {
     const circles = document.querySelectorAll(".carousel__circles");
     const arrows = document.querySelectorAll(".carousel__buttons");
 
-    console.log({ circles });
+    if (event.target.name === "sidebar") {
+      const closebtn = document.querySelector(".navbar__checkbox");
+      closebtn.click();
+    }
 
     if (sidebarVisible) {
       console.log("showem");
@@ -77,7 +70,7 @@ export const Navbar = () => {
           </label>
           <div className="navbar__background">{""}</div>
         </div>
-        <Sidebar sidebarStyle={sidebarStyle} />
+        <Sidebar handleSidebar={handleSidebar} sidebarStyle={sidebarStyle} />
       </header>
     </>
   );
