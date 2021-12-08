@@ -616,7 +616,7 @@ select {
   background-color: #fff;
   position: absolute;
   border-radius: 50%;
-  z-index: 2000;
+  z-index: 2001;
   cursor: pointer;
 }
 .navbar__list-btn svg {
@@ -669,6 +669,7 @@ select {
   bottom: 0;
   justify-content: center;
   align-items: center;
+  transition: all 0.8s cubic-bezier(0.68, 0.55, 0.31, 1.32);
 }
 
 .sidebar .navbar__item {

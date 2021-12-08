@@ -5,7 +5,7 @@ import { NavLinks } from "./NavLinks";
 import { Sidebar } from "./Sidebar";
 
 const initialSidebarState = {
-  transform: "translateY(-100%)"
+  left: "-100%"
 };
 
 export const Navbar = () => {
@@ -43,7 +43,7 @@ export const Navbar = () => {
       circles.forEach((c) => (c.style.zIndex = 0));
       arrows.forEach((c) => (c.style.zIndex = 0));
       setSidebarVisible(true);
-      setSidebarStyle({ transform: "translateY(0)" });
+      setSidebarStyle({ left: "0" });
     }
   };
 
@@ -65,7 +65,7 @@ export const Navbar = () => {
   }, [prevScrollPos, visible, handleScroll]);
   return (
     <>
-      <div className="navbar navbar--hidden">
+      <header className="navbar navbar--hidden">
         <h1 className="navbar__logo logo">listy</h1>
         <ul className="navbar__list navbar__list--default">
           <NavLinks />
@@ -78,7 +78,7 @@ export const Navbar = () => {
           <div className="navbar__background">{""}</div>
         </div>
         <Sidebar sidebarStyle={sidebarStyle} />
-      </div>
+      </header>
     </>
   );
 };
