@@ -529,7 +529,7 @@ select {
 .navbar {
   display: flex;
   align-items: center;
-  max-width: 1550px;
+  max-width: 1200px;
   color: #000;
   position: relative;
   z-index: 1;
@@ -547,6 +547,9 @@ select {
     margin: auto;
     font-size: 2.5rem;
   }
+}
+.navbar__checkbox {
+  display: none;
 }
 .navbar__list {
   display: flex;
@@ -609,6 +612,43 @@ select {
 .navbar__logout:hover {
   background-color: #b1b1b1;
 }
+.navbar__list-btn {
+  background-color: #fff;
+  position: absolute;
+  border-radius: 50%;
+  z-index: 2000;
+  cursor: pointer;
+}
+.navbar__list-btn svg {
+  height: 3rem;
+  aspect-ratio: 1;
+}
+.navbar__background {
+  height: 2.7rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  position: absolute;
+  right: 2.1rem;
+  background-image: radial-gradient(#ff9785, #ff5233);
+  z-index: 1000;
+  transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
+}
+.navbar__sidebar {
+  position: absolute;
+  right: 0;
+  width: 100%;
+  z-index: 2000;
+  height: 500px;
+  width: 500px;
+}
+.navbar__checkbox:checked ~ .navbar__background {
+  transform: scale(80);
+}
+.navbar__checkbox:checked ~ .navbar__nav {
+  opacity: 1;
+  width: 100%;
+  left: 0;
+}
 @media only screen and (max-width: 575.98px) {
   .navbar {
     padding: 0.5rem 0;
@@ -616,6 +656,23 @@ select {
     background-color: #fff;
     position: sticky;
   }
+}
+
+.sidebar {
+  position: fixed;
+  width: 100%;
+  z-index: 2000;
+  display: flex;
+  padding: 0;
+  flex-direction: column;
+  top: 0;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar .navbar__item {
+  margin-left: 0;
 }
 
 /* ____Recipe____ */
@@ -626,7 +683,8 @@ select {
 }
 .recipe__header {
   display: flex;
-  padding: 0 2rem;
+  align-items: center;
+  padding: 1rem 2rem;
   width: 100%;
   margin-bottom: 0.5rem;
 }
@@ -923,7 +981,8 @@ select {
 }
 .grocerylist__header {
   display: flex;
-  padding: 0 2rem;
+  align-items: center;
+  padding: 1rem 2rem;
   width: 100%;
   margin-bottom: 0.5rem;
 }
