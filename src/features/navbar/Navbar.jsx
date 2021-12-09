@@ -1,19 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { menuSVG, xSVG } from "../../styles/svgs";
-import { debounce } from "../utils/debounce";
+// import { debounce } from "../utils/debounce";
 import { NavLinks } from "./NavLinks";
 import { Sidebar } from "./Sidebar";
+import { FormContainer } from "./FormContainer";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 
 const initialSidebarState = {
   left: "-100%"
 };
+const initialFormStyle = {
+  transform: "translateX(130%)",
+  opacity: "0"
+};
 
 export const Navbar = () => {
-  const [visible, setVisible] = useState(true);
-  const [prevScrollPos, setPrevScrollPos] = useState(0);
+  // const [visible, setVisible] = useState(true);
+  // const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [sidebarStyle, setSidebarStyle] = useState(initialSidebarState);
+  const [formStyle, setFormStyle] = useState(initialFormStyle);
+  const [formVisible, setFormVisible] = useState(false);
 
   const handleSidebar = (event) => {
     const circles = document.querySelectorAll(".carousel__circles");
@@ -27,7 +34,6 @@ export const Navbar = () => {
     }
 
     if (sidebarVisible) {
-      console.log("showem");
       setTimeout(() => {
         circles.forEach((c) => (c.style.zIndex = 1));
         arrows.forEach((c) => (c.style.zIndex = 1));
@@ -37,7 +43,6 @@ export const Navbar = () => {
       setSidebarStyle(initialSidebarState);
       enableBodyScroll(sidebar);
     } else {
-      console.log("dont showem");
       circles.forEach((c) => (c.style.zIndex = 0));
       arrows.forEach((c) => (c.style.zIndex = 0));
       body.style.pointerEvents = "none";
@@ -47,28 +52,46 @@ export const Navbar = () => {
     }
   };
 
-  const handleScroll = debounce(() => {
-    const currentScrollPos = window.pageYOffset;
+  // const handleScroll = debounce(() => {
+  //   const currentScrollPos = window.pageYOffset;
 
-    setVisible(
-      (prevScrollPos > currentScrollPos && prevScrollPos - currentScrollPos > 70) ||
-        currentScrollPos < 10
-    );
+  //   setVisible(
+  //     (prevScrollPos > currentScrollPos && prevScrollPos - currentScrollPos > 70) ||
+  //       currentScrollPos < 10
+  //   );
 
-    setPrevScrollPos(currentScrollPos);
-  }, 100);
+  //   setPrevScrollPos(currentScrollPos);
+  // }, 100);
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+  // useEffect(() => {
+  //   window.addEventListener("scroll", handleScroll);
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [prevScrollPos, visible, handleScroll]);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, [prevScrollPos, visible, handleScroll]);
+
+  const handleClick = () => {
+    console.log("clicked");
+    if (formVisible) {
+      setFormStyle(initialFormStyle);
+      setFormVisible(false);
+    } else {
+      setFormStyle({
+        transform: "translateX(0)",
+        opacity: "1",
+        visibility: "visible"
+      });
+      setFormVisible(true);
+    }
+  };
   return (
     <>
       <header className="navbar navbar--hidden">
         <h1 className="navbar__logo logo">listy</h1>
         <ul className="navbar__list navbar__list--default">
           <NavLinks />
+          <button className="x-svg-btn navbar__btn-add" onClick={handleClick}>
+            {xSVG}
+          </button>
         </ul>
         <div className="navbar__list navbar__list--phone">
           <input type="checkbox" className="navbar__checkbox" id="nav-toggle" />
@@ -79,6 +102,7 @@ export const Navbar = () => {
         </div>
         <Sidebar handleSidebar={handleSidebar} sidebarStyle={sidebarStyle} />
       </header>
+      <FormContainer formStyle={formStyle} handleClick={handleClick} />
     </>
   );
 };

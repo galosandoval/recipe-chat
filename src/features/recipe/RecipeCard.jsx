@@ -108,9 +108,6 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
 
   return (
     <div id={recipe["recipe-name"]} className="card recipe-card">
-      {/**
-       * TODO: Make toast when something is updated or deleted
-       */}
       <EditRecipe
         setEditRecipe={setEditRecipe}
         initialEditCardState={initialEditCardState}
