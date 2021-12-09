@@ -104,6 +104,7 @@
     border-radius: 50%;
     z-index: 2001;
     cursor: pointer;
+    pointer-events: visible;
 
     & svg {
       height: 3rem;
@@ -112,15 +113,14 @@
   }
 
   &__background {
-    height: 2.7rem;
+    height: 100%;
+    inset: 0;
     aspect-ratio: 1;
-    border-radius: 50%;
-    position: absolute;
-    right: 2.1rem;
-    // background-image: radial-gradient(#ff9785, #ff5233);
-    background-color: $color-primary;
+    position: fixed;
+    background-color: #ff6347;
     z-index: 1000;
     transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
+    transform: translateY(-105%);
   }
 
   &__sidebar {
@@ -134,8 +134,7 @@
 
   // Functionality
   &__checkbox:checked ~ &__background {
-    transform: scale(45);
-    -webkit-transform: scale(45);
+    transform: translateY(0);
   }
   &__checkbox:checked ~ &__nav {
     opacity: 1;
@@ -169,6 +168,7 @@
 .sidebar .navbar {
   &__item {
     margin-left: 0;
+    pointer-events: visible;
   }
 
   &__logout {

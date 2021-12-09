@@ -621,20 +621,21 @@ select {
   border-radius: 50%;
   z-index: 2001;
   cursor: pointer;
+  pointer-events: visible;
 }
 .navbar__list-btn svg {
   height: 3rem;
   aspect-ratio: 1;
 }
 .navbar__background {
-  height: 2.7rem;
+  height: 100%;
+  inset: 0;
   aspect-ratio: 1;
-  border-radius: 50%;
-  position: absolute;
-  right: 2.1rem;
+  position: fixed;
   background-color: #ff6347;
   z-index: 1000;
   transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
+  transform: translateY(-105%);
 }
 .navbar__sidebar {
   position: absolute;
@@ -645,8 +646,7 @@ select {
   width: 500px;
 }
 .navbar__checkbox:checked ~ .navbar__background {
-  transform: scale(45);
-  -webkit-transform: scale(45);
+  transform: translateY(0);
 }
 .navbar__checkbox:checked ~ .navbar__nav {
   opacity: 1;
@@ -679,6 +679,7 @@ select {
 
 .sidebar .navbar__item {
   margin-left: 0;
+  pointer-events: visible;
 }
 .sidebar .navbar__logout {
   margin-bottom: 0;
@@ -849,6 +850,7 @@ select {
   min-width: 160px;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
   z-index: 1;
+  background-color: #f7f7f7;
 }
 .card-menu__content > button {
   border: none;

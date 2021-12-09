@@ -6,7 +6,7 @@ export const Sidebar = ({ sidebarStyle, handleSidebar }) => {
   const { logout } = useAuth();
   const history = useHistory();
   return (
-    <ul className="sidebar" style={sidebarStyle} onClick={handleSidebar} name="sidebar">
+    <ul className="sidebar" style={sidebarStyle} id="sidebar" onClick={handleSidebar} name="sidebar">
       <li className="navbar__item">
         <NavLink
           name="sidebar"
