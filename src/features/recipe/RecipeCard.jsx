@@ -147,7 +147,15 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
           recipe={recipe}
         />
         <p className="recipe-card__author">
-          <span className="recipe-card__author-span">by</span> {recipe.author}
+          <span className="recipe-card__author-span">by </span>
+          <a
+            href={recipe.address}
+            target="_blank"
+            rel="noreferrer"
+            className="recipe-card__author-link"
+          >
+            {recipe.author}
+          </a>
         </p>
       </div>
 
@@ -168,14 +176,14 @@ export const RecipeCard = ({ recipe, index, closeOpenCarrots }) => {
         >
           {recipeDescription.buttonText}
         </button>
-        <button
-          className={`btn-round ${accordian.carrotClass}`}
-          name="carrot-btn"
-          onClick={handleClick}
-        >
-          {downArrowSVG}
-        </button>
       </div>
+      <button
+        className={`btn-round ${accordian.carrotClass}`}
+        name="carrot-btn"
+        onClick={handleClick}
+      >
+        {downArrowSVG}
+      </button>
       <Suspense fallback={<Loading />}>
         <Accordian accordian={accordian} id={recipe.id} index={index} />
       </Suspense>

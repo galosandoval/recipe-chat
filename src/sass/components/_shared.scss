@@ -102,7 +102,7 @@
   align-self: center;
   transition: all ease-in-out 0.4s;
   padding-top: 0.5rem;
-  color: $color-primary-light;
+  color: $color-primary;
   height: 4rem;
   width: 4rem;
 
@@ -140,6 +140,13 @@
   max-width: 25rem;
   position: relative;
   align-self: flex-start;
+
+  @include respond(phone) {
+    width: 100%;
+    margin: 0.2rem 0;
+    max-width: none;
+    border-radius: 0;
+  }
 }
 
 .u-card-heading {

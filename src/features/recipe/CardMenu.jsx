@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import OutsideClickHandler from "react-outside-click-handler";
-import { menuSVG, xSVG } from "../../styles/svgs";
+import { verticalDots, xSVG } from "../../styles/svgs";
 import { useDeleteRecipe } from "../services/recipeService";
 import { DeleteConfirmation } from "./delete/DeleteConfirmation";
 
@@ -66,7 +66,7 @@ export const CardMenu = ({
             name="dropbtn"
             onClick={handleClick}
           >
-            {menuSVG}
+            {verticalDots}
           </button>
         )}
       </OutsideClickHandler>

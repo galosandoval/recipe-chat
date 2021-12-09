@@ -195,7 +195,7 @@ select {
   align-self: center;
   transition: all ease-in-out 0.4s;
   padding-top: 0.5rem;
-  color: #ff9785;
+  color: #ff6347;
   height: 4rem;
   width: 4rem;
 }
@@ -231,6 +231,14 @@ select {
   max-width: 25rem;
   position: relative;
   align-self: flex-start;
+}
+@media only screen and (max-width: 575.98px) {
+  .card {
+    width: 100%;
+    margin: 0.2rem 0;
+    max-width: none;
+    border-radius: 0;
+  }
 }
 
 .u-card-heading {
@@ -781,12 +789,20 @@ select {
   position: absolute;
   bottom: 0;
   left: 1rem;
-  color: #b1b1b1;
   text-transform: lowercase;
   font-size: 0.8rem;
 }
 .recipe-card__author-span {
   color: #ff6347;
+}
+.recipe-card__author-link, .recipe-card__author-link:visited {
+  color: #b1b1b1;
+  text-decoration: none;
+  transition: 0.3s ease all;
+}
+.recipe-card__author-link:hover, .recipe-card__author-link:visited:hover {
+  color: #ff6347;
+  text-decoration: underline;
 }
 .recipe-card__name {
   padding-left: 0.5em;
@@ -800,16 +816,23 @@ select {
   height: 20em;
   object-fit: cover;
 }
+@media only screen and (max-width: 575.98px) {
+  .recipe-card__img {
+    height: 25rem;
+  }
+}
 .recipe-card__description {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 1em;
+  padding: 1rem 1rem;
+  background-color: rgba(250, 235, 215, 0.5);
+  margin-bottom: 0.7rem;
 }
 .recipe-card__learn-button {
   background: none;
   border: none;
-  color: #b1b1b1;
+  color: #ff6347;
   cursor: pointer;
 }
 .recipe-card__learn-button--hidden {
@@ -869,6 +892,10 @@ select {
   height: 3rem;
   width: 3rem;
   margin-right: 0.7rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
 }
 .card-menu__btn-description:hover, .card-menu__btn-instruction:hover, .card-menu__btn-ingredients:hover {
   background-color: #777;
@@ -979,7 +1006,7 @@ select {
 
 /* ____RecipeIngredients____ */
 .recipe-ingredients {
-  padding-left: 1rem;
+  padding: 0 2rem;
 }
 .recipe-ingredients__item {
   padding-bottom: 1rem;
@@ -993,11 +1020,12 @@ select {
 /* ____RecipeInstructions____ */
 .recipe-instructions {
   letter-spacing: 1.4px;
-  padding: 1rem;
-  margin-left: 1rem;
+  padding: 0 1rem;
+  margin-left: 2rem;
+  margin-top: 0;
 }
 .recipe-instructions__item {
-  padding: 0.5em 1em 0.5em 0.5em;
+  padding: 1rem;
   margin: 0 0.5em;
 }
 
@@ -1124,7 +1152,7 @@ select {
 }
 .grocerylist-card__info {
   display: flex;
-  padding: 1rem;
+  padding: 2rem 1rem;
   align-items: center;
 }
 .grocerylist-card__tag-container {
@@ -1144,31 +1172,15 @@ select {
   color: #fff;
   transition: all ease 0.4s;
   text-transform: lowercase;
-  max-width: 20ch;
   height: 3ch;
   position: relative;
-  min-width: 6ch;
   overflow: hidden;
-  width: 4rem;
 }
 .grocerylist-card__tag:not(:first-child) {
   margin-left: 0.5rem;
 }
 .grocerylist-card__tag:hover {
   background-color: #ff5233;
-}
-.grocerylist-card__tag-span {
-  position: absolute;
-  width: max-content;
-  height: 3ch;
-}
-.grocerylist-card__tag-span:hover {
-  animation: pan 3.5s linear infinite forwards;
-}
-@keyframes pan {
-  to {
-    transform: translateX(-100%);
-  }
 }
 .grocerylist-card__page-btn {
   height: 5rem;
@@ -1180,14 +1192,6 @@ select {
   margin-top: 0.1rem;
   height: 3rem;
   width: 3rem;
-}
-@media only screen and (max-width: 575.98px) {
-  .grocerylist-card {
-    width: 100%;
-    margin: 0.2rem 0;
-    max-width: none;
-    border-radius: 0;
-  }
 }
 
 /* ____Hover Effect ____ */
@@ -1217,8 +1221,10 @@ select {
   transition: 0.4s all ease;
   background-color: rgba(0, 0, 0, 0.5);
   color: #fff;
-  display: grid;
-  place-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
 }
 .carousel__button:hover {
   color: #ff6347;
@@ -1228,9 +1234,18 @@ select {
   height: 2.5rem;
   width: 2.5rem;
 }
+@media only screen and (max-width: 575.98px) {
+  .carousel__button {
+    width: 2.7rem;
+    height: 2.7rem;
+  }
+  .carousel__button:hover {
+    color: #fff;
+  }
+}
 .carousel__circles {
   position: absolute;
-  bottom: -1rem;
+  bottom: -1.4rem;
   display: flex;
   justify-content: center;
   width: 100%;

@@ -97,7 +97,7 @@ export const GrocerylistCard = ({ list, index }) => {
         <ul className="grocerylist-card__tag-container">
           {list["recipe-name"].map((name, index) => (
             <li className="grocerylist-card__tag" key={`${name}-${index}`}>
-              {name.length > 15 ? <span className="grocerylist-card__tag-span">{name}</span> : name}
+              {name}
             </li>
           ))}
         </ul>

@@ -135,7 +135,7 @@
   }
   &__info {
     display: flex;
-    padding: 1rem;
+    padding: 2rem 1rem;
     align-items: center;
   }
   &__tag-container {
@@ -155,12 +155,9 @@
     color: $color-white;
     transition: all ease 0.4s;
     text-transform: lowercase;
-    max-width: 20ch;
     height: 3ch;
     position: relative;
-    min-width: 6ch;
     overflow: hidden;
-    width: clamp(3.5rem, 4rem, 5rem);
 
     &:not(:first-child) {
       margin-left: 0.5rem;
@@ -168,22 +165,6 @@
 
     &:hover {
       background-color: $color-primary-dark;
-    }
-
-    &-span {
-      position: absolute;
-      width: max-content;
-      height: 3ch;
-
-      &:hover {
-        animation: pan 3.5s linear infinite forwards;
-      }
-    }
-  }
-
-  @keyframes pan {
-    to {
-      transform: translateX(-100%);
     }
   }
 
@@ -198,13 +179,6 @@
       height: 3rem;
       width: 3rem;
     }
-  }
-
-  @include respond(phone) {
-    width: 100%;
-    margin: 0.2rem 0;
-    max-width: none;
-    border-radius: 0;
   }
 }
 
@@ -236,8 +210,10 @@
     transition: 0.4s all ease;
     background-color: rgba($color-black, 0.5);
     color: $color-white;
-    display: grid;
-    place-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
 
     &:hover {
       color: $color-primary;
@@ -247,10 +223,19 @@
       height: 2.5rem;
       width: 2.5rem;
     }
+
+    @include respond(phone) {
+      width: 2.7rem;
+      height: 2.7rem;
+
+      &:hover {
+        color: $color-white;
+      }
+    }
   }
   &__circles {
     position: absolute;
-    bottom: -1rem;
+    bottom: -1.4rem;
     display: flex;
     justify-content: center;
     width: 100%;
