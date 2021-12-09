@@ -573,7 +573,7 @@ select {
   }
   .navbar__list-btn {
     height: 3.4rem;
-    aspect-ratio: 1;
+    width: 3.4rem;
     display: grid;
     place-items: center;
     background-color: transparent;
@@ -632,7 +632,7 @@ select {
   inset: 0;
   aspect-ratio: 1;
   position: fixed;
-  background-color: #ff6347;
+  background: linear-gradient(to left bottom, #ff6347, #ff5233);
   z-index: 1000;
   transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
   transform: translateY(-105%);
@@ -1216,7 +1216,7 @@ select {
 }
 .carousel__circles {
   position: absolute;
-  bottom: 1em;
+  bottom: -1rem;
   display: flex;
   justify-content: center;
   width: 100%;
@@ -1225,11 +1225,13 @@ select {
   z-index: 1;
 }
 .carousel__svg-circle {
-  fill: gray;
+  fill: #777;
   margin-left: 0.5rem;
+  height: 0.8rem;
+  width: 0.8rem;
 }
 .carousel__svg-circle--fill-white {
-  fill: #fff;
+  fill: #b3b3b3;
 }
 
 /* ____Paper____ */

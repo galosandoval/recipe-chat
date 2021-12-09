@@ -238,7 +238,7 @@
   }
   &__circles {
     position: absolute;
-    bottom: 1em;
+    bottom: -1rem;
     display: flex;
     justify-content: center;
     width: 100%;
@@ -247,11 +247,13 @@
     z-index: 1;
   }
   &__svg-circle {
-    fill: gray;
+    fill: $color-grey-dark-2;
     margin-left: 0.5rem;
+    height: 0.8rem;
+    width: 0.8rem;
 
     &--fill-white {
-      fill: $color-white;
+      fill: lighten($color-grey-dark, 0.9);
     }
   }
 }
