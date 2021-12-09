@@ -3,6 +3,7 @@ import { menuSVG, xSVG } from "../../styles/svgs";
 import { debounce } from "../utils/debounce";
 import { NavLinks } from "./NavLinks";
 import { Sidebar } from "./Sidebar";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 
 const initialSidebarState = {
   left: "-100%"
@@ -18,6 +19,7 @@ export const Navbar = () => {
     const circles = document.querySelectorAll(".carousel__circles");
     const arrows = document.querySelectorAll(".carousel__buttons");
     const body = document.querySelector("body");
+    const sidebar = document.querySelector("#sidebar");
 
     if (event.target.name === "sidebar") {
       const closebtn = document.querySelector(".navbar__checkbox");
@@ -29,17 +31,19 @@ export const Navbar = () => {
       setTimeout(() => {
         circles.forEach((c) => (c.style.zIndex = 1));
         arrows.forEach((c) => (c.style.zIndex = 1));
-        body.style.overflowY = "auto";
+        body.style.pointerEvents = "all";
       }, 800);
       setSidebarVisible(false);
       setSidebarStyle(initialSidebarState);
+      enableBodyScroll(sidebar);
     } else {
       console.log("dont showem");
       circles.forEach((c) => (c.style.zIndex = 0));
       arrows.forEach((c) => (c.style.zIndex = 0));
-      body.style.overflowY = "clip";
+      body.style.pointerEvents = "none";
       setSidebarVisible(true);
       setSidebarStyle({ left: "0" });
+      disableBodyScroll(sidebar);
     }
   };
 
