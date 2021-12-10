@@ -175,6 +175,9 @@ select {
 .add-btn-submit:hover span {
   color: #fff;
 }
+.add-btn-submit:disabled:hover {
+  background-color: #a50104;
+}
 .add-btn-svg {
   color: #20bf55;
 }
@@ -576,8 +579,9 @@ select {
   }
   .navbar__list--phone {
     display: flex;
-    flex: 0;
-    position: relative;
+    justify-content: space-between;
+    flex: 0 0 100%;
+    padding: 0 1rem;
   }
   .navbar__list-btn {
     height: 3.4rem;
@@ -586,7 +590,6 @@ select {
     place-items: center;
     background-color: transparent;
     border: none;
-    position: absolute;
     right: 2rem;
     color: #ff6347;
   }
@@ -625,7 +628,6 @@ select {
 }
 .navbar__list-btn {
   background-color: #fff;
-  position: absolute;
   border-radius: 50%;
   z-index: 2001;
   cursor: pointer;
@@ -663,6 +665,27 @@ select {
 }
 .navbar__btn-add {
   margin-left: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border: none;
+  color: #ff6347;
+  border-radius: 50%;
+  padding: 0.2rem;
+}
+.navbar__btn-add:hover {
+  background-color: #ff6347;
+  color: #fff;
+}
+@media only screen and (max-width: 575.98px) {
+  .navbar__btn-add {
+    margin-left: 0;
+  }
+  .navbar__btn-add svg {
+    height: 3rem;
+    width: 3rem;
+  }
 }
 @media only screen and (max-width: 575.98px) {
   .navbar {
@@ -834,19 +857,6 @@ select {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.recipe__header {
-  display: flex;
-  align-items: center;
-  padding: 1rem 2rem;
-  width: 100%;
-  margin-bottom: 0.5rem;
-}
-.recipe__header h1 {
-  margin-left: auto;
-}
-.recipe__header button {
-  margin-left: auto;
 }
 
 /* ____AddRecipe____ */
@@ -1155,19 +1165,6 @@ select {
   justify-content: center;
   align-items: center;
 }
-.grocerylist__header {
-  display: flex;
-  align-items: center;
-  padding: 1rem 2rem;
-  width: 100%;
-  margin-bottom: 0.5rem;
-}
-.grocerylist__header h1 {
-  margin-left: auto;
-}
-.grocerylist__header button {
-  margin-left: auto;
-}
 
 .grocerylist-form {
   display: flex;
@@ -1220,13 +1217,13 @@ select {
 .grocerylist-form__slider:hover {
   background-color: #3fde74;
 }
-.grocerylist-form__checkbox:checked + .add-form__slider {
+.grocerylist-form__checkbox:checked + .grocerylist-form__slider {
   background-color: #20bf55;
 }
-.grocerylist-form__checkbox:focus + .add-form__slider {
+.grocerylist-form__checkbox:focus + .grocerylist-form__slider {
   box-shadow: 0 0 1px #20bf55;
 }
-.grocerylist-form__checkbox:checked + .add-form__slider:before {
+.grocerylist-form__checkbox:checked + .grocerylist-form__slider:before {
   transform: translateX(26px);
 }
 

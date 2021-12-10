@@ -77,6 +77,10 @@
         color: $color-white;
       }
     }
+
+    &:disabled:hover {
+      background-color: $color-delete;
+    }
   }
 
   &-svg {

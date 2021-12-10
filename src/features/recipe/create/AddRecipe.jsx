@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { checkSVG } from "../../../styles/svgs";
-import { queryClient } from "../../utils/react-query-client";
 import {
   useCreateIngredients,
   useCreateInstructions,
   useCreateRecipe
 } from "../../services/recipeService";
-import { parseIngredients, parseInstructions } from "./addRecipe";
+import { queryClient } from "../../utils/react-query-client";
 import { storage } from "../../utils/storage";
+import { parseIngredients, parseInstructions } from "../../utils/addRecipe";
 
 const initialRecipeToAddState = {
   name: "",
@@ -18,43 +17,49 @@ const initialRecipeToAddState = {
   author: "",
   address: ""
 };
-const initialAddButtonState = { class: "add-btn-svg--hidden", isAdded: false };
+const userId = storage.getUserId();
 
-export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormState }) => {
-  const recipe = useCreateRecipe(recipes);
+export const NewAddRecipe = () => {
+  const recipe = useCreateRecipe();
   const instructions = useCreateInstructions();
   const ingredients = useCreateIngredients();
 
-  const [recipeToAdd, setRecipetToAdd] = useState(initialRecipeToAddState);
-  const [addButton, setAddButton] = useState(initialAddButtonState);
-  const [show, setShow] = useState(false);
+  const [recipeFormStyle, setRecipeFormStyle] = useState(0);
+  const [count, setCount] = useState(0);
+  const [formValues, setFormValues] = useState(initialRecipeToAddState);
+  const [disabled, setDisabled] = useState(true);
 
   const handleChange = (event) => {
-    if (addButton.isAdded) setAddButton(initialAddButtonState);
-    const { name } = event.target;
-    setRecipetToAdd({ ...recipeToAdd, [name]: event.target.value });
+    const { name, value } = event.target;
+    setFormValues((state) => ({ ...state, [name]: value }));
+    setDisabled(false);
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleNext = (event) => {
+    const { name } = event.target;
+    if (name === "next") {
+      setCount((state) => state + 1);
+      setRecipeFormStyle((state) => state - 100);
+    }
+    setDisabled(true);
+  };
 
+  const handleSubmit = async () => {
     const recipeBody = {
-      "recipe-name": recipeToAdd.name,
-      description: recipeToAdd.description,
-      "user-id": storage.getUserId(),
-      "img-url": recipeToAdd.imageUrl,
-      author: recipeToAdd.author,
-      address: recipeToAdd.address
+      "recipe-name": formValues.name,
+      description: formValues.description,
+      "user-id": userId,
+      "img-url": formValues.imageUrl,
+      author: formValues.author,
+      address: formValues.address
     };
-    const parsedIngredients = parseIngredients(recipeToAdd.ingredients);
-    const parsedInstructions = parseInstructions(recipeToAdd.instructions);
 
     await recipe.mutateAsync(recipeBody);
-
     const newRecipeId = queryClient.getQueryData(["recipe", { "user-id": storage.getUserId() }])
       .data.recipe[0];
-    console.log({ newRecipeId });
 
+    const parsedIngredients = parseIngredients(formValues.ingredients);
+    const parsedInstructions = parseInstructions(formValues.instructions);
     const ingredientsBody = parsedIngredients.map((ingredientToAdd) => ({
       "recipe-id": newRecipeId,
       name: ingredientToAdd
@@ -66,91 +71,92 @@ export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormSt
       step: index + 1
     }));
 
-    ingredients.mutate(ingredientsBody);
-    instructions.mutate(instructionsBody);
+    await ingredients.mutateAsync(ingredientsBody);
+    await instructions.mutateAsync(instructionsBody);
 
-    setRecipetToAdd(initialRecipeToAddState);
-    setAddButton((state) => ({ ...state, isAdded: true, class: "add-btn-svg" }));
-    setShow(true);
+    setRecipeFormStyle(0);
+    document.querySelector("#form").click();
 
     setTimeout(() => {
-      setShow(false);
-      setAddButton(initialAddButtonState);
-      setFormState(initialFormState);
-    }, 1000);
+      recipe.reset();
+      instructions.reset();
+      ingredients.reset();
+    }, 2000);
   };
   return (
-    // classname=add-form > add-from--show
-    <form className={formStateClass} onSubmit={handleSubmit}>
-      <div className="add-form__container add-form__container--top">
-        <label className="add-form__label add-form__label--name">
+    <>
+      <form
+        className="form-container-recipe"
+        style={{
+          transform: `translateX(${recipeFormStyle}%)`
+        }}
+      >
+        <label className="form-container-recipe__label form-container-recipe__label--name">
           Recipe Name
           <input
             required
             type="text"
             placeholder="Creamy Mushroom Toast With Soft Egg & Gruyère"
             name="name"
-            value={recipeToAdd.name}
+            className="form-container-recipe__input"
+            value={formValues.name}
             onChange={handleChange}
-            className="add-form__input"
           />
         </label>
-        <label className="add-form__label">
+        <label className="form-container-recipe__label">
           Recipe Description
           <input
             required
             type="text"
             placeholder="A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner."
             name="description"
-            value={recipeToAdd.description}
+            className="form-container-recipe__input"
+            value={formValues.description}
             onChange={handleChange}
-            className="add-form__input"
           />
         </label>
-        <label className="add-form__label">
+        <label className="form-container-recipe__label">
           Image Address
           <input
             required
             type="text"
             placeholder="https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage108081050-50-Mushroomtoast.jpg"
             name="imageUrl"
-            value={recipeToAdd.imageUrl}
+            className="form-container-recipe__input"
+            value={formValues.imageUrl}
             onChange={handleChange}
-            className="add-form__input"
           />
         </label>
-        <label className="add-form__label">
+        <label className="form-container-recipe__label">
           Author
           <input
             required
             type="text"
             placeholder="Gordon Ramsay"
             name="author"
-            value={recipeToAdd.author}
+            className="form-container-recipe__input"
+            value={formValues.author}
             onChange={handleChange}
-            className="add-form__input"
           />
         </label>
-        <label className="add-form__label">
+        <label className="form-container-recipe__label">
           Web Address
           <input
             required
             type="text"
             placeholder="https://www.gordonramsay.com/gr/recipes/mushroomtoast/"
             name="address"
-            value={recipeToAdd.address}
+            className="form-container-recipe__input"
+            value={formValues.address}
             onChange={handleChange}
-            className="add-form__input"
           />
         </label>
-      </div>
 
-      <div className="add-form__container add-form__container--bottom">
-        <label className="add-form__label add-form__label-textarea">
+        <label className="form-container-recipe__label form-container-recipe__label-textarea">
           Ingredients
           <textarea
             required
-            className="add-form__textarea"
+            className="form-container-recipe__textarea"
             name="ingredients"
             cols="30"
             rows="10"
@@ -159,28 +165,51 @@ export const AddRecipe = ({ recipes, formStateClass, setFormState, initialFormSt
               3 cloves garlic, smashed
               3 large sprigs of thyme
               ½ shallot..."
-            value={recipeToAdd.ingredients}
+            value={formValues.ingredients}
             onChange={handleChange}
           />
         </label>
-        <label className="add-form__label add-form__label-textarea">
-          Instructions
-          <textarea
-            required
-            className="add-form__textarea"
-            name="instructions"
-            cols="30"
-            rows="10"
-            placeholder="Make the Mushrooms: Heat a large skillet over medium-high heat and melt butter. Once melted, add mushrooms (working in batches if needed to not..."
-            value={recipeToAdd.instructions}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-      <button className="add-btn-submit" type="submit">
-        {addButton.isAdded && show ? "Recipe Added" : "Add Recipe"}
-        <span className={addButton.class}>{checkSVG}</span>
-      </button>
-    </form>
+        <div className="form-container-recipe__submit">
+          <label className="form-container-recipe__label form-container-recipe__label-textarea">
+            Instructions
+            <textarea
+              required
+              className="form-container-recipe__textarea"
+              name="instructions"
+              cols="30"
+              rows="10"
+              placeholder="Make the Mushrooms: Heat a large skillet over medium-high heat and melt butter. Once melted, add mushrooms (working in batches if needed to not..."
+              value={formValues.instructions}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+      </form>
+      {count < 6 ? (
+        <button
+          onClick={handleNext}
+          className="add-btn-submit form-container-recipe__btn-next"
+          type="submit"
+          name="next"
+          disabled={disabled}
+        >
+          Next
+        </button>
+      ) : (
+        <button
+          onClick={handleSubmit}
+          className="add-btn-submit form-container-recipe__btn-next"
+          type="submit"
+          name="submit"
+          disabled={disabled}
+        >
+          {recipe.isSuccess && instructions.isSuccess && ingredients.isSuccess
+            ? "Success"
+            : recipe.isLoading || instructions.isLoading || ingredients.isLoading
+            ? "Adding..."
+            : "Save"}
+        </button>
+      )}
+    </>
   );
 };

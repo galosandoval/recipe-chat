@@ -3,7 +3,6 @@ import React from "react";
 export const AddGrocerylistCheckboxes = ({ r, index, checked, setChecked }) => {
   const handleChange = (position) => {
     const updatedCheckedState = checked.map((c, i) => (i === position ? !c : c));
-
     setChecked(updatedCheckedState);
   };
   return (

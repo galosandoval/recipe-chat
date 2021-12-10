@@ -1,5 +1,6 @@
 import React from "react";
 import { checkSVG } from "../../../styles/svgs";
+import { removeBlur } from "../../utils/modalBlur";
 
 export const DeleteConfirmation = ({
   name,
@@ -10,9 +11,7 @@ export const DeleteConfirmation = ({
   mutation
 }) => {
   const closeDeleteModal = () => {
-    const modal = document.querySelector("body");
-
-    modal.classList.remove("modal-blur");
+    removeBlur();
     setDeleteModal(initialDeleteModalState);
   };
 

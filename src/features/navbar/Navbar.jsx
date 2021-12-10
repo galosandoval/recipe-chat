@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { menuSVG, xSVG } from "../../styles/svgs";
+import { menuSVG, plusSVG, xSVG } from "../../styles/svgs";
 // import { debounce } from "../utils/debounce";
 import { NavLinks } from "./NavLinks";
 import { Sidebar } from "./Sidebar";
 import { FormContainer } from "./FormContainer";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+import { addBlur, removeBlur } from "../utils/modalBlur";
 
 const initialSidebarState = {
   left: "-100%"
@@ -70,10 +71,12 @@ export const Navbar = () => {
   // }, [prevScrollPos, visible, handleScroll]);
 
   const handleClick = () => {
-    console.log("clicked");
+    const formContainer = document.querySelector("#form-container");
     if (formVisible) {
       setFormStyle(initialFormStyle);
       setFormVisible(false);
+      enableBodyScroll(formContainer);
+      removeBlur();
     } else {
       setFormStyle({
         transform: "translateX(0)",
@@ -81,15 +84,17 @@ export const Navbar = () => {
         visibility: "visible"
       });
       setFormVisible(true);
+      disableBodyScroll(formContainer);
+      addBlur();
     }
   };
   return (
     <>
       <header className="navbar navbar--hidden">
-        <h1 className="navbar__logo logo">listy</h1>
         <ul className="navbar__list navbar__list--default">
+          <h1 className="navbar__logo logo">listy</h1>
           <NavLinks />
-          <button className="x-svg-btn navbar__btn-add" onClick={handleClick}>
+          <button id="form" className="x-svg-btn navbar__btn-add" onClick={handleClick}>
             {xSVG}
           </button>
         </ul>
@@ -98,6 +103,10 @@ export const Navbar = () => {
           <label onClick={handleSidebar} className="navbar__list-btn" htmlFor="nav-toggle">
             {sidebarVisible ? xSVG : menuSVG}
           </label>
+          <h1 className="navbar__logo logo">listy</h1>
+          <button id="form" className="navbar__btn-add" onClick={handleClick}>
+            {plusSVG}
+          </button>
           <div className="navbar__background">{""}</div>
         </div>
         <Sidebar handleSidebar={handleSidebar} sidebarStyle={sidebarStyle} />

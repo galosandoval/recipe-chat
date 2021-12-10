@@ -70,7 +70,7 @@ export const useGetInstructions = (id) => {
   return useQuery(["instructions", id], () => getInstructionsByRecipeId(id));
 };
 
-export const useCreateRecipe = (recipes) => {
+export const useCreateRecipe = () => {
   return useMutation(addRecipe, {
     onSuccess: (data) => {
       queryClient.setQueryData(["recipe", { "user-id": storage.getUserId() }], data);

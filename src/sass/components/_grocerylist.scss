@@ -4,21 +4,6 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    padding: 1rem 2rem;
-    width: 100%;
-    margin-bottom: 0.5rem;
-
-    & h1 {
-      margin-left: auto;
-    }
-    & button {
-      margin-left: auto;
-    }
-  }
 }
 
 .grocerylist-form {
@@ -80,13 +65,13 @@
   }
 
   &__checkbox {
-    &:checked + .add-form__slider {
+    &:checked + .grocerylist-form__slider {
       background-color: $color-secondary;
     }
-    &:focus + .add-form__slider {
+    &:focus + .grocerylist-form__slider {
       box-shadow: 0 0 1px $color-secondary;
     }
-    &:checked + .add-form__slider:before {
+    &:checked + .grocerylist-form__slider:before {
       transform: translateX(26px);
     }
   }

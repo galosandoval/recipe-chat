@@ -1,10 +1,10 @@
 import React from "react";
 import { deleteSVG } from "../../../styles/svgs";
+import { addBlur } from "../../utils/modalBlur";
 
 export const DeleteItem = ({ setToBeDeleted, item, setDeleteModal }) => {
   const openDeleteModal = () => {
-    const modal = document.querySelector("body");
-    modal.classList.add("modal-blur");
+    addBlur();
 
     setToBeDeleted(item);
     setDeleteModal({

@@ -1,21 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { xSVG } from "../../styles/svgs";
-import { NewAddRecipe } from "../recipe/create/NewAddRecipe.jsx";
+import { NewAddRecipe } from "../recipe/create/AddRecipe.jsx";
 import { useLocation } from "react-router-dom";
-import { AddGroceryListNew } from "../grocerylist/AddGroceryListNew";
+import { AddGroceryList } from "../grocerylist/create/AddGroceryList";
 
 export const FormContainer = ({ formStyle, handleClick }) => {
   const location = useLocation();
-  console.log(location.pathname === "/");
-
-
 
   return (
-    <div
-      style={formStyle}
-      className="form-container"
-     
-    >
+    <div style={formStyle} id="form-container" className="form-container">
       <button className="form-container__btn-close x-svg-btn" onClick={handleClick}>
         {xSVG}
       </button>
@@ -32,7 +25,7 @@ export const FormContainer = ({ formStyle, handleClick }) => {
         </>
       )}
       {location.pathname.includes("recipes") && <NewAddRecipe />}
-      {location.pathname === "/" && <AddGroceryListNew />}
+      {location.pathname === "/" && <AddGroceryList />}
     </div>
   );
 };
