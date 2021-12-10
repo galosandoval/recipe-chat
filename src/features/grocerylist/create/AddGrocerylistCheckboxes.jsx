@@ -3,20 +3,19 @@ import React from "react";
 export const AddGrocerylistCheckboxes = ({ r, index, checked, setChecked }) => {
   const handleChange = (position) => {
     const updatedCheckedState = checked.map((c, i) => (i === position ? !c : c));
-
     setChecked(updatedCheckedState);
   };
   return (
-    <div className="add-form__switch-container">
+    <div className="grocerylist-form">
       <p>{r["recipe-name"]}</p>
-      <label className="add-form__switch">
+      <label className="grocerylist-form__switch">
         <input
           type="checkbox"
-          className="add-form__checkbox"
+          className="grocerylist-form__checkbox"
           checked={checked[index]}
           onChange={() => handleChange(index)}
         />
-        <span className="add-form__slider"></span>
+        <span className="grocerylist-form__slider"></span>
       </label>
     </div>
   );

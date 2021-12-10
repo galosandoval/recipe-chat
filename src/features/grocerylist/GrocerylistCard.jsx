@@ -28,14 +28,25 @@ export const GrocerylistCard = ({ list, index }) => {
 
   const handleClick = (event) => {
     const { name } = event.currentTarget;
+    const windowWidth = window.screen.width;
 
     if (name === "right-button") {
-      setCarousel((state) => (state -= 25));
+      console.log({ windowWidth });
+      console.log(list["img-url"]);
+      if (windowWidth <= 575) {
+        setCarousel((state) => (state -= 100));
+      } else {
+        setCarousel((state) => (state -= Math.ceil(100 / list["img-url"].length)));
+      }
       setPage((state) => (state += 1));
       circles[page - 1].classList.remove(fillWhite);
     }
     if (name === "left-button") {
-      setCarousel((state) => (state += 25));
+      if (windowWidth <= 575) {
+        setCarousel((state) => (state += 100));
+      } else {
+        setCarousel((state) => (state += Math.ceil(100 / list["img-url"].length)));
+      }
       circles[page - 1].classList.remove(fillWhite);
       setPage((state) => (state -= 1));
     }
@@ -69,7 +80,7 @@ export const GrocerylistCard = ({ list, index }) => {
         )}
         <div
           className="grocerylist-card__image-container"
-          style={{ transform: `translateX(${carousel}em)` }}
+          style={{ transform: `translateX(${carousel}%)` }}
         >
           {list["img-url"].map((img, index) => (
             <img
@@ -86,7 +97,7 @@ export const GrocerylistCard = ({ list, index }) => {
         <ul className="grocerylist-card__tag-container">
           {list["recipe-name"].map((name, index) => (
             <li className="grocerylist-card__tag" key={`${name}-${index}`}>
-              {name.length > 15 ? <span className="grocerylist-card__tag-span">{name}</span> : name}
+              {name}
             </li>
           ))}
         </ul>

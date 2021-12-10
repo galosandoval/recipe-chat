@@ -3,20 +3,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  &__header {
-    display: flex;
-    align-items: center;
-    padding: 1rem 2rem;
-    width: 100%;
-    margin-bottom: 0.5rem;
-
-    & h1 {
-      margin-left: auto;
-    }
-    & button {
-      margin-left: auto;
-    }
-  }
 }
 /* ____AddRecipe____ */
 .add-form {
@@ -86,12 +72,23 @@
     position: absolute;
     bottom: 0;
     left: 1rem;
-    color: $color-grey-dark;
     text-transform: lowercase;
     font-size: 0.8rem;
 
     &-span {
       color: $color-primary;
+    }
+
+    &-link,
+    &-link:visited {
+      color: $color-grey-dark;
+      text-decoration: none;
+      transition: 0.3s ease all;
+
+      &:hover {
+        color: $color-primary;
+        text-decoration: underline;
+      }
     }
   }
   &__name {
@@ -105,17 +102,23 @@
     width: 100%;
     height: 20em;
     object-fit: cover;
+
+    @include respond(phone) {
+      height: 25rem;
+    }
   }
   &__description {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 1em;
+    padding: 1rem 1rem;
+    background-color: rgba($color-tertiary, 0.5);
+    margin-bottom: 0.7rem;
   }
   &__learn-button {
     background: none;
     border: none;
-    color: $color-grey-dark;
+    color: $color-primary;
     cursor: pointer;
 
     &--hidden {
@@ -181,6 +184,10 @@
     height: 3rem;
     width: 3rem;
     margin-right: 0.7rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
 
     &-description,
     &-instruction,
@@ -311,7 +318,7 @@
 
 /* ____RecipeIngredients____ */
 .recipe-ingredients {
-  padding-left: 1rem;
+  padding: 0 2rem;
   &__item {
     padding-bottom: 1rem;
     list-style: none;
@@ -324,10 +331,11 @@
 /* ____RecipeInstructions____ */
 .recipe-instructions {
   letter-spacing: 1.4px;
-  padding: 1rem;
-  margin-left: 1rem;
+  padding: 0 1rem;
+  margin-left: 2rem;
+  margin-top: 0;
   &__item {
-    padding: 0.5em 1em 0.5em 0.5em;
+    padding: 1rem;
     margin: 0 0.5em;
   }
 }

@@ -4,7 +4,7 @@ export const RecipeInstructions = ({ instructions }) => {
   return (
     <ol className="recipe-instructions">
       {instructions.map((instruction) => (
-        <li className="recipe-intructions__item" key={instruction.id}>
+        <li className="recipe-instructions__item" key={instruction.id}>
           {instruction.description}
         </li>
       ))}
