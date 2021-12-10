@@ -44,7 +44,8 @@ export const NewAddRecipe = () => {
     setDisabled(true);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     const recipeBody = {
       "recipe-name": formValues.name,
       description: formValues.description,
@@ -84,79 +85,79 @@ export const NewAddRecipe = () => {
     }, 2000);
   };
   return (
-    <>
-      <form
-        className="form-container-recipe"
+    <form className="form-add">
+      <div
+        className="form-add__carousel"
         style={{
           transform: `translateX(${recipeFormStyle}%)`
         }}
       >
-        <label className="form-container-recipe__label form-container-recipe__label--name">
+        <label className="form-add__label">
           Recipe Name
           <input
             required
             type="text"
             placeholder="Creamy Mushroom Toast With Soft Egg & Gruyère"
             name="name"
-            className="form-container-recipe__input"
+            className="form-container-recipe__input form-add__input"
             value={formValues.name}
             onChange={handleChange}
           />
         </label>
-        <label className="form-container-recipe__label">
+        <label className="form-add__label">
           Recipe Description
           <input
             required
             type="text"
             placeholder="A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner."
             name="description"
-            className="form-container-recipe__input"
+            className="form-container-recipe__input form-add__input"
             value={formValues.description}
             onChange={handleChange}
           />
         </label>
-        <label className="form-container-recipe__label">
+        <label className="form-add__label">
           Image Address
           <input
             required
             type="text"
             placeholder="https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage108081050-50-Mushroomtoast.jpg"
             name="imageUrl"
-            className="form-container-recipe__input"
+            className="form-container-recipe__input form-add__input"
             value={formValues.imageUrl}
             onChange={handleChange}
           />
         </label>
-        <label className="form-container-recipe__label">
+        <label className="form-add__label">
           Author
           <input
             required
             type="text"
             placeholder="Gordon Ramsay"
             name="author"
-            className="form-container-recipe__input"
+            className="form-container-recipe__input form-add__input"
             value={formValues.author}
             onChange={handleChange}
           />
         </label>
-        <label className="form-container-recipe__label">
+        <label className="form-add__label">
           Web Address
           <input
             required
             type="text"
             placeholder="https://www.gordonramsay.com/gr/recipes/mushroomtoast/"
             name="address"
-            className="form-container-recipe__input"
+            className="form-container-recipe__input form-add__input"
             value={formValues.address}
             onChange={handleChange}
           />
         </label>
 
-        <label className="form-container-recipe__label form-container-recipe__label-textarea">
+        <label className="form-add__label">
           Ingredients
           <textarea
             required
-            className="form-container-recipe__textarea"
+            className="form-add__textarea"
             name="ingredients"
             cols="30"
             rows="10"
@@ -169,27 +170,24 @@ export const NewAddRecipe = () => {
             onChange={handleChange}
           />
         </label>
-        <div className="form-container-recipe__submit">
-          <label className="form-container-recipe__label form-container-recipe__label-textarea">
-            Instructions
-            <textarea
-              required
-              className="form-container-recipe__textarea"
-              name="instructions"
-              cols="30"
-              rows="10"
-              placeholder="Make the Mushrooms: Heat a large skillet over medium-high heat and melt butter. Once melted, add mushrooms (working in batches if needed to not..."
-              value={formValues.instructions}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-      </form>
+        <label className="form-add__label">
+          Instructions
+          <textarea
+            required
+            className="form-add__textarea"
+            name="instructions"
+            cols="30"
+            rows="10"
+            placeholder="Make the Mushrooms: Heat a large skillet over medium-high heat and melt butter. Once melted, add mushrooms (working in batches if needed to not..."
+            value={formValues.instructions}
+            onChange={handleChange}
+          />
+        </label>
+      </div>
       {count < 6 ? (
         <button
           onClick={handleNext}
-          className="add-btn-submit form-container-recipe__btn-next"
-          type="submit"
+          className="add-btn-submit form-add__btn"
           name="next"
           disabled={disabled}
         >
@@ -198,7 +196,7 @@ export const NewAddRecipe = () => {
       ) : (
         <button
           onClick={handleSubmit}
-          className="add-btn-submit form-container-recipe__btn-next"
+          className="add-btn-submit form-add__btn"
           type="submit"
           name="submit"
           disabled={disabled}
@@ -210,6 +208,6 @@ export const NewAddRecipe = () => {
             : "Save"}
         </button>
       )}
-    </>
+    </form>
   );
 };

@@ -14,7 +14,7 @@ const initialFormStyle = {
   transform: "translateX(130%)",
   opacity: "0"
 };
-
+  
 export const Navbar = () => {
   // const [visible, setVisible] = useState(true);
   // const [prevScrollPos, setPrevScrollPos] = useState(0);

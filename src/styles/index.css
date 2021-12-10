@@ -251,19 +251,48 @@ select {
 }
 
 /* ____Form____ */
-.add-form {
-  width: 100%;
-  background-color: #ff6347;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height ease 0.8s;
+.form-add__carousel {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  transition: all 0.5s ease-in-out;
+  padding: 1rem 0;
+}
+.form-add__label {
+  flex: 0 0 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  position: relative;
+  align-items: center;
 }
-.add-form--show {
-  max-height: 600px;
+.form-add__checkboxes {
+  flex: 0 0 100%;
+  margin-top: 1rem;
+}
+.form-add__input {
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+}
+.form-add__input:focus {
+  background-color: rgba(250, 235, 215, 0.9);
+}
+.form-add__textarea {
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  margin: 1rem 0;
+  padding: 1rem 2rem;
+  resize: none;
+}
+.form-add__textarea:focus {
+  background-color: rgba(250, 235, 215, 0.9);
+}
+.form-add__btn {
+  margin: 0 auto;
 }
 
 /* ____DeleteConfirmation____ */
@@ -337,6 +366,7 @@ select {
 
 .modal-blur {
   position: fixed;
+  width: 100%;
 }
 .modal-blur::before {
   position: absolute;
@@ -738,6 +768,7 @@ select {
 
 .form-container {
   height: 85vh;
+  max-height: 42rem;
   background-color: #ff6347;
   position: fixed;
   inset: 0;
@@ -773,83 +804,6 @@ select {
 }
 .form-container__desc {
   text-align: center;
-}
-.form-container-recipe {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  transition: all 0.5s ease-in-out;
-  padding: 1rem 0;
-}
-.form-container-recipe__label {
-  width: 100%;
-  flex: 0 0 100%;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-}
-.form-container-recipe__input {
-  border: none;
-  border-radius: 5px;
-  outline: none;
-  transition: all 0.3s ease;
-  margin-top: 1rem;
-  padding: 1rem 2rem;
-}
-.form-container-recipe__input:focus {
-  background-color: rgba(250, 235, 215, 0.9);
-}
-.form-container-recipe__textarea {
-  outline: none;
-  border: none;
-  border-radius: 5px;
-  transition: all 0.3s ease;
-  margin: 1rem 0;
-  padding: 1rem 2rem;
-  resize: none;
-}
-.form-container-recipe__textarea:focus {
-  background-color: rgba(250, 235, 215, 0.9);
-}
-.form-container-recipe__btn-next {
-  margin: 0 auto;
-}
-.form-container-recipe__submit {
-  display: flex;
-  flex-direction: column;
-  flex: 0 0 100%;
-}
-.form-container-grocerylist {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  transition: all 0.5s ease-in-out;
-  padding: 1rem 0;
-}
-.form-container-grocerylist__label {
-  flex: 0 0 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.form-container-grocerylist__checkboxes {
-  flex: 0 0 100%;
-  margin-top: 1rem;
-}
-.form-container-grocerylist__input {
-  border: none;
-  border-radius: 5px;
-  outline: none;
-  transition: all 0.3s ease;
-  margin-top: 1rem;
-  padding: 1rem 2rem;
-}
-.form-container-grocerylist__input:focus {
-  background-color: rgba(250, 235, 215, 0.9);
-}
-.form-container-grocerylist__btn {
-  margin: 0 auto;
 }
 
 /* ____Recipe____ */
