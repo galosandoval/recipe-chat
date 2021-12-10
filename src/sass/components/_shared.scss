@@ -229,6 +229,10 @@
   transition: all 0.4s ease-in;
   transform: translateY(0);
 
+  @include respond(phone) {
+    width: 90%;
+  }
+
   &--hidden {
     opacity: 0;
     transform: translateY(100%);

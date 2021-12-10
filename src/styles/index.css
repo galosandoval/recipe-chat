@@ -315,6 +315,11 @@ select {
   transition: all 0.4s ease-in;
   transform: translateY(0);
 }
+@media only screen and (max-width: 575.98px) {
+  .delete-confirmation {
+    width: 90%;
+  }
+}
 .delete-confirmation--hidden {
   opacity: 0;
   transform: translateY(100%);
@@ -1323,10 +1328,15 @@ select {
 .paper {
   position: absolute;
   height: -webkit-fill-available;
-  z-index: 1;
+  z-index: 2000;
   transition: all 0.5s ease;
   overflow-y: scroll;
   width: 100%;
+}
+@media only screen and (max-width: 575.98px) {
+  .paper {
+    position: fixed;
+  }
 }
 .paper__container {
   position: relative;
@@ -1362,13 +1372,14 @@ select {
   right: 0.3rem;
 }
 .paper__btn {
-  display: grid;
-  place-items: center;
   border: none;
   background-color: transparent;
   border-radius: 5px;
   transition: 0.3s ease all;
   color: #b1b1b1;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
 }
 .paper__btn:hover {
   background-color: rgba(0, 0, 0, 0.3);
@@ -1378,20 +1389,14 @@ select {
   height: 2rem;
   width: 2rem;
 }
-.paper__btn-expand-svg {
-  height: 1.5rem;
-}
-.paper__btn-minimize {
-  height: 3rem;
-  width: 3rem;
-}
-.paper__btn-minimize-svg {
-  height: 3rem;
-  width: 3rem;
-}
 .paper__pattern {
   min-height: 31rem;
   background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 24px, teal 25px);
+}
+@media only screen and (max-width: 575.98px) {
+  .paper__pattern {
+    background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 40px, teal 42px);
+  }
 }
 .paper__content {
   padding-top: 6px;
@@ -1401,6 +1406,12 @@ select {
   font-size: 19px;
   letter-spacing: 1px;
   word-spacing: 5px;
+}
+@media only screen and (max-width: 575.98px) {
+  .paper__content {
+    font-size: 1.7rem;
+    line-height: 42px;
+  }
 }
 
 /* ____TodoList____ */
@@ -1430,7 +1441,8 @@ select {
 
 /* ____Todo____ */
 .todo {
-  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 .todo__input {
   display: none;
@@ -1447,6 +1459,11 @@ select {
   text-decoration-color: #b1b1b1;
   color: #b1b1b1;
 }
+@media only screen and (max-width: 575.98px) {
+  .todo__label {
+    width: 90%;
+  }
+}
 .todo__checkbox {
   height: 1.2rem;
   width: 1.2rem;
@@ -1456,7 +1473,7 @@ select {
   order: 1;
   position: relative;
   align-self: start;
-  margin-left: 1rem;
+  margin-top: 0.3rem;
 }
 .todo__check {
   display: block;
@@ -1471,7 +1488,7 @@ select {
   height: 2.2rem;
   width: 2.2rem;
 }
-.todo__input:checked ~ .todo__label .todo__check {
+.todo__input:checked ~ .todo__checkbox > .todo__check {
   opacity: 1;
 }
 

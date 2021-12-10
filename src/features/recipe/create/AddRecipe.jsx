@@ -19,7 +19,7 @@ const initialRecipeToAddState = {
 };
 const userId = storage.getUserId();
 
-export const NewAddRecipe = () => {
+export const AddRecipe = () => {
   const recipe = useCreateRecipe();
   const instructions = useCreateInstructions();
   const ingredients = useCreateIngredients();

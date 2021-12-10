@@ -224,15 +224,18 @@
   }
 }
 
-// TODO: consider taking off fullscreen feature on desktop
 /* ____Paper____ */
 .paper {
   position: absolute;
   height: -webkit-fill-available;
-  z-index: 1;
+  z-index: 2000;
   transition: all 0.5s ease;
   overflow-y: scroll;
   width: 100%;
+
+  @include respond(phone) {
+    position: fixed;
+  }
 
   &__container {
     position: relative;
@@ -272,13 +275,14 @@
   }
 
   &__btn {
-    display: grid;
-    place-items: center;
     border: none;
     background-color: transparent;
     border-radius: 5px;
     transition: 0.3s ease all;
-    color: $color-grey-dark;
+    color: #b1b1b1;
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
 
     &:hover {
       background-color: rgba($color-black, 0.3);
@@ -289,25 +293,15 @@
       height: 2rem;
       width: 2rem;
     }
-
-    &-expand-svg {
-      height: 1.5rem;
-    }
-
-    &-minimize {
-      height: 3rem;
-      width: 3rem;
-
-      &-svg {
-        height: 3rem;
-        width: 3rem;
-      }
-    }
   }
 
   &__pattern {
     min-height: 31rem;
     background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 24px, teal 25px);
+
+    @include respond(phone) {
+      background-image: repeating-linear-gradient(#fdf3b6 0px, #fdf3b6 40px, teal 42px);
+    }
   }
 
   &__content {
@@ -318,6 +312,11 @@
     font-size: 19px;
     letter-spacing: 1px;
     word-spacing: 5px;
+
+    @include respond(phone) {
+      font-size: 1.7rem;
+      line-height: 42px;
+    }
   }
 }
 
@@ -350,7 +349,9 @@
 
 /* ____Todo____ */
 .todo {
-  width: 100%;
+  display: flex;
+  justify-content: space-between;
+
   &__input {
     display: none;
   }
@@ -368,6 +369,9 @@
       text-decoration-color: $color-grey-dark;
       color: $color-grey-dark;
     }
+    @include respond(phone) {
+      width: 90%;
+    }
   }
   &__checkbox {
     height: 1.2rem;
@@ -378,7 +382,7 @@
     order: 1;
     position: relative;
     align-self: start;
-    margin-left: 1rem;
+    margin-top: 0.3rem;
   }
   &__check {
     display: block;
@@ -395,7 +399,7 @@
     }
   }
 
-  &__input:checked ~ &__label &__check {
+  &__input:checked ~ &__checkbox > &__check {
     opacity: 1;
   }
 }
