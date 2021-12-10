@@ -21,6 +21,12 @@ const initialRecipeToAddState = {
 export const NewAddRecipe = () => {
   const [recipeFormStyle, setRecipeFormStyle] = useState(0);
   const [count, setCount] = useState(0);
+  const [formValues, setFormValues] = useState(initialRecipeToAddState);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormValues((state) => ({ ...state, [name]: value }));
+  };
 
   const handleNext = (event) => {
     const { name } = event.target;
@@ -47,6 +53,8 @@ export const NewAddRecipe = () => {
             placeholder="Creamy Mushroom Toast With Soft Egg & Gruyère"
             name="name"
             className="form-container-recipe__input"
+            value={formValues.name}
+            onChange={handleChange}
           />
         </label>
         <label className="form-container-recipe__label">
@@ -57,6 +65,8 @@ export const NewAddRecipe = () => {
             placeholder="A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner."
             name="description"
             className="form-container-recipe__input"
+            value={formValues.description}
+            onChange={handleChange}
           />
         </label>
         <label className="form-container-recipe__label">
@@ -67,6 +77,8 @@ export const NewAddRecipe = () => {
             placeholder="https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage108081050-50-Mushroomtoast.jpg"
             name="imageUrl"
             className="form-container-recipe__input"
+            value={formValues.imageUrl}
+            onChange={handleChange}
           />
         </label>
         <label className="form-container-recipe__label">
@@ -77,6 +89,8 @@ export const NewAddRecipe = () => {
             placeholder="Gordon Ramsay"
             name="author"
             className="form-container-recipe__input"
+            value={formValues.author}
+            onChange={handleChange}
           />
         </label>
         <label className="form-container-recipe__label">
@@ -87,6 +101,8 @@ export const NewAddRecipe = () => {
             placeholder="https://www.gordonramsay.com/gr/recipes/mushroomtoast/"
             name="address"
             className="form-container-recipe__input"
+            value={formValues.address}
+            onChange={handleChange}
           />
         </label>
 
@@ -103,19 +119,25 @@ export const NewAddRecipe = () => {
               3 cloves garlic, smashed
               3 large sprigs of thyme
               ½ shallot..."
+            value={formValues.ingredients}
+            onChange={handleChange}
           />
         </label>
-        <label className="form-container-recipe__label form-container-recipe__label-textarea">
-          Instructions
-          <textarea
-            required
-            className="form-container-recipe__textarea"
-            name="instructions"
-            cols="30"
-            rows="10"
-            placeholder="Make the Mushrooms: Heat a large skillet over medium-high heat and melt butter. Once melted, add mushrooms (working in batches if needed to not..."
-          />
-        </label>
+        <div className="form-container-recipe__submit">
+          <label className="form-container-recipe__label form-container-recipe__label-textarea">
+            Instructions
+            <textarea
+              required
+              className="form-container-recipe__textarea"
+              name="instructions"
+              cols="30"
+              rows="10"
+              placeholder="Make the Mushrooms: Heat a large skillet over medium-high heat and melt butter. Once melted, add mushrooms (working in batches if needed to not..."
+              value={formValues.instructions}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
       </form>
       {count < 6 ? (
         <button
@@ -133,7 +155,7 @@ export const NewAddRecipe = () => {
           type="submit"
           name="submit"
         >
-          Done
+          Save
         </button>
       )}
     </>

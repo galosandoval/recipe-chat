@@ -714,7 +714,7 @@ select {
 }
 
 .form-container {
-  height: 80vh;
+  height: 85vh;
   background-color: #ff6347;
   position: fixed;
   inset: 0;
@@ -790,6 +790,42 @@ select {
   background-color: rgba(250, 235, 215, 0.9);
 }
 .form-container-recipe__btn-next {
+  margin: 0 auto;
+}
+.form-container-recipe__submit {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 100%;
+}
+.form-container-grocerylist {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  transition: all 0.5s ease-in-out;
+  padding: 1rem 0;
+}
+.form-container-grocerylist__label {
+  flex: 0 0 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.form-container-grocerylist__checkboxes {
+  flex: 0 0 100%;
+  margin-top: 1rem;
+}
+.form-container-grocerylist__input {
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+}
+.form-container-grocerylist__input:focus {
+  background-color: rgba(250, 235, 215, 0.9);
+}
+.form-container-grocerylist__btn {
   margin: 0 auto;
 }
 
@@ -1132,32 +1168,34 @@ select {
 .grocerylist__header button {
   margin-left: auto;
 }
-.grocerylist .add-form {
-  overflow-y: scroll;
-  justify-content: flex-start;
+
+.grocerylist-form {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
   /* The slider */
 }
-.grocerylist .add-form__container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.grocerylist-form:not(:last-child) {
+  margin-bottom: 1rem;
 }
-.grocerylist .add-form__label {
-  width: 70%;
+.grocerylist-form p {
+  color: #fff;
+  text-transform: lowercase;
+  width: 75%;
 }
-.grocerylist .add-form__switch {
+.grocerylist-form__switch {
   position: relative;
   display: inline-block;
   min-width: 60px;
   height: 34px;
   /* Hide default HTML checkbox */
 }
-.grocerylist .add-form__switch input {
+.grocerylist-form__switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
-.grocerylist .add-form__slider {
+.grocerylist-form__slider {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -1168,7 +1206,7 @@ select {
   transition: 0.4s all ease-in-out;
   border-radius: 34px;
 }
-.grocerylist .add-form__slider:before {
+.grocerylist-form__slider:before {
   position: absolute;
   content: "";
   height: 26px;
@@ -1179,33 +1217,17 @@ select {
   transition: 0.4s;
   border-radius: 50%;
 }
-.grocerylist .add-form__slider:hover {
+.grocerylist-form__slider:hover {
   background-color: #3fde74;
 }
-.grocerylist .add-form__checkbox:checked + .add-form__slider {
+.grocerylist-form__checkbox:checked + .add-form__slider {
   background-color: #20bf55;
 }
-.grocerylist .add-form__checkbox:focus + .add-form__slider {
+.grocerylist-form__checkbox:focus + .add-form__slider {
   box-shadow: 0 0 1px #20bf55;
 }
-.grocerylist .add-form__checkbox:checked + .add-form__slider:before {
+.grocerylist-form__checkbox:checked + .add-form__slider:before {
   transform: translateX(26px);
-}
-.grocerylist .add-form__switch-container {
-  display: flex;
-  justify-content: space-between;
-  width: 45%;
-}
-.grocerylist .add-form__switch-container:not(:last-child) {
-  margin-bottom: 1rem;
-}
-.grocerylist .add-form__switch-container p {
-  margin-right: 10rem;
-  color: #fff;
-  text-transform: lowercase;
-}
-.grocerylist .add-form__btn {
-  margin: 1rem 0;
 }
 
 /* ____GrocerylistCard____ */

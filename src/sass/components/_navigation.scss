@@ -198,7 +198,7 @@
 }
 
 .form-container {
-  height: 80vh;
+  height: 85vh;
   background-color: $color-primary;
   position: fixed;
   inset: 0;
@@ -279,6 +279,46 @@
     }
 
     &__btn-next {
+      margin: 0 auto;
+    }
+
+    &__submit {
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 100%;
+    }
+  }
+
+  &-grocerylist {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    transition: all 0.5s ease-in-out;
+    padding: 1rem 0;
+
+    &__label {
+      flex: 0 0 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    &__checkboxes {
+      flex: 0 0 100%;
+      margin-top: 1rem;
+    }
+    &__input {
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      padding: 1rem 2rem;
+
+      &:focus {
+        background-color: rgba($color-tertiary, 0.9);
+      }
+    }
+    &__btn {
       margin: 0 auto;
     }
   }
