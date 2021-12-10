@@ -1,13 +1,15 @@
 import React, { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { listSVG } from "../../styles/svgs";
 import { Loading } from "../status/Loading";
 import { Carousel } from "./Carousel";
+import { addBlur, removeBlur } from "../utils/modalBlur";
 
 const Paper = lazy(() => import("./Paper"));
 
 const initialListState = {
   isVisible: false,
-  setTop: 100
+  setTop: 110
 };
 
 export const GrocerylistCard = ({ list, index }) => {
@@ -50,12 +52,17 @@ export const GrocerylistCard = ({ list, index }) => {
       circles[page - 1].classList.remove(fillWhite);
       setPage((state) => (state -= 1));
     }
+    const paper = document.querySelector(`#paper-${list["grocery-list-id"]}`);
     if (name === "open-list") {
+      disableBodyScroll(paper);
+      addBlur();
       closeOtherLists();
       setListState({ isVisible: true, setTop: 0 });
     }
     if (name === "close-list") {
-      setListState({ isVisible: false, setTop: 100 });
+      enableBodyScroll(paper);
+      removeBlur();
+      setListState({ isVisible: false, setTop: 110 });
     }
   };
 

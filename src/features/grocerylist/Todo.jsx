@@ -21,10 +21,10 @@ export const Todo = ({ ingredient, name, grocerylistId, todoClass }) => {
         checked={isChecked}
         onChange={handleChange}
       />
+      <span className="todo__checkbox">
+        <span className="todo__check">{checkSVG}</span>
+      </span>
       <label htmlFor={`${ingredient.id}-${grocerylistId}`} className={todoClass}>
-        <span className="todo__checkbox">
-          <span className="todo__check">{checkSVG}</span>
-        </span>
         {ingredient.name}
       </label>
     </div>

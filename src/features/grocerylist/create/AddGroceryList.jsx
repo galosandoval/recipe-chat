@@ -16,6 +16,7 @@ export const AddGroceryList = () => {
   const [grocerylistFormStyle, setGrocerylistFormStyle] = useState(0);
   const [count, setCount] = useState(0);
   const [input, setInput] = useState("");
+  const [disabled, setDisabled] = useState(true);
 
   const handleNext = (event) => {
     const { name } = event.target;
@@ -25,7 +26,9 @@ export const AddGroceryList = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     const reqBody = {
       "user-id": userId,
       name: input
@@ -43,15 +46,16 @@ export const AddGroceryList = () => {
         });
       return toAddArr;
     }, []);
+
     await createRecipes.mutateAsync(recipesToAdd);
 
-    setChecked(checked.map((c) => (c ? !c : c)));
-    setInput("");
-
     setTimeout(() => {
+      document.querySelector("#form").click();
+      setChecked(checked.map((c) => (c ? !c : c)));
+      setInput("");
+      setDisabled(true);
       setGrocerylistFormStyle(0);
       createGrocerylist.reset();
-      document.querySelector("#form").click();
     }, 2000);
   };
 
@@ -60,25 +64,25 @@ export const AddGroceryList = () => {
   }, [recipes]);
 
   return (
-    <>
-      <form
-        className="form-container-grocerylist"
+    <form className="form-add">
+      <div
+        className="form-add__carousel"
         style={{
           transform: `translateX(${grocerylistFormStyle}%)`
         }}
       >
-        <label className="form-container-grocerylist__label form-container-grocerylist__label-name">
+        <label className="form-add__label">
           Name
           <input
             type="text"
-            className="form-container-grocerylist__input"
+            className="form-add__input"
             placeholder="Gordon Ramsay's Recipes"
             required
             value={input}
             onChange={(event) => setInput(event.target.value)}
           />
         </label>
-        <div className="form-container-grocerylist__checkboxes">
+        <div className="form-add__checkboxes">
           {isLoading || checked.length === 0 ? (
             <Loading />
           ) : (
@@ -89,17 +93,19 @@ export const AddGroceryList = () => {
                 checked={checked}
                 setChecked={setChecked}
                 key={r.id}
+                setDisabled={setDisabled}
               />
             ))
           )}
         </div>
-      </form>
+      </div>
       {count === 1 ? (
         <button
           onClick={handleSubmit}
-          className="form-container-grocerylist__btn add-btn-submit"
+          className="add-btn-submit form-add__btn"
           type="submit"
           name="submit"
+          disabled={disabled}
         >
           {createGrocerylist.isSuccess && createRecipes.isSuccess
             ? "Success"
@@ -110,14 +116,13 @@ export const AddGroceryList = () => {
       ) : (
         <button
           onClick={handleNext}
-          className="form-container-grocerylist__btn add-btn-submit"
-          type="submit"
+          className="add-btn-submit form-add__btn"
           name="next"
           disabled={count === 0 && input === ""}
         >
           Next
         </button>
       )}
-    </>
+    </form>
   );
 };

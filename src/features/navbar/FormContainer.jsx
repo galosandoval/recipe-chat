@@ -1,6 +1,6 @@
 import React from "react";
 import { xSVG } from "../../styles/svgs";
-import { NewAddRecipe } from "../recipe/create/AddRecipe.jsx";
+import { AddRecipe } from "../recipe/create/AddRecipe.jsx";
 import { useLocation } from "react-router-dom";
 import { AddGroceryList } from "../grocerylist/create/AddGroceryList";
 
@@ -24,7 +24,7 @@ export const FormContainer = ({ formStyle, handleClick }) => {
           <p className="form-container__desc">Copy and paste your new recipe info here</p>
         </>
       )}
-      {location.pathname.includes("recipes") && <NewAddRecipe />}
+      {location.pathname.includes("recipes") && <AddRecipe />}
       {location.pathname === "/" && <AddGroceryList />}
     </div>
   );

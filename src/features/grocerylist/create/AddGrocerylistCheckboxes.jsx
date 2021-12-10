@@ -1,9 +1,10 @@
 import React from "react";
 
-export const AddGrocerylistCheckboxes = ({ r, index, checked, setChecked }) => {
+export const AddGrocerylistCheckboxes = ({ r, index, checked, setChecked, setDisabled }) => {
   const handleChange = (position) => {
     const updatedCheckedState = checked.map((c, i) => (i === position ? !c : c));
     setChecked(updatedCheckedState);
+    setDisabled(false);
   };
   return (
     <div className="grocerylist-form">
