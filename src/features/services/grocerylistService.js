@@ -66,9 +66,12 @@ export const useCreateRecipes = () => {
 };
 
 export const useUpdateChecked = (grocerylistId) => {
-  return useMutation(updateIsChecked, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["grocerylist", grocerylistId, "ingredients"]);
-    }
-  });
+  return useMutation(
+    updateIsChecked
+    // , {
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries(["grocerylist", grocerylistId, "ingredients"]);
+    // }
+    // }
+  );
 };

@@ -6,8 +6,34 @@ import { TodoComplete } from "./TodoComplete";
 
 export const TodoList = ({ grocerylistId }) => {
   const { data: ingredients, isLoading } = useGetIngredients(grocerylistId);
-
   if (isLoading) return <Loading />;
+
+  const arrangedIngredients = ingredients.reduce((checkedArray, ingredient, index) => {
+    if (ingredient.isChecked) {
+      const todo = (
+        <Todo
+          ingredient={ingredient}
+          name="uncheck"
+          key={`${ingredient.id}-${grocerylistId}-${index}`}
+          grocerylistId={grocerylistId}
+          todoClass="todo__label todo__label--checked"
+        />
+      );
+      checkedArray.push(todo);
+    } else {
+      const todo = (
+        <Todo
+          ingredient={ingredient}
+          name="check"
+          key={`${ingredient.id}-${grocerylistId}-${index}`}
+          grocerylistId={grocerylistId}
+          todoClass="todo__label"
+        />
+      );
+      checkedArray.unshift(todo);
+    }
+    return checkedArray;
+  }, []);
 
   const checked = ingredients.reduce((checkedArray, ingredient, index) => {
     if (ingredient.isChecked) {
@@ -47,16 +73,12 @@ export const TodoList = ({ grocerylistId }) => {
         <TodoComplete grocerylistId={grocerylistId} />
       ) : (
         <>
+          {arrangedIngredients}
           <div className="todo-list__incomplete">
             <h2>Incomplete</h2>
             {unChecked}
           </div>
-          {checked.length > 0 && (
-            <div className="todo-list__incomplete">
-              <h2>Completed</h2>
-              {checked}
-            </div>
-          )}
+          {checked.length > 0 && <div className="todo-list__incomplete">{checked}</div>}
         </>
       )}
     </div>
