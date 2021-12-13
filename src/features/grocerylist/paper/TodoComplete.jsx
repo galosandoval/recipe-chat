@@ -1,5 +1,5 @@
 import React from "react";
-import { useResetChecks } from "../services/ingredientsService";
+import { useResetChecks } from "../../services/ingredientsService";
 
 export const TodoComplete = ({ grocerylistId }) => {
   const { mutate } = useResetChecks(grocerylistId);
