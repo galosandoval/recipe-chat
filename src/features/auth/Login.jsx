@@ -16,7 +16,7 @@ const initialForm = {
 };
 
 export const Login = () => {
-  const { login } = useAuth();
+  const { login, isLoggingIn } = useAuth();
   const [error, setError] = useState(null);
   const [formErrors, setFormErrors] = useState(initialFormErrors);
   const [form, setForm] = useState(initialForm);
@@ -84,7 +84,7 @@ export const Login = () => {
         <div className="login__top">
           <h1>listy</h1>
           <button onClick={handleDemoLogin} className="add-btn-submit login__btn">
-            Demo Login
+            {isLoggingIn ? "Loading..." : "Demo Login"}
           </button>
         </div>
         <form className="login__form" onSubmit={handleLogin}>
