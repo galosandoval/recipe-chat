@@ -1,6 +1,7 @@
 # reminder-joes-app
 
-Deployed Link: https://awesome-jackson-9126be.netlify.app/
+Site: https://awesome-jackson-9126be.netlify.app/
+Backend: https://github.com/galosandoval/listy-backend
 
 ## My goal for this project was to simulate a profesisonal work environment
 
