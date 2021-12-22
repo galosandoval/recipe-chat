@@ -53,7 +53,6 @@
     align-self: stretch;
     height: 5rem;
     border-radius: 7px;
-    margin-bottom: -2rem;
     background-color: $color-primary-dark;
     color: $color-white;
     display: grid;
@@ -142,7 +141,6 @@
     }
   }
 
-  // @include()
 }
 
 .register .login {
