@@ -61,6 +61,8 @@
     box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.15);
     cursor: pointer;
     transition: transform 0ms, background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    margin-bottom: 1rem;
+
     &:hover {
       background-color: $color-white;
       color: $color-primary-dark;
