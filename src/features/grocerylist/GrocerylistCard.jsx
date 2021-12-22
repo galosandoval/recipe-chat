@@ -5,7 +5,7 @@ import { Loading } from "../status/Loading";
 import { Carousel } from "./Carousel";
 import { addBlur, removeBlur } from "../utils/modalBlur";
 
-const Paper = lazy(() => import("./Paper"));
+const Paper = lazy(() => import("./paper/Paper"));
 
 const initialListState = {
   isVisible: false,
