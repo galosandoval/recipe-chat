@@ -2,13 +2,11 @@ import { Link } from "react-router-dom";
 import styled from "styled-components/macro";
 import {
   boxShadow,
-  colorBlack,
   colorDelete,
   colorGrayDark1,
   colorPrimary,
   colorPrimaryDark,
   colorPrimaryLight,
-  colorWhite,
   ffLobster
 } from "../../styles/GlobalVariables";
 import { device } from "../../styles/mediaQueries";

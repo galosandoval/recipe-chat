@@ -7,12 +7,12 @@ import { useHistory } from "react-router-dom";
 import {
   Background,
   Errors,
-  LoginForm,
   LoginFormButton,
   LoginInput,
   PrimaryColor,
-  StyledLogin,
-  Top
+  RegisterForm,
+  RegisterTop,
+  StyledLogin
 } from "./StyledAuth";
 
 const initialFormErrors = {
@@ -64,11 +64,11 @@ export const Register = () => {
     <StyledLogin>
       <Background>
         <PrimaryColor></PrimaryColor>
-        <Top>
-          <h1 className="logo">listy</h1>
+        <RegisterTop>
+          <h1>listy</h1>
           <h1>Sign Up</h1>
-        </Top>
-        <LoginForm
+        </RegisterTop>
+        <RegisterForm
           onSubmit={async (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
@@ -119,7 +119,7 @@ export const Register = () => {
           <LoginFormButton type="submit" disabled={disabled}>
             Register
           </LoginFormButton>
-        </LoginForm>
+        </RegisterForm>
       </Background>
       {error && <ErrorToast errorMessage={error.message} location="register" />}
     </StyledLogin>
