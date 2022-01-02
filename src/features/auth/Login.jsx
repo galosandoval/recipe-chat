@@ -4,6 +4,18 @@ import { ErrorToast } from "../status/ErrorToast";
 import { useAuth } from "../utils/auth-config";
 import schema from "../utils/formValidation";
 import * as yup from "yup";
+import {
+  Background,
+  Errors,
+  LoginButton,
+  LoginForm,
+  LoginFormButton,
+  LoginInput,
+  PrimaryColor,
+  RegisterLink,
+  StyledLogin,
+  Top
+} from "./StyledAuth";
 
 const initialFormErrors = {
   username: "",
@@ -78,53 +90,44 @@ export const Login = () => {
   }, [form]);
 
   return (
-    <div className="login">
-      <div className="login__background">
-        <div className="login__primary-color"></div>
-        <div className="login__top">
+    <StyledLogin>
+      <Background>
+        <PrimaryColor></PrimaryColor>
+        <Top>
           <h1>listy</h1>
-          <button onClick={handleDemoLogin} className="add-btn-submit login__btn">
+          <LoginButton onClick={handleDemoLogin}>
             {isLoggingIn ? "Loading..." : "Demo Login"}
-          </button>
-        </div>
-        <form className="login__form" onSubmit={handleLogin}>
-          <input
+          </LoginButton>
+        </Top>
+        <LoginForm onSubmit={handleLogin}>
+          <LoginInput
             type="text"
             name="username"
-            className="login__form-input"
             placeholder="Username"
             required
             value={form.username}
             onChange={handleChange}
             autoComplete="false"
           />
-          <input
+          <LoginInput
             type="password"
             name="password"
-            className="login__form-input"
             placeholder="Password"
             required
             value={form.password}
             onChange={handleChange}
           />
-          <div className="login__errors">
-            <p className="login__errors-p">{formErrors.username}</p>
-            <p className="login__errors-p">{formErrors.password}</p>
-          </div>
-          <button
-            id="login-user"
-            type="submit"
-            className="login__form-btn add-btn-submit"
-            disabled={disabled}
-          >
+          <Errors>
+            <p>{formErrors.username}</p>
+            <p>{formErrors.password}</p>
+          </Errors>
+          <LoginFormButton id="login-user" type="submit" disabled={disabled}>
             Login
-          </button>
-        </form>
-      </div>
-      <Link className="login__register" to="/register">
-        Create an account
-      </Link>
+          </LoginFormButton>
+        </LoginForm>
+      </Background>
+      <RegisterLink to="/register">Create an account</RegisterLink>
       {error && <ErrorToast errorMessage={JSON.stringify(error)} location="login" />}
-    </div>
+    </StyledLogin>
   );
 };

@@ -4,6 +4,16 @@ import * as yup from "yup";
 import schema from "../utils/formValidation";
 import { useAuth } from "../utils/auth-config";
 import { useHistory } from "react-router-dom";
+import {
+  Background,
+  Errors,
+  LoginForm,
+  LoginFormButton,
+  LoginInput,
+  PrimaryColor,
+  StyledLogin,
+  Top
+} from "./StyledAuth";
 
 const initialFormErrors = {
   username: "",
@@ -51,15 +61,14 @@ export const Register = () => {
   }, [form]);
 
   return (
-    <div className="login register">
-      <div className="login__background">
-        <div className="login__primary-color"></div>
-        <div className="login__top">
+    <StyledLogin>
+      <Background>
+        <PrimaryColor></PrimaryColor>
+        <Top>
           <h1 className="logo">listy</h1>
           <h1>Sign Up</h1>
-        </div>
-        <form
-          className="login__form"
+        </Top>
+        <LoginForm
           onSubmit={async (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
@@ -78,44 +87,41 @@ export const Register = () => {
             }
           }}
         >
-          <input
+          <LoginInput
             type="text"
             name="username"
-            className="login__form-input"
             placeholder="Username"
             required
             value={form.username}
             onChange={handleChange}
           />
-          <input
+          <LoginInput
             type="password"
             name="password"
-            className="login__form-input"
             placeholder="Password"
             required
             value={form.password}
             onChange={handleChange}
           />
-          <input
+          <LoginInput
             type="password"
             name="passwordConfirmation"
-            className="login__form-input"
             placeholder="Confirm Password"
             required
             value={form.passwordConfirmation}
             onChange={handleChange}
           />
-          <div className="login__errors">
-            <p className="login__errors-p">{formErrors.username}</p>
-            <p className="login__errors-p">{formErrors.password}</p>
-            {disabled && <p className="login__errors-p">{formErrors.passwordConfirmation}</p>}
-          </div>
-          <button type="submit" className="login__form-btn add-btn-submit" disabled={disabled}>
+          <Errors>
+            <p>{formErrors.username}</p>
+            <p>{formErrors.password}</p>
+            {disabled && <p>{formErrors.passwordConfirmation}</p>}
+          </Errors>
+          <LoginFormButton type="submit" disabled={disabled}>
             Register
-          </button>
-        </form>
-      </div>
+          </LoginFormButton>
+        </LoginForm>
+      </Background>
       {error && <ErrorToast errorMessage={error.message} location="register" />}
-    </div>
+    </StyledLogin>
   );
 };
