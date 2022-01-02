@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { xSVG } from "../../../styles/svgs";
 import { useGetIngredients } from "../../services/grocerylistService";
 import { Loading } from "../../status/Loading";

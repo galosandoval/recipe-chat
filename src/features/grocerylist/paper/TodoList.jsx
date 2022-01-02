@@ -70,7 +70,7 @@ export const TodoList = ({ grocerylistId, data }) => {
       }, []);
       setIngredients(arrangedIngredients);
     }
-  }, [data, grocerylistId]);
+  }, [data, grocerylistId, checked.length, unchecked.length]);
 
   return (
     <div className="todo-list" id={`todo-list-${grocerylistId}`}>
