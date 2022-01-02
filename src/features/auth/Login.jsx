@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { ErrorToast } from "../status/ErrorToast";
 import { useAuth } from "../utils/auth-config";
 import schema from "../utils/formValidation";
@@ -121,7 +120,7 @@ export const Login = () => {
             <p>{formErrors.username}</p>
             <p>{formErrors.password}</p>
           </Errors>
-          <LoginFormButton id="login-user" type="submit" disabled={disabled}>
+          <LoginFormButton type="submit" disabled={disabled}>
             Login
           </LoginFormButton>
         </LoginForm>

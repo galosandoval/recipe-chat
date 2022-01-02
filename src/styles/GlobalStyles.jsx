@@ -1,7 +1,10 @@
 import { createGlobalStyle } from "styled-components/macro";
-import { ffRoboto } from "./typography";
+import { ffMontserrat } from "./GlobalVariables";
 
 export const GlobalStyles = createGlobalStyle`
+:root {
+  --color-black: 0 0 0;
+}
  // COLORS
 $color-primary: #ff6347;
 $color-primary-light: #ff9785;
@@ -67,8 +70,8 @@ body {
   min-height: 100vh;
   text-rendering: optimizeSpeed;
   line-height: 1.5;
-  background-color: $color-tertiary;
-  font-family: $ff-montserrat;
+  background-color: ${({ theme }) => theme.background};
+  font-family: ${ffMontserrat};
 }
 
 /* A elements that don't have a class get default styles */

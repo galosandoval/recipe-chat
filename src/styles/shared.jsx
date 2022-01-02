@@ -1,8 +1,8 @@
 import styled from "styled-components/macro";
+import { colorBlack, colorDelete, colorSecondary, colorWhite } from "./GlobalVariables";
 
 export const AddBtnSubmit = styled.button`
   padding: 1rem 2rem;
-  background-color: $color-white;
   border: none;
   display: flex;
   align-items: center;
@@ -11,24 +11,24 @@ export const AddBtnSubmit = styled.button`
   align-self: center;
   margin-bottom: 1rem;
   cursor: pointer;
+  color: ${({ theme }) => theme.primary};
 
   & span {
-    color: $color-black;
+    color: ${colorBlack};
     height: 1.5rem;
     width: 1.5rem;
     margin-left: 0.5rem;
     transition: all ease-in-out 0.3s;
   }
   &:hover {
-    background-color: $color-secondary;
-    color: $color-white;
+    background-color: ${colorSecondary};
 
     & span {
-      color: $color-white;
+      color: ${colorWhite};
     }
   }
 
   &:disabled:hover {
-    background-color: $color-delete;
+    background-color: ${colorDelete};
   }
 `;
