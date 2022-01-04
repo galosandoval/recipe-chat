@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { useGetIngredients } from "../../services/grocerylistService";
+import { StyledTodoList } from "./StyledPaper";
 import { Todo } from "./Todo";
 import { TodoComplete } from "./TodoComplete";
 
-export const TodoList = ({ grocerylistId, data }) => {
-  const [ingredients, setIngredients] = useState([]);
+export const TodoList = ({ grocerylistId, mountPaper }) => {
+  const { data, isLoading } = useGetIngredients(grocerylistId, mountPaper);
 
-  const checked = data.filter((d) => d.isChecked);
-  const unchecked = data.filter((d) => !d.isChecked);
+  // const [incomplete, setIncomplete] = useState(data.filter((d) => !d.isChecked));
+  // const [complete, setComplete] = useState(data.filter((d) => d.isChecked));
+
+  // console.log(complete);
+  const [ingredients, setIngredients] = useState([]);
+  const [mockData, setMockData] = useState([]);
 
   // const checked = data.reduce((checkedArray, ingredient, index) => {
   //   if (ingredient.isChecked) {
@@ -42,18 +48,16 @@ export const TodoList = ({ grocerylistId, data }) => {
 
   useEffect(() => {
     if (data) {
+      setMockData(data);
       const arrangedIngredients = data.reduce((checkedArray, ingredient, index) => {
         const todo = (
           <Todo
             ingredient={ingredient}
-            name="check"
             key={`${ingredient.id}-${grocerylistId}-${index}`}
             grocerylistId={grocerylistId}
-            todoClass="todo__label"
-            index={index}
-            dataLength={data.length}
-            checkedLength={checked.length}
-            uncheckedLength={unchecked.length}
+            position={index + 1}
+            mockData={mockData}
+            setMockData={setMockData}
           />
         );
         if (ingredient.isChecked) {
@@ -69,22 +73,42 @@ export const TodoList = ({ grocerylistId, data }) => {
       }, []);
       setIngredients(arrangedIngredients);
     }
-  }, [data, grocerylistId, checked.length, unchecked.length]);
+  }, [mockData, grocerylistId, data]);
+  if (isLoading || !data) return <h1>Loading...</h1>;
 
+  const checked = data.filter((d) => d.isChecked);
+  const unchecked = data.filter((d) => !d.isChecked);
   return (
-    <div className="todo-list" id={`todo-list-${grocerylistId}`}>
-      {ingredients.length === checked.length ? (
+    <StyledTodoList>
+      {/* <StyledTodoList className="todo-list" id={`todo-list-${grocerylistId}`}> */}
+      {data.length === checked.length ? (
         <TodoComplete grocerylistId={grocerylistId} />
       ) : (
         <>
+          {/* {complete.map((todo) => (
+            <Todo
+              key={todo.name + todo.id}
+              ingredient={todo}
+              grocerylistId={grocerylistId}
+              setComplete={setComplete}
+              setIncomplete={setIncomplete}
+            />
+          ))}
+          {incomplete.map((todo) => (
+            <Todo
+              key={todo.name + todo.id}
+              ingredient={todo}
+              grocerylistId={grocerylistId}
+              setComplete={setComplete}
+              setIncomplete={setIncomplete}
+            />
+          ))} */}
+          <h2>Incomplete</h2>
           {ingredients}
-          <div className="todo-list__incomplete">
-            <h2>Incomplete</h2>
-            {/* {unChecked} */}
-          </div>
+          <div className="todo-list__incomplete">{/* {unChecked} */}</div>
           {/* {checked.length > 0 && <div className="todo-list__incomplete">{checked}</div>} */}
         </>
       )}
-    </div>
+    </StyledTodoList>
   );
 };
