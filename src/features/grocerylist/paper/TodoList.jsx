@@ -4,7 +4,6 @@ import { TodoComplete } from "./TodoComplete";
 
 export const TodoList = ({ grocerylistId, data }) => {
   const [ingredients, setIngredients] = useState([]);
-  console.log({ ingredients });
 
   const checked = data.filter((d) => d.isChecked);
   const unchecked = data.filter((d) => !d.isChecked);
