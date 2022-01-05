@@ -1,21 +1,30 @@
-import React, { lazy, Suspense, useLayoutEffect, useRef, useState } from "react";
-import { enableBodyScroll } from "body-scroll-lock";
+import React, { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { listSVG } from "../../styles/svgs";
+import { Loading } from "../status/Loading";
 import { Carousel } from "./Carousel";
-import { removeBlur } from "../utils/modalBlur";
+import { addBlur, removeBlur } from "../utils/modalBlur";
 
 const Paper = lazy(() => import("./paper/Paper"));
+
+const initialListState = {
+  isVisible: false,
+  setTop: 110
+};
 
 export const GrocerylistCard = ({ list, index }) => {
   const [carousel, setCarousel] = useState(0);
   const [page, setPage] = useState(1);
-  const [listIsVisible, setListIsVisible] = useState(false);
-  const [mountPaper, setMountPaper] = useState(false)
+  const [listState, setListState] = useState(initialListState);
   const circles = document.querySelectorAll(`.carousel__svg-circle-${index}`);
 
   const card = useRef(null);
-  const paper = useRef(null);
-  const closeBtn = useRef(null);
+
+  const closeOtherLists = () => {
+    const closeButtons = document.querySelectorAll(".paper__btn-close");
+
+    closeButtons.forEach((button) => button.click());
+  };
 
   const fillWhite = "carousel__svg-circle--fill-white";
 
@@ -24,6 +33,8 @@ export const GrocerylistCard = ({ list, index }) => {
     const windowWidth = window.screen.width;
 
     if (name === "right-button") {
+      console.log({ windowWidth });
+      console.log(list["img-url"]);
       if (windowWidth <= 575) {
         setCarousel((state) => (state -= 100));
       } else {
@@ -41,17 +52,18 @@ export const GrocerylistCard = ({ list, index }) => {
       circles[page - 1].classList.remove(fillWhite);
       setPage((state) => (state -= 1));
     }
-  };
-
-  const handleShowPaper = () => {
-    const windowWidth = window.screen.width;
-    setMountPaper(true)
-
-    if (windowWidth <= 575) {
+    const paper = document.querySelector(`#paper-${list["grocery-list-id"]}`);
+    if (name === "open-list") {
+      disableBodyScroll(paper);
+      addBlur();
+      closeOtherLists();
+      setListState({ isVisible: true, setTop: 0 });
+    }
+    if (name === "close-list") {
       enableBodyScroll(paper);
       removeBlur();
+      setListState({ isVisible: false, setTop: 110 });
     }
-    setListIsVisible((state) => !state);
   };
 
   useLayoutEffect(() => {
@@ -59,6 +71,10 @@ export const GrocerylistCard = ({ list, index }) => {
       circles[page - 1].classList.add(fillWhite);
     }
   }, [page, circles]);
+
+  useEffect(() => {
+    setListState((state) => ({ ...state, setTop: card.current.offsetHeight }));
+  }, []);
 
   return (
     <div ref={card} className="card grocerylist-card">
@@ -96,18 +112,15 @@ export const GrocerylistCard = ({ list, index }) => {
       <button
         className="btn-round grocerylist-card__page-btn"
         name="open-list"
-        onClick={handleShowPaper}
+        onClick={handleClick}
       >
         {listSVG}
       </button>
-      <Suspense fallback={null}>
+      <Suspense fallback={<Loading />}>
         <Paper
-          paper={paper}
-          listIsVisible={listIsVisible}
-          closeBtn={closeBtn}
           grocerylistId={list["grocery-list-id"]}
-          setListIsVisible={setListIsVisible}
-          mountPaper={mountPaper}
+          listState={listState}
+          handleClick={handleClick}
         />
       </Suspense>
     </div>

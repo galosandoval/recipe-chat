@@ -1,38 +1,34 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { checkSVG } from "../../../styles/svgs";
 import { useUpdateChecked } from "../../services/grocerylistService";
-import { CheckboxLabel, StyledTodo, TodoCheck, TodoCheckbox, TodoInput } from "./StyledPaper";
 
-export const Todo = ({ ingredient, grocerylistId, position, setMockData }) => {
-  const updateChecked = useUpdateChecked();
+export const Todo = ({ ingredient, name, grocerylistId, todoClass, index, dataLength, checkedLength, uncheckedLength }) => {
+  const updateChecked = useUpdateChecked(grocerylistId);
+  const [isChecked, setIsChecked] = useState(() => ingredient.isChecked);
   const todo = useRef(null);
 
-  const handleChange = async () => {
+  const handleChange = () => {
+    if (isChecked) todo.current.style.translateX = 0; // needs to be dynamic
+    setIsChecked((state) => !state);
     updateChecked.mutate({ id: ingredient.id, isChecked: ingredient.isChecked });
-    setMockData((state) =>
-      state.reduce((newArray, current) => {
-        if (current.id === ingredient.id) current.isChecked = !current.isChecked;
-
-        newArray.push(current);
-        return newArray;
-      }, [])
-    );
   };
 
   return (
-    <StyledTodo position={position} ref={todo}>
-      <TodoInput
+    <div className="todo" ref={todo} id={`todo-${grocerylistId}-${index}`}>
+      <input
+        className="todo__input"
         id={`${ingredient.id}-${grocerylistId}`}
         type="checkbox"
-        checked={ingredient.isChecked}
+        name={name}
+        checked={isChecked}
         onChange={handleChange}
       />
-      <TodoCheckbox>
-        <TodoCheck>{checkSVG}</TodoCheck>
-      </TodoCheckbox>
-      <CheckboxLabel isChecked={ingredient.isChecked} htmlFor={`${ingredient.id}-${grocerylistId}`}>
+      <span className="todo__checkbox">
+        <span className="todo__check">{checkSVG}</span>
+      </span>
+      <label htmlFor={`${ingredient.id}-${grocerylistId}`} className={todoClass}>
         {ingredient.name}
-      </CheckboxLabel>
-    </StyledTodo>
+      </label>
+    </div>
   );
 };

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { menuSVG, plusSVG, xSVG } from "../../styles/svgs";
+// import { debounce } from "../utils/debounce";
 import { NavLinks } from "./NavLinks";
 import { Sidebar } from "./Sidebar";
 import { FormContainer } from "./FormContainer";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { addBlur, removeBlur } from "../utils/modalBlur";
-import { AddButton, StyledNavbar } from "./StyledNavBar";
 
 const initialSidebarState = {
   left: "-100%"
@@ -16,6 +16,8 @@ const initialFormStyle = {
 };
 
 export const Navbar = () => {
+  // const [visible, setVisible] = useState(true);
+  // const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [sidebarStyle, setSidebarStyle] = useState(initialSidebarState);
   const [formStyle, setFormStyle] = useState(initialFormStyle);
@@ -51,6 +53,23 @@ export const Navbar = () => {
     }
   };
 
+  // const handleScroll = debounce(() => {
+  //   const currentScrollPos = window.pageYOffset;
+
+  //   setVisible(
+  //     (prevScrollPos > currentScrollPos && prevScrollPos - currentScrollPos > 70) ||
+  //       currentScrollPos < 10
+  //   );
+
+  //   setPrevScrollPos(currentScrollPos);
+  // }, 100);
+
+  // useEffect(() => {
+  //   window.addEventListener("scroll", handleScroll);
+
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, [prevScrollPos, visible, handleScroll]);
+
   const handleClick = () => {
     const formContainer = document.querySelector("#form-container");
     if (formVisible) {
@@ -71,28 +90,7 @@ export const Navbar = () => {
   };
   return (
     <>
-      <StyledNavbar>
-        <ul className="navbar__list navbar__list--default">
-          <h1 className="navbar__logo logo">listy</h1>
-          <NavLinks />
-          <AddButton id="form" onClick={handleClick}>
-            {xSVG}
-          </AddButton>
-        </ul>
-        <div className="navbar__list navbar__list--phone">
-          <input type="checkbox" className="navbar__checkbox" id="nav-toggle" />
-          <label onClick={handleSidebar} className="navbar__list-btn" htmlFor="nav-toggle">
-            {sidebarVisible ? xSVG : menuSVG}
-          </label>
-          <h1 className="navbar__logo logo">listy</h1>
-          <button id="form" className="navbar__btn-add" onClick={handleClick}>
-            {plusSVG}
-          </button>
-          <div className="navbar__background"></div>
-        </div>
-        <Sidebar handleSidebar={handleSidebar} sidebarStyle={sidebarStyle} />
-      </StyledNavbar>
-      {/* <header className="navbar navbar--hidden">
+      <header className="navbar navbar--hidden">
         <ul className="navbar__list navbar__list--default">
           <h1 className="navbar__logo logo">listy</h1>
           <NavLinks />
@@ -109,10 +107,10 @@ export const Navbar = () => {
           <button id="form" className="navbar__btn-add" onClick={handleClick}>
             {plusSVG}
           </button>
-          <div className="navbar__background"></div>
+          <div className="navbar__background">{""}</div>
         </div>
         <Sidebar handleSidebar={handleSidebar} sidebarStyle={sidebarStyle} />
-      </header> */}
+      </header>
       <FormContainer formStyle={formStyle} handleClick={handleClick} />
     </>
   );
