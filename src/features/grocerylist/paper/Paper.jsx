@@ -1,29 +1,35 @@
 import React from "react";
 import { xSVG } from "../../../styles/svgs";
-import { useGetIngredients } from "../../services/grocerylistService";
-import { Loading } from "../../status/Loading";
+import { enableBodyScroll } from "body-scroll-lock";
+import { Content, PaperButton, PaperContainer, Pattern, StyledPaper } from "./StyledPaper";
 import { TodoList } from "./TodoList";
+import { removeBlur } from "../../utils/modalBlur";
 
-const Paper = ({ listState, handleClick, grocerylistId }) => {
-  const { data, isLoading } = useGetIngredients(grocerylistId);
-
-  if (isLoading) return <Loading />;
+const Paper = ({ grocerylistId, listIsVisible, closeBtn, setListIsVisible, paper, mountPaper }) => {
+  const handleCloseList = () => {
+    const windowWidth = window.screen.width;
+    setListIsVisible(false);
+    if (windowWidth <= 575) {
+      enableBodyScroll(paper);
+      removeBlur();
+    }
+  };
 
   return (
-    <div className="paper" id={`paper-${grocerylistId}`} style={{ top: `${listState.setTop}%` }}>
-      <div className="paper__container">
-        <button className="paper__btn" name="close-list" onClick={handleClick}>
+    <StyledPaper ref={paper} listIsVisible={listIsVisible}>
+      <PaperContainer>
+        <PaperButton ref={closeBtn} onClick={handleCloseList}>
           {xSVG}
-        </button>
-        <div className="paper__pattern">
-          <div className="paper__content">
-            <div className="paper__todo-list">
-              <TodoList data={data} grocerylistId={grocerylistId} />
+        </PaperButton>
+        <Pattern>
+          <Content>
+            <div>
+              <TodoList grocerylistId={grocerylistId} mountPaper={mountPaper} />
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </Content>
+        </Pattern>
+      </PaperContainer>
+    </StyledPaper>
   );
 };
 

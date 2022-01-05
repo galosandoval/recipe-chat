@@ -8,10 +8,19 @@ import { LoadingCards } from "./status/Loading.Cards";
 import { Register } from "./auth/Register";
 import { useAuth } from "./utils/auth-config";
 import isLoggedIn from "./utils/isLoggedIn";
+import { ThemeProvider } from "styled-components";
+import { darkTheme, lightTheme } from "../styles/themes";
+import { useDarkMode } from "./utils/useDarkMode";
+import { Toggle } from "./utils/Toggle";
+import { GlobalStyles } from "../styles/GlobalStyles";
 
 const Recipe = lazy(() => import("./recipe/Recipe"));
 
 function App() {
+  const [theme, themeToggler, mountedComponent] = useDarkMode();
+
+  const themeMode = theme === "light" ? lightTheme : darkTheme;
+
   const history = useHistory();
 
   if (!isLoggedIn()) {
@@ -19,33 +28,38 @@ function App() {
   }
 
   const { user } = useAuth();
+  if (!mountedComponent) return <div />;
   return (
-    <div className="App">
-      {!!user ? (
-        <>
-          <Navbar />
+    <ThemeProvider theme={themeMode}>
+      <GlobalStyles />
+      <Toggle onClick={themeToggler}>Toggle</Toggle>
+      <div className="App">
+        {!!user ? (
+          <>
+            <Navbar />
+            <Switch>
+              <Route exact path="/">
+                <Grocerylist />
+              </Route>
+              <Route path="/recipes">
+                <Suspense fallback={<LoadingCards />}>
+                  <Recipe />
+                </Suspense>
+              </Route>
+            </Switch>
+          </>
+        ) : (
           <Switch>
             <Route exact path="/">
-              <Grocerylist />
+              <Login />
             </Route>
-            <Route path="/recipes">
-              <Suspense fallback={<LoadingCards />}>
-                <Recipe />
-              </Suspense>
+            <Route path="/register">
+              <Register />
             </Route>
           </Switch>
-        </>
-      ) : (
-        <Switch>
-          <Route exact path="/">
-            <Login />
-          </Route>
-          <Route path="/register">
-            <Register />
-          </Route>
-        </Switch>
-      )}
-    </div>
+        )}
+      </div>
+    </ThemeProvider>
   );
 }
 
