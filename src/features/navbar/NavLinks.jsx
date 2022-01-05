@@ -1,32 +1,34 @@
 import React from "react";
 
-import { useHistory } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 import { useAuth } from "../utils/auth-config";
-import { ListItem, LogoutButton, StyledNavlink } from "./StyledNavBar";
 
 export const NavLinks = () => {
   const { logout } = useAuth();
   const history = useHistory();
   return (
     <>
-      <ListItem>
-        <StyledNavlink exact to="/">
+      <li className="navbar__item">
+        <NavLink className="navbar__link" activeClassName="navbar__active" exact to="/">
           Grocery Lists
-        </StyledNavlink>
-      </ListItem>
-      <ListItem>
-        <StyledNavlink to="/recipes">Recipes</StyledNavlink>
-      </ListItem>
-      <ListItem>
-        <LogoutButton
+        </NavLink>
+      </li>
+      <li className="navbar__item">
+        <NavLink className="navbar__link" activeClassName="navbar__active" to="/recipes">
+          Recipes
+        </NavLink>
+      </li>
+      <li className="navbar__item">
+        <button
+          className="navbar__logout add-btn-submit"
           onClick={() => {
             history.replace("/");
             logout();
           }}
         >
           Logout
-        </LogoutButton>
-      </ListItem>
+        </button>
+      </li>
     </>
   );
 };

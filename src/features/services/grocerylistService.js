@@ -43,13 +43,9 @@ export const useGrocerylist = (userId) => {
   });
 };
 
-export const useGetIngredients = (grocerylistId, mountPaper) => {
-  return useQuery(
-    ["grocerylist", grocerylistId, "ingredients"],
-    () => getIngredientsByGrocerylistId(grocerylistId),
-    {
-      enabled: !!mountPaper
-    }
+export const useGetIngredients = (grocerylistId) => {
+  return useQuery(["grocerylist", grocerylistId, "ingredients"], () =>
+    getIngredientsByGrocerylistId(grocerylistId)
   );
 };
 
@@ -69,6 +65,13 @@ export const useCreateRecipes = () => {
   });
 };
 
-export const useUpdateChecked = () => {
-  return useMutation(updateIsChecked);
+export const useUpdateChecked = (grocerylistId) => {
+  return useMutation(
+    updateIsChecked
+    // , {
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries(["grocerylist", grocerylistId, "ingredients"]);
+    // }
+    // }
+  );
 };
