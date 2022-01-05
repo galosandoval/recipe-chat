@@ -11,8 +11,8 @@ export const TodoList = ({ grocerylistId, mountPaper }) => {
   // const [complete, setComplete] = useState(data.filter((d) => d.isChecked));
 
   // console.log(complete);
-  const [ingredients, setIngredients] = useState([]);
   const [mockData, setMockData] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
 
   // const checked = data.reduce((checkedArray, ingredient, index) => {
   //   if (ingredient.isChecked) {
@@ -56,7 +56,6 @@ export const TodoList = ({ grocerylistId, mountPaper }) => {
             key={`${ingredient.id}-${grocerylistId}-${index}`}
             grocerylistId={grocerylistId}
             position={index + 1}
-            mockData={mockData}
             setMockData={setMockData}
           />
         );
@@ -77,7 +76,6 @@ export const TodoList = ({ grocerylistId, mountPaper }) => {
   if (isLoading || !data) return <h1>Loading...</h1>;
 
   const checked = data.filter((d) => d.isChecked);
-  const unchecked = data.filter((d) => !d.isChecked);
   return (
     <StyledTodoList>
       {/* <StyledTodoList className="todo-list" id={`todo-list-${grocerylistId}`}> */}

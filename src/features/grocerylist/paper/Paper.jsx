@@ -1,6 +1,5 @@
 import React from "react";
 import { xSVG } from "../../../styles/svgs";
-import { useGetIngredients } from "../../services/grocerylistService";
 import { enableBodyScroll } from "body-scroll-lock";
 import { Content, PaperButton, PaperContainer, Pattern, StyledPaper } from "./StyledPaper";
 import { TodoList } from "./TodoList";

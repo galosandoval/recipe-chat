@@ -1,4 +1,5 @@
 import styled from "styled-components/macro";
+import { colorGrayDark1, colorPrimary } from "../../../styles/GlobalVariables";
 import { device } from "../../../styles/mediaQueries";
 
 export const StyledPaper = styled.div`
@@ -45,15 +46,23 @@ export const PaperButton = styled.button`
   position: absolute;
   right: 1rem;
   top: 1rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
 
   &:hover {
-    background-color: rgba($color-black, 0.3);
-    color: $color-primary;
+    background-color: rgba(0 0 0 / 0.3);
+    color: ${colorPrimary};
   }
 
   & svg {
     height: 2rem;
     width: 2rem;
+
+    @media ${device.phone} {
+      height: 3rem;
+      width: 3rem;
+    }
   }
 `;
 
@@ -88,6 +97,7 @@ export const Content = styled.div`
 export const StyledTodoList = styled.div`
   display: grid;
   place-content: center;
+  position: relative;
 `;
 
 export const Incomplete = styled.div``;
@@ -110,12 +120,20 @@ export const TodoCheckbox = styled.span`
   position: relative;
   align-self: start;
   margin-top: 0.3rem;
+  transform: translateY(-8px);
+
+  @media ${device.phone} {
+    height: 1.7rem;
+    width: 1.7rem;
+    border: 4px solid #b1b1b1;
+    transform: translateY(-4px);
+  }
 `;
 
 export const TodoCheck = styled.span`
   display: block;
   opacity: 0;
-  color: $color-primary;
+  color: ${colorPrimary};
   position: absolute;
   top: -1rem;
   right: -0.9rem;
@@ -125,12 +143,22 @@ export const TodoCheck = styled.span`
     height: 2.2rem;
     width: 2.2rem;
   }
+
+  @media ${device.phone} {
+    top: -1.1rem;
+
+    svg {
+      height: 2.7rem;
+      width: 2.7rem;
+    }
+  }
 `;
 
 export const StyledTodo = styled.div`
   display: flex;
   justify-content: space-between;
 
+  /* transform: translateY(${(p) => p.position * 2.75 + "rem"}); */
   ${TodoInput}:checked ~ ${TodoCheckbox} > ${TodoCheck} {
     opacity: 1;
   }
@@ -141,14 +169,13 @@ export const CheckboxLabel = styled.label`
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   transition: 1s all ease-in-out;
 
   ${(p) =>
     p.isChecked &&
     `text-decoration: line-through;
-      text-decoration-color: $color-grey-dark;
-      color: $color-grey-dark;
+      text-decoration-color: ${colorGrayDark1};
+      color: ${colorGrayDark1};
       `}
 
   @media ${device.phone} {
