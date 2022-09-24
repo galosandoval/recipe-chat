@@ -1,99 +1,228 @@
-# reminder-joes-app
+# Create T3 App
 
-- Site: https://awesome-jackson-9126be.netlify.app/
-- Backend: https://github.com/galosandoval/listy-backend
+This is an app bootstrapped according to the [init.tips](https://init.tips) stack, also known as the T3-Stack.
 
-## My goal for this project was to simulate a profesisonal work environment
+## Why are there `.js` files in here?
 
-- I worked with tasks on a kanban board:
+As per [T3-Axiom #3](https://github.com/t3-oss/create-t3-app/tree/next#3-typesafety-isnt-optional), we take typesafety as a first class citizen. Unfortunately, not all frameworks and plugins support TypeScript which means some of the configuration files have to be `.js` files.
 
-  ![](public/TJ%20Trello.png)
+We try to emphasize that these files are javascript for a reason, by explicitly declaring its type (`cjs` or `mjs`) depending on what's supported by the library it is used by. Also, all the `js` files in this project are still typechecked using a `@ts-check` comment at the top.
 
-- I wrote a descriptive commit with every feature I completed:
+## What's next? How do I make an app with this?
 
-  ![](public/TJ%20Commit%20History.png)
+We try to keep this project as simple as possible, so you can start with the most basic configuration and then move on to more advanced configuration.
 
-## How to navigate this project
+If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
 
-- The main feature of this app parses a recipe from a website and adds it to the users list of recipes: https://github.com/galosandoval/reminder-joes-app/blob/main/client/src/features/recipe/create/AddRecipe.jsx#L13
-- Responsive CSS using SCSS and BEM. Here's a link to the sass folder: https://github.com/galosandoval/reminder-joes-app/tree/main/client/src/sass
-- Deployment here so I can use it on my phone to make improvements: https://awesome-jackson-9126be.netlify.app/
+- [Next-Auth.js](https://next-auth.js.org)
+- [Prisma](https://prisma.io)
+- [TailwindCSS](https://tailwindcss.com)
+- [tRPC](https://trpc.io) (using @next version? [see v10 docs here](https://trpc.io/docs/v10/))
 
-## Why I built the project this way
+Also checkout these awesome tutorials on `create-t3-app`.
 
-- I didn't use a state management library like Redux on purpose. For this app simple `useState` is
-  sufficient.
-- I used SCSS for this project because the transpiler picks up bugs in CSS and nesting allows for faster styling.
-- My plan become a fullstack developer but first I'd like to focus on the frontend so there is quite a bit more work done on the client for this project.
-- Lately, I've been learning react-query and have been changing the way I make http requests. Heres an example:
+- [Build a Blog With the T3 Stack - tRPC, TypeScript, Next.js, Prisma & Zod](https://www.youtube.com/watch?v=syEWlxVFUrY)
+- [Build a Live Chat Application with the T3 Stack - TypeScript, Tailwind, tRPC](https://www.youtube.com/watch?v=dXRRY37MPuk)
+- [Build a full stack app with create-t3-app](https://www.nexxel.dev/blog/ct3a-guestbook)
+- [A first look at create-t3-app](https://dev.to/ajcwebdev/a-first-look-at-create-t3-app-1i8f)
 
-### Look at how much code I've replaced!
+## How do I deploy this?
 
-![](public/react-query-example.png)
+### Vercel
 
-# Qwik App ⚡️
+We recommend deploying to [Vercel](https://vercel.com/?utm_source=t3-oss&utm_campaign=oss). It makes it super easy to deploy NextJs apps.
 
-- [Qwik Docs](https://qwik.builder.io/)
-- [Discord](https://qwik.builder.io/chat)
-- [Qwik Github](https://github.com/BuilderIO/qwik)
-- [@QwikDev](https://twitter.com/QwikDev)
-- [Vite](https://vitejs.dev/)
-- [Partytown](https://partytown.builder.io/)
-- [Mitosis](https://github.com/BuilderIO/mitosis)
-- [Builder.io](https://www.builder.io/)
+- Push your code to a GitHub repository.
+- Go to [Vercel](https://vercel.com/?utm_source=t3-oss&utm_campaign=oss) and sign up with GitHub.
+- Create a Project and import the repository you pushed your code to.
+- Add your environment variables.
+- Click **Deploy**
+- Now whenever you push a change to your repository, Vercel will automatically redeploy your website!
 
----
+### Docker
 
-## Project Structure
+You can also dockerize this stack and deploy a container.
 
-Inside of you project, you'll see the following directories and files:
+Please note that Next.js requires a different process for buildtime (available in the frontend, prefixed by `NEXT_PUBLIC`) and runtime environment, server-side only, variables. In this demo we are using two variables, `DATABASE_URL` (used by the server) and `NEXT_PUBLIC_CLIENTVAR` (used by the client). Pay attention to their positions in the `Dockerfile`, command-line arguments, and `docker-compose.yml`.
 
-```
-├── public/
-│   └── ...
-└── src/
-    ├── components/
-    │   └── ...
-    └── routes/
-        └── ...
-```
+1. In your [next.config.mjs](./next.config.mjs), add the `standalone` output-option to your config:
 
-- `src/routes`: Provides the directory based routing, which can include a hierarchy of `layout.tsx` layout files, and `index.tsx` files as the page. Additionally, `index.ts` files are endpoints. Please see the [routing docs](https://qwik.builder.io/qwikcity/routing/overview/) for more info.
+   ```diff
+     export default defineNextConfig({
+       reactStrictMode: true,
+       swcMinify: true,
+   +   output: "standalone",
+     });
+   ```
 
-- `src/components`: Recommended directory for components.
+2. Remove the `env`-import from [next.config.mjs](./next.config.mjs):
 
-- `public`: Any static assets, like images, can be placed in the public directory. Please see the [Vite public directory](https://vitejs.dev/guide/assets.html#the-public-directory) for more info.
+   ```diff
+   - import { env } from "./src/env/server.mjs";
+   ```
 
-## Add Integrations
+3. Create a `.dockerignore` file with the following contents:
+   <details>
+   <summary>.dockerignore</summary>
 
-Use the `npm run qwik add` command to add other integrations. Some examples of integrations include as a Cloudflare, Netlify or Vercel server, and the Static Site Generator (SSG).
+   ```
+   .env
+   Dockerfile
+   .dockerignore
+   node_modules
+   npm-debug.log
+   README.md
+   .next
+   .git
+   ```
 
-```
-npm run qwik add
-```
+  </details>
 
-## Development
+4. Create a `Dockerfile` with the following contents:
+   <details>
+   <summary>Dockerfile</summary>
 
-Development mode uses [Vite's development server](https://vitejs.dev/). For Qwik during development, the `dev` command will also server-side render (SSR) the output. The client-side development modules loaded by the browser.
+   ```Dockerfile
+   ########################
+   #         DEPS         #
+   ########################
 
-```
-npm run dev
-```
+   # Install dependencies only when needed
+   # TODO: re-evaluate if emulation is still necessary on arm64 after moving to node 18
+   FROM --platform=linux/amd64 node:16-alpine AS deps
+   # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+   RUN apk add --no-cache libc6-compat openssl
+   WORKDIR /app
 
-> Note: during dev mode, Vite will request many JS files, which does not represent a Qwik production build.
+   # Install Prisma Client - remove if not using Prisma
+   COPY prisma ./
 
-## Preview
+   # Install dependencies based on the preferred package manager
+   COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+   RUN \
+     if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+     elif [ -f package-lock.json ]; then npm ci; \
+     elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i; \
+     else echo "Lockfile not found." && exit 1; \
+     fi
 
-The preview command will create a production build of the client modules, production build of `src/entry.preview.tsx`, and create a local server. The preview server is only for convenience to locally preview a production build, but it should not be used as a production server.
+   ########################
+   #        BUILDER       #
+   ########################
 
-```
-npm run preview
-```
+   # Rebuild the source code only when needed
+   # TODO: re-evaluate if emulation is still necessary on arm64 after moving to node 18
+   FROM --platform=linux/amd64 node:16-alpine AS builder
 
-## Production
+   ARG DATABASE_URL
+   ARG NEXT_PUBLIC_CLIENTVAR
 
-The production build should generate the client and server modules by running both client and server build commands. Additionally, the build command will use Typescript run a type check on the source.
+   WORKDIR /app
+   COPY --from=deps /app/node_modules ./node_modules
+   COPY . .
 
-```
-npm run build
-```
+   # Next.js collects completely anonymous telemetry data about general usage.
+   # Learn more here: https://nextjs.org/telemetry
+   # Uncomment the following line in case you want to disable telemetry during the build.
+   # ENV NEXT_TELEMETRY_DISABLED 1
+
+   RUN \
+     if [ -f yarn.lock ]; then yarn build; \
+     elif [ -f package-lock.json ]; then npm run build; \
+     elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm run build; \
+     else echo "Lockfile not found." && exit 1; \
+     fi
+
+   ########################
+   #        RUNNER        #
+   ########################
+
+   # Production image, copy all the files and run next
+   # TODO: re-evaluate if emulation is still necessary after moving to node 18
+   FROM --platform=linux/amd64 node:16-alpine AS runner
+   # WORKDIR /usr/app
+   WORKDIR /app
+
+   ENV NODE_ENV production
+   # Uncomment the following line in case you want to disable telemetry during runtime.
+   # ENV NEXT_TELEMETRY_DISABLED 1
+
+   RUN addgroup --system --gid 1001 nodejs
+   RUN adduser --system --uid 1001 nextjs
+
+   COPY --from=builder /app/next.config.mjs ./
+   COPY --from=builder /app/public ./public
+   COPY --from=builder /app/package.json ./package.json
+
+   # Automatically leverage output traces to reduce image size
+   # https://nextjs.org/docs/advanced-features/output-file-tracing
+   COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+   COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+   USER nextjs
+
+   EXPOSE 3000
+
+   ENV PORT 3000
+
+   CMD ["node", "server.js"]
+   ```
+
+  </details>
+
+5. To build and run this image locally, run:
+
+   ```bash
+   docker build -t ct3a -e NEXT_PUBLIC_CLIENTVAR=clientvar .
+   docker run -p 3000:3000 -e DATABASE_URL="database_url_goes_here" ct3a
+   ```
+
+6. You can also use a PaaS such as [Railway's](https://railway.app) automated [Dockerfile deployments](https://docs.railway.app/deploy/dockerfiles) to deploy your app.
+
+### Docker Compose
+
+You can also use docker compose to build the image and run the container.
+
+1. Follow steps 1-4 above
+
+2. Create a `docker-compose.yml` file with the following:
+
+   <details>
+   <summary>docker-compose.yml</summary>
+
+   ```yaml
+   version: "3.9"
+   services:
+     app:
+       platform: "linux/amd64"
+       build:
+         context: .
+         dockerfile: Dockerfile
+         args:
+           NEXT_PUBLIC_CLIENTVAR: "clientvar"
+       working_dir: /app
+       ports:
+         - "3000:3000"
+       image: t3-app
+       environment:
+         - DATABASE_URL=database_url_goes_here
+   ```
+
+   </details>
+
+3. Run this using `docker compose up`.
+
+### Further reading
+
+Here are some useful references you can further look into:
+
+- [Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
+- [Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)
+- [Docker CLI reference](https://docs.docker.com/engine/reference/commandline/docker/)
+- [Docker Compose CLI reference](https://docs.docker.com/compose/reference/)
+
+## Useful resources
+
+Here are some resources that we commonly refer to:
+
+- [Protecting routes with Next-Auth.js](https://next-auth.js.org/configuration/nextjs#unstable_getserversession)

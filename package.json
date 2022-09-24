@@ -1,40 +1,34 @@
 {
-  "name": "my-qwik-basic-starter",
-  "description": "Recommended for your first Qwik app",
-  "engines": {
-    "node": ">=15.0.0"
-  },
+  "name": "my-t3-app",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "qwik build",
-    "build.client": "vite build",
-    "build.preview": "vite build --ssr src/entry.preview.tsx",
-    "build.types": "tsc --incremental --noEmit",
-    "dev": "vite --mode ssr",
-    "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
-    "fmt": "prettier --write .",
-    "fmt.check": "prettier --check .",
-    "lint": "eslint \"src/**/*.ts*\"",
-    "preview": "qwik build preview && vite preview --open",
-    "start": "vite --open --mode ssr",
-    "qwik": "qwik"
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "12.3.1",
+    "next-auth": "^4.10.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "zod": "^3.18.0"
   },
   "devDependencies": {
-    "@builder.io/qwik": "0.9.0",
-    "@builder.io/qwik-city": "0.0.111",
-    "@types/eslint": "8.4.6",
-    "@types/node": "latest",
-    "@typescript-eslint/eslint-plugin": "5.37.0",
-    "@typescript-eslint/parser": "5.37.0",
+    "@types/node": "18.0.0",
+    "@types/react": "18.0.14",
+    "@types/react-dom": "18.0.5",
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
     "autoprefixer": "^10.4.12",
-    "eslint": "8.23.1",
-    "eslint-plugin-qwik": "0.9.0",
-    "node-fetch": "3.2.10",
+    "eslint": "8.22.0",
+    "eslint-config-next": "12.3.1",
     "postcss": "^8.4.16",
-    "prettier": "2.7.1",
     "tailwindcss": "^3.1.8",
-    "typescript": "4.8.3",
-    "vite": "3.1.1",
-    "vite-tsconfig-paths": "3.5.0"
+    "typescript": "4.7.4"
+  },
+  "ct3aMetadata": {
+    "initVersion": "5.13.0"
   }
 }
