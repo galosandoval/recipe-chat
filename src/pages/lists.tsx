@@ -1,13 +1,9 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import React from 'react'
-import { trpc } from '../utils/trpc'
 import Layout from './layout'
 
 function Lists() {
-  const hello = trpc.lists.userById.useQuery('1')
-
-  if (hello.isSuccess) console.log('data', hello)
   return (
     <>
       <Head>

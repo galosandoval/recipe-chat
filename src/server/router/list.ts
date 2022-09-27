@@ -13,7 +13,7 @@ const userList: User[] = [
     name: 'KATT'
   }
 ]
-export const listsRouter = t.router({
+export const listRouter = t.router({
   userCreate: t.procedure
     .input(z.object({ name: z.string() }))
     .mutation((req) => {
@@ -25,6 +25,7 @@ export const listsRouter = t.router({
       userList.push(user)
       return user
     }),
+
   userById: t.procedure
     .input((val: unknown) => {
       if (typeof val === 'string') return val

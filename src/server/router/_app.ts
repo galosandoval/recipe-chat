@@ -1,9 +1,11 @@
-import { listsRouter } from './list'
+import { listRouter } from './list'
 import { helloRouter } from './example'
 import { t } from './trpc'
+import { recipeRouter } from './recipe'
 
 export const appRouter = t.router({
-  lists: listsRouter,
+  list: listRouter,
+  recipe: recipeRouter,
   hello: helloRouter
 })
 
