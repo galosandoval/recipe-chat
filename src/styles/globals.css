@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .bg-app {
+    @apply bg-gray-50 dark:bg-slate-900;
+  }
+
+  .card {
+    @apply rounded-md ring-1 ring-slate-900/5 shadow-xl bg-white dark:bg-slate-800 overflow-hidden;
+  }
+}

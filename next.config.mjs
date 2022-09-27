@@ -27,5 +27,6 @@ export default defineNextConfig({
       'www.google.com',
       'www.foodandwine.com'
     ]
-  }
+  },
+  publicRuntimeConfig: env.NODE_ENV
 })
