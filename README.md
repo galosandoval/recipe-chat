@@ -1,32 +1,34 @@
-# reminder-joes-app
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-- Site: https://awesome-jackson-9126be.netlify.app/
-- Backend: https://github.com/galosandoval/listy-backend
+## Getting Started
 
-## My goal for this project was to simulate a profesisonal work environment
+First, run the development server:
 
-- I worked with tasks on a kanban board:
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-  ![](public/TJ%20Trello.png)
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-- I wrote a descriptive commit with every feature I completed:
+You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-  ![](public/TJ%20Commit%20History.png)
+[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
 
-## How to navigate this project
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-- The main feature of this app parses a recipe from a website and adds it to the users list of recipes: https://github.com/galosandoval/reminder-joes-app/blob/main/client/src/features/recipe/create/AddRecipe.jsx#L13
-- Responsive CSS using SCSS and BEM. Here's a link to the sass folder: https://github.com/galosandoval/reminder-joes-app/tree/main/client/src/sass
-- Deployment here so I can use it on my phone to make improvements: https://awesome-jackson-9126be.netlify.app/
+## Learn More
 
-## Why I built the project this way
+To learn more about Next.js, take a look at the following resources:
 
-- I didn't use a state management library like Redux on purpose. For this app simple `useState` is
-  sufficient.
-- I used SCSS for this project because the transpiler picks up bugs in CSS and nesting allows for faster styling.
-- My plan become a fullstack developer but first I'd like to focus on the frontend so there is quite a bit more work done on the client for this project.
-- Lately, I've been learning react-query and have been changing the way I make http requests. Heres an example:
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### Look at how much code I've replaced!
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-![](public/react-query-example.png)
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
