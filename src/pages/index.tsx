@@ -1,14 +1,10 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import Layout from './layout'
 
 export default function Dashboard() {
   const recentRecipes = miniRecipeItem.slice(0, 3).map((item) => (
     <div key={item.id} className=''>
       <h3 className=''>{item.name}</h3>
-      {item.photo.map((url) => (
-        <Image src={url} key={url} alt={item.name} height={100} width={100} />
-      ))}
     </div>
   ))
   return (

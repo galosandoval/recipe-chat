@@ -19,29 +19,26 @@ model User {
   recipesOnLists RecipesOnList[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-  recipes        Recipe[]
 }
 
 model Recipe {
-  id           Int            @id @default(autoincrement())
+  id           Int             @id @default(autoincrement())
   description  String?
   name         String
   imgUrl       String?
-  author       String
-  address      String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  author       String?
+  address      String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
   instructions Instruction[]
   ingredients  Ingredient[]
-  listRecipes  RecipesOnList?
-  User         User?          @relation(fields: [userId], references: [id])
-  userId       Int?
+  onLists      RecipesOnList[]
 }
 
 model Instruction {
-  id          Int     @id @default(autoincrement())
-  description String?
-  recipe      Recipe  @relation(fields: [recipeId], references: [id])
+  id          Int    @id @default(autoincrement())
+  description String
+  recipe      Recipe @relation(fields: [recipeId], references: [id])
   recipeId    Int
 }
 
@@ -68,8 +65,8 @@ model RecipesOnList {
   recipeId  Int      @unique
   user      User     @relation(fields: [userId], references: [id])
   userId    Int      @unique
-  list      List     @relation(fields: [listId], references: [id])
-  listId    Int      @unique
+  list      List?    @relation(fields: [listId], references: [id])
+  listId    Int?     @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

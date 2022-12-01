@@ -17,10 +17,11 @@ CREATE TABLE "Recipe" (
     "description" TEXT,
     "name" TEXT NOT NULL,
     "imgUrl" TEXT,
-    "author" TEXT NOT NULL,
-    "address" TEXT NOT NULL,
+    "author" TEXT,
+    "address" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Recipe_pkey" PRIMARY KEY ("id")
 );
@@ -56,7 +57,7 @@ CREATE TABLE "List" (
 );
 
 -- CreateTable
-CREATE TABLE "ListRecipes" (
+CREATE TABLE "RecipesOnList" (
     "id" SERIAL NOT NULL,
     "recipeId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
@@ -64,23 +65,23 @@ CREATE TABLE "ListRecipes" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "ListRecipes_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "RecipesOnList_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Instruction_recipeId_key" ON "Instruction"("recipeId");
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Ingredient_recipeId_key" ON "Ingredient"("recipeId");
+CREATE UNIQUE INDEX "RecipesOnList_recipeId_key" ON "RecipesOnList"("recipeId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ListRecipes_recipeId_key" ON "ListRecipes"("recipeId");
+CREATE UNIQUE INDEX "RecipesOnList_userId_key" ON "RecipesOnList"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ListRecipes_userId_key" ON "ListRecipes"("userId");
+CREATE UNIQUE INDEX "RecipesOnList_listId_key" ON "RecipesOnList"("listId");
 
--- CreateIndex
-CREATE UNIQUE INDEX "ListRecipes_listId_key" ON "ListRecipes"("listId");
+-- AddForeignKey
+ALTER TABLE "Recipe" ADD CONSTRAINT "Recipe_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Instruction" ADD CONSTRAINT "Instruction_recipeId_fkey" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -89,10 +90,10 @@ ALTER TABLE "Instruction" ADD CONSTRAINT "Instruction_recipeId_fkey" FOREIGN KEY
 ALTER TABLE "Ingredient" ADD CONSTRAINT "Ingredient_recipeId_fkey" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ListRecipes" ADD CONSTRAINT "ListRecipes_recipeId_fkey" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "RecipesOnList" ADD CONSTRAINT "RecipesOnList_recipeId_fkey" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ListRecipes" ADD CONSTRAINT "ListRecipes_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "RecipesOnList" ADD CONSTRAINT "RecipesOnList_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ListRecipes" ADD CONSTRAINT "ListRecipes_listId_fkey" FOREIGN KEY ("listId") REFERENCES "List"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "RecipesOnList" ADD CONSTRAINT "RecipesOnList_listId_fkey" FOREIGN KEY ("listId") REFERENCES "List"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -3,12 +3,10 @@ import { z } from 'zod'
 import prisma from '../../../lib/prisma'
 
 const schema = z.object({
-  body: z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-    username: z.string(),
-    password: z.string()
-  })
+  firstName: z.string(),
+  lastName: z.string(),
+  username: z.string(),
+  password: z.string()
 })
 
 export default async function handle(
@@ -17,10 +15,10 @@ export default async function handle(
 ) {
   const response = await schema.safeParseAsync(req.body)
   if (!response.success) {
-    return res.status(400).send({ message: 'Bad Request' })
+    return res.status(400).send({ message: response.error })
   }
   const result = await prisma.user.create({
-    data: { ...response.data.body }
+    data: { ...response.data }
   })
   res.json(result)
 }
