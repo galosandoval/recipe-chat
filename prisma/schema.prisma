@@ -62,9 +62,9 @@ model List {
 model RecipesOnList {
   id        Int      @id @default(autoincrement())
   recipe    Recipe   @relation(fields: [recipeId], references: [id])
-  recipeId  Int      @unique
+  recipeId  Int
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @unique
+  userId    Int
   list      List?    @relation(fields: [listId], references: [id])
   listId    Int?     @unique
   createdAt DateTime @default(now())

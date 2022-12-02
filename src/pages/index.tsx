@@ -1,5 +1,12 @@
 import Head from 'next/head'
 import Layout from './layout'
+import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query'
+import handler from './api/recipes'
+
+export async function getServerSideProps() {
+  const queryClient = new QueryClient()
+  // await queryClient.prefetchQuery(['recipes'], () => handler())
+}
 
 export default function Dashboard() {
   const recentRecipes = miniRecipeItem.slice(0, 3).map((item) => (
