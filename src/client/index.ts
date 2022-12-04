@@ -15,7 +15,14 @@ export async function post<T, U>(
   body: T,
   config?: RequestInit
 ): Promise<U> {
-  const init = { method: 'post', body: body, ...config }
+  const init = {
+    method: 'put',
+    body: JSON.stringify(body),
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8'
+    },
+    ...config
+  }
   return await http<U>(path, init!)
 }
 
@@ -24,6 +31,13 @@ export async function put<T, U>(
   body: T,
   config?: RequestInit
 ): Promise<U> {
-  const init = { method: 'put', body: JSON.stringify(body), ...config }
+  const init = {
+    method: 'put',
+    body: JSON.stringify(body),
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8'
+    },
+    ...config
+  }
   return await http<U>(path, init)
 }
