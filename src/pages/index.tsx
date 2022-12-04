@@ -1,14 +1,51 @@
 import Head from 'next/head'
 import Layout from './layout'
 import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query'
-import handler from './api/recipes'
+import { GetServerSideProps } from 'next'
+
+async function http<T>(request: RequestInfo): Promise<T> {
+  const response = await fetch(request)
+  return await response.json()
+}
+
+type Post = {
+  id: string
+  userId: number
+  title: string
+  body: string
+}
+
+const request = new Request('http://localhost:3000/api/recipes', {
+  method: 'post',
+  body: JSON.stringify({
+    userId: 1
+  }),
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8'
+  }
+})
+
+const recipeKeys = {
+  all: ['recipes'] as const
+}
 
 export async function getServerSideProps() {
   const queryClient = new QueryClient()
-  // await queryClient.prefetchQuery(['recipes'], () => handler())
+  await queryClient.prefetchQuery(recipeKeys.all, () => http<Post>(request))
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient)
+    }
+  }
 }
 
 export default function Dashboard() {
+  const { data } = useQuery({
+    queryKey: ['posts'],
+    queryFn: () => http<Post>(request)
+  })
+  console.log(data)
   const recentRecipes = miniRecipeItem.slice(0, 3).map((item) => (
     <div key={item.id} className=''>
       <h3 className=''>{item.name}</h3>

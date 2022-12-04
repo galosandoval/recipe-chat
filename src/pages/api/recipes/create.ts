@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { z } from 'zod'
-import prisma from '../../../lib/prisma'
+import { prisma } from '../../../lib/prisma'
 
 const RecipeSchema = z.object({
   description: z.string().optional(),

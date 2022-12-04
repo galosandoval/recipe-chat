@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { z } from 'zod'
-import prisma from '../../../lib/prisma'
+import { prisma } from '../../../lib/prisma'
 
 const RecipeSchema = z.object({
   userId: z.number()
@@ -10,6 +10,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  console.log('body', req.body)
   const response = await RecipeSchema.safeParseAsync(req.body)
   if (!response.success) {
     return res.status(400).send(response.error)
