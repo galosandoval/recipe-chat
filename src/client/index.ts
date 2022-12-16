@@ -23,7 +23,7 @@ export async function post<T, U>(
     },
     ...config
   }
-  return await http<U>(path, init!)
+  return await http<U>(path, init)
 }
 
 export async function put<T, U>(

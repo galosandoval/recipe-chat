@@ -1,30 +1,60 @@
 import Head from 'next/head'
 import Layout from './layout'
-import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query'
+import {
+  dehydrate,
+  QueryClient,
+  useMutation,
+  useQuery
+} from '@tanstack/react-query'
 import * as http from '../client'
 import { Recipe } from '@prisma/client'
+import { z } from 'zod'
+import { RecipeSchema } from './api/recipes/create'
 
 const recipeKeys = {
   all: ['recipes'] as const
 }
 
-type RequestBody = {
+type FetchRecipesReq = {
   userId: number
 }
 
-type ResponseBody = {
+type FetchRecipesRes = {
   recipe: Recipe
 }
 
-const recipeMock = {
+const fetchRecipesParams = {
   userId: 1
 }
 
 const fetchRecipes = () =>
-  http.post<RequestBody, ResponseBody[]>(
+  http.post<FetchRecipesReq, FetchRecipesRes[]>(
     'http://localhost:3000/api/recipes',
-    recipeMock
+    fetchRecipesParams
   )
+
+const createRecipeParamsMock = {
+  userId: 1,
+  name: 'tst',
+  url: 'https://www.foodandwine.com/recipes/mexican-chicken-pozole-verde'
+}
+
+type CreateRecipeParams = z.infer<typeof RecipeSchema>
+
+const createRecipe = (params: CreateRecipeParams) =>
+  http.post<CreateRecipeParams, Recipe>(
+    'http://localhost:3000/api/recipes/create',
+    params
+  )
+
+// mutation
+const useCreateRecipe = () =>
+  useMutation({
+    mutationFn: (params: CreateRecipeParams) => createRecipe(params),
+    onSuccess: (data: Recipe) => {
+      console.log(data)
+    }
+  })
 
 export async function getServerSideProps() {
   const queryClient = new QueryClient()
@@ -47,6 +77,8 @@ export default function Dashboard() {
     queryFn: fetchRecipes
   })
 
+  const recipe = useCreateRecipe()
+
   if (isError) {
     return 'Something went wrong'
   }
@@ -68,6 +100,12 @@ export default function Dashboard() {
           <main className='text-white container mx-auto flex flex-col items-center justify-center min-h-screen'>
             <div className=''>
               <h1 className=''>recent lists</h1>
+              <button
+                className=''
+                onClick={() => recipe.mutate(createRecipeParamsMock)}
+              >
+                Create Recipe
+              </button>
               {recentRecipes}
             </div>
           </main>
