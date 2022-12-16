@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Layout from './layout'
+import { FormEvent } from 'react'
 import {
   dehydrate,
   QueryClient,
@@ -9,7 +10,8 @@ import {
 import * as http from '../client'
 import { Recipe } from '@prisma/client'
 import { z } from 'zod'
-import { RecipeSchema } from './api/recipes/create'
+import { useForm } from 'react-hook-form'
+import { ParseRecipeResponse, ParseRecipeSchema } from './api/recipes/parse-url'
 
 const recipeKeys = {
   all: ['recipes'] as const
@@ -33,26 +35,24 @@ const fetchRecipes = () =>
     fetchRecipesParams
   )
 
-const createRecipeParamsMock = {
-  userId: 1,
-  name: 'tst',
+// mutation
+const parseRecipeParamsMock = {
   url: 'https://www.foodandwine.com/recipes/mexican-chicken-pozole-verde'
 }
 
-type CreateRecipeParams = z.infer<typeof RecipeSchema>
+type ParseRecipeParams = z.infer<typeof ParseRecipeSchema>
 
-const createRecipe = (params: CreateRecipeParams) =>
-  http.post<CreateRecipeParams, Recipe>(
-    'http://localhost:3000/api/recipes/create',
+const parseRecipe = (params: ParseRecipeParams) =>
+  http.post<ParseRecipeParams, ParseRecipeResponse>(
+    'http://localhost:3000/api/recipes/parse-url',
     params
   )
 
-// mutation
-const useCreateRecipe = () =>
+const useParseRecipe = () =>
   useMutation({
-    mutationFn: (params: CreateRecipeParams) => createRecipe(params),
-    onSuccess: (data: Recipe) => {
-      console.log(data)
+    mutationFn: (params: ParseRecipeParams) => parseRecipe(params),
+    onSuccess: (data: ParseRecipeResponse) => {
+      console.log('data', data)
     }
   })
 
@@ -76,8 +76,9 @@ export default function Dashboard() {
     queryKey: recipeKeys.all,
     queryFn: fetchRecipes
   })
+  const { register, handleSubmit } = useForm<ParseRecipeParams>()
 
-  const recipe = useCreateRecipe()
+  const parseRecipe = useParseRecipe()
 
   if (isError) {
     return 'Something went wrong'
@@ -97,15 +98,25 @@ export default function Dashboard() {
           <link rel='icon' href='/favicon.ico' />
         </Head>
         <Layout>
-          <main className='text-white container mx-auto flex flex-col items-center justify-center min-h-screen'>
+          <main className='container mx-auto flex flex-col items-center justify-center min-h-screen'>
             <div className=''>
               <h1 className=''>recent lists</h1>
-              <button
+              <form
+                onSubmit={handleSubmit((values) => parseRecipe.mutate(values))}
                 className=''
-                onClick={() => recipe.mutate(createRecipeParamsMock)}
               >
-                Create Recipe
-              </button>
+                <label htmlFor='url' className=''>
+                  Recipe URL
+                </label>
+                <input
+                  {...register('url')}
+                  defaultValue='asdf'
+                  className='text-black'
+                />
+                <button className='' type='submit'>
+                  Create Recipe
+                </button>
+              </form>
               {recentRecipes}
             </div>
           </main>

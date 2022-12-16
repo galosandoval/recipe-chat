@@ -74,7 +74,7 @@ function Layout({ children }: { children: ReactNode }) {
           theme
         </button>
       </ul>
-      <div className='w-full'>{children}</div>
+      <div className='w-full text-black dark:text-white'>{children}</div>
     </div>
   )
 }
