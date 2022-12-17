@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Layout from './layout'
-import { FormEvent } from 'react'
+import React, { Fragment, useState } from 'react'
 import {
   dehydrate,
   QueryClient,
@@ -12,9 +12,13 @@ import { Recipe } from '@prisma/client'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { ParseRecipeResponse, ParseRecipeSchema } from './api/recipes/parse-url'
+import { Dialog, Transition } from '@headlessui/react'
+import { Button } from '../components/Button'
+import { CreateRecipe } from './api/recipes/create'
 
 const recipeKeys = {
-  all: ['recipes'] as const
+  all: ['recipes'] as const,
+  parsed: () => [...recipeKeys.all, 'parsed'] as const
 }
 
 type FetchRecipesReq = {
@@ -35,29 +39,9 @@ const fetchRecipes = () =>
     fetchRecipesParams
   )
 
-// mutation
-const parseRecipeParamsMock = {
-  url: 'https://www.foodandwine.com/recipes/mexican-chicken-pozole-verde'
-}
-
-type ParseRecipeParams = z.infer<typeof ParseRecipeSchema>
-
-const parseRecipe = (params: ParseRecipeParams) =>
-  http.post<ParseRecipeParams, ParseRecipeResponse>(
-    'http://localhost:3000/api/recipes/parse-url',
-    params
-  )
-
-const useParseRecipe = () =>
-  useMutation({
-    mutationFn: (params: ParseRecipeParams) => parseRecipe(params),
-    onSuccess: (data: ParseRecipeResponse) => {
-      console.log('data', data)
-    }
-  })
+const queryClient = new QueryClient()
 
 export async function getServerSideProps() {
-  const queryClient = new QueryClient()
   await queryClient.prefetchQuery(recipeKeys.all, fetchRecipes)
 
   return {
@@ -76,9 +60,13 @@ export default function Dashboard() {
     queryKey: recipeKeys.all,
     queryFn: fetchRecipes
   })
-  const { register, handleSubmit } = useForm<ParseRecipeParams>()
-
-  const parseRecipe = useParseRecipe()
+  const parsedRecipe = queryClient.getQueryData<ParseRecipeResponse>(
+    recipeKeys.parsed()
+  )
+  let renderParsedRecipe: React.ReactNode = null
+  if (parsedRecipe) {
+    renderParsedRecipe = JSON.stringify(parsedRecipe)
+  }
 
   if (isError) {
     return 'Something went wrong'
@@ -101,22 +89,9 @@ export default function Dashboard() {
           <main className='container mx-auto flex flex-col items-center justify-center min-h-screen'>
             <div className=''>
               <h1 className=''>recent lists</h1>
-              <form
-                onSubmit={handleSubmit((values) => parseRecipe.mutate(values))}
-                className=''
-              >
-                <label htmlFor='url' className=''>
-                  Recipe URL
-                </label>
-                <input
-                  {...register('url')}
-                  defaultValue='asdf'
-                  className='text-black'
-                />
-                <button className='' type='submit'>
-                  Create Recipe
-                </button>
-              </form>
+              <CreateRecipePopover />
+
+              {renderParsedRecipe}
               {recentRecipes}
             </div>
           </main>
@@ -126,4 +101,216 @@ export default function Dashboard() {
   }
 
   return 'is loading..'
+}
+
+type Step = {
+  name: 'uploadUrl' | 'saveRecipe'
+  next: 'first' | 'second' | null
+  prev: 'first' | 'second' | null
+}
+
+function CreateRecipePopover() {
+  const [isOpen, setIsOpen] = useState(false)
+  const steps = {
+    first: { name: 'uploadUrl', next: 'second', prev: null },
+    second: { name: 'saveRecipe', next: null, prev: 'first' }
+  } as const
+  const [currentStep, setCurrentStep] = useState<Step | undefined>(steps.first)
+  console.log('currentStep', currentStep)
+
+  function closeModal() {
+    setIsOpen(false)
+    setTimeout(() => {
+      setCurrentStep(steps.first)
+    }, 200)
+  }
+
+  function openModal() {
+    setIsOpen(true)
+  }
+
+  const nextStep = () => {
+    setCurrentStep(undefined)
+  }
+
+  return (
+    <>
+      <div className='flex items-center justify-center'>
+        <button
+          type='button'
+          onClick={openModal}
+          className='rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75'
+        >
+          Open dialog
+        </button>
+      </div>
+
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as='div' className='relative z-10' onClose={closeModal}>
+          <Transition.Child
+            as={Fragment}
+            enter='ease-out duration-300'
+            enterFrom='opacity-0'
+            enterTo='opacity-100'
+            leave='ease-in duration-200'
+            leaveFrom='opacity-100'
+            leaveTo='opacity-0'
+          >
+            <div className='fixed inset-0 bg-black bg-opacity-25' />
+          </Transition.Child>
+
+          <div className='fixed inset-0 overflow-y-auto'>
+            <div className='flex min-h-full items-center justify-center p-4 text-center'>
+              <Transition.Child
+                as={Fragment}
+                enter='ease-out duration-300'
+                enterFrom='opacity-0 scale-95'
+                enterTo='opacity-100 scale-100'
+                leave='ease-in duration-200'
+                leaveFrom='opacity-100 scale-100'
+                leaveTo='opacity-0 scale-95'
+              >
+                <Dialog.Panel className='w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all min-h-[10rem]'>
+                  <Transition
+                    show={currentStep?.name === 'uploadUrl'}
+                    appear={true}
+                    leave='transition-all duration-300'
+                    leaveFrom='opacity-100 translate-y-0'
+                    leaveTo='opacity-0 translate-y-1'
+                    afterLeave={() => setCurrentStep(steps.second)}
+                  >
+                    <Dialog.Title
+                      as='h3'
+                      className='text-lg font-medium leading-6 text-gray-900'
+                    >
+                      Upload a recipe
+                    </Dialog.Title>
+                    <UploadRecipeUrlForm nextStep={nextStep} />
+                  </Transition>
+                  <Transition
+                    show={currentStep?.name === 'saveRecipe'}
+                    enter='transition-all duration-500 '
+                    enterFrom='opacity-0 -translate-y-2'
+                    enterTo='opacity-100 translate-y-0'
+                    leave='transition-opacity duration-150'
+                    leaveFrom='opacity-100'
+                    leaveTo='opacity-0'
+                  >
+                    <Dialog.Title
+                      as='h3'
+                      className='text-lg font-medium leading-6 text-gray-900'
+                    >
+                      Save your new recipe
+                    </Dialog.Title>
+                    <CreateRecipeForm />
+                  </Transition>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
+  )
+}
+
+type ParseRecipeParams = z.infer<typeof ParseRecipeSchema>
+
+const parseRecipe = (params: ParseRecipeParams) =>
+  http.post<ParseRecipeParams, ParseRecipeResponse>(
+    'http://localhost:3000/api/recipes/parse-url',
+    params
+  )
+
+const useParseRecipe = (nextStep: () => void) =>
+  useMutation({
+    mutationFn: (params: ParseRecipeParams) => parseRecipe(params),
+    onSuccess: (data: ParseRecipeResponse) => {
+      console.log('data', data)
+      queryClient.setQueryData(recipeKeys.parsed(), data)
+      nextStep()
+    }
+  })
+
+function UploadRecipeUrlForm({ nextStep }: { nextStep: () => void }) {
+  const { register, handleSubmit } = useForm<ParseRecipeParams>()
+
+  const { mutate, isLoading } = useParseRecipe(nextStep)
+  return (
+    <form onSubmit={handleSubmit((values) => mutate(values))} className=''>
+      <div className='mt-2 flex flex-col gap-1'>
+        <label htmlFor='url' className='text-sm text-gray-500'>
+          Recipe URL
+        </label>
+        <input
+          {...register('url')}
+          className='text-gray-500'
+          defaultValue='https://www.bbcgoodfood.com/recipes/spiced-carrot-lentil-soup'
+        />
+      </div>
+      <div className='mt-4'>
+        <Button
+          props={{ type: 'submit', disabled: isLoading }}
+          isLoading={isLoading}
+        >
+          {isLoading ? 'Uploading...' : 'Upload'}
+        </Button>
+      </div>
+    </form>
+  )
+}
+
+const createRecipe = (params: CreateRecipe) =>
+  http.post<CreateRecipe, FetchRecipesRes[]>(
+    'http://localhost:3000/api/recipes/create',
+    params
+  )
+
+const useCreateRecipe = () =>
+  useMutation({
+    mutationFn: (params: CreateRecipe) => createRecipe(params)
+  })
+
+function CreateRecipeForm() {
+  const { register, handleSubmit } = useForm<CreateRecipe>()
+
+  const { mutate, isLoading } = useCreateRecipe()
+  return (
+    <form onSubmit={handleSubmit((values) => mutate(values))} className=''>
+      <div className='mt-2'>
+        <label htmlFor='name' className='text-sm text-gray-500'>
+          Title
+        </label>
+        <input
+          {...register('name')}
+          className='text-gray-500'
+          defaultValue='https://www.bbcgoodfood.com/recipes/spiced-carrot-lentil-soup'
+        />
+        <label htmlFor='ingredients' className='text-sm text-gray-500'>
+          Ingredients
+        </label>
+        <input
+          {...register('ingredients')}
+          className='text-gray-500'
+          defaultValue='https://www.bbcgoodfood.com/recipes/spiced-carrot-lentil-soup'
+        />
+        <label htmlFor='instructions' className='text-sm text-gray-500'>
+          Instructions
+        </label>
+        <input
+          {...register('instructions')}
+          className='text-gray-500'
+          defaultValue='https://www.bbcgoodfood.com/recipes/spiced-carrot-lentil-soup'
+        />
+      </div>
+      <div className='mt-4'>
+        <Button
+          props={{ type: 'submit', disabled: isLoading }}
+          isLoading={isLoading}
+        >
+          {isLoading ? 'Saving...' : 'Save'}
+        </Button>
+      </div>
+    </form>
+  )
 }

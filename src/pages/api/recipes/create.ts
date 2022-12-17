@@ -4,7 +4,7 @@ import { prisma } from '../../../lib/prisma'
 
 // Pass the browser instance to the scraper controller
 
-export const RecipeSchema = z.object({
+const RecipeSchema = z.object({
   description: z.string().optional(),
   name: z.string(),
   imgUrl: z.string().optional(),
@@ -16,6 +16,8 @@ export const RecipeSchema = z.object({
   listId: z.number().optional(),
   url: z.string().optional()
 })
+
+export type CreateRecipe = z.infer<typeof RecipeSchema>
 
 export default async function handle(
   req: NextApiRequest,
@@ -33,7 +35,7 @@ export default async function handle(
   res.json(newRecipe)
 }
 
-async function createRecipe(data: z.infer<typeof RecipeSchema>) {
+async function createRecipe(data: CreateRecipe) {
   const { userId, listId, ingredients, instructions, ...rest } = data
   const result = await prisma.recipe.create({
     data: {

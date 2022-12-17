@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { z } from 'zod'
-import { prisma } from '../../../lib/prisma'
 import puppeteer, { Page } from 'puppeteer'
 
 // Pass the browser instance to the scraper controller
@@ -37,7 +36,7 @@ export default async function handle(
   const recipe = await parseRecipe(page)
 
   await browser.close()
-  console.log('recipe', recipe)
+
   res.json(recipe)
 }
 
@@ -46,6 +45,7 @@ async function parseRecipe(page: Page) {
   const parsedIngredients = parseIngredients(page)
   const parsedNames = parseNames(page)
   const parsedDescriptions = parseDescriptions(page)
+
   const [instructions, ingredients, names, descriptions] = await Promise.all([
     parsedInstructions,
     parsedIngredients,
@@ -53,8 +53,8 @@ async function parseRecipe(page: Page) {
     parsedDescriptions
   ])
   return {
-    instructions,
-    ingredients,
+    instructions: instructions.length ? instructions : ingredients,
+    ingredients: ingredients.length ? ingredients : instructions,
     names,
     descriptions
   }
