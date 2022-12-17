@@ -15,6 +15,11 @@ import { ParseRecipeResponse, ParseRecipeSchema } from './api/recipes/parse-url'
 import { Dialog, Transition } from '@headlessui/react'
 import { Button } from '../components/Button'
 import { CreateRecipe } from './api/recipes/create'
+import {
+  Step,
+  TotalSteps,
+  TransitionWrapper
+} from '../components/TransitionWrapper'
 
 const recipeKeys = {
   all: ['recipes'] as const,
@@ -60,13 +65,6 @@ export default function Dashboard() {
     queryKey: recipeKeys.all,
     queryFn: fetchRecipes
   })
-  const parsedRecipe = queryClient.getQueryData<ParseRecipeResponse>(
-    recipeKeys.parsed()
-  )
-  let renderParsedRecipe: React.ReactNode = null
-  if (parsedRecipe) {
-    renderParsedRecipe = JSON.stringify(parsedRecipe)
-  }
 
   if (isError) {
     return 'Something went wrong'
@@ -91,7 +89,6 @@ export default function Dashboard() {
               <h1 className=''>recent lists</h1>
               <CreateRecipePopover />
 
-              {renderParsedRecipe}
               {recentRecipes}
             </div>
           </main>
@@ -103,24 +100,52 @@ export default function Dashboard() {
   return 'is loading..'
 }
 
-type Step = {
-  name: 'uploadUrl' | 'saveRecipe'
-  next: 'first' | 'second' | null
-  prev: 'first' | 'second' | null
-}
-
 function CreateRecipePopover() {
   const [isOpen, setIsOpen] = useState(false)
-  const steps = {
-    first: { name: 'uploadUrl', next: 'second', prev: null },
-    second: { name: 'saveRecipe', next: null, prev: 'first' }
+  const steps: TotalSteps = {
+    first: {
+      key: 'first',
+      next: 'second',
+      prev: null,
+      component: (
+        <>
+          {' '}
+          <Dialog.Title
+            as='h3'
+            className='text-lg font-medium leading-6 text-gray-900'
+          >
+            Upload a recipe
+          </Dialog.Title>
+          <UploadRecipeUrlForm nextStep={nextStep} />
+        </>
+      )
+    },
+    second: {
+      key: 'second',
+      next: null,
+      prev: 'first',
+      component: (
+        <>
+          {' '}
+          <Dialog.Title
+            as='h3'
+            className='text-lg font-medium leading-6 text-gray-900'
+          >
+            Upload a recipe
+          </Dialog.Title>
+          <CreateRecipeForm />
+        </>
+      )
+    }
   } as const
   const [currentStep, setCurrentStep] = useState<Step | undefined>(steps.first)
+  const [transitionSwitch, setTransitionSwitch] = useState(true)
   console.log('currentStep', currentStep)
 
   function closeModal() {
     setIsOpen(false)
     setTimeout(() => {
+      // to show UI change after closing modal
       setCurrentStep(steps.first)
     }, 200)
   }
@@ -129,8 +154,13 @@ function CreateRecipePopover() {
     setIsOpen(true)
   }
 
-  const nextStep = () => {
-    setCurrentStep(undefined)
+  function nextStep() {
+    setTransitionSwitch(false)
+  }
+
+  function handleAfterLeave() {
+    setTransitionSwitch(true)
+    setCurrentStep((state) => steps[state?.next as keyof typeof steps])
   }
 
   return (
@@ -171,39 +201,12 @@ function CreateRecipePopover() {
                 leaveTo='opacity-0 scale-95'
               >
                 <Dialog.Panel className='w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all min-h-[10rem]'>
-                  <Transition
-                    show={currentStep?.name === 'uploadUrl'}
-                    appear={true}
-                    leave='transition-all duration-300'
-                    leaveFrom='opacity-100 translate-y-0'
-                    leaveTo='opacity-0 translate-y-1'
-                    afterLeave={() => setCurrentStep(steps.second)}
-                  >
-                    <Dialog.Title
-                      as='h3'
-                      className='text-lg font-medium leading-6 text-gray-900'
-                    >
-                      Upload a recipe
-                    </Dialog.Title>
-                    <UploadRecipeUrlForm nextStep={nextStep} />
-                  </Transition>
-                  <Transition
-                    show={currentStep?.name === 'saveRecipe'}
-                    enter='transition-all duration-500 '
-                    enterFrom='opacity-0 -translate-y-2'
-                    enterTo='opacity-100 translate-y-0'
-                    leave='transition-opacity duration-150'
-                    leaveFrom='opacity-100'
-                    leaveTo='opacity-0'
-                  >
-                    <Dialog.Title
-                      as='h3'
-                      className='text-lg font-medium leading-6 text-gray-900'
-                    >
-                      Save your new recipe
-                    </Dialog.Title>
-                    <CreateRecipeForm />
-                  </Transition>
+                  <TransitionWrapper
+                    transitionSwitch={transitionSwitch}
+                    currentStep={currentStep}
+                    handleAfterLeave={handleAfterLeave}
+                    steps={steps}
+                  />
                 </Dialog.Panel>
               </Transition.Child>
             </div>
@@ -271,37 +274,40 @@ const useCreateRecipe = () =>
     mutationFn: (params: CreateRecipe) => createRecipe(params)
   })
 
+function CreateRecipe() {
+  const parsedRecipe = queryClient.getQueryData<ParseRecipeResponse>(
+    recipeKeys.parsed()
+  )
+  let renderParsedRecipe: React.ReactNode = null
+  if (parsedRecipe) {
+    renderParsedRecipe = JSON.stringify(parsedRecipe)
+  }
+
+  return renderParsedRecipe
+}
+
 function CreateRecipeForm() {
   const { register, handleSubmit } = useForm<CreateRecipe>()
 
   const { mutate, isLoading } = useCreateRecipe()
   return (
-    <form onSubmit={handleSubmit((values) => mutate(values))} className=''>
-      <div className='mt-2'>
+    <form
+      onSubmit={handleSubmit((values) => mutate(values))}
+      className='flex flex-col'
+    >
+      <div className='mt-2 flex flex-col'>
         <label htmlFor='name' className='text-sm text-gray-500'>
           Title
         </label>
-        <input
-          {...register('name')}
-          className='text-gray-500'
-          defaultValue='https://www.bbcgoodfood.com/recipes/spiced-carrot-lentil-soup'
-        />
+        <input {...register('name')} className='text-gray-500' />
         <label htmlFor='ingredients' className='text-sm text-gray-500'>
           Ingredients
         </label>
-        <input
-          {...register('ingredients')}
-          className='text-gray-500'
-          defaultValue='https://www.bbcgoodfood.com/recipes/spiced-carrot-lentil-soup'
-        />
+        <textarea {...register('ingredients')} className='text-gray-500' />
         <label htmlFor='instructions' className='text-sm text-gray-500'>
           Instructions
         </label>
-        <input
-          {...register('instructions')}
-          className='text-gray-500'
-          defaultValue='https://www.bbcgoodfood.com/recipes/spiced-carrot-lentil-soup'
-        />
+        <textarea {...register('instructions')} className='text-gray-500' />
       </div>
       <div className='mt-4'>
         <Button

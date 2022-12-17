@@ -116,15 +116,6 @@ async function parseIngredients(page: Page) {
     .slice(0, 8)
 }
 
-// // img
-// const images = await page.evaluate(() =>
-//   Array.from(document.querySelectorAll('img'), (e) => ({
-//     line: e.attri('src')
-//   })).reverse()
-// )
-
-// console.log('imp', images)
-
 async function parseNames(page: Page) {
   // names
   const names: string[] = []
