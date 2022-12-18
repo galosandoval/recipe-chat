@@ -1,0 +1,341 @@
+/* ____Recipe____ */
+.recipe {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* ____AddRecipe____ */
+.add-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &__container {
+    width: 90%;
+
+    &--top {
+      flex-direction: column;
+    }
+    &--bottom {
+      transition: all 0.3s ease-in-out;
+      display: flex;
+    }
+  }
+
+  &__label {
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+    margin: 1rem;
+    border-radius: 5px;
+    color: $color-grey-dark-2;
+    padding: 0.2rem 1rem;
+    transition: all 0.6s;
+
+    &:focus-within {
+      box-shadow: 0 0.2rem 0.2rem rgba($color-black, 0.5);
+    }
+  }
+
+  &__textarea {
+    resize: none;
+    border: none;
+    border-radius: 5px;
+    width: 50%;
+    outline: none;
+
+    &::placeholder {
+      width: 15ch;
+    }
+  }
+
+  &__input {
+    border: none;
+    width: 50%;
+    transition: all ease-in-out 0.3s;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+/* ____RecipeCard____ */
+.recipe-card {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+  &__author {
+    position: absolute;
+    bottom: 0;
+    left: 1rem;
+    text-transform: lowercase;
+    font-size: 0.8rem;
+
+    &-span {
+      color: $color-primary;
+    }
+
+    &-link,
+    &-link:visited {
+      color: $color-grey-dark;
+      text-decoration: none;
+      transition: 0.3s ease all;
+
+      &:hover {
+        color: $color-primary;
+        text-decoration: underline;
+      }
+    }
+  }
+  &__name {
+    padding-left: 0.5em;
+  }
+  &__img-container {
+    width: 100%;
+    object-fit: contain;
+  }
+  &__img {
+    width: 100%;
+    height: 20em;
+    object-fit: cover;
+
+    @include respond(phone) {
+      height: 25rem;
+    }
+  }
+  &__description {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 1rem;
+    background-color: rgba($color-tertiary, 0.5);
+    margin-bottom: 0.7rem;
+  }
+  &__learn-button {
+    background: none;
+    border: none;
+    color: $color-primary;
+    cursor: pointer;
+
+    &--hidden {
+      overflow: hidden;
+      max-height: 0;
+      transition: all ease 0.3s;
+    }
+  }
+  &__carrot-button {
+    margin-bottom: 0.6em;
+
+    &:hover {
+      transform: scale(1.07);
+      color: #fff;
+    }
+    &--rotate {
+      transition: all ease-in-out 0.4s;
+      transform: rotate(180deg);
+
+      &:hover {
+        transform: rotate(180deg) scale(1.07);
+        box-shadow: 0rem -0.5rem 1rem rgba(#000, 0.15);
+        transition: box-shadow none;
+      }
+    }
+  }
+}
+.ingredients {
+  transition: all ease-in-out 0.3s;
+}
+
+/* ____Edit Recipe____ */
+/* ____CardMenu____ */
+.card-menu {
+  position: relative;
+  display: inline-block;
+
+  &__content {
+    display: none;
+    position: absolute;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    background-color: $color-grey-light-1;
+
+    & > button {
+      border: none;
+      padding: 0.5rem 0;
+      background-color: $color-grey-light-2;
+    }
+
+    &--show {
+      display: flex;
+      flex-direction: column;
+      right: 0;
+      border-radius: 0.25rem;
+      overflow: hidden;
+    }
+  }
+
+  &__btn {
+    border-radius: 0.6rem;
+    height: 3rem;
+    width: 3rem;
+    margin-right: 0.7rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+
+    &-description,
+    &-instruction,
+    &-ingredients {
+      &:hover {
+        background-color: $color-grey-dark-2;
+        color: $color-white;
+        transition: all 0.3s;
+      }
+    }
+
+    &-delete {
+      background-color: lighten($color-delete, 50%);
+      transition: 0.3s all ease;
+      &:hover {
+        background-color: $color-delete;
+        color: $color-white;
+      }
+    }
+  }
+}
+
+.edit-card {
+  position: absolute;
+  top: 100%;
+  background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3));
+  transition: all ease 0.5s;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+
+  &--show {
+    overflow-y: scroll;
+    top: 0;
+    z-index: 1000;
+  }
+
+  &-btn {
+    margin: 0.3rem 0.3rem 0 auto;
+  }
+}
+
+.recipe-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+
+  &__input {
+    padding: 1em;
+    margin: 1em;
+    border-radius: 5px;
+    border: none;
+
+    &-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__add-input {
+    max-height: 0;
+    padding: 0;
+    transition: all ease 0.5s;
+    overflow: hidden;
+
+    &--show {
+      transition: all ease 0.5s;
+      max-height: fit-content;
+      padding: 1em;
+    }
+  }
+
+  &__btn {
+    & svg {
+      height: 1.2rem;
+      width: 1.2rem;
+      transform: rotate(45deg);
+    }
+  }
+}
+
+.edit-ingredients {
+  display: flex;
+  margin: 4em 0em 0em 1em;
+  flex-wrap: wrap;
+  width: 100%;
+
+  &__input {
+    margin: 0.5em;
+    border-radius: 1em;
+    border: none;
+    padding: 1em;
+    width: 35%;
+    flex: 1;
+  }
+}
+
+/* ____Accordian____ */
+.accordian {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: max-height ease 0.3s;
+
+  &--hidden {
+    overflow: hidden;
+    max-height: 0 !important;
+    transition: all ease 0.3s;
+  }
+
+  &__tabs {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 1rem 0;
+    align-items: center;
+  }
+
+  &__link {
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* ____RecipeIngredients____ */
+.recipe-ingredients {
+  padding: 0 2rem;
+  &__item {
+    padding-bottom: 1rem;
+    list-style: none;
+  }
+  &__paragraph {
+    margin: 0;
+    letter-spacing: 1.5px;
+  }
+}
+/* ____RecipeInstructions____ */
+.recipe-instructions {
+  letter-spacing: 1.4px;
+  padding: 0 1rem;
+  margin-left: 2rem;
+  margin-top: 0;
+  &__item {
+    padding: 1rem;
+    margin: 0 0.5em;
+  }
+}

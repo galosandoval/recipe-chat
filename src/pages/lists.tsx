@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import React from 'react'
 import Layout from './layout'
 
@@ -15,15 +14,6 @@ function Lists() {
         <main className='text-white mx-auto grid grid-cols-2 min-h-screen gap-5 py-4 px-5'>
           {lists.map((list) => (
             <div className='card ' key={list.id}>
-              {list.photos.length && list.photos[0] && (
-                <Image
-                  alt={list.name}
-                  src={list.photos[0]}
-                  className='object-cover rounded-lg'
-                  width={200}
-                  height={160}
-                />
-              )}
               <h3 className=''>{list.name}</h3>
             </div>
           ))}

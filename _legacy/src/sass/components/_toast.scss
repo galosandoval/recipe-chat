@@ -1,0 +1,43 @@
+.error-toast {
+  position: absolute;
+  bottom: 2rem;
+  margin-left: auto;
+  background-color: #ff000453;
+  align-items: center;
+  left: 0;
+  right: 0;
+  width: 35%;
+  margin-right: auto;
+  border-radius: 10px;
+  color: $color-delete;
+  border: 1px solid $color-delete;
+  transform: translateY(300%);
+  transition: all 0.6s ease-in-out;
+  display: flex;
+  justify-content: space-evenly;
+  opacity: 0;
+
+  &--show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  &__message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 26ch;
+    font-size: 0.9rem;
+
+    h3 {
+      padding-right: 1rem;
+    }
+  }
+
+  &__slash {
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+}
