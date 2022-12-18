@@ -8,20 +8,27 @@ export const ParseRecipeSchema = z.object({
   url: z.string()
 })
 
+export type ParsedRecipe = {
+  instructions: string[][]
+  ingredients: string[][]
+  names: string[]
+  descriptions: string[]
+}
+
 export type ParseRecipeResponse =
-  | {
-      instructions: string[][]
-      ingredients: string[][]
-      names: string[]
-      descriptions: string[]
-    }
+  | ParsedRecipe
   | z.ZodError<{
       url: string
     }>
 
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<ParseRecipeResponse>
+  res: NextApiResponse<
+    | ParsedRecipe
+    | z.ZodError<{
+        url: string
+      }>
+  >
 ) {
   const parsedRequest = await ParseRecipeSchema.safeParseAsync(req.body)
   if (!parsedRequest.success) {
