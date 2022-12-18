@@ -17,7 +17,7 @@ const RecipeSchema = z.object({
   url: z.string().optional()
 })
 
-export type CreateRecipe = z.infer<typeof RecipeSchema>
+export type CreateRecipeParams = z.infer<typeof RecipeSchema>
 
 export default async function handle(
   req: NextApiRequest,
@@ -35,7 +35,7 @@ export default async function handle(
   res.json(newRecipe)
 }
 
-async function createRecipe(data: CreateRecipe) {
+async function createRecipe(data: CreateRecipeParams) {
   const { userId, listId, ingredients, instructions, ...rest } = data
   const result = await prisma.recipe.create({
     data: {

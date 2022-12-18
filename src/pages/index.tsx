@@ -11,10 +11,14 @@ import * as http from '../client'
 import { Recipe } from '@prisma/client'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
-import { ParseRecipeResponse, ParseRecipeSchema } from './api/recipes/parse-url'
+import {
+  ParsedRecipe,
+  ParseRecipeResponse,
+  ParseRecipeSchema
+} from './api/recipes/parse-url'
 import { Dialog, Transition } from '@headlessui/react'
 import { Button } from '../components/Button'
-import { CreateRecipe } from './api/recipes/create'
+import { CreateRecipeParams } from './api/recipes/create'
 import {
   Step,
   TotalSteps,
@@ -133,7 +137,7 @@ function CreateRecipePopover() {
           >
             Upload a recipe
           </Dialog.Title>
-          <CreateRecipeForm />
+          <CreateRecipe />
         </>
       )
     }
@@ -220,7 +224,7 @@ function CreateRecipePopover() {
 type ParseRecipeParams = z.infer<typeof ParseRecipeSchema>
 
 const parseRecipe = (params: ParseRecipeParams) =>
-  http.post<ParseRecipeParams, ParseRecipeResponse>(
+  http.post<ParseRecipeParams, ParsedRecipe>(
     'http://localhost:3000/api/recipes/parse-url',
     params
   )
@@ -228,8 +232,7 @@ const parseRecipe = (params: ParseRecipeParams) =>
 const useParseRecipe = (nextStep: () => void) =>
   useMutation({
     mutationFn: (params: ParseRecipeParams) => parseRecipe(params),
-    onSuccess: (data: ParseRecipeResponse) => {
-      console.log('data', data)
+    onSuccess: (data: ParsedRecipe) => {
       queryClient.setQueryData(recipeKeys.parsed(), data)
       nextStep()
     }
@@ -263,52 +266,109 @@ function UploadRecipeUrlForm({ nextStep }: { nextStep: () => void }) {
   )
 }
 
-const createRecipe = (params: CreateRecipe) =>
-  http.post<CreateRecipe, FetchRecipesRes[]>(
+const createRecipe = (params: CreateRecipeParams) =>
+  http.post<CreateRecipeParams, FetchRecipesRes[]>(
     'http://localhost:3000/api/recipes/create',
     params
   )
 
 const useCreateRecipe = () =>
   useMutation({
-    mutationFn: (params: CreateRecipe) => createRecipe(params)
+    mutationFn: (params: CreateRecipeParams) => createRecipe(params)
   })
 
 function CreateRecipe() {
-  const parsedRecipe = queryClient.getQueryData<ParseRecipeResponse>(
+  const parsedRecipe = queryClient.getQueryData<ParsedRecipe>(
     recipeKeys.parsed()
   )
-  let renderParsedRecipe: React.ReactNode = null
   if (parsedRecipe) {
-    renderParsedRecipe = JSON.stringify(parsedRecipe)
+    return <CreateRecipeForm data={parsedRecipe} />
   }
 
-  return renderParsedRecipe
+  return <p>Loading...</p>
 }
 
-function CreateRecipeForm() {
-  const { register, handleSubmit } = useForm<CreateRecipe>()
+type FormValues = {
+  name: string
+  description: string
+  instructions: string
+  ingredients: string
+}
+
+function CreateRecipeForm({ data }: { data: ParsedRecipe }) {
+  console.log('data', data)
+  const [ingredientsPage, setIngredientsPage] = useState(0)
+  const [instructionsPage, setInstructionsPage] = useState(0)
+  const { register, handleSubmit, setValue, getValues } = useForm<FormValues>({
+    defaultValues: {
+      description: data.descriptions[0],
+      name: data.names[0],
+      ingredients: data.ingredients[0].join('\n'),
+      instructions: data.instructions[0].join('\n')
+    }
+  })
 
   const { mutate, isLoading } = useCreateRecipe()
+
+  const onSubmit = (values: FormValues) => {
+    const params = {
+      ...values,
+      // TODO: do not hardcode
+      userId: 1,
+      ingredients: values.ingredients.split('\n'),
+      instructions: values.instructions.split('\n')
+    }
+    mutate(params)
+  }
+
+  const changeIngredientsPage = () => {
+    const ingredientsLength = data.ingredients.length
+    const newState = (ingredientsPage + 1) & ingredientsLength
+    setValue('ingredients', data.ingredients[newState].join('\n'))
+    setIngredientsPage(newState)
+  }
+
+  const changeInstructionsPage = () => {
+    const instructionsLength = data.instructions.length
+    const newState = (instructionsPage + 1) & instructionsLength
+    setValue('instructions', data.instructions[newState].join('\n'))
+    setInstructionsPage(newState)
+  }
+
   return (
-    <form
-      onSubmit={handleSubmit((values) => mutate(values))}
-      className='flex flex-col'
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
       <div className='mt-2 flex flex-col'>
         <label htmlFor='name' className='text-sm text-gray-500'>
           Title
         </label>
         <input {...register('name')} className='text-gray-500' />
+        <label htmlFor='name' className='text-sm text-gray-500'>
+          Description
+        </label>
+        <input {...register('description')} className='text-gray-500' />
         <label htmlFor='ingredients' className='text-sm text-gray-500'>
           Ingredients
         </label>
-        <textarea {...register('ingredients')} className='text-gray-500' />
+        <textarea
+          rows={getValues('ingredients').split('\n').length}
+          {...register('ingredients')}
+          className='text-gray-500 resize-none p-2 max-h-60'
+        />
         <label htmlFor='instructions' className='text-sm text-gray-500'>
           Instructions
         </label>
-        <textarea {...register('instructions')} className='text-gray-500' />
+        <textarea
+          rows={getValues('instructions').split('\n').length}
+          {...register('instructions')}
+          className='text-gray-500 resize-none p-2 max-h-60'
+        />
       </div>
+      <Button props={{ type: 'button' }} onClick={changeIngredientsPage}>
+        Next ingredients
+      </Button>
+      <Button props={{ type: 'button' }} onClick={changeInstructionsPage}>
+        Next instructions
+      </Button>
       <div className='mt-4'>
         <Button
           props={{ type: 'submit', disabled: isLoading }}
