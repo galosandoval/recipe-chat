@@ -13,19 +13,18 @@ if (process.env.NODE_ENV !== 'production') {
   refetchOnWindowFocus = false
 }
 
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus
+    }
+  }
+})
+
 export default function App({ Component, pageProps }: AppProps) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            refetchOnWindowFocus
-          }
-        }
-      })
-  )
+  const [queryClientState] = useState(() => queryClient)
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClientState}>
       <Hydrate state={pageProps.dehydratedState}>
         <Component {...pageProps} />
         <ReactQueryDevtools initialIsOpen={false} />

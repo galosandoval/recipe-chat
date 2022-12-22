@@ -2,8 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { z } from 'zod'
 import puppeteer, { Page } from 'puppeteer'
 
-// Pass the browser instance to the scraper controller
-
 export const ParseRecipeSchema = z.object({
   url: z.string()
 })
@@ -44,7 +42,220 @@ export default async function handle(
 
   await browser.close()
 
-  res.json(recipe)
+  const mockData = {
+    instructions: [
+      [
+        'Budgeting',
+        'Cheap vegetarian recipes',
+        'Cheap vegan recipes',
+        'Cheap meals for two',
+        'Cheap healthy meals',
+        'Entertainment',
+        'Dinner party desserts',
+        'Sharing platters',
+        'Canape recipes',
+        'Easy cocktails',
+        'Mocktail recipes',
+        'Health',
+        'Healthy vegetarian recipes',
+        'Healthy winter recipes',
+        'Gluten-free',
+        'Dairy-free',
+        'Nutracheck',
+        'Wellness',
+        'How to sleep better',
+        'Gut friendly recipes',
+        'High protein recipes',
+        'Help cure a cold',
+        'Olive Magazine',
+        'Sunday roast ideas',
+        'Easy baking recipes',
+        'Healthy soup recipes',
+        'Easy one-pot recipes'
+      ],
+      [
+        'Nutracheck.co.uk',
+        'OliveMagazine.com',
+        'RadioTimes.com',
+        'HistoryExtra.com',
+        'GardenersWorld.com',
+        'MadeForMums.com',
+        'TheRecommended.com'
+      ],
+      [
+        'About us',
+        'Contact Us',
+        'Privacy Policy',
+        'Terms & Conditions',
+        'Cookies Policy',
+        'Complaints escalation',
+        'Advertise',
+        'Manage Privacy Settings'
+      ],
+      [
+        'Visit us on Facebook',
+        'Visit us on Twitter',
+        'Visit us on Instagram',
+        'Visit us on Pinterest',
+        'Visit us on Youtube',
+        'Visit us on Rss'
+      ],
+      [
+        'STEP 1',
+        'Heat a large saucepan and dry-fry 2 tsp cumin seeds and a pinch of chilli flakes for 1 min, or until they start to jump around the pan and release their aromas.',
+        'STEP 2',
+        'Scoop out about half with a spoon and set aside. Add 2 tbsp olive oil, 600g coarsely grated carrots, 140g split red lentils, 1l hot vegetable stock and 125ml milk to the pan and bring to the boil.',
+        'STEP 3',
+        'Simmer for 15 mins until the lentils have swollen and softened.',
+        'STEP 4',
+        'Whizz the soup with a stick blender or in a food processor until smooth (or leave it chunky if you prefer).',
+        'STEP 5',
+        'Season to taste and finish with a dollop of plain yogurt and a sprinkling of the reserved toasted spices. Serve with warmed naan breads.'
+      ],
+      [
+        '2 tsp cumin seeds',
+        'pinch chilli flakes',
+        '2 tbsp olive oil',
+        '600g carrots, washed and coarsely grated (no need to peel)',
+        '140g split red lentils',
+        '1l hot vegetable stock (from a cube is fine)',
+        "125ml milk (to make it dairy-free, see 'try' below)",
+        'plain yogurt and naan bread, to serve'
+      ],
+      [
+        'Recipes',
+        'How to',
+        'Health',
+        'Inspiration',
+        'Reviews',
+        'Budget recipes',
+        'Christmas Kitchen',
+        'Subscribe now',
+        'Good Food subscribers club',
+        'Download our app',
+        'Wine Club',
+        'Roast timer',
+        'Gift guides',
+        'Videos',
+        'Podcast'
+      ]
+    ],
+    ingredients: [
+      [
+        'Budgeting',
+        'Cheap vegetarian recipes',
+        'Cheap vegan recipes',
+        'Cheap meals for two',
+        'Cheap healthy meals',
+        'Entertainment',
+        'Dinner party desserts',
+        'Sharing platters',
+        'Canape recipes',
+        'Easy cocktails',
+        'Mocktail recipes',
+        'Health',
+        'Healthy vegetarian recipes',
+        'Healthy winter recipes',
+        'Gluten-free',
+        'Dairy-free',
+        'Nutracheck',
+        'Wellness',
+        'How to sleep better',
+        'Gut friendly recipes',
+        'High protein recipes',
+        'Help cure a cold',
+        'Olive Magazine',
+        'Sunday roast ideas',
+        'Easy baking recipes',
+        'Healthy soup recipes',
+        'Easy one-pot recipes'
+      ],
+      [
+        'Nutracheck.co.uk',
+        'OliveMagazine.com',
+        'RadioTimes.com',
+        'HistoryExtra.com',
+        'GardenersWorld.com',
+        'MadeForMums.com',
+        'TheRecommended.com'
+      ],
+      [
+        'About us',
+        'Contact Us',
+        'Privacy Policy',
+        'Terms & Conditions',
+        'Cookies Policy',
+        'Complaints escalation',
+        'Advertise',
+        'Manage Privacy Settings'
+      ],
+      [
+        'Visit us on Facebook',
+        'Visit us on Twitter',
+        'Visit us on Instagram',
+        'Visit us on Pinterest',
+        'Visit us on Youtube',
+        'Visit us on Rss'
+      ],
+      [
+        'STEP 1',
+        'Heat a large saucepan and dry-fry 2 tsp cumin seeds and a pinch of chilli flakes for 1 min, or until they start to jump around the pan and release their aromas.',
+        'STEP 2',
+        'Scoop out about half with a spoon and set aside. Add 2 tbsp olive oil, 600g coarsely grated carrots, 140g split red lentils, 1l hot vegetable stock and 125ml milk to the pan and bring to the boil.',
+        'STEP 3',
+        'Simmer for 15 mins until the lentils have swollen and softened.',
+        'STEP 4',
+        'Whizz the soup with a stick blender or in a food processor until smooth (or leave it chunky if you prefer).',
+        'STEP 5',
+        'Season to taste and finish with a dollop of plain yogurt and a sprinkling of the reserved toasted spices. Serve with warmed naan breads.'
+      ],
+      [
+        '2 tsp cumin seeds',
+        'pinch chilli flakes',
+        '2 tbsp olive oil',
+        '600g carrots, washed and coarsely grated (no need to peel)',
+        '140g split red lentils',
+        '1l hot vegetable stock (from a cube is fine)',
+        "125ml milk (to make it dairy-free, see 'try' below)",
+        'plain yogurt and naan bread, to serve'
+      ],
+      [
+        'Recipes',
+        'How to',
+        'Health',
+        'Inspiration',
+        'Reviews',
+        'Budget recipes',
+        'Christmas Kitchen',
+        'Subscribe now',
+        'Good Food subscribers club',
+        'Download our app',
+        'Wine Club',
+        'Roast timer',
+        'Gift guides',
+        'Videos',
+        'Podcast'
+      ]
+    ],
+    names: [
+      'Spiced carrot & lentil soup',
+      'Ingredients',
+      'Sponsored content',
+      'Comments, questions and tips (815)',
+      'Magazine Subscription',
+      'Sponsored content'
+    ],
+    descriptions: [
+      "A delicious, spicy blend packed full of iron and low in fat to boot. It's ready in under half an hour, or can be made in a slow cooker",
+      'This is a modal window.',
+      'Beginning of dialog window. Escape will cancel and close the window.',
+      'End of dialog window.',
+      'This is a modal window. This modal can be closed by pressing the Escape key or activating the close button.',
+      'Heat a large saucepan and dry-fry 2 tsp cumin seeds and a pinch of chilli flakes for 1 min, or until they start to jump around the pan and release their aromas.'
+    ]
+  }
+
+  res.json(mockData)
 }
 
 async function parseRecipe(page: Page) {
@@ -68,7 +279,6 @@ async function parseRecipe(page: Page) {
 }
 
 async function parseInstructions(page: Page) {
-  // instructions
   const orderedLists = await page.evaluate(() =>
     Array.from(document.querySelectorAll('ol'), (e) => ({
       line: e.innerText
@@ -95,7 +305,6 @@ async function parseInstructions(page: Page) {
 }
 
 async function parseIngredients(page: Page) {
-  // ingredients
   const unorderedLists = await page.evaluate(() =>
     Array.from(document.querySelectorAll('ul'), (e) => ({
       line: e.innerText
@@ -124,7 +333,6 @@ async function parseIngredients(page: Page) {
 }
 
 async function parseNames(page: Page) {
-  // names
   const names: string[] = []
   const h1s = await page.evaluate(() =>
     Array.from(document.querySelectorAll('h1'), (e) => ({
