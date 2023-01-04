@@ -10,13 +10,14 @@ import { ParsedRecipe } from '../../pages/api/recipes/parse-url'
 import { UseMutationResult } from '@tanstack/react-query'
 import { Button } from '../../components/Button'
 import { useForm } from 'react-hook-form'
-import { queryClient } from '../../pages/_app'
+// import { queryClient } from '../../pages/_app'
 import {
   ParseRecipeParams,
   recipeKeys,
   useCreateRecipe,
   useParseRecipe
 } from './hooks'
+import { trpc } from '../../utils/trpc'
 
 export function CreateRecipePopover() {
   const parsedRecipe = useParseRecipe()
@@ -162,92 +163,96 @@ function CreateRecipeForm({
     }
   })
 
-  const { mutate, isLoading } = useCreateRecipe(() => {
-    queryClient.invalidateQueries(recipeKeys.all)
-    closeModal()
+  // const { mutate, isLoading } = useCreateRecipe(() => {
+  //   queryClient.invalidateQueries(recipeKeys.all)
+  //   closeModal()
+  // })
+
+  const { mutate, isLoading } = trpc.recipeCreate.useMutation({
+    onSuccess: () => closeModal()
   })
 
-  // if (parsedRecipe.isError) {
-  //   return <p className=''>Oops, something went wrong</p>
-  // }
+  if (parsedRecipe.isError) {
+    return <p className=''>Oops, something went wrong</p>
+  }
 
-  // if (parsedRecipe.isSuccess) {
-  //   const onSubmit = (values: FormValues) => {
-  //     const params = {
-  //       ...values,
-  //       // TODO: do not hardcode
-  //       userId: 1,
-  //       ingredients: values.ingredients.split('\n'),
-  //       instructions: values.instructions.split('\n')
-  //     }
-  //     mutate(params)
-  //   }
+  if (parsedRecipe.isSuccess) {
+    const onSubmit = (values: FormValues) => {
+      const params = {
+        ...values,
+        // TODO: do not hardcode
+        userId: 1,
+        ingredients: values.ingredients.split('\n'),
+        instructions: values.instructions.split('\n')
+      }
+      mutate(params)
+    }
 
-  //   const changeIngredientsPage = () => {
-  //     const ingredientsLength = parsedRecipe.data.ingredients.length
-  //     const newState = (ingredientsPage + 1) & ingredientsLength
-  //     setValue(
-  //       'ingredients',
-  //       parsedRecipe.data.ingredients[newState].join('\n')
-  //     )
-  //     setIngredientsPage(newState)
-  //   }
+    const changeIngredientsPage = () => {
+      const ingredientsLength = parsedRecipe.data.ingredients.length
+      const newState = (ingredientsPage + 1) & ingredientsLength
+      setValue(
+        'ingredients',
+        parsedRecipe.data.ingredients[newState].join('\n')
+      )
+      setIngredientsPage(newState)
+    }
 
-  //   const changeInstructionsPage = () => {
-  //     const instructionsLength = parsedRecipe.data.instructions.length
-  //     const newState = (instructionsPage + 1) & instructionsLength
-  //     setValue(
-  //       'instructions',
-  //       parsedRecipe.data.instructions[newState].join('\n')
-  //     )
-  //     setInstructionsPage(newState)
-  //   }
+    const changeInstructionsPage = () => {
+      const instructionsLength = parsedRecipe.data.instructions.length
+      const newState = (instructionsPage + 1) & instructionsLength
+      setValue(
+        'instructions',
+        parsedRecipe.data.instructions[newState].join('\n')
+      )
+      setInstructionsPage(newState)
+    }
 
-  //   return (
-  //     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
-  //       <div className='mt-2 flex flex-col'>
-  //         <label htmlFor='name' className='text-sm text-gray-500'>
-  //           Title
-  //         </label>
-  //         <input {...register('name')} className='text-gray-500' />
-  //         <label htmlFor='name' className='text-sm text-gray-500'>
-  //           Description
-  //         </label>
-  //         <input {...register('description')} className='text-gray-500' />
-  //         <label htmlFor='ingredients' className='text-sm text-gray-500'>
-  //           Ingredients
-  //         </label>
-  //         <textarea
-  //           rows={(getValues('ingredients') || '').split('\n').length || 5}
-  //           {...register('ingredients')}
-  //           className='text-gray-500 resize-none p-2 max-h-60'
-  //         />
-  //         <label htmlFor='instructions' className='text-sm text-gray-500'>
-  //           Instructions
-  //         </label>
-  //         <textarea
-  //           rows={(getValues('instructions') || '').split('\n').length || 5}
-  //           {...register('instructions')}
-  //           className='text-gray-500 resize-none p-2 max-h-60'
-  //         />
-  //       </div>
-  //       <Button props={{ type: 'button' }} onClick={changeIngredientsPage}>
-  //         Next ingredients
-  //       </Button>
-  //       <Button props={{ type: 'button' }} onClick={changeInstructionsPage}>
-  //         Next instructions
-  //       </Button>
-  //       <div className='mt-4'>
-  //         <Button
-  //           props={{ type: 'submit', disabled: isLoading }}
-  //           isLoading={isLoading}
-  //         >
-  //           {isLoading ? 'Saving...' : 'Save'}
-  //         </Button>
-  //       </div>
-  //     </form>
-  //   )
-  // }
+    return (
+      <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
+        <div className='mt-2 flex flex-col'>
+          <label htmlFor='name' className='text-sm text-gray-500'>
+            Title
+          </label>
+          <input {...register('name')} className='text-gray-500' />
+          <label htmlFor='name' className='text-sm text-gray-500'>
+            Description
+          </label>
+          <input {...register('description')} className='text-gray-500' />
+          <label htmlFor='ingredients' className='text-sm text-gray-500'>
+            Ingredients
+          </label>
+          <textarea
+            rows={(getValues('ingredients') || '').split('\n').length || 5}
+            {...register('ingredients')}
+            className='text-gray-500 resize-none p-2 max-h-60'
+          />
+          <label htmlFor='instructions' className='text-sm text-gray-500'>
+            Instructions
+          </label>
+          <textarea
+            rows={(getValues('instructions') || '').split('\n').length || 5}
+            {...register('instructions')}
+            className='text-gray-500 resize-none p-2 max-h-60'
+          />
+        </div>
+        <Button props={{ type: 'button' }} onClick={changeIngredientsPage}>
+          Next ingredients
+        </Button>
+        <Button props={{ type: 'button' }} onClick={changeInstructionsPage}>
+          Next instructions
+        </Button>
+        <div className='mt-4'>
+          <Button
+            props={{ type: 'submit', disabled: isLoading }}
+            isLoading={isLoading}
+          >
+            {isLoading ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      </form>
+    )
+  }
 
   return <FormSkeleton />
 }
