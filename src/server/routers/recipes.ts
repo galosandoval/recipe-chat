@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { procedure, router } from '../trpc'
 import { prisma } from '../../lib/prisma'
+import { parseRecipeUrl } from '../../utils/parse-recipe-url'
 
 const CreateRecipeSchema = z.object({
   description: z.string().optional(),
@@ -30,6 +31,11 @@ export const recipesRouter = router({
         }
       })
     }),
+
+  parseRecipeUrl: procedure
+    .input(z.string())
+    .mutation(({ input }) => parseRecipeUrl(input)),
+
   recipeCreate: procedure.input(CreateRecipeSchema).mutation(createRecipe)
 })
 

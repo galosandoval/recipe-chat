@@ -6,21 +6,14 @@ import {
   TotalSteps,
   TransitionWrapper
 } from '../../components/TransitionWrapper'
-import { ParsedRecipe } from '../../pages/api/recipes/parse-url'
-import { UseMutationResult } from '@tanstack/react-query'
 import { Button } from '../../components/Button'
 import { useForm } from 'react-hook-form'
 // import { queryClient } from '../../pages/_app'
-import {
-  ParseRecipeParams,
-  recipeKeys,
-  useCreateRecipe,
-  useParseRecipe
-} from './hooks'
 import { trpc } from '../../utils/trpc'
+import { ParsedRecipe } from '../../utils/parse-recipe-url'
 
 export function CreateRecipePopover() {
-  const parsedRecipe = useParseRecipe()
+  const parsedRecipe = trpc.parseRecipeUrl.useMutation()
 
   const steps: TotalSteps = {
     first: {
@@ -55,7 +48,9 @@ export function CreateRecipePopover() {
           </Dialog.Title>
           <CreateRecipeForm
             closeModal={closeModal}
-            parsedRecipe={parsedRecipe}
+            data={parsedRecipe.data!}
+            isError={parsedRecipe.isError}
+            isSuccess={parsedRecipe.isSuccess}
           />
         </>
       )
@@ -82,7 +77,7 @@ export function CreateRecipePopover() {
   }
 
   function onSubmitUrl(values: { url: string }) {
-    parsedRecipe.mutate(values)
+    parsedRecipe.mutate(values.url)
     nextStep()
   }
 
@@ -109,7 +104,7 @@ function UploadRecipeUrlForm({
 }: {
   onSubmit(values: { url: string }): void
 }) {
-  const { register, handleSubmit } = useForm<ParseRecipeParams>()
+  const { register, handleSubmit } = useForm<{ url: string }>()
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className=''>
@@ -138,156 +133,149 @@ type FormValues = {
 }
 
 function CreateRecipeForm({
-  parsedRecipe,
+  data,
+  isError,
+  isSuccess,
+
   closeModal
 }: {
-  parsedRecipe: UseMutationResult<
-    ParsedRecipe,
-    unknown,
-    {
-      url: string
-    },
-    unknown
-  >
+  data: ParsedRecipe
+  isError: boolean
+  isSuccess: boolean
   closeModal: () => void
 }) {
+  const util = trpc.useContext()
   const [ingredientsPage, setIngredientsPage] = useState(0)
   const [instructionsPage, setInstructionsPage] = useState(0)
 
   const { register, handleSubmit, setValue, getValues } = useForm<FormValues>({
     defaultValues: {
-      description: parsedRecipe.data?.descriptions[0],
-      name: parsedRecipe.data?.names[0],
-      ingredients: parsedRecipe.data?.ingredients[0].join('\n'),
-      instructions: parsedRecipe.data?.instructions[0].join('\n')
+      description: data?.descriptions[0],
+      name: data?.names[0],
+      ingredients: data?.ingredients[0].join('\n'),
+      instructions: data?.instructions[0].join('\n')
     }
   })
-
-  // const { mutate, isLoading } = useCreateRecipe(() => {
-  //   queryClient.invalidateQueries(recipeKeys.all)
-  //   closeModal()
-  // })
 
   const { mutate, isLoading } = trpc.recipeCreate.useMutation({
-    onSuccess: () => closeModal()
+    onSuccess: async () => {
+      util.recipeList.invalidate({ userId: 1 })
+      closeModal()
+    }
   })
 
-  if (parsedRecipe.isError) {
-    return <p className=''>Oops, something went wrong</p>
-  }
+  // if (isError) {
+  //   return <p className=''>Oops, something went wrong</p>
+  // }
 
-  if (parsedRecipe.isSuccess) {
-    const onSubmit = (values: FormValues) => {
-      const params = {
-        ...values,
-        // TODO: do not hardcode
-        userId: 1,
-        ingredients: values.ingredients.split('\n'),
-        instructions: values.instructions.split('\n')
-      }
-      mutate(params)
-    }
+  // if (isSuccess) {
+  //   console.log('isSuccess')
+  //   const onSubmit = (values: FormValues) => {
+  //     const params = {
+  //       ...values,
+  //       // TODO: do not hardcode
+  //       userId: 1,
+  //       ingredients: values.ingredients.split('\n'),
+  //       instructions: values.instructions.split('\n')
+  //     }
+  //     mutate(params)
+  //   }
 
-    const changeIngredientsPage = () => {
-      const ingredientsLength = parsedRecipe.data.ingredients.length
-      const newState = (ingredientsPage + 1) & ingredientsLength
-      setValue(
-        'ingredients',
-        parsedRecipe.data.ingredients[newState].join('\n')
-      )
-      setIngredientsPage(newState)
-    }
+  //   const changeIngredientsPage = () => {
+  //     const ingredientsLength = data.ingredients.length
+  //     const newState = (ingredientsPage + 1) & ingredientsLength
+  //     setValue('ingredients', data.ingredients[newState].join('\n'))
+  //     setIngredientsPage(newState)
+  //   }
 
-    const changeInstructionsPage = () => {
-      const instructionsLength = parsedRecipe.data.instructions.length
-      const newState = (instructionsPage + 1) & instructionsLength
-      setValue(
-        'instructions',
-        parsedRecipe.data.instructions[newState].join('\n')
-      )
-      setInstructionsPage(newState)
-    }
+  //   const changeInstructionsPage = () => {
+  //     const instructionsLength = data.instructions.length
+  //     const newState = (instructionsPage + 1) & instructionsLength
+  //     setValue('instructions', data.instructions[newState].join('\n'))
+  //     setInstructionsPage(newState)
+  //   }
 
-    return (
-      <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
-        <div className='mt-2 flex flex-col'>
-          <label htmlFor='name' className='text-sm text-gray-500'>
-            Title
-          </label>
-          <input {...register('name')} className='text-gray-500' />
-          <label htmlFor='name' className='text-sm text-gray-500'>
-            Description
-          </label>
-          <input {...register('description')} className='text-gray-500' />
-          <label htmlFor='ingredients' className='text-sm text-gray-500'>
-            Ingredients
-          </label>
-          <textarea
-            rows={(getValues('ingredients') || '').split('\n').length || 5}
-            {...register('ingredients')}
-            className='text-gray-500 resize-none p-2 max-h-60'
-          />
-          <label htmlFor='instructions' className='text-sm text-gray-500'>
-            Instructions
-          </label>
-          <textarea
-            rows={(getValues('instructions') || '').split('\n').length || 5}
-            {...register('instructions')}
-            className='text-gray-500 resize-none p-2 max-h-60'
-          />
-        </div>
-        <Button props={{ type: 'button' }} onClick={changeIngredientsPage}>
-          Next ingredients
-        </Button>
-        <Button props={{ type: 'button' }} onClick={changeInstructionsPage}>
-          Next instructions
-        </Button>
-        <div className='mt-4'>
-          <Button
-            props={{ type: 'submit', disabled: isLoading }}
-            isLoading={isLoading}
-          >
-            {isLoading ? 'Saving...' : 'Save'}
-          </Button>
-        </div>
-      </form>
-    )
-  }
+  //   return (
+  //     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
+  //       <div className='mt-2 flex flex-col'>
+  //         <label htmlFor='name' className='text-sm text-gray-500'>
+  //           Title
+  //         </label>
+  //         <input {...register('name')} className='text-gray-500' />
+  //         <label htmlFor='name' className='text-sm text-gray-500'>
+  //           Description
+  //         </label>
+  //         <input {...register('description')} className='text-gray-500' />
+  //         <label htmlFor='ingredients' className='text-sm text-gray-500'>
+  //           Ingredients
+  //         </label>
+  //         <textarea
+  //           rows={(getValues('ingredients') || '').split('\n').length || 5}
+  //           {...register('ingredients')}
+  //           className='text-gray-500 resize-none p-2 max-h-60'
+  //         />
+  //         <label htmlFor='instructions' className='text-sm text-gray-500'>
+  //           Instructions
+  //         </label>
+  //         <textarea
+  //           rows={(getValues('instructions') || '').split('\n').length || 5}
+  //           {...register('instructions')}
+  //           className='text-gray-500 resize-none p-2 max-h-60'
+  //         />
+  //       </div>
+  //       <Button props={{ type: 'button' }} onClick={changeIngredientsPage}>
+  //         Next ingredients
+  //       </Button>
+  //       <Button props={{ type: 'button' }} onClick={changeInstructionsPage}>
+  //         Next instructions
+  //       </Button>
+  //       <div className='mt-4'>
+  //         <Button
+  //           props={{ type: 'submit', disabled: isLoading }}
+  //           isLoading={isLoading}
+  //         >
+  //           {isLoading ? 'Saving...' : 'Save'}
+  //         </Button>
+  //       </div>
+  //     </form>
+  //   )
+  // }
 
   return <FormSkeleton />
 }
 
 function FormSkeleton() {
+  console.log('skeleton')
   return (
     <div className='mt-2 flex flex-col animate-pulse'>
       <label className='text-sm text-gray-600'>Title</label>
-      <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-52'></div>
+      <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-52'></div>
       <label className='text-sm text-gray-600'>Description</label>
-      <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-full'></div>
+      <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-full'></div>
       <label className='text-sm text-gray-600'>Ingredients</label>
       <div className='flex flex-col gap-3'>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
       </div>
       <label className='text-sm text-gray-600'>Instructions</label>
       <div className='flex flex-col gap-3'>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:text-gray-600 rounded w-1/2'></div>
+        <div className='h-5 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
       </div>
     </div>
   )

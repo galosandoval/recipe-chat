@@ -1,10 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { z } from 'zod'
 import puppeteer, { Page } from 'puppeteer'
-
-export const ParseRecipeSchema = z.object({
-  url: z.string()
-})
 
 export type ParsedRecipe = {
   instructions: string[][]
@@ -13,29 +7,9 @@ export type ParsedRecipe = {
   descriptions: string[]
 }
 
-export type ParseRecipeResponse =
-  | ParsedRecipe
-  | z.ZodError<{
-      url: string
-    }>
-
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse<
-    | ParsedRecipe
-    | z.ZodError<{
-        url: string
-      }>
-  >
-) {
-  const parsedRequest = await ParseRecipeSchema.safeParseAsync(req.body)
-  if (!parsedRequest.success) {
-    return res.status(400).send(parsedRequest.error)
-  }
-
+export async function parseRecipeUrl(url: string) {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
-  const url = parsedRequest.data.url
   await page.goto(url)
 
   const recipe = await parseRecipe(page)
@@ -255,7 +229,7 @@ export default async function handle(
     ]
   }
 
-  res.json(mockData)
+  return mockData
 }
 
 async function parseRecipe(page: Page) {
