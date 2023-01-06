@@ -1,4 +1,5 @@
-import { Transition } from '@headlessui/react'
+import { Fragment } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export type TotalSteps = {
   first: Step
@@ -16,48 +17,31 @@ export type Step = {
 
 export function TransitionWrapper({
   currentStep,
-  steps,
-  transitionSwitch,
-  handleAfterLeave
+  steps
 }: {
   steps: TotalSteps
   currentStep: Step | undefined
-  transitionSwitch: boolean
-  handleAfterLeave: () => void
 }) {
   const stepsArr = Object.values(steps)
-  const stepsToRender = stepsArr.map((step) => {
-    if (step.key === 'first') {
-      return (
-        <Transition
-          show={currentStep?.key === step.key && transitionSwitch}
-          appear={true}
-          leave='transition-all duration-300'
-          leaveFrom='opacity-100 translate-y-0'
-          leaveTo='opacity-0 translate-y-1'
-          afterLeave={handleAfterLeave}
-          key={step.key}
-        >
-          {step.component}
-        </Transition>
-      )
-    }
-    return (
-      <Transition
-        show={currentStep?.key === step.key && transitionSwitch}
-        enter='transition-all duration-500 '
-        enterFrom='opacity-0 -translate-y-2'
-        enterTo='opacity-100 translate-y-0'
-        leave='transition-opacity duration-150'
-        leaveFrom='opacity-100'
-        leaveTo='opacity-0'
-        afterLeave={handleAfterLeave}
-        key={step.key}
-      >
-        {step.component}
-      </Transition>
-    )
-  })
 
-  return <>{stepsToRender}</>
+  return (
+    <AnimatePresence initial={false}>
+      {stepsArr.map((step) => (
+        <Fragment key={step.key}>
+          {currentStep?.key === step.key && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                duration: 0.5
+              }}
+            >
+              {step.component}
+            </motion.div>
+          )}
+        </Fragment>
+      ))}
+    </AnimatePresence>
+  )
 }
