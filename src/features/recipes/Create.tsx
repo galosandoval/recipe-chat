@@ -14,7 +14,6 @@ import { ParsedRecipe } from '../../utils/parse-recipe-url'
 
 export function CreateRecipePopover() {
   const parsedRecipe = trpc.parseRecipeUrl.useMutation()
-
   const steps: TotalSteps = {
     first: {
       key: 'first',
@@ -36,9 +35,7 @@ export function CreateRecipePopover() {
       key: 'second',
       next: null,
       prev: 'first',
-      component: parsedRecipe.isLoading ? (
-        <FormSkeleton />
-      ) : (
+      component: (
         <>
           <Dialog.Title
             as='h3'
@@ -46,9 +43,16 @@ export function CreateRecipePopover() {
           >
             Upload a recipe
           </Dialog.Title>
-          <CreateRecipeForm
+          <CreateRecipe
             closeModal={closeModal}
-            data={parsedRecipe.data!}
+            data={
+              parsedRecipe.data || {
+                descriptions: [],
+                ingredients: [],
+                instructions: [],
+                names: []
+              }
+            }
             isError={parsedRecipe.isError}
             isSuccess={parsedRecipe.isSuccess}
           />
@@ -132,7 +136,7 @@ type FormValues = {
   ingredients: string
 }
 
-function CreateRecipeForm({
+function CreateRecipe({
   data,
   isError,
   isSuccess,
@@ -144,16 +148,34 @@ function CreateRecipeForm({
   isSuccess: boolean
   closeModal: () => void
 }) {
+  if (isError) {
+    return <p className=''>Oops, something went wrong</p>
+  }
+
+  if (isSuccess) {
+    return <CreateRecipeForm closeModal={closeModal} data={data} />
+  }
+
+  return <FormSkeleton />
+}
+
+function CreateRecipeForm({
+  data,
+  closeModal
+}: {
+  data: ParsedRecipe
+  closeModal: () => void
+}) {
   const util = trpc.useContext()
   const [ingredientsPage, setIngredientsPage] = useState(0)
   const [instructionsPage, setInstructionsPage] = useState(0)
 
   const { register, handleSubmit, setValue, getValues } = useForm<FormValues>({
     defaultValues: {
-      description: data?.descriptions[0],
-      name: data?.names[0],
-      ingredients: data?.ingredients[0].join('\n'),
-      instructions: data?.instructions[0].join('\n')
+      description: data.descriptions[0],
+      name: data.names[0],
+      ingredients: data.ingredients[0].join('\n'),
+      instructions: data.instructions[0].join('\n')
     }
   })
 
@@ -164,90 +186,80 @@ function CreateRecipeForm({
     }
   })
 
-  // if (isError) {
-  //   return <p className=''>Oops, something went wrong</p>
-  // }
+  const onSubmit = (values: FormValues) => {
+    const params = {
+      ...values,
+      // TODO: do not hardcode
+      userId: 1,
+      ingredients: values.ingredients.split('\n'),
+      instructions: values.instructions.split('\n')
+    }
+    mutate(params)
+  }
 
-  // if (isSuccess) {
-  //   console.log('isSuccess')
-  //   const onSubmit = (values: FormValues) => {
-  //     const params = {
-  //       ...values,
-  //       // TODO: do not hardcode
-  //       userId: 1,
-  //       ingredients: values.ingredients.split('\n'),
-  //       instructions: values.instructions.split('\n')
-  //     }
-  //     mutate(params)
-  //   }
+  const changeIngredientsPage = () => {
+    const ingredientsLength = data.ingredients.length
+    const newState = (ingredientsPage + 1) & ingredientsLength
+    setValue('ingredients', data.ingredients[newState].join('\n'))
+    setIngredientsPage(newState)
+  }
 
-  //   const changeIngredientsPage = () => {
-  //     const ingredientsLength = data.ingredients.length
-  //     const newState = (ingredientsPage + 1) & ingredientsLength
-  //     setValue('ingredients', data.ingredients[newState].join('\n'))
-  //     setIngredientsPage(newState)
-  //   }
+  const changeInstructionsPage = () => {
+    const instructionsLength = data.instructions.length
+    const newState = (instructionsPage + 1) & instructionsLength
+    setValue('instructions', data.instructions[newState].join('\n'))
+    setInstructionsPage(newState)
+  }
 
-  //   const changeInstructionsPage = () => {
-  //     const instructionsLength = data.instructions.length
-  //     const newState = (instructionsPage + 1) & instructionsLength
-  //     setValue('instructions', data.instructions[newState].join('\n'))
-  //     setInstructionsPage(newState)
-  //   }
-
-  //   return (
-  //     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
-  //       <div className='mt-2 flex flex-col'>
-  //         <label htmlFor='name' className='text-sm text-gray-500'>
-  //           Title
-  //         </label>
-  //         <input {...register('name')} className='text-gray-500' />
-  //         <label htmlFor='name' className='text-sm text-gray-500'>
-  //           Description
-  //         </label>
-  //         <input {...register('description')} className='text-gray-500' />
-  //         <label htmlFor='ingredients' className='text-sm text-gray-500'>
-  //           Ingredients
-  //         </label>
-  //         <textarea
-  //           rows={(getValues('ingredients') || '').split('\n').length || 5}
-  //           {...register('ingredients')}
-  //           className='text-gray-500 resize-none p-2 max-h-60'
-  //         />
-  //         <label htmlFor='instructions' className='text-sm text-gray-500'>
-  //           Instructions
-  //         </label>
-  //         <textarea
-  //           rows={(getValues('instructions') || '').split('\n').length || 5}
-  //           {...register('instructions')}
-  //           className='text-gray-500 resize-none p-2 max-h-60'
-  //         />
-  //       </div>
-  //       <Button props={{ type: 'button' }} onClick={changeIngredientsPage}>
-  //         Next ingredients
-  //       </Button>
-  //       <Button props={{ type: 'button' }} onClick={changeInstructionsPage}>
-  //         Next instructions
-  //       </Button>
-  //       <div className='mt-4'>
-  //         <Button
-  //           props={{ type: 'submit', disabled: isLoading }}
-  //           isLoading={isLoading}
-  //         >
-  //           {isLoading ? 'Saving...' : 'Save'}
-  //         </Button>
-  //       </div>
-  //     </form>
-  //   )
-  // }
-
-  return <FormSkeleton />
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
+      <div className='mt-2 flex flex-col'>
+        <label htmlFor='name' className='text-sm text-gray-500'>
+          Title
+        </label>
+        <input {...register('name')} className='text-gray-500' />
+        <label htmlFor='name' className='text-sm text-gray-500'>
+          Description
+        </label>
+        <input {...register('description')} className='text-gray-500' />
+        <label htmlFor='ingredients' className='text-sm text-gray-500'>
+          Ingredients
+        </label>
+        <textarea
+          rows={(getValues('ingredients') || '').split('\n').length || 5}
+          {...register('ingredients')}
+          className='text-gray-500 resize-none p-2 max-h-60'
+        />
+        <label htmlFor='instructions' className='text-sm text-gray-500'>
+          Instructions
+        </label>
+        <textarea
+          rows={(getValues('instructions') || '').split('\n').length || 5}
+          {...register('instructions')}
+          className='text-gray-500 resize-none p-2 max-h-60'
+        />
+      </div>
+      <Button props={{ type: 'button' }} onClick={changeIngredientsPage}>
+        Next ingredients
+      </Button>
+      <Button props={{ type: 'button' }} onClick={changeInstructionsPage}>
+        Next instructions
+      </Button>
+      <div className='mt-4'>
+        <Button
+          props={{ type: 'submit', disabled: isLoading }}
+          isLoading={isLoading}
+        >
+          {isLoading ? 'Saving...' : 'Save'}
+        </Button>
+      </div>
+    </form>
+  )
 }
 
 function FormSkeleton() {
-  console.log('skeleton')
   return (
-    <div className='mt-2 flex flex-col animate-pulse'>
+    <div className='mt-2 flex flex-col'>
       <label className='text-sm text-gray-600'>Title</label>
       <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-52'></div>
       <label className='text-sm text-gray-600'>Description</label>

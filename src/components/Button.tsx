@@ -44,7 +44,7 @@ export const Button = ({
 
   return (
     <button
-      className='inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-400 transition ease-in-out duration-150 disabled:cursor-not-allowed'
+      className='inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition ease-in-out duration-150 disabled:cursor-not-allowed cursor-default dark:disabled:text-indigo-400 disabled:bg-indigo-300'
       onClick={onClick}
       {...props}
     >

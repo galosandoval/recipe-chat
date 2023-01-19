@@ -1,23 +1,9 @@
 import Head from 'next/head'
 import Layout from './layout'
-import { dehydrate } from '@tanstack/react-query'
-// import { queryClient } from './_app'
 import { trpc } from '../utils/trpc'
 import { CreateRecipePopover } from '../features/recipes/Create'
-// import { CreateRecipePopover } from '../features/recipes/create'
-
-// export async function getServerSideProps() {
-//   await queryClient.prefetchQuery(recipeKeys.all, fetchRecipes)
-
-//   return {
-//     props: {
-//       dehydratedState: dehydrate(queryClient)
-//     }
-//   }
-// }
 
 export default function Dashboard() {
-  // const { data: recipes, isError, isSuccess } = useRecipes()
   const {
     data: recipes,
     isError,
@@ -29,12 +15,12 @@ export default function Dashboard() {
   }
 
   if (isSuccess) {
-    // console.log('data', hello.data)
     const recentRecipes = recipes.map((item) => (
       <div key={item.recipe.id} className=''>
         <h3 className=''>{item.recipe.name}</h3>
       </div>
     ))
+
     return (
       <>
         <Head>
