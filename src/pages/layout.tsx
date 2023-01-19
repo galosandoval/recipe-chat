@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { ReactNode, useEffect } from 'react'
+import { Button } from '../components/Button'
 
 function Layout({ children }: { children: ReactNode }) {
   const router = useRouter()
@@ -33,14 +34,17 @@ function Layout({ children }: { children: ReactNode }) {
       '(prefers-color-scheme: dark)'
     ).matches
     let { theme } = localStorage
+
     if (themeDoesNotExists && prefersDarkMode) {
       theme = 'dark'
     } else if (themeDoesNotExists && !prefersDarkMode) {
       theme = 'light'
     }
+
     if (theme === 'light') {
       document.documentElement.classList.remove('dark')
     }
+
     if (theme === 'dark') {
       document.documentElement.classList.add('dark')
     }
@@ -48,6 +52,7 @@ function Layout({ children }: { children: ReactNode }) {
 
   const toggleDarkMode = () => {
     const { theme } = localStorage
+
     if (theme === 'dark') {
       localStorage.theme = 'light'
       document.documentElement.classList.remove('dark')
@@ -62,17 +67,12 @@ function Layout({ children }: { children: ReactNode }) {
       <ul className='flex flex-col bg-white dark:bg-slate-800 px-5 pt-10'>
         {menuItems.map((item) => (
           <Link href={item.value} key={item.label}>
-            <li className='text-2xl cursor-auto select-none w-full group my-1'>
+            <li className='text-2xl cursor-default select-none w-full group my-1'>
               <span className={activeLinkStyles(item.value)}>{item.label}</span>
             </li>
           </Link>
         ))}
-        <button
-          className='text-2xl text-white w-full text-left bg-indigo-500 hover:bg-indigo-400 active:scale-95 rounded mt-1 px-2 py-1'
-          onClick={toggleDarkMode}
-        >
-          theme
-        </button>
+        <Button onClick={toggleDarkMode}>theme</Button>
       </ul>
       <div className='w-full text-black dark:text-white'>{children}</div>
     </div>
