@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Layout from './layout'
 import { trpc } from '../utils/trpc'
 import { CreateRecipePopover } from '../features/recipes/Create'
+import { ListRecent } from '../features/recipes/ListRecent'
 
 export default function Dashboard() {
   const {
@@ -30,6 +31,7 @@ export default function Dashboard() {
         </Head>
         <Layout>
           <main className='container mx-auto flex flex-col items-center justify-center min-h-screen'>
+            <ListRecent />
             <div className=''>
               <h1 className=''>recent lists</h1>
               <CreateRecipePopover />
