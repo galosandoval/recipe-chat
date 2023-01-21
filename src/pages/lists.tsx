@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import React from 'react'
-import Layout from './layout'
+import Layout from '../components/Layout'
 
 function Lists() {
   return (
@@ -11,13 +11,11 @@ function Lists() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
       <Layout>
-        <main className='text-white mx-auto grid grid-cols-2 min-h-screen gap-5 py-4 px-5'>
-          {lists.map((list) => (
-            <div className='card ' key={list.id}>
-              <h3 className=''>{list.name}</h3>
-            </div>
-          ))}
-        </main>
+        {lists.map((list) => (
+          <div className='card ' key={list.id}>
+            <h3 className=''>{list.name}</h3>
+          </div>
+        ))}
       </Layout>
     </>
   )

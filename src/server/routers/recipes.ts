@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { procedure, router } from '../trpc'
 import { prisma } from '../../lib/prisma'
 import { parseRecipeUrl } from '../../utils/parse-recipe-url'
+import { Recipe } from '@prisma/client'
 
 const CreateRecipeSchema = z.object({
   description: z.string().optional(),
@@ -17,26 +18,43 @@ const CreateRecipeSchema = z.object({
 })
 
 export const recipesRouter = router({
-  recipeList: procedure
+  recipeEntity: procedure
     .input(
       z.object({
         userId: z.number()
       })
     )
     .query(async ({ input }) => {
-      return await prisma.recipesOnList.findMany({
+      const recipeList = await prisma.recipesOnList.findMany({
         where: { userId: { equals: input.userId } },
         select: {
-          recipe: { include: { ingredients: true, instructions: true } }
+          recipe: true
         }
       })
+
+      const entity: { [recipeId: string]: Recipe } = {}
+
+      recipeList.forEach((element) => {
+        entity[element.recipe.id] = element.recipe
+      })
+
+      return entity
     }),
 
   parseRecipeUrl: procedure
     .input(z.string())
     .mutation(({ input }) => parseRecipeUrl(input)),
 
-  recipeCreate: procedure.input(CreateRecipeSchema).mutation(createRecipe)
+  recipeCreate: procedure.input(CreateRecipeSchema).mutation(createRecipe),
+
+  recipeById: procedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      return await prisma.recipe.findFirst({
+        where: { id: { equals: input.id } },
+        select: { ingredients: true, instructions: true }
+      })
+    })
 })
 
 export type CreateRecipeParams = z.infer<typeof CreateRecipeSchema>

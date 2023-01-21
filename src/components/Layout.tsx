@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { ReactNode, useEffect } from 'react'
-import { Button } from '../components/Button'
+import { Button } from './Button'
 
-function Layout({ children }: { children: ReactNode }) {
+export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter()
 
   const menuItems = [
@@ -74,9 +74,9 @@ function Layout({ children }: { children: ReactNode }) {
         ))}
         <Button onClick={toggleDarkMode}>theme</Button>
       </ul>
-      <div className='w-full text-black dark:text-white'>{children}</div>
+      <main className='w-full text-black dark:text-white min-h-screen'>
+        {children}
+      </main>
     </div>
   )
 }
-
-export default Layout
