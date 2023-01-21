@@ -8,7 +8,6 @@ import {
 } from '../../components/TransitionWrapper'
 import { Button } from '../../components/Button'
 import { useForm } from 'react-hook-form'
-// import { queryClient } from '../../pages/_app'
 import { trpc } from '../../utils/trpc'
 import { ParsedRecipe } from '../../utils/parse-recipe-url'
 
@@ -93,7 +92,7 @@ export function CreateRecipePopover() {
           onClick={openModal}
           className='rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75'
         >
-          Open dialog
+          Create from website
         </button>
       </div>
       <Modal closeModal={closeModal} isOpen={isOpen}>
@@ -181,7 +180,7 @@ function CreateRecipeForm({
 
   const { mutate, isLoading } = trpc.recipeCreate.useMutation({
     onSuccess: async () => {
-      util.recipeList.invalidate({ userId: 1 })
+      util.recipeEntity.invalidate({ userId: 1 })
       closeModal()
     }
   })
