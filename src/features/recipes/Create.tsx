@@ -1,17 +1,18 @@
 import { Dialog } from '@headlessui/react'
+import { JsonLdProcessor } from 'jsonld'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Button } from '../../components/Button'
 import { Modal } from '../../components/Modal'
 import {
   Step,
   TotalSteps,
   TransitionWrapper
 } from '../../components/TransitionWrapper'
-import { Button } from '../../components/Button'
-import { useForm } from 'react-hook-form'
-import { trpc } from '../../utils/trpc'
 import { ParsedRecipe } from '../../utils/parse-recipe-url'
+import { trpc } from '../../utils/trpc'
 
-export function CreateRecipePopover() {
+function useParseRecipe() {
   const parsedRecipe = trpc.parseRecipeUrl.useMutation()
   const steps: TotalSteps = {
     first: {
@@ -59,6 +60,7 @@ export function CreateRecipePopover() {
       )
     }
   } as const
+
   const [isOpen, setIsOpen] = useState(false)
 
   const [currentStep, setCurrentStep] = useState<Step | undefined>(steps.first)
@@ -79,10 +81,56 @@ export function CreateRecipePopover() {
     setCurrentStep((state) => steps[state?.next as keyof typeof steps])
   }
 
-  function onSubmitUrl(values: { url: string }) {
-    parsedRecipe.mutate(values.url)
+  async function onSubmitUrl(values: { url: string }) {
+    const response = await fetch(values.url)
+    const html = await response.text()
+    console.log('res', html)
+    // flatten a document
+    let openScriptIdx = 0
+    let closeScriptIdx = 0
+    let foundLinkedData = false
+    for (let i = 0; i < html.length - 3; i++) {
+      const char1 = html[i]
+      const char2 = html[i + 1]
+      const char3 = html[i + 2]
+      const char4 = html[i + 3]
+      const char5 = html[i + 4]
+
+      if (
+        char1 === 'l' &&
+        char2 === 'd' &&
+        char3 === '+' &&
+        char4 === 'j' &&
+        char5 === 's'
+      ) {
+        foundLinkedData = true
+        openScriptIdx = i + 9
+      } else if (
+        foundLinkedData &&
+        char1 === '<' &&
+        char2 === '/' &&
+        char3 === 's' &&
+        char4 === 'c' &&
+        char5 === 'r'
+      ) {
+        closeScriptIdx = i
+        break
+      }
+    }
+    console.log(openScriptIdx, closeScriptIdx)
+    const scriptTag = JSON.parse(html.slice(openScriptIdx, closeScriptIdx))
+    console.log('script tag', scriptTag)
+
+    // output has all deep-level trees flattened to the top-level
+    // parsedRecipe.mutate(values.url)
     nextStep()
   }
+
+  return { isOpen, steps, currentStep, openModal, closeModal }
+}
+
+export function CreateRecipePopover() {
+  const { closeModal, openModal, steps, currentStep, isOpen } = useParseRecipe()
 
   return (
     <>
@@ -169,6 +217,10 @@ function CreateRecipeForm({
   const [ingredientsPage, setIngredientsPage] = useState(0)
   const [instructionsPage, setInstructionsPage] = useState(0)
 
+  console.log(data, 'data')
+
+  console.log('ingredientspage', ingredientsPage)
+
   const { register, handleSubmit, setValue, getValues } = useForm<FormValues>({
     defaultValues: {
       description: data.descriptions[0],
@@ -198,14 +250,14 @@ function CreateRecipeForm({
 
   const changeIngredientsPage = () => {
     const ingredientsLength = data.ingredients.length
-    const newState = (ingredientsPage + 1) & ingredientsLength
+    const newState = (ingredientsPage + 1) % ingredientsLength
     setValue('ingredients', data.ingredients[newState].join('\n'))
     setIngredientsPage(newState)
   }
 
   const changeInstructionsPage = () => {
     const instructionsLength = data.instructions.length
-    const newState = (instructionsPage + 1) & instructionsLength
+    const newState = (instructionsPage + 1) % instructionsLength
     setValue('instructions', data.instructions[newState].join('\n'))
     setInstructionsPage(newState)
   }
@@ -258,7 +310,7 @@ function CreateRecipeForm({
 
 function FormSkeleton() {
   return (
-    <div className='mt-2 flex flex-col'>
+    <div className='mt-2 flex flex-col animate-pulse'>
       <label className='text-sm text-gray-600'>Title</label>
       <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-52'></div>
       <label className='text-sm text-gray-600'>Description</label>
