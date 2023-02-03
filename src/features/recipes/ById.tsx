@@ -1,11 +1,6 @@
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
 import Image from 'next/image'
-import React, {
-  MouseEvent,
-  MouseEventHandler,
-  useEffect,
-  useState
-} from 'react'
+
 import { trpc } from '../../utils/trpc'
 import defaultRecipe from '../../assets/default-recipe.jpeg'
 
@@ -32,8 +27,6 @@ export default function RecipeById({ id }: { id: number }) {
   return <div>Loading...</div>
 }
 
-type TabType = 'ingredients' | 'instructions'
-
 function FoundRecipe({
   data
 }: {
@@ -55,8 +48,6 @@ function FoundRecipe({
     updatedAt
   } = data
 
-  const [tab, setTab] = useState<TabType>('ingredients')
-
   let renderAddress: React.ReactNode = null
   if (address) {
     renderAddress = (
@@ -75,55 +66,32 @@ function FoundRecipe({
     )
   }
 
-  const renderIngredients = (
-    <div className=''>
-      {ingredients.map((i) => (
-        <p key={i.id}>{i.name}</p>
-      ))}
-    </div>
-  )
-
-  const renderInstructions = (
-    <div className=''>
-      {instructions.map((i) => (
-        <p key={i.id}>{i.description}</p>
-      ))}
-    </div>
-  )
-
-  let tabToRender = renderIngredients
-  if (tab == 'instructions') {
-    tabToRender = renderInstructions
-  }
-
-  const handleChangeTab = (e: MouseEvent<HTMLButtonElement>) => {
-    console.log(e.currentTarget.name)
-    setTab(e.currentTarget.name as TabType)
-  }
-
   return (
-    <div className='container mx-auto flex justify-between'>
-      <div className=''>
-        <div className='flex flex-col'>
-          <h1 className=''>{name}</h1>
-          {renderAddress}
-          {renderAuthor}
-        </div>
-
+    <div className='container mx-auto flex flex-col items-center'>
+      <div className='flex flex-col'>
         <div className=''>
-          <div className=''>
-            <button onClick={handleChangeTab} name='ingredients' className=''>
-              Ingredients
-            </button>
-            <button onClick={handleChangeTab} name='instructions' className=''>
-              Instructions
-            </button>
-          </div>
-          {tabToRender}
+          <Image alt='recipe' src={imgUrl || defaultRecipe} />
         </div>
+        <h1 className=''>{name}</h1>
+        {renderAddress}
+        {renderAuthor}
       </div>
-      <div className=''>
-        <Image alt='recipe' src={imgUrl || defaultRecipe} />
+
+      <div className='grid grid-cols-2 w-1/2'>
+        <div className=''>
+          <h3 className='text-indigo-600 font-medium text-lg '>Ingredients</h3>
+          {ingredients.map((i) => (
+            <p key={i.id}>{i.name}</p>
+          ))}
+        </div>
+        <div className=''>
+          <h3 className='text-indigo-600 font-medium text-lg '>Directions</h3>
+          <ol className='list-decimal list-inside'>
+            {instructions.map((i) => (
+              <li key={i.id}>{i.description}</li>
+            ))}
+          </ol>
+        </div>
       </div>
     </div>
   )

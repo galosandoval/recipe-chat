@@ -44,9 +44,11 @@ function Card({ data }: { data: Recipe }) {
     author = <p className=''>{data.author}</p>
   }
 
+  const name = data.name.replaceAll('&', 'and')
+
   return (
     <Link
-      href={`/recipes/${data.id}?name=${data.name}`}
+      href={`/recipes/${data.id}?name=${name}`}
       key={data.id}
       className='rounded bg-white dark:bg-slate-800 flex flex-col shadow-xl overflow-hidden cursor-default'
     >

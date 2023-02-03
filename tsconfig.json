@@ -16,7 +16,13 @@
     "incremental": true,
     "sourceMap": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/*.tsx",
+    "tailwind.config.js"
+  ],
   "incremental": true,
   "noUncheckedIndexedAccess": true,
   "exclude": ["node_modules"]
