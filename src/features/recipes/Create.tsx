@@ -1,5 +1,4 @@
 import { Dialog } from '@headlessui/react'
-import { JsonLdProcessor } from 'jsonld'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '../../components/Button'
@@ -9,11 +8,87 @@ import {
   TotalSteps,
   TransitionWrapper
 } from '../../components/TransitionWrapper'
-import { ParsedRecipe } from '../../utils/parse-recipe-url'
+import { PartialLD } from '../../server/helpers/parse-recipe-url'
 import { trpc } from '../../utils/trpc'
 
+function useParseRecipeOnClient() {
+  const [data, setData] = useState<PartialLD>({})
+  const [status, setStatus] = useState<
+    'idle' | 'failed' | 'loading' | 'success'
+  >('idle')
+
+  async function fetchRecipe(url: string) {
+    try {
+      setStatus('loading')
+
+      const response = await fetch(url)
+      console.log('false')
+
+      const html = await response.text()
+
+      let openScriptIdx = 0
+      let closeScriptIdx = 0
+      let foundLinkedData = false
+      for (let i = 0; i < html.length - 4; i++) {
+        const char1 = html[i]
+        const char2 = html[i + 1]
+        const char3 = html[i + 2]
+        const char4 = html[i + 3]
+        const char5 = html[i + 4]
+
+        if (
+          char1 === 'l' &&
+          char2 === 'd' &&
+          char3 === '+' &&
+          char4 === 'j' &&
+          char5 === 's'
+        ) {
+          foundLinkedData = true
+          openScriptIdx = i + 9
+        } else if (
+          foundLinkedData &&
+          char1 === '<' &&
+          char2 === '/' &&
+          char3 === 's' &&
+          char4 === 'c' &&
+          char5 === 'r'
+        ) {
+          closeScriptIdx = i
+          break
+        }
+      }
+
+      setData(
+        JSON.parse(html.slice(openScriptIdx, closeScriptIdx)) as PartialLD
+      )
+      setStatus('success')
+      return true
+    } catch (error) {
+      setStatus('failed')
+      return false
+    }
+  }
+
+  return { fetchRecipe, data, status }
+}
+
 function useParseRecipe() {
-  const parsedRecipe = trpc.parseRecipeUrl.useMutation()
+  const {
+    data: parsedDataOnClient,
+    fetchRecipe,
+    status
+  } = useParseRecipeOnClient()
+  const parseRecipeOnServer = trpc.parseRecipeUrl.useMutation({})
+
+  let data: Partial<PartialLD> = parsedDataOnClient
+  if (parseRecipeOnServer.status === 'success') {
+    data = parseRecipeOnServer.data
+  }
+
+  const isError = parseRecipeOnServer.status === 'error'
+  const isSuccess =
+    status === 'success' || parseRecipeOnServer.status === 'success'
+
   const steps: TotalSteps = {
     first: {
       key: 'first',
@@ -21,10 +96,7 @@ function useParseRecipe() {
       prev: null,
       component: (
         <>
-          <Dialog.Title
-            as='h3'
-            className='text-lg font-medium leading-6 text-gray-900'
-          >
+          <Dialog.Title as='h3' className='text-lg font-medium leading-6'>
             Upload a recipe
           </Dialog.Title>
           <UploadRecipeUrlForm onSubmit={onSubmitUrl} />
@@ -37,24 +109,14 @@ function useParseRecipe() {
       prev: 'first',
       component: (
         <>
-          <Dialog.Title
-            as='h3'
-            className='text-lg font-medium leading-6 text-gray-900'
-          >
+          <Dialog.Title as='h3' className='text-lg font-medium leading-6'>
             Upload a recipe
           </Dialog.Title>
           <CreateRecipe
             closeModal={closeModal}
-            data={
-              parsedRecipe.data || {
-                descriptions: [],
-                ingredients: [],
-                instructions: [],
-                names: []
-              }
-            }
-            isError={parsedRecipe.isError}
-            isSuccess={parsedRecipe.isSuccess}
+            data={data || {}}
+            isError={isError}
+            isSuccess={isSuccess}
           />
         </>
       )
@@ -81,48 +143,15 @@ function useParseRecipe() {
     setCurrentStep((state) => steps[state?.next as keyof typeof steps])
   }
 
-  async function onSubmitUrl(values: { url: string }) {
-    const response = await fetch(values.url)
-    const html = await response.text()
-    console.log('res', html)
-    // flatten a document
-    let openScriptIdx = 0
-    let closeScriptIdx = 0
-    let foundLinkedData = false
-    for (let i = 0; i < html.length - 3; i++) {
-      const char1 = html[i]
-      const char2 = html[i + 1]
-      const char3 = html[i + 2]
-      const char4 = html[i + 3]
-      const char5 = html[i + 4]
+  async function onSubmitUrl({ url }: { url: string }) {
+    const IsSuccessOnClient = await fetchRecipe(url)
 
-      if (
-        char1 === 'l' &&
-        char2 === 'd' &&
-        char3 === '+' &&
-        char4 === 'j' &&
-        char5 === 's'
-      ) {
-        foundLinkedData = true
-        openScriptIdx = i + 9
-      } else if (
-        foundLinkedData &&
-        char1 === '<' &&
-        char2 === '/' &&
-        char3 === 's' &&
-        char4 === 'c' &&
-        char5 === 'r'
-      ) {
-        closeScriptIdx = i
-        break
-      }
+    console.log('status', IsSuccessOnClient)
+    if (!IsSuccessOnClient) {
+      console.log('is mutating')
+      parseRecipeOnServer.mutate(url)
     }
-    console.log(openScriptIdx, closeScriptIdx)
-    const scriptTag = JSON.parse(html.slice(openScriptIdx, closeScriptIdx))
-    console.log('script tag', scriptTag)
 
-    // output has all deep-level trees flattened to the top-level
-    // parsedRecipe.mutate(values.url)
     nextStep()
   }
 
@@ -130,7 +159,7 @@ function useParseRecipe() {
 }
 
 export function CreateRecipePopover() {
-  const { closeModal, openModal, steps, currentStep, isOpen } = useParseRecipe()
+  const { isOpen, steps, currentStep, openModal, closeModal } = useParseRecipe()
 
   return (
     <>
@@ -165,8 +194,8 @@ function UploadRecipeUrlForm({
         </label>
         <input
           {...register('url')}
-          className='text-gray-500'
-          defaultValue='https://www.bbcgoodfood.com/recipes/spiced-carrot-lentil-soup'
+          className='select-auto bg-white text-gray-500 dark:bg-slate-400'
+          autoFocus
         />
       </div>
       <div className='mt-4'>
@@ -190,7 +219,7 @@ function CreateRecipe({
 
   closeModal
 }: {
-  data: ParsedRecipe
+  data: PartialLD
   isError: boolean
   isSuccess: boolean
   closeModal: () => void
@@ -210,23 +239,17 @@ function CreateRecipeForm({
   data,
   closeModal
 }: {
-  data: ParsedRecipe
+  data: PartialLD
   closeModal: () => void
 }) {
   const util = trpc.useContext()
-  const [ingredientsPage, setIngredientsPage] = useState(0)
-  const [instructionsPage, setInstructionsPage] = useState(0)
 
-  console.log(data, 'data')
-
-  console.log('ingredientspage', ingredientsPage)
-
-  const { register, handleSubmit, setValue, getValues } = useForm<FormValues>({
+  const { register, handleSubmit, getValues } = useForm<FormValues>({
     defaultValues: {
-      description: data.descriptions[0],
-      name: data.names[0],
-      ingredients: data.ingredients[0].join('\n'),
-      instructions: data.instructions[0].join('\n')
+      description: data.description || '',
+      name: data.name || data.headline || '',
+      ingredients: data.recipeIngredient?.join('\n') || '',
+      instructions: data.recipeInstructions?.map((i) => i.text).join('\n') || ''
     }
   })
 
@@ -248,54 +271,43 @@ function CreateRecipeForm({
     mutate(params)
   }
 
-  const changeIngredientsPage = () => {
-    const ingredientsLength = data.ingredients.length
-    const newState = (ingredientsPage + 1) % ingredientsLength
-    setValue('ingredients', data.ingredients[newState].join('\n'))
-    setIngredientsPage(newState)
-  }
-
-  const changeInstructionsPage = () => {
-    const instructionsLength = data.instructions.length
-    const newState = (instructionsPage + 1) % instructionsLength
-    setValue('instructions', data.instructions[newState].join('\n'))
-    setInstructionsPage(newState)
-  }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
-      <div className='mt-2 flex flex-col'>
-        <label htmlFor='name' className='text-sm text-gray-500'>
-          Title
-        </label>
-        <input {...register('name')} className='text-gray-500' />
-        <label htmlFor='name' className='text-sm text-gray-500'>
-          Description
-        </label>
-        <input {...register('description')} className='text-gray-500' />
-        <label htmlFor='ingredients' className='text-sm text-gray-500'>
-          Ingredients
-        </label>
-        <textarea
-          rows={(getValues('ingredients') || '').split('\n').length || 5}
-          {...register('ingredients')}
-          className='text-gray-500 resize-none p-2 max-h-60'
-        />
-        <label htmlFor='instructions' className='text-sm text-gray-500'>
-          Instructions
-        </label>
-        <textarea
-          rows={(getValues('instructions') || '').split('\n').length || 5}
-          {...register('instructions')}
-          className='text-gray-500 resize-none p-2 max-h-60'
-        />
+      <div className='mt-2 flex flex-col gap-5'>
+        <div className='flex flex-col'>
+          <label htmlFor='name' className='text-sm text-gray-500'>
+            Title
+          </label>
+          <input {...register('name')} className='text-gray-500' />
+        </div>
+        <div className='flex flex-col'>
+          <label htmlFor='name' className='text-sm text-gray-500'>
+            Description
+          </label>
+          <input {...register('description')} className='text-gray-500' />
+        </div>
+        <div className='flex flex-col'>
+          <label htmlFor='ingredients' className='text-sm text-gray-500'>
+            Ingredients
+          </label>
+          <textarea
+            rows={(getValues('ingredients') || '').split('\n').length || 5}
+            {...register('ingredients')}
+            className='max-h-60 resize-none p-2 text-gray-500'
+          />
+        </div>
+        <div className='flex flex-col'>
+          <label htmlFor='instructions' className='text-sm text-gray-500'>
+            Instructions
+          </label>
+          <textarea
+            rows={(getValues('instructions') || '').split('\n').length || 5}
+            {...register('instructions')}
+            className='resize-none p-2 text-gray-500'
+          />
+        </div>
       </div>
-      <Button props={{ type: 'button' }} onClick={changeIngredientsPage}>
-        Next ingredients
-      </Button>
-      <Button props={{ type: 'button' }} onClick={changeInstructionsPage}>
-        Next instructions
-      </Button>
+
       <div className='mt-4'>
         <Button
           props={{ type: 'submit', disabled: isLoading }}
@@ -310,35 +322,35 @@ function CreateRecipeForm({
 
 function FormSkeleton() {
   return (
-    <div className='mt-2 flex flex-col animate-pulse'>
+    <div className='mt-2 flex animate-pulse flex-col'>
       <label className='text-sm text-gray-600'>Title</label>
-      <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-52'></div>
+      <div className='h-4 w-52 rounded bg-slate-200 dark:bg-gray-600'></div>
       <label className='text-sm text-gray-600'>Description</label>
-      <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-full'></div>
+      <div className='h-4 w-full rounded bg-slate-200 dark:bg-gray-600'></div>
       <label className='text-sm text-gray-600'>Ingredients</label>
       <div className='flex flex-col gap-3'>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
       </div>
       <label className='text-sm text-gray-600'>Instructions</label>
       <div className='flex flex-col gap-3'>
-        <div className='h-5 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
-        <div className='h-4 bg-slate-200 dark:bg-gray-600 rounded w-1/2'></div>
+        <div className='h-5 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
+        <div className='h-4 w-1/2 rounded bg-slate-200 dark:bg-gray-600'></div>
       </div>
     </div>
   )
