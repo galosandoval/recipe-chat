@@ -77,16 +77,16 @@ function FoundRecipe({
         {renderAuthor}
       </div>
 
-      <div className='grid grid-cols-2 w-1/2'>
+      <div className='grid w-1/2 grid-cols-2'>
         <div className=''>
-          <h3 className='text-indigo-600 font-medium text-lg '>Ingredients</h3>
+          <h3 className='text-lg font-medium text-indigo-600 '>Ingredients</h3>
           {ingredients.map((i) => (
             <p key={i.id}>{i.name}</p>
           ))}
         </div>
         <div className=''>
-          <h3 className='text-indigo-600 font-medium text-lg '>Directions</h3>
-          <ol className='list-decimal list-inside'>
+          <h3 className='text-lg font-medium text-indigo-600 '>Directions</h3>
+          <ol className='list-inside list-decimal'>
             {instructions.map((i) => (
               <li key={i.id}>{i.description}</li>
             ))}

@@ -1,8 +1,8 @@
-import { z } from 'zod'
-import { procedure, router } from '../trpc'
-import { prisma } from '../../lib/prisma'
-import { parseRecipeUrl } from '../../utils/parse-recipe-url'
-import { Recipe } from '@prisma/client'
+import { z } from "zod";
+import { procedure, router } from "../trpc";
+import { prisma } from "../../lib/prisma";
+import { Recipe } from "@prisma/client";
+import { parseRecipeUrl } from "../helpers/parse-recipe-url";
 
 const CreateRecipeSchema = z.object({
   description: z.string().optional(),
@@ -14,31 +14,31 @@ const CreateRecipeSchema = z.object({
   instructions: z.array(z.string()),
   userId: z.number(),
   listId: z.number().optional(),
-  url: z.string().optional()
-})
+  url: z.string().optional(),
+});
 
 export const recipesRouter = router({
   recipeEntity: procedure
     .input(
       z.object({
-        userId: z.number()
+        userId: z.number(),
       })
     )
     .query(async ({ input }) => {
       const recipeList = await prisma.recipesOnList.findMany({
         where: { userId: { equals: input.userId } },
         select: {
-          recipe: true
-        }
-      })
+          recipe: true,
+        },
+      });
 
-      const entity: { [recipeId: string]: Recipe } = {}
+      const entity: { [recipeId: string]: Recipe } = {};
 
       recipeList.forEach((element) => {
-        entity[element.recipe.id] = element.recipe
-      })
+        entity[element.recipe.id] = element.recipe;
+      });
 
-      return entity
+      return entity;
     }),
 
   parseRecipeUrl: procedure
@@ -52,31 +52,31 @@ export const recipesRouter = router({
     .query(async ({ input }) => {
       return await prisma.recipe.findFirst({
         where: { id: { equals: input.id } },
-        select: { ingredients: true, instructions: true }
-      })
-    })
-})
+        select: { ingredients: true, instructions: true },
+      });
+    }),
+});
 
-export type CreateRecipeParams = z.infer<typeof CreateRecipeSchema>
+export type CreateRecipeParams = z.infer<typeof CreateRecipeSchema>;
 
 async function createRecipe({ input }: { input: CreateRecipeParams }) {
-  const { userId, listId, ingredients, instructions, ...rest } = input
+  const { userId, listId, ingredients, instructions, ...rest } = input;
   const result = await prisma.recipe.create({
     data: {
       ...rest,
       instructions: {
-        create: instructions.map((i) => ({ description: i }))
+        create: instructions.map((i) => ({ description: i })),
       },
       ingredients: {
-        create: ingredients.map((i) => ({ name: i }))
+        create: ingredients.map((i) => ({ name: i })),
       },
-      onLists: { create: { userId, listId } }
+      onLists: { create: { userId, listId } },
     },
     include: {
       ingredients: true,
       instructions: true,
-      onLists: true
-    }
-  })
-  return result
+      onLists: true,
+    },
+  });
+  return result;
 }

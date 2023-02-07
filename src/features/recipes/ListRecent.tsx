@@ -26,7 +26,7 @@ function CardList({ data }: { data: Recipe[] }) {
     <CreateRecipeCard key='create-recipe-card' />
   ]
   toReturn.push(...data.map((recipe) => <Card key={recipe.id} data={recipe} />))
-  return <>{toReturn.map((element) => element)}</>
+  return <>{toReturn}</>
 }
 
 function Card({ data }: { data: Recipe }) {
