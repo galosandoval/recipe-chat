@@ -1,12 +1,12 @@
 import Image from 'next/image'
-import { trpc } from '../../utils/trpc'
+import { api } from '../../utils/api'
 import defaultRecipeJpeg from '../../assets/default-recipe.jpeg'
 import { Recipe } from '@prisma/client'
 import { CreateRecipePopover } from './Create'
 import Link from 'next/link'
 
 export function ListRecent() {
-  const { data, isSuccess } = trpc.recipeEntity.useQuery({ userId: 1 })
+  const { data, isSuccess } = api.recipes.entity.useQuery({ userId: 1 })
 
   if (isSuccess) {
     return (
@@ -50,7 +50,7 @@ function Card({ data }: { data: Recipe }) {
     <Link
       href={`/recipes/${data.id}?name=${name}`}
       key={data.id}
-      className='rounded bg-white dark:bg-slate-800 flex flex-col shadow-xl overflow-hidden cursor-default'
+      className='flex cursor-default flex-col overflow-hidden rounded bg-white shadow-xl dark:bg-slate-800'
     >
       <div className='w-full'>
         <Image
@@ -71,7 +71,7 @@ function Card({ data }: { data: Recipe }) {
 
 function CreateRecipeCard() {
   return (
-    <div className='rounded bg-white dark:bg-slate-800 flex flex-col shadow-xl overflow-hidden'>
+    <div className='flex flex-col overflow-hidden rounded bg-white shadow-xl dark:bg-slate-800'>
       <CreateRecipePopover />
     </div>
   )
