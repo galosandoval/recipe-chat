@@ -9,7 +9,7 @@ import {
   TransitionWrapper
 } from '../../components/TransitionWrapper'
 import { PartialLD } from '../../server/helpers/parse-recipe-url'
-import { trpc } from '../../utils/trpc'
+import { api } from '../../utils/api'
 
 function useParseRecipeOnClient() {
   const [data, setData] = useState<PartialLD>({})
@@ -78,7 +78,7 @@ function useParseRecipe() {
     fetchRecipe,
     status
   } = useParseRecipeOnClient()
-  const parseRecipeOnServer = trpc.parseRecipeUrl.useMutation({})
+  const parseRecipeOnServer = api.recipes.parseRecipeUrl.useMutation({})
 
   let data: Partial<PartialLD> = parsedDataOnClient
   if (parseRecipeOnServer.status === 'success') {
@@ -242,7 +242,7 @@ function CreateRecipeForm({
   data: PartialLD
   closeModal: () => void
 }) {
-  const util = trpc.useContext()
+  const util = api.useContext()
 
   const { register, handleSubmit, getValues } = useForm<FormValues>({
     defaultValues: {
@@ -253,9 +253,9 @@ function CreateRecipeForm({
     }
   })
 
-  const { mutate, isLoading } = trpc.recipeCreate.useMutation({
+  const { mutate, isLoading } = api.recipes.create.useMutation({
     onSuccess: async () => {
-      util.recipeEntity.invalidate({ userId: 1 })
+      util.recipes.entity.invalidate({ userId: 1 })
       closeModal()
     }
   })

@@ -1,8 +1,19 @@
 import Head from 'next/head'
+import { useForm } from 'react-hook-form'
 import Layout from '../components/Layout'
-import { ListRecent } from '../features/recipes/ListRecent'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { authSchema, AuthSchemaType } from '../server/api/routers/auth'
+import { signIn } from 'next-auth/react'
 
 export default function Dashboard() {
+  const { register, handleSubmit } = useForm<AuthSchemaType>({
+    resolver: zodResolver(authSchema)
+  })
+
+  const onSubmit = async (values: AuthSchemaType) => {
+    await signIn('credentials', { ...values })
+  }
+
   return (
     <>
       <Head>
@@ -11,7 +22,10 @@ export default function Dashboard() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
       <Layout>
-        <ListRecent />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <input type='email' {...register('email')} />
+          <input type='password' {...register('password')} />
+        </form>
       </Layout>
     </>
   )

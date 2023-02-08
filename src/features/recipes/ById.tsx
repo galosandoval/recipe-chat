@@ -1,20 +1,19 @@
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
 import Image from 'next/image'
 
-import { trpc } from '../../utils/trpc'
+import { api } from '../../utils/api'
 import defaultRecipe from '../../assets/default-recipe.jpeg'
 
 export default function RecipeById({ id }: { id: number }) {
-  const utils = trpc.useContext()
-  const recipeEntity = utils.recipeEntity.getData({ userId: 1 })
+  const utils = api.useContext()
+  // const recipeEntity = utils.recipes..getData({ userId: 1 })
+  const recipeEntity = utils.recipes.entity.getData({ userId: 1 })
 
   const {
     data: recipeInfo,
     isSuccess,
     isError
-  } = trpc.recipeById.useQuery({
-    id
-  })
+  } = api.recipes.byId.useQuery({ id })
 
   if (recipeInfo == undefined || isError)
     return <div className=''>Something went wrong</div>
