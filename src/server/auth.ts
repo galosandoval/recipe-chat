@@ -7,7 +7,7 @@ import {
   type DefaultSession
 } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
-import { prisma } from './db'
+// import { prisma } from './db'
 
 /**
  * Module augmentation for `next-auth` types.
@@ -39,13 +39,6 @@ declare module 'next-auth' {
  **/
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    // session({ session, user }) {
-    //   if (session.user) {
-    //     session.user.id = user.id
-    //     // session.user.role = user.role; <-- put other properties on the session here
-    //   }
-    //   return session
-    // },
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id
@@ -70,7 +63,7 @@ export const authOptions: NextAuthOptions = {
     signIn: '/',
     newUser: '/sign-up'
   },
-  adapter: PrismaAdapter(prisma),
+  // adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
       name: 'credentials',
@@ -82,26 +75,26 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       authorize: async (credentials) => {
-        const user = await prisma.user.findFirst({
-          where: { username: credentials?.email }
-        })
+        // const user = await prisma.user.findFirst({
+        //   where: { username: credentials?.email }
+        // })
 
-        if (!user) {
-          return null
-        }
+        // if (!user) {
+        //   return null
+        // }
 
-        const isValidPassword = await compare(
-          user.password,
-          credentials?.password || ''
-        )
+        // const isValidPassword = await compare(
+        //   user.password,
+        //   credentials?.password || ''
+        // )
 
-        if (!isValidPassword) {
-          return null
-        }
+        // if (!isValidPassword) {
+        //   return null
+        // }
 
         return {
-          id: `${user.id}`,
-          email: user.username
+          id: `${1}`,
+          email: 'email@email.com'
         }
       }
     })
