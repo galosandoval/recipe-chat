@@ -1,3 +1,4 @@
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { ReactNode, useEffect } from 'react'
@@ -5,6 +6,7 @@ import { Button } from './Button'
 
 export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter()
+  const { status } = useSession()
 
   const menuItems = [
     { label: 'dashboard', value: '/' },
@@ -63,18 +65,18 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className='flex bg-app text-slate-900 dark:text-white'>
-      <ul className='flex flex-col bg-white dark:bg-slate-800 px-5 pt-10'>
+    <div className='bg-app flex text-slate-900 dark:text-white'>
+      <ul className='flex flex-col bg-white px-5 pt-10 dark:bg-slate-800'>
         {menuItems.map((item) => (
           <Link href={item.value} key={item.label}>
-            <li className='text-2xl cursor-default select-none w-full group my-1'>
+            <li className='group my-1 w-full cursor-default select-none text-2xl'>
               <span className={activeLinkStyles(item.value)}>{item.label}</span>
             </li>
           </Link>
         ))}
         <Button onClick={toggleDarkMode}>theme</Button>
       </ul>
-      <main className='w-full text-black dark:text-white min-h-screen'>
+      <main className='min-h-screen w-full text-black dark:text-white'>
         {children}
       </main>
     </div>

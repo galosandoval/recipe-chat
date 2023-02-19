@@ -1,29 +1,39 @@
 import puppeteer from 'puppeteer'
+import { parseRecipe } from '../../utils/parse-recipe-from-page'
 
-type LinkedData = {
-  author: {
-    name: string
-    url: string
+export type LinkedData = {
+  author?: {
+    name?: string
+    url?: string
   }[]
-  cookTime: string
-  description: string
-  headline: string
-  image: {
-    height: number
-    url: string
-    width: number
+  cookTime?: string
+  description?: string
+  headline?: string
+  image?: {
+    height?: number
+    url?: string
+    width?: number
   }
-  name: string
-  recipeIngredient: string[]
-  recipeInstructions: {
-    text: string
+  name?: string
+  recipeIngredient?: string[]
+  recipeInstructions?: {
+    text?: string
   }[]
-  recipeYield: number
-  totalTime: string
-  url: string
+  recipeYield?: number
+  totalTime?: string
+  url?: string
+  parsingType: 'linkedData'
 }
 
-export type PartialLD = Partial<LinkedData>
+export type IteratedData = {
+  instructions: string[][]
+  ingredients: string[][]
+  names: string[]
+  descriptions: string[]
+  parsingType: 'iterated'
+}
+
+export type ScrapedRecipe = LinkedData | IteratedData
 
 export async function parseRecipeUrl(url: string) {
   const browser = await puppeteer.launch()
@@ -36,7 +46,19 @@ export async function parseRecipeUrl(url: string) {
     }).filter(Boolean)
   )
 
+  const linkedData = JSON.parse(script[0]?.script || '')[0] as LinkedData
+  const linkedDataLength = Object.keys(linkedData || {})
+  if (!linkedDataLength?.length) {
+    const iteratedPage = (await parseRecipe(page)) as IteratedData
+
+    await browser.close()
+
+    return iteratedPage
+  }
+
   await browser.close()
 
-  return (JSON.parse(script[0]?.script || '')[0] as PartialLD) || {}
+  linkedData.parsingType = 'linkedData'
+
+  return linkedData || {}
 }

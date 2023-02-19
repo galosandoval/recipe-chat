@@ -1,4 +1,3 @@
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { compare } from 'bcryptjs'
 import type { GetServerSidePropsContext } from 'next'
 import {
@@ -7,7 +6,7 @@ import {
   type DefaultSession
 } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
-// import { prisma } from './db'
+import { prisma } from './db'
 
 /**
  * Module augmentation for `next-auth` types.
@@ -20,6 +19,7 @@ declare module 'next-auth' {
   interface Session extends DefaultSession {
     user: {
       id: string
+
       // ...other properties
       // role: UserRole;
     } & DefaultSession['user']
@@ -42,14 +42,13 @@ export const authOptions: NextAuthOptions = {
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id
-        token.email = user.email
       }
 
       return token
     },
     session: async ({ session, token }) => {
-      if (token?.email) {
-        session.user.id = token.email
+      if (token?.id) {
+        session.user.id = token.id as string
       }
 
       return session
@@ -57,11 +56,15 @@ export const authOptions: NextAuthOptions = {
   },
   jwt: {
     secret: 'super-secret',
-    maxAge: 30 //15 * 24 * 30 * 60 // 15 days
+    maxAge: 15 * 24 * 30 * 60 // 15 days
+  },
+  session: {
+    maxAge: 15 * 24 * 30 * 60
   },
   pages: {
     signIn: '/',
-    newUser: '/sign-up'
+    newUser: '/sign-up',
+    error: '/'
   },
   // adapter: PrismaAdapter(prisma),
   providers: [
@@ -69,32 +72,31 @@ export const authOptions: NextAuthOptions = {
       name: 'credentials',
       credentials: {
         email: {
-          label: 'Email',
+          label: 'email',
           type: 'email'
         },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'email', type: 'password' }
       },
       authorize: async (credentials) => {
-        // const user = await prisma.user.findFirst({
-        //   where: { username: credentials?.email }
-        // })
+        const user = await prisma.user.findFirst({
+          where: { username: credentials?.email }
+        })
 
-        // if (!user) {
-        //   return null
-        // }
+        if (!user) {
+          return null
+        }
 
-        // const isValidPassword = await compare(
-        //   user.password,
-        //   credentials?.password || ''
-        // )
+        const isValidPassword = await compare(
+          credentials?.password || '',
+          user.password
+        )
 
-        // if (!isValidPassword) {
-        //   return null
-        // }
+        if (!isValidPassword) {
+          return null
+        }
 
         return {
-          id: `${1}`,
-          email: 'email@email.com'
+          id: `${user.id}`
         }
       }
     })
