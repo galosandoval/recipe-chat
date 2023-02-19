@@ -1,4 +1,3 @@
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { compare } from 'bcryptjs'
 import type { GetServerSidePropsContext } from 'next'
 import {
@@ -20,6 +19,7 @@ declare module 'next-auth' {
   interface Session extends DefaultSession {
     user: {
       id: string
+
       // ...other properties
       // role: UserRole;
     } & DefaultSession['user']
@@ -39,24 +39,16 @@ declare module 'next-auth' {
  **/
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    // session({ session, user }) {
-    //   if (session.user) {
-    //     session.user.id = user.id
-    //     // session.user.role = user.role; <-- put other properties on the session here
-    //   }
-    //   return session
-    // },
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id
-        token.email = user.email
       }
 
       return token
     },
     session: async ({ session, token }) => {
-      if (token?.email) {
-        session.user.id = token.email
+      if (token?.id) {
+        session.user.id = token.id as string
       }
 
       return session
@@ -64,22 +56,26 @@ export const authOptions: NextAuthOptions = {
   },
   jwt: {
     secret: 'super-secret',
-    maxAge: 30 //15 * 24 * 30 * 60 // 15 days
+    maxAge: 15 * 24 * 30 * 60 // 15 days
+  },
+  session: {
+    maxAge: 15 * 24 * 30 * 60
   },
   pages: {
     signIn: '/',
-    newUser: '/sign-up'
+    newUser: '/sign-up',
+    error: '/'
   },
-  adapter: PrismaAdapter(prisma),
+  // adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
       name: 'credentials',
       credentials: {
         email: {
-          label: 'Email',
+          label: 'email',
           type: 'email'
         },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'email', type: 'password' }
       },
       authorize: async (credentials) => {
         const user = await prisma.user.findFirst({
@@ -91,8 +87,8 @@ export const authOptions: NextAuthOptions = {
         }
 
         const isValidPassword = await compare(
-          user.password,
-          credentials?.password || ''
+          credentials?.password || '',
+          user.password
         )
 
         if (!isValidPassword) {
@@ -100,8 +96,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: `${user.id}`,
-          email: user.username
+          id: `${user.id}`
         }
       }
     })

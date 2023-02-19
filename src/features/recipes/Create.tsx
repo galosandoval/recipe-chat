@@ -1,6 +1,10 @@
 import { Dialog } from '@headlessui/react'
+import { ErrorMessage } from '@hookform/error-message'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import { Button } from '../../components/Button'
 import { Modal } from '../../components/Modal'
 import {
@@ -8,11 +12,14 @@ import {
   TotalSteps,
   TransitionWrapper
 } from '../../components/TransitionWrapper'
-import { PartialLD } from '../../server/helpers/parse-recipe-url'
+import {
+  LinkedData,
+  ScrapedRecipe
+} from '../../server/helpers/parse-recipe-url'
 import { api } from '../../utils/api'
 
 function useParseRecipeOnClient() {
-  const [data, setData] = useState<PartialLD>({})
+  const [data, setData] = useState<ScrapedRecipe>()
   const [status, setStatus] = useState<
     'idle' | 'failed' | 'loading' | 'success'
   >('idle')
@@ -59,7 +66,7 @@ function useParseRecipeOnClient() {
       }
 
       setData(
-        JSON.parse(html.slice(openScriptIdx, closeScriptIdx)) as PartialLD
+        JSON.parse(html.slice(openScriptIdx, closeScriptIdx)) as ScrapedRecipe
       )
       setStatus('success')
       return true
@@ -80,7 +87,7 @@ function useParseRecipe() {
   } = useParseRecipeOnClient()
   const parseRecipeOnServer = api.recipes.parseRecipeUrl.useMutation({})
 
-  let data: Partial<PartialLD> = parsedDataOnClient
+  let data = parsedDataOnClient
   if (parseRecipeOnServer.status === 'success') {
     data = parseRecipeOnServer.data
   }
@@ -114,7 +121,7 @@ function useParseRecipe() {
           </Dialog.Title>
           <CreateRecipe
             closeModal={closeModal}
-            data={data || {}}
+            data={data!}
             isError={isError}
             isSuccess={isSuccess}
           />
@@ -146,9 +153,7 @@ function useParseRecipe() {
   async function onSubmitUrl({ url }: { url: string }) {
     const IsSuccessOnClient = await fetchRecipe(url)
 
-    console.log('status', IsSuccessOnClient)
     if (!IsSuccessOnClient) {
-      console.log('is mutating')
       parseRecipeOnServer.mutate(url)
     }
 
@@ -179,12 +184,24 @@ export function CreateRecipePopover() {
   )
 }
 
+const recipeUrlSchema = z.object({
+  url: z.string().url('Enter a valid url that contains a recipe.')
+})
+
+type RecipeUrlSchemaType = z.infer<typeof recipeUrlSchema>
+
 function UploadRecipeUrlForm({
   onSubmit
 }: {
-  onSubmit(values: { url: string }): void
+  onSubmit(values: RecipeUrlSchemaType): void
 }) {
-  const { register, handleSubmit } = useForm<{ url: string }>()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<RecipeUrlSchemaType>({
+    resolver: zodResolver(recipeUrlSchema)
+  })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className=''>
@@ -196,6 +213,11 @@ function UploadRecipeUrlForm({
           {...register('url')}
           className='select-auto bg-white text-gray-500 dark:bg-slate-400'
           autoFocus
+        />
+        <ErrorMessage
+          errors={errors}
+          name='url'
+          render={({ message }) => <p>{message}</p>}
         />
       </div>
       <div className='mt-4'>
@@ -219,7 +241,7 @@ function CreateRecipe({
 
   closeModal
 }: {
-  data: PartialLD
+  data: ScrapedRecipe
   isError: boolean
   isSuccess: boolean
   closeModal: () => void
@@ -229,20 +251,34 @@ function CreateRecipe({
   }
 
   if (isSuccess) {
-    return <CreateRecipeForm closeModal={closeModal} data={data} />
+    if (data.parsingType === 'linkedData') {
+      return <CreateRecipeForm closeModal={closeModal} data={data} />
+    } else return <p>Oops something went wrong</p>
   }
 
   return <FormSkeleton />
+}
+
+export const useUserId = () => {
+  const { data, status } = useSession()
+
+  let userId = '0'
+  if (status === 'authenticated') {
+    userId = data.user.id
+  }
+
+  return parseInt(userId)
 }
 
 function CreateRecipeForm({
   data,
   closeModal
 }: {
-  data: PartialLD
+  data: LinkedData
   closeModal: () => void
 }) {
   const util = api.useContext()
+  const userId = useUserId()
 
   const { register, handleSubmit, getValues } = useForm<FormValues>({
     defaultValues: {
@@ -255,7 +291,7 @@ function CreateRecipeForm({
 
   const { mutate, isLoading } = api.recipes.create.useMutation({
     onSuccess: async () => {
-      util.recipes.entity.invalidate({ userId: 1 })
+      util.recipes.entity.invalidate({ userId })
       closeModal()
     }
   })
@@ -264,7 +300,7 @@ function CreateRecipeForm({
     const params = {
       ...values,
       // TODO: do not hardcode
-      userId: 1,
+      userId,
       ingredients: values.ingredients.split('\n'),
       instructions: values.instructions.split('\n')
     }

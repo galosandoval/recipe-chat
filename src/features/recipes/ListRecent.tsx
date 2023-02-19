@@ -4,9 +4,23 @@ import defaultRecipeJpeg from '../../assets/default-recipe.jpeg'
 import { Recipe } from '@prisma/client'
 import { CreateRecipePopover } from './Create'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 
 export function ListRecent() {
-  const { data, isSuccess } = api.recipes.entity.useQuery({ userId: 1 })
+  const router = useRouter()
+  const session = useSession()
+
+  const { data, isSuccess } = api.recipes.entity.useQuery(
+    { userId: parseInt(session.data?.user.id || '') },
+    {
+      onError: (err) => {
+        if (err.data?.code === 'UNAUTHORIZED') {
+          void router.push('/')
+        }
+      }
+    }
+  )
 
   if (isSuccess) {
     return (

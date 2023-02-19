@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server'
-import { genSalt, hash } from 'bcryptjs'
+import { hash } from 'bcryptjs'
 import { z } from 'zod'
 import { createTRPCRouter, publicProcedure } from '../trpc'
 
@@ -22,21 +22,9 @@ export const authRouter = createTRPCRouter({
         message: 'User already exists.'
       })
     }
-
-    genSalt(10, (err, salt) => {
-      if (err.message) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: err.message })
-      }
-
-      hash(input.password, salt, (err, hash) => {
-        if (err.message) {
-          throw new TRPCError({ code: 'BAD_REQUEST', message: err.message })
-        }
-
-        return ctx.prisma.user.create({
-          data: { username: input.email, password: hash }
-        })
-      })
+    const hashedPassword = await hash(input.password, 10)
+    return ctx.prisma.user.create({
+      data: { username: input.email, password: hashedPassword }
     })
   })
 })
