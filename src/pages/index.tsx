@@ -15,6 +15,9 @@ export const authSchema = z.object({
 type AuthSchemaType = z.infer<typeof authSchema>
 
 export default function Landing() {
+  console.log('hello')
+  console.log(process.env.VERCEL_URL)
+
   const { status } = useSession()
   const { register, handleSubmit } = useForm<AuthSchemaType>({
     resolver: zodResolver(authSchema)
