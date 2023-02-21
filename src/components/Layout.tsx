@@ -118,7 +118,11 @@ export function SettingsPopover({
                     <Button onClick={handleToggleDarkMode}>theme</Button>
                     <Button
                       onClick={() =>
-                        signOut({ callbackUrl: 'http://localhost:3000/' })
+                        signOut({
+                          callbackUrl: process.env.VERCEL_URL
+                            ? process.env.VERCEL_URL
+                            : 'http://localhost:3000/'
+                        })
                       }
                     >
                       logout
