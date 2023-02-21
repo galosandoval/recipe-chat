@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "dotenv -e .env.development -- next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "gen": "npx prisma generate",
     "seed": "npx prisma db seed",
+    "migrate:postgres": "dotenv -e .env.development -- npx prisma migrate deploy",
     "migrate": "npx prisma migrate dev",
     "migrate-reset": "npx prisma migrate reset"
   },
