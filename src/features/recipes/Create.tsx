@@ -121,7 +121,7 @@ function useParseRecipe() {
           </Dialog.Title>
           <CreateRecipe
             closeModal={closeModal}
-            data={data!}
+            data={data}
             isError={isError}
             isSuccess={isSuccess}
           />
@@ -241,7 +241,7 @@ function CreateRecipe({
 
   closeModal
 }: {
-  data: ScrapedRecipe
+  data: ScrapedRecipe | undefined
   isError: boolean
   isSuccess: boolean
   closeModal: () => void
@@ -250,7 +250,7 @@ function CreateRecipe({
     return <p className=''>Oops, something went wrong</p>
   }
 
-  if (isSuccess) {
+  if (isSuccess && data) {
     if (data.parsingType === 'linkedData') {
       return <CreateRecipeForm closeModal={closeModal} data={data} />
     } else return <p>Oops something went wrong</p>
