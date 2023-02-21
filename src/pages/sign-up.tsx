@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { Button } from '../components/Button'
 import { ErrorMessage } from '@hookform/error-message'
 import { api } from '../utils/api'
+import { signIn } from 'next-auth/react'
 
 export const signUpSchema = z
   .object({
@@ -20,13 +21,26 @@ export const signUpSchema = z
 type SignUpSchemaType = z.infer<typeof signUpSchema>
 
 export default function SignUp() {
-  const { mutate, data, error } = api.auth.signUp.useMutation()
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
+    getValues
   } = useForm<SignUpSchemaType>({
     resolver: zodResolver(signUpSchema)
+  })
+  const { mutate } = api.auth.signUp.useMutation({
+    onSuccess: async () => {
+      const { email, password } = getValues()
+      await signIn(
+        'credentials',
+        { callbackUrl: 'http://localhost:3000/' },
+        {
+          email,
+          password
+        }
+      )
+    }
   })
 
   const onSubmit = async (values: SignUpSchemaType) => {
