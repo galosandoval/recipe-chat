@@ -34,7 +34,11 @@ export default function SignUp() {
       const { email, password } = getValues()
       await signIn(
         'credentials',
-        { callbackUrl: 'http://localhost:3000/' },
+        {
+          callbackUrl: process.env.VERCEL_URL
+            ? process.env.VERCEL_URL
+            : 'http://localhost:3000/'
+        },
         {
           email,
           password
