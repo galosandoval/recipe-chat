@@ -14,7 +14,7 @@ export const authSchema = z.object({
 
 type AuthSchemaType = z.infer<typeof authSchema>
 
-export default function Dashboard() {
+export default function Landing() {
   const { status } = useSession()
   const { register, handleSubmit } = useForm<AuthSchemaType>({
     resolver: zodResolver(authSchema)
