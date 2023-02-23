@@ -8,6 +8,7 @@ const App: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps }
 }) => {
+  // trigger change
   return (
     <SessionProvider session={session}>
       <Component {...pageProps} />
