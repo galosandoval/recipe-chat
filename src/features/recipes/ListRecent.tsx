@@ -24,9 +24,9 @@ export function ListRecent() {
 
   if (isSuccess) {
     return (
-      <div className='container mx-auto'>
+      <div className='container mx-auto px-2'>
         <h1>Recent Recipes</h1>
-        <div className='grid grid-cols-4 gap-5'>
+        <div className='grid grid-cols-2 gap-5 md:grid-cols-4'>
           <CardList data={Object.values(data)} />
         </div>
       </div>
