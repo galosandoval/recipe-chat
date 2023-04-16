@@ -47,9 +47,10 @@ export async function parseRecipeUrl(url: string) {
   )
 
   const linkedData = JSON.parse(script[0]?.script || '')[0] as LinkedData
-  const linkedDataLength = Object.keys(linkedData || {})
-  if (!linkedDataLength?.length) {
+  const linkedDataLength = Object.keys(linkedData || {})?.length
+  if (!linkedDataLength) {
     const iteratedPage = (await parseRecipe(page)) as IteratedData
+    console.log('isIterated', iteratedPage)
 
     await browser.close()
 
@@ -59,6 +60,6 @@ export async function parseRecipeUrl(url: string) {
   await browser.close()
 
   linkedData.parsingType = 'linkedData'
-
+  console.log('linkedDagta', linkedData)
   return linkedData || {}
 }

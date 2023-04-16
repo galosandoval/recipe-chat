@@ -1,3 +1,4 @@
+import { aiRouter } from './routers/ai'
 import { authRouter } from './routers/auth'
 import { recipesRouter } from './routers/recipes'
 import { createTRPCRouter } from './trpc'
@@ -9,7 +10,8 @@ import { createTRPCRouter } from './trpc'
  */
 export const appRouter = createTRPCRouter({
   recipes: recipesRouter,
-  auth: authRouter
+  auth: authRouter,
+  ai: aiRouter
 })
 
 // export type definition of API

@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 import { api } from '../../utils/api'
 import defaultRecipe from '../../assets/default-recipe.jpeg'
-import { useUserId } from './Create'
+import { useUserId } from './create/Create'
 
 export default function RecipeById({ id }: { id: number }) {
   const utils = api.useContext()

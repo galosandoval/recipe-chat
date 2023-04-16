@@ -6,6 +6,8 @@ import { z } from 'zod'
 import { Button } from '../components/Button'
 import Link from 'next/link'
 import Layout from '../components/Layout'
+import { CreateRecipePopover } from '../features/recipes/create/Create'
+import { ListRecent } from '../features/recipes/ListRecent'
 
 export const authSchema = z.object({
   email: z.string().email(),
@@ -36,7 +38,11 @@ export default function Landing() {
           <link rel='icon' href='/favicon.ico' />
         </Head>
         <Layout>
-          <p className=''>Authenticated</p>
+          <>
+            <p className=''>Authenticated</p>
+            {/* <Prompt /> */}
+            <ListRecent />
+          </>
         </Layout>
       </>
     )
