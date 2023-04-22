@@ -1,12 +1,3 @@
-:root {
-  --doc-height: 100%;
-}
-
-html {
-  height: 100vh;
-  height: var(--doc-height);
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,4 +10,8 @@ html {
   .card {
     @apply overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-slate-900/5 dark:bg-slate-800;
   }
+}
+
+html {
+  @apply bg-gray-50 dark:bg-slate-900;
 }

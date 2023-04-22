@@ -6,7 +6,6 @@ import { z } from 'zod'
 import { Button } from '../components/Button'
 import Link from 'next/link'
 import Layout from '../components/Layout'
-import { useEffect } from 'react'
 
 export const authSchema = z.object({
   email: z.string().email(),

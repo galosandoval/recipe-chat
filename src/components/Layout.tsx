@@ -35,15 +35,6 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    const documentHeight = () => {
-      const doc = document.documentElement
-      doc.style.setProperty('--doc-height', `${window.innerHeight}px`)
-    }
-    window.addEventListener('resize', documentHeight)
-    documentHeight()
-  }, [])
-
-  useEffect(() => {
     const themeDoesNotExists = !('theme' in localStorage)
     const prefersDarkMode = window.matchMedia(
       '(prefers-color-scheme: dark)'
@@ -78,7 +69,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className='bg-app flex h-screen w-full flex-col-reverse text-slate-900 dark:text-white md:flex-row'>
+    <div className='bg-app flex h-screen w-full flex-col-reverse text-slate-900 h-screen-ios dark:text-white md:flex-row'>
       <nav>
         <ul className='flex gap-1 bg-white px-5 py-2 dark:bg-slate-800 md:flex-col'>
           {menuItems.map((item) => (
