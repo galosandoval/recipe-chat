@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import Layout from '../../components/Layout'
 import { useRouter } from 'next/router'
-import { useSession } from 'next-auth/react'
 import { api } from '../../utils/api'
 import { Recipe } from '@prisma/client'
 import Image from 'next/image'
@@ -26,17 +25,13 @@ export default function Recipes() {
 
 function ListRecent() {
   const router = useRouter()
-  const session = useSession()
-  const { data, isSuccess } = api.recipes.entity.useQuery(
-    { userId: parseInt(session.data?.user.id || '') },
-    {
-      onError: (err) => {
-        if (err.data?.code === 'UNAUTHORIZED') {
-          void router.push('/')
-        }
+  const { data, isSuccess } = api.recipes.entity.useQuery(undefined, {
+    onError: (err) => {
+      if (err.data?.code === 'UNAUTHORIZED') {
+        void router.push('/')
       }
     }
-  )
+  })
 
   if (isSuccess) {
     return (
