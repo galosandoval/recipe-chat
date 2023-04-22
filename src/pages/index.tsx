@@ -6,7 +6,6 @@ import { z } from 'zod'
 import { Button } from '../components/Button'
 import Link from 'next/link'
 import Layout from '../components/Layout'
-import { useEffect } from 'react'
 
 export const authSchema = z.object({
   email: z.string().email(),
@@ -24,15 +23,6 @@ export default function Landing() {
   const onSubmit = async (data: AuthSchemaType) => {
     await signIn('credentials', { ...data })
   }
-
-  useEffect(() => {
-    const documentHeight = () => {
-      const doc = document.documentElement
-      doc.style.setProperty('--doc-height', `${window.innerHeight}px`)
-    }
-    window.addEventListener('resize', documentHeight)
-    documentHeight()
-  }, [])
 
   if (status === 'authenticated') {
     return (
