@@ -91,7 +91,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </li>
         </ul>
       </nav>
-      <main className='h-full w-full text-black dark:text-white'>
+      <main className='w-full overflow-y-auto text-black dark:text-white'>
         {children}
       </main>
     </div>
