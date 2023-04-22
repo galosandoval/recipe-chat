@@ -10,7 +10,6 @@ import { useSession } from 'next-auth/react'
 export function ListRecent() {
   const router = useRouter()
   const session = useSession()
-
   const { data, isSuccess } = api.recipes.entity.useQuery(
     { userId: parseInt(session.data?.user.id || '') },
     {
