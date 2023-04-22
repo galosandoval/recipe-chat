@@ -61,13 +61,12 @@ function FoundRecipe({
     ingredients,
     address,
     author,
-    createdAt,
     description,
-    id,
     imgUrl,
     instructions,
-    name,
-    updatedAt
+    name
+    // createdAt,
+    // updatedAt
   } = data
 
   const { mutate } = api.list.create.useMutation()
