@@ -48,11 +48,13 @@ export default function Layout({ children }: { children: ReactNode }) {
     }
 
     if (theme === 'light') {
-      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.remove('dark', 'bg-slate-900')
+      document.documentElement.classList.add('bg-gray-50')
     }
 
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
+      document.documentElement.classList.remove('bg-gray-50')
+      document.documentElement.classList.add('dark', 'bg-slate-900')
     }
   }, [])
 
@@ -61,15 +63,17 @@ export default function Layout({ children }: { children: ReactNode }) {
 
     if (theme === 'dark') {
       localStorage.theme = 'light'
-      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.remove('dark', 'bg-slate-900')
+      document.documentElement.classList.add('bg-gray-50')
     } else {
       localStorage.theme = 'dark'
-      document.documentElement.classList.add('dark')
+      document.documentElement.classList.remove('bg-gray-50')
+      document.documentElement.classList.add('dark', 'bg-slate-900')
     }
   }
 
   return (
-    <div className='bg-app flex h-screen w-full flex-col-reverse text-slate-900 h-screen-ios dark:text-white md:flex-row'>
+    <div className='flex h-screen w-full flex-col-reverse text-slate-900 h-screen-ios dark:text-white md:flex-row'>
       <nav>
         <ul className='flex gap-1 bg-white px-5 py-2 dark:bg-slate-800 md:flex-col'>
           {menuItems.map((item) => (
