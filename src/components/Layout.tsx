@@ -35,6 +35,15 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    const documentHeight = () => {
+      const doc = document.documentElement
+      doc.style.setProperty('--doc-height', `${window.innerHeight}px`)
+    }
+    window.addEventListener('resize', documentHeight)
+    documentHeight()
+  }, [])
+
+  useEffect(() => {
     const themeDoesNotExists = !('theme' in localStorage)
     const prefersDarkMode = window.matchMedia(
       '(prefers-color-scheme: dark)'

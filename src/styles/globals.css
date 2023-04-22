@@ -2,7 +2,7 @@
   --doc-height: 100%;
 }
 
-body {
+html {
   height: 100vh;
   height: var(--doc-height);
 }
