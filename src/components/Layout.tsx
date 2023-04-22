@@ -11,10 +11,9 @@ import Image from 'next/image'
 
 export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter()
-
   const menuItems = [
     { label: 'dashboard', value: '/', icon: chefHat },
-    { label: 'list', value: '/list' },
+    { label: 'list', value: '/list', icon: chefHat },
     { label: 'recipes', value: '/recipes', icon: chefHat }
     // { label: 'friends', value: '/friends' },
     // { label: 'account', value: '/account' }
