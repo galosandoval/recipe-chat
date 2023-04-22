@@ -12,7 +12,6 @@ const CreateRecipeSchema = z.object({
   ingredients: z.array(z.string()),
   instructions: z.array(z.string()),
   userId: z.number(),
-  listId: z.number().optional(),
   url: z.string().optional()
 })
 
@@ -65,7 +64,7 @@ async function createRecipe({
   input: CreateRecipeParams
   ctx: Context
 }) {
-  const { userId, listId, ingredients, instructions, ...rest } = input
+  const { userId, ingredients, instructions, ...rest } = input
   const result = await ctx.prisma.recipe.create({
     data: {
       ...rest,
@@ -75,7 +74,7 @@ async function createRecipe({
       ingredients: {
         create: ingredients.map((i) => ({ name: i }))
       },
-      onLists: { create: { userId, listId } }
+      onLists: { create: { userId } }
     },
     include: {
       ingredients: true,
