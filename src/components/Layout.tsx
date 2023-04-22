@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const menuItems = [
     { label: 'dashboard', value: '/', icon: chefHat },
-    // { label: 'lists', value: '/lists' },
+    { label: 'list', value: '/list' },
     { label: 'recipes', value: '/recipes', icon: chefHat }
     // { label: 'friends', value: '/friends' },
     // { label: 'account', value: '/account' }

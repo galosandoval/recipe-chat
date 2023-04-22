@@ -139,19 +139,16 @@ async function main() {
   // }
   // })
 
-  const alice = await prisma.recipesOnList.upsert({
+  const alice = await prisma.user.upsert({
     where: { id: 1 },
     update: {},
     create: {
-      user: {
-        create: {
-          username: 'alice@prisma.io',
-          firstName: 'Alice',
-          lastName: 'Prisma',
-          password: 'Admin@123'
-        }
-      },
-      recipe: {
+      username: 'alice@prisma.io',
+      firstName: 'Alice',
+      lastName: 'Prisma',
+      password: 'Admin@123',
+
+      recipes: {
         create: {
           author: 'gordon ramsay',
           address: 'https://www.gordonramsay.com/gr/recipes/mushroomtoast/',

@@ -291,7 +291,7 @@ function CreateRecipeForm({
 
   const { mutate, isLoading } = api.recipes.create.useMutation({
     onSuccess: async () => {
-      util.recipes.entity.invalidate({ userId })
+      util.recipes.entity.invalidate()
       closeModal()
     }
   })

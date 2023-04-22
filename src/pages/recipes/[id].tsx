@@ -2,11 +2,12 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
 import { api } from '../../utils/api'
-import { useUserId } from '../../features/recipes/Create'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
 import { ChangeEvent, useState } from 'react'
 import Image from 'next/image'
 import defaultRecipe from '../../assets/default-recipe.jpeg'
+import { Button } from '../../components/Button'
+import { CreateList } from '../../server/api/routers/list'
 
 export default function RecipeByIdContainer() {
   const router = useRouter()
@@ -28,8 +29,7 @@ export default function RecipeByIdContainer() {
 
 function RecipeById({ id }: { id: number }) {
   const utils = api.useContext()
-  const userId = useUserId()
-  const recipeEntity = utils.recipes.entity.getData({ userId })
+  const recipeEntity = utils.recipes.entity.getData()
 
   const {
     data: recipeInfo,
@@ -70,6 +70,8 @@ function FoundRecipe({
     updatedAt
   } = data
 
+  const { mutate } = api.list.create.useMutation()
+
   const initialChecked: Checked = {}
   ingredients.forEach((i) => (initialChecked[i.name] = true))
 
@@ -83,6 +85,7 @@ function FoundRecipe({
   }
 
   const areAllChecked = Object.values(checked).every(Boolean)
+  const areNoneChecked = Object.values(checked).every((i) => !i)
   const handleCheckAll = () => {
     for (const name in checked) {
       if (areAllChecked) {
@@ -91,6 +94,12 @@ function FoundRecipe({
         setChecked((state) => ({ ...state, [name]: true }))
       }
     }
+  }
+
+  const handleCreateList = () => {
+    const checkedIngredients = ingredients.filter((i) => checked[i.name])
+    const newList: CreateList = checkedIngredients
+    mutate(newList)
   }
 
   let renderAddress: React.ReactNode = null
@@ -127,6 +136,14 @@ function FoundRecipe({
       <div className='flex flex-col gap-1 px-4'>
         <div className=''>{description}</div>
         <div className=''>
+          <Button
+            props={{ disabled: areNoneChecked }}
+            onClick={handleCreateList}
+          >
+            Add to list
+          </Button>
+        </div>
+        <div className=''>
           <h3 className='pb-2 text-lg font-semibold text-indigo-600 '>
             Ingredients
           </h3>
@@ -155,9 +172,7 @@ function FoundRecipe({
                   checked={checked[i.name]}
                   onChange={handleCheck}
                 />
-                <label htmlFor={i.name}>
-                  <li>{i.name}</li>
-                </label>
+                <label htmlFor={i.name}>{i.name}</label>
               </li>
             ))}
           </ul>

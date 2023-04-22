@@ -11,33 +11,24 @@ const CreateRecipeSchema = z.object({
   address: z.string().optional(),
   ingredients: z.array(z.string()),
   instructions: z.array(z.string()),
-  userId: z.number(),
   url: z.string().optional()
 })
 
 export const recipesRouter = createTRPCRouter({
-  entity: protectedProcedure
-    .input(
-      z.object({
-        userId: z.number()
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      const recipeList = await ctx.prisma.recipesOnList.findMany({
-        where: { userId: { equals: input.userId } },
-        select: {
-          recipe: true
-        }
-      })
+  entity: protectedProcedure.query(async ({ ctx }) => {
+    const userId = parseInt(ctx?.session?.user.id || '')
+    const recipeList = await ctx.prisma.recipe.findMany({
+      where: { userId: { equals: userId } }
+    })
 
-      const entity: { [recipeId: string]: Recipe } = {}
+    const entity: { [recipeId: string]: Recipe } = {}
 
-      recipeList.forEach((element) => {
-        entity[element.recipe.id] = element.recipe
-      })
+    recipeList.forEach((element) => {
+      entity[element.id] = element
+    })
 
-      return entity
-    }),
+    return entity
+  }),
 
   parseRecipeUrl: protectedProcedure
     .input(z.string())
@@ -64,7 +55,8 @@ async function createRecipe({
   input: CreateRecipeParams
   ctx: Context
 }) {
-  const { userId, ingredients, instructions, ...rest } = input
+  const { ingredients, instructions, ...rest } = input
+
   const result = await ctx.prisma.recipe.create({
     data: {
       ...rest,
@@ -73,13 +65,11 @@ async function createRecipe({
       },
       ingredients: {
         create: ingredients.map((i) => ({ name: i }))
-      },
-      onLists: { create: { userId } }
+      }
     },
     include: {
       ingredients: true,
-      instructions: true,
-      onLists: true
+      instructions: true
     }
   })
   return result
