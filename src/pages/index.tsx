@@ -25,15 +25,6 @@ export default function Landing() {
     await signIn('credentials', { ...data })
   }
 
-  useEffect(() => {
-    const documentHeight = () => {
-      const doc = document.documentElement
-      doc.style.setProperty('--doc-height', `${window.innerHeight}px`)
-    }
-    window.addEventListener('resize', documentHeight)
-    documentHeight()
-  }, [])
-
   if (status === 'authenticated') {
     return (
       <>
