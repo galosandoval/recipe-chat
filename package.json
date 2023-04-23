@@ -11,7 +11,8 @@
     "migrate": "dotenv -e .env.local -- npx prisma migrate dev",
     "migrate-deploy:local": "dotenv -e .env.local -- npx prisma migrate deploy",
     "gen": "npx prisma generate",
-    "migrate-reset": "npx prisma migrate reset"
+    "migrate-reset": "npx prisma migrate reset",
+    "postinstall": "node node_modules/puppeteer/install.js"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.7",
