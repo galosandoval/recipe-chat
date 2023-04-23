@@ -83,8 +83,6 @@ async function parseIngredients(page: Page) {
 //   })).reverse()
 // )
 
-// console.log('imp', images)
-
 async function parseNames(page: Page) {
   // names
   const names: string[] = []

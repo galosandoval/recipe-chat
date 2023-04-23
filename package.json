@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "dotenv -e .env.development -- next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "seed": "npx prisma db seed",
-    "migrate:postgres": "dotenv -e .env.development -- npx prisma migrate deploy",
-    "migrate": "npx prisma migrate dev",
+    "migrate": "dotenv -e .env.local -- npx prisma migrate dev",
+    "migrate-deploy:local": "dotenv -e .env.local -- npx prisma migrate deploy",
     "gen": "npx prisma generate",
     "migrate-reset": "npx prisma migrate reset"
   },
