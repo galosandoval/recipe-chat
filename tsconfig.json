@@ -16,7 +16,14 @@
     "incremental": true,
     "sourceMap": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "src/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "src/*.tsx",
+    ".puppeteerrc.cjs"
+  ],
   "incremental": true,
   "noUncheckedIndexedAccess": true,
   "exclude": ["node_modules"]
