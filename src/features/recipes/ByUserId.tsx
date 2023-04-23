@@ -1,32 +1,26 @@
 import Image from 'next/image'
-import { api } from '../../utils/api'
+import Link from 'next/link'
 import defaultRecipeJpeg from '../../assets/default-recipe.jpeg'
+import { useRouter } from 'next/router'
+import { api } from '../../utils/api'
 import { Recipe } from '@prisma/client'
 import { CreateRecipePopover } from './create/Create'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useSession } from 'next-auth/react'
 
 export function ListRecent() {
   const router = useRouter()
-  const session = useSession()
-
-  const { data, isSuccess } = api.recipes.entity.useQuery(
-    { userId: parseInt(session.data?.user.id || '') },
-    {
-      onError: (err) => {
-        if (err.data?.code === 'UNAUTHORIZED') {
-          void router.push('/')
-        }
+  const { data, isSuccess } = api.recipes.entity.useQuery(undefined, {
+    onError: (err) => {
+      if (err.data?.code === 'UNAUTHORIZED') {
+        void router.push('/')
       }
     }
-  )
+  })
 
   if (isSuccess) {
     return (
-      <div className='container mx-auto'>
+      <div className='container mx-auto px-2'>
         <h1>Recent Recipes</h1>
-        <div className='grid grid-cols-4 gap-5'>
+        <div className='grid grid-cols-2 gap-5 md:grid-cols-4'>
           <CardList data={Object.values(data)} />
         </div>
       </div>

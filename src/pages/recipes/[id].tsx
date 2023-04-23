@@ -1,9 +1,9 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
-import RecipeById from '../../features/recipes/ById'
+import { RecipeById } from '../../features/recipes/ById'
 
-export default function Recipe() {
+export default function RecipeByIdContainer() {
   const router = useRouter()
   const { id, name } = router.query
 

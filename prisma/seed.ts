@@ -20,76 +20,7 @@ async function main() {
   //     }
   //     // recipes: {
   //     //   create: [
-  const something = {
-    author: 'gordon ramsay',
-    address: 'https://www.gordonramsay.com/gr/recipes/mushroomtoast/',
-    name: 'CREAMY MUSHROOM TOAST WITH SOFT EGG & GRUYÈRE',
-    description:
-      'A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner.',
 
-    imgUrl:
-      'https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage192072050-50-Mushroomtoast.jpg',
-    ingredients: {
-      create: [
-        {
-          name: '2 tablespoons unsalted butter, more as needed'
-        },
-        {
-          name: 'Olive oil'
-        },
-
-        {
-          name: '8 ounces mushrooms, ends trimmed and sliced into even pieces'
-        },
-        {
-          name: '3 cloves garlic, smashed'
-        },
-        {
-          name: '½ shallot, finely minced, about 2 tablespoons'
-        },
-        {
-          name: 'Kosher salt'
-        },
-        {
-          name: 'Freshly ground black pepper'
-        },
-        {
-          name: 'Sherry vinegar'
-        },
-        {
-          name: '3 tablespoons crème fraîche'
-        },
-        {
-          name: '2 thick slices sourdough or country bread, toasted in a pan with butter'
-        },
-        {
-          name: 'Handful of arugula, tossed with olive oil, lemon juice and salt'
-        },
-        {
-          name: '2 soft-poached eggs, topped with flaky salt and black pepper'
-        },
-        {
-          name: 'Gruyère cheese, shaved'
-        }
-      ]
-    },
-    instructions: {
-      create: [
-        {
-          description:
-            'Make the Mushrooms: Heat a large skillet over medium-high heat and melt butter. Once melted, add mushrooms (working in batches if needed to not overcrowd the pan), garlic and thyme and cook, tossing occasionally, until mushrooms are lightly browned and tender. If working in batches, remove mushrooms from skillet and set aside, keeping the garlic and thyme in the pan and add a bit more butter to the pan, and repeat with remaining mushrooms.'
-        },
-        {
-          description:
-            'Add shallots, season everything with salt and pepper, and saute for 1-2 minutes, until shallots are tender and fragrant. Discard garlic and thyme, then add a splash of sherry vinegar, crème fraîche then stir to combine. Reduce heat to medium low and let simmer all together for a moment. Taste and adjust seasoning before removing from heat. '
-        },
-        {
-          description:
-            'Place a few generous spoonfuls of mushrooms and sauce on top of toasted bread, then top with arugula leaves. Nestle the eggs atop the greens and top with shaves of Gruyère.'
-        }
-      ]
-    }
-  }
   // {
   //   name: "the only ice cream recipe you'll ever need",
   //   description:
@@ -139,19 +70,16 @@ async function main() {
   // }
   // })
 
-  const alice = await prisma.recipesOnList.upsert({
+  const alice = await prisma.user.upsert({
     where: { id: 1 },
     update: {},
     create: {
-      user: {
-        create: {
-          username: 'alice@prisma.io',
-          firstName: 'Alice',
-          lastName: 'Prisma',
-          password: 'Admin@123'
-        }
-      },
-      recipe: {
+      username: 'alice@prisma.io',
+      firstName: 'Alice',
+      lastName: 'Prisma',
+      password: 'Admin@123',
+
+      recipes: {
         create: {
           author: 'gordon ramsay',
           address: 'https://www.gordonramsay.com/gr/recipes/mushroomtoast/',

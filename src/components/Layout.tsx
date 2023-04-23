@@ -6,21 +6,22 @@ import { useRouter } from 'next/router'
 import React, { ReactNode, useEffect } from 'react'
 import { animationOptions } from '../utils/constants'
 import { Button } from './Button'
+import chefHat from '../assets/chefHat.svg'
+import Image from 'next/image'
 
 export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter()
-
   const menuItems = [
-    { label: 'dashboard', value: '/' },
-    // { label: 'lists', value: '/lists' },
-    { label: 'recipes', value: '/recipes' }
+    { label: 'dashboard', value: '/', icon: chefHat },
+    { label: 'list', value: '/list', icon: chefHat },
+    { label: 'recipes', value: '/recipes', icon: chefHat }
     // { label: 'friends', value: '/friends' },
     // { label: 'account', value: '/account' }
   ]
 
   const activeLinkStyles = (href: string) => {
     let styles =
-      'transition-all duration-150 border dark:group-hover:border-b-white group-hover:border-b-slate-900 py-1'
+      'transition-all duration-150 border dark:group-hover:border-b-white group-hover:border-b-slate-900 py-1 text-xs font-semibold'
 
     if (router.asPath === href) {
       styles +=
@@ -46,11 +47,13 @@ export default function Layout({ children }: { children: ReactNode }) {
     }
 
     if (theme === 'light') {
-      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.remove('dark', 'bg-slate-900')
+      document.documentElement.classList.add('bg-gray-50')
     }
 
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
+      document.documentElement.classList.remove('bg-gray-50')
+      document.documentElement.classList.add('dark', 'bg-slate-900')
     }
   }, [])
 
@@ -59,30 +62,35 @@ export default function Layout({ children }: { children: ReactNode }) {
 
     if (theme === 'dark') {
       localStorage.theme = 'light'
-      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.remove('dark', 'bg-slate-900')
+      document.documentElement.classList.add('bg-gray-50')
     } else {
       localStorage.theme = 'dark'
-      document.documentElement.classList.add('dark')
+      document.documentElement.classList.remove('bg-gray-50')
+      document.documentElement.classList.add('dark', 'bg-slate-900')
     }
   }
 
   return (
-    <div className='bg-app flex text-slate-900 dark:text-white'>
-      <ul className='flex flex-col gap-1 bg-white px-5 pt-10 dark:bg-slate-800'>
-        {menuItems.map((item) => (
-          <Link
-            className='group my-1 w-full cursor-default select-none text-2xl'
-            href={item.value}
-            key={item.label}
-          >
-            <span className={activeLinkStyles(item.value)}>{item.label}</span>
-          </Link>
-        ))}
-        <li className=''>
-          <SettingsPopover handleToggleDarkMode={handleToggleDarkMode} />
-        </li>
-      </ul>
-      <main className='min-h-screen w-full text-black dark:text-white'>
+    <div className='flex h-screen w-full flex-col-reverse text-slate-900 h-screen-ios dark:text-white md:flex-row'>
+      <nav>
+        <ul className='flex gap-1 bg-white px-5 py-2 dark:bg-slate-800 md:flex-col'>
+          {menuItems.map((item) => (
+            <Link
+              className='group my-1 flex w-full cursor-default select-none flex-col items-center justify-center text-2xl'
+              href={item.value}
+              key={item.label}
+            >
+              <Image alt='icon' src={item.icon} width={20} height={20} />
+              <span className={activeLinkStyles(item.value)}>{item.label}</span>
+            </Link>
+          ))}
+          <li className=''>
+            <SettingsPopover handleToggleDarkMode={handleToggleDarkMode} />
+          </li>
+        </ul>
+      </nav>
+      <main className='w-full overflow-y-auto text-black dark:text-white'>
         {children}
       </main>
     </div>
