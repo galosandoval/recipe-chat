@@ -1,6 +1,5 @@
 import { ErrorMessage } from '@hookform/error-message'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '../../../components/Button'
@@ -13,6 +12,8 @@ import {
 import { api } from '../../../utils/api'
 import { useParseRecipe } from './create-hooks'
 import { FormSkeleton } from './Loaders'
+import { CreateRecipeParams } from '../../../server/api/routers/recipes'
+import { CreateRecipeForm } from '../../../components/CreateRecipeForm'
 
 export function CreateRecipePopover() {
   const { isOpen, steps, currentStep, openModal, closeModal } = useParseRecipe()
@@ -72,13 +73,13 @@ export function UploadRecipeUrlForm({
         />
       </div>
       <div className='mt-4'>
-        <Button props={{ type: 'submit' }}>Upload</Button>
+        <Button type='submit'>Upload</Button>
       </div>
     </form>
   )
 }
 
-type FormValues = {
+export type FormValues = {
   name: string
   description: string
   instructions: string
@@ -103,25 +104,14 @@ export function CreateRecipe({
 
   if (isSuccess && data) {
     if (data.parsingType === 'linkedData') {
-      return <CreateRecipeForm closeModal={closeModal} data={data} />
+      return <CreateRecipeSuccess closeModal={closeModal} data={data} />
     } else return <p>Oops something went wrong</p>
   }
 
   return <FormSkeleton />
 }
 
-export const useUserId = () => {
-  const { data, status } = useSession()
-
-  let userId = '0'
-  if (status === 'authenticated') {
-    userId = data.user.id
-  }
-
-  return parseInt(userId)
-}
-
-function CreateRecipeForm({
+function CreateRecipeSuccess({
   data,
   closeModal
 }: {
@@ -129,9 +119,8 @@ function CreateRecipeForm({
   closeModal: () => void
 }) {
   const util = api.useContext()
-  const userId = useUserId()
 
-  const { register, handleSubmit, getValues } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     defaultValues: {
       description: data.description || '',
       name: data.name || data.headline || '',
@@ -142,16 +131,14 @@ function CreateRecipeForm({
 
   const { mutate, isLoading } = api.recipes.create.useMutation({
     onSuccess: async () => {
-      util.recipes.entity.invalidate({ userId })
+      util.recipes.entity.invalidate()
       closeModal()
     }
   })
 
   const onSubmit = (values: FormValues) => {
-    const params = {
+    const params: CreateRecipeParams = {
       ...values,
-      // TODO: do not hardcode
-      userId,
       ingredients: values.ingredients.split('\n'),
       instructions: values.instructions.split('\n')
     }
@@ -159,50 +146,16 @@ function CreateRecipeForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
-      <div className='mt-2 flex flex-col gap-5'>
-        <div className='flex flex-col'>
-          <label htmlFor='name' className='text-sm text-gray-500'>
-            Title
-          </label>
-          <input {...register('name')} className='text-gray-500' />
+    <CreateRecipeForm
+      form={form}
+      onSubmit={onSubmit}
+      slot={
+        <div className='mt-4'>
+          <Button isLoading={isLoading} type='submit' disabled={isLoading}>
+            {isLoading ? 'Saving...' : 'Save'}
+          </Button>
         </div>
-        <div className='flex flex-col'>
-          <label htmlFor='name' className='text-sm text-gray-500'>
-            Description
-          </label>
-          <input {...register('description')} className='text-gray-500' />
-        </div>
-        <div className='flex flex-col'>
-          <label htmlFor='ingredients' className='text-sm text-gray-500'>
-            Ingredients
-          </label>
-          <textarea
-            rows={(getValues('ingredients') || '').split('\n').length || 5}
-            {...register('ingredients')}
-            className='max-h-60 resize-none p-2 text-gray-500'
-          />
-        </div>
-        <div className='flex flex-col'>
-          <label htmlFor='instructions' className='text-sm text-gray-500'>
-            Instructions
-          </label>
-          <textarea
-            rows={(getValues('instructions') || '').split('\n').length || 5}
-            {...register('instructions')}
-            className='resize-none p-2 text-gray-500'
-          />
-        </div>
-      </div>
-
-      <div className='mt-4'>
-        <Button
-          props={{ type: 'submit', disabled: isLoading }}
-          isLoading={isLoading}
-        >
-          {isLoading ? 'Saving...' : 'Save'}
-        </Button>
-      </div>
-    </form>
+      }
+    />
   )
 }

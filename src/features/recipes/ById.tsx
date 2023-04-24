@@ -114,10 +114,7 @@ function FoundRecipe({
       <div className='flex flex-col gap-1 px-4'>
         <div className=''>{description}</div>
         <div className=''>
-          <Button
-            props={{ disabled: areNoneChecked }}
-            onClick={handleCreateList}
-          >
+          <Button disabled={areNoneChecked} onClick={handleCreateList}>
             Add to list
           </Button>
         </div>

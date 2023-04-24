@@ -2,8 +2,10 @@ import { z } from 'zod'
 import { Recipe } from '@prisma/client'
 import { parseRecipeUrl } from '../../helpers/parse-recipe-url'
 import { Context, createTRPCRouter, protectedProcedure } from '../trpc'
+import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
+import { TRPCError } from '@trpc/server'
 
-const CreateRecipeSchema = z.object({
+const createRecipeSchema = z.object({
   description: z.string().optional(),
   name: z.string(),
   imgUrl: z.string().optional(),
@@ -13,6 +15,8 @@ const CreateRecipeSchema = z.object({
   instructions: z.array(z.string()),
   url: z.string().optional()
 })
+
+export type CreateRecipeParams = z.infer<typeof createRecipeSchema>
 
 export const recipesRouter = createTRPCRouter({
   entity: protectedProcedure.query(async ({ ctx }) => {
@@ -34,7 +38,7 @@ export const recipesRouter = createTRPCRouter({
     .input(z.string())
     .mutation(({ input }) => parseRecipeUrl(input)),
 
-  create: protectedProcedure.input(CreateRecipeSchema).mutation(createRecipe),
+  create: protectedProcedure.input(createRecipeSchema).mutation(createRecipe),
 
   byId: protectedProcedure
     .input(z.object({ id: z.number() }))
@@ -43,10 +47,62 @@ export const recipesRouter = createTRPCRouter({
         where: { id: { equals: input.id } },
         select: { ingredients: true, instructions: true }
       })
+    }),
+  generate: protectedProcedure
+    .input(z.object({ message: z.string() }))
+    .mutation(async ({ input }) => {
+      const messages = [
+        {
+          role: 'system',
+          content:
+            'You are a helpful assistant that only responds with recipes. The response you give should contain the name of the recipe, a description, preparation time, cook time, ingredients and instructions. The reponse format should strictly be a javascript object with the following keys: name, prepTime, cookTime, description, ingredients, instructions.'
+        },
+        { role: 'user', content: `${input.message}` }
+      ] satisfies ChatCompletionRequestMessage[]
+
+      const configuration = new Configuration({
+        apiKey: process.env.OPENAI_API_KEY
+      })
+      const openai = new OpenAIApi(configuration)
+
+      try {
+        const completion = await openai.createChatCompletion({
+          model: 'gpt-3.5-turbo',
+          messages
+        })
+
+        const content = completion.data.choices[0].message?.content
+
+        const objectStart = content?.indexOf('{') || -1
+        if (content && objectStart >= 0) {
+          const objectEnd = content.indexOf('}')
+          return JSON.parse(
+            JSON.stringify(content.slice(objectStart, objectEnd + 1))
+          ) as Pick<
+            CreateRecipeParams,
+            'name' | 'description' | 'ingredients' | 'instructions'
+          >
+        } else {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'ChatGPT returned content incorrectly. Try again.'
+          })
+        }
+      } catch (error: any) {
+        if (error.response) {
+          console.log(error.response.status)
+          console.log(error.response.data)
+        } else {
+          console.log(error.message)
+        }
+      }
+
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'ChatGPT returned content incorrectly. Try again.'
+      })
     })
 })
-
-export type CreateRecipeParams = z.infer<typeof CreateRecipeSchema>
 
 async function createRecipe({
   input,
@@ -59,6 +115,7 @@ async function createRecipe({
 
   const result = await ctx.prisma.recipe.create({
     data: {
+      userId: parseInt(ctx.session?.user.id || ''),
       ...rest,
       instructions: {
         create: instructions.map((i) => ({ description: i }))

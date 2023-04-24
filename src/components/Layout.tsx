@@ -90,7 +90,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </li>
         </ul>
       </nav>
-      <main className='w-full overflow-y-auto text-black dark:text-white'>
+      <main className='h-full w-full overflow-y-auto text-black dark:text-white'>
         {children}
       </main>
     </div>
