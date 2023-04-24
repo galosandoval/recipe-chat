@@ -81,7 +81,7 @@ export default function SignUp() {
             render={({ message }) => <p>{message}</p>}
           />
 
-          <Button props={{ type: 'submit' }}>Sign up</Button>
+          <Button type='submit'>Sign up</Button>
         </form>
       </main>
     </>

@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { Button } from '../components/Button'
 import Link from 'next/link'
 import Layout from '../components/Layout'
+import { GenerateRecipe } from '../features/recipes/Generate'
 
 export const authSchema = z.object({
   email: z.string().email(),
@@ -33,7 +34,9 @@ export default function Landing() {
           <link rel='icon' href='/favicon.ico' />
         </Head>
         <Layout>
-          <p className=''>Authenticated</p>
+          <>
+            <GenerateRecipe />
+          </>
         </Layout>
       </>
     )

@@ -4,7 +4,7 @@ import defaultRecipeJpeg from '../../assets/default-recipe.jpeg'
 import { useRouter } from 'next/router'
 import { api } from '../../utils/api'
 import { Recipe } from '@prisma/client'
-import { CreateRecipePopover } from './Create'
+import { CreateRecipePopover } from './create/Create'
 
 export function ListRecent() {
   const router = useRouter()
