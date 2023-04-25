@@ -6,7 +6,7 @@ import { Button } from '../components/Button'
 const generateRecipeFormSchema = z.object({ message: z.string().min(6) })
 type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
 
-export const GenerateRecipe = () => {
+export default function GenerateRecipe() {
   const { data, status, mutate } = api.recipes.generate.useMutation()
   const {
     register,

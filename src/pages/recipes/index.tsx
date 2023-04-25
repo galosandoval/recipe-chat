@@ -13,10 +13,19 @@ import {
   TransitionWrapper
 } from '../../components/TransitionWrapper'
 import { Dialog } from '@headlessui/react'
-
 import { useState } from 'react'
-import { CreateRecipe, UploadRecipeUrlForm } from './_create'
-import { useParseRecipeOnClient } from './_hooks'
+import { CreateRecipeForm } from '../../components/CreateRecipeForm'
+import { Button } from '../../components/Button'
+import { CreateRecipeParams } from '../../server/api/routers/recipes'
+import { FormSkeleton } from '../../components/FormSkeleton'
+import {
+  LinkedData,
+  ScrapedRecipe
+} from '../../server/helpers/parse-recipe-url'
+import { useForm } from 'react-hook-form'
+import { ErrorMessage } from '@hookform/error-message'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function Recipes() {
   return (
@@ -217,4 +226,189 @@ export function useParseRecipe() {
   }
 
   return { isOpen, steps, currentStep, openModal, closeModal }
+}
+
+const recipeUrlSchema = z.object({
+  url: z.string().url('Enter a valid url that contains a recipe.')
+})
+
+type RecipeUrlSchemaType = z.infer<typeof recipeUrlSchema>
+
+export function UploadRecipeUrlForm({
+  onSubmit
+}: {
+  onSubmit(values: RecipeUrlSchemaType): void
+}) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<RecipeUrlSchemaType>({
+    resolver: zodResolver(recipeUrlSchema)
+  })
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className=''>
+      <div className='mt-2 flex flex-col gap-1'>
+        <label htmlFor='url' className='text-sm text-gray-500'>
+          Recipe URL
+        </label>
+        <input
+          {...register('url')}
+          className='select-auto bg-white text-gray-500 dark:bg-slate-400'
+          autoFocus
+        />
+        <ErrorMessage
+          errors={errors}
+          name='url'
+          render={({ message }) => <p>{message}</p>}
+        />
+      </div>
+      <div className='mt-4'>
+        <Button type='submit'>Upload</Button>
+      </div>
+    </form>
+  )
+}
+
+export type FormValues = {
+  name: string
+  description: string
+  instructions: string
+  ingredients: string
+}
+
+export function CreateRecipe({
+  data,
+  isError,
+  isSuccess,
+  closeModal
+}: {
+  data: ScrapedRecipe | undefined
+  isError: boolean
+  isSuccess: boolean
+  closeModal: () => void
+}) {
+  if (isError) {
+    return <p className=''>Oops, something went wrong</p>
+  }
+
+  if (isSuccess && data) {
+    if (data.parsingType === 'linkedData') {
+      return <CreateRecipeSuccess closeModal={closeModal} data={data} />
+    } else return <p>Oops something went wrong</p>
+  }
+
+  return <FormSkeleton />
+}
+
+function CreateRecipeSuccess({
+  data,
+  closeModal
+}: {
+  data: LinkedData
+  closeModal: () => void
+}) {
+  const util = api.useContext()
+
+  const form = useForm<FormValues>({
+    defaultValues: {
+      description: data.description || '',
+      name: data.name || data.headline || '',
+      ingredients: data.recipeIngredient?.join('\n') || '',
+      instructions: data.recipeInstructions?.map((i) => i.text).join('\n') || ''
+    }
+  })
+
+  const { mutate, isLoading } = api.recipes.create.useMutation({
+    onSuccess: async () => {
+      util.recipes.entity.invalidate()
+      closeModal()
+    }
+  })
+
+  const onSubmit = (values: FormValues) => {
+    const params: CreateRecipeParams = {
+      ...values,
+      ingredients: values.ingredients.split('\n'),
+      instructions: values.instructions.split('\n')
+    }
+    mutate(params)
+  }
+
+  return (
+    <CreateRecipeForm
+      form={form}
+      onSubmit={onSubmit}
+      slot={
+        <div className='mt-4'>
+          <Button isLoading={isLoading} type='submit' disabled={isLoading}>
+            {isLoading ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      }
+    />
+  )
+}
+
+export function useParseRecipeOnClient() {
+  const [data, setData] = useState<ScrapedRecipe>()
+  const [status, setStatus] = useState<
+    'idle' | 'failed' | 'loading' | 'success'
+  >('idle')
+
+  async function fetchRecipe(url: string) {
+    try {
+      setStatus('loading')
+
+      const response = await fetch(url)
+
+      const html = await response.text()
+
+      let openScriptIdx = 0
+      let closeScriptIdx = 0
+      let foundLinkedData = false
+      for (let i = 0; i < html.length - 4; i++) {
+        const char1 = html[i]
+        const char2 = html[i + 1]
+        const char3 = html[i + 2]
+        const char4 = html[i + 3]
+        const char5 = html[i + 4]
+
+        if (
+          char1 === 'l' &&
+          char2 === 'd' &&
+          char3 === '+' &&
+          char4 === 'j' &&
+          char5 === 's'
+        ) {
+          foundLinkedData = true
+          openScriptIdx = i + 9
+        } else if (
+          foundLinkedData &&
+          char1 === '<' &&
+          char2 === '/' &&
+          char3 === 's' &&
+          char4 === 'c' &&
+          char5 === 'r'
+        ) {
+          closeScriptIdx = i
+          break
+        }
+      }
+
+      const scrapedRecipe = JSON.parse(
+        html.slice(openScriptIdx, closeScriptIdx)
+      ) as ScrapedRecipe
+
+      setData(scrapedRecipe)
+      setStatus('success')
+      return true
+    } catch (error) {
+      setStatus('failed')
+      return false
+    }
+  }
+
+  return { fetchRecipe, data, status }
 }
