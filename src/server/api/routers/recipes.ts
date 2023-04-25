@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { Recipe } from '@prisma/client'
-import { parseRecipeUrl } from '../../helpers/parse-recipe-url'
 import { Context, createTRPCRouter, protectedProcedure } from '../trpc'
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
 import { TRPCError } from '@trpc/server'
+import { parseHtml } from '../../helpers/parseRecipeUrlHelper'
 
 const createRecipeSchema = z.object({
   description: z.string().optional(),
@@ -20,6 +20,9 @@ export type CreateRecipeParams = z.infer<typeof createRecipeSchema>
 
 export const recipesRouter = createTRPCRouter({
   entity: protectedProcedure.query(async ({ ctx }) => {
+    console.log('env', process.env.DATABASE_URL)
+    console.log('env', process.env.SECRET)
+
     const userId = parseInt(ctx?.session?.user.id || '')
     const recipeList = await ctx.prisma.recipe.findMany({
       where: { userId: { equals: userId } }
@@ -36,7 +39,16 @@ export const recipesRouter = createTRPCRouter({
 
   parseRecipeUrl: protectedProcedure
     .input(z.string())
-    .mutation(({ input }) => parseRecipeUrl(input)),
+    .mutation(async ({ input }) => {
+      const response = await fetch(input)
+      const html = await response.text()
+      console.log('html', html)
+      console.log(html.indexOf('akgjpoaijwg'))
+      if (html.indexOf('ld+json') > 0) {
+      }
+      console.log('parseHtml', parseHtml(html))
+      return parseHtml(html)
+    }),
 
   create: protectedProcedure.input(createRecipeSchema).mutation(createRecipe),
 
@@ -72,7 +84,6 @@ export const recipesRouter = createTRPCRouter({
         })
 
         const content = completion.data.choices[0].message?.content
-
         const objectStart = content?.indexOf('{') || -1
         if (content && objectStart >= 0) {
           const objectEnd = content.indexOf('}')

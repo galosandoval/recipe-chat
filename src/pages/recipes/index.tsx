@@ -1,6 +1,22 @@
 import Head from 'next/head'
 import Layout from '../../components/Layout'
-import { ListRecent } from '../../features/recipes/ByUserId'
+import { useRouter } from 'next/router'
+import { api } from '../../utils/api'
+import { Recipe } from '@prisma/client'
+import Image from 'next/image'
+import Link from 'next/link'
+import defaultRecipeJpeg from '../../assets/default-recipe.jpeg'
+import { Modal } from '../../components/Modal'
+import {
+  Step,
+  TotalSteps,
+  TransitionWrapper
+} from '../../components/TransitionWrapper'
+import { Dialog } from '@headlessui/react'
+
+import { useState } from 'react'
+import { CreateRecipe, UploadRecipeUrlForm } from './_create'
+import { useParseRecipeOnClient } from './_hooks'
 
 export default function Recipes() {
   return (
@@ -15,4 +31,190 @@ export default function Recipes() {
       </Layout>
     </>
   )
+}
+
+export function ListRecent() {
+  const router = useRouter()
+  const { data, isSuccess } = api.recipes.entity.useQuery(undefined, {
+    onError: (err) => {
+      if (err.data?.code === 'UNAUTHORIZED') {
+        void router.push('/')
+      }
+    }
+  })
+
+  if (isSuccess) {
+    return (
+      <div className='container mx-auto px-2'>
+        <h1>Recent Recipes</h1>
+        <div className='grid grid-cols-2 gap-5 md:grid-cols-4'>
+          <CardList data={Object.values(data)} />
+        </div>
+      </div>
+    )
+  }
+  return <p>Loading...</p>
+}
+
+function CardList({ data }: { data: Recipe[] }) {
+  const toReturn: JSX.Element[] = [
+    <CreateRecipeCard key='create-recipe-card' />
+  ]
+  toReturn.push(...data.map((recipe) => <Card key={recipe.id} data={recipe} />))
+  return <>{toReturn}</>
+}
+
+function Card({ data }: { data: Recipe }) {
+  let address: React.ReactNode = null
+  if (data.address) {
+    address = (
+      <a href={data.address} className=''>
+        {data.address}
+      </a>
+    )
+  }
+
+  let author: React.ReactNode = null
+  if (data.author) {
+    author = <p className=''>{data.author}</p>
+  }
+
+  const name = data.name.replaceAll('&', 'and')
+
+  return (
+    <Link
+      href={`/recipes/${data.id}?name=${name}`}
+      key={data.id}
+      className='flex cursor-default flex-col overflow-hidden rounded bg-white shadow-xl dark:bg-slate-800'
+    >
+      <div className='w-full'>
+        <Image
+          src={data.imgUrl || defaultRecipeJpeg}
+          alt='recipe'
+          className='object-top'
+          priority
+        />
+      </div>
+      <div className='flex flex-col'>
+        {address}
+        {author}
+        <h3 className=''>{data.name}</h3>
+      </div>
+    </Link>
+  )
+}
+
+function CreateRecipeCard() {
+  return (
+    <div className='flex flex-col overflow-hidden rounded bg-white shadow-xl dark:bg-slate-800'>
+      <CreateRecipePopover />
+    </div>
+  )
+}
+
+function CreateRecipePopover() {
+  const { isOpen, steps, currentStep, openModal, closeModal } = useParseRecipe()
+
+  return (
+    <>
+      <div className='flex items-center justify-center'>
+        <button
+          type='button'
+          onClick={openModal}
+          className='rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75'
+        >
+          Create from website
+        </button>
+      </div>
+      <Modal closeModal={closeModal} isOpen={isOpen}>
+        <TransitionWrapper currentStep={currentStep} steps={steps} />
+      </Modal>
+    </>
+  )
+}
+
+export function useParseRecipe() {
+  const {
+    data: parsedDataOnClient,
+    fetchRecipe,
+    status
+  } = useParseRecipeOnClient()
+  const parseRecipeOnServer = api.recipes.parseRecipeUrl.useMutation()
+
+  let data = parsedDataOnClient
+  if (parseRecipeOnServer.status === 'success') {
+    data = parseRecipeOnServer.data
+  }
+
+  const isError = parseRecipeOnServer.status === 'error'
+  const isSuccess =
+    status === 'success' || parseRecipeOnServer.status === 'success'
+
+  const steps: TotalSteps = {
+    first: {
+      key: 'first',
+      next: 'second',
+      prev: null,
+      component: (
+        <>
+          <Dialog.Title as='h3' className='text-lg font-medium leading-6'>
+            Generate a recipe with recipebot. Examples: Im feeling flirty, I
+            have chicken, brocoli, and spinich
+          </Dialog.Title>
+          <UploadRecipeUrlForm onSubmit={onSubmitUrl} />
+        </>
+      )
+    },
+    second: {
+      key: 'second',
+      next: null,
+      prev: 'first',
+      component: (
+        <>
+          <Dialog.Title as='h3' className='text-lg font-medium leading-6'>
+            Generate a recipe with recipebot. Examples: Im feeling flirty, I
+            have chicken, brocoli, and spinich
+          </Dialog.Title>
+          <CreateRecipe
+            closeModal={closeModal}
+            data={data}
+            isError={isError}
+            isSuccess={isSuccess}
+          />
+        </>
+      )
+    }
+  } as const
+
+  const [isOpen, setIsOpen] = useState(false)
+
+  const [currentStep, setCurrentStep] = useState<Step | undefined>(steps.first)
+
+  function closeModal() {
+    setIsOpen(false)
+    setTimeout(() => {
+      // to show UI change after closing modal
+      setCurrentStep(steps.first)
+    }, 200)
+  }
+
+  function openModal() {
+    setIsOpen(true)
+  }
+
+  function nextStep() {
+    setCurrentStep((state) => steps[state?.next as keyof typeof steps])
+  }
+
+  async function onSubmitUrl({ url }: { url: string }) {
+    const isSuccessOnClient = await fetchRecipe(url)
+
+    if (!isSuccessOnClient) {
+      parseRecipeOnServer.mutate(url)
+    }
+
+    nextStep()
+  }
+
+  return { isOpen, steps, currentStep, openModal, closeModal }
 }
