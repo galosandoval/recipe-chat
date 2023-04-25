@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { Recipe } from '@prisma/client'
-import { parseRecipeUrl } from '../../helpers/parse-recipe-url'
 import { Context, createTRPCRouter, protectedProcedure } from '../trpc'
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
 import { TRPCError } from '@trpc/server'
+import { parseHtml } from '../../helpers/parseRecipeUrlHelper'
 
 const createRecipeSchema = z.object({
   description: z.string().optional(),
@@ -39,7 +39,16 @@ export const recipesRouter = createTRPCRouter({
 
   parseRecipeUrl: protectedProcedure
     .input(z.string())
-    .mutation(({ input }) => parseRecipeUrl(input)),
+    .mutation(async ({ input }) => {
+      const response = await fetch(input)
+      const html = await response.text()
+      console.log('html', html)
+      console.log(html.indexOf('akgjpoaijwg'))
+      if (html.indexOf('ld+json') > 0) {
+      }
+      console.log('parseHtml', parseHtml(html))
+      return parseHtml(html)
+    }),
 
   create: protectedProcedure.input(createRecipeSchema).mutation(createRecipe),
 
