@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
-import { Button } from '../../components/Button'
-import { api } from '../../utils/api'
 import { z } from 'zod'
+import { api } from '../utils/api'
+import { Button } from '../components/Button'
 
 const generateRecipeFormSchema = z.object({ message: z.string().min(6) })
 type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
@@ -27,7 +27,7 @@ export const GenerateRecipe = () => {
             <p className=''>What should I make for dinner tonight?</p>
             <p className=''>I have an onion, and 2 carrots.</p>
           </div>
-          <div>{JSON.stringify(data)}</div>
+          <div>{JSON.parse(JSON.stringify(data || ''))}</div>
         </div>
       </div>
       <form
