@@ -38,9 +38,6 @@ export default function GenerateRecipe() {
     setIsGenRecipeOpen(false)
   }
 
-  console.log('data', genRecipe.data)
-  console.log('data', genRecipe.data?.description)
-
   return (
     <div className='flex h-full flex-col justify-between'>
       <div className='overflow-y-auto'>
