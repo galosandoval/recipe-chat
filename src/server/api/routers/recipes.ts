@@ -4,6 +4,7 @@ import { Context, createTRPCRouter, protectedProcedure } from '../trpc'
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
 import { TRPCError } from '@trpc/server'
 import { parseHtml } from '../../helpers/parseRecipeUrlHelper'
+import { FormValues } from '../../../pages/_generate'
 
 const createRecipeSchema = z.object({
   description: z.string().optional(),
@@ -20,9 +21,6 @@ export type CreateRecipeParams = z.infer<typeof createRecipeSchema>
 
 export const recipesRouter = createTRPCRouter({
   entity: protectedProcedure.query(async ({ ctx }) => {
-    console.log('env', process.env.DATABASE_URL)
-    console.log('env', process.env.SECRET)
-
     const userId = parseInt(ctx?.session?.user.id || '')
     const recipeList = await ctx.prisma.recipe.findMany({
       where: { userId: { equals: userId } }
@@ -42,15 +40,36 @@ export const recipesRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const response = await fetch(input)
       const html = await response.text()
-      console.log('html', html)
-      console.log(html.indexOf('akgjpoaijwg'))
       if (html.indexOf('ld+json') > 0) {
       }
-      console.log('parseHtml', parseHtml(html))
       return parseHtml(html)
     }),
 
-  create: protectedProcedure.input(createRecipeSchema).mutation(createRecipe),
+  create: protectedProcedure
+    .input(createRecipeSchema)
+    .mutation(async ({ input, ctx }) => {
+      {
+        const { ingredients, instructions, ...rest } = input
+
+        const result = await ctx.prisma.recipe.create({
+          data: {
+            userId: parseInt(ctx.session?.user.id || ''),
+            ...rest,
+            instructions: {
+              create: instructions.map((i) => ({ description: i }))
+            },
+            ingredients: {
+              create: ingredients.map((i) => ({ name: i }))
+            }
+          },
+          include: {
+            ingredients: true,
+            instructions: true
+          }
+        })
+        return result
+      }
+    }),
 
   byId: protectedProcedure
     .input(z.object({ id: z.number() }))
@@ -60,6 +79,7 @@ export const recipesRouter = createTRPCRouter({
         select: { ingredients: true, instructions: true }
       })
     }),
+
   generate: protectedProcedure
     .input(z.object({ message: z.string() }))
     .mutation(async ({ input }) => {
@@ -87,16 +107,24 @@ export const recipesRouter = createTRPCRouter({
         const objectStart = content?.indexOf('{') || -1
         if (content && objectStart >= 0) {
           const objectEnd = content.indexOf('}')
-          return JSON.parse(
-            JSON.stringify(content.slice(objectStart, objectEnd + 1))
-          ) as Pick<
-            CreateRecipeParams,
-            'name' | 'description' | 'ingredients' | 'instructions'
-          >
+
+          const parsedRecipe = JSON.parse(
+            JSON.parse(
+              JSON.stringify(content.slice(objectStart, objectEnd + 1))
+                .replace('name', '\\"name\\"')
+                .replace('description', '\\"description\\"')
+                .replace('ingredients', '\\"ingredients\\"')
+                .replace('instructions', '\\"instructions\\"')
+                .replace('prepTime', '\\"prepTime\\"')
+                .replace('cookTime', '\\"cookTime\\"')
+            )
+          ) as GeneratedRecipe
+          return parsedRecipe
         } else {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: 'ChatGPT returned content incorrectly. Try again.'
+            message: 'ChatGPT returned content incorrectly. Try again.',
+            cause: content
           })
         }
       } catch (error: any) {
@@ -115,30 +143,11 @@ export const recipesRouter = createTRPCRouter({
     })
 })
 
-async function createRecipe({
-  input,
-  ctx
-}: {
-  input: CreateRecipeParams
-  ctx: Context
-}) {
-  const { ingredients, instructions, ...rest } = input
-
-  const result = await ctx.prisma.recipe.create({
-    data: {
-      userId: parseInt(ctx.session?.user.id || ''),
-      ...rest,
-      instructions: {
-        create: instructions.map((i) => ({ description: i }))
-      },
-      ingredients: {
-        create: ingredients.map((i) => ({ name: i }))
-      }
-    },
-    include: {
-      ingredients: true,
-      instructions: true
-    }
-  })
-  return result
+export type GeneratedRecipe = {
+  name: string
+  ingredients: string[]
+  instructions: string[]
+  description: string
+  prepTime: string
+  cookTime: string
 }
