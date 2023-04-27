@@ -39,12 +39,16 @@ export default function GenerateRecipe() {
 
   return (
     <div className='flex h-full flex-col justify-between'>
-      <div className='overflow-y-auto'>
-        <div className='flex flex-1 flex-col'>
+      <div className='flex flex-col items-center justify-center overflow-y-auto'>
+        <h1 className='text-xl'>RecipeBot</h1>
+        <div className='flex flex-1 flex-col items-center justify-center'>
           <h2>Examples</h2>
-          <div className=''>
-            <p className=''>What should I make for dinner tonight?</p>
-            <p className=''>I have an onion, and 2 carrots.</p>
+          <div className='flex flex-col items-center'>
+            <button className=''>What should I make for dinner tonight?</button>
+            <button className=''>
+              Which salad recipe will go well with my steak and potatoes?
+            </button>
+            <button>What&apos;s a good risotto recipe?</button>
           </div>
         </div>
       </div>
