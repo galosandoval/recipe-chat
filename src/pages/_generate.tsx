@@ -44,7 +44,9 @@ export default function GenerateRecipe() {
         <div className='flex flex-1 flex-col items-center justify-center'>
           <h2>Examples</h2>
           <div className='flex flex-col items-center'>
-            <button className=''>What should I make for dinner tonight?</button>
+            <button className='btn'>
+              What should I make for dinner tonight?
+            </button>
             <button className=''>
               Which salad recipe will go well with my steak and potatoes?
             </button>

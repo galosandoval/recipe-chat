@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const iOSHeight = require('@rvxlab/tailwind-plugin-ios-full-height');
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -11,6 +8,9 @@ module.exports = {
   theme: {
     extend: {}
   },
-  plugins: [iOSHeight],
+  plugins: [
+    require('@rvxlab/tailwind-plugin-ios-full-height'),
+    require('daisyui')
+  ],
   darkMode: 'class'
 }
