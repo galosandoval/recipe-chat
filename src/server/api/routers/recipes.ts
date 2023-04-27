@@ -1,10 +1,9 @@
 import { z } from 'zod'
 import { Recipe } from '@prisma/client'
-import { Context, createTRPCRouter, protectedProcedure } from '../trpc'
+import { createTRPCRouter, protectedProcedure } from '../trpc'
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
 import { TRPCError } from '@trpc/server'
 import { parseHtml } from '../../helpers/parseRecipeUrlHelper'
-import { FormValues } from '../../../pages/_generate'
 
 const createRecipeSchema = z.object({
   description: z.string().optional(),
@@ -127,13 +126,8 @@ export const recipesRouter = createTRPCRouter({
             cause: content
           })
         }
-      } catch (error: any) {
-        if (error.response) {
-          console.log(error.response.status)
-          console.log(error.response.data)
-        } else {
-          console.log(error.message)
-        }
+      } catch (error) {
+        console.log('Error:', error)
       }
 
       throw new TRPCError({

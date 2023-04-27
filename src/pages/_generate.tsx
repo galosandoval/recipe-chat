@@ -5,7 +5,6 @@ import { Button } from '../components/Button'
 import { useState } from 'react'
 import { Modal } from '../components/Modal'
 import { FormSkeleton } from '../components/FormSkeleton'
-import { CreateRecipeForm } from '../components/CreateRecipeForm'
 import { GeneratedRecipe } from '../server/api/routers/recipes'
 
 export type FormValues = {
@@ -62,11 +61,7 @@ export default function GenerateRecipe() {
           className='pr- relative max-h-48 w-full overflow-y-auto bg-slate-800 py-3 pl-3 pr-28 text-slate-300'
         ></textarea>
         <div className='absolute right-1'>
-          <Button
-            type='submit'
-            disabled={!!errors.message}
-            isLoading={status === 'loading'}
-          >
+          <Button type='submit' disabled={!!errors.message}>
             Generate
           </Button>
         </div>
