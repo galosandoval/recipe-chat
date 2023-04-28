@@ -2,18 +2,21 @@ import { ButtonHTMLAttributes } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
-  onClick?: () => void
   icon?: React.ReactNode
   isLoading?: boolean
 }
 
 export const Button = ({
   children,
-  onClick,
   icon,
   isLoading,
   ...attributes
 }: ButtonProps) => {
+  let className = 'btn btn-primary'
+  if (!!attributes.className) {
+    className += ` ${attributes.className}`
+  }
+
   const loader = (
     <svg
       className='-ml-1 mr-3 h-5 w-5 animate-spin text-white'
@@ -44,11 +47,7 @@ export const Button = ({
   }
 
   return (
-    <button
-      className='inline-flex cursor-default items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold leading-6 text-white shadow transition duration-150 ease-in-out hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300 dark:disabled:text-indigo-400'
-      onClick={onClick}
-      {...attributes}
-    >
+    <button {...attributes} className={className}>
       {iconToRender}
       {children}
     </button>

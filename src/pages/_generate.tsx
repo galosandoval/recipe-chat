@@ -2,10 +2,11 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { api } from '../utils/api'
 import { Button } from '../components/Button'
-import { useState } from 'react'
+import { MouseEvent, useState } from 'react'
 import { Modal } from '../components/Modal'
 import { FormSkeleton } from '../components/FormSkeleton'
 import { GeneratedRecipe } from '../server/api/routers/recipes'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export type FormValues = {
   name: string
@@ -25,8 +26,12 @@ export default function GenerateRecipe() {
   const {
     register,
     handleSubmit,
-    formState: { errors }
-  } = useForm<GenerateRecipeParams>()
+    formState: { isDirty, isValid },
+    setValue,
+    clearErrors
+  } = useForm<GenerateRecipeParams>({
+    resolver: zodResolver(generateRecipeFormSchema)
+  })
 
   const onSubmit = async (values: GenerateRecipeParams) => {
     setIsGenRecipeOpen(true)
@@ -37,20 +42,30 @@ export default function GenerateRecipe() {
     setIsGenRecipeOpen(false)
   }
 
+  const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
+    setValue('message', e.currentTarget.innerText.toLowerCase(), {
+      shouldValidate: true,
+      shouldDirty: true
+    })
+    clearErrors()
+  }
+
   return (
     <div className='flex h-full flex-col justify-between'>
-      <div className='flex flex-col items-center justify-center overflow-y-auto'>
-        <h1 className='text-xl'>RecipeBot</h1>
+      <div className='prose flex flex-col items-center justify-center overflow-y-auto px-4'>
+        <h1>RecipeBot</h1>
         <div className='flex flex-1 flex-col items-center justify-center'>
           <h2>Examples</h2>
-          <div className='flex flex-col items-center'>
-            <button className='btn'>
+          <div className='flex flex-col items-center gap-4'>
+            <Button onClick={handleFillMessage}>
               What should I make for dinner tonight?
-            </button>
-            <button className=''>
+            </Button>
+            <Button onClick={handleFillMessage}>
               Which salad recipe will go well with my steak and potatoes?
-            </button>
-            <button>What&apos;s a good risotto recipe?</button>
+            </Button>
+            <Button onClick={handleFillMessage}>
+              What&apos;s a the best risotto recipe?
+            </Button>
           </div>
         </div>
       </div>
@@ -59,15 +74,22 @@ export default function GenerateRecipe() {
       </Modal>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className='relative flex w-full items-center'
+        className='flex w-full items-center'
       >
-        <textarea
-          {...register('message')}
-          placeholder='Generate recipe...'
-          className='pr- relative max-h-48 w-full overflow-y-auto bg-slate-800 py-3 pl-3 pr-28 text-slate-300'
-        ></textarea>
-        <div className='absolute right-1'>
-          <Button type='submit' disabled={!!errors.message}>
+        <div className='mb-1 w-full px-4'>
+          <textarea
+            {...register('message')}
+            placeholder='Generate recipe...'
+            className='input relative w-full resize-none pt-2'
+          />
+        </div>
+        <div className=''>
+          <Button
+            isLoading={genRecipe.isLoading}
+            type='submit'
+            disabled={!isValid || !isDirty}
+            className='mb-1'
+          >
             Generate
           </Button>
         </div>
@@ -122,35 +144,35 @@ function Form({
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
       <div className='mt-2 flex flex-col gap-5'>
         <div className='flex flex-col'>
-          <label htmlFor='name' className='text-sm text-gray-500'>
+          <label htmlFor='name' className=''>
             Name
           </label>
-          <input {...register('name')} className='text-gray-500' />
+          <input {...register('name')} className='' />
         </div>
         <div className='flex flex-col'>
-          <label htmlFor='name' className='text-sm text-gray-500'>
+          <label htmlFor='name' className=''>
             Description
           </label>
-          <input {...register('description')} className='text-gray-500' />
+          <input {...register('description')} className='' />
         </div>
         <div className='flex flex-col'>
-          <label htmlFor='ingredients' className='text-sm text-gray-500'>
+          <label htmlFor='ingredients' className=''>
             Ingredients
           </label>
           <textarea
             rows={ingredientsRowSize}
             {...register('ingredients')}
-            className='max-h-60 resize-none p-2 text-gray-500'
+            className='max-h-60 resize-none p-2 '
           />
         </div>
         <div className='flex flex-col'>
-          <label htmlFor='instructions' className='text-sm text-gray-500'>
+          <label htmlFor='instructions' className=''>
             Instructions
           </label>
           <textarea
             rows={instructionsRowSize}
             {...register('instructions')}
-            className='resize-none p-2 text-gray-500'
+            className='resize-none p-2 '
           />
         </div>
       </div>
