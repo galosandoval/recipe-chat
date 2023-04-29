@@ -1,6 +1,6 @@
 import { authRouter } from './routers/auth'
 import { listRouter } from './routers/list'
-import { recipesRouter } from './routers/recipes'
+import { recipeRouter } from './routers/recipe'
 import { createTRPCRouter } from './trpc'
 
 /**
@@ -9,7 +9,7 @@ import { createTRPCRouter } from './trpc'
  * All routers added in /api/routers should be manually added here
  */
 export const appRouter = createTRPCRouter({
-  recipes: recipesRouter,
+  recipes: recipeRouter,
   auth: authRouter,
   list: listRouter
 })

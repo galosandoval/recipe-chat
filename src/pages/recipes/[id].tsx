@@ -64,7 +64,7 @@ function FoundRecipe({
     name
   } = data
 
-  const { mutate } = api.list.upsert.useMutation()
+  const { mutate, isLoading } = api.list.upsert.useMutation()
 
   const initialChecked: Checked = {}
   ingredients.forEach((i) => (initialChecked[i.id] = true))
@@ -78,11 +78,11 @@ function FoundRecipe({
     }))
   }
 
-  const areAllChecked = Object.values(checked).every(Boolean)
-  const areNoneChecked = Object.values(checked).every((i) => !i)
+  const allChecked = Object.values(checked).every(Boolean)
+  const noneChecked = Object.values(checked).every((i) => !i)
   const handleCheckAll = () => {
     for (const id in checked) {
-      if (areAllChecked) {
+      if (allChecked) {
         setChecked((state) => ({ ...state, [id]: false }))
       } else {
         setChecked((state) => ({ ...state, [id]: true }))
@@ -132,8 +132,9 @@ function FoundRecipe({
         <div className='mb-4'>
           <Button
             className='w-full'
-            disabled={areNoneChecked}
+            disabled={noneChecked}
             onClick={handleCreateList}
+            isLoading={isLoading}
           >
             Add to list
           </Button>
@@ -142,8 +143,8 @@ function FoundRecipe({
           <div>
             <Checkbox
               id='check-all'
-              label={areAllChecked ? 'Deselect All' : 'Select All'}
-              checked={areAllChecked}
+              label={allChecked ? 'Deselect All' : 'Select All'}
+              checked={allChecked}
               onChange={handleCheckAll}
             />
           </div>

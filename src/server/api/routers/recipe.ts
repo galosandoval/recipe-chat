@@ -18,7 +18,7 @@ const createRecipeSchema = z.object({
 
 export type CreateRecipeParams = z.infer<typeof createRecipeSchema>
 
-export const recipesRouter = createTRPCRouter({
+export const recipeRouter = createTRPCRouter({
   entity: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx?.session?.user.id
     const recipeList = await ctx.prisma.recipe.findMany({

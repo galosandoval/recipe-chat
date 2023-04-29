@@ -5,7 +5,7 @@ import { Button } from '../components/Button'
 import { MouseEvent, useState } from 'react'
 import { Modal } from '../components/Modal'
 import { FormSkeleton } from '../components/FormSkeleton'
-import { GeneratedRecipe } from '../server/api/routers/recipes'
+import { GeneratedRecipe } from '../server/api/routers/recipe'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/router'
 

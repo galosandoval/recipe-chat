@@ -6,6 +6,7 @@ const ingredientSchema = z.array(
     id: z.number()
   })
 )
+const clearListSchema = z.array(z.object({ id: z.number() }))
 
 export type CreateList = z.infer<typeof ingredientSchema>
 
@@ -26,5 +27,14 @@ export const listRouter = createTRPCRouter({
       where: { userId: { equals: ctx.session.user.id } },
       select: { ingredients: true }
     })
-  })
+  }),
+
+  clear: protectedProcedure
+    .input(clearListSchema)
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.list.update({
+        where: { userId: ctx.session.user.id },
+        data: { ingredients: { disconnect: input } }
+      })
+    })
 })

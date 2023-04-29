@@ -51,7 +51,12 @@ export const Button = ({
   }
 
   return (
-    <button {...attributes} type={type} className={className}>
+    <button
+      {...attributes}
+      type={type}
+      className={className}
+      disabled={isLoading || attributes.disabled}
+    >
       {isLoading ? iconToRender : children}
     </button>
   )

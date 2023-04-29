@@ -14,7 +14,7 @@ import { Dialog } from '@headlessui/react'
 import { useState } from 'react'
 import { CreateRecipeForm } from '../../components/CreateRecipeForm'
 import { Button } from '../../components/Button'
-import { CreateRecipeParams } from '../../server/api/routers/recipes'
+import { CreateRecipeParams } from '../../server/api/routers/recipe'
 import { FormSkeleton } from '../../components/FormSkeleton'
 import {
   LinkedData,
