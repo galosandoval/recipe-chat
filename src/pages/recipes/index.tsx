@@ -14,7 +14,7 @@ import { Dialog } from '@headlessui/react'
 import { useState } from 'react'
 import { CreateRecipeForm } from '../../components/CreateRecipeForm'
 import { Button } from '../../components/Button'
-import { CreateRecipeParams } from '../../server/api/routers/recipes'
+import { CreateRecipeParams } from '../../server/api/routers/recipe'
 import { FormSkeleton } from '../../components/FormSkeleton'
 import {
   LinkedData,
@@ -24,6 +24,7 @@ import { useForm } from 'react-hook-form'
 import { ErrorMessage } from '@hookform/error-message'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { FormValues } from '../_generate'
 
 export default function Recipes() {
   return (
@@ -39,12 +40,14 @@ export default function Recipes() {
 }
 
 export function ListRecent() {
-  const { data, isSuccess } = api.recipes.entity.useQuery(undefined)
+  const { data, isSuccess } = api.recipes.entity.useQuery()
 
   if (isSuccess) {
     return (
-      <div className='container mx-auto px-2'>
-        <h1>Recent Recipes</h1>
+      <div className='container mx-auto h-full px-2'>
+        <div className='prose'>
+          <h1 className=''>Recent Recipes</h1>
+        </div>
         <div className='grid grid-cols-2 gap-5 md:grid-cols-4'>
           <CardList data={Object.values(data)} />
         </div>
@@ -77,26 +80,24 @@ function Card({ data }: { data: Recipe }) {
     author = <p className=''>{data.author}</p>
   }
 
-  const name = data.name.replaceAll('&', 'and')
-
   return (
     <Link
-      href={`/recipes/${data.id}?name=${name}`}
+      href={`/recipes/${data.id}?name=${encodeURIComponent(data.name)}`}
       key={data.id}
-      className='flex cursor-default flex-col overflow-hidden rounded'
+      className='card overflow-hidden bg-base-200 shadow-lg'
     >
       <div className='w-full'>
         <Image
           src={data.imgUrl || defaultRecipeJpeg}
           alt='recipe'
-          className='object-top'
+          className='image-full'
           priority
         />
       </div>
-      <div className='flex flex-col'>
+      <div className='prose card-body flex flex-col'>
         {address}
         {author}
-        <h3 className=''>{data.name}</h3>
+        <h3 className='card-title'>{data.name}</h3>
       </div>
     </Link>
   )
@@ -116,9 +117,9 @@ function CreateRecipePopover() {
   return (
     <>
       <div className='flex h-full items-center justify-center'>
-        <button type='button' onClick={openModal} className='btn-secondary'>
+        <Button type='button' onClick={openModal} color='accent'>
           Create from website
-        </button>
+        </Button>
       </div>
       <Modal closeModal={closeModal} isOpen={isOpen}>
         <TransitionWrapper currentStep={currentStep} steps={steps} />
@@ -151,9 +152,8 @@ export function useParseRecipe() {
       prev: null,
       component: (
         <>
-          <Dialog.Title as='h3' className='text-lg font-medium leading-6'>
-            Generate a recipe with recipebot. Examples: Im feeling flirty, I
-            have chicken, brocoli, and spinich
+          <Dialog.Title as='h3' className=''>
+            Paste a recipe from the web
           </Dialog.Title>
           <UploadRecipeUrlForm onSubmit={onSubmitUrl} />
         </>
@@ -165,9 +165,8 @@ export function useParseRecipe() {
       prev: 'first',
       component: (
         <>
-          <Dialog.Title as='h3' className='text-lg font-medium leading-6'>
-            Generate a recipe with recipebot. Examples: Im feeling flirty, I
-            have chicken, brocoli, and spinich
+          <Dialog.Title as='h3' className=''>
+            Save recipe
           </Dialog.Title>
           <CreateRecipe
             closeModal={closeModal}
@@ -235,10 +234,10 @@ export function UploadRecipeUrlForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className=''>
       <div className='mt-2 flex flex-col gap-1'>
-        <label htmlFor='url' className='text-sm text-gray-500'>
+        <label htmlFor='url' className='label'>
           Recipe URL
         </label>
-        <input {...register('url')} className='select-auto' autoFocus />
+        <input {...register('url')} className='input select-auto' autoFocus />
         <ErrorMessage
           errors={errors}
           name='url'
@@ -246,17 +245,12 @@ export function UploadRecipeUrlForm({
         />
       </div>
       <div className='mt-4'>
-        <Button type='submit'>Upload</Button>
+        <Button className='w-full' type='submit'>
+          Upload
+        </Button>
       </div>
     </form>
   )
-}
-
-export type FormValues = {
-  name: string
-  description: string
-  instructions: string
-  ingredients: string
 }
 
 export function CreateRecipe({
@@ -312,7 +306,7 @@ function CreateRecipeSuccess({
     const params: CreateRecipeParams = {
       ...values,
       ingredients: values.ingredients.split('\n'),
-      instructions: values.instructions.split('\n')
+      instructions: values.instructions.split('\n\n')
     }
     mutate(params)
   }
@@ -324,7 +318,7 @@ function CreateRecipeSuccess({
       slot={
         <div className='mt-4'>
           <Button isLoading={isLoading} type='submit' disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save'}
+            Save
           </Button>
         </div>
       }

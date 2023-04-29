@@ -5,8 +5,9 @@ import { Button } from '../components/Button'
 import { MouseEvent, useState } from 'react'
 import { Modal } from '../components/Modal'
 import { FormSkeleton } from '../components/FormSkeleton'
-import { GeneratedRecipe } from '../server/api/routers/recipes'
+import { GeneratedRecipe } from '../server/api/routers/recipe'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/router'
 
 export type FormValues = {
   name: string
@@ -21,6 +22,8 @@ const generateRecipeFormSchema = z.object({ message: z.string().min(6) })
 type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
 
 export default function GenerateRecipe() {
+  const utils = api.useContext()
+  utils.recipes.entity.prefetch()
   const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
   const genRecipe = api.recipes.generate.useMutation()
   const {
@@ -69,14 +72,18 @@ export default function GenerateRecipe() {
           </div>
         </div>
       </div>
-      <Modal closeModal={handleCloseModal} isOpen={isGenRecipeOpen}>
-        <SaveGeneratedRecipe recipe={genRecipe} />
+      {/*eslint-disable-next-line @typescript-eslint/no-empty-function */}
+      <Modal closeModal={() => {}} isOpen={isGenRecipeOpen}>
+        <SaveGeneratedRecipe
+          handleCloseModal={handleCloseModal}
+          recipe={genRecipe}
+        />
       </Modal>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className='flex w-full items-center'
+        className='input-group flex w-full items-center'
       >
-        <div className='mb-1 w-full px-4'>
+        <div className='w-full px-2'>
           <textarea
             {...register('message')}
             placeholder='Generate recipe...'
@@ -100,6 +107,7 @@ export default function GenerateRecipe() {
 
 function SaveGeneratedRecipe(props: {
   recipe: ReturnType<typeof api.recipes.generate.useMutation>
+  handleCloseModal: () => void
 }) {
   const { status, data } = props.recipe
 
@@ -108,24 +116,33 @@ function SaveGeneratedRecipe(props: {
   }
 
   if (status === 'success') {
-    return <Form data={data} />
+    return <Form handleCloseModal={props.handleCloseModal} data={data} />
   }
 
   return <FormSkeleton />
 }
 
 function Form({
-  data: { description, ingredients, instructions, name }
+  data: { description, ingredients, instructions, name, cookTime, prepTime },
+  handleCloseModal
 }: {
   data: GeneratedRecipe
+  handleCloseModal: () => void
 }) {
-  const { mutate } = api.recipes.create.useMutation()
+  const router = useRouter()
+  const { mutate, isLoading, isSuccess } = api.recipes.create.useMutation({
+    onSuccess: (data) => {
+      router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
+    }
+  })
   const { handleSubmit, register, getValues } = useForm<FormValues>({
     defaultValues: {
       description,
       ingredients: ingredients.join('\n'),
       instructions: instructions.join('\n\n'),
-      name
+      name,
+      cookTime,
+      prepTime
     }
   })
 
@@ -144,40 +161,90 @@ function Form({
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
       <div className='mt-2 flex flex-col gap-5'>
         <div className='flex flex-col'>
-          <label htmlFor='name' className=''>
-            Name
+          <label htmlFor='name' className='label'>
+            <span className='label-text'>Name</span>
           </label>
-          <input {...register('name')} className='' />
+          <input id='name' {...register('name')} className='input' />
         </div>
         <div className='flex flex-col'>
-          <label htmlFor='name' className=''>
-            Description
+          <label htmlFor='description' className='label'>
+            <span className='label-text'>Description</span>
           </label>
-          <input {...register('description')} className='' />
+          <input
+            id='description'
+            {...register('description')}
+            className='input'
+          />
+        </div>
+
+        <div className='flex gap-2'>
+          <div className='flex w-1/2 flex-col'>
+            <label htmlFor='prepTime' className='label'>
+              <span className='label-text'>Prep time</span>
+            </label>
+            <input
+              id='prepTime'
+              type='text'
+              className='input'
+              {...register('prepTime')}
+            />
+          </div>
+          <div className='flex w-1/2 flex-col'>
+            <label htmlFor='cookTime' className='label'>
+              <span className='label-text'>Cook time</span>
+            </label>
+            <input
+              id='cookTime'
+              type='text'
+              className='input'
+              {...register('cookTime')}
+            />
+          </div>
         </div>
         <div className='flex flex-col'>
-          <label htmlFor='ingredients' className=''>
-            Ingredients
+          <label htmlFor='ingredients' className='label'>
+            <span className='label-text'>Ingredients</span>
           </label>
           <textarea
+            id='ingredients'
             rows={ingredientsRowSize}
             {...register('ingredients')}
-            className='max-h-60 resize-none p-2 '
+            className='textarea resize-none'
           />
         </div>
         <div className='flex flex-col'>
-          <label htmlFor='instructions' className=''>
-            Instructions
+          <label htmlFor='instructions' className='label'>
+            <span className='label-text'>Instructions</span>
           </label>
           <textarea
+            id='instructions'
             rows={instructionsRowSize}
             {...register('instructions')}
-            className='resize-none p-2 '
+            className='textarea resize-none'
           />
         </div>
       </div>
-
-      <Button type='submit'>Save</Button>
+      <div className='flex w-full py-2'>
+        {isSuccess ? (
+          <Button className='w-1/2' color='ghost' onClick={handleCloseModal}>
+            Return
+          </Button>
+        ) : (
+          <>
+            <Button
+              type='button'
+              onClick={handleCloseModal}
+              className='w-1/2'
+              color='ghost'
+            >
+              Cancel
+            </Button>
+            <Button isLoading={isLoading} className='w-1/2' type='submit'>
+              Save
+            </Button>
+          </>
+        )}
+      </div>
     </form>
   )
 }
