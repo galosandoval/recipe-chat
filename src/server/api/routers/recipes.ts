@@ -20,7 +20,7 @@ export type CreateRecipeParams = z.infer<typeof createRecipeSchema>
 
 export const recipesRouter = createTRPCRouter({
   entity: protectedProcedure.query(async ({ ctx }) => {
-    const userId = parseInt(ctx?.session?.user.id || '')
+    const userId = ctx?.session?.user.id
     const recipeList = await ctx.prisma.recipe.findMany({
       where: { userId: { equals: userId } }
     })
@@ -50,9 +50,9 @@ export const recipesRouter = createTRPCRouter({
       {
         const { ingredients, instructions, ...rest } = input
 
-        const result = await ctx.prisma.recipe.create({
+        return ctx.prisma.recipe.create({
           data: {
-            userId: parseInt(ctx.session?.user.id || ''),
+            userId: ctx.session?.user.id,
             ...rest,
             instructions: {
               create: instructions.map((i) => ({ description: i }))
@@ -66,14 +66,13 @@ export const recipesRouter = createTRPCRouter({
             instructions: true
           }
         })
-        return result
       }
     }),
 
   byId: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input, ctx }) => {
-      return await ctx.prisma.recipe.findFirst({
+      return ctx.prisma.recipe.findFirst({
         where: { id: { equals: input.id } },
         select: { ingredients: true, instructions: true }
       })

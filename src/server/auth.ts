@@ -18,7 +18,7 @@ import { prisma } from './db'
 declare module 'next-auth' {
   interface Session extends DefaultSession {
     user: {
-      id: string
+      id: number
 
       // ...other properties
       // role: UserRole;
@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
     },
     session: async ({ session, token }) => {
       if (token?.id) {
-        session.user.id = token.id as string
+        session.user.id = parseInt(token.id as string)
       }
 
       return session

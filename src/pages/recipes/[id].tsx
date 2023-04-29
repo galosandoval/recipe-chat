@@ -64,7 +64,7 @@ function FoundRecipe({
     name
   } = data
 
-  const { mutate } = api.list.create.useMutation()
+  const { mutate } = api.list.upsert.useMutation()
 
   const initialChecked: Checked = {}
   ingredients.forEach((i) => (initialChecked[i.id] = true))
@@ -91,7 +91,7 @@ function FoundRecipe({
   }
 
   const handleCreateList = () => {
-    const checkedIngredients = ingredients.filter((i) => checked[i.name])
+    const checkedIngredients = ingredients.filter((i) => checked[i.id])
     const newList: CreateList = checkedIngredients
     mutate(newList)
   }
@@ -113,8 +113,6 @@ function FoundRecipe({
       </a>
     )
   }
-
-  console.log('name', name)
 
   return (
     <div className='container prose mx-auto flex flex-col items-center py-4'>
