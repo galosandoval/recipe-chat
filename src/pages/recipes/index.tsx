@@ -45,7 +45,9 @@ export function ListRecent() {
   if (isSuccess) {
     return (
       <div className='container mx-auto h-full px-2'>
-        <h1 className='text-primary-'>Recent Recipes</h1>
+        <div className='prose'>
+          <h1 className=''>Recent Recipes</h1>
+        </div>
         <div className='grid grid-cols-2 gap-5 md:grid-cols-4'>
           <CardList data={Object.values(data)} />
         </div>
@@ -151,8 +153,7 @@ export function useParseRecipe() {
       component: (
         <>
           <Dialog.Title as='h3' className=''>
-            Generate a recipe with recipebot. Examples: Im feeling flirty, I
-            have chicken, brocoli, and spinich
+            Paste a recipe from the web
           </Dialog.Title>
           <UploadRecipeUrlForm onSubmit={onSubmitUrl} />
         </>
@@ -165,8 +166,7 @@ export function useParseRecipe() {
       component: (
         <>
           <Dialog.Title as='h3' className=''>
-            Generate a recipe with recipebot. Examples: Im feeling flirty, I
-            have chicken, brocoli, and spinich
+            Save recipe
           </Dialog.Title>
           <CreateRecipe
             closeModal={closeModal}
@@ -234,10 +234,10 @@ export function UploadRecipeUrlForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className=''>
       <div className='mt-2 flex flex-col gap-1'>
-        <label htmlFor='url' className='text-sm text-gray-500'>
+        <label htmlFor='url' className='label'>
           Recipe URL
         </label>
-        <input {...register('url')} className='select-auto' autoFocus />
+        <input {...register('url')} className='input select-auto' autoFocus />
         <ErrorMessage
           errors={errors}
           name='url'
@@ -245,7 +245,9 @@ export function UploadRecipeUrlForm({
         />
       </div>
       <div className='mt-4'>
-        <Button type='submit'>Upload</Button>
+        <Button className='w-full' type='submit'>
+          Upload
+        </Button>
       </div>
     </form>
   )

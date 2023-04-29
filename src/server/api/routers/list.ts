@@ -29,16 +29,16 @@ export const listRouter = createTRPCRouter({
       return result
     }),
 
-  patch: protectedProcedure
-    .input(patchListSchema)
-    .mutation(async ({ input, ctx }) => {
-      const result = await ctx.prisma.ingredient.updateMany({
-        where: { id: { in: input.ingredientIds } },
-        data: { listId: input.listId }
-      })
+  // patch: protectedProcedure
+  //   .input(patchListSchema)
+  //   .mutation(async ({ input, ctx }) => {
+  //     const result = await ctx.prisma.list.update({
+  //       where: {  },
+  //       data: { listId: input.listId }
+  //     })
 
-      return result
-    }),
+  //     return result
+  //   }),
 
   byUserId: protectedProcedure.query(async ({ ctx }) => {
     const userId = parseInt(ctx.session.user.id)
