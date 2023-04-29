@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { FormValues } from '../pages/recipes'
+import { FormValues } from '../pages/_generate'
 
 export function CreateRecipeForm(props: {
   form: UseFormReturn<FormValues, unknown>
@@ -15,44 +15,64 @@ export function CreateRecipeForm(props: {
     >
       <div className='mt-2 flex flex-col gap-5'>
         <div className='flex flex-col'>
-          <label htmlFor='name' className='text-sm text-gray-500'>
-            Name
+          <label htmlFor='name' className='label'>
+            <span className='label-text'>Name</span>
           </label>
-          <input {...props.form.register('name')} className='text-gray-500' />
+          <input id='name' {...props.form.register('name')} className='input' />
         </div>
         <div className='flex flex-col'>
-          <label htmlFor='name' className='text-sm text-gray-500'>
-            Description
+          <label htmlFor='description' className='label'>
+            <span className='label-text'>Description</span>
           </label>
           <input
+            id='description'
             {...props.form.register('description')}
-            className='text-gray-500'
+            className='input'
           />
         </div>
+
+        <div className='flex gap-2'>
+          <div className='flex w-1/2 flex-col'>
+            <label htmlFor='prepTime' className='label'>
+              <span className='label-text'>Prep time</span>
+            </label>
+            <input
+              id='prepTime'
+              type='text'
+              className='input'
+              {...props.form.register('prepTime')}
+            />
+          </div>
+          <div className='flex w-1/2 flex-col'>
+            <label htmlFor='cookTime' className='label'>
+              <span className='label-text'>Cook time</span>
+            </label>
+            <input
+              id='cookTime'
+              type='text'
+              className='input'
+              {...props.form.register('cookTime')}
+            />
+          </div>
+        </div>
         <div className='flex flex-col'>
-          <label htmlFor='ingredients' className='text-sm text-gray-500'>
-            Ingredients
+          <label htmlFor='ingredients' className='label'>
+            <span className='label-text'>Ingredients</span>
           </label>
           <textarea
-            rows={
-              (props.form.getValues('ingredients') || '').split('\n').length ||
-              5
-            }
+            id='ingredients'
             {...props.form.register('ingredients')}
-            className='max-h-60 resize-none p-2 text-gray-500'
+            className='textarea resize-none'
           />
         </div>
         <div className='flex flex-col'>
-          <label htmlFor='instructions' className='text-sm text-gray-500'>
-            Instructions
+          <label htmlFor='instructions' className='label'>
+            <span className='label-text'>Instructions</span>
           </label>
           <textarea
-            rows={
-              (props.form.getValues('instructions') || '').split('\n').length ||
-              5
-            }
+            id='instructions'
             {...props.form.register('instructions')}
-            className='resize-none p-2 text-gray-500'
+            className='textarea resize-none'
           />
         </div>
       </div>

@@ -4,22 +4,24 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
   icon?: React.ReactNode
   isLoading?: boolean
+  color?: 'primary' | 'secondary' | 'accent' | 'ghost'
 }
 
 export const Button = ({
   children,
   icon,
   isLoading,
+  color = 'primary',
   ...attributes
 }: ButtonProps) => {
-  let className = 'btn btn-primary'
+  let className = `btn btn-${color}`
   if (!!attributes.className) {
     className += ` ${attributes.className}`
   }
 
   const loader = (
     <svg
-      className='-ml-1 mr-3 h-5 w-5 animate-spin text-white'
+      className='h-5 w-5 animate-spin'
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
       viewBox='0 0 24 24'
@@ -48,8 +50,7 @@ export const Button = ({
 
   return (
     <button {...attributes} className={className}>
-      {iconToRender}
-      {children}
+      {isLoading ? iconToRender : children}
     </button>
   )
 }

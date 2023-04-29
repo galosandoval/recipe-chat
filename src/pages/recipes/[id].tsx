@@ -2,11 +2,12 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
 import { api } from '../../utils/api'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, Fragment, useState } from 'react'
 import { CreateList } from '../../server/api/routers/list'
 import Image from 'next/image'
 import { Button } from '../../components/Button'
 import defaultRecipe from '../../assets/default-recipe.jpeg'
+import { Checkbox } from '../../components/Checkbox'
 
 export default function RecipeByIdContainer() {
   const router = useRouter()
@@ -69,25 +70,27 @@ function FoundRecipe({
   const { mutate } = api.list.create.useMutation()
 
   const initialChecked: Checked = {}
-  ingredients.forEach((i) => (initialChecked[i.name] = true))
+  ingredients.forEach((i) => (initialChecked[i.id] = true))
 
   const [checked, setChecked] = useState<Checked>(() => initialChecked)
+  console.log('checked', checked)
 
   const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log('event', event.currentTarget)
     setChecked((state) => ({
       ...state,
-      [event.target.name]: event.target.checked
+      [event.target.id]: event.target.checked
     }))
   }
 
   const areAllChecked = Object.values(checked).every(Boolean)
   const areNoneChecked = Object.values(checked).every((i) => !i)
   const handleCheckAll = () => {
-    for (const name in checked) {
+    for (const id in checked) {
       if (areAllChecked) {
-        setChecked((state) => ({ ...state, [name]: false }))
+        setChecked((state) => ({ ...state, [id]: false }))
       } else {
-        setChecked((state) => ({ ...state, [name]: true }))
+        setChecked((state) => ({ ...state, [id]: true }))
       }
     }
   }
@@ -117,9 +120,9 @@ function FoundRecipe({
   }
 
   return (
-    <div className='container mx-auto flex flex-col items-center gap-4 py-4 text-sm'>
-      <div className='flex flex-col gap-3'>
-        <h1 className='px-4 text-lg font-semibold'>{name}</h1>
+    <div className='container prose mx-auto flex flex-col items-center py-4'>
+      <div className='flex flex-col'>
+        <h1>{name}</h1>
         <div className=''>
           <Image alt='recipe' src={imgUrl || defaultRecipe} />
         </div>
@@ -129,55 +132,50 @@ function FoundRecipe({
         </div>
       </div>
 
-      <div className='flex flex-col gap-1 px-4'>
-        <div className=''>{description}</div>
-        <div className=''>
-          <Button disabled={areNoneChecked} onClick={handleCreateList}>
+      <div className='flex flex-col px-4'>
+        <p>{description}</p>
+        <div className='mb-2'>
+          <Button
+            className='w-full'
+            disabled={areNoneChecked}
+            onClick={handleCreateList}
+          >
             Add to list
           </Button>
         </div>
         <div className=''>
-          <h3 className='pb-2 text-lg font-semibold text-indigo-600 '>
-            Ingredients
-          </h3>
-          <div className='flex items-start gap-2'>
-            <input
-              onChange={handleCheckAll}
-              checked={areAllChecked}
-              className='mt-1'
-              type='checkbox'
+          <div>
+            <Checkbox
               id='check-all'
+              label={areAllChecked ? 'Deselect All' : 'Select All'}
+              checked={areAllChecked}
+              onChange={handleCheckAll}
             />
-            <label htmlFor='check-all'>
-              {areAllChecked ? 'Deselect All' : 'Select All'}
-            </label>
           </div>
-          <hr className='my-2 h-px border-0' />
 
-          <ul className='flex flex-col gap-4'>
+          <h2 className='divider'>Ingredients</h2>
+
+          <div>
             {ingredients.map((i) => (
-              <li key={i.id} className='flex items-start gap-2'>
-                <input
-                  className='mt-1'
-                  type='checkbox'
-                  name={i.name}
-                  id={i.name}
-                  checked={checked[i.name]}
-                  onChange={handleCheck}
-                />
-                <label htmlFor={i.name}>{i.name}</label>
-              </li>
+              <Checkbox
+                id={i.id.toString()}
+                checked={checked[i.id]}
+                onChange={handleCheck}
+                label={i.name}
+                key={i.id}
+              />
             ))}
-          </ul>
+          </div>
         </div>
         <div className='pt-4'>
-          <h3 className='pb-2 text-lg font-semibold text-indigo-600'>
-            Directions
-          </h3>
-          <ol className='flex list-inside list-decimal flex-col gap-4'>
-            {instructions.map((i) => (
-              <li key={i.id} className='bg-slate-800 p-5'>
-                {i.description}
+          <h2 className='divider'>Directions</h2>
+          <ol className='flex list-none flex-col gap-4 pl-0'>
+            {instructions.map((i, index, array) => (
+              <li key={i.id} className='bg-base-300 p-5'>
+                <h3>
+                  Step {index + 1}/{array.length}
+                </h3>
+                <p>{i.description}</p>
               </li>
             ))}
           </ol>
