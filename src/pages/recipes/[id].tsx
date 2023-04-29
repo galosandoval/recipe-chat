@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
 import { api } from '../../utils/api'
-import { ChangeEvent, Fragment, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import { CreateList } from '../../server/api/routers/list'
 import Image from 'next/image'
 import { Button } from '../../components/Button'
@@ -26,20 +26,19 @@ export default function RecipeByIdContainer() {
 }
 
 export function RecipeById({ id }: { id: number }) {
-  const utils = api.useContext()
-  const recipeEntity = utils.recipes.entity.getData()
+  const { data: recipes, status: recipesStatus } = api.recipes.entity.useQuery()
 
-  const {
-    data: recipeInfo,
-    isSuccess,
-    isError
-  } = api.recipes.byId.useQuery({ id })
+  const { data: recipeInfo, status: recipeStatus } = api.recipes.byId.useQuery({
+    id
+  })
 
-  if (recipeInfo == undefined || isError)
-    return <div className=''>Something went wrong</div>
+  const isError = recipesStatus === 'error' && recipeStatus === 'error'
+  const isSuccess = recipesStatus === 'success' && recipeStatus === 'success'
 
-  if (isSuccess && recipeEntity) {
-    return <FoundRecipe data={{ ...recipeInfo, ...recipeEntity[id] }} />
+  if (isError) return <div className=''>Something went wrong</div>
+
+  if (isSuccess && recipes && recipeInfo) {
+    return <FoundRecipe data={{ ...recipeInfo, ...recipes[id] }} />
   }
 
   return <div>Loading...</div>
@@ -63,8 +62,6 @@ function FoundRecipe({
     imgUrl,
     instructions,
     name
-    // createdAt,
-    // updatedAt
   } = data
 
   const { mutate } = api.list.create.useMutation()
@@ -73,10 +70,8 @@ function FoundRecipe({
   ingredients.forEach((i) => (initialChecked[i.id] = true))
 
   const [checked, setChecked] = useState<Checked>(() => initialChecked)
-  console.log('checked', checked)
 
   const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log('event', event.currentTarget)
     setChecked((state) => ({
       ...state,
       [event.target.id]: event.target.checked
@@ -119,6 +114,8 @@ function FoundRecipe({
     )
   }
 
+  console.log('name', name)
+
   return (
     <div className='container prose mx-auto flex flex-col items-center py-4'>
       <div className='flex flex-col'>
@@ -134,7 +131,7 @@ function FoundRecipe({
 
       <div className='flex flex-col px-4'>
         <p>{description}</p>
-        <div className='mb-2'>
+        <div className='mb-4'>
           <Button
             className='w-full'
             disabled={areNoneChecked}
@@ -171,7 +168,7 @@ function FoundRecipe({
           <h2 className='divider'>Directions</h2>
           <ol className='flex list-none flex-col gap-4 pl-0'>
             {instructions.map((i, index, array) => (
-              <li key={i.id} className='bg-base-300 p-5'>
+              <li key={i.id} className='bg-base-300 px-7 pb-2'>
                 <h3>
                   Step {index + 1}/{array.length}
                 </h3>

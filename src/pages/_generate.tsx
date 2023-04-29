@@ -7,6 +7,7 @@ import { Modal } from '../components/Modal'
 import { FormSkeleton } from '../components/FormSkeleton'
 import { GeneratedRecipe } from '../server/api/routers/recipes'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/router'
 
 export type FormValues = {
   name: string
@@ -21,6 +22,8 @@ const generateRecipeFormSchema = z.object({ message: z.string().min(6) })
 type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
 
 export default function GenerateRecipe() {
+  const utils = api.useContext()
+  utils.recipes.entity.prefetch()
   const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
   const genRecipe = api.recipes.generate.useMutation()
   const {
@@ -126,7 +129,12 @@ function Form({
   data: GeneratedRecipe
   handleCloseModal: () => void
 }) {
-  const { mutate, isLoading, isSuccess } = api.recipes.create.useMutation()
+  const router = useRouter()
+  const { mutate, isLoading, isSuccess } = api.recipes.create.useMutation({
+    onSuccess: (data) => {
+      router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
+    }
+  })
   const { handleSubmit, register, getValues } = useForm<FormValues>({
     defaultValues: {
       description,

@@ -40,7 +40,7 @@ export default function Recipes() {
 }
 
 export function ListRecent() {
-  const { data, isSuccess } = api.recipes.entity.useQuery(undefined)
+  const { data, isSuccess } = api.recipes.entity.useQuery()
 
   if (isSuccess) {
     return (
@@ -78,11 +78,9 @@ function Card({ data }: { data: Recipe }) {
     author = <p className=''>{data.author}</p>
   }
 
-  const name = data.name.replaceAll('&', 'and')
-
   return (
     <Link
-      href={`/recipes/${data.id}?name=${name}`}
+      href={`/recipes/${data.id}?name=${encodeURIComponent(data.name)}`}
       key={data.id}
       className='card overflow-hidden bg-base-200 shadow-lg'
     >

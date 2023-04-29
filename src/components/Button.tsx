@@ -5,6 +5,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode
   isLoading?: boolean
   color?: 'primary' | 'secondary' | 'accent' | 'ghost'
+  type?: 'button' | 'submit'
 }
 
 export const Button = ({
@@ -12,6 +13,7 @@ export const Button = ({
   icon,
   isLoading,
   color = 'primary',
+  type = 'button',
   ...attributes
 }: ButtonProps) => {
   let className = `btn btn-${color}`
@@ -49,7 +51,7 @@ export const Button = ({
   }
 
   return (
-    <button {...attributes} className={className}>
+    <button {...attributes} type={type} className={className}>
       {isLoading ? iconToRender : children}
     </button>
   )
