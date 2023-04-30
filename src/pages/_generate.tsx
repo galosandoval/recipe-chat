@@ -60,13 +60,13 @@ export default function GenerateRecipe() {
         <div className='flex flex-1 flex-col items-center justify-center'>
           <h2>Examples</h2>
           <div className='flex flex-col items-center gap-4'>
-            <Button onClick={handleFillMessage}>
+            <Button className='btn-primary btn' onClick={handleFillMessage}>
               What should I make for dinner tonight?
             </Button>
-            <Button onClick={handleFillMessage}>
+            <Button className='btn-primary btn' onClick={handleFillMessage}>
               Which salad recipe will go well with my steak and potatoes?
             </Button>
-            <Button onClick={handleFillMessage}>
+            <Button className='btn-primary btn' onClick={handleFillMessage}>
               What&apos;s a the best risotto recipe?
             </Button>
           </div>
@@ -95,7 +95,7 @@ export default function GenerateRecipe() {
             isLoading={genRecipe.isLoading}
             type='submit'
             disabled={!isValid || !isDirty}
-            className='mb-1'
+            className='btn-accent btn mb-1'
           >
             Generate
           </Button>
@@ -226,7 +226,7 @@ function Form({
       </div>
       <div className='flex w-full py-2'>
         {isSuccess ? (
-          <Button className='w-1/2' color='ghost' onClick={handleCloseModal}>
+          <Button className='btn-ghost btn w-1/2' onClick={handleCloseModal}>
             Return
           </Button>
         ) : (
@@ -234,12 +234,15 @@ function Form({
             <Button
               type='button'
               onClick={handleCloseModal}
-              className='w-1/2'
-              color='ghost'
+              className='btn-ghost btn w-1/2'
             >
               Cancel
             </Button>
-            <Button isLoading={isLoading} className='w-1/2' type='submit'>
+            <Button
+              isLoading={isLoading}
+              className='btn-primary btn w-1/2'
+              type='submit'
+            >
               Save
             </Button>
           </>

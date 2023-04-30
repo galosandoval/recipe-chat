@@ -44,7 +44,7 @@ function List({ data }: { data: Ingredient[] }) {
   const { mutate, isLoading } = api.list.clear.useMutation({
     onSuccess() {
       utils.list.invalidate()
-      localStorage.checked = JSON.stringify(false)
+      localStorage.checked = JSON.stringify({})
     }
   })
   const initialChecked: Checked = {}
@@ -52,7 +52,7 @@ function List({ data }: { data: Ingredient[] }) {
   data.forEach((i) => (initialChecked[i.id] = false))
 
   const [checked, setChecked] = useState(
-    JSON.parse(localStorage.checked)
+    typeof localStorage.checked === 'string' && localStorage.checked.length > 2
       ? (JSON.parse(localStorage.checked) as Checked)
       : initialChecked
   )

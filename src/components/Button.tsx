@@ -2,25 +2,16 @@ import { ButtonHTMLAttributes } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
-  icon?: React.ReactNode
   isLoading?: boolean
-  color?: 'primary' | 'secondary' | 'accent' | 'ghost'
-  type?: 'button' | 'submit'
 }
 
 export const Button = ({
   children,
-  icon,
   isLoading,
-  color = 'primary',
   type = 'button',
+  className,
   ...attributes
 }: ButtonProps) => {
-  let className = `btn btn-${color}`
-  if (!!attributes.className) {
-    className += ` ${attributes.className}`
-  }
-
   const loader = (
     <svg
       className='h-5 w-5 animate-spin'
@@ -46,8 +37,6 @@ export const Button = ({
   let iconToRender: React.ReactNode = null
   if (isLoading) {
     iconToRender = loader
-  } else if (icon) {
-    iconToRender = icon
   }
 
   return (
