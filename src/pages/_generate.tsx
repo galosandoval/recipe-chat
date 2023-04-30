@@ -23,9 +23,9 @@ type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
 
 export default function GenerateRecipe() {
   const utils = api.useContext()
-  utils.recipes.entity.prefetch()
+  utils.recipe.entity.prefetch()
   const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
-  const genRecipe = api.recipes.generate.useMutation()
+  const genRecipe = api.recipe.generate.useMutation()
   const {
     register,
     handleSubmit,
@@ -106,7 +106,7 @@ export default function GenerateRecipe() {
 }
 
 function SaveGeneratedRecipe(props: {
-  recipe: ReturnType<typeof api.recipes.generate.useMutation>
+  recipe: ReturnType<typeof api.recipe.generate.useMutation>
   handleCloseModal: () => void
 }) {
   const { status, data } = props.recipe
@@ -130,7 +130,7 @@ function Form({
   handleCloseModal: () => void
 }) {
   const router = useRouter()
-  const { mutate, isLoading, isSuccess } = api.recipes.create.useMutation({
+  const { mutate, isLoading, isSuccess } = api.recipe.create.useMutation({
     onSuccess: (data) => {
       router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
     }

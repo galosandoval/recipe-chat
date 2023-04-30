@@ -207,9 +207,9 @@ function CreateRecipeSuccess({
     }
   })
 
-  const { mutate, isLoading } = api.recipes.create.useMutation({
+  const { mutate, isLoading } = api.recipe.create.useMutation({
     onSuccess: async () => {
-      util.recipes.entity.invalidate()
+      util.recipe.entity.invalidate()
       closeModal()
     }
   })

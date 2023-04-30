@@ -9,7 +9,7 @@ import { createTRPCRouter } from './trpc'
  * All routers added in /api/routers should be manually added here
  */
 export const appRouter = createTRPCRouter({
-  recipes: recipeRouter,
+  recipe: recipeRouter,
   auth: authRouter,
   list: listRouter
 })

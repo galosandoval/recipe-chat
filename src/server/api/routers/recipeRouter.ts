@@ -34,6 +34,12 @@ export const recipeRouter = createTRPCRouter({
     return entity
   }),
 
+  byIds: protectedProcedure
+    .input(z.array(z.number()))
+    .query(async ({ input, ctx }) => {
+      return ctx.prisma.recipe.findMany({ where: { id: { in: input } } })
+    }),
+
   parseRecipeUrl: protectedProcedure
     .input(z.string())
     .mutation(async ({ input }) => {
@@ -69,12 +75,15 @@ export const recipeRouter = createTRPCRouter({
       }
     }),
 
-  byId: protectedProcedure
+  ingredientsAndInstructions: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input, ctx }) => {
       return ctx.prisma.recipe.findFirst({
         where: { id: { equals: input.id } },
-        select: { ingredients: true, instructions: true }
+        select: {
+          ingredients: true,
+          instructions: true
+        }
       })
     }),
 

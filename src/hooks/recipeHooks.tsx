@@ -1,21 +1,16 @@
 import { useState } from 'react'
 import { api } from '../utils/api'
 import { ScrapedRecipe } from '../server/helpers/parse-recipe-url'
-import { Recipe } from '@prisma/client'
 import { Step, TotalSteps } from '../components/TransitionWrapper'
 import { Dialog } from '@headlessui/react'
 import { CreateRecipe, UploadRecipeUrlForm } from '../pages/recipes'
 
-export const useRecipeEntity = () => api.recipes.entity.useQuery(undefined)
+export const useRecipeEntity = () => api.recipe.entity.useQuery(undefined)
 
 export const useRecipeIngredientsAndInstructions = (id: number) =>
-  api.recipes.byId.useQuery({
+  api.recipe.ingredientsAndInstructions.useQuery({
     id
   })
-
-export const useRecipeEntityQuery = (
-  select: <T>(data: { [recipeId: string]: Recipe }) => T
-) => api.recipes.entity.useQuery(undefined, { select })
 
 export function useParseRecipeOnClient() {
   const [data, setData] = useState<ScrapedRecipe>()
@@ -85,7 +80,7 @@ export function useParseRecipe() {
     fetchRecipe,
     status
   } = useParseRecipeOnClient()
-  const parseRecipeOnServer = api.recipes.parseRecipeUrl.useMutation()
+  const parseRecipeOnServer = api.recipe.parseRecipeUrl.useMutation()
 
   let data = parsedDataOnClient
   if (parseRecipeOnServer.status === 'success') {

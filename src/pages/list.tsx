@@ -4,6 +4,7 @@ import { api } from 'utils/api'
 import { Ingredient } from '@prisma/client'
 import { Checkbox } from 'components/Checkbox'
 import { Button } from 'components/Button'
+import { useList, useRecipeNames } from 'hooks/listHooks'
 
 export default function ListRoute() {
   return (
@@ -20,7 +21,7 @@ export default function ListRoute() {
   )
 }
 export function ListByUserId() {
-  const { data, status } = api.list.byUserId.useQuery()
+  const { data, status } = useList()
 
   if (status === 'error') {
     return <p>Something went wrong...</p>
@@ -57,7 +58,11 @@ function ListController({ data }: { data: Ingredient[] }) {
       : initialChecked
   )
 
-  const [byRecipe, setByRecipe] = useState(false)
+  const [byRecipe, setByRecipe] = useState(() =>
+    typeof localStorage.byRecipe === 'string'
+      ? (JSON.parse(localStorage.byRecipe) as boolean)
+      : false
+  )
 
   const allChecked = Object.values(checked).every(Boolean)
   const noneChecked = Object.values(checked).every((c) => !c)
@@ -113,6 +118,10 @@ function ListController({ data }: { data: Ingredient[] }) {
 
     setChecked(updateWithAddedIngredients)
   }, [data])
+
+  useEffect(() => {
+    localStorage.byRecipe = JSON.stringify(byRecipe)
+  }, [byRecipe])
 
   return (
     <div className=''>
@@ -173,6 +182,7 @@ function List({
       <ListByRecipeId checked={checked} data={data} handleCheck={handleCheck} />
     )
   }
+
   return (
     <div className=''>
       {data.map((i) => (
@@ -199,20 +209,30 @@ function ListByRecipeId({
   checked: Checked
   handleCheck: (event: React.ChangeEvent<HTMLInputElement>) => void
 }) {
+  const ids: number[] = []
+
   const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
     if (!(i.recipeId in buckets)) {
+      ids.push(i.recipeId)
       buckets[i.recipeId] = []
     }
+
     buckets[i.recipeId].push(i)
 
     return buckets
   }, {})
 
+  const { data: nameDictionary, isSuccess } = useRecipeNames(ids)
+
   return (
     <div className=''>
       {Object.values(recipeBuckets).map((b) => (
         <div className='' key={b[0].recipeId}>
-          <h3>Recipe name here</h3>
+          {!isSuccess ? (
+            <p>Loading...</p>
+          ) : (
+            <h3>{nameDictionary[b[0].recipeId]}</h3>
+          )}
 
           {b.map((i) => (
             <Checkbox
