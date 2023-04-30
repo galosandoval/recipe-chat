@@ -8,6 +8,10 @@ module.exports = {
   theme: {
     extend: {}
   },
-  plugins: [require('@tailwindcss/typography'), require('daisyui')],
+  plugins: [
+    require('@rvxlab/tailwind-plugin-ios-full-height'),
+    require('@tailwindcss/typography'),
+    require('daisyui')
+  ],
   darkMode: 'class'
 }
