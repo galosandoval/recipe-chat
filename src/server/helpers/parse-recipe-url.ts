@@ -1,6 +1,3 @@
-import puppeteer from 'puppeteer'
-import { parseRecipe } from '../../utils/parse-recipe-from-page'
-
 export type LinkedData = {
   author?: {
     name?: string
@@ -34,32 +31,3 @@ export type IteratedData = {
 }
 
 export type ScrapedRecipe = LinkedData | IteratedData
-
-export async function parseRecipeUrl(url: string) {
-  const browser = await puppeteer.launch()
-  const page = await browser.newPage()
-  await page.goto(url)
-
-  const script = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('script'), (e) => {
-      if (e.type.includes('application/ld+json')) return { script: e.innerHTML }
-    }).filter(Boolean)
-  )
-
-  const linkedData = JSON.parse(script[0]?.script || '')[0] as LinkedData
-  const linkedDataLength = Object.keys(linkedData || {})?.length
-  if (!linkedDataLength) {
-    const iteratedPage = (await parseRecipe(page)) as IteratedData
-    console.log('isIterated', iteratedPage)
-
-    await browser.close()
-
-    return iteratedPage
-  }
-
-  await browser.close()
-
-  linkedData.parsingType = 'linkedData'
-  console.log('linkedDagta', linkedData)
-  return linkedData || {}
-}
