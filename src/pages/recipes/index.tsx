@@ -116,8 +116,12 @@ function CreateRecipePopover() {
 
   return (
     <>
-      <div className='flex h-full items-center justify-center'>
-        <Button type='button' onClick={openModal} color='accent'>
+      <div className='card flex h-full items-center justify-center overflow-hidden'>
+        <Button
+          type='button'
+          onClick={openModal}
+          className='btn-accent btn h-full'
+        >
           Create from website
         </Button>
       </div>
@@ -233,9 +237,9 @@ export function UploadRecipeUrlForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className=''>
-      <div className='mt-2 flex flex-col gap-1'>
+      <div className='prose mt-2 flex flex-col gap-1'>
         <label htmlFor='url' className='label'>
-          Recipe URL
+          <span className='label-text'>Recipe URL</span>
         </label>
         <input {...register('url')} className='input select-auto' autoFocus />
         <ErrorMessage
@@ -245,7 +249,7 @@ export function UploadRecipeUrlForm({
         />
       </div>
       <div className='mt-4'>
-        <Button className='w-full' type='submit'>
+        <Button className='btn-primary btn w-full' type='submit'>
           Upload
         </Button>
       </div>
