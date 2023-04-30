@@ -1,13 +1,17 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
-import { api } from '../../utils/api'
 import { ChangeEvent, useState } from 'react'
-import { CreateList } from '../../server/api/routers/list'
 import Image from 'next/image'
-import { Button } from '../../components/Button'
-import defaultRecipe from '../../assets/default-recipe.jpeg'
-import { Checkbox } from '../../components/Checkbox'
+import defaultRecipe from 'assets/default-recipe.jpeg'
+import { Button } from 'components/Button'
+import {
+  useRecipeEntity,
+  useRecipeIngredientsAndInstructions
+} from 'hooks/recipeHooks'
+import { api } from 'utils/api'
+import { CreateList } from 'server/api/routers/listRouter'
+import { Checkbox } from 'components/Checkbox'
 
 export default function RecipeByIdContainer() {
   const router = useRouter()
@@ -26,11 +30,10 @@ export default function RecipeByIdContainer() {
 }
 
 export function RecipeById({ id }: { id: number }) {
-  const { data: recipes, status: recipesStatus } = api.recipes.entity.useQuery()
+  const { data: recipes, status: recipesStatus } = useRecipeEntity()
 
-  const { data: recipeInfo, status: recipeStatus } = api.recipes.byId.useQuery({
-    id
-  })
+  const { data: recipeInfo, status: recipeStatus } =
+    useRecipeIngredientsAndInstructions(id)
 
   const isError = recipesStatus === 'error' && recipeStatus === 'error'
   const isSuccess = recipesStatus === 'success' && recipeStatus === 'success'
@@ -131,7 +134,7 @@ function FoundRecipe({
         <p>{description}</p>
         <div className='mb-4'>
           <Button
-            className='w-full'
+            className='btn-primary btn w-full'
             disabled={noneChecked}
             onClick={handleCreateList}
             isLoading={isLoading}

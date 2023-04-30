@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn, useSession } from 'next-auth/react'
 import { z } from 'zod'
-import { Button } from '../components/Button'
 import Link from 'next/link'
 import GenerateRecipe from './_generate'
+import { Button } from 'components/Button'
 
 export const authSchema = z.object({
   email: z.string().email(),
