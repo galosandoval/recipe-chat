@@ -2,9 +2,9 @@ import Head from 'next/head'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Button } from '../components/Button'
+import { Button } from 'components/Button'
 import { ErrorMessage } from '@hookform/error-message'
-import { api } from '../utils/api'
+import { api } from 'utils/api'
 import { signIn } from 'next-auth/react'
 
 export const signUpSchema = z

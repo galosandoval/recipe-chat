@@ -3,7 +3,7 @@ import { Recipe } from '@prisma/client'
 import { createTRPCRouter, protectedProcedure } from '../trpc'
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
 import { TRPCError } from '@trpc/server'
-import { parseHtml } from '../../helpers/parseRecipeUrlHelper'
+import { parseHtml } from 'server/helpers/parseRecipeUrlHelper'
 
 const createRecipeSchema = z.object({
   description: z.string().optional(),

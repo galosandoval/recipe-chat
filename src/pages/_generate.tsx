@@ -1,13 +1,13 @@
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { api } from '../utils/api'
-import { Button } from '../components/Button'
 import { MouseEvent, useState } from 'react'
-import { Modal } from '../components/Modal'
-import { FormSkeleton } from '../components/FormSkeleton'
-import { GeneratedRecipe } from '../server/api/routers/recipe'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/router'
+import { Button } from 'components/Button'
+import { Modal } from 'components/Modal'
+import { api } from 'utils/api'
+import { FormSkeleton } from 'components/FormSkeleton'
+import { GeneratedRecipe } from 'server/api/routers/recipeRouter'
 
 export type FormValues = {
   name: string
