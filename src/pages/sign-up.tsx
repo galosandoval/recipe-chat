@@ -20,7 +20,7 @@ export const signUpSchema = z
 
 type SignUpSchemaType = z.infer<typeof signUpSchema>
 
-export default function SignUp() {
+export default function SignUpView() {
   const {
     register,
     handleSubmit,

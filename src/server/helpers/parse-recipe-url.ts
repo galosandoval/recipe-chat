@@ -22,12 +22,4 @@ export type LinkedData = {
   parsingType: 'linkedData'
 }
 
-export type IteratedData = {
-  instructions: string[][]
-  ingredients: string[][]
-  names: string[]
-  descriptions: string[]
-  parsingType: 'iterated'
-}
-
-export type ScrapedRecipe = LinkedData | IteratedData
+export type ScrapedRecipe = LinkedData

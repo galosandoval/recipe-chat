@@ -42,11 +42,10 @@ export const recipeRouter = createTRPCRouter({
 
   parseRecipeUrl: protectedProcedure
     .input(z.string())
-    .mutation(async ({ input }) => {
+    .query(async ({ input }) => {
       const response = await fetch(input)
       const html = await response.text()
-      if (html.indexOf('ld+json') > 0) {
-      }
+
       return parseHtml(html)
     }),
 

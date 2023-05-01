@@ -61,6 +61,11 @@ export function CreateRecipeForm(props: {
           </label>
           <textarea
             id='ingredients'
+            rows={
+              props.form.getValues('ingredients').length > 6
+                ? 6
+                : props.form.getValues('ingredients').length
+            }
             {...props.form.register('ingredients')}
             className='textarea resize-none'
           />
@@ -71,13 +76,18 @@ export function CreateRecipeForm(props: {
           </label>
           <textarea
             id='instructions'
+            rows={
+              props.form.getValues('instructions').length > 6
+                ? 6
+                : props.form.getValues('instructions').length
+            }
             {...props.form.register('instructions')}
             className='textarea resize-none'
           />
         </div>
       </div>
 
-      <slot />
+      {props.slot}
     </form>
   )
 }

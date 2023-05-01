@@ -9,5 +9,8 @@ const selectRecipeNames = (data: Recipe[]) => {
   return nameDictionary
 }
 export function useRecipeNames(ids: number[]) {
-  return api.recipe.byIds.useQuery(ids, { select: selectRecipeNames })
+  return api.recipe.byIds.useQuery(ids, {
+    select: selectRecipeNames,
+    refetchOnWindowFocus: false
+  })
 }

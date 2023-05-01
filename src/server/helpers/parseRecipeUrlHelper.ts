@@ -33,5 +33,11 @@ export function parseHtml(html: string) {
     }
   }
 
-  return JSON.parse(html.slice(openScriptIdx, closeScriptIdx)) as ScrapedRecipe
+  console.log(
+    'parsed recipe',
+    JSON.parse(html.slice(openScriptIdx, closeScriptIdx)) as ScrapedRecipe
+  )
+  return JSON.parse(
+    html.slice(openScriptIdx, closeScriptIdx)
+  )[0] as ScrapedRecipe
 }

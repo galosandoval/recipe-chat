@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { api } from '../utils/api'
 import { ScrapedRecipe } from '../server/helpers/parse-recipe-url'
-import { Step, TotalSteps } from '../components/TransitionWrapper'
-import { Dialog } from '@headlessui/react'
-import { CreateRecipe, UploadRecipeUrlForm } from '../pages/recipes'
+import { useRouter } from 'next/router'
 
-export const useRecipeEntity = () => api.recipe.entity.useQuery(undefined)
+export const useRecipeEntity = () =>
+  api.recipe.entity.useQuery(undefined, { refetchOnWindowFocus: false })
 
 export const useRecipeIngredientsAndInstructions = (id: number) =>
-  api.recipe.ingredientsAndInstructions.useQuery({
-    id
-  })
+  api.recipe.ingredientsAndInstructions.useQuery(
+    {
+      id
+    },
+    { refetchOnWindowFocus: false }
+  )
 
 export function useParseRecipeOnClient() {
   const [data, setData] = useState<ScrapedRecipe>()
@@ -74,66 +76,14 @@ export function useParseRecipeOnClient() {
   return { fetchRecipe, data, status }
 }
 
-export function useParseRecipe() {
-  const {
-    data: parsedDataOnClient,
-    fetchRecipe,
-    status
-  } = useParseRecipeOnClient()
-  const parseRecipeOnServer = api.recipe.parseRecipeUrl.useMutation()
-
-  let data = parsedDataOnClient
-  if (parseRecipeOnServer.status === 'success') {
-    data = parseRecipeOnServer.data
-  }
-
-  const isError = parseRecipeOnServer.status === 'error'
-  const isSuccess =
-    status === 'success' || parseRecipeOnServer.status === 'success'
-
-  const steps: TotalSteps = {
-    first: {
-      key: 'first',
-      next: 'second',
-      prev: null,
-      component: (
-        <>
-          <Dialog.Title as='h3' className=''>
-            Paste a recipe from the web
-          </Dialog.Title>
-          <UploadRecipeUrlForm onSubmit={onSubmitUrl} />
-        </>
-      )
-    },
-    second: {
-      key: 'second',
-      next: null,
-      prev: 'first',
-      component: (
-        <>
-          <Dialog.Title as='h3' className=''>
-            Save recipe
-          </Dialog.Title>
-          <CreateRecipe
-            closeModal={closeModal}
-            data={data}
-            isError={isError}
-            isSuccess={isSuccess}
-          />
-        </>
-      )
-    }
-  } as const
-
+export function useCreateRecipeController() {
   const [isOpen, setIsOpen] = useState(false)
-
-  const [currentStep, setCurrentStep] = useState<Step | undefined>(steps.first)
+  const [enableParseRecipe, setEnableParseRecipe] = useState(false)
 
   function closeModal() {
     setIsOpen(false)
     setTimeout(() => {
       // to show UI change after closing modal
-      setCurrentStep(steps.first)
     }, 200)
   }
 
@@ -141,19 +91,41 @@ export function useParseRecipe() {
     setIsOpen(true)
   }
 
-  function nextStep() {
-    setCurrentStep((state) => steps[state?.next as keyof typeof steps])
+  async function onSubmitUrl() {
+    setEnableParseRecipe(true)
   }
 
-  async function onSubmitUrl({ url }: { url: string }) {
-    const isSuccessOnClient = await fetchRecipe(url)
+  return {
+    isOpen,
+    enableParseRecipe,
+    openModal,
+    closeModal,
+    onSubmitUrl
+  }
+}
 
-    if (!isSuccessOnClient) {
-      parseRecipeOnServer.mutate(url)
+export function useParseRecipe(url: string, enabled: boolean) {
+  const router = useRouter()
+  const parseRecipe = api.recipe.parseRecipeUrl.useQuery(url, {
+    enabled,
+    onSuccess: (data) => {
+      console.log('data', data)
+      router.push(`recipes/create/${encodeURIComponent(url)}`)
     }
+  })
 
-    nextStep()
-  }
+  return parseRecipe
+}
+export type ParsedRecipe = ReturnType<typeof useParseRecipe>
 
-  return { isOpen, steps, currentStep, openModal, closeModal }
+export const useAddToList = () => api.list.upsert.useMutation()
+
+export const useCreateRecipe = () => {
+  const util = api.useContext()
+
+  return api.recipe.create.useMutation({
+    onSuccess: async () => {
+      util.recipe.entity.invalidate()
+    }
+  })
 }

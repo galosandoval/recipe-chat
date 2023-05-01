@@ -6,19 +6,24 @@ import { useForm } from 'react-hook-form'
 import { ErrorMessage } from '@hookform/error-message'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useParseRecipe, useRecipeEntity } from 'hooks/recipeHooks'
+import {
+  ParsedRecipe,
+  useCreateRecipe,
+  useCreateRecipeController,
+  useParseRecipe,
+  useRecipeEntity
+} from 'hooks/recipeHooks'
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
-import { TransitionWrapper } from 'components/TransitionWrapper'
-import { LinkedData, ScrapedRecipe } from 'server/helpers/parse-recipe-url'
+import { ScrapedRecipe } from 'server/helpers/parse-recipe-url'
 import { FormSkeleton } from 'components/FormSkeleton'
-import { api } from 'utils/api'
 import { FormValues } from 'pages/_generate'
 import { CreateRecipeParams } from 'server/api/routers/recipeRouter'
 import { CreateRecipeForm } from 'components/CreateRecipeForm'
 import { MyHead } from 'components/Head'
+import { Dialog } from '@headlessui/react'
 
-export default function Recipes() {
+export default function RecipesView() {
   return (
     <>
       <MyHead title='Listy - Recipes' />
@@ -94,13 +99,14 @@ function Card({ data }: { data: Recipe }) {
 function CreateRecipeCard() {
   return (
     <div className='flex flex-col overflow-hidden rounded'>
-      <CreateRecipePopover />
+      <CreateRecipeDialog />
     </div>
   )
 }
 
-function CreateRecipePopover() {
-  const { isOpen, steps, currentStep, openModal, closeModal } = useParseRecipe()
+function CreateRecipeDialog() {
+  const { isOpen, enableParseRecipe, openModal, closeModal, onSubmitUrl } =
+    useCreateRecipeController()
 
   return (
     <>
@@ -114,7 +120,12 @@ function CreateRecipePopover() {
         </Button>
       </div>
       <Modal closeModal={closeModal} isOpen={isOpen}>
-        <TransitionWrapper currentStep={currentStep} steps={steps} />
+        {/* <TransitionWrapper currentStep={currentStep} steps={steps} /> */}
+
+        <UploadRecipeUrlForm
+          enableParseRecipe={enableParseRecipe}
+          onSubmit={onSubmitUrl}
+        />
       </Modal>
     </>
   )
@@ -127,45 +138,86 @@ const recipeUrlSchema = z.object({
 type RecipeUrlSchemaType = z.infer<typeof recipeUrlSchema>
 
 export function UploadRecipeUrlForm({
-  onSubmit
+  onSubmit,
+  enableParseRecipe
 }: {
   onSubmit(values: RecipeUrlSchemaType): void
+  enableParseRecipe: boolean
 }) {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
+    getValues
   } = useForm<RecipeUrlSchemaType>({
     resolver: zodResolver(recipeUrlSchema)
   })
 
+  const parsedRecipe = useParseRecipe(getValues('url'), enableParseRecipe)
+
+  if (enableParseRecipe) {
+    return <ParseRecipeLoader parsedRecipe={parsedRecipe} />
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className=''>
-      <div className='prose mt-2 flex flex-col gap-1'>
-        <label htmlFor='url' className='label'>
-          <span className='label-text'>Recipe URL</span>
-        </label>
-        <input {...register('url')} className='input select-auto' autoFocus />
-        <ErrorMessage
-          errors={errors}
-          name='url'
-          render={({ message }) => <p>{message}</p>}
-        />
-      </div>
-      <div className='mt-4'>
-        <Button className='btn-primary btn w-full' type='submit'>
-          Upload
-        </Button>
-      </div>
-    </form>
+    <>
+      <Dialog.Title as='h3' className=''>
+        Paste a recipe from the web
+      </Dialog.Title>
+      <form onSubmit={handleSubmit(onSubmit)} className=''>
+        <div className='prose mt-2 flex flex-col gap-1'>
+          <label htmlFor='url' className='label'>
+            <span className='label-text'>Recipe URL</span>
+          </label>
+          <input {...register('url')} className='input select-auto' autoFocus />
+          <ErrorMessage
+            errors={errors}
+            name='url'
+            render={({ message }) => <p>{message}</p>}
+          />
+        </div>
+        <div className='mt-4'>
+          <Button className='btn-primary btn w-full' type='submit'>
+            Upload
+          </Button>
+        </div>
+      </form>
+    </>
+  )
+}
+
+function ParseRecipeLoader({ parsedRecipe }: { parsedRecipe: ParsedRecipe }) {
+  const { isError } = parsedRecipe
+
+  let progress = <progress className='progress w-full'></progress>
+  let description = 'Finding ingredients'
+
+  if (isError) {
+    description = 'Failed to parse recipe'
+    progress = (
+      <progress
+        className='progress progress-error w-full'
+        value='100'
+        max='100'
+      ></progress>
+    )
+  }
+
+  return (
+    <>
+      <Dialog.Title as='h3' className=''>
+        Parsing your recipe
+      </Dialog.Title>
+      <Dialog.Description>{description}</Dialog.Description>
+      {progress}
+    </>
   )
 }
 
 export function CreateRecipe({
   data,
   isError,
-  isSuccess,
-  closeModal
+  isSuccess
 }: {
   data: ScrapedRecipe | undefined
   isError: boolean
@@ -177,23 +229,14 @@ export function CreateRecipe({
   }
 
   if (isSuccess && data) {
-    if (data.parsingType === 'linkedData') {
-      return <CreateRecipeSuccess closeModal={closeModal} data={data} />
-    } else return <p>Oops something went wrong</p>
+    console.log('create', data)
+    return <CreateRecipeSuccess data={data} />
   }
 
   return <FormSkeleton />
 }
 
-function CreateRecipeSuccess({
-  data,
-  closeModal
-}: {
-  data: LinkedData
-  closeModal: () => void
-}) {
-  const util = api.useContext()
-
+function CreateRecipeSuccess({ data }: { data: ScrapedRecipe }) {
   const form = useForm<FormValues>({
     defaultValues: {
       description: data.description || '',
@@ -203,12 +246,7 @@ function CreateRecipeSuccess({
     }
   })
 
-  const { mutate, isLoading } = api.recipe.create.useMutation({
-    onSuccess: async () => {
-      util.recipe.entity.invalidate()
-      closeModal()
-    }
-  })
+  const { mutate, isLoading } = useCreateRecipe()
 
   const onSubmit = (values: FormValues) => {
     const params: CreateRecipeParams = {
@@ -225,7 +263,12 @@ function CreateRecipeSuccess({
       onSubmit={onSubmit}
       slot={
         <div className='mt-4'>
-          <Button isLoading={isLoading} type='submit' disabled={isLoading}>
+          <Button
+            className='btn-primary btn w-full'
+            isLoading={isLoading}
+            type='submit'
+            disabled={isLoading}
+          >
             Save
           </Button>
         </div>
