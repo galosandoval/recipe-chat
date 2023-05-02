@@ -21,9 +21,9 @@ export default function RecipeByIdView() {
   useEffect(() => {
     const noSleep = new NoSleep()
     document.addEventListener(
-      'click',
+      'scroll',
       function enableNoSleep() {
-        document.removeEventListener('click', enableNoSleep, false)
+        document.removeEventListener('scroll', enableNoSleep, false)
         noSleep.enable()
       },
       false
