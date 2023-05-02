@@ -82,8 +82,8 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   if (status === 'authenticated') {
     return (
-      <div className='fixed flex h-screen w-full flex-col-reverse overflow-auto h-screen-ios md:flex-row'>
-        <nav className='relative z-10 flex justify-between px-8 py-3'>
+      <div className='relative flex h-screen w-full flex-col-reverse overflow-auto h-screen-ios md:flex-row'>
+        <nav className='absolute bottom-0 z-10 flex w-full justify-between bg-base-100 px-8 py-3'>
           {menuItems.map((item) => (
             <Link
               className={activeLinkStyles(item.value)}
@@ -104,7 +104,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               <span className=''>{item.label}</span>
             </Link>
           ))}
-          <div className='grid place-items-center text-base-content'>
+          <div className='relative grid place-items-center text-base-content'>
             <label className='swap-rotate swap'>
               <input type='checkbox' />
               <svg
@@ -131,7 +131,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </label>
           </div>
         </nav>
-        <main className='container relative z-0 h-full overflow-y-auto'>
+        <main className='container relative z-0 mb-[68px] h-full overflow-y-auto'>
           {children}
         </main>
       </div>
