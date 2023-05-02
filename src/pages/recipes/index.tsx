@@ -41,7 +41,7 @@ export function ListRecent() {
         <div className='prose'>
           <h1 className=''>Recent Recipes</h1>
         </div>
-        <div className='grid grid-cols-2 gap-5 p-8 md:grid-cols-4'>
+        <div className='grid grid-cols-2 gap-5 py-8 md:grid-cols-4'>
           <CardList data={Object.values(data)} />
         </div>
       </div>
