@@ -1,6 +1,6 @@
 import { authRouter } from './routers/authRouter'
 import { listRouter } from './routers/listRouter'
-import { recipeRouter } from './routers/recipeRouter'
+import { recipeRouter } from './routers/recipe/router'
 import { createTRPCRouter } from './trpc'
 
 /**

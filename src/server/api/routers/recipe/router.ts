@@ -1,22 +1,11 @@
 import { z } from 'zod'
 import { Recipe } from '@prisma/client'
-import { createTRPCRouter, protectedProcedure } from '../trpc'
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
 import { TRPCError } from '@trpc/server'
-import { parseHtml } from 'server/helpers/parseRecipeUrlHelper'
+import * as cheerio from 'cheerio'
 
-const createRecipeSchema = z.object({
-  description: z.string().optional(),
-  name: z.string(),
-  imgUrl: z.string().optional(),
-  author: z.string().optional(),
-  address: z.string().optional(),
-  ingredients: z.array(z.string()),
-  instructions: z.array(z.string()),
-  url: z.string().optional()
-})
-
-export type CreateRecipeParams = z.infer<typeof createRecipeSchema>
+import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
+import { GeneratedRecipe, LinkedData, createRecipeSchema } from './interface'
 
 export const recipeRouter = createTRPCRouter({
   entity: protectedProcedure.query(async ({ ctx }) => {
@@ -44,10 +33,74 @@ export const recipeRouter = createTRPCRouter({
     .input(z.string())
     .mutation(async ({ input }) => {
       const response = await fetch(input)
-      const html = await response.text()
-      if (html.indexOf('ld+json') > 0) {
+      const text = await response.text()
+
+      const $ = cheerio.load(text)
+      const jsonRaw =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ($("script[type='application/ld+json']")[0].children[0] as any)
+          ?.data as string
+
+      const jsonRawNoSpaces = jsonRaw.replace(/\n/g, '')
+      const parsed = JSON.parse(jsonRawNoSpaces) as LinkedData
+
+      if ('@graph' in parsed) {
+        const recipeField = parsed['@graph'].find((f) => {
+          const field = f['@type']
+          if (Array.isArray(field)) {
+            const asArray = field.find((f) => f === 'Recipe')
+            if (asArray) return true
+          }
+
+          if (typeof field === 'string') {
+            return field === 'Recipe'
+          }
+
+          return false
+        })
+        if (recipeField) {
+          return recipeField
+        }
+
+        throw new TRPCError({
+          message: 'Did not find linked data in @graph',
+          code: 'INTERNAL_SERVER_ERROR',
+          cause: parsed
+        })
+      } else if ('@type' in parsed) {
+        const field = parsed['@type']
+        if (Array.isArray(field)) {
+          const asArray = field.find((f) => f === 'Recipe')
+          if (asArray) return parsed
+        }
+
+        if (typeof field === 'string') {
+          return parsed
+        }
+      } else if (Array.isArray(parsed)) {
+        const recipeField = parsed.find((f) => {
+          const field = f['@type']
+          if (Array.isArray(field)) {
+            const asArray = field.find((f) => f === 'Recipe')
+            if (asArray) return true
+          }
+
+          if (typeof field === 'string') {
+            return field === 'Recipe'
+          }
+
+          return false
+        })
+        if (recipeField) {
+          return recipeField
+        }
       }
-      return parseHtml(html)
+      console.log('parsed', parsed)
+      throw new TRPCError({
+        message: 'Did not find linked data',
+        code: 'INTERNAL_SERVER_ERROR',
+        cause: parsed
+      })
     }),
 
   create: protectedProcedure
@@ -121,13 +174,24 @@ export const recipeRouter = createTRPCRouter({
 
         const content = completion.data.choices[0].message?.content
 
-        if (content && content.startsWith('{') && content.endsWith('}')) {
-          return JSON.parse(content) as GeneratedRecipe
+        if (content) {
+          const startOfBracket = content.indexOf('{')
+          let endOfBraket = content.length
+          for (let i = content.length || 0; i >= 0; i--) {
+            const element = content[i]
+            if (element === '}') {
+              endOfBraket = i
+              break
+            }
+          }
+          const sliced = content.slice(startOfBracket, endOfBraket + 1)
+
+          return JSON.parse(sliced) as GeneratedRecipe
         } else {
           throw new TRPCError({
             code: 'BAD_REQUEST',
             message: `ChatGPT returned content incorrectly. Content: ${content}`,
-            cause: content
+            cause: { payload: input.message }
           })
         }
       } catch (error) {
@@ -141,11 +205,44 @@ export const recipeRouter = createTRPCRouter({
     })
 })
 
-export type GeneratedRecipe = {
-  name: string
-  ingredients: string[]
-  instructions: string[]
-  description: string
-  prepTime: string
-  cookTime: string
-}
+// export function parseHtml(html: string) {
+//   let openScriptIdx = 0
+//   let closeScriptIdx = 0
+//   let foundLinkedData = false
+//   for (let i = 0; i < html.length - 4; i++) {
+//     const char1 = html[i]
+//     const char2 = html[i + 1]
+//     const char3 = html[i + 2]
+//     const char4 = html[i + 3]
+//     const char5 = html[i + 4]
+
+//     if (
+//       char1 === 'l' &&
+//       char2 === 'd' &&
+//       char3 === '+' &&
+//       char4 === 'j' &&
+//       char5 === 's'
+//     ) {
+//       foundLinkedData = true
+//       openScriptIdx = i + 9
+//     } else if (
+//       foundLinkedData &&
+//       char1 === '<' &&
+//       char2 === '/' &&
+//       char3 === 's' &&
+//       char4 === 'c' &&
+//       char5 === 'r'
+//     ) {
+//       closeScriptIdx = i
+//       break
+//     }
+//   }
+
+//   console.log(
+//     'parsed recipe',
+//     JSON.parse(html.slice(openScriptIdx, closeScriptIdx)) as ScrapedRecipe
+//   )
+//   return JSON.parse(
+//     html.slice(openScriptIdx, closeScriptIdx)
+//   )[0] as ScrapedRecipe
+// }

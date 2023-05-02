@@ -5,15 +5,15 @@ import Image from 'next/image'
 import defaultRecipe from 'assets/default-recipe.jpeg'
 import { Button } from 'components/Button'
 import {
+  useAddToList,
   useRecipeEntity,
   useRecipeIngredientsAndInstructions
 } from 'hooks/recipeHooks'
-import { api } from 'utils/api'
 import { CreateList } from 'server/api/routers/listRouter'
 import { Checkbox } from 'components/Checkbox'
 import { MyHead } from 'components/Head'
 
-export default function RecipeByIdContainer() {
+export default function RecipeByIdView() {
   const router = useRouter()
   const { id, name } = router.query
 
@@ -63,7 +63,7 @@ function FoundRecipe({
     name
   } = data
 
-  const { mutate, isLoading } = api.list.upsert.useMutation()
+  const { mutate, isLoading } = useAddToList()
 
   const initialChecked: Checked = {}
   ingredients.forEach((i) => (initialChecked[i.id] = true))

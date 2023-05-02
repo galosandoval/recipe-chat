@@ -6,7 +6,7 @@ import { Button } from 'components/Button'
 import { useList, useRecipeNames } from 'hooks/listHooks'
 import { MyHead } from 'components/Head'
 
-export default function ListRoute() {
+export default function ListView() {
   return (
     <>
       <MyHead title='Listy - List' />
