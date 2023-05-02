@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import defaultRecipe from 'assets/default-recipe.jpeg'
 import { Button } from 'components/Button'
@@ -17,14 +17,6 @@ import NoSleep from 'nosleep.js'
 export default function RecipeByIdView() {
   const router = useRouter()
   const { id, name } = router.query
-
-  useEffect(() => {
-    const noSleep = new NoSleep()
-
-    document.addEventListener('load', () => noSleep.enable(), false)
-
-    return () => document.removeEventListener('load', () => noSleep.disable())
-  }, [])
 
   return (
     <>
@@ -71,6 +63,7 @@ function FoundRecipe({
     instructions,
     name
   } = data
+  const mainRef = useRef<HTMLDivElement>(null)
 
   const { mutate, isLoading } = useAddToList()
 
@@ -121,9 +114,62 @@ function FoundRecipe({
       </a>
     )
   }
+  // useEffect(() => {
+  //   if (mainRef.current) {
+  //     let isEnableNoSleep = false
+  //     const noSleep = new NoSleep()
+  //     mainRef.current.addEventListener(
+  //       `click`,
+  //       function enableNoSleep() {
+  //         mainRef.current?.removeEventListener(`click`, enableNoSleep, false)
+  //         noSleep.enable()
+  //         isEnableNoSleep = true
+  //         alert(`click and enable noSleep`)
+  //       },
+  //       false
+  //     )
+  //     return () => {
+  //       if (isEnableNoSleep) {
+  //         noSleep.disable()
+  //       }
+  //     }
+  //   }
+  // }, [])
+
+  // useEffect(() => {
+  //   if (mainRef.current) {
+  //     let isEnableNoSleep = false
+  //     const noSleep = new NoSleep()
+  //     mainRef.current.addEventListener(
+  //       `focus`,
+  //       function enableNoSleep() {
+  //         mainRef.current?.removeEventListener(`focus`, enableNoSleep, false)
+  //         noSleep.enable()
+  //         isEnableNoSleep = true
+  //         alert(`focus and enable noSleep`)
+  //       },
+  //       false
+  //     )
+  //     return () => {
+  //       if (isEnableNoSleep) {
+  //         noSleep.disable()
+  //       }
+  //     }
+  //   }
+  // }, [])
+  useEffect(() => {
+    const noSleep = new NoSleep()
+    noSleep.enable()
+    return () => {
+      noSleep.disable
+    }
+  }, [])
 
   return (
-    <div className='container prose mx-auto flex flex-col items-center py-4'>
+    <div
+      ref={mainRef}
+      className='container prose mx-auto flex flex-col items-center py-4'
+    >
       <div className='flex flex-col'>
         <h1>{name}</h1>
         <div className=''>
