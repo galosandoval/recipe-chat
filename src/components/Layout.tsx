@@ -67,7 +67,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className='fixed flex h-screen w-full flex-col-reverse h-screen-ios md:flex-row'>
+    <div className='fixed flex h-screen w-full flex-col-reverse overflow-auto h-screen-ios md:flex-row'>
       <nav className='relative z-10 flex justify-between px-5 py-5'>
         {menuItems.map((item) => (
           <Link
@@ -89,7 +89,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </Link>
         ))}
         <div className='text-primary'>
-          <label className='swap-rotate swap'>
+          <label className='swap swap-rotate'>
             <input type='checkbox' />
 
             <svg

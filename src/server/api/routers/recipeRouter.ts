@@ -45,7 +45,7 @@ export const recipeRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const response = await fetch(input)
       const html = await response.text()
-
+      console.log('html', html)
       return parseHtml(html)
     }),
 
@@ -120,13 +120,24 @@ export const recipeRouter = createTRPCRouter({
 
         const content = completion.data.choices[0].message?.content
 
-        if (content && content.startsWith('{') && content.endsWith('}')) {
-          return JSON.parse(content) as GeneratedRecipe
+        if (content) {
+          const startOfBracket = content.indexOf('{')
+          let endOfBraket = content.length
+          for (let i = content.length || 0; i >= 0; i--) {
+            const element = content[i]
+            if (element === '}') {
+              endOfBraket = i
+              break
+            }
+          }
+          const sliced = content.slice(startOfBracket, endOfBraket + 1)
+
+          return JSON.parse(sliced) as GeneratedRecipe
         } else {
           throw new TRPCError({
             code: 'BAD_REQUEST',
             message: `ChatGPT returned content incorrectly. Content: ${content}`,
-            cause: content
+            cause: { payload: input.message }
           })
         }
       } catch (error) {

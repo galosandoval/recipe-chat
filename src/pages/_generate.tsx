@@ -25,6 +25,7 @@ export default function GenerateRecipe() {
   const utils = api.useContext()
   utils.recipe.entity.prefetch()
   const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
+  const [enableCloseModal, setEnableCloseModal] = useState(false)
   const genRecipe = api.recipe.generate.useMutation()
   const {
     register,
@@ -53,6 +54,10 @@ export default function GenerateRecipe() {
     clearErrors()
   }
 
+  const handleEnableCloseModal = () => {
+    setEnableCloseModal(true)
+  }
+
   return (
     <div className='flex h-full flex-col justify-between'>
       <div className='prose flex flex-col items-center justify-center overflow-y-auto px-4'>
@@ -73,8 +78,18 @@ export default function GenerateRecipe() {
         </div>
       </div>
       {/*eslint-disable-next-line @typescript-eslint/no-empty-function */}
-      <Modal closeModal={() => {}} isOpen={isGenRecipeOpen}>
+      <Modal
+        closeModal={
+          enableCloseModal
+            ? handleCloseModal
+            : () => {
+                void undefined
+              }
+        }
+        isOpen={isGenRecipeOpen}
+      >
         <SaveGeneratedRecipe
+          handleEnableCloseModal={handleEnableCloseModal}
           handleCloseModal={handleCloseModal}
           recipe={genRecipe}
         />
@@ -107,15 +122,18 @@ export default function GenerateRecipe() {
 
 function SaveGeneratedRecipe(props: {
   recipe: ReturnType<typeof api.recipe.generate.useMutation>
+  handleEnableCloseModal: () => void
   handleCloseModal: () => void
 }) {
   const { status, data } = props.recipe
 
   if (status === 'error') {
+    props.handleEnableCloseModal()
     return <p className=''>Please try again.</p>
   }
 
   if (status === 'success') {
+    props.handleEnableCloseModal()
     return <Form handleCloseModal={props.handleCloseModal} data={data} />
   }
 
