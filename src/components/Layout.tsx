@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import chefHat from '../assets/chefHat.svg'
 import { themeChange } from 'theme-change'
 

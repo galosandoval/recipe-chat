@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import Image from 'next/image'
 import defaultRecipe from 'assets/default-recipe.jpeg'
 import { Button } from 'components/Button'
@@ -12,10 +12,25 @@ import {
 import { CreateList } from 'server/api/routers/listRouter'
 import { Checkbox } from 'components/Checkbox'
 import { MyHead } from 'components/Head'
+import NoSleep from 'nosleep.js'
 
 export default function RecipeByIdView() {
   const router = useRouter()
   const { id, name } = router.query
+
+  useEffect(() => {
+    const noSleep = new NoSleep()
+    document.addEventListener(
+      'click',
+      function enableNoSleep() {
+        document.removeEventListener('click', enableNoSleep, false)
+        noSleep.enable()
+      },
+      false
+    )
+
+    return () => noSleep.disable()
+  }, [])
 
   return (
     <>
