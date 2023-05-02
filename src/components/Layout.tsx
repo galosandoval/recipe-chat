@@ -1,30 +1,46 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode, useEffect } from 'react'
+import React, { ReactNode, useEffect, useRef, useState } from 'react'
 import chefHat from '../assets/chefHat.svg'
 import { themeChange } from 'theme-change'
 
 const darkTheme = 'night'
 const lightTheme = 'winter'
+type Theme = typeof darkTheme | typeof lightTheme
 
 export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter()
+  const [theme, setTheme] = useState<Theme>('night')
   const { status } = useSession()
   const menuItems = [
     { label: 'dashboard', value: '/', icon: chefHat },
     { label: 'list', value: '/list', icon: chefHat },
     { label: 'recipes', value: '/recipes', icon: chefHat }
   ]
+
   const activeLinkStyles = (path: string) => {
-    let styles = 'text-info text-primary flex flex-col items-center'
+    let styles =
+      'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-base-content'
 
     if (router.asPath === path) {
-      styles += ' active'
+      styles =
+        'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-primary'
     }
 
     return styles
   }
+
+  const activeSpanStyles = (path: string) => {
+    let styles = 'absolute -top-3 h-1 w-full bg-base-100'
+
+    if (router.asPath === path) {
+      styles = 'absolute -top-3 h-1 w-full bg-primary'
+    }
+
+    return styles
+  }
+
   useEffect(() => {
     const themeDoesNotExist = !('theme' in localStorage)
     const prefersDarkMode = window.matchMedia(
@@ -40,8 +56,10 @@ export default function Layout({ children }: { children: ReactNode }) {
 
     if (theme === lightTheme) {
       document.documentElement.setAttribute('data-theme', lightTheme)
+      setTheme(lightTheme)
     } else {
       document.documentElement.setAttribute('data-theme', darkTheme)
+      setTheme(darkTheme)
     }
   }, [])
 
@@ -61,20 +79,20 @@ export default function Layout({ children }: { children: ReactNode }) {
     themeChange(false)
     // 👆 false parameter is required for react project
   }, [])
-
   if (status === 'unauthenticated') {
     return <>{children}</>
   }
 
   return (
     <div className='fixed flex h-screen w-full flex-col-reverse overflow-auto h-screen-ios md:flex-row'>
-      <nav className='relative z-10 flex justify-between px-5 py-5'>
+      <nav className='relative z-10 flex justify-between px-8 py-3'>
         {menuItems.map((item) => (
           <Link
             className={activeLinkStyles(item.value)}
             href={item.value}
             key={item.label}
           >
+            <span className={activeSpanStyles(item.value)}></span>
             <svg
               width='24'
               height='24'
@@ -88,12 +106,14 @@ export default function Layout({ children }: { children: ReactNode }) {
             <span className=''>{item.label}</span>
           </Link>
         ))}
-        <div className='text-primary'>
-          <label className='swap swap-rotate'>
+        <div className='grid place-items-center text-base-content'>
+          <label className='swap-rotate swap'>
             <input type='checkbox' />
 
             <svg
-              className={`swap-on h-10 w-10 fill-current`}
+              className={`${
+                theme === 'night' ? 'swap-on' : 'swap-off'
+              } h-8 w-8 fill-current`}
               xmlns='http://www.w3.org/2000/svg'
               viewBox='0 0 24 24'
               fill='currentColor'
@@ -102,7 +122,9 @@ export default function Layout({ children }: { children: ReactNode }) {
               <path d='M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z' />
             </svg>
             <svg
-              className={`swap-off h-10 w-10 fill-current`}
+              className={`${
+                theme === 'winter' ? 'swap-on' : 'swap-off'
+              } h-8 w-8 fill-current`}
               xmlns='http://www.w3.org/2000/svg'
               viewBox='0 0 24 24'
               onClick={handleToggleDarkMode}
