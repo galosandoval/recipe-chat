@@ -20,16 +20,10 @@ export default function RecipeByIdView() {
 
   useEffect(() => {
     const noSleep = new NoSleep()
-    document.addEventListener(
-      'scroll',
-      function enableNoSleep() {
-        document.removeEventListener('scroll', enableNoSleep, false)
-        noSleep.enable()
-      },
-      false
-    )
 
-    return () => noSleep.disable()
+    document.addEventListener('load', () => noSleep.enable(), false)
+
+    return () => document.removeEventListener('load', () => noSleep.disable())
   }, [])
 
   return (
