@@ -7,7 +7,7 @@ import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { api } from 'utils/api'
 import { FormSkeleton } from 'components/FormSkeleton'
-import { GeneratedRecipe } from 'server/api/routers/recipeRouter'
+import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
 
 export type FormValues = {
   name: string
@@ -24,6 +24,7 @@ type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
 export default function GenerateRecipe() {
   const utils = api.useContext()
   utils.recipe.entity.prefetch()
+
   const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
   const [enableCloseModal, setEnableCloseModal] = useState(false)
   const genRecipe = api.recipe.generate.useMutation()

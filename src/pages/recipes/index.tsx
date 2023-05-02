@@ -7,21 +7,21 @@ import { ErrorMessage } from '@hookform/error-message'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  ParsedRecipe,
   useCreateRecipe,
-  useCreateRecipeController,
   useParseRecipe,
   useRecipeEntity
 } from 'hooks/recipeHooks'
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
-import { ScrapedRecipe } from 'server/helpers/parse-recipe-url'
 import { FormSkeleton } from 'components/FormSkeleton'
 import { FormValues } from 'pages/_generate'
-import { CreateRecipeParams } from 'server/api/routers/recipeRouter'
 import { CreateRecipeForm } from 'components/CreateRecipeForm'
 import { MyHead } from 'components/Head'
 import { Dialog } from '@headlessui/react'
+import {
+  CreateRecipeParams,
+  LinkedDataRecipeField
+} from 'server/api/routers/recipe/interface'
 
 export default function RecipesView() {
   return (
@@ -105,8 +105,28 @@ function CreateRecipeCard() {
 }
 
 function CreateRecipeDialog() {
-  const { isOpen, enableParseRecipe, openModal, closeModal, onSubmitUrl } =
-    useCreateRecipeController()
+  const { isOpen, status, data, openModal, closeModal, onSubmitUrl } =
+    useParseRecipe()
+
+  let modalContent = <UploadRecipeUrlForm onSubmit={onSubmitUrl} />
+
+  if (status === 'error') {
+    modalContent = (
+      <progress
+        className='progress progress-error w-full'
+        value='100'
+        max='100'
+      ></progress>
+    )
+  }
+
+  if (status === 'success') {
+    modalContent = <FormSkeleton />
+  }
+
+  if (status === 'success' && data) {
+    modalContent = <CreateRecipe data={data} />
+  }
 
   return (
     <>
@@ -122,10 +142,7 @@ function CreateRecipeDialog() {
       <Modal closeModal={closeModal} isOpen={isOpen}>
         {/* <TransitionWrapper currentStep={currentStep} steps={steps} /> */}
 
-        <UploadRecipeUrlForm
-          enableParseRecipe={enableParseRecipe}
-          onSubmit={onSubmitUrl}
-        />
+        {modalContent}
       </Modal>
     </>
   )
@@ -135,29 +152,20 @@ const recipeUrlSchema = z.object({
   url: z.string().url('Enter a valid url that contains a recipe.')
 })
 
-type RecipeUrlSchemaType = z.infer<typeof recipeUrlSchema>
+export type RecipeUrlSchemaType = z.infer<typeof recipeUrlSchema>
 
 export function UploadRecipeUrlForm({
-  onSubmit,
-  enableParseRecipe
+  onSubmit
 }: {
   onSubmit(values: RecipeUrlSchemaType): void
-  enableParseRecipe: boolean
 }) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    getValues
+    formState: { errors }
   } = useForm<RecipeUrlSchemaType>({
     resolver: zodResolver(recipeUrlSchema)
   })
-
-  const parsedRecipe = useParseRecipe(getValues('url'), enableParseRecipe)
-
-  if (enableParseRecipe) {
-    return <ParseRecipeLoader parsedRecipe={parsedRecipe} />
-  }
 
   return (
     <>
@@ -186,63 +194,16 @@ export function UploadRecipeUrlForm({
   )
 }
 
-function ParseRecipeLoader({ parsedRecipe }: { parsedRecipe: ParsedRecipe }) {
-  const { isError } = parsedRecipe
-
-  let progress = <progress className='progress w-full'></progress>
-  let description = 'Finding ingredients'
-
-  if (isError) {
-    description = 'Failed to parse recipe'
-    progress = (
-      <progress
-        className='progress progress-error w-full'
-        value='100'
-        max='100'
-      ></progress>
-    )
-  }
-
-  return (
-    <>
-      <Dialog.Title as='h3' className=''>
-        Parsing your recipe
-      </Dialog.Title>
-      <Dialog.Description>{description}</Dialog.Description>
-      {progress}
-    </>
-  )
-}
-
-export function CreateRecipe({
-  data,
-  isError,
-  isSuccess
-}: {
-  data: ScrapedRecipe | undefined
-  isError: boolean
-  isSuccess: boolean
-  closeModal: () => void
-}) {
-  if (isError) {
-    return <p className=''>Oops, something went wrong</p>
-  }
-
-  if (isSuccess && data) {
-    console.log('create', data)
-    return <CreateRecipeSuccess data={data} />
-  }
-
-  return <FormSkeleton />
-}
-
-function CreateRecipeSuccess({ data }: { data: ScrapedRecipe }) {
+function CreateRecipe({ data }: { data: LinkedDataRecipeField }) {
   const form = useForm<FormValues>({
     defaultValues: {
       description: data.description || '',
       name: data.name || data.headline || '',
       ingredients: data.recipeIngredient?.join('\n') || '',
-      instructions: data.recipeInstructions?.map((i) => i.text).join('\n') || ''
+      instructions:
+        data.recipeInstructions?.map((i) => i.text)?.join('\n\n') || '',
+      cookTime: data?.cookTime || '',
+      prepTime: data?.prepTime || ''
     }
   })
 
@@ -267,7 +228,6 @@ function CreateRecipeSuccess({ data }: { data: ScrapedRecipe }) {
             className='btn-primary btn w-full'
             isLoading={isLoading}
             type='submit'
-            disabled={isLoading}
           >
             Save
           </Button>

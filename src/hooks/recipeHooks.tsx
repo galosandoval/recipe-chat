@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api } from '../utils/api'
+import { RecipeUrlSchemaType } from 'pages/recipes'
 import { useRouter } from 'next/router'
 
 export const useRecipeEntity = () =>
@@ -13,14 +14,15 @@ export const useRecipeIngredientsAndInstructions = (id: number) =>
     { refetchOnWindowFocus: false }
   )
 
-export function useCreateRecipeController() {
+export function useParseRecipe() {
   const [isOpen, setIsOpen] = useState(false)
-  const [enableParseRecipe, setEnableParseRecipe] = useState(false)
+  const { mutate, status, data, reset } =
+    api.recipe.parseRecipeUrl.useMutation()
 
   function closeModal() {
     setIsOpen(false)
     setTimeout(() => {
-      // to show UI change after closing modal
+      reset()
     }, 200)
   }
 
@@ -28,41 +30,30 @@ export function useCreateRecipeController() {
     setIsOpen(true)
   }
 
-  async function onSubmitUrl() {
-    setEnableParseRecipe(true)
+  async function onSubmitUrl(values: RecipeUrlSchemaType) {
+    mutate(values.url)
   }
 
   return {
     isOpen,
-    enableParseRecipe,
+    status,
+    data,
     openModal,
     closeModal,
     onSubmitUrl
   }
 }
 
-export function useParseRecipe(url: string, enabled: boolean) {
-  const router = useRouter()
-  const parseRecipe = api.recipe.parseRecipeUrl.useQuery(url, {
-    enabled,
-    onSuccess: (data) => {
-      console.log('data', data)
-      router.push(`recipes/create/${encodeURIComponent(url)}`)
-    }
-  })
-
-  return parseRecipe
-}
-export type ParsedRecipe = ReturnType<typeof useParseRecipe>
-
 export const useAddToList = () => api.list.upsert.useMutation()
 
 export const useCreateRecipe = () => {
   const util = api.useContext()
+  const router = useRouter()
 
   return api.recipe.create.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       util.recipe.entity.invalidate()
+      router.push(`/recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
     }
   })
 }

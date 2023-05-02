@@ -8,6 +8,7 @@ export function CreateRecipeForm(props: {
   onSubmit: (values: FormValues) => void
   slot: ReactNode
 }) {
+  console.log('form', props.form.getValues())
   return (
     <form
       onSubmit={props.form.handleSubmit(props.onSubmit)}
@@ -62,9 +63,9 @@ export function CreateRecipeForm(props: {
           <textarea
             id='ingredients'
             rows={
-              props.form.getValues('ingredients').length > 6
+              props.form.getValues('ingredients')?.length > 6
                 ? 6
-                : props.form.getValues('ingredients').length
+                : props.form.getValues('ingredients')?.length
             }
             {...props.form.register('ingredients')}
             className='textarea resize-none'
@@ -77,9 +78,9 @@ export function CreateRecipeForm(props: {
           <textarea
             id='instructions'
             rows={
-              props.form.getValues('instructions').length > 6
+              props.form.getValues('instructions')?.length > 6
                 ? 6
-                : props.form.getValues('instructions').length
+                : props.form.getValues('instructions')?.length
             }
             {...props.form.register('instructions')}
             className='textarea resize-none'
