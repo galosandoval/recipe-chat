@@ -62,15 +62,8 @@ function FoundRecipe({
     instructions: Instruction[]
   }
 }) {
-  const {
-    ingredients,
-    address,
-    author,
-    description,
-    imgUrl,
-    instructions,
-    name
-  } = data
+  const { ingredients, address, author, description, imgUrl, instructions } =
+    data
   const mainRef = useRef<HTMLDivElement>(null)
 
   const { mutate, isLoading } = useAddToList()
@@ -126,12 +119,11 @@ function FoundRecipe({
   return (
     <div
       ref={mainRef}
-      className='container prose mx-auto flex flex-col items-center py-4'
+      className='container prose mx-auto flex flex-col items-center pb-4'
     >
       <div className='flex flex-col'>
-        <h1>{name}</h1>
         <div className=''>
-          <Image alt='recipe' src={imgUrl || defaultRecipe} />
+          <Image className='my-0' alt='recipe' src={imgUrl || defaultRecipe} />
         </div>
         <div className='px-4'>
           {renderAddress}
