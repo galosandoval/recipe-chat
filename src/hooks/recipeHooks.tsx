@@ -4,14 +4,17 @@ import { RecipeUrlSchemaType } from 'pages/recipes'
 import { useRouter } from 'next/router'
 
 export const useRecipeEntity = () =>
-  api.recipe.entity.useQuery(undefined, { refetchOnWindowFocus: false })
+  api.recipe.entity.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    staleTime: Infinity
+  })
 
 export const useRecipeIngredientsAndInstructions = (id: number) =>
   api.recipe.ingredientsAndInstructions.useQuery(
     {
       id
     },
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false, staleTime: Infinity }
   )
 
 export function useParseRecipe() {
