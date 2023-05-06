@@ -47,7 +47,14 @@ export function useParseRecipe() {
   }
 }
 
-export const useAddToList = () => api.list.upsert.useMutation()
+export const useAddToList = (recipeId: number) => {
+  const utils = api.useContext()
+  return api.list.upsert.useMutation({
+    onSuccess: () => {
+      utils.recipe.ingredientsAndInstructions.invalidate({ id: recipeId })
+    }
+  })
+}
 
 export const useCreateRecipe = () => {
   const util = api.useContext()
@@ -59,4 +66,8 @@ export const useCreateRecipe = () => {
       router.push(`/recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
     }
   })
+}
+
+export const useEditRecipe = () => {
+  return api.recipe.edit.useMutation()
 }

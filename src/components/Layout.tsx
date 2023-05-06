@@ -32,7 +32,7 @@ function RootLayout({ children }: { children: ReactNode }) {
 
   const controlNavbar = useCallback(() => {
     if (typeof window !== 'undefined') {
-      if (window.scrollY > lastScrollY) {
+      if (lastScrollY > 10 && window.scrollY > lastScrollY) {
         // if scroll down hide the navbar
         setIsOpen('-translate-y-full')
       } else {
@@ -54,8 +54,13 @@ function RootLayout({ children }: { children: ReactNode }) {
     }
   }, [controlNavbar])
 
+  let outerDivClass = ''
+  if (router.asPath === '/') {
+    outerDivClass = 'h-screen-ios h-screen'
+  }
+
   return (
-    <div>
+    <div className={outerDivClass}>
       <div
         className={`backdrop sticky top-0 z-30 flex w-full justify-center bg-gradient-to-b from-base-100 to-base-100/80 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300 ${isOpen}`}
       >
@@ -113,10 +118,10 @@ function PagesNavbar() {
   }
 
   const activeSpanStyles = (path: string) => {
-    let styles = 'absolute -bottom-[0.65rem] h-1 w-full bg-transparent'
+    let styles = 'absolute top-[3.12rem] h-1 w-full bg-transparent'
 
     if (router.asPath === path) {
-      styles = 'absolute -bottom-[0.65rem] h-1 w-full bg-primary'
+      styles = 'absolute top-[3.12rem] h-1 w-full bg-primary'
     }
 
     return styles

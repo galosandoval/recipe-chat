@@ -41,6 +41,10 @@ function ListController({ data }: { data: Ingredient[] }) {
   const { mutate, isLoading } = api.list.clear.useMutation({
     onSuccess() {
       utils.list.invalidate()
+      const recipeIdSet = Array.from(new Set(data.map((i) => i.recipeId)))
+      recipeIdSet.forEach((id) => {
+        utils.recipe.ingredientsAndInstructions.invalidate({ id })
+      })
       localStorage.checked = JSON.stringify({})
     }
   })
