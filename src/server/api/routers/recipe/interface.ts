@@ -1,3 +1,4 @@
+import { CreateRecipeForm } from 'components/CreateRecipeForm'
 import { z } from 'zod'
 
 export const createRecipeSchema = z.object({
@@ -57,3 +58,23 @@ export type GeneratedRecipe = {
   prepTime: string
   cookTime: string
 }
+
+export const updateRecipeSchema = z.object({
+  id: z.number(),
+  description: z.string().optional(),
+  name: z.string(),
+  imgUrl: z.string().optional(),
+  author: z.string().optional(),
+  address: z.string().optional(),
+  prepTime: z.string().optional(),
+  cookTime: z.string().optional(),
+  ingredients: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      listId: z.number().optional()
+    })
+  ),
+  instructions: z.array(z.object({ id: z.number(), description: z.string() }))
+})
+export type UpdateRecipe = z.infer<typeof updateRecipeSchema>

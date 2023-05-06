@@ -62,10 +62,17 @@ function FoundRecipe({
     instructions: Instruction[]
   }
 }) {
-  const { ingredients, address, author, description, imgUrl, instructions } =
-    data
+  const {
+    ingredients,
+    address,
+    author,
+    description,
+    imgUrl,
+    instructions,
+    id
+  } = data
 
-  const { mutate, isLoading } = useAddToList()
+  const { mutate, isLoading } = useAddToList(id)
 
   const initialChecked: Checked = {}
   ingredients.forEach((i) => (initialChecked[i.id] = true))

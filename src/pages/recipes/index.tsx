@@ -201,7 +201,7 @@ function CreateRecipe({ data }: { data: LinkedDataRecipeField }) {
       name: data.name || data.headline || '',
       ingredients: data.recipeIngredient?.join('\n') || '',
       instructions:
-        data.recipeInstructions?.map((i) => i.text)?.join('\n\n') || '',
+        data.recipeInstructions?.map((i) => i.text)?.join('\n') || '',
       cookTime: data?.cookTime || '',
       prepTime: data?.prepTime || ''
     }
@@ -213,7 +213,7 @@ function CreateRecipe({ data }: { data: LinkedDataRecipeField }) {
     const params: CreateRecipeParams = {
       ...values,
       ingredients: values.ingredients.split('\n'),
-      instructions: values.instructions.split('\n\n')
+      instructions: values.instructions.split('\n')
     }
     mutate(params)
   }

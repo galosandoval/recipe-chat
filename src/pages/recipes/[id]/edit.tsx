@@ -3,12 +3,15 @@ import { Ingredient, Instruction, Recipe } from '@prisma/client'
 import Image from 'next/image'
 import defaultRecipe from 'assets/default-recipe.jpeg'
 import {
+  useEditRecipe,
   useRecipeEntity,
   useRecipeIngredientsAndInstructions
 } from 'hooks/recipeHooks'
 import { MyHead } from 'components/Head'
 import { useForm } from 'react-hook-form'
 import { FormValues } from 'pages/_generate'
+import { Button } from 'components/Button'
+import { UpdateRecipe } from 'server/api/routers/recipe/interface'
 
 export default function EditByIdView() {
   const router = useRouter()
@@ -48,41 +51,102 @@ function FoundRecipe({
     instructions: Instruction[]
   }
 }) {
-  const { ingredients, address, author, description, imgUrl, instructions } =
-    data
+  const {
+    ingredients,
+    description,
+    instructions,
+    name,
+    prepTime,
+    cookTime,
+    id
+  } = data
 
-  let renderAddress: React.ReactNode = null
-  if (address) {
-    renderAddress = (
-      <a href={address} className=''>
-        {address}
-      </a>
-    )
-  }
+  const { mutate } = useEditRecipe()
 
-  let renderAuthor: React.ReactNode = null
-  if (author) {
-    renderAuthor = (
-      <a href={author} className=''>
-        {author}
-      </a>
-    )
-  }
-
-  const { register } = useForm<FormValues>({
+  const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: {
-      cookTime: data.cookTime || '',
-      description: data.description || '',
-      ingredients: data.ingredients.map((i) => i.name).join('\n') || '',
-      instructions:
-        data.instructions.map((i) => i.description).join('\n\n') || '',
-      name: data.name || '',
-      prepTime: data.prepTime || ''
+      cookTime: cookTime || '',
+      description: description || '',
+      ingredients: ingredients.map((i) => i.name).join('\n') || '',
+      instructions: instructions.map((i) => i.description).join('\n') || '',
+      name: name || '',
+      prepTime: prepTime || ''
     }
   })
 
+  const onSubmit = (values: FormValues) => {
+    const newIngredients = values.ingredients
+      .split('\n')
+      .filter((i) => i.length > 2)
+    const oldIngredients = [...ingredients]
+    const maxIngredientsLength = Math.max(
+      newIngredients.length,
+      oldIngredients.length
+    )
+
+    const ingredientsToChange: { id: number; name: string; listId?: number }[] =
+      []
+
+    for (let i = 0; i < maxIngredientsLength; i++) {
+      const newIngredient = newIngredients[i]
+      const oldIngredient = oldIngredients[i]
+
+      if (newIngredient !== oldIngredient?.name) {
+        const changedIngredient = {
+          id: oldIngredient?.id || 0,
+          name: newIngredient || '',
+          listId: oldIngredient?.listId || undefined
+        }
+        ingredientsToChange.push(changedIngredient)
+      }
+    }
+
+    const newInstructions = values.instructions.split('\n')
+    const oldInstructions = [...instructions]
+
+    const maxInstructionLength = Math.max(
+      newInstructions.length,
+      oldInstructions.length
+    )
+
+    const instructionsToChange: { id: number; description: string }[] = []
+
+    for (let i = 0; i < maxInstructionLength; i++) {
+      const newInstruction = newInstructions[i]
+      const oldInstruction = oldInstructions[i]
+
+      if (newInstruction !== oldInstruction?.description) {
+        instructionsToChange.push({
+          id: oldInstruction?.id || 0,
+          description: newInstruction || ''
+        })
+      }
+    }
+
+    const params: Partial<UpdateRecipe> = { id }
+    if (name !== values.name) {
+      params.name = values.name
+    }
+    if (description !== values.description) {
+      params.description = values.description
+    }
+
+    mutate({
+      ingredients: ingredientsToChange,
+      name: values.name,
+      description: values.description,
+      id,
+      instructions: instructionsToChange
+    })
+
+    return
+  }
+
   return (
-    <div className='container prose mx-auto flex flex-col items-center pb-4'>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className='container prose mx-auto flex flex-col items-center pb-4'
+    >
       <div className='flex w-full flex-col'>
         <label htmlFor='name' className='label'>
           <span className='label-text'>Name</span>
@@ -148,6 +212,9 @@ function FoundRecipe({
           className='textarea resize-none'
         />
       </div>
-    </div>
+      <Button className='btn-primary btn' type='submit'>
+        Save
+      </Button>
+    </form>
   )
 }

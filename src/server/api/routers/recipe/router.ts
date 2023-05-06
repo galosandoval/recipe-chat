@@ -5,7 +5,13 @@ import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
 
 import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
-import { GeneratedRecipe, LinkedData, createRecipeSchema } from './interface'
+import {
+  GeneratedRecipe,
+  LinkedData,
+  UpdateRecipe,
+  createRecipeSchema,
+  updateRecipeSchema
+} from './interface'
 
 export const recipeRouter = createTRPCRouter({
   entity: protectedProcedure.query(async ({ ctx }) => {
@@ -95,7 +101,6 @@ export const recipeRouter = createTRPCRouter({
           return recipeField
         }
       }
-      console.log('parsed', parsed)
       throw new TRPCError({
         message: 'Did not find linked data',
         code: 'INTERNAL_SERVER_ERROR',
@@ -138,6 +143,77 @@ export const recipeRouter = createTRPCRouter({
           instructions: true
         }
       })
+    }),
+
+  edit: protectedProcedure
+    .input(updateRecipeSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { id, ingredients } = input
+
+      const ingredientsToDelete: number[] = []
+      const ingredientsToUpdate: UpdateRecipe['ingredients'] = []
+      const ingredientsToAdd: string[] = []
+
+      for (let i = 0; i < ingredients.length; i++) {
+        const ingredient = ingredients[i]
+        if (ingredient.id && ingredient.name) {
+          ingredientsToUpdate.push(ingredient)
+        } else if (ingredient.id) {
+          ingredientsToDelete.push(ingredient.id)
+        } else if (ingredient.name) {
+          ingredientsToAdd.push(ingredient.name)
+        }
+      }
+
+      const promiseArr: Promise<unknown>[] = []
+
+      if (ingredientsToDelete.length) {
+        const deletePromise = ctx.prisma.ingredient.deleteMany({
+          where: { id: { in: ingredientsToDelete } }
+        })
+        promiseArr.push(deletePromise)
+      }
+
+      if (ingredientsToUpdate.length) {
+        // const updatePromise = ctx.prisma.ingredient.updateMany({
+        //   data: {},
+        //   where: {id: {in: ingredientsToUpdate.map(i => i.id)}}
+        // })
+
+        // const somthing = ctx.prisma.recipe.update({
+        //   where: { id },
+        //   data: {
+        //     ingredients: {
+        //       update: {data: ingredientsToUpdate.map(i => ({name: i.name})),
+        //       where: {id}
+            
+        //     },
+            
+        //   }
+        // })
+
+        // promiseArr.push(somthing)
+      }
+
+      const promises = await Promise.all(promiseArr)
+
+      const [deleteResponse] = promises
+      console.log(deleteResponse, 'updateResponse')
+
+      // get all original ingredients and instructions ids
+      // compare ids.length to new amount of ingredients and instructions
+      // if more new than old, update then create new
+      // if less new than old, update then delete old
+      // if same, update all
+
+      // const ingResult = ctx.prisma.ingredient.upsert({update: {}})
+
+      // const result = ctx.prisma.recipe.update({
+      //   where: { id },
+      //   data: { ingredients: { set: { id: 3 } } }
+      // })
+
+      return promises
     }),
 
   generate: protectedProcedure
@@ -204,45 +280,3 @@ export const recipeRouter = createTRPCRouter({
       })
     })
 })
-
-// export function parseHtml(html: string) {
-//   let openScriptIdx = 0
-//   let closeScriptIdx = 0
-//   let foundLinkedData = false
-//   for (let i = 0; i < html.length - 4; i++) {
-//     const char1 = html[i]
-//     const char2 = html[i + 1]
-//     const char3 = html[i + 2]
-//     const char4 = html[i + 3]
-//     const char5 = html[i + 4]
-
-//     if (
-//       char1 === 'l' &&
-//       char2 === 'd' &&
-//       char3 === '+' &&
-//       char4 === 'j' &&
-//       char5 === 's'
-//     ) {
-//       foundLinkedData = true
-//       openScriptIdx = i + 9
-//     } else if (
-//       foundLinkedData &&
-//       char1 === '<' &&
-//       char2 === '/' &&
-//       char3 === 's' &&
-//       char4 === 'c' &&
-//       char5 === 'r'
-//     ) {
-//       closeScriptIdx = i
-//       break
-//     }
-//   }
-
-//   console.log(
-//     'parsed recipe',
-//     JSON.parse(html.slice(openScriptIdx, closeScriptIdx)) as ScrapedRecipe
-//   )
-//   return JSON.parse(
-//     html.slice(openScriptIdx, closeScriptIdx)
-//   )[0] as ScrapedRecipe
-// }

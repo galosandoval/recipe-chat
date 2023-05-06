@@ -21,22 +21,50 @@ export type FormValues = {
 const generateRecipeFormSchema = z.object({ message: z.string().min(6) })
 type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
 
+type Message = {
+  from: 'me' | 'chat'
+  value: string
+  timeStamp: string
+}
+
 export default function GenerateRecipe() {
   const utils = api.useContext()
   utils.recipe.entity.prefetch()
 
   const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
   const [enableCloseModal, setEnableCloseModal] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([])
   const genRecipe = api.recipe.generate.useMutation()
+
   const {
     register,
     handleSubmit,
     formState: { isDirty, isValid },
     setValue,
+    reset,
     clearErrors
   } = useForm<GenerateRecipeParams>({
     resolver: zodResolver(generateRecipeFormSchema)
   })
+
+  const addMessage = (values: GenerateRecipeParams) => {
+    setMessages((state) => [
+      ...state,
+      { from: 'me', timeStamp: new Date().toISOString(), value: values.message }
+    ])
+    reset()
+
+    setTimeout(() => {
+      setMessages((state) => [
+        ...state,
+        {
+          from: 'chat',
+          timeStamp: new Date().toISOString(),
+          value: 'Generating your recipe...'
+        }
+      ])
+    }, 500)
+  }
 
   const onSubmit = async (values: GenerateRecipeParams) => {
     setIsGenRecipeOpen(true)
@@ -60,31 +88,78 @@ export default function GenerateRecipe() {
   }
 
   return (
-    <div className='flex h-full flex-col justify-between'>
-      <div className='prose flex flex-col items-center justify-center overflow-y-auto px-4'>
-        <h1>RecipeBot</h1>
-        <div className='flex flex-1 flex-col items-center justify-center'>
-          <h2>Examples</h2>
-          <div className='flex flex-col items-center gap-4'>
-            <Button className='btn-primary btn' onClick={handleFillMessage}>
-              What should I make for dinner tonight?
-            </Button>
-            <Button className='btn-primary btn' onClick={handleFillMessage}>
-              Which salad recipe will go well with my steak and potatoes?
-            </Button>
-            <Button className='btn-primary btn' onClick={handleFillMessage}>
-              What&apos;s a the best risotto recipe?
-            </Button>
+    <>
+      <div className='relative flex flex-col'>
+        <div className='prose flex flex-col items-center justify-center overflow-y-auto px-4 pb-16'>
+          <h1>RecipeBot</h1>
+          <div className='flex flex-1 flex-col items-center justify-center'>
+            <h2>Examples</h2>
+            <div className='flex flex-col items-center gap-4'>
+              <Button className='btn-primary btn' onClick={handleFillMessage}>
+                What should I make for dinner tonight?
+              </Button>
+              <Button className='btn-primary btn' onClick={handleFillMessage}>
+                Which salad recipe will go well with my steak and potatoes?
+              </Button>
+              <Button className='btn-primary btn' onClick={handleFillMessage}>
+                What&apos;s a the best risotto recipe?
+              </Button>
+            </div>
           </div>
         </div>
+
+        {messages.length ? (
+          <div className='flex flex-col'>
+            {messages.map((m) => {
+              if (m.from === 'me') {
+                return (
+                  <p
+                    className='chat-bubble chat-bubble-primary ml-auto'
+                    key={m.timeStamp}
+                  >
+                    {m.value}
+                  </p>
+                )
+              }
+              return (
+                <p className='chat-bubble mr-auto' key={m.timeStamp}>
+                  {m.value}
+                </p>
+              )
+            })}
+          </div>
+        ) : null}
+
+        <form
+          onSubmit={handleSubmit(addMessage)}
+          className='fixed bottom-0 flex w-full items-center bg-base-100'
+        >
+          <div className='w-full px-2'>
+            <textarea
+              {...register('message')}
+              placeholder='Generate recipe...'
+              className='input relative w-full resize-none pt-2'
+            />
+          </div>
+          <div className=''>
+            <Button
+              isLoading={genRecipe.isLoading}
+              type='submit'
+              disabled={!isValid || !isDirty}
+              className='btn-accent btn mb-1'
+            >
+              Generate
+            </Button>
+          </div>
+        </form>
       </div>
-      {/*eslint-disable-next-line @typescript-eslint/no-empty-function */}
+
       <Modal
         closeModal={
           enableCloseModal
             ? handleCloseModal
             : () => {
-                void undefined
+                return
               }
         }
         isOpen={isGenRecipeOpen}
@@ -95,29 +170,7 @@ export default function GenerateRecipe() {
           recipe={genRecipe}
         />
       </Modal>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className='input-group flex w-full items-center'
-      >
-        <div className='w-full px-2'>
-          <textarea
-            {...register('message')}
-            placeholder='Generate recipe...'
-            className='input relative w-full resize-none pt-2'
-          />
-        </div>
-        <div className=''>
-          <Button
-            isLoading={genRecipe.isLoading}
-            type='submit'
-            disabled={!isValid || !isDirty}
-            className='btn-accent btn mb-1'
-          >
-            Generate
-          </Button>
-        </div>
-      </form>
-    </div>
+    </>
   )
 }
 
@@ -158,7 +211,7 @@ function Form({
     defaultValues: {
       description,
       ingredients: ingredients.join('\n'),
-      instructions: instructions.join('\n\n'),
+      instructions: instructions.join('\n'),
       name,
       cookTime,
       prepTime
@@ -167,7 +220,7 @@ function Form({
 
   const onSubmit = (values: FormValues) => {
     const ingredients = values.ingredients.split('\n')
-    const instructions = values.instructions.split('\n\n')
+    const instructions = values.instructions.split('\n')
     mutate({ ...values, ingredients, instructions })
   }
 
