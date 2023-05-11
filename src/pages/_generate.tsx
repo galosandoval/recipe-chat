@@ -1,13 +1,12 @@
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { MouseEvent, useState } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/router'
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { api } from 'utils/api'
 import { FormSkeleton } from 'components/FormSkeleton'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
+import {
+  useCreateGeneratedRecipe,
+  useGeneratedRecipe
+} from 'hooks/generateHooks'
 
 export type FormValues = {
   name: string
@@ -18,74 +17,23 @@ export type FormValues = {
   cookTime: string
 }
 
-const generateRecipeFormSchema = z.object({ message: z.string().min(6) })
-type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
-
-type Message = {
-  from: 'me' | 'chat'
-  value: string
-  timeStamp: string
-}
-
 export default function GenerateRecipe() {
   const utils = api.useContext()
   utils.recipe.entity.prefetch()
 
-  const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
-  const [enableCloseModal, setEnableCloseModal] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
-  const genRecipe = api.recipe.generate.useMutation()
-
   const {
-    register,
+    enableCloseModal,
+    genRecipe,
+    isDirty,
+    isGenRecipeOpen,
+    isValid,
+    messages,
+    handleCloseModal,
+    handleEnableCloseModal,
+    handleFillMessage,
     handleSubmit,
-    formState: { isDirty, isValid },
-    setValue,
-    reset,
-    clearErrors
-  } = useForm<GenerateRecipeParams>({
-    resolver: zodResolver(generateRecipeFormSchema)
-  })
-
-  const addMessage = (values: GenerateRecipeParams) => {
-    setMessages((state) => [
-      ...state,
-      { from: 'me', timeStamp: new Date().toISOString(), value: values.message }
-    ])
-    reset()
-
-    setTimeout(() => {
-      setMessages((state) => [
-        ...state,
-        {
-          from: 'chat',
-          timeStamp: new Date().toISOString(),
-          value: 'Generating your recipe...'
-        }
-      ])
-    }, 500)
-  }
-
-  const onSubmit = async (values: GenerateRecipeParams) => {
-    setIsGenRecipeOpen(true)
-    genRecipe.mutate(values)
-  }
-
-  const handleCloseModal = () => {
-    setIsGenRecipeOpen(false)
-  }
-
-  const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
-    setValue('message', e.currentTarget.innerText.toLowerCase(), {
-      shouldValidate: true,
-      shouldDirty: true
-    })
-    clearErrors()
-  }
-
-  const handleEnableCloseModal = () => {
-    setEnableCloseModal(true)
-  }
+    register
+  } = useGeneratedRecipe()
 
   return (
     <>
@@ -131,7 +79,7 @@ export default function GenerateRecipe() {
         ) : null}
 
         <form
-          onSubmit={handleSubmit(addMessage)}
+          onSubmit={handleSubmit}
           className='fixed bottom-0 flex w-full items-center bg-base-100'
         >
           <div className='w-full px-2'>
@@ -195,34 +143,14 @@ function SaveGeneratedRecipe(props: {
 }
 
 function Form({
-  data: { description, ingredients, instructions, name, cookTime, prepTime },
+  data,
   handleCloseModal
 }: {
   data: GeneratedRecipe
   handleCloseModal: () => void
 }) {
-  const router = useRouter()
-  const { mutate, isLoading, isSuccess } = api.recipe.create.useMutation({
-    onSuccess: (data) => {
-      router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
-    }
-  })
-  const { handleSubmit, register, getValues } = useForm<FormValues>({
-    defaultValues: {
-      description,
-      ingredients: ingredients.join('\n'),
-      instructions: instructions.join('\n'),
-      name,
-      cookTime,
-      prepTime
-    }
-  })
-
-  const onSubmit = (values: FormValues) => {
-    const ingredients = values.ingredients.split('\n')
-    const instructions = values.instructions.split('\n')
-    mutate({ ...values, ingredients, instructions })
-  }
+  const { handleSubmit, getValues, register, isSuccess, isLoading } =
+    useCreateGeneratedRecipe(data)
 
   const ingredientsRowSize =
     Math.min((getValues('ingredients') || '').split('\n').length, 12) || 5
@@ -230,7 +158,7 @@ function Form({
     Math.min((getValues('instructions') || '').split('\n').length, 12) || 5
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
+    <form onSubmit={handleSubmit} className='flex flex-col'>
       <div className='mt-2 flex flex-col gap-5'>
         <div className='flex flex-col'>
           <label htmlFor='name' className='label'>
