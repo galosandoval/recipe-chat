@@ -18,9 +18,6 @@ export type FormValues = {
 }
 
 export default function GenerateRecipe() {
-  const utils = api.useContext()
-  utils.recipe.entity.prefetch()
-
   const {
     enableCloseModal,
     genRecipe,
@@ -28,6 +25,7 @@ export default function GenerateRecipe() {
     isGenRecipeOpen,
     isValid,
     messages,
+    onSubmit,
     handleCloseModal,
     handleEnableCloseModal,
     handleFillMessage,
@@ -79,7 +77,7 @@ export default function GenerateRecipe() {
         ) : null}
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className='fixed bottom-0 flex w-full items-center bg-base-100'
         >
           <div className='w-full px-2'>
@@ -149,7 +147,7 @@ function Form({
   data: GeneratedRecipe
   handleCloseModal: () => void
 }) {
-  const { handleSubmit, getValues, register, isSuccess, isLoading } =
+  const { handleSubmit, getValues, register, onSubmit, isSuccess, isLoading } =
     useCreateGeneratedRecipe(data)
 
   const ingredientsRowSize =
@@ -158,7 +156,7 @@ function Form({
     Math.min((getValues('instructions') || '').split('\n').length, 12) || 5
 
   return (
-    <form onSubmit={handleSubmit} className='flex flex-col'>
+    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
       <div className='mt-2 flex flex-col gap-5'>
         <div className='flex flex-col'>
           <label htmlFor='name' className='label'>
