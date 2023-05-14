@@ -43,7 +43,16 @@ export const api = createTRPCNext<AppRouter>({
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`
         })
-      ]
+      ],
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            cacheTime: Infinity,
+            staleTime: Infinity,
+            refetchOnWindowFocus: process.env.NODE_ENV === 'production'
+          }
+        }
+      }
     }
   },
   /**
@@ -60,10 +69,3 @@ export const api = createTRPCNext<AppRouter>({
  * @example type HelloInput = RouterInputs['example']['hello']
  **/
 export type RouterInputs = inferRouterInputs<AppRouter>
-
-/**
- * Inference helper for outputs.
- *
- * @example type HelloOutput = RouterOutputs['example']['hello']
- **/
-export type RouterOutputs = inferRouterOutputs<AppRouter>

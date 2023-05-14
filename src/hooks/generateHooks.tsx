@@ -17,6 +17,9 @@ export const useGeneratedRecipe = () => {
   } = useForm<GenerateRecipeParams>({
     resolver: zodResolver(generateRecipeFormSchema)
   })
+  const utils = api.useContext()
+  utils.recipe.entity.prefetch()
+
   const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
   const [enableCloseModal, setEnableCloseModal] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
@@ -24,6 +27,7 @@ export const useGeneratedRecipe = () => {
   const genRecipe = api.recipe.generate.useMutation()
 
   const onSubmit = async (values: GenerateRecipeParams) => {
+    console.log('hello')
     setIsGenRecipeOpen(true)
     genRecipe.mutate(values)
   }
@@ -73,7 +77,8 @@ export const useGeneratedRecipe = () => {
     handleCloseModal,
     handleEnableCloseModal,
     handleFillMessage,
-    handleSubmit: () => handleSubmit(onSubmit),
+    onSubmit,
+    handleSubmit,
     register
   }
 }
@@ -121,7 +126,8 @@ export const useCreateGeneratedRecipe = (data: GeneratedRecipe) => {
     isSuccess,
     mutate,
     getValues,
-    handleSubmit: () => handleSubmit(onSubmit),
+    onSubmit,
+    handleSubmit,
     register
   }
 }

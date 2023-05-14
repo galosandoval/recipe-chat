@@ -3,19 +3,12 @@ import { api } from '../utils/api'
 import { RecipeUrlSchemaType } from 'pages/recipes'
 import { useRouter } from 'next/router'
 
-export const useRecipeEntity = () =>
-  api.recipe.entity.useQuery(undefined, {
-    refetchOnWindowFocus: false,
-    staleTime: Infinity
-  })
+export const useRecipeEntity = () => api.recipe.entity.useQuery(undefined, {})
 
 export const useRecipeIngredientsAndInstructions = (id: number) =>
-  api.recipe.ingredientsAndInstructions.useQuery(
-    {
-      id
-    },
-    { refetchOnWindowFocus: false, staleTime: Infinity }
-  )
+  api.recipe.ingredientsAndInstructions.useQuery({
+    id
+  })
 
 export function useParseRecipe() {
   const [isOpen, setIsOpen] = useState(false)
