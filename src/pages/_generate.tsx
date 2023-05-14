@@ -156,7 +156,7 @@ function Form({
     Math.min((getValues('instructions') || '').split('\n').length, 12) || 5
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
+    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col p-5'>
       <div className='mt-2 flex flex-col gap-5'>
         <div className='flex flex-col'>
           <label htmlFor='name' className='label'>
