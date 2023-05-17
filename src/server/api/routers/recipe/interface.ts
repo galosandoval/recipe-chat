@@ -1,4 +1,5 @@
-import { CreateRecipeForm } from 'components/CreateRecipeForm'
+import { Ingredient } from '@prisma/client'
+import { RouterInputs } from 'utils/api'
 import { z } from 'zod'
 
 export const createRecipeSchema = z.object({
@@ -9,10 +10,12 @@ export const createRecipeSchema = z.object({
   address: z.string().optional(),
   ingredients: z.array(z.string()),
   instructions: z.array(z.string()),
-  url: z.string().optional()
+  url: z.string().optional(),
+  prepTime: z.string().optional(),
+  cookTime: z.string().optional()
 })
 
-export type CreateRecipeParams = z.infer<typeof createRecipeSchema>
+export type CreateRecipe = RouterInputs['recipe']['create']
 
 export type LinkedData =
   | ({
@@ -59,22 +62,45 @@ export type GeneratedRecipe = {
   cookTime: string
 }
 
-export const updateRecipeSchema = z.object({
-  id: z.number(),
-  description: z.string().optional(),
-  name: z.string(),
-  imgUrl: z.string().optional(),
-  author: z.string().optional(),
-  address: z.string().optional(),
-  prepTime: z.string().optional(),
-  cookTime: z.string().optional(),
+const ingredientsAndInstructionsSchema = z.object({
   ingredients: z.array(
     z.object({
       id: z.number(),
       name: z.string(),
-      listId: z.number().optional()
+      listId: z.number().nullable(),
+      recipeId: z.number()
     })
   ),
-  instructions: z.array(z.object({ id: z.number(), description: z.string() }))
+  instructions: z.array(
+    z.object({
+      id: z.number(),
+      description: z.string(),
+      recipeId: z.number()
+    })
+  )
 })
+
+export const updateRecipeSchema = z
+  .object({
+    id: z.number(),
+    description: z.string().optional(),
+    name: z.string(),
+    imgUrl: z.string().optional(),
+    author: z.string().optional(),
+    address: z.string().optional(),
+    prepTime: z.string().optional(),
+    cookTime: z.string().optional(),
+    newIngredients: z.array(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+        listId: z.number().optional()
+      })
+    ),
+    newInstructions: z.array(
+      z.object({ id: z.number(), description: z.string() })
+    )
+  })
+  .merge(ingredientsAndInstructionsSchema)
+
 export type UpdateRecipe = z.infer<typeof updateRecipeSchema>

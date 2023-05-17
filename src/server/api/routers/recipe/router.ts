@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { Recipe } from '@prisma/client'
+import { Ingredient, Prisma, PrismaPromise, Recipe } from '@prisma/client'
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
 import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
@@ -8,7 +8,6 @@ import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
 import {
   GeneratedRecipe,
   LinkedData,
-  UpdateRecipe,
   createRecipeSchema,
   updateRecipeSchema
 } from './interface'
@@ -148,72 +147,77 @@ export const recipeRouter = createTRPCRouter({
   edit: protectedProcedure
     .input(updateRecipeSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id, ingredients } = input
+      const { newIngredients, ingredients, instructions } = input
 
-      const ingredientsToDelete: number[] = []
-      const ingredientsToUpdate: UpdateRecipe['ingredients'] = []
-      const ingredientsToAdd: string[] = []
+      const oldIngredientsLength = ingredients.length
+      const newIngredientsLength = newIngredients.length
 
-      for (let i = 0; i < ingredients.length; i++) {
-        const ingredient = ingredients[i]
-        if (ingredient.id && ingredient.name) {
-          ingredientsToUpdate.push(ingredient)
-        } else if (ingredient.id) {
-          ingredientsToDelete.push(ingredient.id)
-        } else if (ingredient.name) {
-          ingredientsToAdd.push(ingredient.name)
-        }
-      }
+      let ingredientsToUpdateCount = newIngredientsLength
 
-      const promiseArr: Promise<unknown>[] = []
+      const promiseArr: PrismaPromise<Prisma.BatchPayload>[] = []
 
-      if (ingredientsToDelete.length) {
+      if (oldIngredientsLength > newIngredientsLength) {
+        const deleteCount = oldIngredientsLength - newIngredientsLength
+        const start = oldIngredientsLength - deleteCount
+
+        const ingredientsToDelete = ingredients.slice(start).map((i) => i.id)
         const deletePromise = ctx.prisma.ingredient.deleteMany({
           where: { id: { in: ingredientsToDelete } }
         })
+
         promiseArr.push(deletePromise)
+      } else if (oldIngredientsLength < newIngredientsLength) {
+        ingredientsToUpdateCount = oldIngredientsLength
+
+        const addCount = newIngredientsLength - oldIngredientsLength
+        const start = newIngredientsLength - addCount
+        const ingredientsToAdd = newIngredients.slice(start).map((i) => i.name)
+
+        const addPromise = ctx.prisma.ingredient.createMany({
+          data: ingredientsToAdd.map((i) => ({ name: i, recipeId: input.id }))
+        })
+
+        promiseArr.push(addPromise)
+      }
+
+      const ingredientsToUpdate: Ingredient[] = []
+      console.log('oldIngredients', ingredients)
+      console.log('newIngredients', newIngredients)
+      for (let i = 0; i < ingredientsToUpdateCount; i++) {
+        const oldIngredient = ingredients[i]
+        const newIngredient = newIngredients[i]
+
+        if (oldIngredient.name !== newIngredient.name) {
+          ingredientsToUpdate.push({
+            id: newIngredient.id,
+            name: newIngredient.name,
+            recipeId: input.id,
+            listId: newIngredient.listId || null
+          })
+        }
       }
 
       if (ingredientsToUpdate.length) {
-        // const updatePromise = ctx.prisma.ingredient.updateMany({
-        //   data: {},
-        //   where: {id: {in: ingredientsToUpdate.map(i => i.id)}}
+        // const updatePromise = ctx.prisma.ingredient.update({
+        //   where: { id: ,
+        //   data: {}
         // })
 
-        // const somthing = ctx.prisma.recipe.update({
-        //   where: { id },
-        //   data: {
-        //     ingredients: {
-        //       update: {data: ingredientsToUpdate.map(i => ({name: i.name})),
-        //       where: {id}
-            
-        //     },
-            
-        //   }
-        // })
+        const updatePromises = ingredientsToUpdate.map((i) =>
+          ctx.prisma.ingredient.update({
+            where: { id: i.id },
+            data: { name: i.name }
+          })
+        )
 
-        // promiseArr.push(somthing)
+        await Promise.all(updatePromises)
       }
 
-      const promises = await Promise.all(promiseArr)
+      if (promiseArr.length) {
+        await ctx.prisma.$transaction(promiseArr)
+      }
 
-      const [deleteResponse] = promises
-      console.log(deleteResponse, 'updateResponse')
-
-      // get all original ingredients and instructions ids
-      // compare ids.length to new amount of ingredients and instructions
-      // if more new than old, update then create new
-      // if less new than old, update then delete old
-      // if same, update all
-
-      // const ingResult = ctx.prisma.ingredient.upsert({update: {}})
-
-      // const result = ctx.prisma.recipe.update({
-      //   where: { id },
-      //   data: { ingredients: { set: { id: 3 } } }
-      // })
-
-      return promises
+      return input.id
     }),
 
   generate: protectedProcedure

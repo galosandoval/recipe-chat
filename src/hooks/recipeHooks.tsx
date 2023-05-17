@@ -45,6 +45,7 @@ export const useAddToList = (recipeId: number) => {
   return api.list.upsert.useMutation({
     onSuccess: () => {
       utils.recipe.ingredientsAndInstructions.invalidate({ id: recipeId })
+      utils.list.invalidate()
     }
   })
 }
@@ -62,5 +63,12 @@ export const useCreateRecipe = () => {
 }
 
 export const useEditRecipe = () => {
-  return api.recipe.edit.useMutation()
+  const util = api.useContext()
+
+  return api.recipe.edit.useMutation({
+    onSuccess: async (data) => {
+      util.recipe.entity.invalidate()
+      util.recipe.ingredientsAndInstructions.invalidate({ id: data })
+    }
+  })
 }
