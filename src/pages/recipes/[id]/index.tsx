@@ -77,6 +77,8 @@ function FoundRecipe({
   const { mutate, isLoading } = useAddToList(id)
 
   const initialChecked: Checked = {}
+  const sortedIngredients = ingredients.sort((a, b) => a.id - b.id)
+  console.log('sortedIngredients', sortedIngredients)
   ingredients.forEach((i) => (initialChecked[i.id] = true))
 
   const [checked, setChecked] = useState<Checked>(() => initialChecked)
@@ -137,18 +139,21 @@ function FoundRecipe({
       </div>
 
       <div className='flex flex-col px-4'>
-        <p className='mb-0'>{description}</p>
-        <div className='stats shadow'>
-          <div className='stat place-items-center'>
-            <div className='stat-title'>Prep Time</div>
-            <div className='stat-value text-lg'>{prepTime}</div>
-          </div>
+        <p className='mb-2'>{description}</p>
 
-          <div className='stat place-items-center'>
-            <div className='stat-title'>Cook Time</div>
-            <div className='stat-value text-lg'>{cookTime}</div>
+        {prepTime && cookTime && (
+          <div className='stats shadow'>
+            <div className='stat place-items-center'>
+              <div className='stat-title'>Prep Time</div>
+              <div className='stat-value text-lg'>{prepTime}</div>
+            </div>
+
+            <div className='stat place-items-center'>
+              <div className='stat-title'>Cook Time</div>
+              <div className='stat-value text-lg'>{cookTime}</div>
+            </div>
           </div>
-        </div>
+        )}
         <div className='mb-4'>
           <Button
             className='btn-primary btn w-full'
