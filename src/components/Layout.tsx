@@ -79,7 +79,7 @@ function RecipeByIdNavbar() {
     <nav className='navbar prose w-full justify-between gap-3 bg-transparent px-4'>
       <button
         className='btn-ghost btn-circle btn'
-        onClick={() => router.back()}
+        onClick={() => router.push('/recipes')}
       >
         <BackChevron />
       </button>
