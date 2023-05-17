@@ -140,8 +140,6 @@ function FoundRecipe({
       ingredients: oldIngredients,
       instructions: oldInstructions
     })
-
-    return
   }
 
   return (
