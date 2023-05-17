@@ -132,11 +132,13 @@ function FoundRecipe({
     }
 
     mutate({
-      ingredients: ingredientsToChange,
+      newIngredients: ingredientsToChange,
       name: values.name,
       description: values.description,
       id,
-      instructions: instructionsToChange
+      newInstructions: instructionsToChange,
+      ingredients: oldIngredients,
+      instructions: oldInstructions
     })
 
     return

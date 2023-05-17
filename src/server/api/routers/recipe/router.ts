@@ -148,28 +148,24 @@ export const recipeRouter = createTRPCRouter({
   edit: protectedProcedure
     .input(updateRecipeSchema)
     .mutation(async ({ input, ctx }) => {
-      const { ingredients } = input
-      console.log('ingredients', ingredients)
+      const { newIngredients, ingredients, instructions } = input
+      console.log('oldIngredients', ingredients)
+      console.log('newIngredients', newIngredients)
       const ingredientsToDelete: number[] = []
-      const ingredientsToUpdate: UpdateRecipe['ingredients'] = []
       const ingredientsToAdd: string[] = []
 
-      for (let i = 0; i < ingredients.length; i++) {
-        const ingredient = ingredients[i]
-        console.log('ingredient', ingredient)
-        if (ingredient.id && ingredient.name) {
-          ingredientsToUpdate.push(ingredient)
-        } else if (ingredient.id) {
-          ingredientsToDelete.push(ingredient.id)
-        } else if (ingredient.name) {
-          ingredientsToAdd.push(ingredient.name)
-        }
+      const oldIngredientsLength = ingredients.length
+      const newIngredientsLength = newIngredients.length
+
+      const deleteCount = oldIngredientsLength - newIngredientsLength
+      const start = oldIngredientsLength - deleteCount
+      for (let i = start; i < deleteCount; i++) {
+        ingredientsToDelete.push(ingredients[i].id)
       }
 
       const promiseArr: Promise<unknown>[] = []
 
       console.log('ingredientsToDelete', ingredientsToDelete)
-      console.log('ingredientsToUpdate', ingredientsToUpdate)
       console.log('ingredientsToAdd', ingredientsToAdd)
       if (ingredientsToDelete.length) {
         const deletePromise = ctx.prisma.ingredient.deleteMany({
@@ -178,7 +174,7 @@ export const recipeRouter = createTRPCRouter({
         promiseArr.push(deletePromise)
       }
 
-      if (ingredientsToUpdate.length) {
+      if (newIngredients.length) {
         // const updatePromise = ctx.prisma.ingredient.updateMany({
         //   data: {},
         //   where: {id: {in: ingredientsToUpdate.map(i => i.id)}}
