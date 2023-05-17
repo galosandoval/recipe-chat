@@ -145,12 +145,12 @@ function FoundRecipe({
           <div className='stats shadow'>
             <div className='stat place-items-center'>
               <div className='stat-title'>Prep Time</div>
-              <div className='stat-value text-lg'>{prepTime}</div>
+              <div className='stat-value text-base'>{prepTime}</div>
             </div>
 
             <div className='stat place-items-center'>
               <div className='stat-title'>Cook Time</div>
-              <div className='stat-value text-lg'>{cookTime}</div>
+              <div className='stat-value text-base'>{cookTime}</div>
             </div>
           </div>
         )}

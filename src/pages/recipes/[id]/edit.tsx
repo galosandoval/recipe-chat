@@ -1,7 +1,5 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
-import Image from 'next/image'
-import defaultRecipe from 'assets/default-recipe.jpeg'
 import {
   useEditRecipe,
   useRecipeEntity,
@@ -61,9 +59,13 @@ function FoundRecipe({
     id
   } = data
 
-  const { mutate } = useEditRecipe()
+  const { mutate, isLoading } = useEditRecipe()
 
-  const { register, handleSubmit } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { isDirty, isValid }
+  } = useForm<FormValues>({
     defaultValues: {
       cookTime: cookTime || '',
       description: description || '',
@@ -115,7 +117,7 @@ function FoundRecipe({
       const newInstruction = newInstructions[i]
       const oldInstruction = oldInstructions[i]
 
-      if (newInstruction !== oldInstruction?.description) {
+      if (!!newInstruction) {
         instructionsToChange.push({
           id: oldInstruction?.id || 0,
           description: newInstruction || ''
@@ -133,25 +135,35 @@ function FoundRecipe({
 
     mutate({
       newIngredients: ingredientsToChange,
-      name: values.name,
-      description: values.description,
+      newName: values.name,
+      newDescription: values.description,
       id,
       newInstructions: instructionsToChange,
       ingredients: oldIngredients,
-      instructions: oldInstructions
+      instructions: oldInstructions,
+      newCookTime: values.cookTime,
+      newPrepTime: values.prepTime,
+      cookTime: cookTime || '',
+      prepTime: prepTime || '',
+      name: name || '',
+      description: description || ''
     })
   }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className='container prose mx-auto flex flex-col items-center pb-4'
+      className='container prose mx-2 flex flex-col items-center pb-4'
     >
       <div className='flex w-full flex-col'>
         <label htmlFor='name' className='label'>
           <span className='label-text'>Name</span>
         </label>
-        <input id='name' {...register('name')} className='input' />
+        <input
+          id='name'
+          {...register('name')}
+          className='input-bordered input'
+        />
       </div>
       <div className='flex w-full flex-col'>
         <label htmlFor='description' className='label'>
@@ -161,7 +173,7 @@ function FoundRecipe({
           id='description'
           rows={4}
           {...register('description')}
-          className='textarea resize-none'
+          className='textarea-bordered textarea resize-none'
         />
       </div>
       <div className='flex w-full gap-2'>
@@ -172,7 +184,7 @@ function FoundRecipe({
           <input
             id='prepTime'
             type='text'
-            className='input'
+            className='input-bordered input'
             {...register('prepTime')}
           />
         </div>
@@ -183,7 +195,7 @@ function FoundRecipe({
           <input
             id='cookTime'
             type='text'
-            className='input'
+            className='input-bordered input mr-2'
             {...register('cookTime')}
           />
         </div>
@@ -197,7 +209,7 @@ function FoundRecipe({
           id='ingredients'
           rows={4}
           {...register('ingredients')}
-          className='textarea resize-none'
+          className='textarea-bordered textarea resize-none'
         />
       </div>
 
@@ -209,10 +221,15 @@ function FoundRecipe({
           id='instructions'
           rows={4}
           {...register('instructions')}
-          className='textarea resize-none'
+          className='textarea-bordered textarea resize-none'
         />
       </div>
-      <Button className='btn-primary btn' type='submit'>
+      <Button
+        isLoading={isLoading}
+        disabled={!isDirty || !isValid}
+        className='btn-primary btn mt-2 w-full'
+        type='submit'
+      >
         Save
       </Button>
     </form>
