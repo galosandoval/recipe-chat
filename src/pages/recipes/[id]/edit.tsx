@@ -79,11 +79,11 @@ function FoundRecipe({
       .split('\n')
       .filter((i) => i.length > 2)
     const oldIngredients = [...ingredients]
+
     const maxIngredientsLength = Math.max(
       newIngredients.length,
       oldIngredients.length
     )
-
     const ingredientsToChange: { id: number; name: string; listId?: number }[] =
       []
 
@@ -91,7 +91,7 @@ function FoundRecipe({
       const newIngredient = newIngredients[i]
       const oldIngredient = oldIngredients[i]
 
-      if (newIngredient !== oldIngredient?.name) {
+      if (!!newIngredient) {
         const changedIngredient = {
           id: oldIngredient?.id || 0,
           name: newIngredient || '',

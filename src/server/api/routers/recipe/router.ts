@@ -148,14 +148,15 @@ export const recipeRouter = createTRPCRouter({
   edit: protectedProcedure
     .input(updateRecipeSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id, ingredients } = input
-
+      const { ingredients } = input
+      console.log('ingredients', ingredients)
       const ingredientsToDelete: number[] = []
       const ingredientsToUpdate: UpdateRecipe['ingredients'] = []
       const ingredientsToAdd: string[] = []
 
       for (let i = 0; i < ingredients.length; i++) {
         const ingredient = ingredients[i]
+        console.log('ingredient', ingredient)
         if (ingredient.id && ingredient.name) {
           ingredientsToUpdate.push(ingredient)
         } else if (ingredient.id) {
@@ -167,6 +168,9 @@ export const recipeRouter = createTRPCRouter({
 
       const promiseArr: Promise<unknown>[] = []
 
+      console.log('ingredientsToDelete', ingredientsToDelete)
+      console.log('ingredientsToUpdate', ingredientsToUpdate)
+      console.log('ingredientsToAdd', ingredientsToAdd)
       if (ingredientsToDelete.length) {
         const deletePromise = ctx.prisma.ingredient.deleteMany({
           where: { id: { in: ingredientsToDelete } }
@@ -179,19 +183,15 @@ export const recipeRouter = createTRPCRouter({
         //   data: {},
         //   where: {id: {in: ingredientsToUpdate.map(i => i.id)}}
         // })
-
         // const somthing = ctx.prisma.recipe.update({
         //   where: { id },
         //   data: {
         //     ingredients: {
         //       update: {data: ingredientsToUpdate.map(i => ({name: i.name})),
         //       where: {id}
-            
         //     },
-            
         //   }
         // })
-
         // promiseArr.push(somthing)
       }
 

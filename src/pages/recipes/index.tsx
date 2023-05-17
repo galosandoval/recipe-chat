@@ -19,7 +19,7 @@ import { CreateRecipeForm } from 'components/CreateRecipeForm'
 import { MyHead } from 'components/Head'
 import { Dialog } from '@headlessui/react'
 import {
-  CreateRecipeParams,
+  CreateRecipe,
   LinkedDataRecipeField
 } from 'server/api/routers/recipe/interface'
 
@@ -210,7 +210,7 @@ function CreateRecipe({ data }: { data: LinkedDataRecipeField }) {
   const { mutate, isLoading } = useCreateRecipe()
 
   const onSubmit = (values: FormValues) => {
-    const params: CreateRecipeParams = {
+    const params: CreateRecipe = {
       ...values,
       ingredients: values.ingredients.split('\n'),
       instructions: values.instructions.split('\n')

@@ -45,6 +45,7 @@ export const useAddToList = (recipeId: number) => {
   return api.list.upsert.useMutation({
     onSuccess: () => {
       utils.recipe.ingredientsAndInstructions.invalidate({ id: recipeId })
+      utils.list.invalidate()
     }
   })
 }

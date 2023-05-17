@@ -1,4 +1,4 @@
-import { CreateRecipeForm } from 'components/CreateRecipeForm'
+import { RouterInputs } from 'utils/api'
 import { z } from 'zod'
 
 export const createRecipeSchema = z.object({
@@ -9,10 +9,12 @@ export const createRecipeSchema = z.object({
   address: z.string().optional(),
   ingredients: z.array(z.string()),
   instructions: z.array(z.string()),
-  url: z.string().optional()
+  url: z.string().optional(),
+  prepTime: z.string().optional(),
+  cookTime: z.string().optional()
 })
 
-export type CreateRecipeParams = z.infer<typeof createRecipeSchema>
+export type CreateRecipe = RouterInputs['recipe']['create']
 
 export type LinkedData =
   | ({
