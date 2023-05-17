@@ -19,7 +19,7 @@ export const Modal = ({
           <Dialog
             as={motion.div}
             {...animationOptions}
-            className='prose fixed inset-0 z-20 grid h-full w-full place-items-center overflow-y-auto'
+            className='prose fixed inset-0 z-30 grid h-full w-full place-items-center overflow-y-auto bg-base-300/70'
             open={isOpen}
             onClose={closeModal}
           >
@@ -36,7 +36,7 @@ export const Modal = ({
 function Backdrop({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
-      className='absolute inset-0 z-10 grid h-full w-full place-items-center bg-base-300/50'
+      className='absolute inset-0 z-20 grid h-full w-full place-items-center'
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

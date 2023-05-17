@@ -164,7 +164,7 @@ function FoundRecipe({
           className='textarea resize-none'
         />
       </div>
-      <div className='flex gap-2'>
+      <div className='flex w-full gap-2'>
         <div className='flex w-1/2 flex-col'>
           <label htmlFor='prepTime' className='label'>
             <span className='label-text'>Prep time</span>

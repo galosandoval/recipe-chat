@@ -198,11 +198,6 @@ export const recipeRouter = createTRPCRouter({
       }
 
       if (ingredientsToUpdate.length) {
-        // const updatePromise = ctx.prisma.ingredient.update({
-        //   where: { id: ,
-        //   data: {}
-        // })
-
         const updatePromises = ingredientsToUpdate.map((i) =>
           ctx.prisma.ingredient.update({
             where: { id: i.id },

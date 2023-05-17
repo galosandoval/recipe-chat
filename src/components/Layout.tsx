@@ -62,7 +62,7 @@ function RootLayout({ children }: { children: ReactNode }) {
   return (
     <div className={outerDivClass}>
       <div
-        className={`backdrop sticky top-0 z-30 flex w-full justify-center bg-gradient-to-b from-base-100 to-base-100/80 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300 ${isOpen}`}
+        className={`backdrop sticky top-0 z-10 flex w-full justify-center bg-gradient-to-b from-base-100 to-base-100/80 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300 ${isOpen}`}
       >
         {navbar}
       </div>
@@ -180,7 +180,7 @@ function PagesNavbar() {
         </Link>
       ))}
       <div className='relative grid place-items-center text-base-content'>
-        <label className='swap-rotate swap'>
+        <label className='swap swap-rotate'>
           <input type='checkbox' />
           <svg
             className={`${

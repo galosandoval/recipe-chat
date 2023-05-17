@@ -100,6 +100,7 @@ export default function GenerateRecipe() {
         </form>
       </div>
 
+      {/* Create generated recipe modal */}
       <Modal
         closeModal={
           enableCloseModal
@@ -156,7 +157,7 @@ function Form({
     Math.min((getValues('instructions') || '').split('\n').length, 12) || 5
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col p-5'>
+    <form onSubmit={handleSubmit(onSubmit)} className='py-t flex flex-col px-1'>
       <div className='mt-2 flex flex-col gap-5'>
         <div className='flex flex-col'>
           <label htmlFor='name' className='label'>
