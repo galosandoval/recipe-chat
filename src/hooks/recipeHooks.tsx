@@ -64,11 +64,13 @@ export const useCreateRecipe = () => {
 
 export const useEditRecipe = () => {
   const util = api.useContext()
+  const router = useRouter()
 
   return api.recipe.edit.useMutation({
-    onSuccess: async (data) => {
+    onSuccess: async (data, { newName }) => {
       util.recipe.entity.invalidate()
       util.recipe.ingredientsAndInstructions.invalidate({ id: data })
+      router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
     }
   })
 }

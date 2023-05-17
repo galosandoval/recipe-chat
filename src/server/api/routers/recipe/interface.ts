@@ -1,4 +1,3 @@
-import { Ingredient } from '@prisma/client'
 import { RouterInputs } from 'utils/api'
 import { z } from 'zod'
 
@@ -62,6 +61,14 @@ export type GeneratedRecipe = {
   cookTime: string
 }
 
+const editRecipeSchema = z.object({
+  description: z.string().optional(),
+  name: z.string().optional(),
+  imgUrl: z.string().optional(),
+  prepTime: z.string().optional(),
+  cookTime: z.string().optional()
+})
+
 const ingredientsAndInstructionsSchema = z.object({
   ingredients: z.array(
     z.object({
@@ -83,13 +90,13 @@ const ingredientsAndInstructionsSchema = z.object({
 export const updateRecipeSchema = z
   .object({
     id: z.number(),
-    description: z.string().optional(),
-    name: z.string(),
-    imgUrl: z.string().optional(),
-    author: z.string().optional(),
-    address: z.string().optional(),
-    prepTime: z.string().optional(),
-    cookTime: z.string().optional(),
+    newDescription: z.string().optional(),
+    newName: z.string(),
+    newImgUrl: z.string().optional(),
+    newAuthor: z.string().optional(),
+    newAddress: z.string().optional(),
+    newPrepTime: z.string().optional(),
+    newCookTime: z.string().optional(),
     newIngredients: z.array(
       z.object({
         id: z.number(),
@@ -102,5 +109,6 @@ export const updateRecipeSchema = z
     )
   })
   .merge(ingredientsAndInstructionsSchema)
+  .merge(editRecipeSchema)
 
 export type UpdateRecipe = z.infer<typeof updateRecipeSchema>

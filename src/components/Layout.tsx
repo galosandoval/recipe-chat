@@ -28,6 +28,8 @@ function RootLayout({ children }: { children: ReactNode }) {
 
   if (router.pathname === '/recipes/[id]') {
     navbar = <RecipeByIdNavbar />
+  } else if (router.pathname === '/recipes/[id]/edit') {
+    navbar = <EditRecipeNavbar />
   }
 
   const controlNavbar = useCallback(() => {
@@ -77,7 +79,7 @@ function RecipeByIdNavbar() {
     <nav className='navbar prose w-full justify-between gap-3 bg-transparent px-4'>
       <button
         className='btn-ghost btn-circle btn'
-        onClick={() => router.push('/recipes')}
+        onClick={() => router.back()}
       >
         <BackChevron />
       </button>
@@ -92,6 +94,21 @@ function RecipeByIdNavbar() {
       >
         <Pencil />
       </button>
+    </nav>
+  )
+}
+
+function EditRecipeNavbar() {
+  const router = useRouter()
+  return (
+    <nav className='navbar prose w-full gap-24 bg-transparent px-4'>
+      <button
+        className='btn-ghost btn-circle btn'
+        onClick={() => router.back()}
+      >
+        Cancel
+      </button>
+      <h1 className='mb-0 text-base'>Edit Recipe</h1>
     </nav>
   )
 }
@@ -180,7 +197,7 @@ function PagesNavbar() {
         </Link>
       ))}
       <div className='relative grid place-items-center text-base-content'>
-        <label className='swap swap-rotate'>
+        <label className='swap-rotate swap'>
           <input type='checkbox' />
           <svg
             className={`${
