@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import { api } from 'utils/api'
 import { Ingredient } from '@prisma/client'
 import { Checkbox } from 'components/Checkbox'
 import { Button } from 'components/Button'
-import { useList, useRecipeNames } from 'hooks/listHooks'
+import {
+  useAddToList,
+  useClearList,
+  useList,
+  useRecipeNames
+} from 'hooks/listHooks'
 import { MyHead } from 'components/Head'
+import { useForm } from 'react-hook-form'
+import { RouterInputs } from 'utils/api'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { addIngredientSchema } from 'server/api/routers/list/interface'
 
 export default function ListView() {
   return (
@@ -36,19 +44,12 @@ export function ListByUserId() {
 
 type Checked = Record<string, boolean>
 
+type AddToList = RouterInputs['list']['add']
 function ListController({ data }: { data: Ingredient[] }) {
-  const utils = api.useContext()
-  const { mutate, isLoading } = api.list.clear.useMutation({
-    onSuccess() {
-      utils.list.invalidate()
-      const recipeIdSet = Array.from(new Set(data.map((i) => i.recipeId)))
-      recipeIdSet.forEach((id) => {
-        if (id) {
-          utils.recipe.ingredientsAndInstructions.invalidate({ id })
-        }
-      })
-      localStorage.checked = JSON.stringify({})
-    }
+  const { mutate: addMutate } = useAddToList()
+  const { mutate: clearMutate, isLoading } = useClearList(data)
+  const { register, handleSubmit, reset } = useForm<AddToList>({
+    resolver: zodResolver(addIngredientSchema)
   })
   const initialChecked: Checked = {}
 
@@ -68,6 +69,11 @@ function ListController({ data }: { data: Ingredient[] }) {
 
   const allChecked = Object.values(checked).every(Boolean)
   const noneChecked = Object.values(checked).every((c) => !c)
+
+  const onSubmitNewIngredient = (values: AddToList) => {
+    addMutate(values)
+    reset()
+  }
 
   const handleToggleByRecipe = (event: React.ChangeEvent<HTMLInputElement>) => {
     setByRecipe(event.target.checked)
@@ -101,7 +107,7 @@ function ListController({ data }: { data: Ingredient[] }) {
       []
     )
 
-    mutate(checkedIngredients)
+    clearMutate(checkedIngredients)
   }
 
   useEffect(() => {
@@ -129,7 +135,7 @@ function ListController({ data }: { data: Ingredient[] }) {
     <div className='mx-2'>
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
-          <label className='label flex cursor-pointer flex-col gap-2'>
+          <label className='label flex cursor-pointer gap-2'>
             <span className='label-text'>By recipe</span>
             <input
               onChange={handleToggleByRecipe}
@@ -139,30 +145,47 @@ function ListController({ data }: { data: Ingredient[] }) {
             />
           </label>
         </div>
+        <Checkbox
+          checked={allChecked}
+          id='all-checked'
+          label={'Check all'}
+          onChange={handleCheckAll}
+        />
 
-        <div className='btn-group'>
-          <Button
-            isLoading={isLoading}
-            disabled={noneChecked}
-            onClick={handleRemoveChecked}
-            className='btn-error btn'
+        <Button
+          isLoading={isLoading}
+          disabled={noneChecked}
+          onClick={handleRemoveChecked}
+          className='btn-error btn'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            fill='none'
+            viewBox='0 0 24 24'
+            strokeWidth={1.5}
+            stroke='currentColor'
+            className='h-6 w-6'
           >
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-6 w-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0'
-              />
-            </svg>
-          </Button>
-          <button className='btn-success btn'>
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0'
+            />
+          </svg>
+        </Button>
+      </div>
+      <form
+        className='form-control my-4'
+        onSubmit={handleSubmit(onSubmitNewIngredient)}
+      >
+        <div className='input-group'>
+          <input
+            type='text'
+            placeholder='Add to list'
+            className='input-bordered input w-full'
+            {...register('newIngredientName')}
+          />
+          <button className='btn-success btn-square btn'>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               fill='none'
@@ -179,17 +202,7 @@ function ListController({ data }: { data: Ingredient[] }) {
             </svg>
           </button>
         </div>
-      </div>
-
-      <div className=''>
-        <Checkbox
-          checked={allChecked}
-          id='all-checked'
-          label={'Check all'}
-          onChange={handleCheckAll}
-        />
-      </div>
-
+      </form>
       <List
         byRecipe={byRecipe}
         checked={checked}
@@ -247,7 +260,11 @@ function ListByRecipeId({
 
   const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
     if (i.recipeId === null) {
-      buckets['no-recipe'] = buckets['no-recipe']
+      if (!('other' in buckets)) {
+        buckets.other = []
+      }
+
+      buckets.other.push(i)
     } else {
       if (!(i.recipeId in buckets)) {
         ids.push(i.recipeId)
@@ -269,7 +286,7 @@ function ListByRecipeId({
           {!isSuccess ? (
             <p>Loading...</p>
           ) : (
-            <h3 className='mt-2'>
+            <h3 className='mb-0 mt-2'>
               {b[0].recipeId ? nameDictionary[b[0].recipeId] : 'Other'}
             </h3>
           )}

@@ -83,7 +83,7 @@ export default function GenerateRecipe() {
           <div className='w-full px-2'>
             <textarea
               {...register('message')}
-              placeholder='Generate recipe...'
+              placeholder='Ask about a recipe'
               className='input relative w-full resize-none pt-2'
             />
           </div>
