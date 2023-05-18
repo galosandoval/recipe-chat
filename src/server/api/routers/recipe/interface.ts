@@ -75,7 +75,7 @@ const ingredientsAndInstructionsSchema = z.object({
       id: z.number(),
       name: z.string(),
       listId: z.number().nullable(),
-      recipeId: z.number()
+      recipeId: z.number().nullable()
     })
   ),
   instructions: z.array(
