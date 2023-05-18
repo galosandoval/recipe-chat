@@ -1,14 +1,9 @@
-import { z } from 'zod'
-import { createTRPCRouter, protectedProcedure } from '../trpc'
-
-const ingredientSchema = z.array(
-  z.object({
-    id: z.number()
-  })
-)
-const clearListSchema = z.array(z.object({ id: z.number() }))
-
-export type CreateList = z.infer<typeof ingredientSchema>
+import { createTRPCRouter, protectedProcedure } from '../../trpc'
+import {
+  addIngredientSchema,
+  clearListSchema,
+  ingredientSchema
+} from './interface'
 
 export const listRouter = createTRPCRouter({
   upsert: protectedProcedure
@@ -29,6 +24,19 @@ export const listRouter = createTRPCRouter({
     })
   }),
 
+  add: protectedProcedure
+    .input(addIngredientSchema)
+    .mutation(async ({ ctx, input }) => {
+      const newIngredient = await ctx.prisma.ingredient.create({
+        data: { name: input.newIngredientName }
+      })
+
+      return ctx.prisma.list.update({
+        where: { userId: ctx.session.user.id },
+        data: { ingredients: { connect: { id: newIngredient.id } } }
+      })
+    }),
+
   clear: protectedProcedure
     .input(clearListSchema)
     .mutation(async ({ ctx, input }) => {
@@ -38,3 +46,9 @@ export const listRouter = createTRPCRouter({
       })
     })
 })
+
+function sleep(ms = 1000) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}

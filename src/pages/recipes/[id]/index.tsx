@@ -9,10 +9,10 @@ import {
   useRecipeEntity,
   useRecipeIngredientsAndInstructions
 } from 'hooks/recipeHooks'
-import { CreateList } from 'server/api/routers/listRouter'
 import { Checkbox } from 'components/Checkbox'
 import { MyHead } from 'components/Head'
 import NoSleep from 'nosleep.js'
+import { CreateList } from 'server/api/routers/list/interface'
 
 export default function RecipeByIdView() {
   const router = useRouter()
