@@ -49,8 +49,8 @@ model Instruction {
 model Ingredient {
   id       Int    @id @default(autoincrement())
   name     String
-  recipe   Recipe @relation(fields: [recipeId], references: [id])
-  recipeId Int
+  recipe   Recipe? @relation(fields: [recipeId], references: [id])
+  recipeId Int?
   list     List?  @relation(fields: [listId], references: [id])
   listId   Int?
 }

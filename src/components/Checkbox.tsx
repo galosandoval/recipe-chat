@@ -19,7 +19,7 @@ export const Checkbox = ({
       >
         <span className='label-text mr-auto'>{label}</span>
         <input
-          className='checkbox-primary checkbox mb-auto'
+          className='checkbox-primary checkbox'
           type='checkbox'
           name={id}
           id={id}
