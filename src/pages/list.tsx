@@ -43,7 +43,9 @@ function ListController({ data }: { data: Ingredient[] }) {
       utils.list.invalidate()
       const recipeIdSet = Array.from(new Set(data.map((i) => i.recipeId)))
       recipeIdSet.forEach((id) => {
-        utils.recipe.ingredientsAndInstructions.invalidate({ id })
+        if (id) {
+          utils.recipe.ingredientsAndInstructions.invalidate({ id })
+        }
       })
       localStorage.checked = JSON.stringify({})
     }
@@ -244,12 +246,16 @@ function ListByRecipeId({
   const ids: number[] = []
 
   const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
-    if (!(i.recipeId in buckets)) {
-      ids.push(i.recipeId)
-      buckets[i.recipeId] = []
-    }
+    if (i.recipeId === null) {
+      buckets['no-recipe'] = buckets['no-recipe']
+    } else {
+      if (!(i.recipeId in buckets)) {
+        ids.push(i.recipeId)
+        buckets[i.recipeId] = []
+      }
 
-    buckets[i.recipeId].push(i)
+      buckets[i.recipeId].push(i)
+    }
 
     return buckets
   }, {})
@@ -263,7 +269,9 @@ function ListByRecipeId({
           {!isSuccess ? (
             <p>Loading...</p>
           ) : (
-            <h3 className='mt-2'>{nameDictionary[b[0].recipeId]}</h3>
+            <h3 className='mt-2'>
+              {b[0].recipeId ? nameDictionary[b[0].recipeId] : 'Other'}
+            </h3>
           )}
 
           <div className='flex flex-col divide-y divide-neutral-content'>
