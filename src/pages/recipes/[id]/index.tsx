@@ -142,7 +142,7 @@ function FoundRecipe({
         <p className='mb-2'>{description}</p>
 
         {prepTime && cookTime && (
-          <div className='stats shadow'>
+          <div className='stats mb-2 shadow'>
             <div className='stat place-items-center'>
               <div className='stat-title'>Prep Time</div>
               <div className='stat-value text-base'>{prepTime}</div>
