@@ -8,7 +8,6 @@ export function CreateRecipeForm(props: {
   onSubmit: (values: FormValues) => void
   slot: ReactNode
 }) {
-  console.log('form', props.form.getValues())
   return (
     <form
       onSubmit={props.form.handleSubmit(props.onSubmit)}

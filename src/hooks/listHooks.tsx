@@ -2,8 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Ingredient, Recipe } from '@prisma/client'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { addIngredientSchema } from 'server/api/routers/list/interface'
-import { RouterInputs, api } from 'utils/api'
+import { api } from 'utils/api'
+import { z } from 'zod'
 
 export const useList = () => api.list.byUserId.useQuery()
 
@@ -18,15 +18,23 @@ export function useRecipeNames(ids: number[]) {
   })
 }
 
-export type Checked = Record<string, boolean>
-type AddToList = RouterInputs['list']['add']
+export function useFindListId() {
+  return api.list.findId.useQuery()
+}
+
+export type Checked = Record<
+  string,
+  { isChecked: boolean; recipeId: number | null }
+>
 
 export function useListController(data: Ingredient[]) {
   const { mutate: clearMutate, isLoading } = useClearList(data)
 
   const initialChecked: Checked = {}
 
-  data.forEach((i) => (initialChecked[i.id] = false))
+  data.forEach((i) => {
+    initialChecked[i.id] = { isChecked: false, recipeId: i.recipeId }
+  })
 
   const [checked, setChecked] = useState(() =>
     typeof localStorage.checked === 'string' && localStorage.checked.length > 2
@@ -40,8 +48,8 @@ export function useListController(data: Ingredient[]) {
       : false
   )
 
-  const allChecked = Object.values(checked).every(Boolean)
-  const noneChecked = Object.values(checked).every((c) => !c)
+  const allChecked = Object.values(checked).every((c) => c.isChecked)
+  const noneChecked = Object.values(checked).every((c) => !c.isChecked)
 
   const handleToggleByRecipe = (event: React.ChangeEvent<HTMLInputElement>) => {
     setByRecipe(event.target.checked)
@@ -50,7 +58,10 @@ export function useListController(data: Ingredient[]) {
   const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked((state) => ({
       ...state,
-      [event.target.id]: event.target.checked
+      [event.target.id]: {
+        ...state[event.target.id],
+        isChecked: event.target.checked
+      }
     }))
   }
 
@@ -59,16 +70,19 @@ export function useListController(data: Ingredient[]) {
       setChecked(initialChecked)
     } else {
       for (const id in checked) {
-        setChecked((state) => ({ ...state, [id]: true }))
+        setChecked((state) => ({
+          ...state,
+          [id]: { ...state[id], isChecked: true }
+        }))
       }
     }
   }
 
   const handleRemoveChecked = () => {
     const checkedIngredients = Object.keys(checked).reduce(
-      (toRemove: { id: number }[], c) => {
+      (toRemove: { id: number; recipeId: number | null }[], c) => {
         if (checked[c]) {
-          toRemove.push({ id: parseInt(c) })
+          toRemove.push({ id: parseInt(c), recipeId: checked[c].recipeId })
         }
         return toRemove
       },
@@ -88,7 +102,9 @@ export function useListController(data: Ingredient[]) {
     ) => {
       const recentlyAddedIngredients = data.filter((i) => !(i.id in state))
       const toAdd: Checked = {}
-      recentlyAddedIngredients.forEach((i) => (toAdd[i.id] = false))
+      recentlyAddedIngredients.forEach(
+        (i) => (toAdd[i.id] = { isChecked: false, recipeId: i.recipeId })
+      )
       return { ...state, ...toAdd }
     }
 
@@ -112,22 +128,31 @@ export function useListController(data: Ingredient[]) {
   }
 }
 
+const formSchema = z.object({
+  newIngredientName: z.string().min(3).max(50)
+})
+type FormValues = z.infer<typeof formSchema>
+
 export function useAddIngredientForm() {
-  const { register, handleSubmit, reset } = useForm<AddToList>({
-    resolver: zodResolver(addIngredientSchema)
+  const { data: listId, status } = useFindListId()
+  const { register, handleSubmit, reset } = useForm<FormValues>({
+    resolver: zodResolver(formSchema)
   })
 
   const { mutate: addMutate } = useAddToList()
 
-  const onSubmitNewIngredient = (values: AddToList) => {
-    addMutate(values)
-    reset()
+  const onSubmitNewIngredient = (values: FormValues) => {
+    if (listId) {
+      addMutate({ newIngredientName: values.newIngredientName, listId })
+      reset()
+    }
   }
 
   return {
     register,
     handleSubmit,
-    onSubmitNewIngredient
+    onSubmitNewIngredient,
+    status
   }
 }
 
@@ -136,7 +161,7 @@ export function useAddToList() {
 
   return api.list.add.useMutation({
     async onMutate(variables) {
-      const { newIngredientName } = variables
+      const { newIngredientName, listId } = variables
 
       await utils.list.byUserId.cancel()
       const previousValue = utils.list.byUserId.getData()
@@ -151,7 +176,7 @@ export function useAddToList() {
               {
                 id: 0,
                 name: newIngredientName,
-                listId: old.ingredients[0].listId,
+                listId,
                 recipeId: null
               }
             ]
