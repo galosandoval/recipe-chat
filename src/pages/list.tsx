@@ -107,7 +107,11 @@ function ListController({ data }: { data: Ingredient[] }) {
 }
 
 function EmptyList() {
-  return <AddIngredientForm />
+  return (
+    <div className='px-2'>
+      <AddIngredientForm />
+    </div>
+  )
 }
 
 function AddIngredientForm() {

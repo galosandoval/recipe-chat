@@ -81,7 +81,7 @@ export function useListController(data: Ingredient[]) {
   const handleRemoveChecked = () => {
     const checkedIngredients = Object.keys(checked).reduce(
       (toRemove: { id: number; recipeId: number | null }[], c) => {
-        if (checked[c]) {
+        if (checked[c].isChecked) {
           toRemove.push({ id: parseInt(c), recipeId: checked[c].recipeId })
         }
         return toRemove
