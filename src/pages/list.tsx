@@ -30,7 +30,7 @@ export function ListByUserId() {
 
   if (status === 'success' && data) {
     if (!data.ingredients.length) {
-      return <AddIngredientForm />
+      return <EmptyList />
     }
 
     return <ListController data={data.ingredients} />
@@ -106,9 +106,15 @@ function ListController({ data }: { data: Ingredient[] }) {
   )
 }
 
+function EmptyList() {
+  return <AddIngredientForm />
+}
+
 function AddIngredientForm() {
-  const { handleSubmit, onSubmitNewIngredient, register } =
+  const { handleSubmit, onSubmitNewIngredient, register, status } =
     useAddIngredientForm()
+
+  const isDisabled = status !== 'success'
 
   return (
     <form
@@ -122,7 +128,7 @@ function AddIngredientForm() {
           className='input-bordered input w-full'
           {...register('newIngredientName')}
         />
-        <button className='btn-success btn-square btn'>
+        <button disabled={isDisabled} className='btn-success btn-square btn'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             fill='none'
@@ -165,7 +171,7 @@ function List({
       {data.map((i) => (
         <Checkbox
           key={i.id}
-          checked={checked[i.id]}
+          checked={checked[i.id].isChecked}
           id={i.id.toString()}
           label={i.name}
           onChange={handleCheck}
@@ -225,7 +231,7 @@ function ListByRecipeId({
             {b.map((i) => (
               <Checkbox
                 key={i.id}
-                checked={checked[i.id]}
+                checked={checked[i.id]?.isChecked}
                 id={i.id.toString()}
                 label={i.name}
                 onChange={handleCheck}

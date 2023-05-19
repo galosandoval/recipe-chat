@@ -77,8 +77,6 @@ function FoundRecipe({
   const { mutate, isLoading } = useAddToList(id)
 
   const initialChecked: Checked = {}
-  const sortedIngredients = ingredients.sort((a, b) => a.id - b.id)
-  console.log('sortedIngredients', sortedIngredients)
   ingredients.forEach((i) => (initialChecked[i.id] = true))
 
   const [checked, setChecked] = useState<Checked>(() => initialChecked)
