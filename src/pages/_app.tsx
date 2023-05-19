@@ -5,6 +5,7 @@ import { SessionProvider } from 'next-auth/react'
 import Layout from 'components/Layout'
 import { api } from 'utils/api'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { Toast } from 'components/Toast'
 
 const App: AppType<{ session: Session | null }> = ({
   Component,
@@ -15,6 +16,7 @@ const App: AppType<{ session: Session | null }> = ({
       <Layout>
         <Component {...pageProps} />
       </Layout>
+      <Toast />
       <ReactQueryDevtools initialIsOpen={false} />
     </SessionProvider>
   )

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { api } from '../utils/api'
 import { RecipeUrlSchemaType } from 'pages/recipes'
 import { useRouter } from 'next/router'
+import { toast } from 'react-hot-toast'
 
 export const useRecipeEntity = () => api.recipe.entity.useQuery(undefined, {})
 
@@ -46,6 +47,8 @@ export const useAddToList = (recipeId: number) => {
     onSuccess: () => {
       utils.recipe.ingredientsAndInstructions.invalidate({ id: recipeId })
       utils.list.invalidate()
+
+      toast.success('Added to list')
     }
   })
 }

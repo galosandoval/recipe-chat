@@ -37,6 +37,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.40.0",
+    "react-hot-toast": "^2.4.1",
     "superjson": "^1.12.1",
     "theme-change": "^2.5.0",
     "tinyduration": "^3.2.4",
