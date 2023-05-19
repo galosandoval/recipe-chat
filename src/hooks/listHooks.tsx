@@ -1,5 +1,9 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Ingredient, Recipe } from '@prisma/client'
-import { api } from 'utils/api'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { addIngredientSchema } from 'server/api/routers/list/interface'
+import { RouterInputs, api } from 'utils/api'
 
 export const useList = () => api.list.byUserId.useQuery()
 
@@ -14,8 +18,122 @@ export function useRecipeNames(ids: number[]) {
   })
 }
 
+export type Checked = Record<string, boolean>
+type AddToList = RouterInputs['list']['add']
+
+export function useListController(data: Ingredient[]) {
+  const { mutate: clearMutate, isLoading } = useClearList(data)
+
+  const initialChecked: Checked = {}
+
+  data.forEach((i) => (initialChecked[i.id] = false))
+
+  const [checked, setChecked] = useState(() =>
+    typeof localStorage.checked === 'string' && localStorage.checked.length > 2
+      ? (JSON.parse(localStorage.checked) as Checked)
+      : initialChecked
+  )
+
+  const [byRecipe, setByRecipe] = useState(() =>
+    typeof localStorage.byRecipe === 'string'
+      ? (JSON.parse(localStorage.byRecipe) as boolean)
+      : false
+  )
+
+  const allChecked = Object.values(checked).every(Boolean)
+  const noneChecked = Object.values(checked).every((c) => !c)
+
+  const handleToggleByRecipe = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setByRecipe(event.target.checked)
+  }
+
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked((state) => ({
+      ...state,
+      [event.target.id]: event.target.checked
+    }))
+  }
+
+  const handleCheckAll = () => {
+    if (allChecked) {
+      setChecked(initialChecked)
+    } else {
+      for (const id in checked) {
+        setChecked((state) => ({ ...state, [id]: true }))
+      }
+    }
+  }
+
+  const handleRemoveChecked = () => {
+    const checkedIngredients = Object.keys(checked).reduce(
+      (toRemove: { id: number }[], c) => {
+        if (checked[c]) {
+          toRemove.push({ id: parseInt(c) })
+        }
+        return toRemove
+      },
+      []
+    )
+
+    clearMutate(checkedIngredients)
+  }
+
+  useEffect(() => {
+    localStorage.checked = JSON.stringify(checked)
+  }, [checked])
+
+  useEffect(() => {
+    const updateWithAddedIngredients = (
+      state: React.SetStateAction<Checked>
+    ) => {
+      const recentlyAddedIngredients = data.filter((i) => !(i.id in state))
+      const toAdd: Checked = {}
+      recentlyAddedIngredients.forEach((i) => (toAdd[i.id] = false))
+      return { ...state, ...toAdd }
+    }
+
+    setChecked(updateWithAddedIngredients)
+  }, [data])
+
+  useEffect(() => {
+    localStorage.byRecipe = JSON.stringify(byRecipe)
+  }, [byRecipe])
+
+  return {
+    handleToggleByRecipe,
+    byRecipe,
+    checked,
+    allChecked,
+    handleCheck,
+    handleCheckAll,
+    isLoading,
+    noneChecked,
+    handleRemoveChecked
+  }
+}
+
+export function useAddIngredientForm() {
+  const { register, handleSubmit, reset } = useForm<AddToList>({
+    resolver: zodResolver(addIngredientSchema)
+  })
+
+  const { mutate: addMutate } = useAddToList()
+
+  const onSubmitNewIngredient = (values: AddToList) => {
+    addMutate(values)
+    reset()
+  }
+
+  return {
+    register,
+    handleSubmit,
+    onSubmitNewIngredient
+  }
+}
+
 export function useAddToList() {
   const utils = api.useContext()
+
   return api.list.add.useMutation({
     async onMutate(variables) {
       const { newIngredientName } = variables
