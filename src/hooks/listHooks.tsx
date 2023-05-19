@@ -135,7 +135,12 @@ type FormValues = z.infer<typeof formSchema>
 
 export function useAddIngredientForm() {
   const { data: listId, status } = useFindListId()
-  const { register, handleSubmit, reset } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isValid }
+  } = useForm<FormValues>({
     resolver: zodResolver(formSchema)
   })
 
@@ -149,6 +154,7 @@ export function useAddIngredientForm() {
   }
 
   return {
+    isValid,
     register,
     handleSubmit,
     onSubmitNewIngredient,
@@ -202,7 +208,87 @@ export function useAddToList() {
 export function useClearList(data: Ingredient[]) {
   const utils = api.useContext()
   return api.list.clear.useMutation({
+    async onMutate(variables) {
+      const ingredientsToClearEntity = variables.reduce(
+        (
+          acc: Record<
+            number,
+            {
+              id: number
+              recipeId: number | null
+            }
+          >,
+          i
+        ) => {
+          if (!(i.id in acc)) {
+            acc[i.id] = i
+          }
+          return acc
+        },
+        {}
+      )
+
+      const newIngredients = (
+        old:
+          | {
+              ingredients: Ingredient[]
+            }
+          | null
+          | undefined
+      ) => {
+        if (old?.ingredients) {
+          const newIngredients = old.ingredients.map((i) => {
+            if (i.id in ingredientsToClearEntity) {
+              return {
+                id: i.id,
+                name: i.name,
+                listId: null,
+                recipeId: i.recipeId
+              }
+            }
+          })
+
+          return newIngredients
+        }
+
+        return old
+      }
+
+      await utils.list.byUserId.cancel()
+      const previousValue = utils.list.byUserId.getData()
+
+      utils.list.byUserId.setData(undefined, (old) => {
+        if (old?.ingredients) {
+          const newList: {
+            ingredients: Ingredient[]
+          } = {
+            ingredients: newIngredients(old) as Ingredient[]
+          }
+
+          return newList
+        }
+        return old
+      })
+
+      return previousValue
+    },
+
     onSuccess() {
+      utils.list.invalidate()
+      const recipeIdSet = Array.from(new Set(data.map((i) => i.recipeId)))
+      recipeIdSet.forEach((id) => {
+        if (id) {
+          utils.recipe.ingredientsAndInstructions.invalidate({ id })
+        }
+      })
+      localStorage.checked = JSON.stringify({})
+    },
+
+    onError: (_error, _, ctx) => {
+      utils.list.byUserId.setData(undefined, ctx)
+    },
+
+    onSettled: () => {
       utils.list.invalidate()
       const recipeIdSet = Array.from(new Set(data.map((i) => i.recipeId)))
       recipeIdSet.forEach((id) => {

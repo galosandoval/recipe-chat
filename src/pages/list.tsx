@@ -115,10 +115,10 @@ function EmptyList() {
 }
 
 function AddIngredientForm() {
-  const { handleSubmit, onSubmitNewIngredient, register, status } =
+  const { handleSubmit, onSubmitNewIngredient, register, status, isValid } =
     useAddIngredientForm()
 
-  const isDisabled = status !== 'success'
+  const isDisabled = status !== 'success' || !isValid
 
   return (
     <form
