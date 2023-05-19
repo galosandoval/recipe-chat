@@ -1,18 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Ingredient } from '@prisma/client'
 import { Checkbox } from 'components/Checkbox'
 import { Button } from 'components/Button'
 import {
-  useAddToList,
-  useClearList,
+  Checked,
+  useAddIngredientForm,
   useList,
+  useListController,
   useRecipeNames
 } from 'hooks/listHooks'
 import { MyHead } from 'components/Head'
-import { useForm } from 'react-hook-form'
-import { RouterInputs } from 'utils/api'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { addIngredientSchema } from 'server/api/routers/list/interface'
 
 export default function ListView() {
   return (
@@ -31,9 +28,9 @@ export function ListByUserId() {
     return <p>Something went wrong...</p>
   }
 
-  if (status === 'success') {
-    if (!data || !data.ingredients.length) {
-      return <p>Your list is empty</p>
+  if (status === 'success' && data) {
+    if (!data.ingredients.length) {
+      return <AddIngredientForm />
     }
 
     return <ListController data={data.ingredients} />
@@ -42,97 +39,21 @@ export function ListByUserId() {
   return <p className=''>Loading...</p>
 }
 
-type Checked = Record<string, boolean>
-
-type AddToList = RouterInputs['list']['add']
 function ListController({ data }: { data: Ingredient[] }) {
-  const { mutate: addMutate } = useAddToList()
-  const { mutate: clearMutate, isLoading } = useClearList(data)
-  const { register, handleSubmit, reset } = useForm<AddToList>({
-    resolver: zodResolver(addIngredientSchema)
-  })
-  const initialChecked: Checked = {}
-
-  data.forEach((i) => (initialChecked[i.id] = false))
-
-  const [checked, setChecked] = useState(() =>
-    typeof localStorage.checked === 'string' && localStorage.checked.length > 2
-      ? (JSON.parse(localStorage.checked) as Checked)
-      : initialChecked
-  )
-
-  const [byRecipe, setByRecipe] = useState(() =>
-    typeof localStorage.byRecipe === 'string'
-      ? (JSON.parse(localStorage.byRecipe) as boolean)
-      : false
-  )
-
-  const allChecked = Object.values(checked).every(Boolean)
-  const noneChecked = Object.values(checked).every((c) => !c)
-
-  const onSubmitNewIngredient = (values: AddToList) => {
-    addMutate(values)
-    reset()
-  }
-
-  const handleToggleByRecipe = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setByRecipe(event.target.checked)
-  }
-
-  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked((state) => ({
-      ...state,
-      [event.target.id]: event.target.checked
-    }))
-  }
-
-  const handleCheckAll = () => {
-    if (allChecked) {
-      setChecked(initialChecked)
-    } else {
-      for (const id in checked) {
-        setChecked((state) => ({ ...state, [id]: true }))
-      }
-    }
-  }
-
-  const handleRemoveChecked = () => {
-    const checkedIngredients = Object.keys(checked).reduce(
-      (toRemove: { id: number }[], c) => {
-        if (checked[c]) {
-          toRemove.push({ id: parseInt(c) })
-        }
-        return toRemove
-      },
-      []
-    )
-
-    clearMutate(checkedIngredients)
-  }
-
-  useEffect(() => {
-    localStorage.checked = JSON.stringify(checked)
-  }, [checked])
-
-  useEffect(() => {
-    const updateWithAddedIngredients = (
-      state: React.SetStateAction<Checked>
-    ) => {
-      const recentlyAddedIngredients = data.filter((i) => !(i.id in state))
-      const toAdd: Checked = {}
-      recentlyAddedIngredients.forEach((i) => (toAdd[i.id] = false))
-      return { ...state, ...toAdd }
-    }
-
-    setChecked(updateWithAddedIngredients)
-  }, [data])
-
-  useEffect(() => {
-    localStorage.byRecipe = JSON.stringify(byRecipe)
-  }, [byRecipe])
+  const {
+    allChecked,
+    byRecipe,
+    handleCheck,
+    handleCheckAll,
+    handleRemoveChecked,
+    handleToggleByRecipe,
+    isLoading,
+    noneChecked,
+    checked
+  } = useListController(data)
 
   return (
-    <div className='mx-2'>
+    <div className='mx-2 pb-5 pt-2'>
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
           <label className='label flex cursor-pointer gap-2'>
@@ -174,35 +95,7 @@ function ListController({ data }: { data: Ingredient[] }) {
           </svg>
         </Button>
       </div>
-      <form
-        className='form-control my-4'
-        onSubmit={handleSubmit(onSubmitNewIngredient)}
-      >
-        <div className='input-group'>
-          <input
-            type='text'
-            placeholder='Add to list'
-            className='input-bordered input w-full'
-            {...register('newIngredientName')}
-          />
-          <button className='btn-success btn-square btn'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-6 w-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
-              />
-            </svg>
-          </button>
-        </div>
-      </form>
+      <AddIngredientForm />
       <List
         byRecipe={byRecipe}
         checked={checked}
@@ -210,6 +103,43 @@ function ListController({ data }: { data: Ingredient[] }) {
         handleCheck={handleCheck}
       />
     </div>
+  )
+}
+
+function AddIngredientForm() {
+  const { handleSubmit, onSubmitNewIngredient, register } =
+    useAddIngredientForm()
+
+  return (
+    <form
+      className='form-control my-4'
+      onSubmit={handleSubmit(onSubmitNewIngredient)}
+    >
+      <div className='input-group'>
+        <input
+          type='text'
+          placeholder='Add to list'
+          className='input-bordered input w-full'
+          {...register('newIngredientName')}
+        />
+        <button className='btn-success btn-square btn'>
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            fill='none'
+            viewBox='0 0 24 24'
+            strokeWidth={1.5}
+            stroke='currentColor'
+            className='h-6 w-6'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
+            />
+          </svg>
+        </button>
+      </div>
+    </form>
   )
 }
 
