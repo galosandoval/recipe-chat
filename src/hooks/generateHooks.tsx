@@ -27,7 +27,6 @@ export const useGeneratedRecipe = () => {
   const genRecipe = api.recipe.generate.useMutation()
 
   const onSubmit = async (values: GenerateRecipeParams) => {
-    console.log('hello')
     setIsGenRecipeOpen(true)
     genRecipe.mutate(values)
   }
