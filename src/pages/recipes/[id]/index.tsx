@@ -13,6 +13,7 @@ import { Checkbox } from 'components/Checkbox'
 import { MyHead } from 'components/Head'
 import NoSleep from 'nosleep.js'
 import { CreateList } from 'server/api/routers/list/interface'
+import { listSvg, plusSvg } from 'components/Icons'
 
 export default function RecipeByIdView() {
   const router = useRouter()
@@ -80,6 +81,8 @@ function FoundRecipe({
   ingredients.forEach((i) => (initialChecked[i.id] = true))
 
   const [checked, setChecked] = useState<Checked>(() => initialChecked)
+  const [addedToList, setAddedToList] = useState(false)
+  const router = useRouter()
 
   const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
     setChecked((state) => ({
@@ -100,10 +103,16 @@ function FoundRecipe({
     }
   }
 
-  const handleCreateList = () => {
+  let goToListTimer: ReturnType<typeof setTimeout> | undefined = undefined
+  const handleAddToList = () => {
     const checkedIngredients = ingredients.filter((i) => checked[i.id])
     const newList: CreateList = checkedIngredients
     mutate(newList)
+    setAddedToList(true)
+
+    goToListTimer = setTimeout(() => {
+      setAddedToList(false)
+    }, 6000)
   }
 
   let renderAddress: React.ReactNode = null
@@ -123,6 +132,14 @@ function FoundRecipe({
       </a>
     )
   }
+
+  const handleGoToList = () => {
+    router.push('/list')
+  }
+
+  useEffect(() => {
+    return () => clearTimeout(goToListTimer)
+  }, [goToListTimer])
 
   return (
     <div className='container prose mx-auto flex flex-col items-center pb-4'>
@@ -154,12 +171,15 @@ function FoundRecipe({
         )}
         <div className='mb-4'>
           <Button
-            className='btn-primary btn w-full'
+            className={`${
+              addedToList ? 'btn-accent' : 'btn-primary'
+            } btn w-full gap-2`}
             disabled={noneChecked}
-            onClick={handleCreateList}
+            onClick={addedToList ? handleGoToList : handleAddToList}
             isLoading={isLoading}
           >
-            Add to list
+            {addedToList ? listSvg : plusSvg}
+            {addedToList ? 'Go to list' : 'Add to list'}
           </Button>
         </div>
         <div className=''>
