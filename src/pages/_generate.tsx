@@ -164,10 +164,10 @@ function Form({
   const { handleSubmit, getValues, register, onSubmit, isSuccess, isLoading } =
     useCreateGeneratedRecipe(data)
 
-  const ingredientsRowSize =
-    Math.min((getValues('ingredients') || '').split('\n').length, 12) || 5
-  const instructionsRowSize =
-    Math.min((getValues('instructions') || '').split('\n').length, 12) || 5
+  const ingredientsRowSize = (getValues('ingredients') || '').split('\n').length
+  const instructionsRowSize = (getValues('instructions') || '').split(
+    '\n'
+  ).length
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='py-t flex flex-col px-1'>
