@@ -13,7 +13,8 @@ export const useGeneratedRecipe = () => {
     handleSubmit,
     formState: { isDirty, isValid },
     setValue,
-    clearErrors
+    clearErrors,
+    reset
   } = useForm<GenerateRecipeParams>({
     resolver: zodResolver(generateRecipeFormSchema)
   })
@@ -25,11 +26,6 @@ export const useGeneratedRecipe = () => {
   const [messages, setMessages] = useState<Message[]>([])
 
   const genRecipe = api.recipe.generate.useMutation()
-
-  const onSubmit = async (values: GenerateRecipeParams) => {
-    setIsGenRecipeOpen(true)
-    genRecipe.mutate(values)
-  }
 
   const handleCloseModal = () => {
     setIsGenRecipeOpen(false)
@@ -47,24 +43,29 @@ export const useGeneratedRecipe = () => {
     setEnableCloseModal(true)
   }
 
-  // const addMessage = (values: GenerateRecipeParams) => {
-  //   setMessages((state) => [
-  //     ...state,
-  //     { from: 'me', timeStamp: new Date().toISOString(), value: values.message }
-  //   ])
-  //   reset()
+  const handleAddMessage = (values: GenerateRecipeParams) => {
+    setMessages((state) => [
+      ...state,
+      { from: 'me', timeStamp: new Date().toISOString(), value: values.message }
+    ])
+    reset()
 
-  //   setTimeout(() => {
-  //     setMessages((state) => [
-  //       ...state,
-  //       {
-  //         from: 'chat',
-  //         timeStamp: new Date().toISOString(),
-  //         value: 'Generating your recipe...'
-  //       }
-  //     ])
-  //   }, 500)
-  // }
+    setTimeout(() => {
+      setMessages((state) => [
+        ...state,
+        {
+          from: 'chat',
+          timeStamp: new Date().toISOString(),
+          value: 'Generating your recipe...'
+        }
+      ])
+    }, 500)
+  }
+
+  const onSubmit = async (values: GenerateRecipeParams) => {
+    setIsGenRecipeOpen(true)
+    genRecipe.mutate(values)
+  }
 
   return {
     enableCloseModal,
@@ -73,6 +74,7 @@ export const useGeneratedRecipe = () => {
     isGenRecipeOpen,
     isValid,
     messages,
+    handleAddMessage,
     handleCloseModal,
     handleEnableCloseModal,
     handleFillMessage,

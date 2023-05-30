@@ -30,11 +30,13 @@ export type Checked = Record<
 export function useListController(data: Ingredient[]) {
   const { mutate: clearMutate, isLoading } = useClearList(data)
 
-  const initialChecked: Checked = {}
+  console.log('data', data)
 
-  data.forEach((i) => {
-    initialChecked[i.id] = { isChecked: false, recipeId: i.recipeId }
-  })
+  const initialChecked = data.reduce((checked: Checked, i) => {
+    checked[i.id] = { isChecked: false, recipeId: i.recipeId }
+    return checked
+  }, {})
+  console.log('initialChecked', initialChecked)
 
   const [checked, setChecked] = useState(() =>
     typeof localStorage.checked === 'string' && localStorage.checked.length > 2
@@ -237,21 +239,26 @@ export function useClearList(data: Ingredient[]) {
           | undefined
       ) => {
         if (old?.ingredients) {
-          const newIngredients = old.ingredients.map((i) => {
+          const localStorageChecked = JSON.parse(
+            localStorage.checked
+          ) as Checked
+          console.log('localstorage', localStorageChecked)
+          console.log('old', old)
+
+          const newIngredients = old.ingredients.filter((i) => {
             if (i.id in ingredientsToClearEntity) {
-              return {
-                id: i.id,
-                name: i.name,
-                listId: null,
-                recipeId: i.recipeId
-              }
+              delete localStorageChecked[i.id]
+
+              return false
             }
+
+            return false
           })
 
-          return newIngredients
+          return { ingredients: newIngredients }
         }
 
-        return old
+        return old || { ingredients: [] }
       }
 
       await utils.list.byUserId.cancel()
@@ -262,7 +269,7 @@ export function useClearList(data: Ingredient[]) {
           const newList: {
             ingredients: Ingredient[]
           } = {
-            ingredients: newIngredients(old) as Ingredient[]
+            ingredients: newIngredients(old).ingredients
           }
 
           return newList
@@ -273,23 +280,12 @@ export function useClearList(data: Ingredient[]) {
       return previousValue
     },
 
-    onSuccess() {
-      utils.list.invalidate()
-      const recipeIdSet = Array.from(new Set(data.map((i) => i.recipeId)))
-      recipeIdSet.forEach((id) => {
-        if (id) {
-          utils.recipe.ingredientsAndInstructions.invalidate({ id })
-        }
-      })
-      localStorage.checked = JSON.stringify({})
-    },
-
     onError: (_error, _, ctx) => {
       utils.list.byUserId.setData(undefined, ctx)
     },
 
     onSettled: () => {
-      utils.list.invalidate()
+      utils.list.byUserId.invalidate()
       const recipeIdSet = Array.from(new Set(data.map((i) => i.recipeId)))
       recipeIdSet.forEach((id) => {
         if (id) {
