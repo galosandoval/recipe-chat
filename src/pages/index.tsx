@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn, useSession } from 'next-auth/react'
 import { z } from 'zod'
 import Link from 'next/link'
-import GenerateRecipe from './_generate'
+import GenerateRecipe from './_chat'
 import { Button } from 'components/Button'
 import { MyHead } from 'components/Head'
 

@@ -7,7 +7,7 @@ import {
 } from 'hooks/recipeHooks'
 import { MyHead } from 'components/Head'
 import { useForm } from 'react-hook-form'
-import { FormValues } from 'pages/_generate'
+import { FormValues } from 'pages/_chat'
 import { Button } from 'components/Button'
 import { UpdateRecipe } from 'server/api/routers/recipe/interface'
 

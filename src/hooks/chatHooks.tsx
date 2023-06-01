@@ -1,19 +1,60 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/router'
-import { FormValues } from 'pages/_generate'
-import { MouseEvent, useState } from 'react'
+import { FormValues } from 'pages/_chat'
+import { MouseEvent, useReducer } from 'react'
 import { useForm } from 'react-hook-form'
-import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
+import { GeneratedRecipe, Message } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
-const useGenerate = () => {
-  return api.recipe.generate.useMutation()
+// An enum with all the types of actions to use in our reducer
+type ChatActionKind = 'add'
+
+// An interface for our actions
+interface ChatAction {
+  type: ChatActionKind
+  payload: Message
 }
 
-export type UseGenerate = ReturnType<typeof useGenerate>
+// An interface for our state
+interface ChatState {
+  messages: Message[]
+}
 
-export const useGenerateRecipe = () => {
+// Our reducer function that uses a switch statement to handle our actions
+function chatReducer(state: ChatState, action: ChatAction) {
+  const { type, payload } = action
+  switch (type) {
+    case 'add':
+      return {
+        ...state,
+        messages: [...state.messages, payload]
+      }
+
+    default:
+      return state
+  }
+}
+
+function useChatReducer(initialState: ChatState) {
+  const [state, dispatch] = useReducer(chatReducer, initialState)
+  return [state, dispatch] as const
+}
+
+function useAddMessageMutation(dispatch: React.Dispatch<ChatAction>) {
+  return api.recipe.generate.useMutation({
+    onSuccess: (data) => {
+      const newMessage = data.messages.at(-1)
+      if (newMessage) {
+        dispatch({ type: 'add', payload: newMessage })
+      }
+    }
+  })
+}
+
+export type UseGenerate = ReturnType<typeof useAddMessageMutation>
+
+export const AddMessage = () => {
   const {
     register,
     handleSubmit,
@@ -23,18 +64,14 @@ export const useGenerateRecipe = () => {
     reset,
     getValues
   } = useForm<GenerateRecipeParams>({
-    resolver: zodResolver(generateRecipeFormSchema)
+    resolver: zodResolver(addMessageFormSchema)
   })
   const utils = api.useContext()
   utils.recipe.entity.prefetch()
 
   const prompt = getValues().message
-  const { mutate, data, status } = useGenerate()
-
-  const [chatBubbles, setChatBubbles] = useState(
-    data?.messages ? data.messages : []
-  )
-  // const [messages, setMessages] = useState<Message[]>([])
+  const [chatBubbles, dispatch] = useChatReducer({ messages: [] })
+  const { mutate, data, status } = useAddMessageMutation(dispatch)
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     setValue('message', e.currentTarget.innerText.toLowerCase(), {
@@ -44,19 +81,12 @@ export const useGenerateRecipe = () => {
     clearErrors()
   }
 
-  // const handleAddToMessages = (message: Message) => {
-  //   setMessages((state) => [...state, message])
-  // }
-
   const onSubmit = (values: GenerateRecipeParams) => {
-    // handleAddToMessages({ content: values.message, role: 'user' })
-    setChatBubbles((state) => [
-      ...state,
-      {
-        content: values.message,
-        role: 'user'
-      }
-    ])
+    dispatch({
+      type: 'add',
+      payload: { content: values.message, role: 'user' }
+    })
+
     reset()
 
     const convo = data?.messages.map((m) => {
@@ -70,21 +100,6 @@ export const useGenerateRecipe = () => {
       return { ...m, content }
     })
     mutate({ content: values.message, messages: convo })
-    // setChatBubbles((state) => [
-    //   ...state,
-    //   {
-    //     from: 'chat',
-    //     timeStamp: new Date().toISOString(),
-    //     value: (
-    //       <RecipeChatBubble
-    //         // messages={messages}
-    //         // handleAddToMessages={handleAddToMessages}
-    //         prompt={values.message}
-    //         messages={undefined}
-    //       />
-    //     )
-    //   }
-    // ])
   }
 
   return {
@@ -100,10 +115,10 @@ export const useGenerateRecipe = () => {
   }
 }
 
-const generateRecipeFormSchema = z.object({ message: z.string().min(6) })
-export type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
+const addMessageFormSchema = z.object({ message: z.string().min(6) })
+export type GenerateRecipeParams = z.infer<typeof addMessageFormSchema>
 
-export const useCreateGeneratedRecipe = (data: GeneratedRecipe) => {
+export const useCreateRecipe = (data: GeneratedRecipe) => {
   const router = useRouter()
   const utils = api.useContext()
   const { description, ingredients, instructions, name, cookTime, prepTime } =
