@@ -7,21 +7,16 @@ import { GeneratedRecipe, Message } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
-// An enum with all the types of actions to use in our reducer
-type ChatActionKind = 'add'
-
-// An interface for our actions
-interface ChatAction {
-  type: ChatActionKind
-  payload: Message
+type ChatAction = {
+  type: 'add'
+  payload: Message & { error?: string }
 }
 
-// An interface for our state
-interface ChatState {
+type ChatState = {
   messages: Message[]
+  // error?: string
 }
 
-// Our reducer function that uses a switch statement to handle our actions
 function chatReducer(state: ChatState, action: ChatAction) {
   const { type, payload } = action
   switch (type) {
@@ -30,6 +25,12 @@ function chatReducer(state: ChatState, action: ChatAction) {
         ...state,
         messages: [...state.messages, payload]
       }
+
+    // case 'addError':
+    //   return {
+    //     ...state,
+    //     error: payload
+    //   }
 
     default:
       return state
@@ -41,6 +42,8 @@ function useChatReducer(initialState: ChatState) {
   return [state, dispatch] as const
 }
 
+export const errorMessage = 'Please try rephrasing your request.'
+
 function useAddMessageMutation(dispatch: React.Dispatch<ChatAction>) {
   return api.recipe.generate.useMutation({
     onSuccess: (data) => {
@@ -48,6 +51,16 @@ function useAddMessageMutation(dispatch: React.Dispatch<ChatAction>) {
       if (newMessage) {
         dispatch({ type: 'add', payload: newMessage })
       }
+    },
+    onError: () => {
+      dispatch({
+        type: 'add',
+        payload: {
+          content: '',
+          role: 'assistant',
+          error: errorMessage
+        }
+      })
     }
   })
 }
@@ -63,7 +76,7 @@ export const AddMessage = () => {
     clearErrors,
     reset,
     getValues
-  } = useForm<GenerateRecipeParams>({
+  } = useForm<ChatRecipeParams>({
     resolver: zodResolver(addMessageFormSchema)
   })
   const utils = api.useContext()
@@ -81,7 +94,7 @@ export const AddMessage = () => {
     clearErrors()
   }
 
-  const onSubmit = (values: GenerateRecipeParams) => {
+  const onSubmit = (values: ChatRecipeParams) => {
     dispatch({
       type: 'add',
       payload: { content: values.message, role: 'user' }
@@ -89,16 +102,19 @@ export const AddMessage = () => {
 
     reset()
 
-    const convo = data?.messages.map((m) => {
-      let content: string
-      if (typeof m.content === 'string') {
-        content = m.content
-      } else {
-        content = JSON.stringify(m.content)
-      }
+    const convo = data?.messages
+      .map((m) => {
+        let content: string
+        if (typeof m.content === 'string') {
+          content = m.content
+        } else {
+          content = JSON.stringify(m.content)
+        }
 
-      return { ...m, content }
-    })
+        return { ...m, content }
+      })
+      .filter((m) => m.content !== '')
+
     mutate({ content: values.message, messages: convo })
   }
 
@@ -116,7 +132,7 @@ export const AddMessage = () => {
 }
 
 const addMessageFormSchema = z.object({ message: z.string().min(6) })
-export type GenerateRecipeParams = z.infer<typeof addMessageFormSchema>
+export type ChatRecipeParams = z.infer<typeof addMessageFormSchema>
 
 export const useCreateRecipe = (data: GeneratedRecipe) => {
   const router = useRouter()

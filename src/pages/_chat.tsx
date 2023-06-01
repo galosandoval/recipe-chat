@@ -15,7 +15,7 @@ export type FormValues = {
   cookTime: string
 }
 
-export default function GenerateRecipe() {
+export default function ChatView() {
   const {
     isDirty,
     isValid,
@@ -95,20 +95,7 @@ export const Chat = ({
   chatBubbles: ChatCompletionRequestMessage[]
   conversation: Pick<UseGenerate, 'data' | 'status'>
 }) => {
-  console.log('conversation', conversation)
-
   const { status } = conversation
-
-  // if (chatBubbles) {
-  //   return (
-  //     <>
-  //       {chatBubbles.map((m, i) => (
-  //         <ChatBubble message={m} key={m.content + i} />
-  //       ))}
-  //       {status === 'loading' && <ChatBubbleLoader />}
-  //     </>
-  //   )
-  // }
 
   console.log('chatBubbles', chatBubbles)
   return (
@@ -129,6 +116,7 @@ function ChatBubble({
   message: {
     content: string | GeneratedRecipe
     role: 'user' | 'assistant' | 'system'
+    error?: string
   }
 }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -143,12 +131,19 @@ function ChatBubble({
 
   if (message.role === 'assistant') {
     let recipe: GeneratedRecipe
-    if (typeof message.content === 'string') {
+
+    if ('error' in message) {
+      return (
+        <div className='chat chat-start'>
+          <div className='chat-bubble'>{message.error}</div>
+        </div>
+      )
+    } else if (typeof message.content === 'string') {
       recipe = JSON.parse(message.content) as GeneratedRecipe
     } else {
       recipe = message.content
     }
-    console.log('parsed recipe', recipe)
+
     return (
       <div className='chat chat-start'>
         <button
@@ -164,7 +159,11 @@ function ChatBubble({
     )
   }
 
-  if (message.role === 'user' && typeof message.content === 'string') {
+  if (
+    message.role === 'user' &&
+    message?.content &&
+    typeof message?.content === 'string'
+  ) {
     return (
       <div className='chat chat-end'>
         <div className='chat-bubble chat-bubble-primary'>{message.content}</div>
@@ -179,54 +178,6 @@ function ChatBubble({
     </div>
   )
 }
-
-// export const RecipeChatBubble = ({
-//   // messages,
-//   prompt,
-//   messages
-// }: // handleAddToMessages
-// {
-//   // messages: Message[]
-//   prompt: string
-//   messages: Message[] | undefined
-//   // handleAddToMessages: (prompt: Message) => void
-// }) => {
-//   const utils = api.useContext()
-//   // const { data, status } = api.recipe.generate.useQuery(
-//   //   { content: prompt },
-//   //   {
-//   //     enabled: !!prompt || !!messages?.length,
-//   //     onSuccess: (data) => {
-//   //       // handleAddToMessages({ content: JSON.stringify(data), role: 'assistant' })
-//   //     }
-//   //   }
-//   // )
-
-//   const [isOpen, setIsOpen] = useState(false)
-
-//   const handleOpenModal = () => {
-//     setIsOpen(true)
-//   }
-
-//   const handleCloseModal = () => {
-//     setIsOpen(false)
-//   }
-
-//   if (status === 'success' && data) {
-//     const { recipe } = data
-//     return (
-//       <div>
-//         <button onClick={handleOpenModal} className='link-primary link'>
-//           {recipe.name}
-//         </button>
-//         <Modal closeModal={handleCloseModal} isOpen={isOpen}>
-//           <Form handleCloseModal={handleCloseModal} data={recipe} />
-//         </Modal>
-//       </div>
-//     )
-//   }
-//   return <p>Please try rephrasing your question.</p>
-// }
 
 function Form({
   data,
