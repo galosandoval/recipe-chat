@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { FormValues } from '../pages/_generate'
+import { FormValues } from '../pages/_chat'
 
 export function CreateRecipeForm(props: {
   form: UseFormReturn<FormValues, unknown>

@@ -1,11 +1,7 @@
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
-import {
-  UseGenerate,
-  useCreateGeneratedRecipe,
-  useGenerateRecipe
-} from 'hooks/generateHooks'
+import { UseGenerate, useCreateRecipe, AddMessage } from 'hooks/chatHooks'
 import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
@@ -29,7 +25,7 @@ export default function GenerateRecipe() {
     handleFillMessage,
     handleSubmit,
     register
-  } = useGenerateRecipe()
+  } = AddMessage()
 
   return (
     <>
@@ -51,7 +47,7 @@ export default function GenerateRecipe() {
           </div>
         </div>
 
-        <Chat chatBubbles={chatBubbles} conversation={conversation} />
+        <Chat chatBubbles={chatBubbles.messages} conversation={conversation} />
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -101,42 +97,26 @@ export const Chat = ({
 }) => {
   console.log('conversation', conversation)
 
-  const { data, status } = conversation
+  const { status } = conversation
 
-  if (data) {
-    return (
-      <>
-        {data.messages.map((m, i) => (
-          <ChatBubble message={m} key={m.content + i} />
-        ))}
-        {status === 'loading' && <ChatBubbleLoader />}
-      </>
-    )
-  }
+  // if (chatBubbles) {
+  //   return (
+  //     <>
+  //       {chatBubbles.map((m, i) => (
+  //         <ChatBubble message={m} key={m.content + i} />
+  //       ))}
+  //       {status === 'loading' && <ChatBubbleLoader />}
+  //     </>
+  //   )
+  // }
 
-  console.log('data', data)
+  console.log('chatBubbles', chatBubbles)
   return (
     <>
-      {chatBubbles.length ? (
-        <div className='px-2'>
-          {chatBubbles.map((m, i) => {
-            if (m.role === 'user') {
-              return (
-                <div key={m.content + i} className='chat chat-end'>
-                  <div className='chat-bubble chat-bubble-primary ml-auto'>
-                    {m.content}
-                  </div>
-                </div>
-              )
-            }
-            return (
-              <div key={m.content + i} className='chat chat-start'>
-                <div className='chat-bubble'>{m.content}</div>
-              </div>
-            )
-          })}
-        </div>
-      ) : null}
+      {chatBubbles &&
+        chatBubbles.map((m, i) => (
+          <ChatBubble message={m} key={m.content + i} />
+        ))}
 
       {status === 'loading' && <ChatBubbleLoader />}
     </>
@@ -256,7 +236,7 @@ function Form({
   handleCloseModal: () => void
 }) {
   const { handleSubmit, getValues, register, onSubmit, isSuccess, isLoading } =
-    useCreateGeneratedRecipe(data)
+    useCreateRecipe(data)
 
   const ingredientsRowSize = (getValues('ingredients') || '').split('\n').length
   const instructionsRowSize = (getValues('instructions') || '').split(
@@ -265,7 +245,7 @@ function Form({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='py-t flex flex-col px-1'>
-      <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto'>
+      <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto px-1 pb-1'>
         <div className='flex flex-col'>
           <label htmlFor='name' className='label'>
             <span className='label-text'>Name</span>
