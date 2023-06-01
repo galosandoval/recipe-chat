@@ -30,13 +30,10 @@ export type Checked = Record<
 export function useListController(data: Ingredient[]) {
   const { mutate: clearMutate, isLoading } = useClearList(data)
 
-  console.log('data', data)
-
   const initialChecked = data.reduce((checked: Checked, i) => {
     checked[i.id] = { isChecked: false, recipeId: i.recipeId }
     return checked
   }, {})
-  console.log('initialChecked', initialChecked)
 
   const [checked, setChecked] = useState(() =>
     typeof localStorage.checked === 'string' && localStorage.checked.length > 2
@@ -242,8 +239,6 @@ export function useClearList(data: Ingredient[]) {
           const localStorageChecked = JSON.parse(
             localStorage.checked
           ) as Checked
-          console.log('localstorage', localStorageChecked)
-          console.log('old', old)
 
           const newIngredients = old.ingredients.filter((i) => {
             if (i.id in ingredientsToClearEntity) {

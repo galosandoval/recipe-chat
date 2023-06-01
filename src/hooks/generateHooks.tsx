@@ -1,35 +1,53 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/router'
 import { FormValues } from 'pages/_generate'
-import { MouseEvent, useState } from 'react'
+import {
+  Dispatch,
+  MouseEvent,
+  SetStateAction,
+  useEffect,
+  useState
+} from 'react'
 import { useForm } from 'react-hook-form'
-import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
+import { GeneratedRecipe, Message } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
-export const useGeneratedRecipe = () => {
+const useGenerate = () => {
+  return api.recipe.generate
+    .useMutation
+    // {
+    //   onSuccess: (data) => {
+    //     setEnabled(false)
+    //   }
+    // }
+    ()
+}
+
+export type UseGenerate = ReturnType<typeof useGenerate>
+
+export const useGenerateRecipe = () => {
   const {
     register,
     handleSubmit,
-    formState: { isDirty, isValid },
+    formState: { isDirty, isValid, isSubmitting },
     setValue,
     clearErrors,
-    reset
+    reset,
+    getValues
   } = useForm<GenerateRecipeParams>({
     resolver: zodResolver(generateRecipeFormSchema)
   })
   const utils = api.useContext()
   utils.recipe.entity.prefetch()
 
-  const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
-  const [enableCloseModal, setEnableCloseModal] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
+  const prompt = getValues().message
+  const { mutate, data, status } = useGenerate()
 
-  const genRecipe = api.recipe.generate.useMutation()
-
-  const handleCloseModal = () => {
-    setIsGenRecipeOpen(false)
-  }
+  const [chatBubbles, setChatBubbles] = useState(
+    data?.messages ? data.messages : []
+  )
+  // const [messages, setMessages] = useState<Message[]>([])
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     setValue('message', e.currentTarget.innerText.toLowerCase(), {
@@ -39,44 +57,55 @@ export const useGeneratedRecipe = () => {
     clearErrors()
   }
 
-  const handleEnableCloseModal = () => {
-    setEnableCloseModal(true)
-  }
+  // const handleAddToMessages = (message: Message) => {
+  //   setMessages((state) => [...state, message])
+  // }
 
-  const handleAddMessage = (values: GenerateRecipeParams) => {
-    setMessages((state) => [
+  const onSubmit = (values: GenerateRecipeParams) => {
+    // handleAddToMessages({ content: values.message, role: 'user' })
+    setChatBubbles((state) => [
       ...state,
-      { from: 'me', timeStamp: new Date().toISOString(), value: values.message }
+      {
+        content: values.message,
+        role: 'user'
+      }
     ])
     reset()
 
-    setTimeout(() => {
-      setMessages((state) => [
-        ...state,
-        {
-          from: 'chat',
-          timeStamp: new Date().toISOString(),
-          value: 'Generating your recipe...'
-        }
-      ])
-    }, 500)
-  }
+    const convo = data?.messages.map((m) => {
+      let content: string
+      if (typeof m.content === 'string') {
+        content = m.content
+      } else {
+        content = JSON.stringify(m.content)
+      }
 
-  const onSubmit = async (values: GenerateRecipeParams) => {
-    setIsGenRecipeOpen(true)
-    genRecipe.mutate(values)
+      return { ...m, content }
+    })
+    mutate({ content: values.message, messages: convo })
+    // setChatBubbles((state) => [
+    //   ...state,
+    //   {
+    //     from: 'chat',
+    //     timeStamp: new Date().toISOString(),
+    //     value: (
+    //       <RecipeChatBubble
+    //         // messages={messages}
+    //         // handleAddToMessages={handleAddToMessages}
+    //         prompt={values.message}
+    //         messages={undefined}
+    //       />
+    //     )
+    //   }
+    // ])
   }
 
   return {
-    enableCloseModal,
-    genRecipe,
     isDirty,
-    isGenRecipeOpen,
     isValid,
-    messages,
-    handleAddMessage,
-    handleCloseModal,
-    handleEnableCloseModal,
+    chatBubbles,
+    conversation: { data, status },
+    prompt: isSubmitting ? prompt : null,
     handleFillMessage,
     onSubmit,
     handleSubmit,
@@ -86,12 +115,6 @@ export const useGeneratedRecipe = () => {
 
 const generateRecipeFormSchema = z.object({ message: z.string().min(6) })
 export type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
-
-type Message = {
-  from: 'me' | 'chat'
-  value: string
-  timeStamp: string
-}
 
 export const useCreateGeneratedRecipe = (data: GeneratedRecipe) => {
   const router = useRouter()
@@ -108,8 +131,8 @@ export const useCreateGeneratedRecipe = (data: GeneratedRecipe) => {
   const { handleSubmit, register, getValues } = useForm<FormValues>({
     defaultValues: {
       description,
-      ingredients: ingredients.join('\n'),
-      instructions: instructions.join('\n'),
+      ingredients: ingredients?.join('\n'),
+      instructions: instructions?.join('\n'),
       name,
       cookTime,
       prepTime
