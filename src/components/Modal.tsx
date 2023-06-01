@@ -19,11 +19,11 @@ export const Modal = ({
           <Dialog
             as={motion.div}
             {...animationOptions}
-            className='prose fixed inset-0 z-30 grid h-full w-full place-items-center overflow-y-auto bg-base-300/70'
+            className='prose fixed inset-0 z-30 grid h-full w-full place-items-center bg-base-300/70'
             open={isOpen}
             onClose={closeModal}
           >
-            <Dialog.Panel className='my-auto max-h-[90%] min-h-[10rem] w-full max-w-lg transform overflow-y-auto rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all'>
+            <Dialog.Panel className='my-auto max-h-[90%] w-full max-w-lg transform overflow-hidden rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all'>
               {children}
             </Dialog.Panel>
           </Dialog>

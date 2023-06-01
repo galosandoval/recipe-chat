@@ -112,3 +112,10 @@ export const updateRecipeSchema = z
   .merge(editRecipeSchema)
 
 export type UpdateRecipe = z.infer<typeof updateRecipeSchema>
+
+export const messageSchema = z.object({
+  content: z.string(),
+  role: z.enum(['user', 'assistant', 'system'])
+})
+
+export type Message = z.infer<typeof messageSchema>

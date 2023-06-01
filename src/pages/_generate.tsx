@@ -1,12 +1,14 @@
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
-import { api } from 'utils/api'
-import { FormSkeleton } from 'components/FormSkeleton'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
 import {
+  UseGenerate,
   useCreateGeneratedRecipe,
-  useGeneratedRecipe
+  useGenerateRecipe
 } from 'hooks/generateHooks'
+import { useState } from 'react'
+import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
+import { ChatCompletionRequestMessage } from 'openai'
 
 export type FormValues = {
   name: string
@@ -19,27 +21,22 @@ export type FormValues = {
 
 export default function GenerateRecipe() {
   const {
-    enableCloseModal,
-    genRecipe,
     isDirty,
-    isGenRecipeOpen,
     isValid,
-    messages,
+    chatBubbles,
+    conversation,
     onSubmit,
-    handleCloseModal,
-    handleEnableCloseModal,
     handleFillMessage,
     handleSubmit,
     register
-  } = useGeneratedRecipe()
+  } = useGenerateRecipe()
 
   return (
     <>
       <div className='relative flex flex-col'>
-        <div className='prose flex flex-col items-center justify-center overflow-y-auto px-4 pb-16'>
-          <h1>RecipeBot</h1>
+        <div className='flex flex-col items-center justify-center overflow-y-auto px-4 pb-16'>
           <div className='flex flex-1 flex-col items-center justify-center'>
-            <h2>Examples</h2>
+            <h2 className='mt-2'>Examples</h2>
             <div className='flex flex-col items-center gap-4'>
               <Button className='btn-primary btn' onClick={handleFillMessage}>
                 What should I make for dinner tonight?
@@ -54,27 +51,7 @@ export default function GenerateRecipe() {
           </div>
         </div>
 
-        {messages.length ? (
-          <div className='flex flex-col'>
-            {messages.map((m) => {
-              if (m.from === 'me') {
-                return (
-                  <p
-                    className='chat-bubble chat-bubble-primary ml-auto'
-                    key={m.timeStamp}
-                  >
-                    {m.value}
-                  </p>
-                )
-              }
-              return (
-                <p className='chat-bubble mr-auto' key={m.timeStamp}>
-                  {m.value}
-                </p>
-              )
-            })}
-          </div>
-        ) : null}
+        <Chat chatBubbles={chatBubbles} conversation={conversation} />
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -89,7 +66,6 @@ export default function GenerateRecipe() {
           </div>
           <div className=''>
             <Button
-              isLoading={genRecipe.isLoading}
               type='submit'
               disabled={!isValid || !isDirty}
               className='btn-accent btn mb-1'
@@ -112,47 +88,165 @@ export default function GenerateRecipe() {
           </div>
         </form>
       </div>
-
-      {/* Create generated recipe modal */}
-      <Modal
-        closeModal={
-          enableCloseModal
-            ? handleCloseModal
-            : () => {
-                return
-              }
-        }
-        isOpen={isGenRecipeOpen}
-      >
-        <SaveGeneratedRecipe
-          handleEnableCloseModal={handleEnableCloseModal}
-          handleCloseModal={handleCloseModal}
-          recipe={genRecipe}
-        />
-      </Modal>
     </>
   )
 }
 
-function SaveGeneratedRecipe(props: {
-  recipe: ReturnType<typeof api.recipe.generate.useMutation>
-  handleEnableCloseModal: () => void
-  handleCloseModal: () => void
-}) {
-  const { status, data } = props.recipe
+export const Chat = ({
+  chatBubbles,
+  conversation
+}: {
+  chatBubbles: ChatCompletionRequestMessage[]
+  conversation: Pick<UseGenerate, 'data' | 'status'>
+}) => {
+  console.log('conversation', conversation)
 
-  if (status === 'error') {
-    props.handleEnableCloseModal()
-    return <p className=''>Please try again.</p>
+  const { data, status } = conversation
+
+  if (data) {
+    return (
+      <>
+        {data.messages.map((m, i) => (
+          <ChatBubble message={m} key={m.content + i} />
+        ))}
+        {status === 'loading' && <ChatBubbleLoader />}
+      </>
+    )
   }
 
-  if (status === 'success') {
-    props.handleEnableCloseModal()
-    return <Form handleCloseModal={props.handleCloseModal} data={data} />
-  }
+  console.log('data', data)
+  return (
+    <>
+      {chatBubbles.length ? (
+        <div className='px-2'>
+          {chatBubbles.map((m, i) => {
+            if (m.role === 'user') {
+              return (
+                <div key={m.content + i} className='chat chat-end'>
+                  <div className='chat-bubble chat-bubble-primary ml-auto'>
+                    {m.content}
+                  </div>
+                </div>
+              )
+            }
+            return (
+              <div key={m.content + i} className='chat chat-start'>
+                <div className='chat-bubble'>{m.content}</div>
+              </div>
+            )
+          })}
+        </div>
+      ) : null}
 
-  return <FormSkeleton />
+      {status === 'loading' && <ChatBubbleLoader />}
+    </>
+  )
 }
+
+function ChatBubble({
+  message
+}: {
+  message: {
+    content: string | GeneratedRecipe
+    role: 'user' | 'assistant' | 'system'
+  }
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleOpenModal = () => {
+    setIsOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsOpen(false)
+  }
+
+  if (message.role === 'assistant') {
+    let recipe: GeneratedRecipe
+    if (typeof message.content === 'string') {
+      recipe = JSON.parse(message.content) as GeneratedRecipe
+    } else {
+      recipe = message.content
+    }
+    console.log('parsed recipe', recipe)
+    return (
+      <div className='chat chat-start'>
+        <button
+          onClick={handleOpenModal}
+          className='chat-bubble link-primary link'
+        >
+          {recipe.name}
+        </button>
+        <Modal closeModal={handleCloseModal} isOpen={isOpen}>
+          <Form handleCloseModal={handleCloseModal} data={recipe} />
+        </Modal>
+      </div>
+    )
+  }
+
+  if (message.role === 'user' && typeof message.content === 'string') {
+    return (
+      <div className='chat chat-end'>
+        <div className='chat-bubble chat-bubble-primary'>{message.content}</div>
+      </div>
+    )
+  }
+  return (
+    <div className='chat chat-end'>
+      <div className='chat-bubble chat-bubble-primary'>
+        {message.content as string}
+      </div>
+    </div>
+  )
+}
+
+// export const RecipeChatBubble = ({
+//   // messages,
+//   prompt,
+//   messages
+// }: // handleAddToMessages
+// {
+//   // messages: Message[]
+//   prompt: string
+//   messages: Message[] | undefined
+//   // handleAddToMessages: (prompt: Message) => void
+// }) => {
+//   const utils = api.useContext()
+//   // const { data, status } = api.recipe.generate.useQuery(
+//   //   { content: prompt },
+//   //   {
+//   //     enabled: !!prompt || !!messages?.length,
+//   //     onSuccess: (data) => {
+//   //       // handleAddToMessages({ content: JSON.stringify(data), role: 'assistant' })
+//   //     }
+//   //   }
+//   // )
+
+//   const [isOpen, setIsOpen] = useState(false)
+
+//   const handleOpenModal = () => {
+//     setIsOpen(true)
+//   }
+
+//   const handleCloseModal = () => {
+//     setIsOpen(false)
+//   }
+
+//   if (status === 'success' && data) {
+//     const { recipe } = data
+//     return (
+//       <div>
+//         <button onClick={handleOpenModal} className='link-primary link'>
+//           {recipe.name}
+//         </button>
+//         <Modal closeModal={handleCloseModal} isOpen={isOpen}>
+//           <Form handleCloseModal={handleCloseModal} data={recipe} />
+//         </Modal>
+//       </div>
+//     )
+//   }
+//   return <p>Please try rephrasing your question.</p>
+// }
 
 function Form({
   data,
@@ -171,12 +265,16 @@ function Form({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='py-t flex flex-col px-1'>
-      <div className='mt-2 flex flex-col gap-5'>
+      <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto'>
         <div className='flex flex-col'>
           <label htmlFor='name' className='label'>
             <span className='label-text'>Name</span>
           </label>
-          <input id='name' {...register('name')} className='input' />
+          <input
+            id='name'
+            {...register('name')}
+            className='input-bordered input'
+          />
         </div>
         <div className='flex flex-col'>
           <label htmlFor='description' className='label'>
@@ -185,7 +283,7 @@ function Form({
           <input
             id='description'
             {...register('description')}
-            className='input'
+            className='input-bordered input'
           />
         </div>
 
@@ -197,7 +295,7 @@ function Form({
             <input
               id='prepTime'
               type='text'
-              className='input'
+              className='input-bordered input input-sm'
               {...register('prepTime')}
             />
           </div>
@@ -208,7 +306,7 @@ function Form({
             <input
               id='cookTime'
               type='text'
-              className='input'
+              className='input-bordered input input-sm'
               {...register('cookTime')}
             />
           </div>
@@ -221,7 +319,7 @@ function Form({
             id='ingredients'
             rows={ingredientsRowSize}
             {...register('ingredients')}
-            className='textarea resize-none'
+            className='textarea-bordered textarea resize-none'
           />
         </div>
         <div className='flex flex-col'>
@@ -232,7 +330,7 @@ function Form({
             id='instructions'
             rows={instructionsRowSize}
             {...register('instructions')}
-            className='textarea resize-none'
+            className='textarea-bordered textarea resize-none'
           />
         </div>
       </div>

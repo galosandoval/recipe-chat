@@ -7,33 +7,34 @@ import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
-export const useGeneratedRecipe = () => {
+const useGenerate = () => {
+  return api.recipe.generate.useMutation()
+}
+
+export type UseGenerate = ReturnType<typeof useGenerate>
+
+export const useGenerateRecipe = () => {
   const {
     register,
     handleSubmit,
-    formState: { isDirty, isValid },
+    formState: { isDirty, isValid, isSubmitting },
     setValue,
-    clearErrors
+    clearErrors,
+    reset,
+    getValues
   } = useForm<GenerateRecipeParams>({
     resolver: zodResolver(generateRecipeFormSchema)
   })
   const utils = api.useContext()
   utils.recipe.entity.prefetch()
 
-  const [isGenRecipeOpen, setIsGenRecipeOpen] = useState(false)
-  const [enableCloseModal, setEnableCloseModal] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
+  const prompt = getValues().message
+  const { mutate, data, status } = useGenerate()
 
-  const genRecipe = api.recipe.generate.useMutation()
-
-  const onSubmit = async (values: GenerateRecipeParams) => {
-    setIsGenRecipeOpen(true)
-    genRecipe.mutate(values)
-  }
-
-  const handleCloseModal = () => {
-    setIsGenRecipeOpen(false)
-  }
+  const [chatBubbles, setChatBubbles] = useState(
+    data?.messages ? data.messages : []
+  )
+  // const [messages, setMessages] = useState<Message[]>([])
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     setValue('message', e.currentTarget.innerText.toLowerCase(), {
@@ -43,38 +44,55 @@ export const useGeneratedRecipe = () => {
     clearErrors()
   }
 
-  const handleEnableCloseModal = () => {
-    setEnableCloseModal(true)
-  }
-
-  // const addMessage = (values: GenerateRecipeParams) => {
-  //   setMessages((state) => [
-  //     ...state,
-  //     { from: 'me', timeStamp: new Date().toISOString(), value: values.message }
-  //   ])
-  //   reset()
-
-  //   setTimeout(() => {
-  //     setMessages((state) => [
-  //       ...state,
-  //       {
-  //         from: 'chat',
-  //         timeStamp: new Date().toISOString(),
-  //         value: 'Generating your recipe...'
-  //       }
-  //     ])
-  //   }, 500)
+  // const handleAddToMessages = (message: Message) => {
+  //   setMessages((state) => [...state, message])
   // }
 
+  const onSubmit = (values: GenerateRecipeParams) => {
+    // handleAddToMessages({ content: values.message, role: 'user' })
+    setChatBubbles((state) => [
+      ...state,
+      {
+        content: values.message,
+        role: 'user'
+      }
+    ])
+    reset()
+
+    const convo = data?.messages.map((m) => {
+      let content: string
+      if (typeof m.content === 'string') {
+        content = m.content
+      } else {
+        content = JSON.stringify(m.content)
+      }
+
+      return { ...m, content }
+    })
+    mutate({ content: values.message, messages: convo })
+    // setChatBubbles((state) => [
+    //   ...state,
+    //   {
+    //     from: 'chat',
+    //     timeStamp: new Date().toISOString(),
+    //     value: (
+    //       <RecipeChatBubble
+    //         // messages={messages}
+    //         // handleAddToMessages={handleAddToMessages}
+    //         prompt={values.message}
+    //         messages={undefined}
+    //       />
+    //     )
+    //   }
+    // ])
+  }
+
   return {
-    enableCloseModal,
-    genRecipe,
     isDirty,
-    isGenRecipeOpen,
     isValid,
-    messages,
-    handleCloseModal,
-    handleEnableCloseModal,
+    chatBubbles,
+    conversation: { data, status },
+    prompt: isSubmitting ? prompt : null,
     handleFillMessage,
     onSubmit,
     handleSubmit,
@@ -84,12 +102,6 @@ export const useGeneratedRecipe = () => {
 
 const generateRecipeFormSchema = z.object({ message: z.string().min(6) })
 export type GenerateRecipeParams = z.infer<typeof generateRecipeFormSchema>
-
-type Message = {
-  from: 'me' | 'chat'
-  value: string
-  timeStamp: string
-}
 
 export const useCreateGeneratedRecipe = (data: GeneratedRecipe) => {
   const router = useRouter()
@@ -106,8 +118,8 @@ export const useCreateGeneratedRecipe = (data: GeneratedRecipe) => {
   const { handleSubmit, register, getValues } = useForm<FormValues>({
     defaultValues: {
       description,
-      ingredients: ingredients.join('\n'),
-      instructions: instructions.join('\n'),
+      ingredients: ingredients?.join('\n'),
+      instructions: instructions?.join('\n'),
       name,
       cookTime,
       prepTime

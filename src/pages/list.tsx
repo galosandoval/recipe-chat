@@ -21,6 +21,7 @@ export default function ListView() {
     </>
   )
 }
+
 export function ListByUserId() {
   const { data, status } = useList()
 
@@ -175,7 +176,7 @@ function List({
       {data.map((i) => (
         <Checkbox
           key={i.id}
-          checked={checked[i.id].isChecked}
+          checked={checked[i?.id]?.isChecked}
           id={i.id.toString()}
           label={i.name}
           onChange={handleCheck}
@@ -235,7 +236,7 @@ function ListByRecipeId({
             {b.map((i) => (
               <Checkbox
                 key={i.id}
-                checked={checked[i.id]?.isChecked}
+                checked={checked[i?.id]?.isChecked}
                 id={i.id.toString()}
                 label={i.name}
                 onChange={handleCheck}
