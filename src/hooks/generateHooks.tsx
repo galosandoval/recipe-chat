@@ -1,27 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/router'
 import { FormValues } from 'pages/_generate'
-import {
-  Dispatch,
-  MouseEvent,
-  SetStateAction,
-  useEffect,
-  useState
-} from 'react'
+import { MouseEvent, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { GeneratedRecipe, Message } from 'server/api/routers/recipe/interface'
+import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
 const useGenerate = () => {
-  return api.recipe.generate
-    .useMutation
-    // {
-    //   onSuccess: (data) => {
-    //     setEnabled(false)
-    //   }
-    // }
-    ()
+  return api.recipe.generate.useMutation()
 }
 
 export type UseGenerate = ReturnType<typeof useGenerate>

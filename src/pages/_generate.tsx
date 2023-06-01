@@ -1,7 +1,6 @@
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
-import { api } from 'utils/api'
-import { GeneratedRecipe, Message } from 'server/api/routers/recipe/interface'
+import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
 import {
   UseGenerate,
   useCreateGeneratedRecipe,
@@ -26,7 +25,6 @@ export default function GenerateRecipe() {
     isValid,
     chatBubbles,
     conversation,
-    prompt,
     onSubmit,
     handleFillMessage,
     handleSubmit,
@@ -53,11 +51,7 @@ export default function GenerateRecipe() {
           </div>
         </div>
 
-        <Chat
-          chatBubbles={chatBubbles}
-          conversation={conversation}
-          prompt={prompt}
-        />
+        <Chat chatBubbles={chatBubbles} conversation={conversation} />
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -100,11 +94,9 @@ export default function GenerateRecipe() {
 
 export const Chat = ({
   chatBubbles,
-  conversation,
-  prompt
+  conversation
 }: {
   chatBubbles: ChatCompletionRequestMessage[]
-  prompt: string | null
   conversation: Pick<UseGenerate, 'data' | 'status'>
 }) => {
   console.log('conversation', conversation)
