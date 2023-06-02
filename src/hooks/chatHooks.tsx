@@ -14,7 +14,6 @@ type ChatAction = {
 
 type ChatState = {
   messages: Message[]
-  // error?: string
 }
 
 function chatReducer(state: ChatState, action: ChatAction) {
