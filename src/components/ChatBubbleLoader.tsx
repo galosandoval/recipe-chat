@@ -10,7 +10,7 @@ export const ChatBubbleLoader = () => {
               backgroundColor: 'hsl(var(--nc) / var(--tw-text-opacity))',
               borderRadius: '50%',
               animationDelay: '0.0s',
-              animationDuration: '1.5s'
+              animationDuration: '1s'
             }}
             className='animate-pulse'
           ></span>
@@ -20,7 +20,7 @@ export const ChatBubbleLoader = () => {
               height: '.8rem',
               backgroundColor: 'hsl(var(--nc) / var(--tw-text-opacity))',
               borderRadius: '50%',
-              animationDuration: '1.5s',
+              animationDuration: '1s',
               animationDelay: '0.25s'
             }}
             className='animate-pulse'
@@ -30,7 +30,7 @@ export const ChatBubbleLoader = () => {
               width: '.8rem',
               height: '.8rem',
               backgroundColor: 'hsl(var(--nc) / var(--tw-text-opacity))',
-              animationDuration: '1.5s',
+              animationDuration: '1s',
               borderRadius: '50%',
               animationDelay: '0.5s'
             }}

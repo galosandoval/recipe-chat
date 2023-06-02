@@ -38,7 +38,7 @@ export default function LandingView() {
       <MyHead title='Listy - Create recipes using AI | Powered by OpenAI | ChatGPT' />
       <main className='h-screen h-screen-ios'>
         <form
-          className='container flex h-full flex-col items-center justify-center gap-4'
+          className='flex h-full flex-col items-center justify-center gap-4'
           onSubmit={handleSubmit(onSubmit)}
         >
           <div>
