@@ -1,6 +1,14 @@
+import { motion } from 'framer-motion'
+import { item } from 'pages/_chat'
+
 export const ChatBubbleLoader = () => {
   return (
-    <div className='chat chat-start'>
+    <motion.div
+      variants={item}
+      initial='hidden'
+      animate='visible'
+      className='chat chat-start'
+    >
       <div className='chat-bubble'>
         <div className='mt-2 flex items-center gap-2'>
           <span
@@ -38,6 +46,6 @@ export const ChatBubbleLoader = () => {
           ></span>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

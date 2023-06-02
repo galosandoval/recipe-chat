@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
 import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export type FormValues = {
   name: string
@@ -133,6 +134,18 @@ function SubmitMessageForm({
   )
 }
 
+const container = {
+  hidden: { opacity: 1, scale: 0 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      delayChildren: 0.3,
+      staggerChildren: 0.2
+    }
+  }
+}
+
 function Chat({
   chatBubbles
 }: {
@@ -140,15 +153,34 @@ function Chat({
 }) {
   return (
     <>
-      <div className='divider'>Chat</div>
       <div className='px-2'>
-        {chatBubbles &&
-          chatBubbles.map((m, i) => (
-            <ChatBubble message={m} key={m.content + i} />
-          ))}
+        {!!chatBubbles.length && (
+          <>
+            <motion.div
+              variants={container}
+              initial='hidden'
+              animate='visible'
+              className='divider text-left'
+            >
+              Chat
+            </motion.div>
+
+            {chatBubbles.map((m, i) => (
+              <ChatBubble message={m} key={m.content + i} />
+            ))}
+          </>
+        )}
       </div>
     </>
   )
+}
+
+export const item = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1
+  }
 }
 
 function ChatBubble({
@@ -211,17 +243,28 @@ function ChatBubble({
     typeof message?.content === 'string'
   ) {
     return (
-      <div className='chat chat-end'>
+      <motion.div
+        variants={item}
+        initial='hidden'
+        animate='visible'
+        className='chat chat-end'
+      >
         <div className='chat-bubble chat-bubble-primary'>{message.content}</div>
-      </div>
+      </motion.div>
     )
   }
+
   return (
-    <div className='chat chat-end'>
+    <motion.div
+      variants={item}
+      initial='hidden'
+      animate='visible'
+      className='chat chat-end'
+    >
       <div className='chat-bubble chat-bubble-primary'>
         {message.content as string}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
