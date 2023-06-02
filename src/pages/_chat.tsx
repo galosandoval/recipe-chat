@@ -1,10 +1,11 @@
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
-import { UseGenerate, useCreateRecipe, AddMessage } from 'hooks/chatHooks'
+import { useCreateRecipe, AddMessage } from 'hooks/chatHooks'
 import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
+import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
 
 export type FormValues = {
   name: string
@@ -20,7 +21,7 @@ export default function ChatView() {
     isDirty,
     isValid,
     chatBubbles,
-    conversation,
+    chatRef,
     onSubmit,
     handleFillMessage,
     handleSubmit,
@@ -28,11 +29,27 @@ export default function ChatView() {
   } = AddMessage()
 
   return (
-    <>
+    <div className='prose flex flex-col pb-16'>
       <div className='relative flex flex-col'>
-        <div className='flex flex-col items-center justify-center overflow-y-auto px-4 pb-16'>
+        <div className='flex flex-col items-center justify-center overflow-y-auto px-4'>
           <div className='flex flex-1 flex-col items-center justify-center'>
-            <h2 className='mt-2'>Examples</h2>
+            <div className='flex items-center gap-2'>
+              <h2 className='mb-2 mt-2'>Examples</h2>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth={1.5}
+                stroke='currentColor'
+                className='h-6 w-6'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z'
+                />
+              </svg>
+            </div>
             <div className='flex flex-col items-center gap-4'>
               <Button className='btn-primary btn' onClick={handleFillMessage}>
                 What should I make for dinner tonight?
@@ -47,65 +64,89 @@ export default function ChatView() {
           </div>
         </div>
 
-        <Chat chatBubbles={chatBubbles.messages} conversation={conversation} />
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className='fixed bottom-0 flex w-full items-center bg-base-100'
-        >
-          <div className='w-full px-2'>
-            <textarea
-              {...register('message')}
-              placeholder='Ask about a recipe'
-              className='input-bordered input relative w-full resize-none pt-2'
-            />
-          </div>
-          <div className=''>
-            <Button
-              type='submit'
-              disabled={!isValid || !isDirty}
-              className='btn-accent btn mb-1'
-            >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                strokeWidth={1.5}
-                stroke='currentColor'
-                className='h-6 w-6'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5'
-                />
-              </svg>
-            </Button>
-          </div>
-        </form>
+        <Chat chatBubbles={chatBubbles.messages} />
+        <div ref={chatRef}></div>
       </div>
-    </>
+      <SubmitMessageForm
+        handleSubmit={handleSubmit}
+        onSubmit={onSubmit}
+        register={register}
+        isValid={isValid}
+        isDirty={isDirty}
+      />
+    </div>
   )
 }
 
-export const Chat = ({
-  chatBubbles,
-  conversation
+function SubmitMessageForm({
+  handleSubmit,
+  onSubmit,
+  register,
+  isValid,
+  isDirty
+}: {
+  handleSubmit: UseFormHandleSubmit<{
+    message: string
+  }>
+  onSubmit: (values: { message: string }) => void
+  register: UseFormRegister<{
+    message: string
+  }>
+  isValid: boolean
+  isDirty: boolean
+}) {
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className='fixed bottom-0 flex w-full items-center bg-base-100'
+    >
+      <div className='w-full px-2'>
+        <textarea
+          {...register('message')}
+          placeholder='Ask about a recipe'
+          className='input-bordered input relative w-full resize-none pt-2'
+        />
+      </div>
+      <div className='mr-1'>
+        <Button
+          type='submit'
+          disabled={!isValid || !isDirty}
+          className='btn-accent btn mb-1'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            fill='none'
+            viewBox='0 0 24 24'
+            strokeWidth={1.5}
+            stroke='currentColor'
+            className='h-6 w-6'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5'
+            />
+          </svg>
+        </Button>
+      </div>
+    </form>
+  )
+}
+
+function Chat({
+  chatBubbles
 }: {
   chatBubbles: ChatCompletionRequestMessage[]
-  conversation: Pick<UseGenerate, 'data' | 'status'>
-}) => {
-  const { status } = conversation
-
-  console.log('chatBubbles', chatBubbles)
+}) {
   return (
     <>
-      {chatBubbles &&
-        chatBubbles.map((m, i) => (
-          <ChatBubble message={m} key={m.content + i} />
-        ))}
-
-      {status === 'loading' && <ChatBubbleLoader />}
+      <div className='divider'>Chat</div>
+      <div className='px-2'>
+        {chatBubbles &&
+          chatBubbles.map((m, i) => (
+            <ChatBubble message={m} key={m.content + i} />
+          ))}
+      </div>
     </>
   )
 }
@@ -117,6 +158,7 @@ function ChatBubble({
     content: string | GeneratedRecipe
     role: 'user' | 'assistant' | 'system'
     error?: string
+    isLoading?: boolean
   }
 }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -127,6 +169,10 @@ function ChatBubble({
 
   const handleCloseModal = () => {
     setIsOpen(false)
+  }
+
+  if (message.isLoading) {
+    return <ChatBubbleLoader />
   }
 
   if (message.role === 'assistant') {
@@ -153,7 +199,7 @@ function ChatBubble({
           {recipe.name}
         </button>
         <Modal closeModal={handleCloseModal} isOpen={isOpen}>
-          <Form handleCloseModal={handleCloseModal} data={recipe} />
+          <SaveRecipeForm handleCloseModal={handleCloseModal} data={recipe} />
         </Modal>
       </div>
     )
@@ -179,7 +225,7 @@ function ChatBubble({
   )
 }
 
-function Form({
+function SaveRecipeForm({
   data,
   handleCloseModal
 }: {

@@ -68,7 +68,7 @@ function RootLayout({ children }: { children: ReactNode }) {
       >
         {navbar}
       </div>
-      <main className='container relative z-0'>{children}</main>
+      <main className='container relative z-0 mx-auto'>{children}</main>
     </div>
   )
 }
