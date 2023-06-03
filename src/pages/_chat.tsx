@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
 import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 export type FormValues = {
   name: string
@@ -65,6 +65,8 @@ export default function ChatView() {
           </div>
         </div>
 
+        <RecipeFilters filters={['vegan', 'high protein']} />
+
         <Chat chatBubbles={chatBubbles.messages} />
         <div ref={chatRef}></div>
       </div>
@@ -75,6 +77,78 @@ export default function ChatView() {
         isValid={isValid}
         isDirty={isDirty}
       />
+    </div>
+  )
+}
+
+type Filter = string
+
+function RecipeFilters({ filters }: { filters: Filter[] }) {
+  return (
+    <div className='flex flex-col items-center justify-center'>
+      <div className='flex items-center gap-2'>
+        <h2 className='mb-2 mt-2'>Filters</h2>
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          fill='none'
+          viewBox='0 0 24 24'
+          strokeWidth={1.5}
+          stroke='currentColor'
+          className='h-6 w-6'
+        >
+          <path
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            d='M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z'
+          />
+        </svg>
+      </div>
+      <div className='flex gap-2'>
+        {filters.map((filter) => (
+          <div
+            key={filter}
+            className='badge-primary badge-outline badge flex items-center gap-1'
+          >
+            <span className=''>{filter}</span>
+            <button className='btn-ghost btn p-0 hover:bg-transparent'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth={1.5}
+                stroke='currentColor'
+                className='h-4 w-4'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M6 18L18 6M6 6l12 12'
+                />
+              </svg>
+            </button>
+          </div>
+        ))}
+
+        <div className='badge-primary badge-outline badge flex items-center gap-1'>
+          <input type='' className='input-ghost input input-xs h-4' />
+          <button className='btn-ghost btn p-0 hover:bg-transparent'>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='h-4 w-4'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M12 4.5v15m7.5-7.5h-15'
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
