@@ -2,7 +2,7 @@ export function RecipeByIdLoader() {
   return (
     <div className='flex flex-col'>
       <div
-        className='animpulse-pulse h-60 w-96 bg-base-content'
+        className='animpulse-pulse h-60 w-full bg-base-content'
         style={{ animationDuration: '1s' }}
       ></div>
 
@@ -20,26 +20,27 @@ export function RecipeByIdLoader() {
           style={{ animationDuration: '1s', animationDelay: '0.35s' }}
         ></div>
       </div>
-      <div className='stats mb-2 shadow'>
-        <div className='stat place-items-center'>
-          <div className='stat-title'>Prep Time</div>
-          <div
-            className='mt-2 h-4 w-3/5 animate-pulse rounded bg-base-content'
-            style={{ animationDuration: '1s', animationDelay: '0.45s' }}
-          ></div>
+      <div className='flex flex-col justify-center px-2'>
+        <div className='stats mb-2 shadow'>
+          <div className='stat place-items-center'>
+            <div className='stat-title'>Prep Time</div>
+            <div
+              className='mt-2 h-4 w-3/5 animate-pulse rounded bg-base-content'
+              style={{ animationDuration: '1s', animationDelay: '0.45s' }}
+            ></div>
+          </div>
+
+          <div className='stat place-items-center'>
+            <div className='stat-title'>Cook Time</div>
+            <div
+              className='mt-2 h-4 w-3/5 animate-pulse rounded bg-base-content'
+              style={{ animationDuration: '1s', animationDelay: '0.55s' }}
+            ></div>
+          </div>
         </div>
 
-        <div className='stat place-items-center'>
-          <div className='stat-title'>Cook Time</div>
-          <div
-            className='mt-2 h-4 w-3/5 animate-pulse rounded bg-base-content'
-            style={{ animationDuration: '1s', animationDelay: '0.55s' }}
-          ></div>
-        </div>
+        <div className='h-12 w-full animate-pulse rounded-md bg-primary px-2'></div>
       </div>
-
-      <div className='h-12 w-full animate-pulse rounded-md bg-primary px-2'></div>
-
       <div className='mt-5 flex items-center gap-2 pl-2'>
         <div className='h-7 w-7 animate-pulse rounded-lg bg-primary'></div>
         <div
