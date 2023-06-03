@@ -146,8 +146,8 @@ export const recipeRouter = createTRPCRouter({
       return ctx.prisma.recipe.findFirst({
         where: { id: { equals: input.id } },
         select: {
-          ingredients: true,
-          instructions: true
+          ingredients: { orderBy: { id: 'asc' } },
+          instructions: { orderBy: { id: 'asc' } }
         }
       })
     }),
