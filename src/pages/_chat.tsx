@@ -5,8 +5,11 @@ import { useCreateRecipe, AddMessage } from 'hooks/chatHooks'
 import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
-import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
+import { UseFormHandleSubmit, UseFormRegister, useForm } from 'react-hook-form'
 import { motion } from 'framer-motion'
+import { CheckIcon, plusCircleSvg } from 'components/Icons'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export type FormValues = {
   name: string
@@ -65,7 +68,7 @@ export default function ChatView() {
           </div>
         </div>
 
-        <RecipeFilters filters={['vegan', 'high protein']} />
+        <RecipeFilters />
 
         <Chat chatBubbles={chatBubbles.messages} />
         <div ref={chatRef}></div>
@@ -81,13 +84,45 @@ export default function ChatView() {
   )
 }
 
-type Filter = string
+type Filters = Record<string, boolean>
 
-function RecipeFilters({ filters }: { filters: Filter[] }) {
+const createFilterSchema = z.object({
+  name: z.string().min(3).max(50)
+})
+
+type CreateFilter = z.infer<typeof createFilterSchema>
+
+function RecipeFilters() {
+  const [filters, setFilters] = useState<Filters>({
+    vegan: false,
+    'high protein': false
+  })
+
+  const filtersArr = Object.keys(filters)
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isDirty, isValid }
+  } = useForm<CreateFilter>({
+    resolver: zodResolver(createFilterSchema)
+  })
+
+  const handleCheck = (filter: string) => {
+    setFilters((prev) => ({ ...prev, [filter]: !prev[filter] }))
+  }
+
+  const onSubmit = (data: CreateFilter) => {
+    setFilters((prev) => ({ ...prev, [data.name]: true }))
+
+    reset()
+  }
+
   return (
-    <div className='flex flex-col items-center justify-center'>
+    <div className='mt-2 flex flex-col items-center justify-center gap-2 px-2'>
       <div className='flex items-center gap-2'>
-        <h2 className='mb-2 mt-2'>Filters</h2>
+        <h2 className='mb-0 mt-0'>Filters</h2>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
@@ -103,52 +138,39 @@ function RecipeFilters({ filters }: { filters: Filter[] }) {
           />
         </svg>
       </div>
-      <div className='flex gap-2'>
-        {filters.map((filter) => (
-          <div
-            key={filter}
-            className='badge-primary badge-outline badge flex items-center gap-1'
-          >
-            <span className=''>{filter}</span>
-            <button className='btn-ghost btn p-0 hover:bg-transparent'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                strokeWidth={1.5}
-                stroke='currentColor'
-                className='h-4 w-4'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M6 18L18 6M6 6l12 12'
-                />
-              </svg>
-            </button>
-          </div>
-        ))}
 
-        <div className='badge-primary badge-outline badge flex items-center gap-1'>
-          <input type='' className='input-ghost input input-xs h-4' />
-          <button className='btn-ghost btn p-0 hover:bg-transparent'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-4 w-4'
+      <div className='flex flex-wrap gap-2'>
+        {filtersArr.map((filter) => {
+          const checked = filters[filter]
+          return (
+            <button
+              onClick={() => handleCheck(filter)}
+              key={filter}
+              className={`badge badge-ghost flex h-fit items-center gap-1 py-0 ${
+                checked && 'badge-primary badge-outline'
+              }`}
             >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M12 4.5v15m7.5-7.5h-15'
-              />
-            </svg>
-          </button>
-        </div>
+              {checked && <CheckIcon />}
+              <span className=''>{filter}</span>
+            </button>
+          )
+        })}
       </div>
+
+      <form className='join' onSubmit={handleSubmit(onSubmit)}>
+        <input
+          {...register('name')}
+          className='join-item input input-sm'
+          placeholder='New filter'
+        />
+        <button
+          type='submit'
+          disabled={!isDirty || !isValid}
+          className='join-item no-animation btn-sm btn rounded-r-full'
+        >
+          {plusCircleSvg}
+        </button>
+      </form>
     </div>
   )
 }
