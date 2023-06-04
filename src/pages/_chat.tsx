@@ -1,15 +1,23 @@
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
-import { useCreateRecipe, AddMessage } from 'hooks/chatHooks'
+import {
+  UseRecipeFilters,
+  useCreateRecipe,
+  useSendMessage
+} from 'hooks/chatHooks'
 import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
-import { UseFormHandleSubmit, UseFormRegister, useForm } from 'react-hook-form'
+import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
 import { motion } from 'framer-motion'
-import { CheckIcon, plusCircleSvg } from 'components/Icons'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  CheckIcon,
+  EditIcon,
+  XCircleIcon,
+  XIcon,
+  plusCircleSvg
+} from 'components/Icons'
 
 export type FormValues = {
   name: string
@@ -20,7 +28,7 @@ export type FormValues = {
   cookTime: string
 }
 
-export default function ChatView() {
+export default function Chat() {
   const {
     isDirty,
     isValid,
@@ -29,8 +37,9 @@ export default function ChatView() {
     onSubmit,
     handleFillMessage,
     handleSubmit,
-    register
-  } = AddMessage()
+    register,
+    recipeFilters
+  } = useSendMessage()
 
   return (
     <div className='prose flex flex-col pb-16'>
@@ -68,9 +77,9 @@ export default function ChatView() {
           </div>
         </div>
 
-        <RecipeFilters />
+        <RecipeFilters {...recipeFilters} />
 
-        <Chat chatBubbles={chatBubbles.messages} />
+        <Messages chatBubbles={chatBubbles.messages} />
         <div ref={chatRef}></div>
       </div>
       <SubmitMessageForm
@@ -84,41 +93,18 @@ export default function ChatView() {
   )
 }
 
-type Filters = Record<string, boolean>
-
-const createFilterSchema = z.object({
-  name: z.string().min(3).max(50)
-})
-
-type CreateFilter = z.infer<typeof createFilterSchema>
-
-function RecipeFilters() {
-  const [filters, setFilters] = useState<Filters>({
-    vegan: false,
-    'high protein': false
-  })
-
-  const filtersArr = Object.keys(filters)
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isDirty, isValid }
-  } = useForm<CreateFilter>({
-    resolver: zodResolver(createFilterSchema)
-  })
-
-  const handleCheck = (filter: string) => {
-    setFilters((prev) => ({ ...prev, [filter]: !prev[filter] }))
-  }
-
-  const onSubmit = (data: CreateFilter) => {
-    setFilters((prev) => ({ ...prev, [data.name]: true }))
-
-    reset()
-  }
-
+function RecipeFilters({
+  filtersArr,
+  handleSubmit,
+  onSubmit,
+  filters,
+  register,
+  handleCheck,
+  isBtnDisabled,
+  canDelete,
+  handleRemoveFilter,
+  handleToggleCanDelete
+}: UseRecipeFilters) {
   return (
     <div className='mt-2 flex flex-col items-center justify-center gap-2 px-2'>
       <div className='flex items-center gap-2'>
@@ -140,18 +126,32 @@ function RecipeFilters() {
       </div>
 
       <div className='flex flex-wrap gap-2'>
+        {filtersArr.length > 0 && (
+          <button
+            onClick={handleToggleCanDelete}
+            className={`badge-ghost badge flex h-fit items-center gap-1 py-0`}
+          >
+            {canDelete ? <XIcon size={5} /> : <EditIcon size={5} />}
+          </button>
+        )}
+
         {filtersArr.map((filter) => {
-          const checked = filters[filter]
+          const checked = filters[filter] && !canDelete
           return (
             <button
-              onClick={() => handleCheck(filter)}
+              onClick={
+                canDelete
+                  ? () => handleRemoveFilter(filter)
+                  : () => handleCheck(filter)
+              }
               key={filter}
-              className={`badge badge-ghost flex h-fit items-center gap-1 py-0 ${
+              className={`badge-ghost badge flex h-fit items-center gap-1 py-0 ${
                 checked && 'badge-primary badge-outline'
               }`}
             >
               {checked && <CheckIcon />}
               <span className=''>{filter}</span>
+              {canDelete && <XCircleIcon size={5} />}
             </button>
           )
         })}
@@ -160,12 +160,12 @@ function RecipeFilters() {
       <form className='join' onSubmit={handleSubmit(onSubmit)}>
         <input
           {...register('name')}
-          className='join-item input input-sm'
+          className='join-item input-bordered input input-sm'
           placeholder='New filter'
         />
         <button
           type='submit'
-          disabled={!isDirty || !isValid}
+          disabled={isBtnDisabled}
           className='join-item no-animation btn-sm btn rounded-r-full'
         >
           {plusCircleSvg}
@@ -242,7 +242,7 @@ const container = {
   }
 }
 
-function Chat({
+function Messages({
   chatBubbles
 }: {
   chatBubbles: ChatCompletionRequestMessage[]
@@ -380,7 +380,7 @@ function SaveRecipeForm({
   ).length
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='py-t flex flex-col px-1'>
+    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
       <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto px-1 pb-1'>
         <div className='flex flex-col'>
           <label htmlFor='name' className='label'>
@@ -422,7 +422,7 @@ function SaveRecipeForm({
             <input
               id='cookTime'
               type='text'
-              className='input-bordered input input-sm'
+              className='input-bordered input input-sm mr-2'
               {...register('cookTime')}
             />
           </div>
@@ -450,7 +450,7 @@ function SaveRecipeForm({
           />
         </div>
       </div>
-      <div className='flex w-full py-2'>
+      <div className='flex w-full gap-1 px-2 py-2'>
         {isSuccess ? (
           <Button className='btn-ghost btn w-1/2' onClick={handleCloseModal}>
             Return

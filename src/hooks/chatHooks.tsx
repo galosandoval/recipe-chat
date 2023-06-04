@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/router'
 import { FormValues } from 'pages/_chat'
-import { MouseEvent, useReducer, useRef } from 'react'
+import { MouseEvent, useEffect, useReducer, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { GeneratedRecipe, Message } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
@@ -50,7 +50,7 @@ function useChatReducer(initialState: ChatState) {
 
 export const errorMessage = 'Please try rephrasing your request.'
 
-function useAddMessageMutation(
+function useSendMessageMutation(
   dispatch: React.Dispatch<ChatAction>,
   handleScrollIntoView: () => void
 ) {
@@ -76,9 +76,10 @@ function useAddMessageMutation(
   })
 }
 
-export type UseGenerate = ReturnType<typeof useAddMessageMutation>
+export type UseGenerate = ReturnType<typeof useSendMessageMutation>
 
-export const AddMessage = () => {
+type CreateFilter = z.infer<typeof createFilterSchema>
+export const useSendMessage = () => {
   const [chatBubbles, dispatch] = useChatReducer({ messages: [] })
   const {
     register,
@@ -88,8 +89,10 @@ export const AddMessage = () => {
     clearErrors,
     reset
   } = useForm<ChatRecipeParams>({
-    resolver: zodResolver(addMessageFormSchema)
+    resolver: zodResolver(sendMessageFormSchema)
   })
+
+  const recipeFilters = useRecipeFilters()
 
   const utils = api.useContext()
   utils.recipe.entity.prefetch()
@@ -100,7 +103,10 @@ export const AddMessage = () => {
     chatRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const { mutate, data } = useAddMessageMutation(dispatch, handleScrollIntoView)
+  const { mutate, data } = useSendMessageMutation(
+    dispatch,
+    handleScrollIntoView
+  )
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     setValue('message', e.currentTarget.innerText.toLowerCase(), {
@@ -123,6 +129,8 @@ export const AddMessage = () => {
 
     reset()
 
+    const filters = recipeFilters.checkedFilters
+
     const convo = data?.messages
       .map((m) => {
         let content: string
@@ -136,7 +144,7 @@ export const AddMessage = () => {
       })
       .filter((m) => m.content !== '')
 
-    mutate({ content: values.message, messages: convo })
+    mutate({ content: values.message, messages: convo, filters })
   }
 
   return {
@@ -147,12 +155,91 @@ export const AddMessage = () => {
     handleFillMessage,
     onSubmit,
     handleSubmit,
+    recipeFilters,
     register
   }
 }
 
-const addMessageFormSchema = z.object({ message: z.string().min(6) })
-export type ChatRecipeParams = z.infer<typeof addMessageFormSchema>
+type Filters = Record<string, boolean>
+
+const createFilterSchema = z.object({
+  name: z.string().min(3).max(50)
+})
+
+function useRecipeFilters() {
+  const [filters, setFilters] = useState<Filters>(
+    typeof localStorage.checkedFilters === 'string' &&
+      localStorage.checkedFilters.length > 2
+      ? (JSON.parse(localStorage.checkedFilters) as Filters)
+      : {}
+  )
+  const [canDelete, setCanDelete] = useState(false)
+
+  const filtersArr = Object.keys(filters)
+
+  const checkedFilters: string[] = []
+  for (const [filter, checked] of Object.entries(filters)) {
+    if (checked) {
+      checkedFilters.push(filter)
+    }
+  }
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isDirty, isValid }
+  } = useForm<CreateFilter>({
+    resolver: zodResolver(createFilterSchema)
+  })
+
+  const handleToggleCanDelete = () => {
+    setCanDelete((prev) => !prev)
+  }
+
+  const handleCheck = (filter: string) => {
+    setFilters((prev) => ({ ...prev, [filter]: !prev[filter] }))
+  }
+
+  const handleRemoveFilter = (filter: string) => {
+    setFilters((prev) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [filter]: _, ...rest } = prev
+      return rest
+    })
+  }
+
+  const onSubmit = (data: CreateFilter) => {
+    setCanDelete(false)
+
+    setFilters((prev) => ({ ...prev, [data.name]: true }))
+
+    reset()
+  }
+
+  useEffect(() => {
+    localStorage.checkedFilters = JSON.stringify(filters)
+  }, [filters])
+
+  return {
+    filters,
+    filtersArr,
+    handleCheck,
+    handleSubmit,
+    onSubmit,
+    register,
+    canDelete,
+    handleToggleCanDelete,
+    handleRemoveFilter,
+    isBtnDisabled: !isDirty || !isValid,
+    checkedFilters
+  }
+}
+
+export type UseRecipeFilters = ReturnType<typeof useRecipeFilters>
+
+const sendMessageFormSchema = z.object({ message: z.string().min(6) })
+export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
 export const useCreateRecipe = (data: GeneratedRecipe) => {
   const router = useRouter()

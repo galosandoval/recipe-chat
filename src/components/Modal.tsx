@@ -23,7 +23,7 @@ export const Modal = ({
             open={isOpen}
             onClose={closeModal}
           >
-            <Dialog.Panel className='my-auto max-h-[90%] w-full max-w-lg transform overflow-hidden rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all'>
+            <Dialog.Panel className='my-auto max-h-[90%] w-full max-w-lg transform overflow-hidden rounded-2xl bg-base-100 text-left align-middle shadow-xl transition-all'>
               {children}
             </Dialog.Panel>
           </Dialog>
