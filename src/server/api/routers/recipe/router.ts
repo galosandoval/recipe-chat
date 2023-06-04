@@ -323,15 +323,27 @@ export const recipeRouter = createTRPCRouter({
     .input(
       z.object({
         content: z.string(),
-        messages: z.array(messageSchema).nullish()
+        messages: z.array(messageSchema).nullish(),
+        filters: z.array(z.string()).optional()
       })
     )
     .mutation(async ({ input }) => {
+      let systemMessage =
+        'You are a helpful assistant that only responds with recipes. The response you give should contain the name of the recipe, a description, preparation time, cook time, ingredients and instructions. The reponse format should strictly be a javascript object with the following keys: name, prepTime, cookTime, description, ingredients, instructions.'
+
+      if (input.filters && input.filters.length) {
+        const filters = input.filters
+        const filterMessage = ` You have filters enabled for this conversation. The filters are: ${filters.join(
+          ', '
+        )}.`
+
+        systemMessage += filterMessage
+      }
+
       const messages = [
         {
           role: 'system',
-          content:
-            'You are a helpful assistant that only responds with recipes. The response you give should contain the name of the recipe, a description, preparation time, cook time, ingredients and instructions. The reponse format should strictly be a javascript object with the following keys: name, prepTime, cookTime, description, ingredients, instructions.'
+          content: systemMessage
         }
       ]
 

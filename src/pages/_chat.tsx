@@ -1,12 +1,23 @@
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
-import { useCreateRecipe, AddMessage } from 'hooks/chatHooks'
+import {
+  UseRecipeFilters,
+  useCreateRecipe,
+  useSendMessage
+} from 'hooks/chatHooks'
 import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
 import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
 import { motion } from 'framer-motion'
+import {
+  CheckIcon,
+  EditIcon,
+  XCircleIcon,
+  XIcon,
+  plusCircleSvg
+} from 'components/Icons'
 
 export type FormValues = {
   name: string
@@ -17,7 +28,7 @@ export type FormValues = {
   cookTime: string
 }
 
-export default function ChatView() {
+export default function Chat() {
   const {
     isDirty,
     isValid,
@@ -26,8 +37,9 @@ export default function ChatView() {
     onSubmit,
     handleFillMessage,
     handleSubmit,
-    register
-  } = AddMessage()
+    register,
+    recipeFilters
+  } = useSendMessage()
 
   return (
     <div className='prose flex flex-col pb-16'>
@@ -65,9 +77,9 @@ export default function ChatView() {
           </div>
         </div>
 
-        <RecipeFilters filters={['vegan', 'high protein']} />
+        <RecipeFilters {...recipeFilters} />
 
-        <Chat chatBubbles={chatBubbles.messages} />
+        <Messages chatBubbles={chatBubbles.messages} />
         <div ref={chatRef}></div>
       </div>
       <SubmitMessageForm
@@ -81,13 +93,22 @@ export default function ChatView() {
   )
 }
 
-type Filter = string
-
-function RecipeFilters({ filters }: { filters: Filter[] }) {
+function RecipeFilters({
+  filtersArr,
+  handleSubmit,
+  onSubmit,
+  filters,
+  register,
+  handleCheck,
+  isBtnDisabled,
+  canDelete,
+  handleRemoveFilter,
+  handleToggleCanDelete
+}: UseRecipeFilters) {
   return (
-    <div className='flex flex-col items-center justify-center'>
+    <div className='mt-2 flex flex-col items-center justify-center gap-2 px-2'>
       <div className='flex items-center gap-2'>
-        <h2 className='mb-2 mt-2'>Filters</h2>
+        <h2 className='mb-0 mt-0'>Filters</h2>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
@@ -103,52 +124,53 @@ function RecipeFilters({ filters }: { filters: Filter[] }) {
           />
         </svg>
       </div>
-      <div className='flex gap-2'>
-        {filters.map((filter) => (
-          <div
-            key={filter}
-            className='badge-primary badge-outline badge flex items-center gap-1'
-          >
-            <span className=''>{filter}</span>
-            <button className='btn-ghost btn p-0 hover:bg-transparent'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                strokeWidth={1.5}
-                stroke='currentColor'
-                className='h-4 w-4'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M6 18L18 6M6 6l12 12'
-                />
-              </svg>
-            </button>
-          </div>
-        ))}
 
-        <div className='badge-primary badge-outline badge flex items-center gap-1'>
-          <input type='' className='input-ghost input input-xs h-4' />
-          <button className='btn-ghost btn p-0 hover:bg-transparent'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-4 w-4'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M12 4.5v15m7.5-7.5h-15'
-              />
-            </svg>
+      <div className='flex flex-wrap gap-2'>
+        {filtersArr.length > 0 && (
+          <button
+            onClick={handleToggleCanDelete}
+            className={`badge-ghost badge flex h-fit items-center gap-1 py-0`}
+          >
+            {canDelete ? <XIcon size={5} /> : <EditIcon size={5} />}
           </button>
-        </div>
+        )}
+
+        {filtersArr.map((filter) => {
+          const checked = filters[filter] && !canDelete
+          return (
+            <button
+              onClick={
+                canDelete
+                  ? () => handleRemoveFilter(filter)
+                  : () => handleCheck(filter)
+              }
+              key={filter}
+              className={`badge-ghost badge flex h-fit items-center gap-1 py-0 ${
+                checked && 'badge-primary badge-outline'
+              }`}
+            >
+              {checked && <CheckIcon />}
+              <span className=''>{filter}</span>
+              {canDelete && <XCircleIcon size={5} />}
+            </button>
+          )
+        })}
       </div>
+
+      <form className='join' onSubmit={handleSubmit(onSubmit)}>
+        <input
+          {...register('name')}
+          className='join-item input-bordered input input-sm'
+          placeholder='New filter'
+        />
+        <button
+          type='submit'
+          disabled={isBtnDisabled}
+          className='join-item no-animation btn-sm btn rounded-r-full'
+        >
+          {plusCircleSvg}
+        </button>
+      </form>
     </div>
   )
 }
@@ -220,7 +242,7 @@ const container = {
   }
 }
 
-function Chat({
+function Messages({
   chatBubbles
 }: {
   chatBubbles: ChatCompletionRequestMessage[]
@@ -358,7 +380,7 @@ function SaveRecipeForm({
   ).length
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='py-t flex flex-col px-1'>
+    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
       <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto px-1 pb-1'>
         <div className='flex flex-col'>
           <label htmlFor='name' className='label'>
@@ -400,7 +422,7 @@ function SaveRecipeForm({
             <input
               id='cookTime'
               type='text'
-              className='input-bordered input input-sm'
+              className='input-bordered input input-sm mr-2'
               {...register('cookTime')}
             />
           </div>
@@ -428,7 +450,7 @@ function SaveRecipeForm({
           />
         </div>
       </div>
-      <div className='flex w-full py-2'>
+      <div className='flex w-full gap-1 px-2 py-2'>
         {isSuccess ? (
           <Button className='btn-ghost btn w-1/2' onClick={handleCloseModal}>
             Return

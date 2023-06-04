@@ -12,6 +12,7 @@ const selectRecipeNames = (data: Recipe[]) => {
   data.forEach((r) => (nameDictionary[r.id] = r.name))
   return nameDictionary
 }
+
 export function useRecipeNames(ids: number[]) {
   return api.recipe.byIds.useQuery(ids, {
     select: selectRecipeNames
@@ -36,8 +37,9 @@ export function useListController(data: Ingredient[]) {
   }, {})
 
   const [checked, setChecked] = useState(() =>
-    typeof localStorage.checked === 'string' && localStorage.checked.length > 2
-      ? (JSON.parse(localStorage.checked) as Checked)
+    typeof localStorage.checkedIngredients === 'string' &&
+    localStorage.checkedIngredients.length > 2
+      ? (JSON.parse(localStorage.checkedIngredients) as Checked)
       : initialChecked
   )
 
@@ -92,7 +94,7 @@ export function useListController(data: Ingredient[]) {
   }
 
   useEffect(() => {
-    localStorage.checked = JSON.stringify(checked)
+    localStorage.checkedIngredients = JSON.stringify(checked)
   }, [checked])
 
   useEffect(() => {
@@ -237,7 +239,7 @@ export function useClearList(data: Ingredient[]) {
       ) => {
         if (old?.ingredients) {
           const localStorageChecked = JSON.parse(
-            localStorage.checked
+            localStorage.checkedIngredients
           ) as Checked
 
           const newIngredients = old.ingredients.filter((i) => {
@@ -287,7 +289,7 @@ export function useClearList(data: Ingredient[]) {
           utils.recipe.ingredientsAndInstructions.invalidate({ id })
         }
       })
-      localStorage.checked = JSON.stringify({})
+      localStorage.checkedIngredients = JSON.stringify({})
     }
   })
 }
