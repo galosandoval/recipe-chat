@@ -145,8 +145,12 @@ function RecipeFilters({
                   : () => handleCheck(filter)
               }
               key={filter}
-              className={`badge-ghost badge flex h-fit items-center gap-1 py-0 ${
-                checked && 'badge-primary badge-outline'
+              className={`badge flex h-fit items-center gap-1 py-0 ${
+                canDelete
+                  ? 'badge-error badge-outline'
+                  : checked
+                  ? 'badge-primary badge-outline'
+                  : 'badge-ghost'
               }`}
             >
               {checked && <CheckIcon />}
