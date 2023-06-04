@@ -367,7 +367,6 @@ export const recipeRouter = createTRPCRouter({
         )
       }
 
-      console.log('messages on server', messages)
       const configuration = new Configuration({
         apiKey: process.env.OPENAI_API_KEY
       })

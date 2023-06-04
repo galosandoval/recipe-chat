@@ -168,8 +168,8 @@ const createFilterSchema = z.object({
 
 function useRecipeFilters() {
   const [filters, setFilters] = useState<Filters>(
-    typeof localStorage.checkedFilters === 'string' &&
-      localStorage.checkedFilters.length > 2
+    typeof window !== 'undefined' &&
+      typeof localStorage.checkedFilters === 'string'
       ? (JSON.parse(localStorage.checkedFilters) as Filters)
       : {}
   )
