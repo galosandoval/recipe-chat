@@ -349,7 +349,7 @@ export const recipeRouter = createTRPCRouter({
         content: input.content
       }
 
-      if (input?.messages) {
+      if (input?.messages && input.messages.length) {
         messages.push(...input.messages, inputMessage)
       } else {
         messages.push(
@@ -379,7 +379,7 @@ export const recipeRouter = createTRPCRouter({
 
         const content = completion.data.choices[0].message?.content
 
-        console.log('content', content)
+        console.log('content:', content)
 
         if (content) {
           const startOfBracket = content.indexOf('{')
