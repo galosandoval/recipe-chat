@@ -1,86 +1,43 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Message as PrismaMessage } from '@prisma/client'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { FormValues } from 'pages/_chat'
-import { MouseEvent, useEffect, useReducer, useRef, useState } from 'react'
+import {
+  Dispatch,
+  MouseEvent,
+  useEffect,
+  useReducer,
+  useRef,
+  useState
+} from 'react'
 import { useForm } from 'react-hook-form'
 import { GeneratedRecipe, Message } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
-type ChatAction = {
-  type: 'add' | 'loadingResponse' | 'loaded'
-  payload: Message & { error?: string; isLoading?: boolean }
-}
-
-type ChatState = {
-  messages: Message[]
-}
-
-function chatReducer(state: ChatState, action: ChatAction) {
-  const { type, payload } = action
-  switch (type) {
-    case 'add':
-      return {
-        ...state,
-        messages: [...state.messages, payload]
-      }
-
-    case 'loadingResponse':
-      return {
-        ...state,
-        messages: [...state.messages, payload]
-      }
-
-    case 'loaded':
-      const newMessages = state.messages.slice(0, -1)
-      return {
-        ...state,
-        messages: [...newMessages, payload]
-      }
-
-    default:
-      return state
-  }
-}
-
-function useChatReducer(initialState: ChatState) {
-  const [state, dispatch] = useReducer(chatReducer, initialState)
-  return [state, dispatch] as const
-}
-
-export const errorMessage = 'Please try rephrasing your request.'
-
-function useSendMessageMutation(
-  dispatch: React.Dispatch<ChatAction>,
-  handleScrollIntoView: () => void
-) {
-  return api.recipe.generate.useMutation({
+function useGetChat(enabled: boolean, dispatch: Dispatch<ChatAction>) {
+  return api.chat.get.useQuery(undefined, {
+    enabled,
     onSuccess: (data) => {
-      const newMessage = data.messages.at(-1)
-      if (newMessage) {
-        dispatch({ type: 'loaded', payload: newMessage })
+      if (data?.messages.length) {
+        dispatch({ type: 'chatLoaded', payload: data.messages })
       }
     },
-    onError: () => {
-      dispatch({
-        type: 'loaded',
-        payload: {
-          content: '',
-          role: 'assistant',
-          error: errorMessage
-        }
-      })
-    },
-    onMutate: () => handleScrollIntoView(),
-    onSettled: () => handleScrollIntoView()
+    staleTime: 0
   })
 }
 
-export type UseGenerate = ReturnType<typeof useSendMessageMutation>
+export type UseGetChat = ReturnType<typeof useGetChat>
 
-type CreateFilter = z.infer<typeof createFilterSchema>
-export const useSendMessage = () => {
-  const [chatBubbles, dispatch] = useChatReducer({ messages: [] })
+export const useChat = () => {
+  const { status: authStatus } = useSession()
+  const isAuthenticated = authStatus === 'authenticated'
+
+  const [state, dispatch, status, chatId] = useChatReducer(
+    { messages: [] },
+    isAuthenticated
+  )
   const {
     register,
     handleSubmit,
@@ -103,10 +60,7 @@ export const useSendMessage = () => {
     chatRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const { mutate, data } = useSendMessageMutation(
-    dispatch,
-    handleScrollIntoView
-  )
+  const { mutate } = useSendMessageMutation(dispatch, handleScrollIntoView)
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     setValue('message', e.currentTarget.innerText.toLowerCase(), {
@@ -131,7 +85,7 @@ export const useSendMessage = () => {
 
     const filters = recipeFilters.checkedFilters
 
-    const convo = data?.messages
+    const convo = state?.messages
       .map((m) => {
         let content: string
         if (typeof m.content === 'string') {
@@ -144,22 +98,192 @@ export const useSendMessage = () => {
       })
       .filter((m) => m.content !== '')
 
-    mutate({ content: values.message, messages: convo, filters })
+    mutate({
+      content: values.message,
+      messages: convo,
+      filters,
+      chatId
+    })
   }
 
   return {
     isDirty,
     isValid,
-    chatBubbles,
+    state,
     chatRef,
+    handleScrollIntoView,
     handleFillMessage,
     onSubmit,
     handleSubmit,
     recipeFilters,
-    register
+    register,
+    status
   }
 }
 
+function useChatReducer(initialState: ChatState, isAuthenticated: boolean) {
+  const [state, dispatch] = useReducer(chatReducer, initialState)
+  const { status, data } = useGetChat(isAuthenticated, dispatch)
+
+  console.log('data', data)
+
+  return [state, dispatch, status, data?.id] as const
+}
+
+type ChatAction =
+  | {
+      type: 'add' | 'loadingResponse' | 'messageLoaded'
+      payload: Message & { error?: string; isLoading?: boolean }
+    }
+  | {
+      type: 'chatLoaded'
+      payload: Message[]
+    }
+
+type ChatState = {
+  messages: Message[]
+}
+function chatReducer(state: ChatState, action: ChatAction) {
+  const { type, payload } = action
+  switch (type) {
+    case 'add':
+      return {
+        ...state,
+        messages: [...state.messages, payload]
+      }
+
+    case 'loadingResponse':
+      return {
+        ...state,
+        messages: [...state.messages, payload]
+      }
+
+    case 'messageLoaded':
+      const newMessages = state.messages.slice(0, -1)
+      return {
+        ...state,
+        messages: [...newMessages, payload]
+      }
+
+    case 'chatLoaded':
+      return {
+        ...state,
+        messages: action.payload
+      }
+
+    default:
+      return state
+  }
+}
+
+export const errorMessage = 'Please try rephrasing your request.'
+
+function useSendMessageMutation(
+  dispatch: React.Dispatch<ChatAction>,
+  handleScrollIntoView: () => void
+) {
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
+  const utils = api.useContext()
+
+  return api.recipe.generate.useMutation({
+    onSuccess: (data) => {
+      // if (isAuthenticated) {
+      //   utils.chat.get.setData(undefined, (old) => {
+      //     if (old?.messages && old.messages.length) {
+      //       const chatId = old.messages[0].chatId
+      //       const messages: PrismaMessage[] = [
+      //         ...old.messages,
+      //         {
+      //           chatId,
+      //           content: JSON.stringify(data.recipe),
+      //           createdAt: new Date(),
+      //           id: Infinity,
+      //           role: 'assistant',
+      //           updatedAt: new Date()
+      //         }
+      //       ]
+
+      //       return {
+      //         ...old,
+      //         messages
+      //       }
+      //     }
+
+      //     return old
+      //   })
+      // } else {
+      //   const newMessage = data.recipe
+      //   if (newMessage) {
+      dispatch({
+        type: 'messageLoaded',
+        payload: { content: JSON.stringify(data.recipe), role: 'assistant' }
+      })
+      // }
+      // }
+    },
+    onError: () => {
+      dispatch({
+        type: 'messageLoaded',
+        payload: {
+          content: '',
+          role: 'assistant',
+          error: errorMessage
+        }
+      })
+    },
+    onMutate: ({ content }) => {
+      if (isAuthenticated) {
+        utils.chat.get.setData(undefined, (old) => {
+          if (old?.messages && old.messages.length) {
+            const chatId = old.messages[0].chatId
+            const messages: PrismaMessage[] = [
+              ...old.messages,
+              {
+                chatId,
+                content,
+                createdAt: new Date(),
+                id: Infinity,
+                role: 'user',
+                updatedAt: new Date()
+              }
+            ]
+
+            return {
+              ...old,
+              messages
+            }
+          } else if (old?.messages) {
+            return {
+              ...old,
+              messages: [
+                ...old.messages,
+                {
+                  chatId: old.id,
+                  content,
+                  createdAt: new Date(),
+                  id: Infinity,
+                  role: 'user',
+                  updatedAt: new Date()
+                }
+              ]
+            }
+          }
+
+          return old
+        })
+      }
+      setTimeout(() => {
+        handleScrollIntoView()
+      })
+    },
+    onSettled: () => setTimeout(() => handleScrollIntoView())
+  })
+}
+
+export type UseGenerate = ReturnType<typeof useSendMessageMutation>
+
+type CreateFilter = z.infer<typeof createFilterSchema>
 type Filters = Record<string, boolean>
 
 const createFilterSchema = z.object({

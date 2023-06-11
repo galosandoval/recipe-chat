@@ -1,11 +1,7 @@
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
-import {
-  UseRecipeFilters,
-  useCreateRecipe,
-  useSendMessage
-} from 'hooks/chatHooks'
+import { UseRecipeFilters, useCreateRecipe, useChat } from 'hooks/chatHooks'
 import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
@@ -18,6 +14,7 @@ import {
   XIcon,
   plusCircleSvg
 } from 'components/Icons'
+import { QueryStatus } from '@tanstack/react-query'
 
 export type FormValues = {
   name: string
@@ -32,14 +29,16 @@ export default function Chat() {
   const {
     isDirty,
     isValid,
-    chatBubbles,
     chatRef,
     onSubmit,
     handleFillMessage,
+    handleScrollIntoView,
     handleSubmit,
     register,
-    recipeFilters
-  } = useSendMessage()
+    recipeFilters,
+    state,
+    status
+  } = useChat()
 
   return (
     <div className='prose flex flex-col pb-16'>
@@ -79,10 +78,12 @@ export default function Chat() {
 
         <RecipeFilters {...recipeFilters} />
 
-        <Messages chatBubbles={chatBubbles.messages} />
+        <MessageList data={state.messages} status={status} />
+
         <div ref={chatRef}></div>
       </div>
       <SubmitMessageForm
+        handleScrollIntoView={handleScrollIntoView}
         handleSubmit={handleSubmit}
         onSubmit={onSubmit}
         register={register}
@@ -129,7 +130,7 @@ function RecipeFilters({
         {filtersArr.length > 0 && (
           <button
             onClick={handleToggleCanDelete}
-            className={`badge-ghost badge flex h-fit items-center gap-1 py-0`}
+            className={`badge badge-ghost flex h-fit items-center gap-1 py-0`}
           >
             {canDelete ? <XIcon size={5} /> : <EditIcon size={5} />}
           </button>
@@ -164,13 +165,13 @@ function RecipeFilters({
       <form className='join' onSubmit={handleSubmit(onSubmit)}>
         <input
           {...register('name')}
-          className='join-item input-bordered input input-sm'
+          className='input-bordered input input-sm join-item'
           placeholder='New filter'
         />
         <button
           type='submit'
           disabled={isBtnDisabled}
-          className='join-item no-animation btn-sm btn rounded-r-full'
+          className='no-animation btn-sm join-item btn rounded-r-full'
         >
           {plusCircleSvg}
         </button>
@@ -183,12 +184,15 @@ function SubmitMessageForm({
   handleSubmit,
   onSubmit,
   register,
+  handleScrollIntoView,
   isValid,
   isDirty
 }: {
   handleSubmit: UseFormHandleSubmit<{
     message: string
   }>
+  handleScrollIntoView: () => void
+
   onSubmit: (values: { message: string }) => void
   register: UseFormRegister<{
     message: string
@@ -206,6 +210,7 @@ function SubmitMessageForm({
           {...register('message')}
           placeholder='Ask about a recipe'
           className='input-bordered input relative w-full resize-none pt-2'
+          onFocus={() => handleScrollIntoView()}
         />
       </div>
       <div className='mr-1'>
@@ -241,44 +246,45 @@ const container = {
     scale: 1,
     transition: {
       delayChildren: 0.3,
-      staggerChildren: 0.2
+      staggerChildren: 1
     }
   }
 }
 
-function Messages({
-  chatBubbles
-}: {
-  chatBubbles: ChatCompletionRequestMessage[]
-}) {
-  return (
-    <>
-      <div className='px-2'>
-        {!!chatBubbles.length && (
-          <>
-            <motion.div
-              variants={container}
-              initial='hidden'
-              animate='visible'
-              className='divider text-left'
-            >
-              Chat
-            </motion.div>
+type MessageListProps = {
+  data: ChatCompletionRequestMessage[]
+  status: QueryStatus
+}
 
-            {chatBubbles.map((m, i) => (
-              <ChatBubble message={m} key={m.content + i} />
-            ))}
-          </>
-        )}
+function MessageList({ data, status }: MessageListProps) {
+  if (status === 'error') {
+    return <p>Error</p>
+  }
+
+  if (status === 'success' && data) {
+    return (
+      <div className='px-2'>
+        <motion.div
+          variants={container}
+          initial='hidden'
+          animate='visible'
+          className='divider text-left'
+        >
+          Chat
+        </motion.div>
+
+        {data.map((m, i) => (
+          <ChatBubble message={m} key={m.content + i} />
+        ))}
       </div>
-    </>
-  )
+    )
+  }
+  return <p>Loading...</p>
 }
 
 export const item = {
-  hidden: { y: 20, opacity: 0 },
+  hidden: { opacity: 0 },
   visible: {
-    y: 0,
     opacity: 1
   }
 }
