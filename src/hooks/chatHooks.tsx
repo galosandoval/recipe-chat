@@ -21,14 +21,12 @@ function useGetChat(enabled: boolean, dispatch: Dispatch<ChatAction>) {
     enabled,
     onSuccess: (data) => {
       if (data?.messages.length) {
-        dispatch({ type: 'chatLoaded', payload: data.messages })
+        dispatch({ type: 'loadedChat', payload: data.messages })
       }
     },
     staleTime: 0
   })
 }
-
-export type UseGetChat = ReturnType<typeof useGetChat>
 
 export const useChat = () => {
   const { status: authStatus } = useSession()
@@ -39,9 +37,9 @@ export const useChat = () => {
     isAuthenticated
   )
   const {
+    formState: { isDirty, isValid },
     register,
     handleSubmit,
-    formState: { isDirty, isValid },
     setValue,
     clearErrors,
     reset
@@ -77,7 +75,7 @@ export const useChat = () => {
     })
 
     dispatch({
-      type: 'loadingResponse',
+      type: 'loadingMessage',
       payload: { content: '', role: 'assistant', isLoading: true }
     })
 
@@ -109,14 +107,14 @@ export const useChat = () => {
   return {
     isDirty,
     isValid,
-    state,
     chatRef,
     handleScrollIntoView,
     handleFillMessage,
     onSubmit,
-    handleSubmit,
     recipeFilters,
+    handleSubmit,
     register,
+    state,
     status
   }
 }
@@ -132,11 +130,11 @@ function useChatReducer(initialState: ChatState, isAuthenticated: boolean) {
 
 type ChatAction =
   | {
-      type: 'add' | 'loadingResponse' | 'messageLoaded'
+      type: 'add' | 'loadingMessage' | 'loadedMessage'
       payload: Message & { error?: string; isLoading?: boolean }
     }
   | {
-      type: 'chatLoaded'
+      type: 'loadedChat'
       payload: Message[]
     }
 
@@ -152,23 +150,22 @@ function chatReducer(state: ChatState, action: ChatAction) {
         messages: [...state.messages, payload]
       }
 
-    case 'loadingResponse':
+    case 'loadingMessage':
       return {
         ...state,
         messages: [...state.messages, payload]
       }
 
-    case 'messageLoaded':
+    case 'loadedMessage':
       const newMessages = state.messages.slice(0, -1)
       return {
         ...state,
         messages: [...newMessages, payload]
       }
 
-    case 'chatLoaded':
+    case 'loadedChat':
       return {
-        ...state,
-        messages: action.payload
+        messages: action.payload || []
       }
 
     default:
@@ -216,7 +213,7 @@ function useSendMessageMutation(
       //   const newMessage = data.recipe
       //   if (newMessage) {
       dispatch({
-        type: 'messageLoaded',
+        type: 'loadedMessage',
         payload: { content: JSON.stringify(data.recipe), role: 'assistant' }
       })
       // }
@@ -224,7 +221,7 @@ function useSendMessageMutation(
     },
     onError: () => {
       dispatch({
-        type: 'messageLoaded',
+        type: 'loadedMessage',
         payload: {
           content: '',
           role: 'assistant',
