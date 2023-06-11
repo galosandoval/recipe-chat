@@ -379,6 +379,8 @@ export const recipeRouter = createTRPCRouter({
 
         const content = completion.data.choices[0].message?.content
 
+        console.log('content', content)
+
         if (content) {
           const startOfBracket = content.indexOf('{')
           let endOfBraket = content.length
