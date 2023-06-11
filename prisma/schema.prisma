@@ -20,6 +20,32 @@ model User {
   updatedAt DateTime @updatedAt
   list      List?
   recipes   Recipe[]
+  chats     Chat[]
+}
+
+model Chat {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    Int
+  user      User   @relation(fields: [userId], references: [id])
+  messages  Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  chatId    Int
+  content   String
+  role      Role     
+}
+
+enum Role {
+  system 
+  user
+  assistant
 }
 
 model Recipe {
@@ -47,11 +73,11 @@ model Instruction {
 }
 
 model Ingredient {
-  id       Int    @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   name     String
   recipe   Recipe? @relation(fields: [recipeId], references: [id])
   recipeId Int?
-  list     List?  @relation(fields: [listId], references: [id])
+  list     List?   @relation(fields: [listId], references: [id])
   listId   Int?
 }
 

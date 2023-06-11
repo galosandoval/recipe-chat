@@ -113,9 +113,16 @@ export const updateRecipeSchema = z
 
 export type UpdateRecipe = z.infer<typeof updateRecipeSchema>
 
-export const messageSchema = z.object({
+const messageSchema = z.object({
   content: z.string(),
   role: z.enum(['user', 'assistant', 'system'])
 })
 
 export type Message = z.infer<typeof messageSchema>
+
+export const generateSchema = z.object({
+  content: z.string(),
+  messages: z.array(messageSchema).nullish(),
+  filters: z.array(z.string()).optional(),
+  chatId: z.number().optional()
+})
