@@ -38,22 +38,45 @@ export const chatRouter = createTRPCRouter({
       })
     }),
 
-  get: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id
+  getChats: protectedProcedure
+    // .input(z.object({ userId: z.number() }))
+    .query(async ({ ctx }) => {
+      return ctx.prisma.chat.findMany({
+        where: {
+          userId: ctx.session.user.id
+        },
+        orderBy: {
+          updatedAt: 'asc'
+        },
+        include: {
+          messages: {
+            orderBy: {
+              createdAt: 'desc'
+            },
+            take: 1
+          }
+        },
+        take: 5
+      })
+    }),
 
-    return ctx.prisma.chat.findFirst({
-      where: {
-        userId
-      },
-      orderBy: {
-        updatedAt: 'desc'
-      },
-      take: 1,
-      include: {
-        messages: true
-      }
-    })
-  }),
+  getMessagesByChatId: protectedProcedure
+    .input(
+      z.object({
+        chatId: z.number()
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.chat.findFirst({
+        where: {
+          id: input.chatId
+        },
+
+        include: {
+          messages: true
+        }
+      })
+    }),
 
   addMessages: protectedProcedure
     .input(addMessagesSchema)

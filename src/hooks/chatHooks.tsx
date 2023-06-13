@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Message as PrismaMessage } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { FormValues } from 'pages/_chat'
@@ -16,16 +15,23 @@ import { GeneratedRecipe, Message } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
-function useGetChat(enabled: boolean, dispatch: Dispatch<ChatAction>) {
-  return api.chat.get.useQuery(undefined, {
-    enabled,
-    onSuccess: (data) => {
-      if (data?.messages.length) {
-        dispatch({ type: 'loadedChat', payload: data.messages })
-      }
-    },
-    staleTime: 0
-  })
+function useGetChat(
+  enabled: boolean,
+  dispatch: Dispatch<ChatAction>,
+  chatId: number
+) {
+  return api.chat.getMessagesByChatId.useQuery(
+    { chatId },
+    {
+      enabled,
+      onSuccess: (data) => {
+        if (data?.messages.length) {
+          dispatch({ type: 'loadedChat', payload: data.messages })
+        }
+      },
+      staleTime: 0
+    }
+  )
 }
 
 export const useChat = () => {
@@ -68,6 +74,10 @@ export const useChat = () => {
     clearErrors()
   }
 
+  const handleStartNewChat = () => {
+    dispatch({ type: 'reset', payload: undefined })
+  }
+
   const onSubmit = (values: ChatRecipeParams) => {
     dispatch({
       type: 'add',
@@ -108,20 +118,25 @@ export const useChat = () => {
     isDirty,
     isValid,
     chatRef,
+    recipeFilters,
+    state,
+    status,
+    handleStartNewChat,
     handleScrollIntoView,
     handleFillMessage,
     onSubmit,
-    recipeFilters,
     handleSubmit,
-    register,
-    state,
-    status
+    register
   }
 }
 
 function useChatReducer(initialState: ChatState, isAuthenticated: boolean) {
   const [state, dispatch] = useReducer(chatReducer, initialState)
-  const { status, data } = useGetChat(isAuthenticated, dispatch)
+  const { status, data } = useGetChat(
+    isAuthenticated && !!state.chatId,
+    dispatch,
+    state.chatId || 0
+  )
 
   console.log('data', data)
 
@@ -137,11 +152,20 @@ type ChatAction =
       type: 'loadedChat'
       payload: Message[]
     }
+  | {
+      type: 'chatIdChanged'
+      payload: number | undefined
+    }
+  | {
+      type: 'reset'
+      payload: undefined
+    }
 
 type ChatState = {
   messages: Message[]
+  chatId?: number
 }
-function chatReducer(state: ChatState, action: ChatAction) {
+function chatReducer(state: ChatState, action: ChatAction): ChatState {
   const { type, payload } = action
   switch (type) {
     case 'add':
@@ -168,6 +192,18 @@ function chatReducer(state: ChatState, action: ChatAction) {
         messages: action.payload || []
       }
 
+    case 'chatIdChanged':
+      return {
+        ...state,
+        chatId: action.payload
+      }
+
+    case 'reset':
+      return {
+        messages: [],
+        chatId: undefined
+      }
+
     default:
       return state
   }
@@ -179,10 +215,6 @@ function useSendMessageMutation(
   dispatch: React.Dispatch<ChatAction>,
   handleScrollIntoView: () => void
 ) {
-  const { status } = useSession()
-  const isAuthenticated = status === 'authenticated'
-  const utils = api.useContext()
-
   return api.recipe.generate.useMutation({
     onSuccess: (data) => {
       // if (isAuthenticated) {
@@ -216,6 +248,10 @@ function useSendMessageMutation(
         type: 'loadedMessage',
         payload: { content: JSON.stringify(data.recipe), role: 'assistant' }
       })
+      dispatch({
+        type: 'chatIdChanged',
+        payload: data.chatId
+      })
       // }
       // }
     },
@@ -229,52 +265,8 @@ function useSendMessageMutation(
         }
       })
     },
-    onMutate: ({ content }) => {
-      if (isAuthenticated) {
-        utils.chat.get.setData(undefined, (old) => {
-          if (old?.messages && old.messages.length) {
-            const chatId = old.messages[0].chatId
-            const messages: PrismaMessage[] = [
-              ...old.messages,
-              {
-                chatId,
-                content,
-                createdAt: new Date(),
-                id: Infinity,
-                role: 'user',
-                updatedAt: new Date()
-              }
-            ]
-
-            return {
-              ...old,
-              messages
-            }
-          } else if (old?.messages) {
-            return {
-              ...old,
-              messages: [
-                ...old.messages,
-                {
-                  chatId: old.id,
-                  content,
-                  createdAt: new Date(),
-                  id: Infinity,
-                  role: 'user',
-                  updatedAt: new Date()
-                }
-              ]
-            }
-          }
-
-          return old
-        })
-      }
-      setTimeout(() => {
-        handleScrollIntoView()
-      })
-    },
-    onSettled: () => setTimeout(() => handleScrollIntoView())
+    onMutate: () => handleScrollIntoView(),
+    onSettled: () => handleScrollIntoView()
   })
 }
 
