@@ -13,7 +13,7 @@ import { Checkbox } from 'components/Checkbox'
 import { MyHead } from 'components/Head'
 import NoSleep from 'nosleep.js'
 import { CreateList } from 'server/api/routers/list/interface'
-import { listSvg, plusSvg } from 'components/Icons'
+import { ListBulletIcon, PlusIcon } from 'components/Icons'
 import { RecipeByIdLoader } from 'components/RecipeByIdLoader'
 
 export default function RecipeByIdView() {
@@ -179,7 +179,7 @@ function FoundRecipe({
             onClick={addedToList ? handleGoToList : handleAddToList}
             isLoading={isLoading}
           >
-            {addedToList ? listSvg : plusSvg}
+            {addedToList ? <ListBulletIcon /> : <PlusIcon />}
             {addedToList ? 'Go to list' : 'Add to list'}
           </Button>
         </div>

@@ -415,7 +415,8 @@ export const recipeRouter = createTRPCRouter({
             console.log('newMesssages', newMessages)
 
             return {
-              recipe
+              recipe,
+              chatId
             }
           } else if (userId) {
             const newChat = await ctx.prisma.chat.create({
@@ -438,12 +439,14 @@ export const recipeRouter = createTRPCRouter({
 
             console.log('newChat', newChat)
             return {
-              recipe
+              recipe,
+              chatId: newChat.id
             }
           }
 
           return {
-            recipe
+            recipe,
+            chatId: undefined
           }
         } else {
           throw new TRPCError({

@@ -6,15 +6,19 @@ import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
 import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
-import { motion } from 'framer-motion'
+import { Variants, motion } from 'framer-motion'
 import {
   CheckIcon,
   EditIcon,
   XCircleIcon,
   XIcon,
-  plusCircleSvg
+  PlusCircleIcon,
+  ChatBubbleLeftIcon,
+  PlusIcon,
+  ListBulletIcon
 } from 'components/Icons'
 import { QueryStatus } from '@tanstack/react-query'
+import { api } from 'utils/api'
 
 export type FormValues = {
   name: string
@@ -30,19 +34,24 @@ export default function Chat() {
     isDirty,
     isValid,
     chatRef,
+    recipeFilters,
+    state,
+    status,
     onSubmit,
     handleFillMessage,
     handleScrollIntoView,
     handleSubmit,
     register,
-    recipeFilters,
-    state,
-    status
+    handleStartNewChat
   } = useChat()
 
+  const { data } = api.chat.getChats.useQuery()
+
+  console.log('data', data)
+
   return (
-    <div className='prose flex flex-col pb-16'>
-      <div className='relative flex flex-col'>
+    <div className='prose flex flex-col pb-12'>
+      <div className='relative flex flex-col gap-4'>
         <div className='flex flex-col items-center justify-center overflow-y-auto px-4'>
           <div className='flex flex-1 flex-col items-center justify-center'>
             <div className='flex items-center gap-2'>
@@ -78,7 +87,11 @@ export default function Chat() {
 
         <RecipeFilters {...recipeFilters} />
 
-        <MessageList data={state.messages} status={status} />
+        <MessageList
+          data={state.messages}
+          status={status}
+          handleStartNewChat={handleStartNewChat}
+        />
 
         <div ref={chatRef}></div>
       </div>
@@ -173,80 +186,21 @@ function RecipeFilters({
           disabled={isBtnDisabled}
           className='no-animation btn-sm join-item btn rounded-r-full'
         >
-          {plusCircleSvg}
+          <PlusCircleIcon />
         </button>
       </form>
     </div>
   )
 }
 
-function SubmitMessageForm({
-  handleSubmit,
-  onSubmit,
-  register,
-  handleScrollIntoView,
-  isValid,
-  isDirty
-}: {
-  handleSubmit: UseFormHandleSubmit<{
-    message: string
-  }>
-  handleScrollIntoView: () => void
-
-  onSubmit: (values: { message: string }) => void
-  register: UseFormRegister<{
-    message: string
-  }>
-  isValid: boolean
-  isDirty: boolean
-}) {
-  return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className='fixed bottom-0 flex w-full items-center bg-base-100'
-    >
-      <div className='w-full px-2'>
-        <textarea
-          {...register('message')}
-          placeholder='Ask about a recipe'
-          className='input-bordered input relative w-full resize-none pt-2'
-          onFocus={() => handleScrollIntoView()}
-        />
-      </div>
-      <div className='mr-1'>
-        <Button
-          type='submit'
-          disabled={!isValid || !isDirty}
-          className='btn-accent btn mb-1'
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth={1.5}
-            stroke='currentColor'
-            className='h-6 w-6'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5'
-            />
-          </svg>
-        </Button>
-      </div>
-    </form>
-  )
-}
-
-const container = {
-  hidden: { opacity: 1, scale: 0 },
+const container: Variants = {
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    scale: 1,
     transition: {
       delayChildren: 0.3,
-      staggerChildren: 1
+      staggerChildren: 1,
+      duration: 1
     }
   }
 }
@@ -254,38 +208,53 @@ const container = {
 type MessageListProps = {
   data: ChatCompletionRequestMessage[]
   status: QueryStatus
+  handleStartNewChat: () => void
 }
 
-function MessageList({ data, status }: MessageListProps) {
+function MessageList({ data, status, handleStartNewChat }: MessageListProps) {
   if (status === 'error') {
     return <p>Error</p>
   }
 
-  if (status === 'success' && data) {
-    return (
-      <div className='px-2'>
-        <motion.div
-          variants={container}
-          initial='hidden'
-          animate='visible'
-          className='divider text-left'
+  return (
+    <div className='px-2'>
+      <motion.div
+        className='grid grid-cols-3'
+        variants={container}
+        initial='hidden'
+        animate='visible'
+      >
+        <button className='btn-ghost btn-circle btn justify-self-start'>
+          <ListBulletIcon size={8} />
+        </button>
+        <div className='flex items-center justify-center gap-2'>
+          <h2 className='mb-2 mt-2'>Chat</h2>
+          <ChatBubbleLeftIcon />
+        </div>
+        <button
+          onClick={handleStartNewChat}
+          className='btn-ghost btn-circle btn justify-self-end'
         >
-          Chat
-        </motion.div>
+          <PlusIcon size={8} />
+        </button>
+      </motion.div>
 
-        {data.map((m, i) => (
-          <ChatBubble message={m} key={m.content + i} />
-        ))}
-      </div>
-    )
-  }
-  return <p>Loading...</p>
+      {data.map((m, i) => (
+        <ChatBubble message={m} key={m.content + i} />
+      ))}
+    </div>
+  )
 }
 
-export const item = {
+export const item: Variants = {
   hidden: { opacity: 0 },
   visible: {
-    opacity: 1
+    opacity: 1,
+    transition: {
+      delayChildren: 0.3,
+      staggerChildren: 1,
+      duration: 1
+    }
   }
 }
 
@@ -332,7 +301,7 @@ function ChatBubble({
       <div className='chat chat-start'>
         <button
           onClick={handleOpenModal}
-          className='chat-bubble link-primary link'
+          className='chat-bubble link-primary link bg-primary-content'
         >
           {recipe.name}
         </button>
@@ -371,6 +340,65 @@ function ChatBubble({
         {message.content as string}
       </div>
     </motion.div>
+  )
+}
+
+function SubmitMessageForm({
+  handleSubmit,
+  onSubmit,
+  register,
+  handleScrollIntoView,
+  isValid,
+  isDirty
+}: {
+  handleSubmit: UseFormHandleSubmit<{
+    message: string
+  }>
+  handleScrollIntoView: () => void
+
+  onSubmit: (values: { message: string }) => void
+  register: UseFormRegister<{
+    message: string
+  }>
+  isValid: boolean
+  isDirty: boolean
+}) {
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className='fixed bottom-0 flex w-full items-center bg-base-100'
+    >
+      <div className='flex w-full px-2 py-1'>
+        <textarea
+          {...register('message')}
+          placeholder='Ask about a recipe'
+          className='input-bordered input relative w-full resize-none pt-2'
+          onFocus={() => handleScrollIntoView()}
+        />
+      </div>
+      <div className='mr-1'>
+        <Button
+          type='submit'
+          disabled={!isValid || !isDirty}
+          className='btn-accent btn'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            fill='none'
+            viewBox='0 0 24 24'
+            strokeWidth={1.5}
+            stroke='currentColor'
+            className='h-6 w-6'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5'
+            />
+          </svg>
+        </Button>
+      </div>
+    </form>
   )
 }
 
