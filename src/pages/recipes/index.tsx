@@ -169,7 +169,7 @@ export function UploadRecipeUrlForm({
 
   return (
     <>
-      <Dialog.Title as='h3' className=''>
+      <Dialog.Title as='h3' className='mt-0'>
         Paste a recipe from the web
       </Dialog.Title>
       <form onSubmit={handleSubmit(onSubmit)} className=''>
@@ -181,7 +181,7 @@ export function UploadRecipeUrlForm({
           <ErrorMessage
             errors={errors}
             name='url'
-            render={({ message }) => <p>{message}</p>}
+            render={({ message }) => <p className='text-error'>{message}</p>}
           />
         </div>
         <div className='mt-4'>

@@ -1,7 +1,12 @@
 import { Button } from 'components/Button'
-import { Modal } from 'components/Modal'
+import { Drawer, Modal } from 'components/Modal'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
-import { UseRecipeFilters, useCreateRecipe, useChat } from 'hooks/chatHooks'
+import {
+  UseRecipeFilters,
+  useCreateRecipe,
+  useChat,
+  ChatsType
+} from 'hooks/chatHooks'
 import { useState } from 'react'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
 import { ChatCompletionRequestMessage } from 'openai'
@@ -18,7 +23,7 @@ import {
   ListBulletIcon
 } from 'components/Icons'
 import { QueryStatus } from '@tanstack/react-query'
-import { api } from 'utils/api'
+import { Chat, Message } from '@prisma/client'
 
 export type FormValues = {
   name: string
@@ -29,80 +34,99 @@ export type FormValues = {
   cookTime: string
 }
 
-export default function Chat() {
+export default function ChatView() {
   const {
     isDirty,
     isValid,
     chatRef,
     recipeFilters,
     state,
-    status,
+    status: messageListStatus,
+    chats,
+    isChatsModalOpen,
+
+    handleToggleChatsModal,
     onSubmit,
     handleFillMessage,
     handleScrollIntoView,
+    handleChangeChat,
     handleSubmit,
     register,
     handleStartNewChat
   } = useChat()
 
-  const { data } = api.chat.getChats.useQuery()
-
-  console.log('data', data)
-
   return (
-    <div className='prose flex flex-col pb-12'>
-      <div className='relative flex flex-col gap-4'>
-        <div className='flex flex-col items-center justify-center overflow-y-auto px-4'>
-          <div className='flex flex-1 flex-col items-center justify-center'>
-            <div className='flex items-center gap-2'>
-              <h2 className='mb-2 mt-2'>Examples</h2>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                strokeWidth={1.5}
-                stroke='currentColor'
-                className='h-6 w-6'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z'
-                />
-              </svg>
+    <div>
+      <div>
+        <div className='prose flex flex-col pb-12'>
+          <div className='relative flex flex-col gap-4'>
+            <div className='flex flex-col items-center justify-center overflow-y-auto px-4'>
+              <div className='flex flex-1 flex-col items-center justify-center'>
+                <div className='flex items-center gap-2'>
+                  <h2 className='mb-2 mt-2'>Examples</h2>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    strokeWidth={1.5}
+                    stroke='currentColor'
+                    className='h-6 w-6'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      d='M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z'
+                    />
+                  </svg>
+                </div>
+                <div className='flex flex-col items-center gap-4'>
+                  <Button
+                    className='btn-primary btn'
+                    onClick={handleFillMessage}
+                  >
+                    What should I make for dinner tonight?
+                  </Button>
+                  <Button
+                    className='btn-primary btn'
+                    onClick={handleFillMessage}
+                  >
+                    Which salad recipe will go well with my steak and potatoes?
+                  </Button>
+                  <Button
+                    className='btn-primary btn'
+                    onClick={handleFillMessage}
+                  >
+                    What&apos;s a the best risotto recipe?
+                  </Button>
+                </div>
+              </div>
             </div>
-            <div className='flex flex-col items-center gap-4'>
-              <Button className='btn-primary btn' onClick={handleFillMessage}>
-                What should I make for dinner tonight?
-              </Button>
-              <Button className='btn-primary btn' onClick={handleFillMessage}>
-                Which salad recipe will go well with my steak and potatoes?
-              </Button>
-              <Button className='btn-primary btn' onClick={handleFillMessage}>
-                What&apos;s a the best risotto recipe?
-              </Button>
-            </div>
+
+            <RecipeFilters {...recipeFilters} />
+
+            <MessageList
+              data={state.messages}
+              chatId={state.chatId}
+              chats={chats}
+              status={messageListStatus}
+              isChatsModalOpen={isChatsModalOpen}
+              handleChangeChat={handleChangeChat}
+              handleStartNewChat={handleStartNewChat}
+              handleToggleChatsModal={handleToggleChatsModal}
+            />
+
+            <div ref={chatRef}></div>
           </div>
+          <SubmitMessageForm
+            handleScrollIntoView={handleScrollIntoView}
+            handleSubmit={handleSubmit}
+            onSubmit={onSubmit}
+            register={register}
+            isValid={isValid}
+            isDirty={isDirty}
+          />
         </div>
-
-        <RecipeFilters {...recipeFilters} />
-
-        <MessageList
-          data={state.messages}
-          status={status}
-          handleStartNewChat={handleStartNewChat}
-        />
-
-        <div ref={chatRef}></div>
       </div>
-      <SubmitMessageForm
-        handleScrollIntoView={handleScrollIntoView}
-        handleSubmit={handleSubmit}
-        onSubmit={onSubmit}
-        register={register}
-        isValid={isValid}
-        isDirty={isDirty}
-      />
     </div>
   )
 }
@@ -208,10 +232,29 @@ const container: Variants = {
 type MessageListProps = {
   data: ChatCompletionRequestMessage[]
   status: QueryStatus
+  chats: ChatsType
+  chatId?: number
+  isChatsModalOpen: boolean
+
+  handleChangeChat: (
+    chat: Chat & {
+      messages: Message[]
+    }
+  ) => void
   handleStartNewChat: () => void
+  handleToggleChatsModal: () => void
 }
 
-function MessageList({ data, status, handleStartNewChat }: MessageListProps) {
+function MessageList({
+  data,
+  status,
+  chats,
+  chatId,
+  isChatsModalOpen,
+  handleChangeChat,
+  handleStartNewChat,
+  handleToggleChatsModal
+}: MessageListProps) {
   if (status === 'error') {
     return <p>Error</p>
   }
@@ -224,9 +267,14 @@ function MessageList({ data, status, handleStartNewChat }: MessageListProps) {
         initial='hidden'
         animate='visible'
       >
-        <button className='btn-ghost btn-circle btn justify-self-start'>
-          <ListBulletIcon size={8} />
-        </button>
+        <ChatsPopoverButton
+          chatId={chatId}
+          chats={chats}
+          isChatsModalOpen={isChatsModalOpen}
+          handleChangeChat={handleChangeChat}
+          handleToggleChatsModal={handleToggleChatsModal}
+        />
+
         <div className='flex items-center justify-center gap-2'>
           <h2 className='mb-2 mt-2'>Chat</h2>
           <ChatBubbleLeftIcon />
@@ -244,6 +292,137 @@ function MessageList({ data, status, handleStartNewChat }: MessageListProps) {
       ))}
     </div>
   )
+}
+
+export function ChatsPopoverButton({
+  chats,
+  chatId,
+  isChatsModalOpen,
+  handleToggleChatsModal,
+  handleChangeChat
+}: {
+  chats: ChatsType
+  chatId?: number
+  isChatsModalOpen: boolean
+  handleChangeChat: (
+    chat: Chat & {
+      messages: Message[]
+    }
+  ) => void
+  handleToggleChatsModal: () => void
+}) {
+  return (
+    <>
+      <button
+        onClick={handleToggleChatsModal}
+        className="justify-self-start' btn-ghost btn-circle btn"
+      >
+        <ListBulletIcon size={8} />
+      </button>
+
+      <Drawer closeModal={handleToggleChatsModal} isOpen={isChatsModalOpen}>
+        <ChatList
+          chats={chats}
+          chatId={chatId}
+          handleChangeChat={handleChangeChat}
+        />
+      </Drawer>
+    </>
+  )
+}
+
+function ChatList({
+  chats,
+  chatId,
+  handleChangeChat
+}: {
+  chats: ChatsType
+  chatId?: number
+  handleChangeChat: (
+    chat: Chat & {
+      messages: Message[]
+    }
+  ) => void
+}) {
+  const { data, status } = chats
+
+  if (status === 'error') {
+    return <div>Error</div>
+  }
+  if (status === 'success') {
+    return (
+      <div className='flex h-full flex-col justify-end gap-2 pb-8'>
+        {data.map((chat) => (
+          <ChatOption
+            key={chat.id}
+            chat={chat}
+            chatId={chatId}
+            handleChangeChat={handleChangeChat}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  return <div>Error</div>
+}
+
+function ChatOption({
+  chat,
+  chatId,
+  handleChangeChat
+}: {
+  chat: Chat & {
+    messages: Message[]
+  }
+  chatId?: number
+  handleChangeChat: (
+    chat: Chat & {
+      messages: Message[]
+    }
+  ) => void
+}) {
+  const { content, role } = chat.messages[0]
+
+  let message = content
+
+  if (role === 'assistant') {
+    message = JSON.parse(content).name
+  }
+
+  return (
+    <div
+      className={`flex flex-col px-2 py-2 ${
+        chatId === chat.id ? 'bg-primary-content' : ''
+      }`}
+    >
+      <div
+        onClick={() => handleChangeChat(chat)}
+        className={`flex items-center gap-2 ${
+          chatId === chat.id ? 'text-primary' : ''
+        }`}
+        //  ${
+        //   active || selected ? 'text-primary' : ''
+        // }`}
+      >
+        <span
+          className={`text-base-content ${
+            chatId === chat.id ? 'text-primary' : ''
+          }`}
+        >
+          {message}
+        </span>
+      </div>
+
+      <span className='self-end text-xs text-primary'>
+        {dateTimeFormat().format(chat.updatedAt)}
+      </span>
+    </div>
+  )
+}
+
+function dateTimeFormat() {
+  return Intl.DateTimeFormat('en-US')
 }
 
 export const item: Variants = {
@@ -288,7 +467,7 @@ function ChatBubble({
     if ('error' in message) {
       return (
         <div className='chat chat-start'>
-          <div className='chat-bubble'>{message.error}</div>
+          <div className='chat-bubble chat-bubble-error'>{message.error}</div>
         </div>
       )
     } else if (typeof message.content === 'string') {
