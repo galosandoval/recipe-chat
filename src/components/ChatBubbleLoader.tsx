@@ -9,7 +9,7 @@ export const ChatBubbleLoader = () => {
       animate='visible'
       className='chat chat-start'
     >
-      <div className='chat-bubble'>
+      <div className='chat-bubble bg-primary-content'>
         <div className='mt-2 flex items-center gap-2'>
           <span
             style={{

@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Chat } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { FormValues } from 'pages/_chat'
@@ -38,10 +39,20 @@ export const useChat = () => {
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
 
-  const [state, dispatch, status, chatId] = useChatReducer(
-    { messages: [] },
+  const [state, dispatch, status] = useChatReducer(
+    { messages: [], chatId: undefined },
     isAuthenticated
   )
+
+  const chats = api.chat.getChats.useQuery(undefined, {
+    onSuccess: (data) => {
+      if (data && data?.length && data.at(-1)?.id) {
+        dispatch({ type: 'chatIdChanged', payload: data.at(-1)?.id })
+      }
+    },
+    staleTime: 0
+  })
+
   const {
     formState: { isDirty, isValid },
     register,
@@ -65,6 +76,7 @@ export const useChat = () => {
   }
 
   const { mutate } = useSendMessageMutation(dispatch, handleScrollIntoView)
+  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     setValue('message', e.currentTarget.innerText.toLowerCase(), {
@@ -76,6 +88,19 @@ export const useChat = () => {
 
   const handleStartNewChat = () => {
     dispatch({ type: 'reset', payload: undefined })
+  }
+
+  const handleToggleChatsModal = () => {
+    setIsChatsModalOpen((state) => !state)
+  }
+
+  const handleChangeChat = (
+    chat: Chat & {
+      messages: Message[]
+    }
+  ) => {
+    dispatch({ type: 'chatIdChanged', payload: chat.id })
+    handleToggleChatsModal()
   }
 
   const onSubmit = (values: ChatRecipeParams) => {
@@ -110,7 +135,7 @@ export const useChat = () => {
       content: values.message,
       messages: convo,
       filters,
-      chatId
+      chatId: state.chatId
     })
   }
 
@@ -121,6 +146,11 @@ export const useChat = () => {
     recipeFilters,
     state,
     status,
+    chats,
+    isChatsModalOpen,
+
+    handleToggleChatsModal,
+    handleChangeChat,
     handleStartNewChat,
     handleScrollIntoView,
     handleFillMessage,
@@ -130,17 +160,22 @@ export const useChat = () => {
   }
 }
 
+export type ChatsType = ReturnType<typeof useChat>['chats']
+
+type ChatState = {
+  messages: Message[]
+  chatId?: number
+}
+
 function useChatReducer(initialState: ChatState, isAuthenticated: boolean) {
   const [state, dispatch] = useReducer(chatReducer, initialState)
-  const { status, data } = useGetChat(
+  const { status } = useGetChat(
     isAuthenticated && !!state.chatId,
     dispatch,
     state.chatId || 0
   )
 
-  console.log('data', data)
-
-  return [state, dispatch, status, data?.id] as const
+  return [state, dispatch, status] as const
 }
 
 type ChatAction =
@@ -161,10 +196,6 @@ type ChatAction =
       payload: undefined
     }
 
-type ChatState = {
-  messages: Message[]
-  chatId?: number
-}
 function chatReducer(state: ChatState, action: ChatAction): ChatState {
   const { type, payload } = action
   switch (type) {
@@ -189,6 +220,7 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
 
     case 'loadedChat':
       return {
+        ...state,
         messages: action.payload || []
       }
 
@@ -209,41 +241,16 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
   }
 }
 
-export const errorMessage = 'Please try rephrasing your request.'
+export const errorMessage = 'Please try rephrasing your question.'
 
 function useSendMessageMutation(
   dispatch: React.Dispatch<ChatAction>,
   handleScrollIntoView: () => void
 ) {
+  const utils = api.useContext()
+
   return api.recipe.generate.useMutation({
     onSuccess: (data) => {
-      // if (isAuthenticated) {
-      //   utils.chat.get.setData(undefined, (old) => {
-      //     if (old?.messages && old.messages.length) {
-      //       const chatId = old.messages[0].chatId
-      //       const messages: PrismaMessage[] = [
-      //         ...old.messages,
-      //         {
-      //           chatId,
-      //           content: JSON.stringify(data.recipe),
-      //           createdAt: new Date(),
-      //           id: Infinity,
-      //           role: 'assistant',
-      //           updatedAt: new Date()
-      //         }
-      //       ]
-
-      //       return {
-      //         ...old,
-      //         messages
-      //       }
-      //     }
-
-      //     return old
-      //   })
-      // } else {
-      //   const newMessage = data.recipe
-      //   if (newMessage) {
       dispatch({
         type: 'loadedMessage',
         payload: { content: JSON.stringify(data.recipe), role: 'assistant' }
@@ -252,8 +259,8 @@ function useSendMessageMutation(
         type: 'chatIdChanged',
         payload: data.chatId
       })
-      // }
-      // }
+
+      utils.chat.getChats.invalidate()
     },
     onError: () => {
       dispatch({
