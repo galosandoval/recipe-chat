@@ -37,21 +37,19 @@ function RootLayout({ children }: { children: ReactNode }) {
     navbar = <EditRecipeNavbar />
   }
 
-  const controlNavbar = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      if (lastScrollY > 10 && window.scrollY > lastScrollY) {
-        // if scroll down hide the navbar
-        setIsOpen('-translate-y-full')
-      } else {
-        setIsOpen('')
-      }
-      // remember current page location to use in the next move
-      setLastScrollY(window.scrollY)
-    }
-  }, [lastScrollY])
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const controlNavbar = () => {
+        if (lastScrollY > 10 && window.scrollY > lastScrollY) {
+          // if scroll down hide the navbar
+          setIsOpen('-translate-y-full')
+        } else {
+          setIsOpen('')
+        }
+        // remember current page location to use in the next move
+        setLastScrollY(window.scrollY)
+      }
+
       window.addEventListener('scroll', controlNavbar)
 
       // cleanup function
@@ -59,15 +57,10 @@ function RootLayout({ children }: { children: ReactNode }) {
         window.removeEventListener('scroll', controlNavbar)
       }
     }
-  }, [controlNavbar])
-
-  let outerDivClass = ''
-  if (router.asPath === '/') {
-    outerDivClass = 'h-screen-ios h-screen'
-  }
+  }, [lastScrollY])
 
   return (
-    <div className={outerDivClass}>
+    <div>
       <div
         className={`backdrop sticky top-0 z-10 flex w-full justify-center bg-gradient-to-b from-base-100 to-base-100/80 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300 ${isOpen}`}
       >

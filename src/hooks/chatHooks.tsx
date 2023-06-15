@@ -40,18 +40,32 @@ export const useChat = () => {
   const isAuthenticated = authStatus === 'authenticated'
 
   const [state, dispatch, status] = useChatReducer(
-    { messages: [], chatId: undefined },
+    {
+      messages: [],
+      chatId:
+        typeof localStorage.currentChatId === 'string'
+          ? (JSON.parse(localStorage.currentChatId) as number)
+          : undefined
+    },
     isAuthenticated
   )
 
   const chats = api.chat.getChats.useQuery(undefined, {
     onSuccess: (data) => {
-      if (data && data?.length && data.at(-1)?.id) {
-        dispatch({ type: 'chatIdChanged', payload: data.at(-1)?.id })
+      if (typeof localStorage.currentChatId !== 'string') {
+        dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
       }
     },
     staleTime: 0
   })
+
+  useEffect(() => {
+    if (state.chatId) {
+      localStorage.currentChatId = JSON.stringify(state.chatId)
+    } else {
+      localStorage.removeItem('currentChatId')
+    }
+  }, [state.chatId])
 
   const {
     formState: { isDirty, isValid },
@@ -72,7 +86,7 @@ export const useChat = () => {
   const chatRef = useRef<HTMLDivElement>(null)
 
   const handleScrollIntoView = () => {
-    chatRef.current?.scrollIntoView({ behavior: 'smooth' })
+    chatRef.current?.scrollIntoView({ behavior: 'auto' })
   }
 
   const { mutate } = useSendMessageMutation(dispatch, handleScrollIntoView)

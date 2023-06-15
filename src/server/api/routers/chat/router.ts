@@ -46,7 +46,7 @@ export const chatRouter = createTRPCRouter({
           userId: ctx.session.user.id
         },
         orderBy: {
-          updatedAt: 'asc'
+          updatedAt: 'desc'
         },
         include: {
           messages: {
@@ -73,7 +73,11 @@ export const chatRouter = createTRPCRouter({
         },
 
         include: {
-          messages: true
+          messages: {
+            orderBy: {
+              createdAt: 'desc'
+            }
+          }
         }
       })
     }),
