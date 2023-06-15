@@ -22,7 +22,8 @@ import {
   CreateRecipe,
   LinkedDataRecipeField
 } from 'server/api/routers/recipe/interface'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useRef, useState } from 'react'
+import { MagnifyingGlassCircleIcon, XCircleIcon } from 'components/Icons'
 
 export default function RecipesView() {
   return (
@@ -36,6 +37,7 @@ export default function RecipesView() {
 export function ListRecent() {
   const { data, isSuccess } = useRecipeEntity()
   const [search, setSearch] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value)
@@ -44,13 +46,32 @@ export function ListRecent() {
   if (isSuccess) {
     return (
       <div className='container mx-auto h-full px-2'>
-        <input
-          type='text'
-          className='input-bordered input mt-2 w-full'
-          value={search}
-          onChange={handleChange}
-          placeholder='Search...'
-        />
+        <div className='join mt-2 w-full'>
+          <input
+            type='text'
+            className='input-bordered input input-sm join-item w-full'
+            value={search}
+            onChange={handleChange}
+            placeholder='Search...'
+            ref={inputRef}
+          />
+          <button
+            type='button'
+            onClick={() =>
+              !!search ? setSearch('') : inputRef.current?.focus()
+            }
+            className='btn-sm join-item btn rounded-r-full'
+          >
+            {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
+          </button>
+        </div>
+        {/* <div className='join'>
+          <input
+            className='input-bordered input join-item'
+            placeholder='Email'
+          />
+          <button className='join-item btn rounded-r-full'>Subscribe</button>
+        </div> */}
         <div className='mt-4 grid grid-cols-2 gap-5 pb-8 md:grid-cols-4'>
           <CardList data={Object.values(data)} search={search} />
         </div>
