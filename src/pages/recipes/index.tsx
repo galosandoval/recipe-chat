@@ -22,6 +22,7 @@ import {
   CreateRecipe,
   LinkedDataRecipeField
 } from 'server/api/routers/recipe/interface'
+import { ChangeEvent, useState } from 'react'
 
 export default function RecipesView() {
   return (
@@ -34,15 +35,24 @@ export default function RecipesView() {
 
 export function ListRecent() {
   const { data, isSuccess } = useRecipeEntity()
+  const [search, setSearch] = useState('')
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value)
+  }
 
   if (isSuccess) {
     return (
       <div className='container mx-auto h-full px-2'>
-        <div className='prose'>
-          <h1 className=''>Recent Recipes</h1>
-        </div>
-        <div className='grid grid-cols-2 gap-5 py-8 md:grid-cols-4'>
-          <CardList data={Object.values(data)} />
+        <input
+          type='text'
+          className='input-bordered input mt-2 w-full'
+          value={search}
+          onChange={handleChange}
+          placeholder='Search...'
+        />
+        <div className='mt-4 grid grid-cols-2 gap-5 pb-8 md:grid-cols-4'>
+          <CardList data={Object.values(data)} search={search} />
         </div>
       </div>
     )
@@ -50,12 +60,35 @@ export function ListRecent() {
   return <p>Loading...</p>
 }
 
-function CardList({ data }: { data: Recipe[] }) {
-  const toReturn: JSX.Element[] = [
-    <CreateRecipeCard key='create-recipe-card' />
-  ]
-  toReturn.push(...data.map((recipe) => <Card key={recipe.id} data={recipe} />))
-  return <>{toReturn}</>
+function CardList({ data, search }: { data: Recipe[]; search: string }) {
+  let sortedData = data.sort((a, b) => {
+    if (a.name < b.name) {
+      return -1
+    }
+    if (a.name > b.name) {
+      return 1
+    }
+    return 0
+  })
+
+  if (search) {
+    sortedData = sortedData.filter((recipe) =>
+      recipe.name.toLowerCase().includes(search.toLowerCase())
+    )
+  }
+
+  if (sortedData.length === 0) {
+    return <p>No recipes found</p>
+  }
+
+  return (
+    <>
+      {!search && <CreateRecipeCard key='create-recipe-card' />}
+      {sortedData.map((recipe) => (
+        <Card key={recipe.id} data={recipe} />
+      ))}
+    </>
+  )
 }
 
 function Card({ data }: { data: Recipe }) {
