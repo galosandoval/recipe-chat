@@ -1,18 +1,18 @@
-import { useSession } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode, useCallback, useEffect, useState } from 'react'
-import { themeChange } from 'theme-change'
+import React, { ReactNode, useEffect, useState } from 'react'
 import {
   ChatBubbleLeftRightIcon,
   EditIcon,
   XIcon,
-  ListBulletIcon
+  ListBulletIcon,
+  ArrowLeftOnRectangleIcon,
+  ElipsisVerticalIcon
 } from './Icons'
-
-const darkTheme = 'night'
-const lightTheme = 'winter'
-type Theme = typeof darkTheme | typeof lightTheme
+import { Menu } from '@headlessui/react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ThemeToggle } from './ThemeToggle'
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { status } = useSession()
@@ -126,7 +126,6 @@ function EditRecipeNavbar() {
 
 function PagesNavbar() {
   const router = useRouter()
-  const [theme, setTheme] = useState<Theme>('night')
   const menuItems = [
     {
       label: 'Chat',
@@ -182,45 +181,6 @@ function PagesNavbar() {
     return styles
   }
 
-  useEffect(() => {
-    const themeDoesNotExist = !('theme' in localStorage)
-    const prefersDarkMode = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    ).matches
-    let { theme } = localStorage
-
-    if (themeDoesNotExist && prefersDarkMode) {
-      theme = darkTheme
-    } else if (themeDoesNotExist && !prefersDarkMode) {
-      theme = lightTheme
-    }
-
-    if (theme === lightTheme) {
-      document.documentElement.setAttribute('data-theme', lightTheme)
-      setTheme(lightTheme)
-    } else {
-      document.documentElement.setAttribute('data-theme', darkTheme)
-      setTheme(darkTheme)
-    }
-  }, [])
-
-  const handleToggleTheme = () => {
-    const { theme } = localStorage
-
-    if (theme === darkTheme) {
-      localStorage.theme = lightTheme
-      document.documentElement.setAttribute('data-theme', lightTheme)
-    } else {
-      localStorage.theme = darkTheme
-      document.documentElement.setAttribute('data-theme', darkTheme)
-    }
-  }
-
-  useEffect(() => {
-    themeChange(false)
-    // 👆 false parameter is required for react project
-  }, [])
-
   return (
     <nav className='navbar w-full justify-between px-5'>
       {menuItems.map((item) => (
@@ -234,59 +194,61 @@ function PagesNavbar() {
           <span className=''>{item.label}</span>
         </Link>
       ))}
-      <div className='relative mb-4 text-base-content'>
-        <label className='swap-rotate swap'>
-          <input type='checkbox' />
-          {/* sun */}
 
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth={1.5}
-            onClick={handleToggleTheme}
-            stroke='currentColor'
-            className={`${
-              theme === 'night' ? 'swap-on' : 'swap-off'
-            } h-6 w-6 fill-current`}
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z'
-            />
-          </svg>
-
-          {/* moon */}
-          {/* <svg
-            className={`${
-              theme === 'winter' ? 'swap-on' : 'swap-off'
-            } h-8 w-8 fill-current`}
-            xmlns='http://www.w3.org/2000/svg'
-            viewBox='0 0 24 24'
-            onClick={handleToggleTheme}
-          >
-            <path d='M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z' />
-          </svg> */}
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth={1.5}
-            onClick={handleToggleTheme}
-            stroke='currentColor'
-            className={`${
-              theme === 'winter' ? 'swap-on' : 'swap-off'
-            } h-6 w-6 fill-current`}
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z'
-            />
-          </svg>
-        </label>
-      </div>
+      <DropdownMenu />
     </nav>
+  )
+}
+
+const dropdownMenuOptions = {
+  transition: {
+    duration: 0.3
+  },
+  initial: {
+    opacity: 0,
+    y: -5
+  },
+  animate: { opacity: 1, y: 0 },
+  exit: {
+    opacity: 0,
+    y: -5
+  }
+} as const
+
+function DropdownMenu() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <Menu as='div' className='relative'>
+      <Menu.Button
+        onClick={() => setIsOpen((state) => !state)}
+        className='btn-ghost btn-circle btn mb-4'
+      >
+        <ElipsisVerticalIcon />
+      </Menu.Button>
+      <AnimatePresence>
+        {isOpen && (
+          <Menu.Items
+            as={motion.ul}
+            static
+            {...dropdownMenuOptions}
+            className='absolute right-0 top-[3.5rem] flex flex-col gap-4 rounded-md bg-primary-content py-2'
+          >
+            <Menu.Item>
+              <ThemeToggle />
+            </Menu.Item>
+            <Menu.Item>
+              <button
+                onClick={() => signOut()}
+                className='btn-ghost no-animation btn w-[8rem]'
+              >
+                <span>Logout</span>
+                <ArrowLeftOnRectangleIcon />
+              </button>
+            </Menu.Item>
+          </Menu.Items>
+        )}
+      </AnimatePresence>
+    </Menu>
   )
 }
