@@ -77,6 +77,10 @@ function CardList({ data, search }: { data: Recipe[]; search: string }) {
     )
   }
 
+  if (sortedData.length === 0) {
+    return <p>No recipes found</p>
+  }
+
   return (
     <>
       {!search && <CreateRecipeCard key='create-recipe-card' />}
