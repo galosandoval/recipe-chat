@@ -12,8 +12,10 @@ export type AuthSchemaType = z.infer<typeof authSchema>
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure.input(authSchema).mutation(async ({ input, ctx }) => {
+    const username = input.email.toLowerCase()
+
     const duplicateUser = await ctx.prisma.user.findFirst({
-      where: { username: input.email }
+      where: { username }
     })
 
     if (duplicateUser) {
@@ -25,7 +27,7 @@ export const authRouter = createTRPCRouter({
     const hashedPassword = await hash(input.password, 10)
     return ctx.prisma.user.create({
       data: {
-        username: input.email,
+        username,
         password: hashedPassword,
         list: { create: {} }
       }
