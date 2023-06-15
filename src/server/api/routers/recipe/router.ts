@@ -395,8 +395,6 @@ export const recipeRouter = createTRPCRouter({
 
           const recipe = JSON.parse(sliced) as GeneratedRecipe
 
-          // TODO: if there is no messages in input, then we need to create a new chat
-
           const chatId = input.chatId
           const userId = ctx.session?.user.id
 
