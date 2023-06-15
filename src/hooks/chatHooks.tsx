@@ -39,20 +39,10 @@ export const useChat = () => {
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
 
-  const getChatId = () => {
-    if (
-      typeof window !== 'undefined' &&
-      localStorage.currentChatId === 'string'
-    ) {
-      return JSON.parse(localStorage.currentChatId) as number
-    }
-    return undefined
-  }
-
   const [state, dispatch, status] = useChatReducer(
     {
       messages: [],
-      chatId: getChatId()
+      chatId: undefined
     },
     isAuthenticated
   )
@@ -69,10 +59,20 @@ export const useChat = () => {
   useEffect(() => {
     if (state.chatId) {
       localStorage.currentChatId = JSON.stringify(state.chatId)
-    } else {
-      localStorage.removeItem('currentChatId')
     }
   }, [state.chatId])
+
+  useEffect(() => {
+    if (
+      typeof window !== undefined &&
+      typeof localStorage.currentChatId === 'string'
+    ) {
+      dispatch({
+        type: 'chatIdChanged',
+        payload: JSON.parse(localStorage.currentChatId) as number
+      })
+    }
+  }, [dispatch])
 
   const {
     formState: { isDirty, isValid },
@@ -190,6 +190,7 @@ type ChatState = {
 
 function useChatReducer(initialState: ChatState, isAuthenticated: boolean) {
   const [state, dispatch] = useReducer(chatReducer, initialState)
+  console.log('state.chatId', state.chatId)
   const { status } = useGetChat(
     isAuthenticated && !!state.chatId,
     dispatch,
