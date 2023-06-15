@@ -39,13 +39,20 @@ export const useChat = () => {
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
 
+  const getChatId = () => {
+    if (
+      typeof window !== 'undefined' &&
+      localStorage.currentChatId === 'string'
+    ) {
+      return JSON.parse(localStorage.currentChatId) as number
+    }
+    return undefined
+  }
+
   const [state, dispatch, status] = useChatReducer(
     {
       messages: [],
-      chatId:
-        typeof localStorage.currentChatId === 'string'
-          ? (JSON.parse(localStorage.currentChatId) as number)
-          : undefined
+      chatId: getChatId()
     },
     isAuthenticated
   )
