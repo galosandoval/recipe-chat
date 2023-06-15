@@ -352,7 +352,7 @@ function ChatList({
   if (status === 'success') {
     return (
       <div className='flex h-full flex-col justify-end gap-2 pb-8'>
-        {data.toReversed().map((chat) => (
+        {[...data].reverse().map((chat) => (
           <ChatOption
             key={chat.id}
             chat={chat}
