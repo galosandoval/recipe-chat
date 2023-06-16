@@ -1,33 +1,45 @@
 import { Menu, Transition } from '@headlessui/react'
-import { useState } from 'react'
-import { ArrowLeftOnRectangleIcon, ElipsisVerticalIcon } from './Icons'
-import { AnimatePresence, motion } from 'framer-motion'
-import { ThemeToggle } from './ThemeToggle'
+import { useEffect, useState } from 'react'
+import { ArrowLeftOnRectangleIcon, MoonIcon, SunIcon } from './Icons'
 import { signOut } from 'next-auth/react'
-
-const dropdownMenuOptions = {
-  transition: {
-    duration: 0.3
-  },
-  initial: {
-    opacity: 0,
-    y: -5
-  },
-  animate: { opacity: 1, y: 0 },
-  exit: {
-    opacity: 0,
-    y: -5
-  }
-} as const
+import { themeChange } from 'theme-change'
 
 export function DropdownMenu() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [theme, setTheme] = useState<Theme>('night')
+
+  const updateTheme = (theme: Theme) => {
+    setTheme(theme)
+  }
+
+  useEffect(() => {
+    themeChange(false)
+    // 👆 false parameter is required for react project
+  }, [])
+  useEffect(() => {
+    const themeDoesNotExist = !('theme' in localStorage)
+    const prefersDarkMode = window.matchMedia(
+      '(prefers-color-scheme: dark)'
+    ).matches
+    let { theme } = localStorage
+
+    if (themeDoesNotExist && prefersDarkMode) {
+      theme = darkTheme
+    } else if (themeDoesNotExist && !prefersDarkMode) {
+      theme = lightTheme
+    }
+
+    if (theme === lightTheme) {
+      document.documentElement.setAttribute('data-theme', lightTheme)
+      setTheme(lightTheme)
+    } else {
+      document.documentElement.setAttribute('data-theme', darkTheme)
+      setTheme(darkTheme)
+    }
+  }, [])
+
   return (
     <Menu as='div' className='relative'>
-      <Menu.Button
-        onClick={() => setIsOpen((state) => !state)}
-        className='btn-ghost btn-circle btn mb-4'
-      >
+      <Menu.Button className='btn-ghost btn-circle btn mb-4'>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
@@ -57,12 +69,12 @@ export function DropdownMenu() {
         >
           <Menu.Item>
             <>
-              <ThemeToggle />
+              <ThemeToggle updateTheme={updateTheme} theme={theme} />
             </>
           </Menu.Item>
           <Menu.Item>
             <button
-              onClick={() => signOut()}
+              onClick={() => signOut({ callbackUrl: '/' })}
               className='btn-ghost no-animation btn w-[8rem]'
             >
               <span>Logout</span>
@@ -72,5 +84,43 @@ export function DropdownMenu() {
         </Menu.Items>
       </Transition>
     </Menu>
+  )
+}
+
+const darkTheme = 'night'
+const lightTheme = 'winter'
+type Theme = typeof darkTheme | typeof lightTheme
+
+export function ThemeToggle({
+  theme,
+  updateTheme
+}: {
+  theme: Theme
+  updateTheme: (theme: Theme) => void
+}) {
+  const handleToggleTheme = () => {
+    const { theme } = localStorage
+
+    if (theme === darkTheme) {
+      localStorage.theme = lightTheme
+      document.documentElement.setAttribute('data-theme', lightTheme)
+      updateTheme(lightTheme)
+    } else {
+      localStorage.theme = darkTheme
+      document.documentElement.setAttribute('data-theme', darkTheme)
+      updateTheme(darkTheme)
+    }
+  }
+
+  return (
+    <div className='relative text-base-content'>
+      <button
+        onClick={handleToggleTheme}
+        className='btn-ghost no-animation btn w-[8rem]'
+      >
+        <span>Theme</span>
+        {theme === 'night' ? <SunIcon /> : <MoonIcon />}
+      </button>
+    </div>
   )
 }

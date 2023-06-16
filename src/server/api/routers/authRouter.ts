@@ -5,7 +5,7 @@ import { createTRPCRouter, publicProcedure } from '../trpc'
 
 export const authSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(4).max(14)
+  password: z.string().min(6, 'Needs at least 6 characters').max(14)
 })
 
 export type AuthSchemaType = z.infer<typeof authSchema>
