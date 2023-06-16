@@ -8,6 +8,7 @@ import { MyHead } from 'components/Head'
 import { ErrorMessage } from 'components/ErrorMessageContent'
 import Link from 'next/link'
 import { toast } from 'react-hot-toast'
+import { useRouter } from 'next/router'
 
 export const signUpSchema = z
   .object({
@@ -38,21 +39,24 @@ export default function SignUpView() {
   } = useForm<SignUpSchemaType>({
     resolver: zodResolver(signUpSchema)
   })
+  const router = useRouter()
   const { mutate, isLoading } = api.auth.signUp.useMutation({
     onSuccess: async () => {
-      toast.success('Signed up successfully')
-
-      const { email, password } = getValues()
-      await signIn(
+      const creds = getValues()
+      const response = await signIn(
         'credentials',
+
         {
-          callbackUrl: '/chat'
-        },
-        {
-          email,
-          password
+          ...creds,
+          redirect: false
         }
       )
+
+      if (response?.ok) {
+        router.push('/chat')
+
+        toast.success('Signed up successfully')
+      }
     },
     onError: (error) => {
       if (error.message && error.shape?.code === -32009) {

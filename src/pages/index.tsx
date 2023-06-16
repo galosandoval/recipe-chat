@@ -1,12 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn, useSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { z } from 'zod'
 import Link from 'next/link'
 import { Button } from 'components/Button'
 import { MyHead } from 'components/Head'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 
 export const authSchema = z.object({
@@ -18,7 +17,6 @@ type AuthSchemaType = z.infer<typeof authSchema>
 
 export default function LandingView() {
   const router = useRouter()
-  const { status } = useSession()
   const {
     register,
     handleSubmit,
@@ -42,16 +40,10 @@ export default function LandingView() {
     }
   }
 
-  // useEffect(() => {
-  //   if (status === 'authenticated') {
-  //     router.push('/chat')
-  //   }
-  // }, [status, router])
-
   return (
     <>
       <MyHead title='Listy - Create recipes using AI | Powered by OpenAI | ChatGPT' />
-      <main className='h-screen h-screen-ios'>
+      <main className='h-screen'>
         <div className='prose mx-auto flex h-full flex-col items-center justify-center'>
           <h1 className='text-center'>Welcome to RecipeChat</h1>
           <form onSubmit={handleSubmit(onSubmit)}>
