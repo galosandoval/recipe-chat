@@ -42,11 +42,11 @@ export default function LandingView() {
     }
   }
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/chat')
-    }
-  }, [status, router])
+  // useEffect(() => {
+  //   if (status === 'authenticated') {
+  //     router.push('/chat')
+  //   }
+  // }, [status, router])
 
   return (
     <>

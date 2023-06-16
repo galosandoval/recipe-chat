@@ -7,6 +7,7 @@ import { signIn } from 'next-auth/react'
 import { MyHead } from 'components/Head'
 import { ErrorMessage } from 'components/ErrorMessageContent'
 import Link from 'next/link'
+import { toast } from 'react-hot-toast'
 
 export const signUpSchema = z
   .object({
@@ -37,15 +38,15 @@ export default function SignUpView() {
   } = useForm<SignUpSchemaType>({
     resolver: zodResolver(signUpSchema)
   })
-  const { mutate } = api.auth.signUp.useMutation({
+  const { mutate, isLoading } = api.auth.signUp.useMutation({
     onSuccess: async () => {
+      toast.success('Signed up successfully')
+
       const { email, password } = getValues()
       await signIn(
         'credentials',
         {
-          callbackUrl: process.env.VERCEL_URL
-            ? process.env.VERCEL_URL
-            : 'http://localhost:3000/'
+          callbackUrl: '/chat'
         },
         {
           email,
@@ -76,7 +77,7 @@ export default function SignUpView() {
   return (
     <>
       <MyHead title='Listy - Dashboard' />
-      <main className='h-screen h-screen-ios'>
+      <main className='h-screen'>
         <div className='prose mx-auto flex h-full flex-col items-center justify-center'>
           <h1 className='px-5'>Sign up</h1>
 
@@ -123,7 +124,11 @@ export default function SignUpView() {
               <ErrorMessage errors={errors} name='confirm' />
             </div>
             <div className='flex w-full max-w-[200px] flex-col items-center gap-2'>
-              <Button className='btn-primary btn w-3/4' type='submit'>
+              <Button
+                className='btn-primary btn w-3/4'
+                type='submit'
+                isLoading={isLoading}
+              >
                 Sign up
               </Button>
               <Link href='/' className='link-primary link'>
