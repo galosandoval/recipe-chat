@@ -14,16 +14,11 @@ import {
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { FormSkeleton } from 'components/FormSkeleton'
-import { CreateRecipeForm } from 'components/CreateRecipeForm'
 import { MyHead } from 'components/Head'
 import { Dialog } from '@headlessui/react'
-import {
-  CreateRecipe,
-  LinkedDataRecipeField
-} from 'server/api/routers/recipe/interface'
+import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
 import { ChangeEvent, useRef, useState } from 'react'
 import { MagnifyingGlassCircleIcon, XCircleIcon } from 'components/Icons'
-import { FormValues } from 'pages/chat'
 
 export default function RecipesView() {
   return (
@@ -44,34 +39,31 @@ export function ListRecent() {
   }
 
   if (isSuccess) {
+    const cards = Object.values(data)
+
     return (
       <div className='container mx-auto h-full px-2'>
-        <div className='join mt-2 w-full'>
-          <input
-            type='text'
-            className='input-bordered input input-sm join-item w-full'
-            value={search}
-            onChange={handleChange}
-            placeholder='Search...'
-            ref={inputRef}
-          />
-          <button
-            type='button'
-            onClick={() =>
-              !!search ? setSearch('') : inputRef.current?.focus()
-            }
-            className='btn-sm join-item btn rounded-r-full'
-          >
-            {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
-          </button>
-        </div>
-        {/* <div className='join'>
-          <input
-            className='input-bordered input join-item'
-            placeholder='Email'
-          />
-          <button className='join-item btn rounded-r-full'>Subscribe</button>
-        </div> */}
+        {cards.length > 0 && (
+          <div className='join mt-2 w-full'>
+            <input
+              type='text'
+              className='input-bordered input input-sm join-item w-full'
+              value={search}
+              onChange={handleChange}
+              placeholder='Search...'
+              ref={inputRef}
+            />
+            <button
+              type='button'
+              onClick={() =>
+                !!search ? setSearch('') : inputRef.current?.focus()
+              }
+              className='btn-sm join-item btn rounded-r-full'
+            >
+              {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
+            </button>
+          </div>
+        )}
         <div className='mt-4 grid grid-cols-2 gap-5 pb-8 md:grid-cols-4'>
           <CardList data={Object.values(data)} search={search} />
         </div>
@@ -99,12 +91,16 @@ function CardList({ data, search }: { data: Recipe[]; search: string }) {
   }
 
   if (sortedData.length === 0) {
-    return <p>No recipes found</p>
+    return (
+      <div className='h-44'>
+        <CreateRecipeCard />
+      </div>
+    )
   }
 
   return (
     <>
-      {!search && <CreateRecipeCard key='create-recipe-card' />}
+      {!search && <CreateRecipeCard />}
       {sortedData.map((recipe) => (
         <Card key={recipe.id} data={recipe} />
       ))}
@@ -152,7 +148,7 @@ function Card({ data }: { data: Recipe }) {
 
 function CreateRecipeCard() {
   return (
-    <div className='flex flex-col overflow-hidden rounded'>
+    <div className='flex h-full flex-col overflow-hidden rounded'>
       <CreateRecipeDialog />
     </div>
   )
@@ -179,7 +175,7 @@ function CreateRecipeDialog() {
   }
 
   if (status === 'success' && data) {
-    modalContent = <CreateRecipe data={data} />
+    modalContent = <CreateRecipe data={data} closeModal={closeModal} />
   }
 
   return (
@@ -248,45 +244,116 @@ export function UploadRecipeUrlForm({
   )
 }
 
-function CreateRecipe({ data }: { data: LinkedDataRecipeField }) {
-  const form = useForm<FormValues>({
-    defaultValues: {
-      description: data.description || '',
-      name: data.name || data.headline || '',
-      ingredients: data.recipeIngredient?.join('\n') || '',
-      instructions:
-        data.recipeInstructions?.map((i) => i.text)?.join('\n') || '',
-      cookTime: data?.cookTime || '',
-      prepTime: data?.prepTime || ''
-    }
-  })
+function CreateRecipe({
+  data,
+  closeModal
+}: {
+  data: LinkedDataRecipeField
+  closeModal: () => void
+}) {
+  const { handleSubmit, getValues, register, onSubmit, isSuccess, isLoading } =
+    useCreateRecipe(data)
 
-  const { mutate, isLoading } = useCreateRecipe()
-
-  const onSubmit = (values: FormValues) => {
-    const params: CreateRecipe = {
-      ...values,
-      ingredients: values.ingredients.split('\n'),
-      instructions: values.instructions.split('\n')
-    }
-    mutate(params)
-  }
+  const ingredientsRowSize = (getValues('ingredients') || '').split('\n').length
+  const instructionsRowSize = (getValues('instructions') || '').split(
+    '\n'
+  ).length
 
   return (
-    <CreateRecipeForm
-      form={form}
-      onSubmit={onSubmit}
-      slot={
-        <div className='mt-4'>
-          <Button
-            className='btn-primary btn w-full'
-            isLoading={isLoading}
-            type='submit'
-          >
-            Save
-          </Button>
+    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
+      <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto px-1 pb-1'>
+        <div className='flex flex-col'>
+          <label htmlFor='name' className='label'>
+            <span className='label-text'>Name</span>
+          </label>
+          <input
+            id='name'
+            {...register('name')}
+            className='input-bordered input'
+          />
         </div>
-      }
-    />
+        <div className='flex flex-col'>
+          <label htmlFor='description' className='label'>
+            <span className='label-text'>Description</span>
+          </label>
+          <input
+            id='description'
+            {...register('description')}
+            className='input-bordered input'
+          />
+        </div>
+
+        <div className='flex gap-2'>
+          <div className='flex w-1/2 flex-col'>
+            <label htmlFor='prepTime' className='label'>
+              <span className='label-text'>Prep time</span>
+            </label>
+            <input
+              id='prepTime'
+              type='text'
+              className='input-bordered input input-sm'
+              {...register('prepTime')}
+            />
+          </div>
+          <div className='flex w-1/2 flex-col'>
+            <label htmlFor='cookTime' className='label'>
+              <span className='label-text'>Cook time</span>
+            </label>
+            <input
+              id='cookTime'
+              type='text'
+              className='input-bordered input input-sm mr-2'
+              {...register('cookTime')}
+            />
+          </div>
+        </div>
+        <div className='flex flex-col'>
+          <label htmlFor='ingredients' className='label'>
+            <span className='label-text'>Ingredients</span>
+          </label>
+          <textarea
+            id='ingredients'
+            rows={ingredientsRowSize}
+            {...register('ingredients')}
+            className='textarea-bordered textarea resize-none'
+          />
+        </div>
+        <div className='flex flex-col'>
+          <label htmlFor='instructions' className='label'>
+            <span className='label-text'>Instructions</span>
+          </label>
+          <textarea
+            id='instructions'
+            rows={instructionsRowSize}
+            {...register('instructions')}
+            className='textarea-bordered textarea resize-none'
+          />
+        </div>
+      </div>
+      <div className='flex w-full gap-1 px-2 py-2'>
+        {isSuccess ? (
+          <Button className='btn-ghost btn w-1/2' onClick={closeModal}>
+            Return
+          </Button>
+        ) : (
+          <>
+            <Button
+              type='button'
+              onClick={closeModal}
+              className='btn-ghost btn w-1/2'
+            >
+              Cancel
+            </Button>
+            <Button
+              isLoading={isLoading}
+              className='btn-primary btn w-1/2'
+              type='submit'
+            >
+              Save
+            </Button>
+          </>
+        )}
+      </div>
+    </form>
   )
 }
