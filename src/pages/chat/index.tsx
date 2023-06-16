@@ -6,7 +6,9 @@ import { MyHead } from 'components/Head'
 import {
   ChatBubbleLeftIcon,
   CheckIcon,
+  Cog6ToothIcon,
   EditIcon,
+  FunnelIcon,
   ListBulletIcon,
   PlusCircleIcon,
   PlusIcon,
@@ -22,7 +24,7 @@ import {
   useCreateRecipe
 } from 'hooks/chatHooks'
 import { ChatCompletionRequestMessage } from 'openai'
-import { useState } from 'react'
+import { MouseEvent, useState } from 'react'
 import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
 
@@ -63,52 +65,12 @@ export default function ChatView() {
         <div>
           <div className='prose flex flex-col pb-12'>
             <div className='relative flex flex-col gap-4'>
-              <div className='flex flex-col items-center justify-center overflow-y-auto px-4'>
-                <div className='flex flex-1 flex-col items-center justify-center'>
-                  <div className='flex items-center gap-2'>
-                    <h2 className='mb-2 mt-2'>Examples</h2>
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      strokeWidth={1.5}
-                      stroke='currentColor'
-                      className='h-6 w-6'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        d='M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z'
-                      />
-                    </svg>
-                  </div>
-                  <div className='flex flex-col items-center gap-4'>
-                    <Button
-                      className='btn-primary btn'
-                      onClick={handleFillMessage}
-                    >
-                      What should I make for dinner tonight?
-                    </Button>
-                    <Button
-                      className='btn-primary btn'
-                      onClick={handleFillMessage}
-                    >
-                      Which salad recipe will go well with my steak and
-                      potatoes?
-                    </Button>
-                    <Button
-                      className='btn-primary btn'
-                      onClick={handleFillMessage}
-                    >
-                      What&apos;s a the best risotto recipe?
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <RecipeFilters {...recipeFilters} />
+              {state.messages.length === 0 && (
+                <ValueProps handleFillMessage={handleFillMessage} />
+              )}
 
               <MessageList
+                recipeFilters={recipeFilters}
                 data={state.messages}
                 chatId={state.chatId}
                 chats={chats}
@@ -136,6 +98,47 @@ export default function ChatView() {
   )
 }
 
+function ValueProps({
+  handleFillMessage
+}: {
+  handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
+}) {
+  return (
+    <div className='flex flex-col items-center justify-center overflow-y-auto px-4'>
+      <div className='flex flex-1 flex-col items-center justify-center'>
+        <div className='flex items-center gap-2'>
+          <h2 className='mb-2 mt-2'>Examples</h2>
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            fill='none'
+            viewBox='0 0 24 24'
+            strokeWidth={1.5}
+            stroke='currentColor'
+            className='h-6 w-6'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z'
+            />
+          </svg>
+        </div>
+        <div className='flex flex-col items-center gap-4'>
+          <Button className='btn-primary btn' onClick={handleFillMessage}>
+            What should I make for dinner tonight?
+          </Button>
+          <Button className='btn-primary btn' onClick={handleFillMessage}>
+            Which salad recipe will go well with my steak and potatoes?
+          </Button>
+          <Button className='btn-primary btn' onClick={handleFillMessage}>
+            What&apos;s a the best risotto recipe?
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function RecipeFilters({
   filtersArr,
   handleSubmit,
@@ -152,20 +155,7 @@ function RecipeFilters({
     <div className='mt-2 flex flex-col items-center justify-center gap-2 px-2'>
       <div className='flex items-center gap-2'>
         <h2 className='mb-0 mt-0'>Filters</h2>
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          fill='none'
-          viewBox='0 0 24 24'
-          strokeWidth={1.5}
-          stroke='currentColor'
-          className='h-6 w-6'
-        >
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            d='M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z'
-          />
-        </svg>
+        <FunnelIcon />
       </div>
 
       <div className='flex flex-wrap gap-2'>
@@ -244,6 +234,7 @@ type MessageListProps = {
   chats: ChatsType
   chatId?: number
   isChatsModalOpen: boolean
+  recipeFilters: UseRecipeFilters
 
   handleChangeChat: (
     chat: Chat & {
@@ -259,6 +250,7 @@ function MessageList({
   status,
   chats,
   chatId,
+  recipeFilters,
   isChatsModalOpen,
   handleChangeChat,
   handleStartNewChat,
@@ -280,6 +272,7 @@ function MessageList({
           chatId={chatId}
           chats={chats}
           isChatsModalOpen={isChatsModalOpen}
+          recipeFilters={recipeFilters}
           handleChangeChat={handleChangeChat}
           handleToggleChatsModal={handleToggleChatsModal}
         />
@@ -292,7 +285,7 @@ function MessageList({
           onClick={handleStartNewChat}
           className='btn-ghost btn-circle btn justify-self-end'
         >
-          <PlusIcon size={8} />
+          <PlusIcon />
         </button>
       </motion.div>
 
@@ -307,12 +300,14 @@ export function ChatsPopoverButton({
   chats,
   chatId,
   isChatsModalOpen,
+  recipeFilters,
   handleToggleChatsModal,
   handleChangeChat
 }: {
   chats: ChatsType
   chatId?: number
   isChatsModalOpen: boolean
+  recipeFilters: UseRecipeFilters
   handleChangeChat: (
     chat: Chat & {
       messages: Message[]
@@ -326,15 +321,19 @@ export function ChatsPopoverButton({
         onClick={handleToggleChatsModal}
         className="justify-self-start' btn-ghost btn-circle btn"
       >
-        <ListBulletIcon size={8} />
+        <Cog6ToothIcon />
       </button>
 
       <Drawer closeModal={handleToggleChatsModal} isOpen={isChatsModalOpen}>
-        <ChatList
-          chats={chats}
-          chatId={chatId}
-          handleChangeChat={handleChangeChat}
-        />
+        <div className='flex h-full flex-col justify-between'>
+          <RecipeFilters {...recipeFilters} />
+
+          <ChatList
+            chats={chats}
+            chatId={chatId}
+            handleChangeChat={handleChangeChat}
+          />
+        </div>
       </Drawer>
     </>
   )
@@ -361,6 +360,10 @@ function ChatList({
   if (status === 'success') {
     return (
       <div className='flex h-full flex-col justify-end gap-2 pb-8'>
+        <div className='flex items-center justify-center gap-2'>
+          <h2 className='mb-0 mt-0'>Recent chats</h2>
+          <ListBulletIcon />
+        </div>
         {[...data].reverse().map((chat) => (
           <ChatOption
             key={chat.id}
