@@ -78,7 +78,10 @@ function FoundRecipe({
   const { mutate, isLoading } = useAddToList(id)
 
   const initialChecked: Checked = {}
-  ingredients.forEach((i) => (initialChecked[i.id] = true))
+  ingredients.forEach((i) => {
+    if (i.name.endsWith(':')) return
+    initialChecked[i.id] = true
+  })
 
   const [checked, setChecked] = useState<Checked>(() => initialChecked)
   const [addedToList, setAddedToList] = useState(false)
@@ -222,6 +225,7 @@ function FoundRecipe({
             handleCheck={handleCheck}
             ingredients={ingredients}
           />
+
         </div>
         <div className='pt-4'>
           <h2 className='divider'>Directions</h2>
@@ -255,10 +259,10 @@ function Ingredients({
       <h2 className='divider'>Ingredients</h2>
       <div>
         {ingredients.map((i) => {
-          if (i.name.includes(':')) {
+          if (i.name.endsWith(':')) {
             return (
               <h3 className='divider text-sm' key={i.id}>
-                {i.name}
+                {i.name.slice(0, -1)}
               </h3>
             )
           }
