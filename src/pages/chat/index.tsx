@@ -174,7 +174,9 @@ function RecipeFilters({
             onClick={handleToggleCanDelete}
             className={`badge badge-ghost flex h-fit items-center gap-1 py-0`}
           >
-            {canDelete ? <XIcon size={5} /> : <EditIcon size={5} />}
+            <span>
+              {canDelete ? <XIcon size={5} /> : <EditIcon size={5} />}
+            </span>
           </button>
         )}
 
@@ -196,9 +198,11 @@ function RecipeFilters({
                   : 'badge-ghost'
               }`}
             >
-              {checked && <CheckIcon />}
-              <span className=''>{filter}</span>
-              {canDelete && <XCircleIcon size={5} />}
+              <span className='flex items-center'>
+                {checked && <CheckIcon />}
+                <span className=''>{filter}</span>
+                {canDelete && <XCircleIcon size={5} />}
+              </span>
             </button>
           )
         })}

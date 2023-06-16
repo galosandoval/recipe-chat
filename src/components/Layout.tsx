@@ -9,17 +9,24 @@ import {
   ListBulletIcon
 } from './Icons'
 import { DropdownMenu } from './DropdownMenu'
+import { NextFont, NextFontWithVariable } from 'next/dist/compiled/@next/font'
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default function Layout({
+  children,
+  font
+}: {
+  children: ReactNode
+  font: string
+}) {
   const { status } = useSession()
 
   if (status === 'authenticated') {
-    return <RootLayout>{children}</RootLayout>
+    return <RootLayout font={font}>{children}</RootLayout>
   }
   return <>{children}</>
 }
 
-function RootLayout({ children }: { children: ReactNode }) {
+function RootLayout({ children, font }: { children: ReactNode; font: string }) {
   const router = useRouter()
 
   const [lastScrollY, setLastScrollY] = useState(0)
@@ -56,7 +63,7 @@ function RootLayout({ children }: { children: ReactNode }) {
   }, [lastScrollY])
 
   return (
-    <div>
+    <div className={`${font} font-roboto`}>
       <div
         className={`backdrop sticky top-0 z-10 flex w-full justify-center bg-gradient-to-b from-base-100 to-base-100/80 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300 ${isOpen}`}
       >
