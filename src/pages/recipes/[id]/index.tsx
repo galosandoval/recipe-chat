@@ -220,29 +220,12 @@ function FoundRecipe({
             />
           </div>
 
-          <h2 className='divider'>Ingredients</h2>
+          <Ingredients
+            checked={checked}
+            handleCheck={handleCheck}
+            ingredients={ingredients}
+          />
 
-          <div>
-            {ingredients.map((i) => {
-              if (i.name.endsWith(':')) {
-                return (
-                  <p className='divider' key={i.id}>
-                    {i.name.slice(0, -1)}
-                  </p>
-                )
-              }
-
-              return (
-                <Checkbox
-                  id={i.id.toString()}
-                  checked={checked[i.id]}
-                  onChange={handleCheck}
-                  label={i.name}
-                  key={i.id}
-                />
-              )
-            })}
-          </div>
         </div>
         <div className='pt-4'>
           <h2 className='divider'>Directions</h2>
@@ -259,5 +242,42 @@ function FoundRecipe({
         </div>
       </div>
     </div>
+  )
+}
+
+function Ingredients({
+  ingredients,
+  checked,
+  handleCheck
+}: {
+  ingredients: Ingredient[]
+  checked: Checked
+  handleCheck: (event: ChangeEvent<HTMLInputElement>) => void
+}) {
+  return (
+    <>
+      <h2 className='divider'>Ingredients</h2>
+      <div>
+        {ingredients.map((i) => {
+          if (i.name.endsWith(':')) {
+            return (
+              <h3 className='divider text-sm' key={i.id}>
+                {i.name.slice(0, -1)}
+              </h3>
+            )
+          }
+
+          return (
+            <Checkbox
+              id={i.id.toString()}
+              checked={checked[i.id]}
+              onChange={handleCheck}
+              label={i.name}
+              key={i.id}
+            />
+          )
+        })}
+      </div>
+    </>
   )
 }
