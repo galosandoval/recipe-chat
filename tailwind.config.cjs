@@ -7,11 +7,7 @@ module.exports = {
   theme: {
     extend: {}
   },
-  plugins: [
-    require('@rvxlab/tailwind-plugin-ios-full-height'),
-    require('@tailwindcss/typography'),
-    require('daisyui')
-  ],
+  plugins: [require('@tailwindcss/typography'), require('daisyui')],
   darkMode: 'class',
   daisyui: {
     themes: ['winter', 'night']

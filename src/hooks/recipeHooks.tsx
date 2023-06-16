@@ -3,6 +3,8 @@ import { api } from '../utils/api'
 import { RecipeUrlSchemaType } from 'pages/recipes'
 import { useRouter } from 'next/router'
 import { toast } from 'react-hot-toast'
+import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
+import { useForm } from 'react-hook-form'
 
 export const useRecipeEntity = () => api.recipe.entity.useQuery(undefined, {})
 
@@ -53,16 +55,59 @@ export const useAddToList = (recipeId: number) => {
   })
 }
 
-export const useCreateRecipe = () => {
-  const util = api.useContext()
+export const useCreateRecipe = (data: LinkedDataRecipeField) => {
   const router = useRouter()
-
-  return api.recipe.create.useMutation({
-    onSuccess: async (data) => {
-      util.recipe.entity.invalidate()
-      router.push(`/recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
+  const utils = api.useContext()
+  const {
+    description,
+    recipeIngredient,
+    recipeInstructions,
+    name,
+    cookTime,
+    prepTime
+  } = data
+  const { mutate, isLoading, isSuccess } = api.recipe.create.useMutation({
+    onSuccess: (data) => {
+      router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
+      utils.recipe.invalidate()
     }
   })
+
+  const { handleSubmit, register, getValues } = useForm<FormValues>({
+    defaultValues: {
+      description,
+      ingredients: recipeIngredient?.join('\n'),
+      instructions: recipeInstructions?.map((i) => i.text)?.join('\n'),
+      name,
+      cookTime,
+      prepTime
+    }
+  })
+
+  const onSubmit = (values: FormValues) => {
+    const ingredients = values.ingredients.split('\n')
+    const instructions = values.instructions.split('\n')
+    mutate({ ...values, ingredients, instructions })
+  }
+
+  return {
+    isLoading,
+    isSuccess,
+    mutate,
+    getValues,
+    onSubmit,
+    handleSubmit,
+    register
+  }
+}
+
+export type FormValues = {
+  name: string
+  ingredients: string
+  instructions: string
+  description: string
+  prepTime: string
+  cookTime: string
 }
 
 export const useEditRecipe = () => {
