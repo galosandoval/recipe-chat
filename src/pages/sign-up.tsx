@@ -2,16 +2,23 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from 'components/Button'
-import { ErrorMessage } from '@hookform/error-message'
 import { api } from 'utils/api'
 import { signIn } from 'next-auth/react'
 import { MyHead } from 'components/Head'
+import { ErrorMessage } from 'components/ErrorMessageContent'
+import Link from 'next/link'
 
 export const signUpSchema = z
   .object({
     email: z.string().email(),
-    password: z.string().min(4).max(14),
-    confirm: z.string().min(4).max(14)
+    password: z
+      .string()
+      .min(6, 'Needs at least 6 characters')
+      .max(14, 'Needs at most 14 characters'),
+    confirm: z
+      .string()
+      .min(6, 'Needs at least 6 characters')
+      .max(14, 'Needs at most 14 characters')
   })
   .refine((data) => data.confirm === data.password, {
     message: "Passwords don't match",
@@ -25,7 +32,8 @@ export default function SignUpView() {
     register,
     handleSubmit,
     formState: { errors },
-    getValues
+    getValues,
+    setError
   } = useForm<SignUpSchemaType>({
     resolver: zodResolver(signUpSchema)
   })
@@ -44,6 +52,20 @@ export default function SignUpView() {
           password
         }
       )
+    },
+    onError: (error) => {
+      if (error.message && error.shape?.code === -32009) {
+        setError('email', {
+          type: 'pattern',
+          message: error.message
+        })
+      }
+      if (error.message && error.message.includes('password')) {
+        setError('password', {
+          type: 'pattern',
+          message: error.message
+        })
+      }
     }
   })
 
@@ -55,63 +77,61 @@ export default function SignUpView() {
     <>
       <MyHead title='Listy - Dashboard' />
       <main className='h-screen h-screen-ios'>
-        <form
-          className='flex h-full flex-col items-center justify-center gap-2'
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <div className='form-control'>
-            <label htmlFor='email' className='label'>
-              <span className='label-text'>Email</span>
-            </label>
-            <input
-              className='input-bordered input'
-              id='email'
-              type='email'
-              {...register('email')}
-            />
-            <ErrorMessage
-              errors={errors}
-              name='email'
-              render={({ message }) => <p>{message}</p>}
-            />
-          </div>
-          <div className='form-control'>
-            <label htmlFor='password' className='label'>
-              <span className='label-text'>Password</span>
-            </label>
-            <input
-              className='input-bordered input'
-              id='password'
-              type='password'
-              {...register('password')}
-            />
-            <ErrorMessage
-              errors={errors}
-              name='password'
-              render={({ message }) => <p>{message}</p>}
-            />
-          </div>
-          <div className='form-control'>
-            <label htmlFor='confirmPassword' className='label'>
-              <span className='label-text'>Confirm Password</span>
-            </label>
-            <input
-              className='input-bordered input'
-              id='confirmPassword'
-              type='password'
-              {...register('confirm')}
-            />
-            <ErrorMessage
-              errors={errors}
-              name='confirm'
-              render={({ message }) => <p>{message}</p>}
-            />
-          </div>
+        <div className='prose mx-auto flex h-full flex-col items-center justify-center'>
+          <h1 className='px-5'>Sign up</h1>
 
-          <Button className='btn-primary btn' type='submit'>
-            Sign up
-          </Button>
-        </form>
+          <form className='' onSubmit={handleSubmit(onSubmit)}>
+            <div className='form-control'>
+              <label htmlFor='email' className='label pb-1 pt-0'>
+                <span className='label-text'>Email</span>
+              </label>
+              <input
+                className={`input-bordered input ${
+                  errors.email ? 'input-error' : ''
+                }`}
+                id='email'
+                {...register('email')}
+              />
+              <ErrorMessage errors={errors} name='email' />
+            </div>
+            <div className='form-control'>
+              <label htmlFor='password' className='label pb-1 pt-0'>
+                <span className='label-text'>Password</span>
+              </label>
+              <input
+                className={`input-bordered input ${
+                  errors.password ? 'input-error' : ''
+                }`}
+                id='password'
+                type='password'
+                {...register('password')}
+              />
+              <ErrorMessage errors={errors} name='password' />
+            </div>
+            <div className='form-control'>
+              <label htmlFor='confirmPassword' className='label pb-1 pt-0'>
+                <span className='label-text'>Confirm Password</span>
+              </label>
+              <input
+                className={`input-bordered input ${
+                  errors.confirm ? 'input-error' : ''
+                }`}
+                id='confirmPassword'
+                type='password'
+                {...register('confirm')}
+              />
+              <ErrorMessage errors={errors} name='confirm' />
+            </div>
+            <div className='flex w-full max-w-[200px] flex-col items-center gap-2'>
+              <Button className='btn-primary btn w-3/4' type='submit'>
+                Sign up
+              </Button>
+              <Link href='/' className='link-primary link'>
+                Back
+              </Link>
+            </div>
+          </form>
+        </div>
       </main>
     </>
   )

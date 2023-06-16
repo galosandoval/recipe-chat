@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { item } from 'pages/_chat'
+import { item } from 'pages/chat'
 
 export const ChatBubbleLoader = () => {
   return (

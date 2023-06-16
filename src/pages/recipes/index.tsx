@@ -14,7 +14,6 @@ import {
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { FormSkeleton } from 'components/FormSkeleton'
-import { FormValues } from 'pages/_chat'
 import { CreateRecipeForm } from 'components/CreateRecipeForm'
 import { MyHead } from 'components/Head'
 import { Dialog } from '@headlessui/react'
@@ -24,6 +23,7 @@ import {
 } from 'server/api/routers/recipe/interface'
 import { ChangeEvent, useRef, useState } from 'react'
 import { MagnifyingGlassCircleIcon, XCircleIcon } from 'components/Icons'
+import { FormValues } from 'pages/chat'
 
 export default function RecipesView() {
   return (

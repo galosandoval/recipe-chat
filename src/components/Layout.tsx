@@ -1,4 +1,4 @@
-import { signOut, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { ReactNode, useEffect, useState } from 'react'
@@ -6,13 +6,9 @@ import {
   ChatBubbleLeftRightIcon,
   EditIcon,
   XIcon,
-  ListBulletIcon,
-  ArrowLeftOnRectangleIcon,
-  ElipsisVerticalIcon
+  ListBulletIcon
 } from './Icons'
-import { Menu } from '@headlessui/react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { ThemeToggle } from './ThemeToggle'
+import { DropdownMenu } from './DropdownMenu'
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { status } = useSession()
@@ -129,7 +125,7 @@ function PagesNavbar() {
   const menuItems = [
     {
       label: 'Chat',
-      value: '/',
+      value: '/chat',
       icon: <ChatBubbleLeftRightIcon />
     },
     {
@@ -197,58 +193,5 @@ function PagesNavbar() {
 
       <DropdownMenu />
     </nav>
-  )
-}
-
-const dropdownMenuOptions = {
-  transition: {
-    duration: 0.3
-  },
-  initial: {
-    opacity: 0,
-    y: -5
-  },
-  animate: { opacity: 1, y: 0 },
-  exit: {
-    opacity: 0,
-    y: -5
-  }
-} as const
-
-function DropdownMenu() {
-  const [isOpen, setIsOpen] = useState(false)
-
-  return (
-    <Menu as='div' className='relative'>
-      <Menu.Button
-        onClick={() => setIsOpen((state) => !state)}
-        className='btn-ghost btn-circle btn mb-4'
-      >
-        <ElipsisVerticalIcon />
-      </Menu.Button>
-      <AnimatePresence>
-        {isOpen && (
-          <Menu.Items
-            as={motion.ul}
-            static
-            {...dropdownMenuOptions}
-            className='absolute right-0 top-[3.5rem] flex flex-col gap-4 rounded-md bg-primary-content py-2'
-          >
-            <Menu.Item>
-              <ThemeToggle />
-            </Menu.Item>
-            <Menu.Item>
-              <button
-                onClick={() => signOut()}
-                className='btn-ghost no-animation btn w-[8rem]'
-              >
-                <span>Logout</span>
-                <ArrowLeftOnRectangleIcon />
-              </button>
-            </Menu.Item>
-          </Menu.Items>
-        )}
-      </AnimatePresence>
-    </Menu>
   )
 }
