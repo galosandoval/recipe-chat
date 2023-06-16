@@ -227,7 +227,7 @@ function FoundRecipe({
               if (i.name.endsWith(':')) {
                 return (
                   <p className='divider' key={i.id}>
-                    {i.name}
+                    {i.name.slice(0, -1)}
                   </p>
                 )
               }
