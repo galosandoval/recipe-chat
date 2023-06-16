@@ -78,7 +78,10 @@ function FoundRecipe({
   const { mutate, isLoading } = useAddToList(id)
 
   const initialChecked: Checked = {}
-  ingredients.forEach((i) => (initialChecked[i.id] = true))
+  ingredients.forEach((i) => {
+    if (i.name.endsWith(':')) return
+    initialChecked[i.id] = true
+  })
 
   const [checked, setChecked] = useState<Checked>(() => initialChecked)
   const [addedToList, setAddedToList] = useState(false)
@@ -220,15 +223,25 @@ function FoundRecipe({
           <h2 className='divider'>Ingredients</h2>
 
           <div>
-            {ingredients.map((i) => (
-              <Checkbox
-                id={i.id.toString()}
-                checked={checked[i.id]}
-                onChange={handleCheck}
-                label={i.name}
-                key={i.id}
-              />
-            ))}
+            {ingredients.map((i) => {
+              if (i.name.endsWith(':')) {
+                return (
+                  <p className='divider' key={i.id}>
+                    {i.name}
+                  </p>
+                )
+              }
+
+              return (
+                <Checkbox
+                  id={i.id.toString()}
+                  checked={checked[i.id]}
+                  onChange={handleCheck}
+                  label={i.name}
+                  key={i.id}
+                />
+              )
+            })}
           </div>
         </div>
         <div className='pt-4'>
