@@ -1,7 +1,7 @@
 import { Chat, Message } from '@prisma/client'
 import { QueryStatus } from '@tanstack/react-query'
 import { Button } from 'components/Button'
-import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
+import { ChatBubbleLoader } from 'components/loaders/ChatBubbleLoader'
 import { Drawer } from 'components/Drawer'
 import { MyHead } from 'components/Head'
 import {

@@ -13,7 +13,7 @@ import { MyHead } from 'components/Head'
 import NoSleep from 'nosleep.js'
 import { CreateList } from 'server/api/routers/list/interface'
 import { ListBulletIcon, PlusIcon } from 'components/Icons'
-import { RecipeByIdLoader } from 'components/RecipeByIdLoader'
+import { RecipeByIdLoader } from 'components/loaders/RecipeByIdLoader'
 
 export default function RecipeByIdView() {
   const router = useRouter()
@@ -225,7 +225,6 @@ function FoundRecipe({
             handleCheck={handleCheck}
             ingredients={ingredients}
           />
-
         </div>
         <div className='pt-4'>
           <h2 className='divider'>Directions</h2>
