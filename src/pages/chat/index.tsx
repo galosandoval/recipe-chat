@@ -2,9 +2,9 @@ import { Chat, Message } from '@prisma/client'
 import { QueryStatus } from '@tanstack/react-query'
 import { Button } from 'components/Button'
 import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
+import { Drawer } from 'components/Drawer'
 import { MyHead } from 'components/Head'
 import {
-  ArrorUTurnLeftIcon,
   ChatBubbleLeftIcon,
   CheckIcon,
   Cog6ToothIcon,
@@ -16,7 +16,7 @@ import {
   XCircleIcon,
   XIcon
 } from 'components/Icons'
-import { Drawer, Modal } from 'components/Modal'
+import { Modal } from 'components/Modal'
 import { ValueProps } from 'components/ValueProps'
 import { Variants, motion } from 'framer-motion'
 import {
@@ -375,9 +375,6 @@ function ChatOption({
         className={`flex items-center gap-2 ${
           chatId === chat.id ? 'text-primary' : ''
         }`}
-        //  ${
-        //   active || selected ? 'text-primary' : ''
-        // }`}
       >
         <span
           className={`text-base-content ${
