@@ -1,10 +1,10 @@
-import { Chat, Message } from '@prisma/client'
+import { Chat, Message as PrismaMessage } from '@prisma/client'
+
 import { QueryStatus } from '@tanstack/react-query'
 import { Button } from 'components/Button'
-import { ChatBubbleLoader } from 'components/ChatBubbleLoader'
+import { Drawer } from 'components/Drawer'
 import { MyHead } from 'components/Head'
 import {
-  ArrorUTurnLeftIcon,
   ChatBubbleLeftIcon,
   CheckIcon,
   Cog6ToothIcon,
@@ -13,10 +13,10 @@ import {
   ListBulletIcon,
   PlusCircleIcon,
   PlusIcon,
+  UserCircleIcon,
   XCircleIcon,
   XIcon
 } from 'components/Icons'
-import { Drawer, Modal } from 'components/Modal'
 import { ValueProps } from 'components/ValueProps'
 import { Variants, motion } from 'framer-motion'
 import {
@@ -25,10 +25,9 @@ import {
   useChat,
   useCreateRecipe
 } from 'hooks/chatHooks'
-import { ChatCompletionRequestMessage } from 'openai'
-import { useState } from 'react'
-import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
+import { ChangeEventHandler, FormEvent } from 'react'
 import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
+import { ChatCompletionRequestMessage } from 'openai-edge'
 
 export type FormValues = {
   name: string
@@ -41,25 +40,24 @@ export type FormValues = {
 
 export default function ChatView() {
   const {
-    isDirty,
-    isValid,
     chatRef,
     recipeFilters,
     state,
     status: messageListStatus,
     chats,
     isChatsModalOpen,
+    input,
+    messages,
 
+    handleInputChange,
     handleToggleChatsModal,
-    onSubmit,
+    handleSubmit,
     handleFillMessage,
     handleScrollIntoView,
     handleChangeChat,
-    handleSubmit,
-    register,
     handleStartNewChat
   } = useChat()
-
+  console.log('messages', messages)
   return (
     <>
       <MyHead title='Listy - Chat' />
@@ -67,12 +65,12 @@ export default function ChatView() {
         <div>
           <div className='prose flex flex-col pb-12'>
             <div className='relative flex flex-col gap-4'>
-              {state.messages.length === 0 ? (
+              {messages.length === 0 ? (
                 <ValueProps handleFillMessage={handleFillMessage} />
               ) : (
                 <MessageList
                   recipeFilters={recipeFilters}
-                  data={state.messages}
+                  data={messages}
                   chatId={state.chatId}
                   chats={chats}
                   status={messageListStatus}
@@ -85,12 +83,10 @@ export default function ChatView() {
               <div ref={chatRef}></div>
             </div>
             <SubmitMessageForm
+              input={input}
               handleScrollIntoView={handleScrollIntoView}
               handleSubmit={handleSubmit}
-              onSubmit={onSubmit}
-              register={register}
-              isValid={isValid}
-              isDirty={isDirty}
+              handleInputChange={handleInputChange}
             />
           </div>
         </div>
@@ -198,7 +194,7 @@ type MessageListProps = {
 
   handleChangeChat: (
     chat: Chat & {
-      messages: Message[]
+      messages: PrismaMessage[]
     }
   ) => void
   handleStartNewChat: () => void
@@ -221,9 +217,9 @@ function MessageList({
   }
 
   return (
-    <div className='px-2'>
+    <div>
       <motion.div
-        className='mt-2 grid grid-cols-3'
+        className='mt-2 grid grid-cols-3 px-2'
         variants={container}
         initial='hidden'
         animate='visible'
@@ -250,7 +246,7 @@ function MessageList({
       </motion.div>
 
       {data.map((m, i) => (
-        <ChatBubble message={m} key={m.content + i} />
+        <ChatBubble message={m} key={m?.content || '' + i} />
       ))}
     </div>
   )
@@ -270,7 +266,7 @@ export function ChatsPopoverButton({
   recipeFilters: UseRecipeFilters
   handleChangeChat: (
     chat: Chat & {
-      messages: Message[]
+      messages: PrismaMessage[]
     }
   ) => void
   handleToggleChatsModal: () => void
@@ -308,7 +304,7 @@ function ChatList({
   chatId?: number
   handleChangeChat: (
     chat: Chat & {
-      messages: Message[]
+      messages: PrismaMessage[]
     }
   ) => void
 }) {
@@ -347,12 +343,12 @@ function ChatOption({
   handleChangeChat
 }: {
   chat: Chat & {
-    messages: Message[]
+    messages: PrismaMessage[]
   }
   chatId?: number
   handleChangeChat: (
     chat: Chat & {
-      messages: Message[]
+      messages: PrismaMessage[]
     }
   ) => void
 }) {
@@ -375,9 +371,6 @@ function ChatOption({
         className={`flex items-center gap-2 ${
           chatId === chat.id ? 'text-primary' : ''
         }`}
-        //  ${
-        //   active || selected ? 'text-primary' : ''
-        // }`}
       >
         <span
           className={`text-base-content ${
@@ -415,115 +408,116 @@ function ChatBubble({
   message
 }: {
   message: {
-    content: string | GeneratedRecipe
-    role: 'user' | 'assistant' | 'system'
-    error?: string
-    isLoading?: boolean
+    content?: string
+    role: 'user' | 'assistant' | 'system' | 'function'
   }
 }) {
-  const [isOpen, setIsOpen] = useState(false)
+  // if (message.isLoading) {
+  //   return <ChatBubbleLoader />
+  // }
 
-  const handleOpenModal = () => {
-    setIsOpen(true)
-  }
+  // if (message.role === 'assistant') {
+  //   let recipe: GeneratedRecipe = {
+  //     name: 'No recipe found',
+  //     cookTime: '',
+  //     description: '',
+  //     ingredients: [],
+  //     instructions: [],
+  //     prepTime: ''
+  //   }
 
-  const handleCloseModal = () => {
-    setIsOpen(false)
-  }
+  // if ('error' in message) {
+  //   return (
+  //     <div className='flex flex-col items-start bg-primary-content p-5'>
+  //       <div className='text-error'>{message.error}</div>
+  //     </div>
+  //   )
+  // } else if (typeof message.content === 'string' && message.content) {
+  //   recipe = message.content
+  // }
 
-  if (message.isLoading) {
-    return <ChatBubbleLoader />
-  }
+  //   return (
+  //     <div className='flex flex-col items-start bg-primary-content p-5'>
+  //       <button
+  //         onClick={handleOpenModal}
+  //         className=''
+  //       >
+  //         {message?.content || ''}
+  //       </button>
+  //       <Modal closeModal={handleCloseModal} isOpen={isOpen}>
+  //         <SaveRecipeForm handleCloseModal={handleCloseModal} data={recipe} />
+  //       </Modal>
+  //     </div>
+  //   )
+  // }
+
+  // if (
+  //   message.role === 'user' &&
+  //   message?.content &&
+  //   typeof message?.content === 'string'
+  // ) {
+  //   return (
+  //     <motion.div
+  //       variants={item}
+  //       initial='hidden'
+  //       animate='visible'
+  //       className='flex flex-col items-end bg-base-200 p-5'
+  //     >
+  //       <div className=''>{message.content}</div>
+  //     </motion.div>
+  //   )
+  // }
 
   if (message.role === 'assistant') {
-    let recipe: GeneratedRecipe
-
-    if ('error' in message) {
-      return (
-        <div className='chat chat-start'>
-          <div className='chat-bubble chat-bubble-error'>{message.error}</div>
+    return (
+      <div className='flex gap-2 bg-primary-content p-4'>
+        <div className=''>
+          <UserCircleIcon />
         </div>
-      )
-    } else if (typeof message.content === 'string') {
-      recipe = JSON.parse(message.content) as GeneratedRecipe
-    } else {
-      recipe = message.content
-    }
 
-    return (
-      <div className='chat chat-start'>
-        <button
-          onClick={handleOpenModal}
-          className='chat-bubble link-primary link bg-primary-content'
-        >
-          {recipe.name}
-        </button>
-        <Modal closeModal={handleCloseModal} isOpen={isOpen}>
-          <SaveRecipeForm handleCloseModal={handleCloseModal} data={recipe} />
-        </Modal>
+        <div className='flex flex-col items-start'>
+          <p className='mb-0 mt-0 whitespace-pre-line'>
+            {message.content || ''}
+          </p>
+        </div>
       </div>
-    )
-  }
-
-  if (
-    message.role === 'user' &&
-    message?.content &&
-    typeof message?.content === 'string'
-  ) {
-    return (
-      <motion.div
-        variants={item}
-        initial='hidden'
-        animate='visible'
-        className='chat chat-end'
-      >
-        <div className='chat-bubble chat-bubble-primary'>{message.content}</div>
-      </motion.div>
     )
   }
 
   return (
-    <motion.div
-      variants={item}
-      initial='hidden'
-      animate='visible'
-      className='chat chat-end'
-    >
-      <div className='chat-bubble chat-bubble-primary'>
-        {message.content as string}
+    <div className='bg-primary-base-100 flex gap-2 p-4'>
+      <div className='flex flex-col items-end'>
+        <p className='mb-0 mt-0 whitespace-pre-line'>
+          {message?.content || ''}
+        </p>
       </div>
-    </motion.div>
+      <div className=''>
+        <UserCircleIcon />
+      </div>
+    </div>
   )
 }
 
 function SubmitMessageForm({
-  handleSubmit,
-  onSubmit,
-  register,
   handleScrollIntoView,
-  isValid,
-  isDirty
+  handleInputChange,
+  handleSubmit,
+  input
 }: {
-  handleSubmit: UseFormHandleSubmit<{
-    message: string
-  }>
   handleScrollIntoView: () => void
-
-  onSubmit: (values: { message: string }) => void
-  register: UseFormRegister<{
-    message: string
-  }>
-  isValid: boolean
-  isDirty: boolean
+  handleSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleInputChange: ChangeEventHandler<HTMLTextAreaElement>
+  input: string
 }) {
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit}
       className='fixed bottom-0 flex w-full items-center bg-base-100'
     >
       <div className='flex w-full px-2 py-1'>
         <textarea
-          {...register('message')}
+          value={input}
+          onChange={handleInputChange}
           placeholder='Ask about a recipe'
           className='input-bordered input relative w-full resize-none pt-2'
           onFocus={() => handleScrollIntoView()}
@@ -532,7 +526,7 @@ function SubmitMessageForm({
       <div className='mr-1'>
         <Button
           type='submit'
-          disabled={!isValid || !isDirty}
+          // disabled={!isValid || !isDirty}
           className='btn-accent btn'
         >
           <svg

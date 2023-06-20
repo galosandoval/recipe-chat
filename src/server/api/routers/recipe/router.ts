@@ -6,7 +6,11 @@ import {
   PrismaPromise,
   Recipe
 } from '@prisma/client'
-import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
+import {
+  ChatCompletionRequestMessage,
+  Configuration,
+  OpenAIApi
+} from 'openai-edge'
 import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
 
@@ -366,96 +370,96 @@ export const recipeRouter = createTRPCRouter({
         )
       }
 
-      const configuration = new Configuration({
-        apiKey: process.env.OPENAI_API_KEY
-      })
-      const openai = new OpenAIApi(configuration)
+      // const configuration = new Configuration({
+      //   apiKey: process.env.OPENAI_API_KEY
+      // })
+      // const openai = new OpenAIApi(configuration)
 
-      try {
-        const completion = await openai.createChatCompletion({
-          model: 'gpt-3.5-turbo',
-          messages: messages
-        })
+      // try {
+      //   const completion = await openai.createChatCompletion({
+      //     model: 'gpt-3.5-turbo',
+      //     messages: messages
+      //   })
 
-        const content = completion.data.choices[0].message?.content
+      //   const content = completion.data.choices[0].message?.content
 
-        console.log('content:', content)
+      //   console.log('content:', content)
 
-        if (content) {
-          const startOfBracket = content.indexOf('{')
-          let endOfBraket = content.length
-          for (let i = content.length || 0; i >= 0; i--) {
-            const element = content[i]
-            if (element === '}') {
-              endOfBraket = i
-              break
-            }
-          }
-          const sliced = content.slice(startOfBracket, endOfBraket + 1)
+      //   if (content) {
+      //     const startOfBracket = content.indexOf('{')
+      //     let endOfBraket = content.length
+      //     for (let i = content.length || 0; i >= 0; i--) {
+      //       const element = content[i]
+      //       if (element === '}') {
+      //         endOfBraket = i
+      //         break
+      //       }
+      //     }
+      //     const sliced = content.slice(startOfBracket, endOfBraket + 1)
 
-          const recipe = JSON.parse(sliced) as GeneratedRecipe
+      //     const recipe = JSON.parse(sliced) as GeneratedRecipe
 
-          const chatId = input.chatId
-          const userId = ctx.session?.user.id
+      //     const chatId = input.chatId
+      //     const userId = ctx.session?.user.id
 
-          if (chatId) {
-            const newMessages = await ctx.prisma.message.createMany({
-              data: [
-                {
-                  chatId,
-                  content: inputMessage.content,
-                  role: inputMessage.role
-                },
-                { chatId, content: sliced, role: 'assistant' }
-              ]
-            })
+      //     if (chatId) {
+      //       const newMessages = await ctx.prisma.message.createMany({
+      //         data: [
+      //           {
+      //             chatId,
+      //             content: inputMessage.content,
+      //             role: inputMessage.role
+      //           },
+      //           { chatId, content: sliced, role: 'assistant' }
+      //         ]
+      //       })
 
-            console.log('newMesssages', newMessages)
+      //       console.log('newMesssages', newMessages)
 
-            return {
-              recipe,
-              chatId
-            }
-          } else if (userId) {
-            const newChat = await ctx.prisma.chat.create({
-              data: {
-                messages: {
-                  createMany: {
-                    data: [
-                      {
-                        content: inputMessage.content,
-                        role: inputMessage.role
-                      },
-                      { content: sliced, role: 'assistant' }
-                    ]
-                  }
-                },
+      //       return {
+      //         recipe,
+      //         chatId
+      //       }
+      //     } else if (userId) {
+      //       const newChat = await ctx.prisma.chat.create({
+      //         data: {
+      //           messages: {
+      //             createMany: {
+      //               data: [
+      //                 {
+      //                   content: inputMessage.content,
+      //                   role: inputMessage.role
+      //                 },
+      //                 { content: sliced, role: 'assistant' }
+      //               ]
+      //             }
+      //           },
 
-                userId
-              }
-            })
+      //           userId
+      //         }
+      //       })
 
-            console.log('newChat', newChat)
-            return {
-              recipe,
-              chatId: newChat.id
-            }
-          }
+      //       console.log('newChat', newChat)
+      //       return {
+      //         recipe,
+      //         chatId: newChat.id
+      //       }
+      //     }
 
-          return {
-            recipe,
-            chatId: undefined
-          }
-        } else {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: `ChatGPT returned content incorrectly. Content: ${content}`,
-            cause: { payload: input }
-          })
-        }
-      } catch (error) {
-        console.log('Error:', error)
-      }
+      //     return {
+      //       recipe,
+      //       chatId: undefined
+      //     }
+      //   } else {
+      //     throw new TRPCError({
+      //       code: 'BAD_REQUEST',
+      //       message: `ChatGPT returned content incorrectly. Content: ${content}`,
+      //       cause: { payload: input }
+      //     })
+      //   }
+      // } catch (error) {
+      //   console.log('Error:', error)
+      // }
 
       throw new TRPCError({
         code: 'BAD_REQUEST',

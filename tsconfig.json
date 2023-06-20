@@ -24,6 +24,7 @@
     "**/*.tsx",
     "**/*.js",
     "src/*.tsx",
+    "src/*.ts",
     "tailwind.config.cjs"
   ],
   "incremental": true,

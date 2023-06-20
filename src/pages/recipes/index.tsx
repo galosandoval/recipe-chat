@@ -12,7 +12,7 @@ import {
 } from 'hooks/recipeHooks'
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
-import { FormSkeleton } from 'components/FormSkeleton'
+import { FormLoader } from 'components/loaders/FormLoader'
 import { MyHead } from 'components/Head'
 import { Dialog } from '@headlessui/react'
 import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
@@ -197,7 +197,7 @@ function CreateRecipeDialog() {
   }
 
   if (status === 'success') {
-    modalContent = <FormSkeleton />
+    modalContent = <FormLoader />
   }
 
   if (status === 'success' && data) {

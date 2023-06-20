@@ -1,10 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Chat } from '@prisma/client'
+import { useChat as useAiChat } from 'ai/react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { FormValues } from 'pages/chat'
 import {
   Dispatch,
+  FormEvent,
   MouseEvent,
   useEffect,
   useReducer,
@@ -75,15 +77,27 @@ export const useChat = () => {
   }, [dispatch])
 
   const {
-    formState: { isDirty, isValid },
-    register,
-    handleSubmit,
-    setValue,
-    clearErrors,
-    reset
-  } = useForm<ChatRecipeParams>({
-    resolver: zodResolver(sendMessageFormSchema)
-  })
+    messages,
+    input,
+    setInput,
+    handleInputChange,
+    handleSubmit: submitMessages
+  } = useAiChat()
+
+  // const {
+  //   formState: { isDirty, isValid },
+  //   register,
+  //   handleSubmit,
+  //   setValue,
+  //   clearErrors,
+  //   reset,
+  //   watch
+  // } = useForm<ChatRecipeParams>({
+  //   resolver: zodResolver(sendMessageFormSchema),
+  //   defaultValues: {
+  //     message: input
+  //   }
+  // })
 
   const recipeFilters = useRecipeFilters()
 
@@ -96,15 +110,11 @@ export const useChat = () => {
     chatRef.current?.scrollIntoView({ behavior: 'auto' })
   }
 
-  const { mutate } = useSendMessageMutation(dispatch, handleScrollIntoView)
+  // const { mutate } = useSendMessageMutation(dispatch, handleScrollIntoView)
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
-    setValue('message', e.currentTarget.innerText.toLowerCase(), {
-      shouldValidate: true,
-      shouldDirty: true
-    })
-    clearErrors()
+    setInput(e.currentTarget.innerText.toLowerCase())
   }
 
   const handleStartNewChat = () => {
@@ -124,60 +134,115 @@ export const useChat = () => {
     handleToggleChatsModal()
   }
 
-  const onSubmit = (values: ChatRecipeParams) => {
-    dispatch({
-      type: 'add',
-      payload: { content: values.message, role: 'user' }
-    })
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    // dispatch({
+    //   type: 'add',
+    //   payload: { content: values.message, role: 'user' }
+    // })
 
-    dispatch({
-      type: 'loadingMessage',
-      payload: { content: '', role: 'assistant', isLoading: true }
-    })
+    // dispatch({
+    //   type: 'loadingMessage',
+    //   payload: { content: '', role: 'assistant', isLoading: true }
+    // })
+    console.log('event')
+    // setInput('')
 
-    reset()
+    // const filters = recipeFilters.checkedFilters
 
-    const filters = recipeFilters.checkedFilters
+    // const convo = state?.messages
+    //   .map((m) => {
+    //     let content: string
+    //     if (typeof m.content === 'string') {
+    //       content = m.content
+    //     } else {
+    //       content = JSON.stringify(m.content)
+    //     }
 
-    const convo = state?.messages
-      .map((m) => {
-        let content: string
-        if (typeof m.content === 'string') {
-          content = m.content
-        } else {
-          content = JSON.stringify(m.content)
-        }
+    //     return { ...m, content }
+    //   })
+    //   .filter((m) => m.content !== '')
+    submitMessages(event)
 
-        return { ...m, content }
-      })
-      .filter((m) => m.content !== '')
+    // const response = await fetch('/api/generate', {
+    //   method: 'POST',
+    //   body: JSON.stringify({
+    //     prompt: values.message,
+    //     messages: convo,
+    //     filters
+    //   }),
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   }
+    // })
 
-    mutate({
-      content: values.message,
-      messages: convo,
-      filters,
-      chatId: state.chatId
-    })
+    // if (response.ok && response.body) {
+    // const reader = response.body.getReader()
+    // const decoder = new TextDecoder()
+
+    // function onParse(event: ParseEvent) {
+    //   if (event.type === 'event') {
+    //     try {
+    //       const data = JSON.parse(event.data) as {
+    //         choices: {
+    //           index: number
+    //           finish_reason: string | null
+    //           delta: {
+    //             content: string
+    //           }
+    //         }[]
+    //         created: string
+    //         id: string
+    //         model: string
+    //         object: string
+    //       }
+
+    //       data.choices
+    //         .filter(({ delta }) => !!delta.content)
+    //         .forEach(({ delta }) => {
+    //           setText((prev) => {
+    //             return `${prev || ''}${delta.content}`
+    //           })
+    //         })
+    //     } catch (e) {
+    //       console.log(e)
+    //     }
+    //   }
+    // }
+
+    // const parser = createParser(onParse)
+
+    // while (true) {
+    //   const { value, done } = await reader.read()
+    //   const dataString = decoder.decode(value)
+    //   if (done || dataString.includes('[DONE]')) break
+    //   parser.feed(dataString)
+    // }
+    // }
+    // mutate({
+    //   content: values.message,
+    //   messages: convo,
+    //   filters,
+    //   chatId: state.chatId
+    // })
   }
 
   return {
-    isDirty,
-    isValid,
     chatRef,
     recipeFilters,
     state,
     status,
     chats,
     isChatsModalOpen,
+    input,
+    messages,
 
+    handleInputChange,
     handleToggleChatsModal,
     handleChangeChat,
     handleStartNewChat,
     handleScrollIntoView,
     handleFillMessage,
-    onSubmit,
-    handleSubmit,
-    register
+    handleSubmit
   }
 }
 
@@ -265,41 +330,41 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
 
 export const errorMessage = 'Please try rephrasing your question.'
 
-function useSendMessageMutation(
-  dispatch: React.Dispatch<ChatAction>,
-  handleScrollIntoView: () => void
-) {
-  const utils = api.useContext()
+// function useSendMessageMutation(
+//   dispatch: React.Dispatch<ChatAction>,
+//   handleScrollIntoView: () => void
+// ) {
+//   const utils = api.useContext()
 
-  return api.recipe.generate.useMutation({
-    onSuccess: (data) => {
-      dispatch({
-        type: 'loadedMessage',
-        payload: { content: JSON.stringify(data.recipe), role: 'assistant' }
-      })
-      dispatch({
-        type: 'chatIdChanged',
-        payload: data.chatId
-      })
+//   return api.recipe.generate.useMutation({
+//     onSuccess: (data) => {
+//       dispatch({
+//         type: 'loadedMessage',
+//         payload: { content: JSON.stringify(data.recipe), role: 'assistant' }
+//       })
+//       dispatch({
+//         type: 'chatIdChanged',
+//         payload: data.chatId
+//       })
 
-      utils.chat.getChats.invalidate()
-    },
-    onError: () => {
-      dispatch({
-        type: 'loadedMessage',
-        payload: {
-          content: '',
-          role: 'assistant',
-          error: errorMessage
-        }
-      })
-    },
-    onMutate: () => handleScrollIntoView(),
-    onSettled: () => handleScrollIntoView()
-  })
-}
+//       utils.chat.getChats.invalidate()
+//     },
+//     onError: () => {
+//       dispatch({
+//         type: 'loadedMessage',
+//         payload: {
+//           content: '',
+//           role: 'assistant',
+//           error: errorMessage
+//         }
+//       })
+//     },
+//     onMutate: () => handleScrollIntoView(),
+//     onSettled: () => handleScrollIntoView()
+//   })
+// }
 
-export type UseGenerate = ReturnType<typeof useSendMessageMutation>
+// export type UseGenerate = ReturnType<typeof useSendMessageMutation>
 
 type CreateFilter = z.infer<typeof createFilterSchema>
 type Filters = Record<string, boolean>

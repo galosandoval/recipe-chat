@@ -1,4 +1,4 @@
-export function FormSkeleton() {
+export function FormLoader() {
   return (
     <div className='mt-2 flex flex-col p-5'>
       <label htmlFor='name' className='label'>
