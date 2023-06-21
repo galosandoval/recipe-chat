@@ -23,12 +23,12 @@ export default function RecipesView() {
   return (
     <>
       <MyHead title='Listy - Recipes' />
-      <ListRecent />
+      <Recipes />
     </>
   )
 }
 
-export function ListRecent() {
+export function Recipes() {
   const { data, isSuccess } = useRecipeEntity()
   const [search, setSearch] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)

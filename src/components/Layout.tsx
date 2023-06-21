@@ -9,7 +9,6 @@ import {
   ListBulletIcon
 } from './Icons'
 import { DropdownMenu } from './DropdownMenu'
-import { NextFont, NextFontWithVariable } from 'next/dist/compiled/@next/font'
 
 export default function Layout({
   children,
