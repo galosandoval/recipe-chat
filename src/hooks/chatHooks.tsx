@@ -1,12 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Chat, Message, Prisma } from '@prisma/client'
+import { Chat, Message } from '@prisma/client'
 import { Message as AiMessage } from 'ai'
 import { useChat as useAiChat } from 'ai/react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { FormValues } from 'pages/chat'
 import {
-  Dispatch,
   FormEvent,
   MouseEvent,
   useEffect,
@@ -92,7 +91,7 @@ export const useChat = () => {
     }
   })
 
-  const { status, data } = useGetChat(
+  const { status } = useGetChat(
     isAuthenticated && !!state.chatId,
     setMessages,
     state.chatId || 0

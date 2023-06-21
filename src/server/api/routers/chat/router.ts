@@ -22,12 +22,6 @@ const addMessagesSchema = z.object({
   )
 })
 
-const addMessageSchema = z.object({
-  chatId: z.number().optional(),
-  content: z.string().min(3).max(255),
-  role: z.enum(['system', 'user', 'assistant'])
-})
-
 export const chatRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createChatSchema)
