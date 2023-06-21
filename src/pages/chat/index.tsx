@@ -1,33 +1,15 @@
 import { Chat, Message as PrismaMessage } from '@prisma/client'
-
 import { QueryStatus } from '@tanstack/react-query'
 import { Button } from 'components/Button'
-import { Drawer } from 'components/Drawer'
 import { MyHead } from 'components/Head'
-import {
-  ChatBubbleLeftIcon,
-  CheckIcon,
-  Cog6ToothIcon,
-  EditIcon,
-  FunnelIcon,
-  ListBulletIcon,
-  PlusCircleIcon,
-  PlusIcon,
-  UserCircleIcon,
-  XCircleIcon,
-  XIcon
-} from 'components/Icons'
+import { ChatBubbleLeftIcon, PlusIcon, UserCircleIcon } from 'components/Icons'
 import { ValueProps } from 'components/ValueProps'
 import { Variants, motion } from 'framer-motion'
-import {
-  ChatsType,
-  UseRecipeFilters,
-  useChat,
-  useCreateRecipe
-} from 'hooks/chatHooks'
+import { ChatsType, UseRecipeFilters, useChat } from 'hooks/chatHooks'
 import { ChangeEventHandler, FormEvent } from 'react'
-import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
 import { ChatCompletionRequestMessage } from 'openai-edge'
+import { ChatsSideBarButton } from 'components/ChatsSideBar'
+import { ChatLoader } from 'components/loaders/ChatBubbleLoader'
 
 export type FormValues = {
   name: string
@@ -48,6 +30,7 @@ export default function ChatView() {
     isChatsModalOpen,
     input,
     messages,
+    isSendingMessage,
 
     handleInputChange,
     handleToggleChatsModal,
@@ -57,7 +40,6 @@ export default function ChatView() {
     handleChangeChat,
     handleStartNewChat
   } = useChat()
-  console.log('messages', messages)
   return (
     <>
       <MyHead title='Listy - Chat' />
@@ -75,6 +57,7 @@ export default function ChatView() {
                   chats={chats}
                   status={messageListStatus}
                   isChatsModalOpen={isChatsModalOpen}
+                  isSendingMessage={isSendingMessage}
                   handleChangeChat={handleChangeChat}
                   handleStartNewChat={handleStartNewChat}
                   handleToggleChatsModal={handleToggleChatsModal}
@@ -84,6 +67,7 @@ export default function ChatView() {
             </div>
             <SubmitMessageForm
               input={input}
+              isSendingMessage={isSendingMessage}
               handleScrollIntoView={handleScrollIntoView}
               handleSubmit={handleSubmit}
               handleInputChange={handleInputChange}
@@ -92,83 +76,6 @@ export default function ChatView() {
         </div>
       </div>
     </>
-  )
-}
-
-function RecipeFilters({
-  filtersArr,
-  handleSubmit,
-  onSubmit,
-  filters,
-  register,
-  handleCheck,
-  isBtnDisabled,
-  canDelete,
-  handleRemoveFilter,
-  handleToggleCanDelete
-}: UseRecipeFilters) {
-  return (
-    <div className='mt-2 flex flex-col items-center justify-center gap-2 px-2'>
-      <div className='flex items-center gap-2'>
-        <h2 className='mb-0 mt-0'>Filters</h2>
-        <FunnelIcon />
-      </div>
-
-      <div className='flex flex-wrap gap-2'>
-        {filtersArr.length > 0 && (
-          <button
-            onClick={handleToggleCanDelete}
-            className={`badge badge-ghost flex h-fit items-center gap-1 py-0`}
-          >
-            <span>
-              {canDelete ? <XIcon size={5} /> : <EditIcon size={5} />}
-            </span>
-          </button>
-        )}
-
-        {filtersArr.map((filter) => {
-          const checked = filters[filter] && !canDelete
-          return (
-            <button
-              onClick={
-                canDelete
-                  ? () => handleRemoveFilter(filter)
-                  : () => handleCheck(filter)
-              }
-              key={filter}
-              className={`badge flex h-fit items-center gap-1 py-0 ${
-                canDelete
-                  ? 'badge-error badge-outline'
-                  : checked
-                  ? 'badge-primary badge-outline'
-                  : 'badge-ghost'
-              }`}
-            >
-              <span className='flex items-center'>
-                {checked && <CheckIcon />}
-                <span className=''>{filter}</span>
-                {canDelete && <XCircleIcon size={5} />}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-
-      <form className='join' onSubmit={handleSubmit(onSubmit)}>
-        <input
-          {...register('name')}
-          className='input-bordered input input-sm join-item'
-          placeholder='New filter'
-        />
-        <button
-          type='submit'
-          disabled={isBtnDisabled}
-          className='no-animation btn-sm join-item btn rounded-r-full'
-        >
-          <PlusCircleIcon />
-        </button>
-      </form>
-    </div>
   )
 }
 
@@ -191,6 +98,7 @@ type MessageListProps = {
   chatId?: number
   isChatsModalOpen: boolean
   recipeFilters: UseRecipeFilters
+  isSendingMessage: boolean
 
   handleChangeChat: (
     chat: Chat & {
@@ -208,6 +116,7 @@ function MessageList({
   chatId,
   recipeFilters,
   isChatsModalOpen,
+  isSendingMessage,
   handleChangeChat,
   handleStartNewChat,
   handleToggleChatsModal
@@ -224,7 +133,7 @@ function MessageList({
         initial='hidden'
         animate='visible'
       >
-        <ChatsPopoverButton
+        <ChatsSideBarButton
           chatId={chatId}
           chats={chats}
           isChatsModalOpen={isChatsModalOpen}
@@ -244,152 +153,12 @@ function MessageList({
           <PlusIcon />
         </button>
       </motion.div>
-
       {data.map((m, i) => (
-        <ChatBubble message={m} key={m?.content || '' + i} />
+        <Message message={m} key={m?.content || '' + i} />
       ))}
+      {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
     </div>
   )
-}
-
-export function ChatsPopoverButton({
-  chats,
-  chatId,
-  isChatsModalOpen,
-  recipeFilters,
-  handleToggleChatsModal,
-  handleChangeChat
-}: {
-  chats: ChatsType
-  chatId?: number
-  isChatsModalOpen: boolean
-  recipeFilters: UseRecipeFilters
-  handleChangeChat: (
-    chat: Chat & {
-      messages: PrismaMessage[]
-    }
-  ) => void
-  handleToggleChatsModal: () => void
-}) {
-  return (
-    <>
-      <button
-        onClick={handleToggleChatsModal}
-        className="justify-self-start' btn-ghost btn-circle btn"
-      >
-        <Cog6ToothIcon />
-      </button>
-
-      <Drawer closeModal={handleToggleChatsModal} isOpen={isChatsModalOpen}>
-        <div className='flex h-full flex-col justify-between'>
-          <RecipeFilters {...recipeFilters} />
-
-          <ChatList
-            chats={chats}
-            chatId={chatId}
-            handleChangeChat={handleChangeChat}
-          />
-        </div>
-      </Drawer>
-    </>
-  )
-}
-
-function ChatList({
-  chats,
-  chatId,
-  handleChangeChat
-}: {
-  chats: ChatsType
-  chatId?: number
-  handleChangeChat: (
-    chat: Chat & {
-      messages: PrismaMessage[]
-    }
-  ) => void
-}) {
-  const { data, status } = chats
-
-  if (status === 'error') {
-    return <div>Error</div>
-  }
-  if (status === 'success') {
-    return (
-      <div className='flex h-full flex-col justify-end gap-2 pb-8'>
-        {data.length > 0 && (
-          <div className='flex items-center justify-center gap-2'>
-            <h2 className='mb-0 mt-0'>Recent chats</h2>
-            <ListBulletIcon />
-          </div>
-        )}
-        {[...data].reverse().map((chat) => (
-          <ChatOption
-            key={chat.id}
-            chat={chat}
-            chatId={chatId}
-            handleChangeChat={handleChangeChat}
-          />
-        ))}
-      </div>
-    )
-  }
-
-  return <div>Error</div>
-}
-
-function ChatOption({
-  chat,
-  chatId,
-  handleChangeChat
-}: {
-  chat: Chat & {
-    messages: PrismaMessage[]
-  }
-  chatId?: number
-  handleChangeChat: (
-    chat: Chat & {
-      messages: PrismaMessage[]
-    }
-  ) => void
-}) {
-  const { content, role } = chat.messages[0]
-
-  let message = content
-
-  if (role === 'assistant') {
-    message = JSON.parse(content).name
-  }
-
-  return (
-    <div
-      className={`flex flex-col px-2 py-2 ${
-        chatId === chat.id ? 'bg-primary-content' : ''
-      }`}
-    >
-      <div
-        onClick={() => handleChangeChat(chat)}
-        className={`flex items-center gap-2 ${
-          chatId === chat.id ? 'text-primary' : ''
-        }`}
-      >
-        <span
-          className={`text-base-content ${
-            chatId === chat.id ? 'text-primary' : ''
-          }`}
-        >
-          {message}
-        </span>
-      </div>
-
-      <span className='self-end text-xs text-primary'>
-        {dateTimeFormat().format(chat.updatedAt)}
-      </span>
-    </div>
-  )
-}
-
-function dateTimeFormat() {
-  return Intl.DateTimeFormat('en-US')
 }
 
 export const item: Variants = {
@@ -404,7 +173,7 @@ export const item: Variants = {
   }
 }
 
-function ChatBubble({
+function Message({
   message
 }: {
   message: {
@@ -470,12 +239,12 @@ function ChatBubble({
 
   if (message.role === 'assistant') {
     return (
-      <div className='flex gap-2 bg-primary-content p-4'>
-        <div className=''>
+      <div className='flex justify-start gap-2 bg-primary-content p-4'>
+        <div>
           <UserCircleIcon />
         </div>
 
-        <div className='flex flex-col items-start'>
+        <div className='flex flex-col'>
           <p className='mb-0 mt-0 whitespace-pre-line'>
             {message.content || ''}
           </p>
@@ -485,13 +254,13 @@ function ChatBubble({
   }
 
   return (
-    <div className='bg-primary-base-100 flex gap-2 p-4'>
+    <div className='bg-primary-base-100 flex justify-end gap-2 p-4'>
       <div className='flex flex-col items-end'>
         <p className='mb-0 mt-0 whitespace-pre-line'>
           {message?.content || ''}
         </p>
       </div>
-      <div className=''>
+      <div>
         <UserCircleIcon />
       </div>
     </div>
@@ -502,12 +271,14 @@ function SubmitMessageForm({
   handleScrollIntoView,
   handleInputChange,
   handleSubmit,
+  isSendingMessage,
   input
 }: {
   handleScrollIntoView: () => void
   handleSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
   handleInputChange: ChangeEventHandler<HTMLTextAreaElement>
   input: string
+  isSendingMessage: boolean
 }) {
   return (
     <form
@@ -527,138 +298,157 @@ function SubmitMessageForm({
         <Button
           type='submit'
           // disabled={!isValid || !isDirty}
-          className='btn-accent btn'
+          className={` btn ${isSendingMessage ? 'btn-error' : 'btn-accent'}`}
         >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth={1.5}
-            stroke='currentColor'
-            className='h-6 w-6'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5'
-            />
-          </svg>
+          {isSendingMessage ? (
+            // stop icon
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='h-6 w-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z'
+              />
+            </svg>
+          ) : (
+            // plane icon
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='h-6 w-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5'
+              />
+            </svg>
+          )}
         </Button>
       </div>
     </form>
   )
 }
 
-function SaveRecipeForm({
-  data,
-  handleCloseModal
-}: {
-  data: GeneratedRecipe
-  handleCloseModal: () => void
-}) {
-  const { handleSubmit, getValues, register, onSubmit, isSuccess, isLoading } =
-    useCreateRecipe(data)
+// function SaveRecipeForm({
+//   data,
+//   handleCloseModal
+// }: {
+//   data: GeneratedRecipe
+//   handleCloseModal: () => void
+// }) {
+//   const { handleSubmit, getValues, register, onSubmit, isSuccess, isLoading } =
+//     useCreateRecipe(data)
 
-  const ingredientsRowSize = (getValues('ingredients') || '').split('\n').length
-  const instructionsRowSize = (getValues('instructions') || '').split(
-    '\n'
-  ).length
+//   const ingredientsRowSize = (getValues('ingredients') || '').split('\n').length
+//   const instructionsRowSize = (getValues('instructions') || '').split(
+//     '\n'
+//   ).length
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
-      <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto px-1 pb-1'>
-        <div className='flex flex-col'>
-          <label htmlFor='name' className='label'>
-            <span className='label-text'>Name</span>
-          </label>
-          <input
-            id='name'
-            {...register('name')}
-            className='input-bordered input'
-          />
-        </div>
-        <div className='flex flex-col'>
-          <label htmlFor='description' className='label'>
-            <span className='label-text'>Description</span>
-          </label>
-          <input
-            id='description'
-            {...register('description')}
-            className='input-bordered input'
-          />
-        </div>
+//   return (
+//     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
+//       <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto px-1 pb-1'>
+//         <div className='flex flex-col'>
+//           <label htmlFor='name' className='label'>
+//             <span className='label-text'>Name</span>
+//           </label>
+//           <input
+//             id='name'
+//             {...register('name')}
+//             className='input-bordered input'
+//           />
+//         </div>
+//         <div className='flex flex-col'>
+//           <label htmlFor='description' className='label'>
+//             <span className='label-text'>Description</span>
+//           </label>
+//           <input
+//             id='description'
+//             {...register('description')}
+//             className='input-bordered input'
+//           />
+//         </div>
 
-        <div className='flex gap-2'>
-          <div className='flex w-1/2 flex-col'>
-            <label htmlFor='prepTime' className='label'>
-              <span className='label-text'>Prep time</span>
-            </label>
-            <input
-              id='prepTime'
-              type='text'
-              className='input-bordered input input-sm'
-              {...register('prepTime')}
-            />
-          </div>
-          <div className='flex w-1/2 flex-col'>
-            <label htmlFor='cookTime' className='label'>
-              <span className='label-text'>Cook time</span>
-            </label>
-            <input
-              id='cookTime'
-              type='text'
-              className='input-bordered input input-sm mr-2'
-              {...register('cookTime')}
-            />
-          </div>
-        </div>
-        <div className='flex flex-col'>
-          <label htmlFor='ingredients' className='label'>
-            <span className='label-text'>Ingredients</span>
-          </label>
-          <textarea
-            id='ingredients'
-            rows={ingredientsRowSize}
-            {...register('ingredients')}
-            className='textarea-bordered textarea resize-none'
-          />
-        </div>
-        <div className='flex flex-col'>
-          <label htmlFor='instructions' className='label'>
-            <span className='label-text'>Instructions</span>
-          </label>
-          <textarea
-            id='instructions'
-            rows={instructionsRowSize}
-            {...register('instructions')}
-            className='textarea-bordered textarea resize-none'
-          />
-        </div>
-      </div>
-      <div className='flex w-full gap-1 px-2 py-2'>
-        {isSuccess ? (
-          <Button className='btn-ghost btn w-1/2' onClick={handleCloseModal}>
-            Return
-          </Button>
-        ) : (
-          <>
-            <Button
-              type='button'
-              onClick={handleCloseModal}
-              className='btn-ghost btn w-1/2'
-            >
-              Cancel
-            </Button>
-            <Button
-              isLoading={isLoading}
-              className='btn-primary btn w-1/2'
-              type='submit'
-            >
-              Save
-            </Button>
-          </>
-        )}
-      </div>
-    </form>
-  )
-}
+//         <div className='flex gap-2'>
+//           <div className='flex w-1/2 flex-col'>
+//             <label htmlFor='prepTime' className='label'>
+//               <span className='label-text'>Prep time</span>
+//             </label>
+//             <input
+//               id='prepTime'
+//               type='text'
+//               className='input-bordered input input-sm'
+//               {...register('prepTime')}
+//             />
+//           </div>
+//           <div className='flex w-1/2 flex-col'>
+//             <label htmlFor='cookTime' className='label'>
+//               <span className='label-text'>Cook time</span>
+//             </label>
+//             <input
+//               id='cookTime'
+//               type='text'
+//               className='input-bordered input input-sm mr-2'
+//               {...register('cookTime')}
+//             />
+//           </div>
+//         </div>
+//         <div className='flex flex-col'>
+//           <label htmlFor='ingredients' className='label'>
+//             <span className='label-text'>Ingredients</span>
+//           </label>
+//           <textarea
+//             id='ingredients'
+//             rows={ingredientsRowSize}
+//             {...register('ingredients')}
+//             className='textarea-bordered textarea resize-none'
+//           />
+//         </div>
+//         <div className='flex flex-col'>
+//           <label htmlFor='instructions' className='label'>
+//             <span className='label-text'>Instructions</span>
+//           </label>
+//           <textarea
+//             id='instructions'
+//             rows={instructionsRowSize}
+//             {...register('instructions')}
+//             className='textarea-bordered textarea resize-none'
+//           />
+//         </div>
+//       </div>
+//       <div className='flex w-full gap-1 px-2 py-2'>
+//         {isSuccess ? (
+//           <Button className='btn-ghost btn w-1/2' onClick={handleCloseModal}>
+//             Return
+//           </Button>
+//         ) : (
+//           <>
+//             <Button
+//               type='button'
+//               onClick={handleCloseModal}
+//               className='btn-ghost btn w-1/2'
+//             >
+//               Cancel
+//             </Button>
+//             <Button
+//               isLoading={isLoading}
+//               className='btn-primary btn w-1/2'
+//               type='submit'
+//             >
+//               Save
+//             </Button>
+//           </>
+//         )}
+//       </div>
+//     </form>
+//   )
+// }

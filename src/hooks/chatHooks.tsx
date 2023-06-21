@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Chat } from '@prisma/client'
+import { Chat, Message } from '@prisma/client'
+import { Message as AiMessage } from 'ai'
 import { useChat as useAiChat } from 'ai/react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { FormValues } from 'pages/chat'
 import {
-  Dispatch,
   FormEvent,
   MouseEvent,
   useEffect,
@@ -14,13 +14,13 @@ import {
   useState
 } from 'react'
 import { useForm } from 'react-hook-form'
-import { GeneratedRecipe, Message } from 'server/api/routers/recipe/interface'
+import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
 function useGetChat(
   enabled: boolean,
-  dispatch: Dispatch<ChatAction>,
+  setMessages: (messages: AiMessage[]) => void,
   chatId: number
 ) {
   return api.chat.getMessagesByChatId.useQuery(
@@ -29,7 +29,9 @@ function useGetChat(
       enabled,
       onSuccess: (data) => {
         if (data?.messages.length) {
-          dispatch({ type: 'loadedChat', payload: data.messages })
+          setMessages(
+            data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
+          )
         }
       },
       staleTime: 0
@@ -38,15 +40,61 @@ function useGetChat(
 }
 
 export const useChat = () => {
+  const utils = api.useContext()
+  utils.recipe.entity.prefetch()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
 
-  const [state, dispatch, status] = useChatReducer(
-    {
-      messages: [],
-      chatId: undefined
-    },
-    isAuthenticated
+  const { mutate } = api.chat.addMessages.useMutation({
+    onSuccess(data, { chatId }) {
+      console.log('data', data)
+
+      if (!chatId) {
+        const payload = data as Message[]
+        if (payload.length) {
+          dispatch({
+            type: 'chatIdChanged',
+            payload: payload[0].chatId
+          })
+        }
+      }
+
+      utils.chat.invalidate()
+    }
+  })
+
+  const [state, dispatch] = useChatReducer({
+    chatId: undefined
+  })
+
+  const {
+    messages,
+    input,
+    setInput,
+    handleInputChange,
+    stop,
+    handleSubmit: submitMessages,
+    isLoading: isSendingMessage,
+    setMessages
+  } = useAiChat({
+    onFinish: (message) => {
+      console.log('messages', messages)
+      console.log('input', input)
+      console.log('message', message)
+
+      if (isAuthenticated) {
+        mutate({
+          messages: [{ content: input, role: 'user' }, message],
+          chatId: state.chatId
+        })
+      }
+    }
+  })
+
+  const { status } = useGetChat(
+    isAuthenticated && !!state.chatId,
+    setMessages,
+    state.chatId || 0
   )
 
   const chats = api.chat.getChats.useQuery(undefined, {
@@ -76,14 +124,6 @@ export const useChat = () => {
     }
   }, [dispatch])
 
-  const {
-    messages,
-    input,
-    setInput,
-    handleInputChange,
-    handleSubmit: submitMessages
-  } = useAiChat()
-
   // const {
   //   formState: { isDirty, isValid },
   //   register,
@@ -99,11 +139,6 @@ export const useChat = () => {
   //   }
   // })
 
-  const recipeFilters = useRecipeFilters()
-
-  const utils = api.useContext()
-  utils.recipe.entity.prefetch()
-
   const chatRef = useRef<HTMLDivElement>(null)
 
   const handleScrollIntoView = () => {
@@ -118,7 +153,8 @@ export const useChat = () => {
   }
 
   const handleStartNewChat = () => {
-    dispatch({ type: 'reset', payload: undefined })
+    setMessages([])
+    dispatch({ type: 'chatIdChanged', payload: undefined })
   }
 
   const handleToggleChatsModal = () => {
@@ -161,7 +197,11 @@ export const useChat = () => {
     //     return { ...m, content }
     //   })
     //   .filter((m) => m.content !== '')
-    submitMessages(event)
+    if (isSendingMessage) {
+      stop()
+    } else {
+      submitMessages(event)
+    }
 
     // const response = await fetch('/api/generate', {
     //   method: 'POST',
@@ -225,6 +265,7 @@ export const useChat = () => {
     //   chatId: state.chatId
     // })
   }
+  const recipeFilters = useRecipeFilters()
 
   return {
     chatRef,
@@ -235,6 +276,7 @@ export const useChat = () => {
     isChatsModalOpen,
     input,
     messages,
+    isSendingMessage,
 
     handleInputChange,
     handleToggleChatsModal,
@@ -249,31 +291,24 @@ export const useChat = () => {
 export type ChatsType = ReturnType<typeof useChat>['chats']
 
 type ChatState = {
-  messages: Message[]
   chatId?: number
 }
 
-function useChatReducer(initialState: ChatState, isAuthenticated: boolean) {
+function useChatReducer(initialState: ChatState) {
   const [state, dispatch] = useReducer(chatReducer, initialState)
-  console.log('state.chatId', state.chatId)
-  const { status } = useGetChat(
-    isAuthenticated && !!state.chatId,
-    dispatch,
-    state.chatId || 0
-  )
+  useEffect(() => {
+    console.log('state.chatId', state.chatId)
+  }, [state?.chatId])
+  // const { status } = useGetChat(
+  //   isAuthenticated && !!state.chatId,
+  //   dispatch,
+  //   state.chatId || 0
+  // )
 
-  return [state, dispatch, status] as const
+  return [state, dispatch] as const
 }
 
 type ChatAction =
-  | {
-      type: 'add' | 'loadingMessage' | 'loadedMessage'
-      payload: Message & { error?: string; isLoading?: boolean }
-    }
-  | {
-      type: 'loadedChat'
-      payload: Message[]
-    }
   | {
       type: 'chatIdChanged'
       payload: number | undefined
@@ -286,40 +321,14 @@ type ChatAction =
 function chatReducer(state: ChatState, action: ChatAction): ChatState {
   const { type, payload } = action
   switch (type) {
-    case 'add':
-      return {
-        ...state,
-        messages: [...state.messages, payload]
-      }
-
-    case 'loadingMessage':
-      return {
-        ...state,
-        messages: [...state.messages, payload]
-      }
-
-    case 'loadedMessage':
-      const newMessages = state.messages.slice(0, -1)
-      return {
-        ...state,
-        messages: [...newMessages, payload]
-      }
-
-    case 'loadedChat':
-      return {
-        ...state,
-        messages: action.payload || []
-      }
-
     case 'chatIdChanged':
       return {
         ...state,
-        chatId: action.payload
+        chatId: payload
       }
 
     case 'reset':
       return {
-        messages: [],
         chatId: undefined
       }
 

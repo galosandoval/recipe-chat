@@ -6,11 +6,7 @@ import {
   PrismaPromise,
   Recipe
 } from '@prisma/client'
-import {
-  ChatCompletionRequestMessage,
-  Configuration,
-  OpenAIApi
-} from 'openai-edge'
+import { ChatCompletionRequestMessage } from 'openai-edge'
 import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
 
@@ -20,7 +16,6 @@ import {
   publicProcedure
 } from 'server/api/trpc'
 import {
-  GeneratedRecipe,
   LinkedData,
   createRecipeSchema,
   generateSchema,

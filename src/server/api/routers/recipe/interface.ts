@@ -1,4 +1,4 @@
-import { RouterInputs } from 'utils/api'
+import { RouterInputs, RouterOutputs } from 'utils/api'
 import { z } from 'zod'
 
 export const createRecipeSchema = z.object({
@@ -118,7 +118,7 @@ const messageSchema = z.object({
   role: z.enum(['user', 'assistant', 'system'])
 })
 
-export type Message = z.infer<typeof messageSchema>
+export type Message = RouterOutputs['chat']['addMessages']
 
 export const generateSchema = z.object({
   content: z.string(),

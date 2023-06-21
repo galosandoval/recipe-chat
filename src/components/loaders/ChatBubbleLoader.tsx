@@ -1,51 +1,23 @@
-import { motion } from 'framer-motion'
-import { item } from 'pages/chat'
+import { UserCircleIcon } from 'components/Icons'
 
-export const ChatBubbleLoader = () => {
+export const ChatLoader = () => {
   return (
-    <motion.div
-      variants={item}
-      initial='hidden'
-      animate='visible'
-      className='chat chat-start'
-    >
-      <div className='chat-bubble bg-primary-content'>
-        <div className='mt-2 flex items-center gap-2'>
-          <span
-            style={{
-              width: '.8rem',
-              height: '.8rem',
-              backgroundColor: 'hsl(var(--nc) / var(--tw-text-opacity))',
-              borderRadius: '50%',
-              animationDelay: '0.0s',
-              animationDuration: '1s'
-            }}
-            className='animate-pulse'
-          ></span>
-          <span
-            style={{
-              width: '.8rem',
-              height: '.8rem',
-              backgroundColor: 'hsl(var(--nc) / var(--tw-text-opacity))',
-              borderRadius: '50%',
-              animationDuration: '1s',
-              animationDelay: '0.25s'
-            }}
-            className='animate-pulse'
-          ></span>
-          <span
-            style={{
-              width: '.8rem',
-              height: '.8rem',
-              backgroundColor: 'hsl(var(--nc) / var(--tw-text-opacity))',
-              animationDuration: '1s',
-              borderRadius: '50%',
-              animationDelay: '0.5s'
-            }}
-            className='animate-pulse'
-          ></span>
-        </div>
+    <div className='flex gap-2 bg-primary-content py-4 pb-4 pl-4'>
+      <UserCircleIcon />
+      <div className='flex items-center justify-start space-x-1'>
+        <div
+          style={{ animationDelay: '0.0s', animationDuration: '1s' }}
+          className='h-2 w-2 animate-pulse rounded-full bg-base-content'
+        ></div>
+        <div
+          style={{ animationDelay: '0.25s', animationDuration: '1s' }}
+          className='h-2 w-2 animate-pulse rounded-full bg-base-content'
+        ></div>
+        <div
+          style={{ animationDelay: '0.5s', animationDuration: '1s' }}
+          className='h-2 w-2 animate-pulse rounded-full bg-base-content'
+        ></div>
       </div>
-    </motion.div>
+    </div>
   )
 }
