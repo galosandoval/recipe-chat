@@ -3,7 +3,7 @@ import { ChatsType, UseRecipeFilters } from 'hooks/chatHooks'
 import {
   CheckIcon,
   AdjustmentsHorizontalIcon,
-  EditIcon,
+  PencilSquareIcon,
   FunnelIcon,
   ListBulletIcon,
   PlusCircleIcon,
@@ -181,7 +181,7 @@ function RecipeFilters({
             className={`badge badge-ghost flex h-fit items-center gap-1 py-0`}
           >
             <span>
-              {canDelete ? <XIcon size={5} /> : <EditIcon size={5} />}
+              {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
             </span>
           </button>
         )}

@@ -11,7 +11,8 @@ export const createRecipeSchema = z.object({
   instructions: z.array(z.string()),
   url: z.string().optional(),
   prepTime: z.string().optional(),
-  cookTime: z.string().optional()
+  cookTime: z.string().optional(),
+  messageId: z.number().optional()
 })
 
 export type CreateRecipe = RouterInputs['recipe']['create']

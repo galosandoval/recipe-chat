@@ -4,7 +4,6 @@ import { Message as AiMessage } from 'ai'
 import { useChat as useAiChat } from 'ai/react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { FormValues } from 'pages/chat'
 import {
   FormEvent,
   MouseEvent,
@@ -14,7 +13,6 @@ import {
   useState
 } from 'react'
 import { useForm } from 'react-hook-form'
-import { GeneratedRecipe } from 'server/api/routers/recipe/interface'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
@@ -29,6 +27,7 @@ function useGetChat(
       enabled,
       onSuccess: (data) => {
         if (data?.messages.length) {
+          console.log('data.messages', data.messages)
           setMessages(
             data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
           )
@@ -78,10 +77,6 @@ export const useChat = () => {
     setMessages
   } = useAiChat({
     onFinish: (message) => {
-      console.log('messages', messages)
-      console.log('input', input)
-      console.log('message', message)
-
       if (isAuthenticated) {
         mutate({
           messages: [{ content: input, role: 'user' }, message],
@@ -124,28 +119,12 @@ export const useChat = () => {
     }
   }, [dispatch])
 
-  // const {
-  //   formState: { isDirty, isValid },
-  //   register,
-  //   handleSubmit,
-  //   setValue,
-  //   clearErrors,
-  //   reset,
-  //   watch
-  // } = useForm<ChatRecipeParams>({
-  //   resolver: zodResolver(sendMessageFormSchema),
-  //   defaultValues: {
-  //     message: input
-  //   }
-  // })
-
   const chatRef = useRef<HTMLDivElement>(null)
 
   const handleScrollIntoView = () => {
     chatRef.current?.scrollIntoView({ behavior: 'auto' })
   }
 
-  // const { mutate } = useSendMessageMutation(dispatch, handleScrollIntoView)
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
@@ -171,99 +150,11 @@ export const useChat = () => {
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    // dispatch({
-    //   type: 'add',
-    //   payload: { content: values.message, role: 'user' }
-    // })
-
-    // dispatch({
-    //   type: 'loadingMessage',
-    //   payload: { content: '', role: 'assistant', isLoading: true }
-    // })
-    console.log('event')
-    // setInput('')
-
-    // const filters = recipeFilters.checkedFilters
-
-    // const convo = state?.messages
-    //   .map((m) => {
-    //     let content: string
-    //     if (typeof m.content === 'string') {
-    //       content = m.content
-    //     } else {
-    //       content = JSON.stringify(m.content)
-    //     }
-
-    //     return { ...m, content }
-    //   })
-    //   .filter((m) => m.content !== '')
     if (isSendingMessage) {
       stop()
     } else {
       submitMessages(event)
     }
-
-    // const response = await fetch('/api/generate', {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     prompt: values.message,
-    //     messages: convo,
-    //     filters
-    //   }),
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   }
-    // })
-
-    // if (response.ok && response.body) {
-    // const reader = response.body.getReader()
-    // const decoder = new TextDecoder()
-
-    // function onParse(event: ParseEvent) {
-    //   if (event.type === 'event') {
-    //     try {
-    //       const data = JSON.parse(event.data) as {
-    //         choices: {
-    //           index: number
-    //           finish_reason: string | null
-    //           delta: {
-    //             content: string
-    //           }
-    //         }[]
-    //         created: string
-    //         id: string
-    //         model: string
-    //         object: string
-    //       }
-
-    //       data.choices
-    //         .filter(({ delta }) => !!delta.content)
-    //         .forEach(({ delta }) => {
-    //           setText((prev) => {
-    //             return `${prev || ''}${delta.content}`
-    //           })
-    //         })
-    //     } catch (e) {
-    //       console.log(e)
-    //     }
-    //   }
-    // }
-
-    // const parser = createParser(onParse)
-
-    // while (true) {
-    //   const { value, done } = await reader.read()
-    //   const dataString = decoder.decode(value)
-    //   if (done || dataString.includes('[DONE]')) break
-    //   parser.feed(dataString)
-    // }
-    // }
-    // mutate({
-    //   content: values.message,
-    //   messages: convo,
-    //   filters,
-    //   chatId: state.chatId
-    // })
   }
   const recipeFilters = useRecipeFilters()
 
@@ -299,11 +190,6 @@ function useChatReducer(initialState: ChatState) {
   useEffect(() => {
     console.log('state.chatId', state.chatId)
   }, [state?.chatId])
-  // const { status } = useGetChat(
-  //   isAuthenticated && !!state.chatId,
-  //   dispatch,
-  //   state.chatId || 0
-  // )
 
   return [state, dispatch] as const
 }
@@ -338,42 +224,6 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
 }
 
 export const errorMessage = 'Please try rephrasing your question.'
-
-// function useSendMessageMutation(
-//   dispatch: React.Dispatch<ChatAction>,
-//   handleScrollIntoView: () => void
-// ) {
-//   const utils = api.useContext()
-
-//   return api.recipe.generate.useMutation({
-//     onSuccess: (data) => {
-//       dispatch({
-//         type: 'loadedMessage',
-//         payload: { content: JSON.stringify(data.recipe), role: 'assistant' }
-//       })
-//       dispatch({
-//         type: 'chatIdChanged',
-//         payload: data.chatId
-//       })
-
-//       utils.chat.getChats.invalidate()
-//     },
-//     onError: () => {
-//       dispatch({
-//         type: 'loadedMessage',
-//         payload: {
-//           content: '',
-//           role: 'assistant',
-//           error: errorMessage
-//         }
-//       })
-//     },
-//     onMutate: () => handleScrollIntoView(),
-//     onSettled: () => handleScrollIntoView()
-//   })
-// }
-
-// export type UseGenerate = ReturnType<typeof useSendMessageMutation>
 
 type CreateFilter = z.infer<typeof createFilterSchema>
 type Filters = Record<string, boolean>
@@ -457,42 +307,125 @@ export type UseRecipeFilters = ReturnType<typeof useRecipeFilters>
 const sendMessageFormSchema = z.object({ message: z.string().min(6) })
 export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
-export const useCreateRecipe = (data: GeneratedRecipe) => {
-  const router = useRouter()
+export const useSaveRecipe = (chatId?: number) => {
   const utils = api.useContext()
-  const { description, ingredients, instructions, name, cookTime, prepTime } =
-    data
-  const { mutate, isLoading, isSuccess } = api.recipe.create.useMutation({
-    onSuccess: (data) => {
-      router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
+  const { mutate, status, data } = api.recipe.create.useMutation({
+    onSuccess: () => {
       utils.recipe.invalidate()
+      if (chatId) {
+        utils.chat.getMessagesByChatId.invalidate({ chatId })
+      }
     }
   })
 
-  const { handleSubmit, register, getValues } = useForm<FormValues>({
-    defaultValues: {
-      description,
-      ingredients: ingredients?.join('\n'),
-      instructions: instructions?.join('\n'),
+  const router = useRouter()
+
+  const handleGoToRecipe = ({
+    recipeId,
+    recipeName
+  }: {
+    recipeId: number | null
+    recipeName?: string
+  }) => {
+    if (recipeId && recipeName) {
+      router.push(`recipes/${recipeId}?name=${encodeURIComponent(recipeName)}`)
+    }
+  }
+
+  const handleSaveRecipe = ({
+    content,
+    messageId
+  }: {
+    content: string
+    messageId: number
+  }) => {
+    if (!content) return
+
+    let name = ''
+    const nameIdx = content.toLowerCase().indexOf('name:')
+    if (nameIdx !== -1) {
+      const endIdx = content.indexOf('\n', nameIdx)
+      if (endIdx !== -1) {
+        name = content.slice(nameIdx + 6, endIdx)
+      }
+    }
+
+    let description = ''
+    const descriptionIdx = content
+      .toLowerCase()
+      .indexOf('description:', nameIdx)
+    if (descriptionIdx !== -1) {
+      const endIdx = content.indexOf('\n', descriptionIdx)
+      if (endIdx !== -1) {
+        description = content.slice(descriptionIdx + 13, endIdx)
+      }
+    }
+
+    let prepTime = ''
+    const prepTimeIdx = content.toLowerCase().indexOf('preparation time:')
+    if (prepTimeIdx !== -1) {
+      const endIdx = content.indexOf('\n', prepTimeIdx)
+      if (endIdx !== -1) {
+        prepTime = content.slice(prepTimeIdx + 18, endIdx)
+      }
+    }
+
+    let cookTime = ''
+    const cookTimeIdx = content.toLowerCase().indexOf('cook time:')
+    if (cookTimeIdx !== -1) {
+      const endIdx = content.indexOf('\n', cookTimeIdx)
+      if (endIdx !== -1) {
+        cookTime = content.slice(cookTimeIdx + 11, endIdx)
+      }
+    }
+
+    let instructions = ''
+    const instructionsIdx = content.toLowerCase().indexOf('instructions:')
+    if (instructionsIdx !== -1) {
+      const endIdx = content.indexOf('\n\n', instructionsIdx)
+      if (endIdx !== -1) {
+        instructions = content.slice(instructionsIdx + 14, endIdx)
+      }
+    }
+
+    let ingredients = ''
+    const ingredientsIdx = content.toLowerCase().indexOf('ingredients:')
+    if (ingredientsIdx !== -1) {
+      if (instructionsIdx !== -1) {
+        ingredients = content.slice(ingredientsIdx + 13, instructionsIdx - 2)
+      }
+    }
+
+    mutate({
       name,
+      description,
+      prepTime,
       cookTime,
-      prepTime
-    }
-  })
-
-  const onSubmit = (values: FormValues) => {
-    const ingredients = values.ingredients.split('\n')
-    const instructions = values.instructions.split('\n')
-    mutate({ ...values, ingredients, instructions })
+      instructions: removeLeadingHyphens(instructions)
+        .split('\n')
+        .filter(Boolean),
+      ingredients: ingredients
+        .split('\n')
+        .map((s) => removeLeadingHyphens(s))
+        .filter(Boolean),
+      messageId
+    })
   }
 
   return {
-    isLoading,
-    isSuccess,
-    mutate,
-    getValues,
-    onSubmit,
-    handleSubmit,
-    register
+    status,
+    data,
+    handleSaveRecipe,
+    handleGoToRecipe
   }
+}
+
+export type SaveRecipe = ReturnType<typeof useSaveRecipe>
+
+function removeLeadingHyphens(str: string) {
+  if (str && str[0] === '-') {
+    return str.slice(2)
+  }
+
+  return str
 }
