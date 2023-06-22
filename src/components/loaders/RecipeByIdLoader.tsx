@@ -1,11 +1,6 @@
 export function RecipeByIdLoader() {
   return (
     <div className='flex flex-col'>
-      <div
-        className='animpulse-pulse h-60 w-full bg-base-content'
-        style={{ animationDuration: '1s' }}
-      ></div>
-
       <div className='m-5 flex flex-col gap-2'>
         <div
           className='h-4 w-4/5 animate-pulse rounded bg-base-content'
