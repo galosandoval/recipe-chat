@@ -56,6 +56,8 @@ export const useAddToList = (recipeId: number) => {
 }
 
 export const useCreateRecipe = (data: LinkedDataRecipeField) => {
+  const router = useRouter()
+
   const utils = api.useContext()
   const {
     description,
@@ -66,8 +68,8 @@ export const useCreateRecipe = (data: LinkedDataRecipeField) => {
     prepTime
   } = data
   const { mutate, isLoading, isSuccess } = api.recipe.create.useMutation({
-    onSuccess: () => {
-      // router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
+    onSuccess: (data) => {
+      router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
       utils.recipe.invalidate()
     }
   })

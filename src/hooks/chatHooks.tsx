@@ -27,7 +27,6 @@ function useGetChat(
       enabled,
       onSuccess: (data) => {
         if (data?.messages.length) {
-          console.log('data.messages', data.messages)
           setMessages(
             data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
           )
@@ -46,8 +45,6 @@ export const useChat = () => {
 
   const { mutate } = api.chat.addMessages.useMutation({
     onSuccess(data, { chatId }) {
-      console.log('data', data)
-
       if (!chatId) {
         const payload = data as Message[]
         if (payload.length) {
