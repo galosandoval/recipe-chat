@@ -28,7 +28,7 @@ model Chat {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   userId    Int
-  user      User   @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
   messages  Message[]
 }
 
@@ -39,11 +39,13 @@ model Message {
   chat      Chat     @relation(fields: [chatId], references: [id])
   chatId    Int
   content   String
-  role      Role     
+  role      Role
+  recipe    Recipe?  @relation(fields: [recipeId], references: [id])
+  recipeId  Int?     @unique
 }
 
 enum Role {
-  system 
+  system
   user
   assistant
 }
@@ -61,6 +63,7 @@ model Recipe {
   ingredients  Ingredient[]
   prepTime     String?
   cookTime     String?
+  Message      Message?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }

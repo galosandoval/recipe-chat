@@ -121,9 +121,9 @@ export const recipeRouter = createTRPCRouter({
     .input(createRecipeSchema)
     .mutation(async ({ input, ctx }) => {
       {
-        const { ingredients, instructions, ...rest } = input
+        const { ingredients, instructions, messageId, ...rest } = input
 
-        return ctx.prisma.recipe.create({
+        const newRecipe = await ctx.prisma.recipe.create({
           data: {
             userId: ctx.session?.user.id,
             ...rest,
@@ -139,6 +139,20 @@ export const recipeRouter = createTRPCRouter({
             instructions: true
           }
         })
+
+        console.log('newRecipe', newRecipe)
+        if (messageId && newRecipe.id) {
+          console.log('newRecipe.id', newRecipe.id)
+
+          await ctx.prisma.message.update({
+            where: { id: messageId },
+            data: {
+              recipeId: newRecipe.id
+            }
+          })
+        }
+
+        return newRecipe
       }
     }),
 

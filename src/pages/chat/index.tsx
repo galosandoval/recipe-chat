@@ -2,23 +2,24 @@ import { Chat, Message as PrismaMessage } from '@prisma/client'
 import { QueryStatus } from '@tanstack/react-query'
 import { Button } from 'components/Button'
 import { MyHead } from 'components/Head'
-import { ChatBubbleLeftIcon, PlusIcon, UserCircleIcon } from 'components/Icons'
+import {
+  BookmarkOutlineIcon,
+  BookmarkSolidIcon,
+  ChatBubbleLeftIcon,
+  PlusIcon,
+  UserCircleIcon
+} from 'components/Icons'
 import { ValueProps } from 'components/ValueProps'
-import { Variants, motion } from 'framer-motion'
-import { ChatsType, UseRecipeFilters, useChat } from 'hooks/chatHooks'
-import { ChangeEventHandler, FormEvent } from 'react'
-import { ChatCompletionRequestMessage } from 'openai-edge'
+import {
+  ChatsType,
+  SaveRecipe,
+  UseRecipeFilters,
+  useChat,
+  useSaveRecipe
+} from 'hooks/chatHooks'
+import { ChangeEventHandler, FormEvent, useEffect } from 'react'
 import { ChatsSideBarButton } from 'components/ChatsSideBar'
 import { ChatLoader } from 'components/loaders/ChatBubbleLoader'
-
-export type FormValues = {
-  name: string
-  ingredients: string
-  instructions: string
-  description: string
-  prepTime: string
-  cookTime: string
-}
 
 export default function ChatView() {
   const {
@@ -40,6 +41,12 @@ export default function ChatView() {
     handleChangeChat,
     handleStartNewChat
   } = useChat()
+
+  const saveRecipe = useSaveRecipe(state.chatId)
+
+  useEffect(() => {
+    console.log('messages', messages)
+  }, [messages])
   return (
     <>
       <MyHead title='Listy - Chat' />
@@ -51,8 +58,9 @@ export default function ChatView() {
                 <ValueProps handleFillMessage={handleFillMessage} />
               ) : (
                 <MessageList
+                  saveRecipe={saveRecipe}
                   recipeFilters={recipeFilters}
-                  data={messages}
+                  data={messages as []}
                   chatId={state.chatId}
                   chats={chats}
                   status={messageListStatus}
@@ -79,26 +87,15 @@ export default function ChatView() {
   )
 }
 
-const container: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      delayChildren: 0.3,
-      staggerChildren: 1,
-      duration: 1
-    }
-  }
-}
-
 type MessageListProps = {
-  data: ChatCompletionRequestMessage[]
+  data: PrismaMessage[]
   status: QueryStatus
   chats: ChatsType
   chatId?: number
   isChatsModalOpen: boolean
   recipeFilters: UseRecipeFilters
   isSendingMessage: boolean
+  saveRecipe: SaveRecipe
 
   handleChangeChat: (
     chat: Chat & {
@@ -117,6 +114,7 @@ function MessageList({
   recipeFilters,
   isChatsModalOpen,
   isSendingMessage,
+  saveRecipe,
   handleChangeChat,
   handleStartNewChat,
   handleToggleChatsModal
@@ -127,12 +125,7 @@ function MessageList({
 
   return (
     <div>
-      <motion.div
-        className='mt-2 grid grid-cols-3 px-2'
-        variants={container}
-        initial='hidden'
-        animate='visible'
-      >
+      <div className='mt-2 grid grid-cols-3 px-2'>
         <ChatsSideBarButton
           chatId={chatId}
           chats={chats}
@@ -152,116 +145,101 @@ function MessageList({
         >
           <PlusIcon />
         </button>
-      </motion.div>
+      </div>
       {data.map((m, i) => (
-        <Message message={m} key={m?.content || '' + i} />
+        <Message
+          message={m}
+          key={m?.content || '' + i}
+          saveRecipe={saveRecipe}
+          isSendingMessage={isSendingMessage}
+        />
       ))}
       {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
     </div>
   )
 }
 
-export const item: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      delayChildren: 0.3,
-      staggerChildren: 1,
-      duration: 1
+function Message({
+  message,
+  saveRecipe,
+  isSendingMessage
+}: {
+  message: PrismaMessage
+  saveRecipe: SaveRecipe
+  isSendingMessage: boolean
+}) {
+  console.log('message', message)
+
+  const { handleGoToRecipe, handleSaveRecipe, status } = saveRecipe
+
+  let recipeName = ''
+  const nameIdx = message.content.toLowerCase().indexOf('name:')
+  if (nameIdx !== -1) {
+    const endIdx = message.content.indexOf('\n', nameIdx)
+    if (endIdx !== -1) {
+      recipeName = message.content.slice(nameIdx + 6, endIdx)
     }
   }
-}
-
-function Message({
-  message
-}: {
-  message: {
-    content?: string
-    role: 'user' | 'assistant' | 'system' | 'function'
-  }
-}) {
-  // if (message.isLoading) {
-  //   return <ChatBubbleLoader />
-  // }
-
-  // if (message.role === 'assistant') {
-  //   let recipe: GeneratedRecipe = {
-  //     name: 'No recipe found',
-  //     cookTime: '',
-  //     description: '',
-  //     ingredients: [],
-  //     instructions: [],
-  //     prepTime: ''
-  //   }
-
-  // if ('error' in message) {
-  //   return (
-  //     <div className='flex flex-col items-start bg-primary-content p-5'>
-  //       <div className='text-error'>{message.error}</div>
-  //     </div>
-  //   )
-  // } else if (typeof message.content === 'string' && message.content) {
-  //   recipe = message.content
-  // }
-
-  //   return (
-  //     <div className='flex flex-col items-start bg-primary-content p-5'>
-  //       <button
-  //         onClick={handleOpenModal}
-  //         className=''
-  //       >
-  //         {message?.content || ''}
-  //       </button>
-  //       <Modal closeModal={handleCloseModal} isOpen={isOpen}>
-  //         <SaveRecipeForm handleCloseModal={handleCloseModal} data={recipe} />
-  //       </Modal>
-  //     </div>
-  //   )
-  // }
-
-  // if (
-  //   message.role === 'user' &&
-  //   message?.content &&
-  //   typeof message?.content === 'string'
-  // ) {
-  //   return (
-  //     <motion.div
-  //       variants={item}
-  //       initial='hidden'
-  //       animate='visible'
-  //       className='flex flex-col items-end bg-base-200 p-5'
-  //     >
-  //       <div className=''>{message.content}</div>
-  //     </motion.div>
-  //   )
-  // }
 
   if (message.role === 'assistant') {
     return (
-      <div className='flex justify-start gap-2 bg-primary-content p-4'>
-        <div>
-          <UserCircleIcon />
-        </div>
+      <div className='flex flex-col bg-primary-content p-4'>
+        <div className='flex justify-start gap-2'>
+          <div>
+            <UserCircleIcon />
+          </div>
 
-        <div className='flex flex-col'>
-          <p className='mb-0 mt-0 whitespace-pre-line'>
-            {message.content || ''}
-          </p>
+          <div className='flex flex-col'>
+            <p className='mb-0 mt-0 whitespace-pre-line'>
+              {message.content || ''}
+            </p>
+          </div>
+        </div>
+        <div className='grid w-full grid-flow-col place-items-end gap-2'>
+          {message?.recipeId ? (
+            // Go to recipe
+            <Button
+              className='btn-ghost btn-circle btn text-success'
+              onClick={() =>
+                handleGoToRecipe({
+                  recipeId: message.recipeId,
+                  recipeName: recipeName
+                })
+              }
+            >
+              <BookmarkSolidIcon />
+            </Button>
+          ) : !isSendingMessage ? (
+            // Save
+            <Button
+              className='btn-ghost btn-circle btn'
+              isLoading={status === 'loading'}
+              onClick={() =>
+                handleSaveRecipe({
+                  content: message.content || '',
+                  messageId: Number(message.id)
+                })
+              }
+            >
+              <BookmarkOutlineIcon />
+            </Button>
+          ) : null}
         </div>
       </div>
     )
   }
 
   return (
-    <div className='bg-primary-base-100 flex justify-end gap-2 p-4'>
-      <div className='flex flex-col items-end'>
-        <p className='mb-0 mt-0 whitespace-pre-line'>
-          {message?.content || ''}
-        </p>
-      </div>
-      <div>
-        <UserCircleIcon />
+    <div className='flex flex-col items-start bg-base-200 p-4'>
+      <div className='bg-primary-base-100 flex justify-end gap-2'>
+        <div className='flex flex-col items-end'>
+          <p className='mb-0 mt-0 whitespace-pre-line'>
+            {message?.content || ''}
+          </p>
+        </div>
+        <div>
+          <UserCircleIcon />
+        </div>
       </div>
     </div>
   )
@@ -338,117 +316,3 @@ function SubmitMessageForm({
     </form>
   )
 }
-
-// function SaveRecipeForm({
-//   data,
-//   handleCloseModal
-// }: {
-//   data: GeneratedRecipe
-//   handleCloseModal: () => void
-// }) {
-//   const { handleSubmit, getValues, register, onSubmit, isSuccess, isLoading } =
-//     useCreateRecipe(data)
-
-//   const ingredientsRowSize = (getValues('ingredients') || '').split('\n').length
-//   const instructionsRowSize = (getValues('instructions') || '').split(
-//     '\n'
-//   ).length
-
-//   return (
-//     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
-//       <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto px-1 pb-1'>
-//         <div className='flex flex-col'>
-//           <label htmlFor='name' className='label'>
-//             <span className='label-text'>Name</span>
-//           </label>
-//           <input
-//             id='name'
-//             {...register('name')}
-//             className='input-bordered input'
-//           />
-//         </div>
-//         <div className='flex flex-col'>
-//           <label htmlFor='description' className='label'>
-//             <span className='label-text'>Description</span>
-//           </label>
-//           <input
-//             id='description'
-//             {...register('description')}
-//             className='input-bordered input'
-//           />
-//         </div>
-
-//         <div className='flex gap-2'>
-//           <div className='flex w-1/2 flex-col'>
-//             <label htmlFor='prepTime' className='label'>
-//               <span className='label-text'>Prep time</span>
-//             </label>
-//             <input
-//               id='prepTime'
-//               type='text'
-//               className='input-bordered input input-sm'
-//               {...register('prepTime')}
-//             />
-//           </div>
-//           <div className='flex w-1/2 flex-col'>
-//             <label htmlFor='cookTime' className='label'>
-//               <span className='label-text'>Cook time</span>
-//             </label>
-//             <input
-//               id='cookTime'
-//               type='text'
-//               className='input-bordered input input-sm mr-2'
-//               {...register('cookTime')}
-//             />
-//           </div>
-//         </div>
-//         <div className='flex flex-col'>
-//           <label htmlFor='ingredients' className='label'>
-//             <span className='label-text'>Ingredients</span>
-//           </label>
-//           <textarea
-//             id='ingredients'
-//             rows={ingredientsRowSize}
-//             {...register('ingredients')}
-//             className='textarea-bordered textarea resize-none'
-//           />
-//         </div>
-//         <div className='flex flex-col'>
-//           <label htmlFor='instructions' className='label'>
-//             <span className='label-text'>Instructions</span>
-//           </label>
-//           <textarea
-//             id='instructions'
-//             rows={instructionsRowSize}
-//             {...register('instructions')}
-//             className='textarea-bordered textarea resize-none'
-//           />
-//         </div>
-//       </div>
-//       <div className='flex w-full gap-1 px-2 py-2'>
-//         {isSuccess ? (
-//           <Button className='btn-ghost btn w-1/2' onClick={handleCloseModal}>
-//             Return
-//           </Button>
-//         ) : (
-//           <>
-//             <Button
-//               type='button'
-//               onClick={handleCloseModal}
-//               className='btn-ghost btn w-1/2'
-//             >
-//               Cancel
-//             </Button>
-//             <Button
-//               isLoading={isLoading}
-//               className='btn-primary btn w-1/2'
-//               type='submit'
-//             >
-//               Save
-//             </Button>
-//           </>
-//         )}
-//       </div>
-//     </form>
-//   )
-// }
