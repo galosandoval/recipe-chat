@@ -205,7 +205,7 @@ function RecipeFilters({
               }`}
             >
               <span className='flex items-center'>
-                {checked && <CheckIcon />}
+                {checked && <CheckIcon size={4} />}
                 <span className=''>{filter}</span>
                 {canDelete && <XCircleIcon size={5} />}
               </span>
