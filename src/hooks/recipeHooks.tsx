@@ -123,3 +123,16 @@ export const useEditRecipe = () => {
     }
   })
 }
+
+export const useDeleteRecipe = () => {
+  const utils = api.useContext()
+  const router = useRouter()
+
+  return api.recipe.delete.useMutation({
+    onSuccess: () => {
+      utils.recipe.entity.invalidate()
+      router.push('/recipes')
+      toast.success('Recipe deleted')
+    }
+  })
+}

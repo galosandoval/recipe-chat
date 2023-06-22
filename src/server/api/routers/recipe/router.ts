@@ -320,5 +320,28 @@ export const recipeRouter = createTRPCRouter({
       }
 
       return input.id
+    }),
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const deleteIngredients = ctx.prisma.ingredient.deleteMany({
+        where: { recipeId: input.id }
+      })
+
+      const deleteInstructions = ctx.prisma.instruction.deleteMany({
+        where: {
+          recipeId: input.id
+        }
+      })
+
+      const deleteRecipe = ctx.prisma.recipe.delete({
+        where: { id: input.id }
+      })
+
+      return ctx.prisma.$transaction([
+        deleteIngredients,
+        deleteInstructions,
+        deleteRecipe
+      ])
     })
 })
