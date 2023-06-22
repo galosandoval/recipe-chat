@@ -17,7 +17,7 @@ import {
   useChat,
   useSaveRecipe
 } from 'hooks/chatHooks'
-import { ChangeEventHandler, FormEvent, useEffect } from 'react'
+import { ChangeEventHandler, FormEvent } from 'react'
 import { ChatsSideBarButton } from 'components/ChatsSideBar'
 import { ChatLoader } from 'components/loaders/ChatBubbleLoader'
 
@@ -44,9 +44,6 @@ export default function ChatView() {
 
   const saveRecipe = useSaveRecipe(state.chatId)
 
-  useEffect(() => {
-    console.log('messages', messages)
-  }, [messages])
   return (
     <>
       <MyHead title='Listy - Chat' />
@@ -168,8 +165,6 @@ function Message({
   saveRecipe: SaveRecipe
   isSendingMessage: boolean
 }) {
-  console.log('message', message)
-
   const { handleGoToRecipe, handleSaveRecipe, status } = saveRecipe
 
   let recipeName = ''
@@ -231,7 +226,7 @@ function Message({
 
   return (
     <div className='flex flex-col items-start bg-base-200 p-4'>
-      <div className='bg-primary-base-100 flex justify-end gap-2'>
+      <div className='bg-primary-base-100 flex gap-2 self-end'>
         <div className='flex flex-col items-end'>
           <p className='mb-0 mt-0 whitespace-pre-line'>
             {message?.content || ''}
