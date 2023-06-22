@@ -13,8 +13,18 @@ import {
   useState
 } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
 import { z } from 'zod'
+
+export type FormValues = {
+  name: string
+  ingredients: string
+  instructions: string
+  description: string
+  prepTime: string
+  cookTime: string
+}
 
 function useGetChat(
   enabled: boolean,
@@ -184,9 +194,6 @@ type ChatState = {
 
 function useChatReducer(initialState: ChatState) {
   const [state, dispatch] = useReducer(chatReducer, initialState)
-  useEffect(() => {
-    console.log('state.chatId', state.chatId)
-  }, [state?.chatId])
 
   return [state, dispatch] as const
 }
@@ -312,6 +319,8 @@ export const useSaveRecipe = (chatId?: number) => {
       if (chatId) {
         utils.chat.getMessagesByChatId.invalidate({ chatId })
       }
+
+      toast.success('Recipe saved successfully!')
     }
   })
 

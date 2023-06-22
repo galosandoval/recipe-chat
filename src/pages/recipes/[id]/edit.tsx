@@ -9,7 +9,7 @@ import { MyHead } from 'components/Head'
 import { useForm } from 'react-hook-form'
 import { Button } from 'components/Button'
 import { UpdateRecipe } from 'server/api/routers/recipe/interface'
-import { FormValues } from 'pages/chat'
+import { FormValues } from 'hooks/chatHooks'
 
 export default function EditByIdView() {
   const router = useRouter()
