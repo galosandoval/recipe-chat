@@ -3,12 +3,15 @@ import { hash } from 'bcryptjs'
 import { z } from 'zod'
 import { createTRPCRouter, publicProcedure } from '../trpc'
 
+export const minChars = 6
+export const maxChars = 20
+
 export const authSchema = z.object({
   email: z.string().email(),
   password: z
     .string()
-    .min(6, 'Needs at least 6 characters')
-    .max(20, 'Needs at most 20 characters')
+    .min(minChars, `Needs at least ${minChars} characters`)
+    .max(maxChars, `Needs at most ${maxChars} characters`)
 })
 
 export type AuthSchemaType = z.infer<typeof authSchema>

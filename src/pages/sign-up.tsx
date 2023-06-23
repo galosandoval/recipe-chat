@@ -9,18 +9,19 @@ import { ErrorMessage } from 'components/ErrorMessageContent'
 import Link from 'next/link'
 import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router'
+import { maxChars, minChars } from 'server/api/routers/authRouter'
 
 export const signUpSchema = z
   .object({
     email: z.string().email(),
     password: z
       .string()
-      .min(6, 'Needs at least 6 characters')
-      .max(14, 'Needs at most 14 characters'),
+      .min(minChars, `Needs at least ${minChars} characters`)
+      .max(maxChars, `Needs at most ${maxChars} characters`),
     confirm: z
       .string()
       .min(6, 'Needs at least 6 characters')
-      .max(14, 'Needs at most 14 characters')
+      .max(20, 'Needs at most 20 characters')
   })
   .refine((data) => data.confirm === data.password, {
     message: "Passwords don't match",
