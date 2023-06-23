@@ -133,8 +133,9 @@ function Card({ data }: { data: Recipe }) {
           <Image
             src={data.imgUrl}
             alt='recipe'
-            className='image-full'
-            priority
+            width={260}
+            height={260}
+
           />
         ) : (
           <div className='bg-primary-content'>
