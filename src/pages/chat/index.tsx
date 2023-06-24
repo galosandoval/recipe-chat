@@ -1,43 +1,43 @@
-import { Message as PrismaMessage } from '@prisma/client'
-import { AuthModal } from 'components/AuthModal'
+import { Chat, Message as PrismaMessage } from '@prisma/client'
+import { QueryStatus } from '@tanstack/react-query'
 import { Button } from 'components/Button'
 import { MyHead } from 'components/Head'
 import {
   BookmarkOutlineIcon,
+  BookmarkSolidIcon,
   ChatBubbleLeftIcon,
   PlusIcon,
   UserCircleIcon
 } from 'components/Icons'
 import { ValueProps } from 'components/ValueProps'
-import {
-  ChangeEventHandler,
-  FormEvent,
-  MouseEvent,
-  useEffect,
-  useReducer,
-  useRef,
-  useState
-} from 'react'
+import { ChatsType, SaveRecipe, useChat, useSaveRecipe } from 'hooks/chatHooks'
+import { ChangeEventHandler, FormEvent } from 'react'
+import { ChatsSideBarButton } from 'components/ChatsSideBar'
 import { ChatLoader } from 'components/loaders/ChatBubbleLoader'
-import { toast } from 'react-hot-toast'
-import { infoToastOptions } from 'components/Toast'
-import { useChat as useAiChat } from 'ai/react'
-import { useRecipeFilters } from 'components/RecipeFilters'
+import { RecipeFiltersType } from 'components/RecipeFilters'
 
 export default function ChatView() {
   const {
     chatRef,
     recipeFilters,
+    state,
+    status: messageListStatus,
+    chats,
+    isChatsModalOpen,
     input,
     messages,
     isSendingMessage,
 
     handleInputChange,
+    handleToggleChatsModal,
     handleSubmit,
     handleFillMessage,
     handleScrollIntoView,
+    handleChangeChat,
     handleStartNewChat
   } = useChat()
+
+  const saveRecipe = useSaveRecipe(state.chatId)
 
   return (
     <>
@@ -50,9 +50,17 @@ export default function ChatView() {
                 <ValueProps handleFillMessage={handleFillMessage} />
               ) : (
                 <MessageList
+                  saveRecipe={saveRecipe}
+                  recipeFilters={recipeFilters}
                   data={messages as []}
+                  chatId={state.chatId}
+                  chats={chats}
+                  status={messageListStatus}
+                  isChatsModalOpen={isChatsModalOpen}
                   isSendingMessage={isSendingMessage}
+                  handleChangeChat={handleChangeChat}
                   handleStartNewChat={handleStartNewChat}
+                  handleToggleChatsModal={handleToggleChatsModal}
                 />
               )}
               <div ref={chatRef}></div>
@@ -73,20 +81,52 @@ export default function ChatView() {
 
 type MessageListProps = {
   data: PrismaMessage[]
+  status: QueryStatus
+  chats: ChatsType
+  chatId?: number
+  isChatsModalOpen: boolean
+  recipeFilters: RecipeFiltersType
   isSendingMessage: boolean
+  saveRecipe: SaveRecipe
 
+  handleChangeChat: (
+    chat: Chat & {
+      messages: PrismaMessage[]
+    }
+  ) => void
   handleStartNewChat: () => void
+  handleToggleChatsModal: () => void
 }
 
 function MessageList({
   data,
+  status,
+  chats,
+  chatId,
+  recipeFilters,
+  isChatsModalOpen,
   isSendingMessage,
-  handleStartNewChat
+  saveRecipe,
+  handleChangeChat,
+  handleStartNewChat,
+  handleToggleChatsModal
 }: MessageListProps) {
+  if (status === 'error') {
+    return <p>Error</p>
+  }
+
   return (
     <div>
       <div className='mt-2 grid grid-cols-3 px-2'>
-        <div></div>
+        <ChatsSideBarButton
+          chatId={chatId}
+          chats={chats}
+          isChatsModalOpen={isChatsModalOpen}
+          recipeFilters={recipeFilters}
+          handleChangeChat={handleChangeChat}
+          handleToggleChatsModal={handleToggleChatsModal}
+        />
+
         <div className='flex items-center justify-center gap-2'>
           <h2 className='mb-2 mt-2'>Chat</h2>
           <ChatBubbleLeftIcon />
@@ -102,6 +142,7 @@ function MessageList({
         <Message
           message={m}
           key={m?.content || '' + i}
+          saveRecipe={saveRecipe}
           isSendingMessage={isSendingMessage}
         />
       ))}
@@ -112,41 +153,69 @@ function MessageList({
 
 function Message({
   message,
+  saveRecipe,
   isSendingMessage
 }: {
   message: PrismaMessage
+  saveRecipe: SaveRecipe
   isSendingMessage: boolean
 }) {
-  const { handleCloseModal, handleOpenModal, isAuthModalOpen } = useAuthModal()
+  const { handleGoToRecipe, handleSaveRecipe, status } = saveRecipe
+
+  let recipeName = ''
+  const nameIdx = message.content.toLowerCase().indexOf('name:')
+  if (nameIdx !== -1) {
+    const endIdx = message.content.indexOf('\n', nameIdx)
+    if (endIdx !== -1) {
+      recipeName = message.content.slice(nameIdx + 6, endIdx)
+    }
+  }
 
   if (message.role === 'assistant') {
     return (
-      <>
-        <div className='flex flex-col bg-primary-content p-4'>
-          <div className='flex justify-start gap-2'>
-            <div>
-              <UserCircleIcon />
-            </div>
-
-            <div className='flex flex-col'>
-              <p className='mb-0 mt-0 whitespace-pre-line'>
-                {message.content || ''}
-              </p>
-            </div>
+      <div className='flex flex-col bg-primary-content p-4'>
+        <div className='flex justify-start gap-2'>
+          <div>
+            <UserCircleIcon />
           </div>
-          <div className='grid w-full grid-flow-col place-items-end gap-2'>
-            {isSendingMessage ? null : (
-              <Button
-                className='btn-ghost btn-circle btn'
-                onClick={handleOpenModal}
-              >
-                <BookmarkOutlineIcon />
-              </Button>
-            )}
+
+          <div className='flex flex-col'>
+            <p className='mb-0 mt-0 whitespace-pre-line'>
+              {message.content || ''}
+            </p>
           </div>
         </div>
-        <AuthModal closeModal={handleCloseModal} isOpen={isAuthModalOpen} />
-      </>
+        <div className='grid w-full grid-flow-col place-items-end gap-2'>
+          {message?.recipeId ? (
+            // Go to recipe
+            <Button
+              className='btn-ghost btn-circle btn text-success'
+              onClick={() =>
+                handleGoToRecipe({
+                  recipeId: message.recipeId,
+                  recipeName: recipeName
+                })
+              }
+            >
+              <BookmarkSolidIcon />
+            </Button>
+          ) : !isSendingMessage ? (
+            // Save
+            <Button
+              className='btn-ghost btn-circle btn'
+              isLoading={status === 'loading'}
+              onClick={() =>
+                handleSaveRecipe({
+                  content: message.content || '',
+                  messageId: Number(message.id)
+                })
+              }
+            >
+              <BookmarkOutlineIcon />
+            </Button>
+          ) : null}
+        </div>
+      </div>
     )
   }
 
@@ -164,25 +233,6 @@ function Message({
       </div>
     </div>
   )
-}
-
-function useAuthModal() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-
-  const handleOpenModal = () => {
-    setIsAuthModalOpen(true)
-    toast('Create an account or login to save recipes', infoToastOptions)
-  }
-
-  const handleCloseModal = () => {
-    setIsAuthModalOpen(false)
-  }
-
-  return {
-    isAuthModalOpen,
-    handleOpenModal,
-    handleCloseModal
-  }
 }
 
 function SubmitMessageForm({
@@ -255,126 +305,4 @@ function SubmitMessageForm({
       </div>
     </form>
   )
-}
-
-const useChat = () => {
-  const [state, dispatch] = useChatReducer({
-    chatId: undefined
-  })
-
-  const {
-    messages,
-    input,
-    setInput,
-    handleInputChange,
-    stop,
-    handleSubmit: submitMessages,
-    isLoading: isSendingMessage,
-    setMessages
-  } = useAiChat()
-
-  useEffect(() => {
-    if (state.chatId) {
-      localStorage.currentChatId = JSON.stringify(state.chatId)
-    }
-  }, [state.chatId])
-
-  useEffect(() => {
-    if (
-      typeof window !== undefined &&
-      typeof localStorage.currentChatId === 'string'
-    ) {
-      dispatch({
-        type: 'chatIdChanged',
-        payload: JSON.parse(localStorage.currentChatId) as number
-      })
-    }
-  }, [dispatch])
-
-  const chatRef = useRef<HTMLDivElement>(null)
-
-  const handleScrollIntoView = () => {
-    chatRef.current?.scrollIntoView({ behavior: 'auto' })
-  }
-
-  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
-
-  const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
-    setInput(e.currentTarget.innerText.toLowerCase())
-  }
-
-  const handleStartNewChat = () => {
-    setMessages([])
-    dispatch({ type: 'chatIdChanged', payload: undefined })
-  }
-
-  const handleToggleChatsModal = () => {
-    setIsChatsModalOpen((state) => !state)
-  }
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    if (isSendingMessage) {
-      stop()
-    } else {
-      console.log('event', event.currentTarget)
-      submitMessages(event)
-    }
-  }
-  const recipeFilters = useRecipeFilters()
-
-  return {
-    chatRef,
-    recipeFilters,
-    state,
-    isChatsModalOpen,
-    input,
-    messages,
-    isSendingMessage,
-
-    handleInputChange,
-    handleToggleChatsModal,
-    handleStartNewChat,
-    handleScrollIntoView,
-    handleFillMessage,
-    handleSubmit
-  }
-}
-
-type ChatState = {
-  chatId?: number
-}
-
-function useChatReducer(initialState: ChatState) {
-  const [state, dispatch] = useReducer(chatReducer, initialState)
-
-  return [state, dispatch] as const
-}
-
-type ChatAction =
-  | {
-      type: 'chatIdChanged'
-      payload: number | undefined
-    }
-  | {
-      type: 'reset'
-      payload: undefined
-    }
-
-function chatReducer(state: ChatState, action: ChatAction): ChatState {
-  const { type, payload } = action
-  switch (type) {
-    case 'chatIdChanged':
-      return {
-        ...state,
-        chatId: payload
-      }
-
-    case 'reset':
-      return {
-        chatId: undefined
-      }
-
-    default:
-      return state
-  }
 }

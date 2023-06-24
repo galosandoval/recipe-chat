@@ -61,6 +61,7 @@ export function Toast() {
 }
 
 export const infoToastOptions = {
+  duration: 6000,
   style: {
     '--tw-bg-opacity': 1,
     backgroundColor: 'hsl(var(--in))',

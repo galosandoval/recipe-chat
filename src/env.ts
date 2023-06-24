@@ -3,7 +3,7 @@ import { z } from 'zod'
 const envVariables = z.object({
   DATABASE_URL: z.string(),
   NODE_ENV: z.string(),
-  NEXT_PUBLIC_NEXTAUTH_SECRET: z.string(),
+  NEXTAUTH_SECRET: z.string(),
   OPENAI_API_KEY: z.string(),
   PORT: z.string()
 })

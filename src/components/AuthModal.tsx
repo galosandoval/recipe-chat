@@ -12,9 +12,12 @@ import { useState } from 'react'
 
 export function AuthModal({
   isOpen,
+  // TODO: use content to save recipe after logging in or signing up
+  content,
   closeModal
 }: {
   isOpen: boolean
+  content?: string
   closeModal: () => void
 }) {
   let toRender: React.ReactNode = null
@@ -114,7 +117,7 @@ function SignUp() {
     <div className='prose mx-auto flex h-full flex-col items-center justify-center pt-5'>
       <h1 className='px-5'>Sign up</h1>
 
-      <form className='' onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className='form-control'>
           <label htmlFor='email' className='label pb-1 pt-0'>
             <span className='label-text'>Email</span>

@@ -1,8 +1,7 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Chat, Message } from '@prisma/client'
 import { Message as AiMessage } from 'ai'
 import { useChat as useAiChat } from 'ai/react'
-import { infoToastOptions } from 'components/Toast'
+import { useRecipeFilters } from 'components/RecipeFilters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import {
@@ -13,7 +12,6 @@ import {
   useRef,
   useState
 } from 'react'
-import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
 import { z } from 'zod'
@@ -230,92 +228,12 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
 
 export const errorMessage = 'Please try rephrasing your question.'
 
-type CreateFilter = z.infer<typeof createFilterSchema>
-type Filters = Record<string, boolean>
-
-const createFilterSchema = z.object({
-  name: z.string().min(3).max(50)
-})
-
-function useRecipeFilters() {
-  const [filters, setFilters] = useState<Filters>(
-    typeof window !== 'undefined' &&
-      typeof localStorage.checkedFilters === 'string'
-      ? (JSON.parse(localStorage.checkedFilters) as Filters)
-      : {}
-  )
-  const [canDelete, setCanDelete] = useState(false)
-
-  const filtersArr = Object.keys(filters)
-
-  const checkedFilters: string[] = []
-  for (const [filter, checked] of Object.entries(filters)) {
-    if (checked) {
-      checkedFilters.push(filter)
-    }
-  }
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isDirty, isValid }
-  } = useForm<CreateFilter>({
-    resolver: zodResolver(createFilterSchema)
-  })
-
-  const handleToggleCanDelete = () => {
-    setCanDelete((prev) => !prev)
-  }
-
-  const handleCheck = (filter: string) => {
-    setFilters((prev) => ({ ...prev, [filter]: !prev[filter] }))
-  }
-
-  const handleRemoveFilter = (filter: string) => {
-    setFilters((prev) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [filter]: _, ...rest } = prev
-      return rest
-    })
-  }
-
-  const onSubmit = (data: CreateFilter) => {
-    setCanDelete(false)
-
-    setFilters((prev) => ({ ...prev, [data.name]: true }))
-
-    reset()
-  }
-
-  useEffect(() => {
-    localStorage.checkedFilters = JSON.stringify(filters)
-  }, [filters])
-
-  return {
-    filters,
-    filtersArr,
-    handleCheck,
-    handleSubmit,
-    onSubmit,
-    register,
-    canDelete,
-    handleToggleCanDelete,
-    handleRemoveFilter,
-    isBtnDisabled: !isDirty || !isValid,
-    checkedFilters
-  }
-}
-
-export type UseRecipeFilters = ReturnType<typeof useRecipeFilters>
-
 const sendMessageFormSchema = z.object({ message: z.string().min(6) })
 export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
 export type SaveRecipe = ReturnType<typeof useSaveRecipe>
 
 export const useSaveRecipe = (chatId?: number) => {
-  const session = useSession()
   const utils = api.useContext()
   const { mutate, status, data } = api.recipe.create.useMutation({
     onSuccess: () => {
@@ -330,17 +248,6 @@ export const useSaveRecipe = (chatId?: number) => {
       toast.error('Error: ' + error.message)
     }
   })
-
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-
-  const handleOpenModal = () => {
-    setIsAuthModalOpen(true)
-    toast('Please create an account or login to save recipes', infoToastOptions)
-  }
-
-  const handleCloseModal = () => {
-    setIsAuthModalOpen(false)
-  }
 
   const router = useRouter()
 
@@ -387,10 +294,7 @@ export const useSaveRecipe = (chatId?: number) => {
   return {
     status,
     data,
-    isAuthModalOpen,
-    isAuthenticated: !!session?.data,
-    handleOpenModal,
-    handleCloseModal,
+
     handleSaveRecipe,
     handleGoToRecipe
   }
