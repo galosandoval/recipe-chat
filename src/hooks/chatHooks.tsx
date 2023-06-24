@@ -1,7 +1,7 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Chat, Message } from '@prisma/client'
 import { Message as AiMessage } from 'ai'
 import { useChat as useAiChat } from 'ai/react'
+import { useRecipeFilters } from 'components/RecipeFilters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import {
@@ -12,7 +12,6 @@ import {
   useRef,
   useState
 } from 'react'
-import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
 import { z } from 'zod'
@@ -48,10 +47,9 @@ function useGetChat(
 }
 
 export const useChat = () => {
-  const utils = api.useContext()
-  utils.recipe.entity.prefetch()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
+  const utils = api.useContext()
 
   const { mutate } = api.chat.addMessages.useMutation({
     onSuccess(data, { chatId }) {
@@ -105,7 +103,8 @@ export const useChat = () => {
         dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
       }
     },
-    staleTime: 0
+    staleTime: 0,
+    enabled: isAuthenticated
   })
 
   useEffect(() => {
@@ -229,87 +228,10 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
 
 export const errorMessage = 'Please try rephrasing your question.'
 
-type CreateFilter = z.infer<typeof createFilterSchema>
-type Filters = Record<string, boolean>
-
-const createFilterSchema = z.object({
-  name: z.string().min(3).max(50)
-})
-
-function useRecipeFilters() {
-  const [filters, setFilters] = useState<Filters>(
-    typeof window !== 'undefined' &&
-      typeof localStorage.checkedFilters === 'string'
-      ? (JSON.parse(localStorage.checkedFilters) as Filters)
-      : {}
-  )
-  const [canDelete, setCanDelete] = useState(false)
-
-  const filtersArr = Object.keys(filters)
-
-  const checkedFilters: string[] = []
-  for (const [filter, checked] of Object.entries(filters)) {
-    if (checked) {
-      checkedFilters.push(filter)
-    }
-  }
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isDirty, isValid }
-  } = useForm<CreateFilter>({
-    resolver: zodResolver(createFilterSchema)
-  })
-
-  const handleToggleCanDelete = () => {
-    setCanDelete((prev) => !prev)
-  }
-
-  const handleCheck = (filter: string) => {
-    setFilters((prev) => ({ ...prev, [filter]: !prev[filter] }))
-  }
-
-  const handleRemoveFilter = (filter: string) => {
-    setFilters((prev) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [filter]: _, ...rest } = prev
-      return rest
-    })
-  }
-
-  const onSubmit = (data: CreateFilter) => {
-    setCanDelete(false)
-
-    setFilters((prev) => ({ ...prev, [data.name]: true }))
-
-    reset()
-  }
-
-  useEffect(() => {
-    localStorage.checkedFilters = JSON.stringify(filters)
-  }, [filters])
-
-  return {
-    filters,
-    filtersArr,
-    handleCheck,
-    handleSubmit,
-    onSubmit,
-    register,
-    canDelete,
-    handleToggleCanDelete,
-    handleRemoveFilter,
-    isBtnDisabled: !isDirty || !isValid,
-    checkedFilters
-  }
-}
-
-export type UseRecipeFilters = ReturnType<typeof useRecipeFilters>
-
 const sendMessageFormSchema = z.object({ message: z.string().min(6) })
 export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
+
+export type SaveRecipe = ReturnType<typeof useSaveRecipe>
 
 export const useSaveRecipe = (chatId?: number) => {
   const utils = api.useContext()
@@ -321,6 +243,9 @@ export const useSaveRecipe = (chatId?: number) => {
       }
 
       toast.success('Recipe saved successfully!')
+    },
+    onError: (error) => {
+      toast.error('Error: ' + error.message)
     }
   })
 
@@ -347,60 +272,8 @@ export const useSaveRecipe = (chatId?: number) => {
   }) => {
     if (!content) return
 
-    let name = ''
-    const nameIdx = content.toLowerCase().indexOf('name:')
-    if (nameIdx !== -1) {
-      const endIdx = content.indexOf('\n', nameIdx)
-      if (endIdx !== -1) {
-        name = content.slice(nameIdx + 6, endIdx)
-      }
-    }
-
-    let description = ''
-    const descriptionIdx = content
-      .toLowerCase()
-      .indexOf('description:', nameIdx)
-    if (descriptionIdx !== -1) {
-      const endIdx = content.indexOf('\n', descriptionIdx)
-      if (endIdx !== -1) {
-        description = content.slice(descriptionIdx + 13, endIdx)
-      }
-    }
-
-    let prepTime = ''
-    const prepTimeIdx = content.toLowerCase().indexOf('preparation time:')
-    if (prepTimeIdx !== -1) {
-      const endIdx = content.indexOf('\n', prepTimeIdx)
-      if (endIdx !== -1) {
-        prepTime = content.slice(prepTimeIdx + 18, endIdx)
-      }
-    }
-
-    let cookTime = ''
-    const cookTimeIdx = content.toLowerCase().indexOf('cook time:')
-    if (cookTimeIdx !== -1) {
-      const endIdx = content.indexOf('\n', cookTimeIdx)
-      if (endIdx !== -1) {
-        cookTime = content.slice(cookTimeIdx + 11, endIdx)
-      }
-    }
-
-    let instructions = ''
-    const instructionsIdx = content.toLowerCase().indexOf('instructions:')
-    if (instructionsIdx !== -1) {
-      const endIdx = content.indexOf('\n\n', instructionsIdx)
-      if (endIdx !== -1) {
-        instructions = content.slice(instructionsIdx + 14, endIdx)
-      }
-    }
-
-    let ingredients = ''
-    const ingredientsIdx = content.toLowerCase().indexOf('ingredients:')
-    if (ingredientsIdx !== -1) {
-      if (instructionsIdx !== -1) {
-        ingredients = content.slice(ingredientsIdx + 13, instructionsIdx - 2)
-      }
-    }
+    const { name, description, cookTime, prepTime, ingredients, instructions } =
+      transformContentToRecipe(content)
 
     mutate({
       name,
@@ -421,12 +294,68 @@ export const useSaveRecipe = (chatId?: number) => {
   return {
     status,
     data,
+
     handleSaveRecipe,
     handleGoToRecipe
   }
 }
 
-export type SaveRecipe = ReturnType<typeof useSaveRecipe>
+function transformContentToRecipe(content: string) {
+  let name = ''
+  const nameIdx = content.toLowerCase().indexOf('name:')
+  if (nameIdx !== -1) {
+    const endIdx = content.indexOf('\n', nameIdx)
+    if (endIdx !== -1) {
+      name = content.slice(nameIdx + 6, endIdx)
+    }
+  }
+
+  let description = ''
+  const descriptionIdx = content.toLowerCase().indexOf('description:', nameIdx)
+  if (descriptionIdx !== -1) {
+    const endIdx = content.indexOf('\n', descriptionIdx)
+    if (endIdx !== -1) {
+      description = content.slice(descriptionIdx + 13, endIdx)
+    }
+  }
+
+  let prepTime = ''
+  const prepTimeIdx = content.toLowerCase().indexOf('preparation time:')
+  if (prepTimeIdx !== -1) {
+    const endIdx = content.indexOf('\n', prepTimeIdx)
+    if (endIdx !== -1) {
+      prepTime = content.slice(prepTimeIdx + 18, endIdx)
+    }
+  }
+
+  let cookTime = ''
+  const cookTimeIdx = content.toLowerCase().indexOf('cook time:')
+  if (cookTimeIdx !== -1) {
+    const endIdx = content.indexOf('\n', cookTimeIdx)
+    if (endIdx !== -1) {
+      cookTime = content.slice(cookTimeIdx + 11, endIdx)
+    }
+  }
+
+  let instructions = ''
+  const instructionsIdx = content.toLowerCase().indexOf('instructions:')
+  if (instructionsIdx !== -1) {
+    const endIdx = content.indexOf('\n\n', instructionsIdx)
+    if (endIdx !== -1) {
+      instructions = content.slice(instructionsIdx + 14, endIdx)
+    }
+  }
+
+  let ingredients = ''
+  const ingredientsIdx = content.toLowerCase().indexOf('ingredients:')
+  if (ingredientsIdx !== -1) {
+    if (instructionsIdx !== -1) {
+      ingredients = content.slice(ingredientsIdx + 13, instructionsIdx - 2)
+    }
+  }
+
+  return { name, description, prepTime, cookTime, instructions, ingredients }
+}
 
 function removeLeadingHyphens(str: string) {
   if (str && str[0] === '-') {

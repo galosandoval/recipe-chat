@@ -90,37 +90,6 @@ export function ValueProps({
           </div>
         </div>
       </div>
-
-      <div className='flex w-full flex-1 flex-col items-center justify-center'>
-        <div className='flex items-center gap-2'>
-          <h2 className='mb-2 mt-2'>Limitations</h2>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth={1.5}
-            stroke='currentColor'
-            className='h-6 w-6'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'
-            />
-          </svg>
-        </div>
-        <div className='flex w-full flex-col items-center gap-4'>
-          <div className='mb-0 mt-0 grid h-12 w-full place-items-center rounded-lg border border-base-content px-5 text-center text-sm font-semibold normal-case text-base-content'>
-            Generated recipes take at most 10 seconds to load
-          </div>
-          <div className='mb-0 mt-0 grid h-12 w-full place-items-center rounded-lg border border-base-content px-5 text-center text-sm font-semibold normal-case text-base-content'>
-            Responses are limited to recipes for food or drinks
-          </div>
-          <div className='mb-0 mt-0 grid h-12 w-full place-items-center rounded-lg border border-base-content px-5 text-center text-sm font-semibold normal-case text-base-content'>
-            Users might have to rephrase a question to get a response
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

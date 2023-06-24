@@ -10,16 +10,11 @@ import {
   UserCircleIcon
 } from 'components/Icons'
 import { ValueProps } from 'components/ValueProps'
-import {
-  ChatsType,
-  SaveRecipe,
-  UseRecipeFilters,
-  useChat,
-  useSaveRecipe
-} from 'hooks/chatHooks'
+import { ChatsType, SaveRecipe, useChat, useSaveRecipe } from 'hooks/chatHooks'
 import { ChangeEventHandler, FormEvent } from 'react'
 import { ChatsSideBarButton } from 'components/ChatsSideBar'
 import { ChatLoader } from 'components/loaders/ChatBubbleLoader'
+import { RecipeFiltersType } from 'components/RecipeFilters'
 
 export default function ChatView() {
   const {
@@ -90,7 +85,7 @@ type MessageListProps = {
   chats: ChatsType
   chatId?: number
   isChatsModalOpen: boolean
-  recipeFilters: UseRecipeFilters
+  recipeFilters: RecipeFiltersType
   isSendingMessage: boolean
   saveRecipe: SaveRecipe
 
