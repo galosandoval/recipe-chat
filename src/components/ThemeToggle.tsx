@@ -51,14 +51,8 @@ export function ThemeToggle() {
   }, [])
 
   return (
-    <div className='relative text-base-content'>
-      <button
-        onClick={handleToggleTheme}
-        className='btn-ghost no-animation btn w-[8rem]'
-      >
-        <span>Theme</span>
-        {theme === 'night' ? <SunIcon /> : <MoonIcon />}
-      </button>
-    </div>
+    <button onClick={handleToggleTheme} className='btn-ghost btn'>
+      {theme === 'night' ? <SunIcon /> : <MoonIcon />}
+    </button>
   )
 }

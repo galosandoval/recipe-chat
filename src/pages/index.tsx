@@ -1,88 +1,343 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn } from 'next-auth/react'
-import { z } from 'zod'
-import Link from 'next/link'
+import { Chat, Message as PrismaMessage } from '@prisma/client'
+import { QueryStatus } from '@tanstack/react-query'
 import { Button } from 'components/Button'
 import { MyHead } from 'components/Head'
-import { useRouter } from 'next/router'
-import { toast } from 'react-hot-toast'
+import {
+  BookmarkOutlineIcon,
+  BookmarkSolidIcon,
+  ChatBubbleLeftIcon,
+  PlusIcon,
+  UserCircleIcon
+} from 'components/Icons'
+import { ValueProps } from 'components/ValueProps'
+import {
+  ChatsType,
+  SaveRecipe,
+  UseRecipeFilters,
+  useChat,
+  useSaveRecipe
+} from 'hooks/chatHooks'
+import { ChangeEventHandler, FormEvent } from 'react'
+import { ChatsSideBarButton } from 'components/ChatsSideBar'
+import { ChatLoader } from 'components/loaders/ChatBubbleLoader'
+import { AuthModal } from 'components/AuthModal'
 
-export const authSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(4).max(14)
-})
-
-type AuthSchemaType = z.infer<typeof authSchema>
-
-export default function LandingView() {
-  const router = useRouter()
+export default function ChatView() {
   const {
-    register,
+    chatRef,
+    recipeFilters,
+    state,
+    status: messageListStatus,
+    chats,
+    isChatsModalOpen,
+    input,
+    messages,
+    isSendingMessage,
+
+    handleInputChange,
+    handleToggleChatsModal,
     handleSubmit,
-    setError,
-    formState: { errors }
-  } = useForm<AuthSchemaType>({
-    resolver: zodResolver(authSchema)
-  })
+    handleFillMessage,
+    handleScrollIntoView,
+    handleChangeChat,
+    handleStartNewChat
+  } = useChat()
 
-  const onSubmit = async (data: AuthSchemaType) => {
-    const response = await signIn('credentials', { redirect: false, ...data })
-    if (response?.ok) {
-      router.push('/chat')
+  const saveRecipe = useSaveRecipe(state.chatId)
+
+  return (
+    <>
+      <MyHead title='Listy - Chat' />
+      <div>
+        <div>
+          <div className='prose flex flex-col pb-12'>
+            <div className='relative flex flex-col gap-4'>
+              {messages.length === 0 ? (
+                <ValueProps handleFillMessage={handleFillMessage} />
+              ) : (
+                <MessageList
+                  saveRecipe={saveRecipe}
+                  recipeFilters={recipeFilters}
+                  data={messages as []}
+                  chatId={state.chatId}
+                  chats={chats}
+                  status={messageListStatus}
+                  isChatsModalOpen={isChatsModalOpen}
+                  isSendingMessage={isSendingMessage}
+                  handleChangeChat={handleChangeChat}
+                  handleStartNewChat={handleStartNewChat}
+                  handleToggleChatsModal={handleToggleChatsModal}
+                />
+              )}
+              <div ref={chatRef}></div>
+            </div>
+            <SubmitMessageForm
+              input={input}
+              isSendingMessage={isSendingMessage}
+              handleScrollIntoView={handleScrollIntoView}
+              handleSubmit={handleSubmit}
+              handleInputChange={handleInputChange}
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+type MessageListProps = {
+  data: PrismaMessage[]
+  status: QueryStatus
+  chats: ChatsType
+  chatId?: number
+  isChatsModalOpen: boolean
+  recipeFilters: UseRecipeFilters
+  isSendingMessage: boolean
+  saveRecipe: SaveRecipe
+
+  handleChangeChat: (
+    chat: Chat & {
+      messages: PrismaMessage[]
     }
+  ) => void
+  handleStartNewChat: () => void
+  handleToggleChatsModal: () => void
+}
 
-    if (response?.status === 401) {
-      toast.error('Invalid credentials')
+function MessageList({
+  data,
+  status,
+  chats,
+  chatId,
+  recipeFilters,
+  isChatsModalOpen,
+  isSendingMessage,
+  saveRecipe,
+  handleChangeChat,
+  handleStartNewChat,
+  handleToggleChatsModal
+}: MessageListProps) {
+  if (status === 'error') {
+    return <p>Error</p>
+  }
 
-      setError('email', { message: 'Invalid credentials' })
-      setError('password', { message: 'Invalid credentials' })
+  return (
+    <div>
+      <div className='mt-2 grid grid-cols-3 px-2'>
+        <ChatsSideBarButton
+          chatId={chatId}
+          chats={chats}
+          isChatsModalOpen={isChatsModalOpen}
+          recipeFilters={recipeFilters}
+          handleChangeChat={handleChangeChat}
+          handleToggleChatsModal={handleToggleChatsModal}
+        />
+
+        <div className='flex items-center justify-center gap-2'>
+          <h2 className='mb-2 mt-2'>Chat</h2>
+          <ChatBubbleLeftIcon />
+        </div>
+        <button
+          onClick={handleStartNewChat}
+          className='btn-ghost btn-circle btn justify-self-end'
+        >
+          <PlusIcon />
+        </button>
+      </div>
+      {data.map((m, i) => (
+        <Message
+          message={m}
+          key={m?.content || '' + i}
+          saveRecipe={saveRecipe}
+          isSendingMessage={isSendingMessage}
+        />
+      ))}
+      {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
+    </div>
+  )
+}
+
+function Message({
+  message,
+  saveRecipe,
+  isSendingMessage
+}: {
+  message: PrismaMessage
+  saveRecipe: SaveRecipe
+  isSendingMessage: boolean
+}) {
+  const {
+    handleGoToRecipe,
+    handleSaveRecipe,
+    handleCloseModal,
+    isAuthenticated,
+    isAuthModalOpen,
+    handleOpenModal,
+    status
+  } = saveRecipe
+
+  let button: React.ReactNode = null
+
+  if (!isAuthenticated) {
+    button = (
+      <Button
+        className='btn-ghost btn-circle btn'
+        isLoading={status === 'loading'}
+        onClick={handleOpenModal}
+      >
+        <BookmarkOutlineIcon />
+      </Button>
+    )
+  } else if (message?.recipeId) {
+    // Go to recipe
+    button = (
+      <Button
+        className='btn-ghost btn-circle btn text-success'
+        onClick={() =>
+          handleGoToRecipe({
+            recipeId: message.recipeId,
+            recipeName: recipeName
+          })
+        }
+      >
+        <BookmarkSolidIcon />
+      </Button>
+    )
+  } else if (!isSendingMessage) {
+    button = (
+      // Save
+      <Button
+        className='btn-ghost btn-circle btn'
+        isLoading={status === 'loading'}
+        onClick={() =>
+          handleSaveRecipe({
+            content: message.content || '',
+            messageId: Number(message.id)
+          })
+        }
+      >
+        <BookmarkOutlineIcon />
+      </Button>
+    )
+  }
+
+  let recipeName = ''
+  const nameIdx = message.content.toLowerCase().indexOf('name:')
+  if (nameIdx !== -1) {
+    const endIdx = message.content.indexOf('\n', nameIdx)
+    if (endIdx !== -1) {
+      recipeName = message.content.slice(nameIdx + 6, endIdx)
     }
+  }
+
+  if (message.role === 'assistant') {
+    return (
+      <div className='flex flex-col bg-primary-content p-4'>
+        <div className='flex justify-start gap-2'>
+          <div>
+            <UserCircleIcon />
+          </div>
+
+          <div className='flex flex-col'>
+            <p className='mb-0 mt-0 whitespace-pre-line'>
+              {message.content || ''}
+            </p>
+          </div>
+        </div>
+        <div className='grid w-full grid-flow-col place-items-end gap-2'>
+          {button}
+        </div>
+      </div>
+    )
   }
 
   return (
     <>
-      <MyHead title='Listy - Create recipes using AI | Powered by OpenAI | ChatGPT' />
-      <main className='h-screen'>
-        <div className='prose mx-auto flex h-full flex-col items-center justify-center'>
-          <h1 className='text-center'>Welcome to RecipeChat</h1>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className='form-control'>
-              <label htmlFor='email' className='label pb-1'>
-                <span className='label-text'>Email</span>
-              </label>
-              <input
-                id='email'
-                className={`input-bordered input ${
-                  errors.email ? 'input-error' : ''
-                }`}
-                {...register('email')}
-              />
-            </div>
-            <div className='form-control'>
-              <label htmlFor='password' className='label pb-1'>
-                <span className='label-text'>Password</span>
-              </label>
-              <input
-                id='password'
-                className={`input-bordered input ${
-                  errors.password ? 'input-error' : ''
-                }`}
-                type='password'
-                {...register('password')}
-              />
-            </div>
-            <div className='mt-4 flex w-full max-w-[200px] flex-col items-center gap-2'>
-              <Button type='submit' className='btn-primary btn w-3/4'>
-                Login
-              </Button>
-              <Link className='link' href='/sign-up'>
-                Sign up
-              </Link>
-            </div>
-          </form>
+      <div className='flex flex-col items-start bg-base-200 p-4'>
+        <div className='bg-primary-base-100 flex gap-2 self-end'>
+          <div className='flex flex-col items-end'>
+            <p className='mb-0 mt-0 whitespace-pre-line'>
+              {message?.content || ''}
+            </p>
+          </div>
+          <div>
+            <UserCircleIcon />
+          </div>
         </div>
-      </main>
+      </div>
+      <AuthModal closeModal={handleCloseModal} isOpen={isAuthModalOpen} />
     </>
+  )
+}
+
+function SubmitMessageForm({
+  handleScrollIntoView,
+  handleInputChange,
+  handleSubmit,
+  isSendingMessage,
+  input
+}: {
+  handleScrollIntoView: () => void
+  handleSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleInputChange: ChangeEventHandler<HTMLTextAreaElement>
+  input: string
+  isSendingMessage: boolean
+}) {
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className='fixed bottom-0 flex w-full items-center bg-base-100'
+    >
+      <div className='flex w-full px-2 py-1'>
+        <textarea
+          value={input}
+          onChange={handleInputChange}
+          placeholder='Ask about a recipe'
+          className='input-bordered input relative w-full resize-none pt-2'
+          onFocus={() => handleScrollIntoView()}
+        />
+      </div>
+      <div className='mr-1'>
+        <Button
+          type='submit'
+          // disabled={!isValid || !isDirty}
+          className={` btn ${isSendingMessage ? 'btn-error' : 'btn-accent'}`}
+        >
+          {isSendingMessage ? (
+            // stop icon
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='h-6 w-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z'
+              />
+            </svg>
+          ) : (
+            // plane icon
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='h-6 w-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5'
+              />
+            </svg>
+          )}
+        </Button>
+      </div>
+    </form>
   )
 }

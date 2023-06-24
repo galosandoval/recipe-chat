@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Chat, Message } from '@prisma/client'
 import { Message as AiMessage } from 'ai'
 import { useChat as useAiChat } from 'ai/react'
+import { infoToastOptions } from 'components/Toast'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import {
@@ -48,10 +49,9 @@ function useGetChat(
 }
 
 export const useChat = () => {
-  const utils = api.useContext()
-  utils.recipe.entity.prefetch()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
+  const utils = api.useContext()
 
   const { mutate } = api.chat.addMessages.useMutation({
     onSuccess(data, { chatId }) {
@@ -105,7 +105,8 @@ export const useChat = () => {
         dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
       }
     },
-    staleTime: 0
+    staleTime: 0,
+    enabled: isAuthenticated
   })
 
   useEffect(() => {
@@ -311,7 +312,10 @@ export type UseRecipeFilters = ReturnType<typeof useRecipeFilters>
 const sendMessageFormSchema = z.object({ message: z.string().min(6) })
 export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
+export type SaveRecipe = ReturnType<typeof useSaveRecipe>
+
 export const useSaveRecipe = (chatId?: number) => {
+  const session = useSession()
   const utils = api.useContext()
   const { mutate, status, data } = api.recipe.create.useMutation({
     onSuccess: () => {
@@ -321,8 +325,22 @@ export const useSaveRecipe = (chatId?: number) => {
       }
 
       toast.success('Recipe saved successfully!')
+    },
+    onError: (error) => {
+      toast.error('Error: ' + error.message)
     }
   })
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+
+  const handleOpenModal = () => {
+    setIsAuthModalOpen(true)
+    toast('Please create an account or login to save recipes', infoToastOptions)
+  }
+
+  const handleCloseModal = () => {
+    setIsAuthModalOpen(false)
+  }
 
   const router = useRouter()
 
@@ -347,60 +365,8 @@ export const useSaveRecipe = (chatId?: number) => {
   }) => {
     if (!content) return
 
-    let name = ''
-    const nameIdx = content.toLowerCase().indexOf('name:')
-    if (nameIdx !== -1) {
-      const endIdx = content.indexOf('\n', nameIdx)
-      if (endIdx !== -1) {
-        name = content.slice(nameIdx + 6, endIdx)
-      }
-    }
-
-    let description = ''
-    const descriptionIdx = content
-      .toLowerCase()
-      .indexOf('description:', nameIdx)
-    if (descriptionIdx !== -1) {
-      const endIdx = content.indexOf('\n', descriptionIdx)
-      if (endIdx !== -1) {
-        description = content.slice(descriptionIdx + 13, endIdx)
-      }
-    }
-
-    let prepTime = ''
-    const prepTimeIdx = content.toLowerCase().indexOf('preparation time:')
-    if (prepTimeIdx !== -1) {
-      const endIdx = content.indexOf('\n', prepTimeIdx)
-      if (endIdx !== -1) {
-        prepTime = content.slice(prepTimeIdx + 18, endIdx)
-      }
-    }
-
-    let cookTime = ''
-    const cookTimeIdx = content.toLowerCase().indexOf('cook time:')
-    if (cookTimeIdx !== -1) {
-      const endIdx = content.indexOf('\n', cookTimeIdx)
-      if (endIdx !== -1) {
-        cookTime = content.slice(cookTimeIdx + 11, endIdx)
-      }
-    }
-
-    let instructions = ''
-    const instructionsIdx = content.toLowerCase().indexOf('instructions:')
-    if (instructionsIdx !== -1) {
-      const endIdx = content.indexOf('\n\n', instructionsIdx)
-      if (endIdx !== -1) {
-        instructions = content.slice(instructionsIdx + 14, endIdx)
-      }
-    }
-
-    let ingredients = ''
-    const ingredientsIdx = content.toLowerCase().indexOf('ingredients:')
-    if (ingredientsIdx !== -1) {
-      if (instructionsIdx !== -1) {
-        ingredients = content.slice(ingredientsIdx + 13, instructionsIdx - 2)
-      }
-    }
+    const { name, description, cookTime, prepTime, ingredients, instructions } =
+      transformContentToRecipe(content)
 
     mutate({
       name,
@@ -421,12 +387,71 @@ export const useSaveRecipe = (chatId?: number) => {
   return {
     status,
     data,
+    isAuthModalOpen,
+    isAuthenticated: !!session?.data,
+    handleOpenModal,
+    handleCloseModal,
     handleSaveRecipe,
     handleGoToRecipe
   }
 }
 
-export type SaveRecipe = ReturnType<typeof useSaveRecipe>
+function transformContentToRecipe(content: string) {
+  let name = ''
+  const nameIdx = content.toLowerCase().indexOf('name:')
+  if (nameIdx !== -1) {
+    const endIdx = content.indexOf('\n', nameIdx)
+    if (endIdx !== -1) {
+      name = content.slice(nameIdx + 6, endIdx)
+    }
+  }
+
+  let description = ''
+  const descriptionIdx = content.toLowerCase().indexOf('description:', nameIdx)
+  if (descriptionIdx !== -1) {
+    const endIdx = content.indexOf('\n', descriptionIdx)
+    if (endIdx !== -1) {
+      description = content.slice(descriptionIdx + 13, endIdx)
+    }
+  }
+
+  let prepTime = ''
+  const prepTimeIdx = content.toLowerCase().indexOf('preparation time:')
+  if (prepTimeIdx !== -1) {
+    const endIdx = content.indexOf('\n', prepTimeIdx)
+    if (endIdx !== -1) {
+      prepTime = content.slice(prepTimeIdx + 18, endIdx)
+    }
+  }
+
+  let cookTime = ''
+  const cookTimeIdx = content.toLowerCase().indexOf('cook time:')
+  if (cookTimeIdx !== -1) {
+    const endIdx = content.indexOf('\n', cookTimeIdx)
+    if (endIdx !== -1) {
+      cookTime = content.slice(cookTimeIdx + 11, endIdx)
+    }
+  }
+
+  let instructions = ''
+  const instructionsIdx = content.toLowerCase().indexOf('instructions:')
+  if (instructionsIdx !== -1) {
+    const endIdx = content.indexOf('\n\n', instructionsIdx)
+    if (endIdx !== -1) {
+      instructions = content.slice(instructionsIdx + 14, endIdx)
+    }
+  }
+
+  let ingredients = ''
+  const ingredientsIdx = content.toLowerCase().indexOf('ingredients:')
+  if (ingredientsIdx !== -1) {
+    if (instructionsIdx !== -1) {
+      ingredients = content.slice(ingredientsIdx + 13, instructionsIdx - 2)
+    }
+  }
+
+  return { name, description, prepTime, cookTime, instructions, ingredients }
+}
 
 function removeLeadingHyphens(str: string) {
   if (str && str[0] === '-') {

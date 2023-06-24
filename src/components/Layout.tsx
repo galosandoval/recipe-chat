@@ -8,7 +8,9 @@ import {
   XIcon,
   ListBulletIcon
 } from './Icons'
-import { DropdownMenu } from './DropdownMenu'
+import { DropdownMenuWithTheme } from './DropdownMenu'
+import { ThemeToggle } from './ThemeToggle'
+import { AuthModal } from './AuthModal'
 
 export default function Layout({
   children,
@@ -17,23 +19,21 @@ export default function Layout({
   children: ReactNode
   font: string
 }) {
-  const { status } = useSession()
-
-  if (status === 'authenticated') {
-    return <RootLayout font={font}>{children}</RootLayout>
-  }
-  return <>{children}</>
+  return <RootLayout font={font}>{children}</RootLayout>
 }
 
 function RootLayout({ children, font }: { children: ReactNode; font: string }) {
   const router = useRouter()
+  const { data } = useSession()
 
   const [lastScrollY, setLastScrollY] = useState(0)
   const [isOpen, setIsOpen] = useState('')
 
-  let navbar = <PagesNavbar />
+  let navbar = <MenuNavbar />
 
-  if (router.pathname === '/recipes/[id]') {
+  if (!data) {
+    navbar = <PublicNavbar />
+  } else if (router.pathname === '/recipes/[id]') {
     navbar = <RecipeByIdNavbar />
   } else if (router.pathname === '/recipes/[id]/edit') {
     navbar = <EditRecipeNavbar />
@@ -73,10 +73,32 @@ function RootLayout({ children, font }: { children: ReactNode; font: string }) {
   )
 }
 
+function PublicNavbar() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      <nav className='navbar prose grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
+        <button
+          onClick={() => setIsOpen(true)}
+          className='link-primary link mr-6 justify-self-center'
+        >
+          Sign up
+        </button>
+        <h1 className='mb-0 text-base'>Recipe Chat</h1>
+        <div className='ml-auto'>
+          <ThemeToggle />
+        </div>
+      </nav>
+      <AuthModal closeModal={() => setIsOpen(false)} isOpen={isOpen} />
+    </>
+  )
+}
+
 function RecipeByIdNavbar() {
   const router = useRouter()
   return (
-    <nav className='navbar prose w-full justify-between gap-3 bg-transparent px-4'>
+    <nav className='navbar prose grid w-full grid-cols-3 bg-transparent px-4'>
       <button
         className='btn-ghost btn-circle btn'
         onClick={() => router.push('/recipes')}
@@ -126,7 +148,7 @@ function EditRecipeNavbar() {
   )
 }
 
-function PagesNavbar() {
+function MenuNavbar() {
   const router = useRouter()
   const menuItems = [
     {
@@ -197,7 +219,7 @@ function PagesNavbar() {
         </Link>
       ))}
 
-      <DropdownMenu />
+      <DropdownMenuWithTheme />
     </nav>
   )
 }

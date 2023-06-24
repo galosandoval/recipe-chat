@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
 import { ChangeEvent, useEffect, useState } from 'react'
-import Image from 'next/image'
 import { Button } from 'components/Button'
 import {
   useAddToList,
@@ -68,7 +67,6 @@ function FoundRecipe({
     address,
     author,
     description,
-    imgUrl,
     instructions,
     id,
     prepTime,
@@ -147,9 +145,7 @@ function FoundRecipe({
   return (
     <div className='container prose mx-auto flex flex-col items-center pb-4'>
       <div className='flex flex-col'>
-        <div className=''>
-          {imgUrl ? <Image className='my-0' height={400} width={400} alt='recipe' src={imgUrl} /> : null}
-        </div>
+        <div className=''></div>
         <div className='px-4'>
           {renderAddress}
           {renderAuthor}

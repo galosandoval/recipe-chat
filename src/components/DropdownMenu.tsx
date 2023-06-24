@@ -1,10 +1,10 @@
 import { Menu, Transition } from '@headlessui/react'
 import { useEffect, useState } from 'react'
 import { ArrowLeftOnRectangleIcon, MoonIcon, SunIcon } from './Icons'
-import { signOut } from 'next-auth/react'
 import { themeChange } from 'theme-change'
+import { signOut } from 'next-auth/react'
 
-export function DropdownMenu() {
+export function DropdownMenuWithTheme() {
   const [theme, setTheme] = useState<Theme>('night')
 
   const updateTheme = (theme: Theme) => {
@@ -39,7 +39,7 @@ export function DropdownMenu() {
 
   return (
     <Menu as='div' className='relative'>
-      <Menu.Button className='btn-ghost btn-circle btn mb-4'>
+      <Menu.Button className='btn-ghost btn-circle btn'>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
@@ -63,10 +63,7 @@ export function DropdownMenu() {
         leaveFrom='transform scale-100 opacity-100'
         leaveTo='transform scale-95 opacity-0'
       >
-        <Menu.Items
-          // as={motion.ul}
-          className='absolute right-0 top-[0.5rem] flex flex-col gap-4 rounded-md bg-primary-content py-2'
-        >
+        <Menu.Items className='absolute right-0 top-[0.5rem] flex flex-col gap-4 rounded-md bg-primary-content py-2'>
           <Menu.Item>
             <>
               <ThemeToggle updateTheme={updateTheme} theme={theme} />
