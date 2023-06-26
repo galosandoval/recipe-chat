@@ -10,6 +10,7 @@ import {
   useRecipeNames
 } from 'hooks/listHooks'
 import { MyHead } from 'components/Head'
+import { ScreenLoader } from 'components/loaders/ScreenLoader'
 
 export default function ListView() {
   return (
@@ -37,7 +38,7 @@ export function ListByUserId() {
     return <ListController data={data.ingredients} />
   }
 
-  return <p className=''>Loading...</p>
+  return <ScreenLoader />
 }
 
 function ListController({ data }: { data: Ingredient[] }) {
