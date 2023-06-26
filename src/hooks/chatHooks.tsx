@@ -25,7 +25,7 @@ export type FormValues = {
   cookTime: string
 }
 
-function useGetChat(
+function useGetMessagesByChatId(
   enabled: boolean,
   setMessages: (messages: AiMessage[]) => void,
   chatId: number
@@ -51,20 +51,14 @@ export const useChat = () => {
   const isAuthenticated = authStatus === 'authenticated'
   const utils = api.useContext()
 
-  const { mutate } = api.chat.addMessages.useMutation({
-    onSuccess(data, { chatId }) {
-      if (!chatId) {
-        const payload = data as Message[]
-        if (payload.length) {
-          dispatch({
-            type: 'chatIdChanged',
-            payload: payload[0].chatId
-          })
-        }
+  const chats = api.chat.getChats.useQuery(undefined, {
+    onSuccess: (data) => {
+      if (typeof localStorage.currentChatId !== 'string') {
+        dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
       }
-
-      utils.chat.invalidate()
-    }
+    },
+    staleTime: 0,
+    enabled: isAuthenticated
   })
 
   const [state, dispatch] = useChatReducer({
@@ -91,20 +85,26 @@ export const useChat = () => {
     }
   })
 
-  const { status } = useGetChat(
+  const { status } = useGetMessagesByChatId(
     isAuthenticated && !!state.chatId,
     setMessages,
     state.chatId || 0
   )
 
-  const chats = api.chat.getChats.useQuery(undefined, {
-    onSuccess: (data) => {
-      if (typeof localStorage.currentChatId !== 'string') {
-        dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
+  const { mutate } = api.chat.addMessages.useMutation({
+    onSuccess(data, { chatId }) {
+      if (!chatId) {
+        const payload = data as Message[]
+        if (payload.length) {
+          dispatch({
+            type: 'chatIdChanged',
+            payload: payload[0].chatId
+          })
+        }
       }
-    },
-    staleTime: 0,
-    enabled: isAuthenticated
+
+      utils.chat.invalidate()
+    }
   })
 
   useEffect(() => {

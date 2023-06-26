@@ -18,6 +18,7 @@ import { Dialog } from '@headlessui/react'
 import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
 import { ChangeEvent, useRef, useState } from 'react'
 import { MagnifyingGlassCircleIcon, XCircleIcon } from 'components/Icons'
+import { ScreenLoader } from 'components/loaders/ScreenLoader'
 
 export default function RecipesView() {
   return (
@@ -69,7 +70,7 @@ export function Recipes() {
       </div>
     )
   }
-  return <p>Loading...</p>
+  return <ScreenLoader />
 }
 
 function CardList({ data, search }: { data: Recipe[]; search: string }) {
@@ -130,13 +131,7 @@ function Card({ data }: { data: Recipe }) {
     >
       <div className='w-full'>
         {data.imgUrl ? (
-          <Image
-            src={data.imgUrl}
-            alt='recipe'
-            width={260}
-            height={260}
-
-          />
+          <Image src={data.imgUrl} alt='recipe' width={260} height={260} />
         ) : (
           <div className='bg-primary-content'>
             <svg

@@ -98,7 +98,7 @@ function PublicNavbar() {
 function RecipeByIdNavbar() {
   const router = useRouter()
   return (
-    <nav className='navbar prose grid w-full grid-cols-3 bg-transparent px-4'>
+    <nav className='navbar prose grid w-full grid-cols-6 bg-transparent px-4'>
       <button
         className='btn-ghost btn-circle btn'
         onClick={() => router.push('/recipes')}
@@ -118,16 +118,20 @@ function RecipeByIdNavbar() {
           />
         </svg>
       </button>
-      <h1 className='mb-0 text-base'>{router.query.name}</h1>
+      <h1 className='col-span-4 mb-0 justify-self-center text-base'>
+        {router.query.name}
+      </h1>
       <button
-        className='btn-ghost btn-circle btn'
+        className='btn-ghost btn-circle btn justify-self-end'
         onClick={() =>
           router.push(
             `/recipes/${router.query.id}/edit?name=${router.query.name}`
           )
         }
       >
-        <PencilSquareIcon />
+        <span>
+          <PencilSquareIcon />
+        </span>
       </button>
     </nav>
   )
