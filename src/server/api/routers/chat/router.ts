@@ -3,7 +3,6 @@ import { z } from 'zod'
 
 export const chatRouter = createTRPCRouter({
   getChats: protectedProcedure.query(async ({ ctx }) => {
-    await sleep(2000)
     return ctx.prisma.chat.findMany({
       where: {
         userId: ctx.session.user.id
@@ -30,7 +29,6 @@ export const chatRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      await sleep(2000)
       return ctx.prisma.chat.findFirst({
         where: {
           id: input.chatId
@@ -112,7 +110,3 @@ export const chatRouter = createTRPCRouter({
       }
     })
 })
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
