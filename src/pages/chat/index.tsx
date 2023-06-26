@@ -15,8 +15,18 @@ import { ChangeEventHandler, FormEvent } from 'react'
 import { ChatsSideBarButton } from 'components/ChatsSideBar'
 import { ChatLoader } from 'components/loaders/ChatBubbleLoader'
 import { RecipeFiltersType } from 'components/RecipeFilters'
+import { ScreenLoader } from 'components/loaders/ScreenLoader'
 
 export default function ChatView() {
+  return (
+    <>
+      <MyHead title='Listy - Chat' />
+      <Chat />
+    </>
+  )
+}
+
+function Chat() {
   const {
     chatRef,
     recipeFilters,
@@ -39,43 +49,42 @@ export default function ChatView() {
 
   const saveRecipe = useSaveRecipe(state.chatId)
 
+  if (chats.status === 'loading' || messageListStatus === 'loading') {
+    return <ScreenLoader />
+  }
+
   return (
-    <>
-      <MyHead title='Listy - Chat' />
-      <div>
-        <div>
-          <div className='prose flex flex-col pb-12'>
-            <div className='relative flex flex-col gap-4'>
-              {messages.length === 0 ? (
-                <ValueProps handleFillMessage={handleFillMessage} />
-              ) : (
-                <MessageList
-                  saveRecipe={saveRecipe}
-                  recipeFilters={recipeFilters}
-                  data={messages as []}
-                  chatId={state.chatId}
-                  chats={chats}
-                  status={messageListStatus}
-                  isChatsModalOpen={isChatsModalOpen}
-                  isSendingMessage={isSendingMessage}
-                  handleChangeChat={handleChangeChat}
-                  handleStartNewChat={handleStartNewChat}
-                  handleToggleChatsModal={handleToggleChatsModal}
-                />
-              )}
-              <div ref={chatRef}></div>
-            </div>
-            <SubmitMessageForm
-              input={input}
+    <div>
+      <div className='prose flex flex-col pb-12'>
+        <div className='relative flex flex-col gap-4'>
+          {messages.length === 0 ? (
+            <ValueProps handleFillMessage={handleFillMessage} />
+          ) : (
+            <MessageList
+              saveRecipe={saveRecipe}
+              recipeFilters={recipeFilters}
+              data={messages as []}
+              chatId={state.chatId}
+              chats={chats}
+              status={messageListStatus}
+              isChatsModalOpen={isChatsModalOpen}
               isSendingMessage={isSendingMessage}
-              handleScrollIntoView={handleScrollIntoView}
-              handleSubmit={handleSubmit}
-              handleInputChange={handleInputChange}
+              handleChangeChat={handleChangeChat}
+              handleStartNewChat={handleStartNewChat}
+              handleToggleChatsModal={handleToggleChatsModal}
             />
-          </div>
+          )}
+          <div ref={chatRef}></div>
         </div>
+        <SubmitMessageForm
+          input={input}
+          isSendingMessage={isSendingMessage}
+          handleScrollIntoView={handleScrollIntoView}
+          handleSubmit={handleSubmit}
+          handleInputChange={handleInputChange}
+        />
       </div>
-    </>
+    </div>
   )
 }
 
