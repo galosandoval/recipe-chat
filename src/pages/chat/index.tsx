@@ -49,7 +49,10 @@ function Chat() {
 
   const saveRecipe = useSaveRecipe(state.chatId)
 
-  if (chats.status === 'loading' || messageListStatus === 'loading') {
+  if (
+    (chats.status === 'loading' || messageListStatus === 'loading') &&
+    !!state.chatId
+  ) {
     return <ScreenLoader />
   }
 
