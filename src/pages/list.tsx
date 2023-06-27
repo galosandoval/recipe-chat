@@ -139,7 +139,7 @@ function AddIngredientForm() {
 
   return (
     <form
-      className='form-control my-4 rounded-lg bg-base-300/75 p-4'
+      className='form-control my-4 rounded-lg bg-base-300/75 p-2'
       onSubmit={handleSubmit(onSubmitNewIngredient)}
     >
       <div className='input-group'>
