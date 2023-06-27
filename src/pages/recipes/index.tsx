@@ -42,7 +42,7 @@ export function Recipes() {
     const cards = Object.values(data)
 
     return (
-      <div className='container mx-auto flex h-full flex-col px-2'>
+      <div className='container mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2'>
         {cards.length > 0 && (
           <SearchBar
             handleChange={handleChange}
@@ -51,9 +51,8 @@ export function Recipes() {
             setSearch={setSearch}
           />
         )}
-        <div className='mt-4 grid grid-cols-2 gap-5 pb-8 md:grid-cols-4'>
-          <CardList data={Object.values(data)} search={search} />
-        </div>
+
+        <CardList data={Object.values(data)} search={search} />
       </div>
     )
   }
@@ -113,18 +112,18 @@ function CardList({ data, search }: { data: Recipe[]; search: string }) {
   if (sortedData.length === 0) {
     return (
       <div className='h-44'>
-        <CreateRecipeCard />
+        <CreateRecipeButton />
       </div>
     )
   }
 
   return (
-    <>
-      {!search && <CreateRecipeCard />}
+    <div className='mx-auto mt-4 grid max-w-4xl grid-cols-2 gap-5 pb-8 md:grid-cols-4'>
+      {!search && <CreateRecipeButton />}
       {sortedData.map((recipe) => (
         <Card key={recipe.id} data={recipe} />
       ))}
-    </>
+    </div>
   )
 }
 
@@ -147,7 +146,7 @@ function Card({ data }: { data: Recipe }) {
     <Link
       href={`/recipes/${data.id}?name=${encodeURIComponent(data.name)}`}
       key={data.id}
-      className='card overflow-hidden bg-base-200 shadow-lg'
+      className='overflow-hidden rounded-lg bg-base-200 shadow-xl'
     >
       <div className='w-full'>
         {data.imgUrl ? (
@@ -179,24 +178,16 @@ function Card({ data }: { data: Recipe }) {
           </div>
         )}
       </div>
-      <div className='prose card-body flex flex-col'>
+      <div className='flex flex-col p-3'>
         {address}
         {author}
-        <h3 className='card-title'>{data.name}</h3>
+        <h3 className='text-xl font-bold'>{data.name}</h3>
       </div>
     </Link>
   )
 }
 
-function CreateRecipeCard() {
-  return (
-    <div className='flex h-full flex-col overflow-hidden rounded'>
-      <CreateRecipeDialog />
-    </div>
-  )
-}
-
-function CreateRecipeDialog() {
+function CreateRecipeButton() {
   const { isOpen, status, data, openModal, closeModal, onSubmitUrl } =
     useParseRecipe()
 
@@ -221,7 +212,7 @@ function CreateRecipeDialog() {
   }
 
   return (
-    <>
+    <div className='flex h-full flex-col overflow-hidden rounded'>
       <div className='card flex h-full items-center justify-center overflow-hidden'>
         <Button
           type='button'
@@ -232,11 +223,9 @@ function CreateRecipeDialog() {
         </Button>
       </div>
       <Modal closeModal={closeModal} isOpen={isOpen}>
-        {/* <TransitionWrapper currentStep={currentStep} steps={steps} /> */}
-
         {modalContent}
       </Modal>
-    </>
+    </div>
   )
 }
 

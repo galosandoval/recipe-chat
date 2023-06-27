@@ -262,7 +262,7 @@ function SubmitMessageForm({
       onSubmit={handleSubmit}
       className='fixed bottom-0 flex w-full items-center'
     >
-      <div className='prose mx-auto flex w-full items-center bg-base-300/75 md:mb-2 md:rounded-lg'>
+      <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 md:mb-2 md:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <textarea
             value={input}

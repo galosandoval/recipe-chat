@@ -12,7 +12,7 @@ import { MyHead } from 'components/Head'
 import NoSleep from 'nosleep.js'
 import { CreateList } from 'server/api/routers/list/interface'
 import { ListBulletIcon, PlusIcon } from 'components/Icons'
-import { RecipeByIdLoader } from 'components/loaders/RecipeByIdLoader'
+import { ScreenLoader } from 'components/loaders/ScreenLoader'
 
 export default function RecipeByIdView() {
   const router = useRouter()
@@ -49,7 +49,7 @@ export function RecipeById({ id }: { id: number }) {
     return <FoundRecipe data={{ ...recipeInfo, ...recipes[id] }} />
   }
 
-  return <RecipeByIdLoader />
+  return <ScreenLoader />
 }
 
 type Checked = Record<string, boolean>
