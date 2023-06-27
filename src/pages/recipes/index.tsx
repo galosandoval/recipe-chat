@@ -213,7 +213,7 @@ function CreateRecipeButton() {
 
   return (
     <>
-      <div className='card flex h-full items-center justify-center overflow-hidden'>
+      <div className='card flex h-64 items-center justify-center overflow-hidden'>
         <Button
           type='button'
           onClick={openModal}
