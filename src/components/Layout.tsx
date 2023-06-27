@@ -68,7 +68,7 @@ function RootLayout({ children, font }: { children: ReactNode; font: string }) {
       >
         {navbar}
       </div>
-      <main className='container relative z-0 mx-auto'>{children}</main>
+      <main className='relative z-0 mx-auto'>{children}</main>
     </div>
   )
 }
@@ -140,14 +140,16 @@ function RecipeByIdNavbar() {
 function EditRecipeNavbar() {
   const router = useRouter()
   return (
-    <nav className='navbar prose w-full gap-24 bg-transparent px-4'>
+    <nav className='navbar prose grid w-full grid-cols-3 gap-24 bg-transparent px-4 '>
       <button
         className='btn-ghost btn-circle btn'
         onClick={() => router.back()}
       >
         <XIcon />
       </button>
-      <h1 className='mb-0 text-base'>Edit Recipe</h1>
+      <h1 className='mb-0 justify-self-center whitespace-nowrap text-center text-base'>
+        Edit Recipe
+      </h1>
     </nav>
   )
 }
@@ -210,7 +212,7 @@ function MenuNavbar() {
   }
 
   return (
-    <nav className='navbar w-full justify-between px-5'>
+    <nav className='navbar w-full max-w-xl justify-between px-5'>
       {menuItems.map((item) => (
         <Link
           className={activeLinkStyles(item.value)}
