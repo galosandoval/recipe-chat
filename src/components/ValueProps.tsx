@@ -8,7 +8,7 @@ export function ValueProps({
   handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
 }) {
   return (
-    <div className='flex flex-col items-center justify-center gap-2 overflow-y-auto px-4 pb-4'>
+    <div className='prose mx-auto flex flex-col items-center justify-center gap-2 overflow-y-auto px-4 pb-4'>
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <div className='flex items-center gap-2'>
           <h2 className='mb-2 mt-2'>Examples</h2>
@@ -60,7 +60,7 @@ export function ValueProps({
         </div>
       </div>
 
-      <div className='flex flex-1 flex-col items-center justify-center'>
+      <div className='flex flex-col items-center justify-center'>
         <div className='flex items-center gap-2'>
           <h2 className='mb-2 mt-2'>Capabilities</h2>
           <svg
@@ -78,14 +78,14 @@ export function ValueProps({
             />
           </svg>
         </div>
-        <div className='flex flex-col items-center gap-4'>
-          <div className='mb-0 mt-0 grid h-12 w-full place-items-center rounded-lg border border-base-content px-5 text-center text-sm font-semibold normal-case text-base-content'>
+        <div className='flex w-full flex-col items-center gap-4'>
+          <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
             Remembers what users said in previous messages in the same chat
           </div>
-          <div className='mb-0 mt-0 grid h-12 w-full place-items-center rounded-lg border border-base-content px-5 text-center text-sm font-semibold normal-case text-base-content'>
+          <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
             Allows user to provide follow-up corrections
           </div>
-          <div className='mb-0 mt-0 grid h-12 w-full place-items-center rounded-lg border border-base-content px-5 text-center text-sm font-semibold  normal-case text-base-content'>
+          <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold  normal-case text-base-content'>
             Save generated recipes to your account
           </div>
         </div>

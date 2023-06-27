@@ -13,7 +13,6 @@ import {
   ChangeEventHandler,
   FormEvent,
   MouseEvent,
-  use,
   useEffect,
   useReducer,
   useRef,
@@ -26,10 +25,9 @@ import { useChat as useAiChat } from 'ai/react'
 import { useRecipeFilters } from 'components/RecipeFilters'
 import { api } from 'utils/api'
 import { useRouter } from 'next/router'
-import { util } from 'zod'
 import { useSession } from 'next-auth/react'
 
-export default function ChatView() {
+export default function PublicChatView() {
   const {
     chatRef,
     // recipeFilters,
@@ -48,28 +46,26 @@ export default function ChatView() {
     <>
       <MyHead title='Listy - Chat' />
       <div>
-        <div>
-          <div className='prose flex flex-col pb-12'>
-            <div className='relative flex flex-col gap-4'>
-              {messages.length === 0 ? (
-                <ValueProps handleFillMessage={handleFillMessage} />
-              ) : (
-                <MessageList
-                  data={messages as []}
-                  isSendingMessage={isSendingMessage}
-                  handleStartNewChat={handleStartNewChat}
-                />
-              )}
-              <div ref={chatRef}></div>
-            </div>
-            <SubmitMessageForm
-              input={input}
-              isSendingMessage={isSendingMessage}
-              handleScrollIntoView={handleScrollIntoView}
-              handleSubmit={handleSubmit}
-              handleInputChange={handleInputChange}
-            />
+        <div className='mx-auto flex flex-col pb-12'>
+          <div className='relative flex flex-col gap-4'>
+            {messages.length === 0 ? (
+              <ValueProps handleFillMessage={handleFillMessage} />
+            ) : (
+              <MessageList
+                data={messages as []}
+                isSendingMessage={isSendingMessage}
+                handleStartNewChat={handleStartNewChat}
+              />
+            )}
+            <div ref={chatRef}></div>
           </div>
+          <SubmitMessageForm
+            input={input}
+            isSendingMessage={isSendingMessage}
+            handleScrollIntoView={handleScrollIntoView}
+            handleSubmit={handleSubmit}
+            handleInputChange={handleInputChange}
+          />
         </div>
       </div>
     </>
@@ -200,79 +196,6 @@ function useAuthModal() {
   }
 }
 
-function SubmitMessageForm({
-  handleScrollIntoView,
-  handleInputChange,
-  handleSubmit,
-  isSendingMessage,
-  input
-}: {
-  handleScrollIntoView: () => void
-  handleSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
-  handleInputChange: ChangeEventHandler<HTMLTextAreaElement>
-  input: string
-  isSendingMessage: boolean
-}) {
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className='fixed bottom-0 flex w-full items-center bg-base-100'
-    >
-      <div className='flex w-full px-2 py-1'>
-        <textarea
-          value={input}
-          onChange={handleInputChange}
-          placeholder='Ask about a recipe'
-          className='input-bordered input relative w-full resize-none pt-2'
-          onFocus={() => handleScrollIntoView()}
-        />
-      </div>
-
-      <div className='mr-1'>
-        <Button
-          type='submit'
-          disabled={input.length < 5}
-          className={` btn ${isSendingMessage ? 'btn-error' : 'btn-accent'}`}
-        >
-          {isSendingMessage ? (
-            // stop icon
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-6 w-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z'
-              />
-            </svg>
-          ) : (
-            // plane icon
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-6 w-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5'
-              />
-            </svg>
-          )}
-        </Button>
-      </div>
-    </form>
-  )
-}
-
 const useChat = () => {
   const [state, dispatch] = useChatReducer({
     chatId: undefined
@@ -283,20 +206,6 @@ const useChat = () => {
 
   const utils = api.useContext()
   console.log('data', data)
-  // api.chat.getChats.useQuery(
-  //   { userId: userId || 0 },
-  //   {
-  //     onSuccess: (data) => {
-  //       if (typeof localStorage.currentChatId !== 'string') {
-  //         dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
-  //       }
-  //     },
-  //     onError() {
-  //       router.push('/chat')
-  //     },
-  //     enabled: !!userId
-  //   }
-  // )
 
   useEffect(() => {
     if (userId) {
@@ -420,4 +329,79 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
     default:
       return state
   }
+}
+
+export function SubmitMessageForm({
+  handleScrollIntoView,
+  handleInputChange,
+  handleSubmit,
+  isSendingMessage,
+  input
+}: {
+  handleScrollIntoView: () => void
+  handleSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleInputChange: ChangeEventHandler<HTMLTextAreaElement>
+  input: string
+  isSendingMessage: boolean
+}) {
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className='fixed bottom-0 flex w-full items-center'
+    >
+      <div className='prose mx-auto flex w-full items-center bg-base-300/75 md:mb-2 md:rounded-lg'>
+        <div className='flex w-full px-2 py-1'>
+          <textarea
+            value={input}
+            onChange={handleInputChange}
+            placeholder='Ask about a recipe'
+            className='input-bordered input relative w-full resize-none pt-2'
+            onFocus={() => handleScrollIntoView()}
+          />
+        </div>
+
+        <div className='mr-1'>
+          <Button
+            type='submit'
+            disabled={input.length < 5}
+            className={` btn ${isSendingMessage ? 'btn-error' : 'btn-accent'}`}
+          >
+            {isSendingMessage ? (
+              // stop icon
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth={1.5}
+                stroke='currentColor'
+                className='h-6 w-6'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z'
+                />
+              </svg>
+            ) : (
+              // plane icon
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth={1.5}
+                stroke='currentColor'
+                className='h-6 w-6'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5'
+                />
+              </svg>
+            )}
+          </Button>
+        </div>
+      </div>
+    </form>
+  )
 }

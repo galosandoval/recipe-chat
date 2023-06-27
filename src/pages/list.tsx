@@ -16,7 +16,7 @@ export default function ListView() {
   return (
     <>
       <MyHead title='Listy - List' />
-      <div className='prose'>
+      <div className='prose mx-auto'>
         <ListByUserId />
       </div>
     </>
@@ -55,7 +55,7 @@ function ListController({ data }: { data: Ingredient[] }) {
   } = useListController(data)
 
   return (
-    <div className='mx-2 flex flex-col pb-5 pt-2'>
+    <div className='mx-2 flex h-[calc(100svh-64px)] flex-col pb-5 pt-2'>
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
           <label className='label flex cursor-pointer gap-2'>
@@ -103,7 +103,9 @@ function ListController({ data }: { data: Ingredient[] }) {
         data={data}
         handleCheck={handleCheck}
       />
-      <AddIngredientForm />
+      <div className='absolute bottom-0 left-0 w-full px-2'>
+        <AddIngredientForm />
+      </div>
     </div>
   )
 }
@@ -137,7 +139,7 @@ function AddIngredientForm() {
 
   return (
     <form
-      className='form-control my-4'
+      className='form-control my-4 rounded-lg bg-base-300/75 p-4'
       onSubmit={handleSubmit(onSubmitNewIngredient)}
     >
       <div className='input-group'>

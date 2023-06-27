@@ -68,7 +68,7 @@ function RootLayout({ children, font }: { children: ReactNode; font: string }) {
       >
         {navbar}
       </div>
-      <main className='container relative z-0 mx-auto'>{children}</main>
+      <main className='relative z-0 mx-auto'>{children}</main>
     </div>
   )
 }
@@ -210,7 +210,7 @@ function MenuNavbar() {
   }
 
   return (
-    <nav className='navbar w-full justify-between px-5'>
+    <nav className='navbar w-full max-w-xl justify-between px-5'>
       {menuItems.map((item) => (
         <Link
           className={activeLinkStyles(item.value)}
