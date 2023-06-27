@@ -40,26 +40,27 @@ function useGetMessagesByChatId(
             data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
           )
         }
-      },
-      staleTime: 0
+      }
     }
   )
 }
 
 export const useChat = () => {
-  const { status: authStatus } = useSession()
+  const { status: authStatus, data } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   const utils = api.useContext()
 
-  const chats = api.chat.getChats.useQuery(undefined, {
-    onSuccess: (data) => {
-      if (typeof localStorage.currentChatId !== 'string') {
-        dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
-      }
-    },
-    staleTime: 0,
-    enabled: isAuthenticated
-  })
+  const chats = api.chat.getChats.useQuery(
+    { userId: data?.user.id || 0 },
+    {
+      onSuccess: (data) => {
+        if (typeof localStorage.currentChatId !== 'string') {
+          dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
+        }
+      },
+      enabled: isAuthenticated
+    }
+  )
 
   const [state, dispatch] = useChatReducer({
     chatId: undefined
