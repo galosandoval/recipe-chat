@@ -13,6 +13,7 @@ import {
   ChangeEventHandler,
   FormEvent,
   MouseEvent,
+  use,
   useEffect,
   useReducer,
   useRef,
@@ -23,11 +24,15 @@ import { toast } from 'react-hot-toast'
 import { infoToastOptions } from 'components/Toast'
 import { useChat as useAiChat } from 'ai/react'
 import { useRecipeFilters } from 'components/RecipeFilters'
+import { api } from 'utils/api'
+import { useRouter } from 'next/router'
+import { util } from 'zod'
+import { useSession } from 'next-auth/react'
 
 export default function ChatView() {
   const {
     chatRef,
-    recipeFilters,
+    // recipeFilters,
     input,
     messages,
     isSendingMessage,
@@ -101,6 +106,7 @@ function MessageList({
       {data.map((m, i) => (
         <Message
           message={m}
+          messages={data}
           key={m?.content || '' + i}
           isSendingMessage={isSendingMessage}
         />
@@ -112,9 +118,11 @@ function MessageList({
 
 function Message({
   message,
+  messages,
   isSendingMessage
 }: {
   message: PrismaMessage
+  messages: PrismaMessage[]
   isSendingMessage: boolean
 }) {
   const { handleCloseModal, handleOpenModal, isAuthModalOpen } = useAuthModal()
@@ -134,6 +142,7 @@ function Message({
               </p>
             </div>
           </div>
+
           <div className='grid w-full grid-flow-col place-items-end gap-2'>
             {isSendingMessage ? null : (
               <Button
@@ -145,7 +154,12 @@ function Message({
             )}
           </div>
         </div>
-        <AuthModal closeModal={handleCloseModal} isOpen={isAuthModalOpen} />
+
+        <AuthModal
+          messages={messages}
+          closeModal={handleCloseModal}
+          isOpen={isAuthModalOpen}
+        />
       </>
     )
   }
@@ -158,6 +172,7 @@ function Message({
             {message?.content || ''}
           </p>
         </div>
+
         <div>
           <UserCircleIcon />
         </div>
@@ -212,10 +227,11 @@ function SubmitMessageForm({
           onFocus={() => handleScrollIntoView()}
         />
       </div>
+
       <div className='mr-1'>
         <Button
           type='submit'
-          // disabled={!isValid || !isDirty}
+          disabled={input.length < 5}
           className={` btn ${isSendingMessage ? 'btn-error' : 'btn-accent'}`}
         >
           {isSendingMessage ? (
@@ -261,6 +277,33 @@ const useChat = () => {
   const [state, dispatch] = useChatReducer({
     chatId: undefined
   })
+  const router = useRouter()
+  const { data } = useSession()
+  const userId = data?.user.id
+
+  const utils = api.useContext()
+  console.log('data', data)
+  // api.chat.getChats.useQuery(
+  //   { userId: userId || 0 },
+  //   {
+  //     onSuccess: (data) => {
+  //       if (typeof localStorage.currentChatId !== 'string') {
+  //         dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
+  //       }
+  //     },
+  //     onError() {
+  //       router.push('/chat')
+  //     },
+  //     enabled: !!userId
+  //   }
+  // )
+
+  useEffect(() => {
+    if (userId) {
+      utils.chat.getChats.prefetch({ userId })
+      router.push('/chat')
+    }
+  }, [userId])
 
   const {
     messages,

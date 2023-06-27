@@ -9,15 +9,16 @@ import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { Modal } from './Modal'
 import { useState } from 'react'
+import { Message } from '@prisma/client'
 
 export function AuthModal({
   isOpen,
   // TODO: use content to save recipe after logging in or signing up
-  content,
+  messages,
   closeModal
 }: {
   isOpen: boolean
-  content?: string
+  messages?: Message[]
   closeModal: () => void
 }) {
   let toRender: React.ReactNode = null
@@ -74,17 +75,16 @@ function SignUp() {
     resolver: zodResolver(signUpSchema)
   })
   const router = useRouter()
-  const { mutate, isLoading } = api.auth.signUp.useMutation({
-    onSuccess: async () => {
-      const creds = getValues()
-      const response = await signIn(
-        'credentials',
 
-        {
-          ...creds,
-          redirect: false
-        }
-      )
+  const { mutate: createChat } = api.chat.createPublic.useMutation()
+
+  const { mutate, isLoading } = api.auth.signUp.useMutation({
+    onSuccess: async ({ id }, { email, password }) => {
+      const response = await signIn('credentials', {
+        email,
+        password,
+        redirect: false
+      })
 
       if (response?.ok) {
         router.push('/chat')
@@ -159,7 +159,7 @@ function SignUp() {
           />
           <ErrorMessage errors={errors} name='confirm' />
         </div>
-        <div className='flex w-full max-w-[200px] flex-col items-center gap-2'>
+        <div className='flex w-full max-w-[300px] flex-col items-center gap-2'>
           <Button
             className='btn-primary btn w-3/4'
             type='submit'
@@ -237,7 +237,7 @@ function Login() {
               {...register('password')}
             />
           </div>
-          <div className='mt-4 flex w-full max-w-[200px] flex-col items-center gap-2'>
+          <div className='mt-4 flex w-full max-w-[300px] flex-col items-center gap-2'>
             <Button type='submit' className='btn-primary btn w-3/4'>
               Login
             </Button>

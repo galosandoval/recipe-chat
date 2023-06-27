@@ -103,6 +103,7 @@ function ListController({ data }: { data: Ingredient[] }) {
         data={data}
         handleCheck={handleCheck}
       />
+      <AddIngredientForm />
     </div>
   )
 }
