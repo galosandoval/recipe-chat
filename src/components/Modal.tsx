@@ -1,21 +1,5 @@
-import { Dialog } from '@headlessui/react'
-import { AnimatePresence, motion } from 'framer-motion'
-import React from 'react'
-
-const modalAnimationOptions = {
-  transition: {
-    duration: 0.3
-  },
-  initial: {
-    opacity: 0,
-    scale: 0.95
-  },
-  animate: { opacity: 1, scale: 1 },
-  exit: {
-    opacity: 0,
-    scale: 0.95
-  }
-} as const
+import { Dialog, Transition } from '@headlessui/react'
+import { Fragment } from 'react'
 
 export const Modal = ({
   isOpen,
@@ -27,30 +11,36 @@ export const Modal = ({
   closeModal: () => void
 }) => {
   return (
-    <AnimatePresence initial={false}>
-      {isOpen && (
-        <>
-          <Dialog
-            as={motion.div}
-            {...modalAnimationOptions}
-            className='fixed inset-0 z-30 grid h-full w-full place-items-center bg-base-300/70'
-            open={isOpen}
-            static={true}
-            onClose={closeModal}
-          >
-            <Dialog.Panel className='w-[95%] max-w-md transform overflow-hidden rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
-              {children}
-            </Dialog.Panel>
-          </Dialog>
-          <Backdrop />
-        </>
-      )}
-    </AnimatePresence>
-  )
-}
-
-export function Backdrop() {
-  return (
-    <motion.div className='absolute inset-0 bg-primary-content bg-opacity-25'></motion.div>
+    <Transition as={Fragment} show={isOpen}>
+      <Dialog
+        as='div'
+        className='fixed inset-0 z-30 grid h-full w-full place-items-center bg-base-300/70'
+        onClose={closeModal}
+      >
+        <Transition.Child
+          as={Fragment}
+          enter='ease-out duration-200'
+          enterFrom='opacity-0'
+          enterTo='opacity-100'
+          leave='ease-in duration-100'
+          leaveFrom='opacity-100'
+          leaveTo='opacity-0'
+        >
+          <div className='bg-primary-content/65 absolute inset-0'></div>
+        </Transition.Child>
+        <Transition.Child
+          enter='ease-out duration-200'
+          enterFrom='opacity-0 translate-y-1'
+          enterTo='opacity-100 translate-y-0'
+          leave='ease-in duration-100'
+          leaveFrom='opacity-100 translate-y-0'
+          leaveTo='opacity-0 translate-y-1'
+        >
+          <Dialog.Panel className='w-[95%] max-w-md transform overflow-hidden rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
+            {children}
+          </Dialog.Panel>
+        </Transition.Child>
+      </Dialog>
+    </Transition>
   )
 }
