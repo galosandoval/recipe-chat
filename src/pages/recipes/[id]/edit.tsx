@@ -168,7 +168,7 @@ function FoundRecipe({
     <>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className='container prose mx-2 flex flex-col items-center pb-4'
+        className='prose mx-2 flex flex-col items-center pb-4 md:mx-auto'
       >
         <div className='flex w-full flex-col'>
           <label htmlFor='name' className='label'>

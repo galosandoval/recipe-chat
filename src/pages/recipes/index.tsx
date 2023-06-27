@@ -16,7 +16,7 @@ import { FormLoader } from 'components/loaders/FormLoader'
 import { MyHead } from 'components/Head'
 import { Dialog } from '@headlessui/react'
 import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
-import { ChangeEvent, useRef, useState } from 'react'
+import { ChangeEvent, RefObject, SetStateAction, useRef, useState } from 'react'
 import { MagnifyingGlassCircleIcon, XCircleIcon } from 'components/Icons'
 import { ScreenLoader } from 'components/loaders/ScreenLoader'
 
@@ -42,27 +42,14 @@ export function Recipes() {
     const cards = Object.values(data)
 
     return (
-      <div className='container mx-auto h-full px-2'>
+      <div className='container mx-auto flex h-full flex-col px-2'>
         {cards.length > 0 && (
-          <div className='join mt-2 w-full'>
-            <input
-              type='text'
-              className='input-bordered input input-sm join-item w-full'
-              value={search}
-              onChange={handleChange}
-              placeholder='Search...'
-              ref={inputRef}
-            />
-            <button
-              type='button'
-              onClick={() =>
-                !!search ? setSearch('') : inputRef.current?.focus()
-              }
-              className='btn-sm join-item btn rounded-r-full'
-            >
-              {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
-            </button>
-          </div>
+          <SearchBar
+            handleChange={handleChange}
+            inputRef={inputRef}
+            search={search}
+            setSearch={setSearch}
+          />
         )}
         <div className='mt-4 grid grid-cols-2 gap-5 pb-8 md:grid-cols-4'>
           <CardList data={Object.values(data)} search={search} />
@@ -71,6 +58,39 @@ export function Recipes() {
     )
   }
   return <ScreenLoader />
+}
+
+function SearchBar({
+  inputRef,
+  search,
+  setSearch,
+  handleChange
+}: {
+  inputRef: RefObject<HTMLInputElement>
+  search: string
+  setSearch: (value: SetStateAction<string>) => void
+
+  handleChange: (event: ChangeEvent<HTMLInputElement>) => void
+}) {
+  return (
+    <div className='prose join mx-auto mt-2 w-full'>
+      <input
+        type='text'
+        className='input-bordered input input-sm join-item w-full'
+        value={search}
+        onChange={handleChange}
+        placeholder='Search...'
+        ref={inputRef}
+      />
+      <button
+        type='button'
+        onClick={() => (!!search ? setSearch('') : inputRef.current?.focus())}
+        className='btn-sm join-item btn rounded-r-full'
+      >
+        {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
+      </button>
+    </div>
+  )
 }
 
 function CardList({ data, search }: { data: Recipe[]; search: string }) {

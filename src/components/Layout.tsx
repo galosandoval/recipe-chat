@@ -140,14 +140,16 @@ function RecipeByIdNavbar() {
 function EditRecipeNavbar() {
   const router = useRouter()
   return (
-    <nav className='navbar prose w-full gap-24 bg-transparent px-4'>
+    <nav className='navbar prose grid w-full grid-cols-3 gap-24 bg-transparent px-4 '>
       <button
         className='btn-ghost btn-circle btn'
         onClick={() => router.back()}
       >
         <XIcon />
       </button>
-      <h1 className='mb-0 text-base'>Edit Recipe</h1>
+      <h1 className='mb-0 justify-self-center whitespace-nowrap text-center text-base'>
+        Edit Recipe
+      </h1>
     </nav>
   )
 }
