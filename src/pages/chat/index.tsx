@@ -11,7 +11,7 @@ import {
 } from 'components/Icons'
 import { ValueProps } from 'components/ValueProps'
 import { ChatsType, SaveRecipe, useChat, useSaveRecipe } from 'hooks/chatHooks'
-import { ChangeEventHandler, FormEvent } from 'react'
+import { ChangeEventHandler, FormEvent, memo, useMemo } from 'react'
 import { ChatsSideBarButton } from 'components/ChatsSideBar'
 import { ChatLoader } from 'components/loaders/ChatBubbleLoader'
 import { RecipeFiltersType } from 'components/RecipeFilters'
@@ -26,7 +26,7 @@ export default function ChatView() {
   )
 }
 
-function Chat() {
+const Chat = memo(function Chat() {
   const {
     chatRef,
     recipeFilters,
@@ -47,7 +47,7 @@ function Chat() {
     handleStartNewChat
   } = useChat()
 
-  const saveRecipe = useSaveRecipe(state.chatId)
+  const { ...saveRecipe } = useSaveRecipe(state.chatId)
 
   if (
     (chats.status === 'loading' || messageListStatus === 'loading') &&
@@ -87,7 +87,7 @@ function Chat() {
       />
     </div>
   )
-}
+})
 
 type MessageListProps = {
   data: PrismaMessage[]
@@ -108,7 +108,7 @@ type MessageListProps = {
   handleToggleChatsModal: () => void
 }
 
-function MessageList({
+const MessageList = memo(function MessageList({
   data,
   status,
   chats,
@@ -159,7 +159,7 @@ function MessageList({
       {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
     </div>
   )
-}
+})
 
 function Message({
   message,

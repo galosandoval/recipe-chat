@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, memo, useEffect, useState } from 'react'
 import {
   ChatBubbleLeftRightIcon,
   PencilSquareIcon,
@@ -22,7 +22,13 @@ export default function Layout({
   return <RootLayout font={font}>{children}</RootLayout>
 }
 
-function RootLayout({ children, font }: { children: ReactNode; font: string }) {
+const RootLayout = memo(function RootLayout({
+  children,
+  font
+}: {
+  children: ReactNode
+  font: string
+}) {
   const router = useRouter()
   const { data } = useSession()
 
@@ -71,7 +77,7 @@ function RootLayout({ children, font }: { children: ReactNode; font: string }) {
       <main className='relative z-0 mx-auto'>{children}</main>
     </div>
   )
-}
+})
 
 function PublicNavbar() {
   const [isOpen, setIsOpen] = useState(false)
