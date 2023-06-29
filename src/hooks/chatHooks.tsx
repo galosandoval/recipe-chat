@@ -1,5 +1,4 @@
 import { Chat, Message } from '@prisma/client'
-import { Message as AiMessage } from 'ai'
 import { useChat as useAiChat } from 'ai/react'
 import { useRecipeFilters } from 'components/RecipeFilters'
 import { useSession } from 'next-auth/react'
@@ -27,30 +26,14 @@ export type FormValues = {
   cookTime: string
 }
 
-function useGetMessagesByChatId(
-  enabled: boolean,
-  setMessages: (messages: AiMessage[]) => void,
-  chatId: number
-) {
-  return api.chat.getMessagesByChatId.useQuery(
-    { chatId },
-    {
-      enabled,
-      onSuccess: (data) => {
-        if (data?.messages.length) {
-          setMessages(
-            data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
-          )
-        }
-      }
-    }
-  )
-}
-
 export const useChat = () => {
   const { status: authStatus, data } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   const utils = api.useContext()
+
+  const [state, dispatch] = useChatReducer({
+    chatId: undefined
+  })
 
   const chats = api.chat.getChats.useQuery(
     { userId: data?.user.id || 0 },
@@ -59,13 +42,42 @@ export const useChat = () => {
         if (typeof localStorage.currentChatId !== 'string') {
           dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
         }
+
+        if (
+          messages.length === 0 &&
+          data[0]?.messages.length &&
+          state?.chatId
+        ) {
+          setMessages(
+            data[0].messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
+          )
+        }
       },
       enabled: isAuthenticated
     }
   )
 
-  const [state, dispatch] = useChatReducer({
-    chatId: undefined
+  const { status } = api.chat.getMessagesByChatId.useQuery(
+    { chatId: state.chatId || 0 },
+    {
+      enabled: isAuthenticated && !!state.chatId
+    }
+  )
+
+  const { mutate } = api.chat.addMessages.useMutation({
+    onSuccess(data, { chatId }) {
+      if (!chatId) {
+        const payload = data as Message[]
+        if (payload.length) {
+          dispatch({
+            type: 'chatIdChanged',
+            payload: payload[0].chatId
+          })
+        }
+      }
+
+      utils.chat.invalidate()
+    }
   })
 
   const {
@@ -82,31 +94,9 @@ export const useChat = () => {
       if (isAuthenticated) {
         mutate({
           messages: [{ content: input, role: 'user' }, message],
-          chatId: state.chatId
+          chatId: !!state.chatId ? state.chatId : undefined
         })
       }
-    }
-  })
-
-  const { status } = useGetMessagesByChatId(
-    isAuthenticated && !!state.chatId,
-    setMessages,
-    state.chatId || 0
-  )
-
-  const { mutate } = api.chat.addMessages.useMutation({
-    onSuccess(data, { chatId }) {
-      if (!chatId) {
-        const payload = data as Message[]
-        if (payload.length) {
-          dispatch({
-            type: 'chatIdChanged',
-            payload: payload[0].chatId
-          })
-        }
-      }
-
-      utils.chat.invalidate()
     }
   })
 
@@ -126,7 +116,7 @@ export const useChat = () => {
         payload: JSON.parse(localStorage.currentChatId) as number
       })
     }
-  }, [dispatch])
+  }, [])
 
   const chatRef = useRef<HTMLDivElement>(null)
 
@@ -143,6 +133,7 @@ export const useChat = () => {
   const handleStartNewChat = useCallback(() => {
     setMessages([])
     dispatch({ type: 'chatIdChanged', payload: undefined })
+    localStorage.currentChatId = JSON.stringify(0)
   }, [])
 
   const handleToggleChatsModal = useCallback(() => {

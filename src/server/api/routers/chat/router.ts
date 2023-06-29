@@ -19,7 +19,7 @@ export const chatRouter = createTRPCRouter({
         include: {
           messages: {
             orderBy: {
-              createdAt: 'desc'
+              id: 'desc'
             },
             take: 1
           }
