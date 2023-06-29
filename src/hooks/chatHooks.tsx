@@ -7,7 +7,9 @@ import { useRouter } from 'next/router'
 import {
   FormEvent,
   MouseEvent,
+  useCallback,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
   useState
@@ -128,41 +130,48 @@ export const useChat = () => {
 
   const chatRef = useRef<HTMLDivElement>(null)
 
-  const handleScrollIntoView = () => {
+  const handleScrollIntoView = useCallback(() => {
     chatRef.current?.scrollIntoView({ behavior: 'auto' })
-  }
+  }, [])
 
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
-  const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleFillMessage = useCallback((e: MouseEvent<HTMLButtonElement>) => {
     setInput(e.currentTarget.innerText.toLowerCase())
-  }
+  }, [])
 
-  const handleStartNewChat = () => {
+  const handleStartNewChat = useCallback(() => {
     setMessages([])
     dispatch({ type: 'chatIdChanged', payload: undefined })
-  }
+  }, [])
 
-  const handleToggleChatsModal = () => {
+  const handleToggleChatsModal = useCallback(() => {
     setIsChatsModalOpen((state) => !state)
-  }
+  }, [])
 
-  const handleChangeChat = (
-    chat: Chat & {
-      messages: Message[]
-    }
-  ) => {
-    dispatch({ type: 'chatIdChanged', payload: chat.id })
-    handleToggleChatsModal()
-  }
+  const handleChangeChat = useCallback(
+    (
+      chat: Chat & {
+        messages: Message[]
+      }
+    ) => {
+      dispatch({ type: 'chatIdChanged', payload: chat.id })
+      handleToggleChatsModal()
+    },
+    []
+  )
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    if (isSendingMessage) {
-      stop()
-    } else {
-      submitMessages(event)
-    }
-  }
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      if (isSendingMessage) {
+        stop()
+      } else {
+        submitMessages(event)
+      }
+    },
+    [isSendingMessage, stop, submitMessages]
+  )
+
   const recipeFilters = useRecipeFilters()
 
   return {
@@ -176,7 +185,7 @@ export const useChat = () => {
     messages,
     isSendingMessage,
 
-    handleInputChange,
+    handleInputChange: useCallback(handleInputChange, []),
     handleToggleChatsModal,
     handleChangeChat,
     handleStartNewChat,
@@ -252,49 +261,59 @@ export const useSaveRecipe = (chatId?: number) => {
 
   const router = useRouter()
 
-  const handleGoToRecipe = ({
-    recipeId,
-    recipeName
-  }: {
-    recipeId: number | null
-    recipeName?: string
-  }) => {
-    if (recipeId && recipeName) {
-      router.push(`recipes/${recipeId}?name=${encodeURIComponent(recipeName)}`)
-    }
-  }
+  const memoizedData = useMemo(() => data, [data])
 
-  const handleSaveRecipe = ({
-    content,
-    messageId
-  }: {
-    content: string
-    messageId: number
-  }) => {
-    if (!content) return
+  const handleGoToRecipe = useCallback(
+    ({
+      recipeId,
+      recipeName
+    }: {
+      recipeId: number | null
+      recipeName?: string
+    }) => {
+      if (recipeId && recipeName) {
+        router.push(
+          `recipes/${recipeId}?name=${encodeURIComponent(recipeName)}`
+        )
+      }
+    },
+    []
+  )
 
-    const { name, description, cookTime, prepTime, ingredients, instructions } =
-      transformContentToRecipe(content)
+  const handleSaveRecipe = useCallback(
+    ({ content, messageId }: { content: string; messageId: number }) => {
+      if (!content) return
 
-    mutate({
-      name,
-      description,
-      prepTime,
-      cookTime,
-      instructions: removeLeadingHyphens(instructions)
-        .split('\n')
-        .filter(Boolean),
-      ingredients: ingredients
-        .split('\n')
-        .map((s) => removeLeadingHyphens(s))
-        .filter(Boolean),
-      messageId
-    })
-  }
+      const {
+        name,
+        description,
+        cookTime,
+        prepTime,
+        ingredients,
+        instructions
+      } = transformContentToRecipe(content)
+
+      mutate({
+        name,
+        description,
+        prepTime,
+        cookTime,
+        instructions: removeLeadingHyphens(instructions)
+          .split('\n')
+          .filter(Boolean),
+        ingredients: ingredients
+          .split('\n')
+          .map((s) => removeLeadingHyphens(s))
+          .filter(Boolean),
+        messageId
+      })
+    },
+    []
+  )
 
   return {
     status,
-    data,
+    data: memoizedData,
 
     handleSaveRecipe,
     handleGoToRecipe
