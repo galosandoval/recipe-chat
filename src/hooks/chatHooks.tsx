@@ -10,7 +10,6 @@ import {
   useEffect,
   useMemo,
   useReducer,
-  useRef,
   useState
 } from 'react'
 import { toast } from 'react-hot-toast'
@@ -27,17 +26,32 @@ export type FormValues = {
 }
 
 export type ChatType = ReturnType<typeof useChat>
-
 export const useChat = () => {
-  const { status: authStatus } = useSession()
-  const isAuthenticated = authStatus === 'authenticated'
-  const utils = api.useContext()
-
   const [state, dispatch] = useChatReducer({
     chatId: undefined
   })
+  const router = useRouter()
+  const { status: authStatus, data } = useSession()
+  const isAuthenticated = authStatus === 'authenticated'
+  const userId = data?.user.id
+  const utils = api.useContext()
 
-  const { status } = api.chat.getMessagesByChatId.useQuery(
+  const { mutate } = api.chat.addMessages.useMutation({
+    onSuccess(data, input) {
+      if (!input?.chatId) {
+        const payload = data as Message[]
+        if (payload.length) {
+          localStorage.currentChatId = JSON.stringify(payload[0].chatId)
+        }
+      }
+      utils.chat.invalidate()
+
+      if (Array.isArray(data)) {
+        dispatch({ type: 'chatIdChanged', payload: data[0].chatId })
+      }
+    }
+  })
+  const { status, fetchStatus } = api.chat.getMessagesByChatId.useQuery(
     { chatId: state.chatId || 0 },
     {
       enabled: isAuthenticated && !!state.chatId,
@@ -50,21 +64,6 @@ export const useChat = () => {
       }
     }
   )
-
-  const { mutate } = api.chat.addMessages.useMutation({
-    onSuccess(data, input) {
-      if (!input?.chatId) {
-        const payload = data as Message[]
-        if (payload.length) {
-          localStorage.currentChatId = JSON.stringify(payload[0].chatId)
-        }
-      }
-      utils.chat.invalidate()
-    }
-  })
-
-  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
-
   const {
     messages,
     input,
@@ -85,6 +84,8 @@ export const useChat = () => {
     }
   })
 
+  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
+
   const handleGetChatsOnSuccess = useCallback(
     (
       data: (Chat & {
@@ -97,25 +98,6 @@ export const useChat = () => {
     },
     []
   )
-  const scrollToRef = useRef<HTMLDivElement>(null)
-
-  const handleScrollIntoView = useCallback(() => {
-    scrollToRef.current?.scrollIntoView({ behavior: 'auto' })
-  }, [])
-
-  const handleFillMessage = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    setInput(e.currentTarget.innerText.toLowerCase())
-  }, [])
-
-  const handleStartNewChat = useCallback(() => {
-    setMessages([])
-    dispatch({ type: 'chatIdChanged', payload: undefined })
-    localStorage.currentChatId = JSON.stringify(0)
-  }, [])
-
-  const handleToggleChatsModal = useCallback(() => {
-    setIsChatsModalOpen((state) => !state)
-  }, [])
 
   const handleChangeChat = useCallback(
     (
@@ -128,6 +110,20 @@ export const useChat = () => {
     },
     []
   )
+
+  const handleFillMessage = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+    setInput(e.currentTarget.innerText.toLowerCase())
+  }, [])
+
+  const handleStartNewChat = useCallback(() => {
+    setMessages([])
+    dispatch({ type: 'chatIdChanged', payload: undefined })
+    if (isAuthenticated) localStorage.currentChatId = JSON.stringify(0)
+  }, [])
+
+  const handleToggleChatsModal = useCallback(() => {
+    setIsChatsModalOpen((state) => !state)
+  }, [])
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -143,10 +139,11 @@ export const useChat = () => {
   const recipeFilters = useRecipeFilters()
 
   useEffect(() => {
-    if (state.chatId) {
-      localStorage.currentChatId = JSON.stringify(state.chatId)
+    if (userId) {
+      utils.chat.getChats.prefetch({ userId })
+      router.push('/chat')
     }
-  }, [state.chatId])
+  }, [userId])
 
   useEffect(() => {
     if (
@@ -158,17 +155,17 @@ export const useChat = () => {
         payload: JSON.parse(localStorage.currentChatId) as number
       })
     }
-  }, [])
+  }, [dispatch])
 
   return {
     recipeFilters,
     state,
+    fetchStatus,
     status,
     isChatsModalOpen,
     input,
     messages,
     isSendingMessage,
-    scrollToRef,
 
     handleGetChatsOnSuccess,
     handleInputChange: useCallback(handleInputChange, []),
@@ -178,20 +175,6 @@ export const useChat = () => {
     handleFillMessage,
     handleSubmit
   }
-}
-
-function debounce<F extends (...args: unknown[]) => void>(
-  callback: F,
-  delay: number
-): F {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined
-
-  return function (this: unknown, ...args: unknown[]) {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => {
-      callback.apply(this, args)
-    }, delay)
-  } as F
 }
 
 type ChatState = {
@@ -218,6 +201,8 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
   const { type, payload } = action
   switch (type) {
     case 'chatIdChanged':
+      localStorage.currentChatId = JSON.stringify(state.chatId)
+
       return {
         ...state,
         chatId: payload
