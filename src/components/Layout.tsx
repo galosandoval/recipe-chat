@@ -48,9 +48,7 @@ const RootLayout = memo(function RootLayout({
     >
       <div className='relative flex h-full max-w-full flex-1 overflow-hidden'>
         <div className='flex h-full max-w-full flex-1 flex-col'>
-          <div
-            className={`backdrop sticky top-0 z-10 flex w-full bg-gradient-to-b from-base-100 to-base-100/80 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300`}
-          >
+          <div className='backdrop fixed top-0 z-10 flex w-full bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
             {navbar}
           </div>
           <main className='transition-width relative flex h-full w-full flex-1 flex-col items-stretch overflow-auto'>
@@ -147,17 +145,14 @@ function MenuNavbar() {
   const router = useRouter()
   const menuItems = [
     {
-      label: 'Chat',
       value: '/chat',
       icon: <ChatBubbleLeftRightIcon />
     },
     {
-      label: 'List',
       value: '/list',
       icon: <ListBulletIcon />
     },
     {
-      label: 'Recipes',
       value: '/recipes',
       icon: (
         <svg
@@ -191,10 +186,10 @@ function MenuNavbar() {
   }
 
   const activeSpanStyles = (path: string) => {
-    let styles = 'absolute top-[3.12rem] h-1 w-full bg-transparent'
+    let styles = 'absolute top-10 h-1 w-full bg-transparent'
 
     if (router.asPath === path) {
-      styles = 'absolute top-[3.12rem] h-1 w-full bg-primary'
+      styles = 'absolute top-10 h-1 w-full bg-primary'
     }
 
     return styles
@@ -206,11 +201,10 @@ function MenuNavbar() {
         <Link
           className={activeLinkStyles(item.value)}
           href={item.value}
-          key={item.label}
+          key={item.value}
         >
           <span className={activeSpanStyles(item.value)}></span>
           {item.icon}
-          <span className=''>{item.label}</span>
         </Link>
       ))}
 

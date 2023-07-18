@@ -42,7 +42,7 @@ export function Recipes() {
     const cards = Object.values(data)
 
     return (
-      <div className='container mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2'>
+      <div className='container mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2 pt-16'>
         {cards.length > 0 && (
           <SearchBar
             handleChange={handleChange}

@@ -45,7 +45,7 @@ export default function PublicChatView() {
   return (
     <>
       <MyHead title='Listy - Chat' />
-      <div>
+      <div className='pt-16'>
         <div className='mx-auto flex flex-col pb-12'>
           <div className='relative flex flex-col gap-4'>
             {messages.length === 0 ? (
