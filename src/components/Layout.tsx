@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode, memo, useEffect, useState } from 'react'
+import React, { ReactNode, memo, useState } from 'react'
 import {
   ChatBubbleLeftRightIcon,
   PencilSquareIcon,
@@ -32,9 +32,6 @@ const RootLayout = memo(function RootLayout({
   const router = useRouter()
   const { data } = useSession()
 
-  const [lastScrollY, setLastScrollY] = useState(0)
-  const [isOpen, setIsOpen] = useState('')
-
   let navbar = <MenuNavbar />
 
   if (!data) {
@@ -45,38 +42,22 @@ const RootLayout = memo(function RootLayout({
     navbar = <EditRecipeNavbar />
   }
 
-  // useEffect(() => {
-  //   if (typeof window !== 'undefined') {
-  //     const controlNavbar = () => {
-  //       if (lastScrollY > 10 && window.scrollY > lastScrollY) {
-  //         // if scroll down hide the navbar
-  //         setIsOpen('-translate-y-full')
-  //       } else {
-  //         setIsOpen('')
-  //       }
-  //       // remember current page location to use in the next move
-  //       setLastScrollY(window.scrollY)
-  //     }
-
-  //     window.addEventListener('scroll', controlNavbar)
-
-  //     // cleanup function
-  //     return () => {
-  //       window.removeEventListener('scroll', controlNavbar)
-  //     }
-  //   }
-  // }, [])
-
   return (
-    <div className={`${font} relative flex h-full flex-col font-roboto`}>
-      <div
-        className={`backdrop sticky top-0 z-10 flex w-full flex-1 justify-center bg-gradient-to-b from-base-100 to-base-100/80 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300`}
-      >
-        {navbar}
+    <div
+      className={`${font} relative flex h-full w-full overflow-hidden font-roboto`}
+    >
+      <div className='relative flex h-full max-w-full flex-1 overflow-hidden'>
+        <div className='flex h-full max-w-full flex-1 flex-col'>
+          <div
+            className={`backdrop sticky top-0 z-10 flex w-full bg-gradient-to-b from-base-100 to-base-100/80 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300`}
+          >
+            {navbar}
+          </div>
+          <main className='transition-width relative flex h-full w-full flex-1 flex-col items-stretch overflow-auto'>
+            {children}
+          </main>
+        </div>
       </div>
-      <main className='relative z-0 mx-auto flex h-full flex-col'>
-        {children}
-      </main>
     </div>
   )
 })

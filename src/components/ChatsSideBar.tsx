@@ -64,7 +64,7 @@ export const ChatsSideBarButton = memo(function ChatsSideBarButton({
 
       <Drawer closeModal={handleToggleChatsModal} isOpen={isChatsModalOpen}>
         <div className='flex h-full flex-col justify-between'>
-          <RecipeFilters {...recipeFilters} />
+          {/* <RecipeFilters {...recipeFilters} /> */}
 
           <ChatList
             chats={chats}

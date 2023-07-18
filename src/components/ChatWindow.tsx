@@ -3,15 +3,8 @@ import ScrollToBottom, {
   useSticky
 } from 'react-scroll-to-bottom'
 import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
-import { SaveRecipe, useChat, useSaveRecipe } from 'hooks/chatHooks'
-import {
-  ChangeEventHandler,
-  FormEvent,
-  MouseEvent,
-  memo,
-  useEffect,
-  useMemo
-} from 'react'
+import { ChatType, SaveRecipe, useSaveRecipe } from 'hooks/chatHooks'
+import { ChangeEventHandler, FormEvent, MouseEvent, memo, useMemo } from 'react'
 import { ScreenLoader } from './loaders/ScreenLoader'
 import { QueryStatus } from '@tanstack/react-query'
 import { RecipeFiltersType } from './RecipeFilters'
@@ -28,47 +21,38 @@ import {
 import { ChatLoader } from './loaders/ChatBubbleLoader'
 import { Button } from './Button'
 
-export default function MessageContent({ someProp }: { someProp: string }) {
+type MessageContentProps = Omit<
+  ChatType,
+  'input' | 'handleSubmit' | 'handleInputChange'
+>
+
+export default function ChatWindow(props: MessageContentProps) {
   return (
-    <ScrollToBottom followButtonClassName='mb-16' className='relative h-full'>
-      <Content />
+    <ScrollToBottom
+      initialScrollBehavior='auto'
+      followButtonClassName='hidden'
+      className='h-full'
+    >
+      <Content {...props} />
     </ScrollToBottom>
   )
 }
 
-// function Content({ content }: { content?: string }) {
-//   const scrollToBottom = useScrollToBottom()
-//   const [sticky] = useSticky()
-
-//   console.log('sticky', sticky)
-
-//   return <p className='mb-0 mt-0 whitespace-pre-line'>{content || ''}</p>
-// }
-
-function Content() {
-  const {
-    recipeFilters,
-    state,
-    status: messageListStatus,
-    isChatsModalOpen,
-    input,
-    messages,
-    isSendingMessage,
-
-    handleGetChatsOnSuccess,
-    handleInputChange,
-    handleToggleChatsModal,
-    handleSubmit,
-    handleFillMessage,
-    handleChangeChat,
-    handleStartNewChat
-  } = useChat()
+const Content = memo(function Content({
+  state,
+  recipeFilters,
+  status: messageListStatus,
+  handleFillMessage,
+  messages,
+  isChatsModalOpen,
+  isSendingMessage,
+  handleGetChatsOnSuccess,
+  handleChangeChat,
+  handleStartNewChat,
+  handleToggleChatsModal
+}: MessageContentProps) {
   const scrollToBottom = useScrollToBottom()
   const [sticky] = useSticky()
-
-  useEffect(() => {
-    console.log('sticky', sticky)
-  }, [sticky])
 
   const { ...saveRecipe } = useSaveRecipe(state.chatId)
 
@@ -80,51 +64,39 @@ function Content() {
   }
 
   return (
-    // <div className={`mx-auto flex flex-1 flex-col overflow-hidden`}>
-    <div className='flex flex-col gap-4 pb-16'>
-      <ChatWindowContent
-        handleFillMessage={handleFillMessage}
-        saveRecipe={memoizedSaveRecipe}
-        recipeFilters={momoizedRecipeFilters}
-        messages={messages as []}
-        chatId={state.chatId}
-        messagesStatus={messageListStatus}
-        messagesLength={messages.length}
-        isChatsModalOpen={isChatsModalOpen}
-        isSendingMessage={isSendingMessage}
-        handleGetChatsOnSuccess={handleGetChatsOnSuccess}
-        handleChangeChat={handleChangeChat}
-        handleStartNewChat={handleStartNewChat}
-        handleToggleChatsModal={handleToggleChatsModal}
-      />
-    </div>
+    <>
+      <div className='flex flex-col gap-4 pb-16'>
+        <ChatWindowContent
+          handleFillMessage={handleFillMessage}
+          saveRecipe={memoizedSaveRecipe}
+          recipeFilters={momoizedRecipeFilters}
+          messages={messages as []}
+          chatId={state.chatId}
+          messagesStatus={messageListStatus}
+          messagesLength={messages.length}
+          isChatsModalOpen={isChatsModalOpen}
+          isSendingMessage={isSendingMessage}
+          handleGetChatsOnSuccess={handleGetChatsOnSuccess}
+          handleChangeChat={handleChangeChat}
+          handleStartNewChat={handleStartNewChat}
+          handleToggleChatsModal={handleToggleChatsModal}
+        />
+      </div>
+      <div
+        className={`absolute bottom-20 left-4 duration-300 transition-all${
+          !sticky ? ' translate-y-0 opacity-100' : ' translate-y-4 opacity-0'
+        }`}
+      >
+        <button
+          className='glass btn-circle btn'
+          onClick={() => scrollToBottom()}
+        >
+          <ArrowSmallDownIcon />
+        </button>
+      </div>
+    </>
   )
-}
-{
-  /* <div
-  className={`absolute bottom-20 left-4 duration-300 transition-all${
-    !sticky ? ' translate-y-0 opacity-100' : ' translate-y-4 opacity-0'
-  }`}
->
-  <button
-    className='glass btn-circle btn'
-    onClick={() => scrollToBottom()}
-  >
-    <ArrowSmallDownIcon />
-  </button>
-</div> */
-}
-
-{
-  /* <SubmitMessageForm
-  input={input}
-  isSendingMessage={isSendingMessage}
-  handleSubmit={handleSubmit}
-  handleInputChange={handleInputChange}
-/> */
-}
-// </div>
-
+})
 function ChatWindowContent({
   messagesLength,
   messages,
@@ -213,7 +185,7 @@ type MessageListProps = {
   ) => void
 }
 
-function MessageList({
+const MessageList = memo(function MessageList({
   data,
   status,
   chatId,
@@ -264,7 +236,7 @@ function MessageList({
       {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
     </>
   )
-}
+})
 
 const Message = function Message({
   message,
