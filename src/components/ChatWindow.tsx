@@ -20,6 +20,7 @@ import {
 } from './Icons'
 import { ChatLoader } from './loaders/ChatBubbleLoader'
 import { Button } from './Button'
+import { useSession } from 'next-auth/react'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -38,28 +39,32 @@ export default function ChatWindow(props: MessageContentProps) {
   )
 }
 
-const Content = memo(function Content({
-  state,
-  recipeFilters,
-  status: messageListStatus,
-  handleFillMessage,
-  messages,
-  isChatsModalOpen,
-  isSendingMessage,
-  handleGetChatsOnSuccess,
-  handleChangeChat,
-  handleStartNewChat,
-  handleToggleChatsModal
-}: MessageContentProps) {
+const Content = memo(function Content(props: MessageContentProps) {
+  const {
+    state,
+    recipeFilters,
+    handleFillMessage,
+    messages,
+    isChatsModalOpen,
+    isSendingMessage,
+    handleStartNewChat,
+    handleToggleChatsModal
+  } = props
+
   const scrollToBottom = useScrollToBottom()
   const [sticky] = useSticky()
 
-  const { ...saveRecipe } = useSaveRecipe(state.chatId)
+  const { ...saveRecipe } = useSaveRecipe(state?.chatId)
 
   const memoizedSaveRecipe = useMemo(() => saveRecipe, [])
   const momoizedRecipeFilters = useMemo(() => recipeFilters, [])
 
-  if (messageListStatus === 'loading' && !!state.chatId) {
+  if (
+    'status' in props &&
+    props.status === 'loading' &&
+    'fetchStatus' in props &&
+    props.fetchStatus !== 'idle'
+  ) {
     return <ScreenLoader />
   }
 
@@ -71,13 +76,19 @@ const Content = memo(function Content({
           saveRecipe={memoizedSaveRecipe}
           recipeFilters={momoizedRecipeFilters}
           messages={messages as []}
-          chatId={state.chatId}
-          messagesStatus={messageListStatus}
-          messagesLength={messages.length}
+          chatId={state?.chatId}
+          messagesStatus={'status' in props ? props.status : undefined}
+          messagesLength={messages?.length}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
-          handleGetChatsOnSuccess={handleGetChatsOnSuccess}
-          handleChangeChat={handleChangeChat}
+          handleGetChatsOnSuccess={
+            'handleGetChatsOnSuccess' in props
+              ? props.handleGetChatsOnSuccess
+              : undefined
+          }
+          handleChangeChat={
+            'handleChangeChat' in props ? props.handleChangeChat : undefined
+          }
           handleStartNewChat={handleStartNewChat}
           handleToggleChatsModal={handleToggleChatsModal}
         />
@@ -91,7 +102,7 @@ const Content = memo(function Content({
       >
         <button
           className='glass btn-circle btn'
-          onClick={() => scrollToBottom()}
+          onClick={() => scrollToBottom({ behavior: 'smooth' })}
         >
           <ArrowSmallDownIcon />
         </button>
@@ -99,6 +110,7 @@ const Content = memo(function Content({
     </>
   )
 })
+
 function ChatWindowContent({
   messagesLength,
   messages,
@@ -115,16 +127,16 @@ function ChatWindowContent({
   handleFillMessage
 }: {
   messagesLength: number
-  messagesStatus: QueryStatus
+  messagesStatus?: QueryStatus
   recipeFilters: RecipeFiltersType
   handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
   saveRecipe: SaveRecipe
-  handleGetChatsOnSuccess: (
+  handleGetChatsOnSuccess?: (
     data: (Chat & {
       messages: Message[]
     })[]
   ) => void
-  handleChangeChat: (
+  handleChangeChat?: (
     chat: Chat & {
       messages: PrismaMessage[]
     }
@@ -137,11 +149,18 @@ function ChatWindowContent({
   chatId?: number
   messages: Message[]
 }) {
-  if (messagesLength === 0) {
+  const { data } = useSession()
+
+  if (messagesLength === 0 || !messagesLength) {
     return <ValueProps handleFillMessage={handleFillMessage} />
   }
 
-  if (messagesStatus === 'success' || isSendingMessage || messagesLength > 0) {
+  if (
+    messagesStatus === 'success' ||
+    isSendingMessage ||
+    messagesLength > 0 ||
+    !data?.user?.id
+  ) {
     return (
       <div className='h-full'>
         <MessageList
@@ -166,21 +185,21 @@ function ChatWindowContent({
 
 type MessageListProps = {
   data: PrismaMessage[]
-  status: QueryStatus
+  status?: QueryStatus
   chatId?: number
   isChatsModalOpen: boolean
   recipeFilters: RecipeFiltersType
   isSendingMessage: boolean
   saveRecipe: SaveRecipe
 
-  handleChangeChat: (
+  handleChangeChat?: (
     chat: Chat & {
       messages: PrismaMessage[]
     }
   ) => void
   handleStartNewChat: () => void
   handleToggleChatsModal: () => void
-  handleGetChatsOnSuccess: (
+  handleGetChatsOnSuccess?: (
     data: (Chat & {
       messages: Message[]
     })[]
@@ -207,14 +226,18 @@ const MessageList = memo(function MessageList({
   return (
     <>
       <div className='mx-auto mt-2 grid grid-cols-3 px-2'>
-        <ChatsSideBarButton
-          chatId={chatId}
-          isChatsModalOpen={isChatsModalOpen}
-          recipeFilters={recipeFilters}
-          handleChangeChat={handleChangeChat}
-          handleToggleChatsModal={handleToggleChatsModal}
-          onSuccess={handleGetChatsOnSuccess}
-        />
+        {handleChangeChat && handleGetChatsOnSuccess ? (
+          <ChatsSideBarButton
+            chatId={chatId}
+            isChatsModalOpen={isChatsModalOpen}
+            recipeFilters={recipeFilters}
+            handleChangeChat={handleChangeChat}
+            handleToggleChatsModal={handleToggleChatsModal}
+            onSuccess={handleGetChatsOnSuccess}
+          />
+        ) : (
+          <div></div>
+        )}
 
         <div className='flex items-center justify-center gap-2'>
           <h2 className='mb-2 mt-2'>Chat</h2>
