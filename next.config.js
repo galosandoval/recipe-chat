@@ -8,10 +8,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'uploadthing.com',
         port: '',
-        pathname: '/f/**',
-      },
-    ],
-  },
+        pathname: '/f/**'
+      }
+    ]
+  }
 }
 
 module.exports = nextConfig

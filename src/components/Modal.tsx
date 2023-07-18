@@ -19,24 +19,23 @@ export const Modal = ({
       >
         <Transition.Child
           as={Fragment}
-          enter='ease-out duration-200'
+          enter='ease-out duration-300'
           enterFrom='opacity-0'
-          enterTo='opacity-100'
-          leave='ease-in duration-100'
+          enterTo='opacity-300'
           leaveFrom='opacity-100'
           leaveTo='opacity-0'
         >
           <div className='bg-primary-content/65 absolute inset-0'></div>
         </Transition.Child>
         <Transition.Child
-          enter='ease-out duration-200'
+          enter='ease-out duration-300'
           enterFrom='opacity-0 translate-y-1'
           enterTo='opacity-100 translate-y-0'
-          leave='ease-in duration-100'
           leaveFrom='opacity-100 translate-y-0'
           leaveTo='opacity-0 translate-y-1'
+          className='w-[95%] max-w-md'
         >
-          <Dialog.Panel className='w-[95%] max-w-md transform overflow-hidden rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
+          <Dialog.Panel className='transform overflow-hidden rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
             {children}
           </Dialog.Panel>
         </Transition.Child>
