@@ -16,7 +16,7 @@ export default function ListView() {
   return (
     <>
       <MyHead title='Listy - List' />
-      <div className='prose mx-auto'>
+      <div className='prose mx-auto w-full'>
         <ListByUserId />
       </div>
     </>
@@ -103,7 +103,7 @@ function ListController({ data }: { data: Ingredient[] }) {
         data={data}
         handleCheck={handleCheck}
       />
-      <div className='fixed bottom-0 left-0 w-full px-2'>
+      <div className='fixed bottom-0 left-0 w-full'>
         <AddIngredientForm />
       </div>
     </div>
@@ -123,7 +123,7 @@ function EmptyList() {
         <h1 className='my-auto px-5 text-center text-primary'>
           No items in your list
         </h1>
-        <div className='w-full self-center justify-self-center px-2'>
+        <div className='fixed bottom-0 left-0 w-full'>
           <AddIngredientForm />
         </div>
       </div>
@@ -139,7 +139,7 @@ function AddIngredientForm() {
 
   return (
     <form
-      className='form-control my-4 rounded-lg bg-base-300/75 p-2'
+      className='form-control w-full bg-base-300/75 p-2'
       onSubmit={handleSubmit(onSubmitNewIngredient)}
     >
       <div className='input-group'>
