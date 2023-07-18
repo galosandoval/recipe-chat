@@ -22,7 +22,9 @@ export default function EditByIdView() {
   return (
     <>
       <MyHead title={`Listy - Edit ${name}`} />
-      <EditById id={parseInt(id as string)} />
+      <div className='pt-16'>
+        <EditById id={parseInt(id as string)} />
+      </div>
     </>
   )
 }

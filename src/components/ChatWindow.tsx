@@ -65,7 +65,7 @@ const Content = memo(function Content({
 
   return (
     <>
-      <div className='flex flex-col gap-4 pb-16'>
+      <div className='flex flex-col gap-4 pb-16 pt-16'>
         <ChatWindowContent
           handleFillMessage={handleFillMessage}
           saveRecipe={memoizedSaveRecipe}
@@ -83,8 +83,10 @@ const Content = memo(function Content({
         />
       </div>
       <div
-        className={`absolute bottom-20 left-4 duration-300 transition-all${
-          !sticky ? ' translate-y-0 opacity-100' : ' translate-y-4 opacity-0'
+        className={`absolute bottom-20 right-4 duration-300 transition-all${
+          !sticky
+            ? ' translate-y-0 opacity-100'
+            : ' invisible translate-y-4 opacity-0'
         }`}
       >
         <button

@@ -16,7 +16,7 @@ export default function ListView() {
   return (
     <>
       <MyHead title='Listy - List' />
-      <div className='prose mx-auto w-full'>
+      <div className='prose mx-auto w-full pt-16'>
         <ListByUserId />
       </div>
     </>
