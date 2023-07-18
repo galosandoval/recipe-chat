@@ -26,8 +26,10 @@ export type FormValues = {
   cookTime: string
 }
 
+export type ChatType = ReturnType<typeof useChat>
+
 export const useChat = () => {
-  const { status: authStatus, data } = useSession()
+  const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   const utils = api.useContext()
 
@@ -35,50 +37,33 @@ export const useChat = () => {
     chatId: undefined
   })
 
-  const chats = api.chat.getChats.useQuery(
-    { userId: data?.user.id || 0 },
-    {
-      onSuccess: (data) => {
-        if (typeof localStorage.currentChatId !== 'string') {
-          dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
-        }
-
-        if (
-          messages.length === 0 &&
-          data[0]?.messages.length &&
-          state?.chatId
-        ) {
-          setMessages(
-            data[0].messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
-          )
-        }
-      },
-      enabled: isAuthenticated
-    }
-  )
-
   const { status } = api.chat.getMessagesByChatId.useQuery(
     { chatId: state.chatId || 0 },
     {
-      enabled: isAuthenticated && !!state.chatId
+      enabled: isAuthenticated && !!state.chatId,
+      onSuccess: (data) => {
+        if (data) {
+          setMessages(
+            data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
+          )
+        }
+      }
     }
   )
 
   const { mutate } = api.chat.addMessages.useMutation({
-    onSuccess(data, { chatId }) {
-      if (!chatId) {
+    onSuccess(data, input) {
+      if (!input?.chatId) {
         const payload = data as Message[]
         if (payload.length) {
-          dispatch({
-            type: 'chatIdChanged',
-            payload: payload[0].chatId
-          })
+          localStorage.currentChatId = JSON.stringify(payload[0].chatId)
         }
       }
-
       utils.chat.invalidate()
     }
   })
+
+  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const {
     messages,
@@ -100,31 +85,23 @@ export const useChat = () => {
     }
   })
 
-  useEffect(() => {
-    if (state.chatId) {
-      localStorage.currentChatId = JSON.stringify(state.chatId)
-    }
-  }, [state.chatId])
-
-  useEffect(() => {
-    if (
-      typeof window !== undefined &&
-      typeof localStorage.currentChatId === 'string'
-    ) {
-      dispatch({
-        type: 'chatIdChanged',
-        payload: JSON.parse(localStorage.currentChatId) as number
-      })
-    }
-  }, [])
-
-  const chatRef = useRef<HTMLDivElement>(null)
+  const handleGetChatsOnSuccess = useCallback(
+    (
+      data: (Chat & {
+        messages: Message[]
+      })[]
+    ) => {
+      if (typeof localStorage.currentChatId !== 'string') {
+        dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
+      }
+    },
+    []
+  )
+  const scrollToRef = useRef<HTMLDivElement>(null)
 
   const handleScrollIntoView = useCallback(() => {
-    chatRef.current?.scrollIntoView({ behavior: 'auto' })
+    scrollToRef.current?.scrollIntoView({ behavior: 'auto' })
   }, [])
-
-  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const handleFillMessage = useCallback((e: MouseEvent<HTMLButtonElement>) => {
     setInput(e.currentTarget.innerText.toLowerCase())
@@ -165,28 +142,57 @@ export const useChat = () => {
 
   const recipeFilters = useRecipeFilters()
 
+  useEffect(() => {
+    if (state.chatId) {
+      localStorage.currentChatId = JSON.stringify(state.chatId)
+    }
+  }, [state.chatId])
+
+  useEffect(() => {
+    if (
+      typeof window !== undefined &&
+      typeof localStorage.currentChatId === 'string'
+    ) {
+      dispatch({
+        type: 'chatIdChanged',
+        payload: JSON.parse(localStorage.currentChatId) as number
+      })
+    }
+  }, [])
+
   return {
-    chatRef,
     recipeFilters,
     state,
     status,
-    chats,
     isChatsModalOpen,
     input,
     messages,
     isSendingMessage,
+    scrollToRef,
 
+    handleGetChatsOnSuccess,
     handleInputChange: useCallback(handleInputChange, []),
     handleToggleChatsModal,
     handleChangeChat,
     handleStartNewChat,
-    handleScrollIntoView,
     handleFillMessage,
     handleSubmit
   }
 }
 
-export type ChatsType = ReturnType<typeof useChat>['chats']
+function debounce<F extends (...args: unknown[]) => void>(
+  callback: F,
+  delay: number
+): F {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  return function (this: unknown, ...args: unknown[]) {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => {
+      callback.apply(this, args)
+    }, delay)
+  } as F
+}
 
 type ChatState = {
   chatId?: number

@@ -1,19 +1,41 @@
 import { Chat, Message } from '@prisma/client'
-import { ChatsType } from 'hooks/chatHooks'
 import { AdjustmentsHorizontalIcon, ListBulletIcon } from './Icons'
 import { Drawer } from './Drawer'
 import { formatTimeAgo } from 'utils/relativeTimeFormat'
 import { RecipeFilters, RecipeFiltersType } from './RecipeFilters'
+import { memo } from 'react'
+import { api } from 'utils/api'
+import { useSession } from 'next-auth/react'
+import { ScreenLoader } from './loaders/ScreenLoader'
 
-export function ChatsSideBarButton({
-  chats,
+const useGetChats = (
+  onSuccess: (
+    data: (Chat & {
+      messages: Message[]
+    })[]
+  ) => void
+) => {
+  const { status: authStatus, data } = useSession()
+  const isAuthenticated = authStatus === 'authenticated'
+  return api.chat.getChats.useQuery(
+    { userId: data?.user.id || 0 },
+    {
+      onSuccess,
+      enabled: isAuthenticated
+    }
+  )
+}
+
+type Chats = ReturnType<typeof useGetChats>
+
+export const ChatsSideBarButton = memo(function ChatsSideBarButton({
   chatId,
   isChatsModalOpen,
   recipeFilters,
+  onSuccess,
   handleToggleChatsModal,
   handleChangeChat
 }: {
-  chats: ChatsType
   chatId?: number
   isChatsModalOpen: boolean
   recipeFilters: RecipeFiltersType
@@ -23,7 +45,14 @@ export function ChatsSideBarButton({
     }
   ) => void
   handleToggleChatsModal: () => void
+  onSuccess: (
+    data: (Chat & {
+      messages: Message[]
+    })[]
+  ) => void
 }) {
+  const chats = useGetChats(onSuccess)
+
   return (
     <>
       <button
@@ -46,14 +75,14 @@ export function ChatsSideBarButton({
       </Drawer>
     </>
   )
-}
+})
 
 function ChatList({
   chats,
   chatId,
   handleChangeChat
 }: {
-  chats: ChatsType
+  chats: Chats
   chatId?: number
   handleChangeChat: (
     chat: Chat & {
@@ -87,7 +116,7 @@ function ChatList({
     )
   }
 
-  return <div>Error</div>
+  return <ScreenLoader />
 }
 
 function ChatOption({

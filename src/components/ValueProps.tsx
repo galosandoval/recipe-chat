@@ -1,6 +1,6 @@
 import { MouseEvent } from 'react'
 import { Button } from './Button'
-import { ArrorUTurnLeftIcon } from './Icons'
+import { ArrowUTurnLeftIcon } from './Icons'
 
 export function ValueProps({
   handleFillMessage
@@ -34,7 +34,7 @@ export function ValueProps({
           >
             <span className='w-60'>What should I make for dinner tonight?</span>
             <span>
-              <ArrorUTurnLeftIcon />
+              <ArrowUTurnLeftIcon />
             </span>
           </Button>
           <Button
@@ -45,7 +45,7 @@ export function ValueProps({
               Which salad recipe will go well with my steak and potatoes?
             </span>
             <span>
-              <ArrorUTurnLeftIcon />
+              <ArrowUTurnLeftIcon />
             </span>
           </Button>
           <Button
@@ -54,7 +54,7 @@ export function ValueProps({
           >
             <span className='w-60'>What&apos;s a the best risotto recipe?</span>
             <span>
-              <ArrorUTurnLeftIcon />
+              <ArrowUTurnLeftIcon />
             </span>
           </Button>
         </div>

@@ -103,7 +103,7 @@ function ListController({ data }: { data: Ingredient[] }) {
         data={data}
         handleCheck={handleCheck}
       />
-      <div className='absolute bottom-0 left-0 w-full px-2'>
+      <div className='fixed bottom-0 left-0 w-full px-2'>
         <AddIngredientForm />
       </div>
     </div>
@@ -237,7 +237,7 @@ function ListByRecipeId({
   const { data: nameDictionary, isSuccess } = useRecipeNames(ids)
 
   return (
-    <div>
+    <div className='pb-24'>
       {Object.values(recipeBuckets).map((b) => (
         <div key={b[0].recipeId} className='pr-4'>
           {!isSuccess ? (
