@@ -63,7 +63,7 @@ export function DropdownMenuWithTheme() {
         leaveFrom='transform scale-100 opacity-100'
         leaveTo='transform scale-95 opacity-0'
       >
-        <Menu.Items className='absolute right-0 top-[0.5rem] flex flex-col gap-4 rounded-md bg-primary-content py-2'>
+        <Menu.Items className='absolute right-0 top-[0.5rem] z-20 flex flex-col gap-4 rounded-md bg-primary-content py-2 shadow'>
           <Menu.Item>
             <>
               <ThemeToggle updateTheme={updateTheme} theme={theme} />

@@ -1,5 +1,4 @@
 import { Chat, Message } from '@prisma/client'
-import { Message as AiMessage } from 'ai'
 import { useChat as useAiChat } from 'ai/react'
 import { useRecipeFilters } from 'components/RecipeFilters'
 import { useSession } from 'next-auth/react'
@@ -27,17 +26,23 @@ export type FormValues = {
   cookTime: string
 }
 
-function useGetMessagesByChatId(
-  enabled: boolean,
-  setMessages: (messages: AiMessage[]) => void,
-  chatId: number
-) {
-  return api.chat.getMessagesByChatId.useQuery(
-    { chatId },
+export type ChatType = ReturnType<typeof useChat>
+
+export const useChat = () => {
+  const { status: authStatus } = useSession()
+  const isAuthenticated = authStatus === 'authenticated'
+  const utils = api.useContext()
+
+  const [state, dispatch] = useChatReducer({
+    chatId: undefined
+  })
+
+  const { status } = api.chat.getMessagesByChatId.useQuery(
+    { chatId: state.chatId || 0 },
     {
-      enabled,
+      enabled: isAuthenticated && !!state.chatId,
       onSuccess: (data) => {
-        if (data?.messages.length) {
+        if (data) {
           setMessages(
             data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
           )
@@ -45,28 +50,20 @@ function useGetMessagesByChatId(
       }
     }
   )
-}
 
-export const useChat = () => {
-  const { status: authStatus, data } = useSession()
-  const isAuthenticated = authStatus === 'authenticated'
-  const utils = api.useContext()
-
-  const chats = api.chat.getChats.useQuery(
-    { userId: data?.user.id || 0 },
-    {
-      onSuccess: (data) => {
-        if (typeof localStorage.currentChatId !== 'string') {
-          dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
+  const { mutate } = api.chat.addMessages.useMutation({
+    onSuccess(data, input) {
+      if (!input?.chatId) {
+        const payload = data as Message[]
+        if (payload.length) {
+          localStorage.currentChatId = JSON.stringify(payload[0].chatId)
         }
-      },
-      enabled: isAuthenticated
+      }
+      utils.chat.invalidate()
     }
-  )
-
-  const [state, dispatch] = useChatReducer({
-    chatId: undefined
   })
+
+  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const {
     messages,
@@ -82,59 +79,29 @@ export const useChat = () => {
       if (isAuthenticated) {
         mutate({
           messages: [{ content: input, role: 'user' }, message],
-          chatId: state.chatId
+          chatId: !!state.chatId ? state.chatId : undefined
         })
       }
     }
   })
 
-  const { status } = useGetMessagesByChatId(
-    isAuthenticated && !!state.chatId,
-    setMessages,
-    state.chatId || 0
-  )
-
-  const { mutate } = api.chat.addMessages.useMutation({
-    onSuccess(data, { chatId }) {
-      if (!chatId) {
-        const payload = data as Message[]
-        if (payload.length) {
-          dispatch({
-            type: 'chatIdChanged',
-            payload: payload[0].chatId
-          })
-        }
+  const handleGetChatsOnSuccess = useCallback(
+    (
+      data: (Chat & {
+        messages: Message[]
+      })[]
+    ) => {
+      if (typeof localStorage.currentChatId !== 'string') {
+        dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
       }
-
-      utils.chat.invalidate()
-    }
-  })
-
-  useEffect(() => {
-    if (state.chatId) {
-      localStorage.currentChatId = JSON.stringify(state.chatId)
-    }
-  }, [state.chatId])
-
-  useEffect(() => {
-    if (
-      typeof window !== undefined &&
-      typeof localStorage.currentChatId === 'string'
-    ) {
-      dispatch({
-        type: 'chatIdChanged',
-        payload: JSON.parse(localStorage.currentChatId) as number
-      })
-    }
-  }, [dispatch])
-
-  const chatRef = useRef<HTMLDivElement>(null)
+    },
+    []
+  )
+  const scrollToRef = useRef<HTMLDivElement>(null)
 
   const handleScrollIntoView = useCallback(() => {
-    chatRef.current?.scrollIntoView({ behavior: 'auto' })
+    scrollToRef.current?.scrollIntoView({ behavior: 'auto' })
   }, [])
-
-  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const handleFillMessage = useCallback((e: MouseEvent<HTMLButtonElement>) => {
     setInput(e.currentTarget.innerText.toLowerCase())
@@ -143,6 +110,7 @@ export const useChat = () => {
   const handleStartNewChat = useCallback(() => {
     setMessages([])
     dispatch({ type: 'chatIdChanged', payload: undefined })
+    localStorage.currentChatId = JSON.stringify(0)
   }, [])
 
   const handleToggleChatsModal = useCallback(() => {
@@ -174,28 +142,57 @@ export const useChat = () => {
 
   const recipeFilters = useRecipeFilters()
 
+  useEffect(() => {
+    if (state.chatId) {
+      localStorage.currentChatId = JSON.stringify(state.chatId)
+    }
+  }, [state.chatId])
+
+  useEffect(() => {
+    if (
+      typeof window !== undefined &&
+      typeof localStorage.currentChatId === 'string'
+    ) {
+      dispatch({
+        type: 'chatIdChanged',
+        payload: JSON.parse(localStorage.currentChatId) as number
+      })
+    }
+  }, [])
+
   return {
-    chatRef,
     recipeFilters,
     state,
     status,
-    chats,
     isChatsModalOpen,
     input,
     messages,
     isSendingMessage,
+    scrollToRef,
 
+    handleGetChatsOnSuccess,
     handleInputChange: useCallback(handleInputChange, []),
     handleToggleChatsModal,
     handleChangeChat,
     handleStartNewChat,
-    handleScrollIntoView,
     handleFillMessage,
     handleSubmit
   }
 }
 
-export type ChatsType = ReturnType<typeof useChat>['chats']
+function debounce<F extends (...args: unknown[]) => void>(
+  callback: F,
+  delay: number
+): F {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  return function (this: unknown, ...args: unknown[]) {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => {
+      callback.apply(this, args)
+    }, delay)
+  } as F
+}
 
 type ChatState = {
   chatId?: number
