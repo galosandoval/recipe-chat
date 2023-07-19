@@ -48,7 +48,7 @@ const RootLayout = memo(function RootLayout({
     >
       <div className='relative flex h-full max-w-full flex-1 overflow-hidden'>
         <div className='flex h-full max-w-full flex-1 flex-col'>
-          <div className='backdrop fixed top-0 z-10 flex w-full bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
+          <div className='backdrop fixed top-0 z-10 flex w-full justify-center bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
             {navbar}
           </div>
           <main className='transition-width relative flex h-full w-full flex-1 flex-col items-stretch overflow-auto'>
