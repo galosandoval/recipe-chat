@@ -148,11 +148,14 @@ export const useChat = () => {
   useEffect(() => {
     if (
       typeof window !== undefined &&
-      typeof localStorage.currentChatId === 'string'
+      typeof localStorage?.currentChatId === 'string'
     ) {
       dispatch({
         type: 'chatIdChanged',
-        payload: JSON.parse(localStorage.currentChatId) as number
+        payload:
+          localStorage.currentChatId !== undefined
+            ? (JSON.parse(localStorage.currentChatId) as number)
+            : undefined
       })
     }
   }, [dispatch])

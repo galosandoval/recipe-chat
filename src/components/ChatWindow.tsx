@@ -225,7 +225,7 @@ const MessageList = memo(function MessageList({
 
   return (
     <>
-      <div className='mx-auto mt-2 grid grid-cols-3 px-2'>
+      <div className='prose mx-auto mt-2 grid grid-cols-3 px-2'>
         {handleChangeChat && handleGetChatsOnSuccess ? (
           <ChatsSideBarButton
             chatId={chatId}
@@ -238,7 +238,6 @@ const MessageList = memo(function MessageList({
         ) : (
           <div></div>
         )}
-
         <div className='flex items-center justify-center gap-2'>
           <h2 className='mb-2 mt-2'>Chat</h2>
           <ChatBubbleLeftIcon />
@@ -286,7 +285,7 @@ const Message = function Message({
   if (message.role === 'assistant') {
     return (
       <div className='flex flex-col bg-primary-content p-4'>
-        <div className='flex w-full justify-start gap-2 self-center'>
+        <div className='flex w-full justify-center gap-2 self-center'>
           <div>
             <UserCircleIcon />
           </div>
@@ -332,7 +331,7 @@ const Message = function Message({
   }
 
   return (
-    <div className='flex flex-col items-start self-center bg-base-200 p-4'>
+    <div className='flex flex-col items-center self-center bg-base-200 p-4'>
       <div className='prose mx-auto w-full'>
         <div className='flex justify-end gap-2'>
           <div className='flex flex-col items-end'>
