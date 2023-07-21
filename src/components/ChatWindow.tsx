@@ -18,7 +18,7 @@ import {
   PlusIcon,
   UserCircleIcon
 } from './Icons'
-import { ChatLoader } from './loaders/ChatBubbleLoader'
+import { ChatLoader } from './loaders/ChatLoader'
 import { Button } from './Button'
 import { useSession } from 'next-auth/react'
 
