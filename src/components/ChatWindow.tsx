@@ -21,6 +21,7 @@ import {
 import { ChatLoader } from './loaders/ChatLoader'
 import { Button } from './Button'
 import { useSession } from 'next-auth/react'
+import NoSsr from './NoSsr'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -29,13 +30,16 @@ type MessageContentProps = Omit<
 
 export default function ChatWindow(props: MessageContentProps) {
   return (
-    <ScrollToBottom
-      initialScrollBehavior='auto'
-      followButtonClassName='hidden'
-      className='h-full'
-    >
-      <Content {...props} />
-    </ScrollToBottom>
+    // Prevents ScrollToBottom from creating class name on server side
+    <NoSsr>
+      <ScrollToBottom
+        initialScrollBehavior='auto'
+        followButtonClassName='hidden'
+        className='h-full'
+      >
+        <Content {...props} />
+      </ScrollToBottom>
+    </NoSsr>
   )
 }
 
