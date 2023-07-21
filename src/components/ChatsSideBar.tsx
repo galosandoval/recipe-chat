@@ -26,8 +26,6 @@ const useGetChats = (
   )
 }
 
-type Chats = ReturnType<typeof useGetChats>
-
 export const ChatsSideBarButton = memo(function ChatsSideBarButton({
   chatId,
   isChatsModalOpen,
@@ -51,8 +49,6 @@ export const ChatsSideBarButton = memo(function ChatsSideBarButton({
     })[]
   ) => void
 }) {
-  const chats = useGetChats(onSuccess)
-
   return (
     <>
       <button
@@ -67,7 +63,7 @@ export const ChatsSideBarButton = memo(function ChatsSideBarButton({
           {/* <RecipeFilters {...recipeFilters} /> */}
 
           <ChatList
-            chats={chats}
+            onSuccess={onSuccess}
             chatId={chatId}
             handleChangeChat={handleChangeChat}
           />
@@ -78,19 +74,23 @@ export const ChatsSideBarButton = memo(function ChatsSideBarButton({
 })
 
 function ChatList({
-  chats,
   chatId,
-  handleChangeChat
+  handleChangeChat,
+  onSuccess
 }: {
-  chats: Chats
   chatId?: number
   handleChangeChat: (
     chat: Chat & {
       messages: Message[]
     }
   ) => void
+  onSuccess: (
+    data: (Chat & {
+      messages: Message[]
+    })[]
+  ) => void
 }) {
-  const { data, status } = chats
+  const { data, status } = useGetChats(onSuccess)
 
   if (status === 'error') {
     return <div>Error</div>
@@ -147,6 +147,8 @@ function ChatOption({
       }
     }
   }
+
+  console.log('chatId', chatId, 'chat.id', chat.id)
 
   return (
     <div
