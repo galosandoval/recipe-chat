@@ -188,7 +188,7 @@ function Login() {
     register,
     handleSubmit,
     setError,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema)
   })
@@ -238,7 +238,11 @@ function Login() {
             />
           </div>
           <div className='mt-4 flex w-full max-w-[300px] flex-col items-center gap-2'>
-            <Button type='submit' className='btn-primary btn w-3/4'>
+            <Button
+              isLoading={isSubmitting}
+              type='submit'
+              className='btn-primary btn w-3/4'
+            >
               Login
             </Button>
           </div>
