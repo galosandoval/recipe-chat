@@ -285,7 +285,7 @@ const Message = function Message({
   if (message.role === 'assistant') {
     return (
       <div className='flex flex-col bg-primary-content p-4'>
-        <div className='flex w-full justify-center gap-2 self-center'>
+        <div className='flex w-full justify-start gap-2 self-center'>
           <div>
             <UserCircleIcon />
           </div>

@@ -40,30 +40,16 @@ export const useChat = () => {
     onSuccess(data, input) {
       if (!input?.chatId) {
         const payload = data as Message[]
-        if (payload.length) {
-          localStorage.currentChatId = JSON.stringify(payload[0].chatId)
+        if (payload.length && payload[0].chatId) {
+          dispatch({ type: 'chatIdChanged', payload: payload[0].chatId })
         }
       }
-      utils.chat.invalidate()
-
-      if (Array.isArray(data)) {
-        dispatch({ type: 'chatIdChanged', payload: data[0].chatId })
+      if (userId) {
+        utils.chat.getChats.invalidate({ userId })
       }
     }
   })
-  const { status, fetchStatus } = api.chat.getMessagesByChatId.useQuery(
-    { chatId: state.chatId || 0 },
-    {
-      enabled: isAuthenticated && !!state.chatId,
-      onSuccess: (data) => {
-        if (data) {
-          setMessages(
-            data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
-          )
-        }
-      }
-    }
-  )
+
   const {
     messages,
     input,
@@ -84,6 +70,22 @@ export const useChat = () => {
     }
   })
 
+  const enabled = isAuthenticated && !!state.chatId && messages.length === 0
+
+  const { status, fetchStatus } = api.chat.getMessagesByChatId.useQuery(
+    { chatId: state.chatId || 0 },
+    {
+      enabled,
+      onSuccess: (data) => {
+        if (data) {
+          setMessages(
+            data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
+          )
+        }
+      }
+    }
+  )
+
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const handleGetChatsOnSuccess = useCallback(
@@ -92,8 +94,8 @@ export const useChat = () => {
         messages: Message[]
       })[]
     ) => {
-      if (typeof localStorage.currentChatId !== 'string') {
-        dispatch({ type: 'chatIdChanged', payload: data[0]?.id })
+      if (typeof localStorage.currentChatId !== 'string' && data[0]?.id) {
+        dispatch({ type: 'chatIdChanged', payload: data[0].id })
       }
     },
     []
@@ -117,8 +119,8 @@ export const useChat = () => {
 
   const handleStartNewChat = useCallback(() => {
     setMessages([])
-    dispatch({ type: 'chatIdChanged', payload: undefined })
-    if (isAuthenticated) localStorage.currentChatId = JSON.stringify(0)
+
+    if (isAuthenticated) dispatch({ type: 'chatIdChanged', payload: 0 })
   }, [])
 
   const handleToggleChatsModal = useCallback(() => {
@@ -158,7 +160,7 @@ export const useChat = () => {
             : undefined
       })
     }
-  }, [dispatch])
+  }, [])
 
   return {
     recipeFilters,
@@ -185,7 +187,29 @@ type ChatState = {
 }
 
 function useChatReducer(initialState: ChatState) {
-  const [state, dispatch] = useReducer(chatReducer, initialState)
+  const [state, dispatch] = useReducer(
+    (state: ChatState, action: ChatAction) => {
+      const { type, payload } = action
+      switch (type) {
+        case 'chatIdChanged':
+          localStorage.currentChatId = JSON.stringify(payload ? payload : 0)
+
+          return {
+            ...state,
+            chatId: payload
+          }
+
+        case 'reset':
+          return {
+            chatId: 0
+          }
+
+        default:
+          return state
+      }
+    },
+    initialState
+  )
 
   return [state, dispatch] as const
 }
@@ -199,27 +223,6 @@ type ChatAction =
       type: 'reset'
       payload: undefined
     }
-
-function chatReducer(state: ChatState, action: ChatAction): ChatState {
-  const { type, payload } = action
-  switch (type) {
-    case 'chatIdChanged':
-      localStorage.currentChatId = JSON.stringify(state.chatId)
-
-      return {
-        ...state,
-        chatId: payload
-      }
-
-    case 'reset':
-      return {
-        chatId: undefined
-      }
-
-    default:
-      return state
-  }
-}
 
 export const errorMessage = 'Please try rephrasing your question.'
 
