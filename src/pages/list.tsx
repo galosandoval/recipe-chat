@@ -49,7 +49,7 @@ function ListController({ data }: { data: Ingredient[] }) {
     handleCheckAll,
     handleRemoveChecked,
     handleToggleByRecipe,
-    isLoading,
+    isDeleting,
     noneChecked,
     checked
   } = useListController(data)
@@ -76,7 +76,7 @@ function ListController({ data }: { data: Ingredient[] }) {
         />
 
         <Button
-          isLoading={isLoading}
+          isLoading={isDeleting}
           disabled={noneChecked}
           onClick={handleRemoveChecked}
           className='btn-error btn'
