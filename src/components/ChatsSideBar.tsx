@@ -148,8 +148,6 @@ function ChatOption({
     }
   }
 
-  console.log('chatId', chatId, 'chat.id', chat.id)
-
   return (
     <div
       className={`flex flex-col px-2 py-2 ${

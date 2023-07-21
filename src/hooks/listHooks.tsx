@@ -2,10 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Ingredient, Recipe } from '@prisma/client'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
 import { z } from 'zod'
 
-export const useList = () => api.list.byUserId.useQuery()
+export const useList = () =>
+  api.list.byUserId.useQuery(undefined, { staleTime: Infinity })
 
 const selectRecipeNames = (data: Recipe[]) => {
   const nameDictionary: Record<number, string> = {}
@@ -29,7 +31,7 @@ export type Checked = Record<
 >
 
 export function useListController(data: Ingredient[]) {
-  const { mutate: clearMutate, isLoading } = useClearList(data)
+  const { mutate: clearMutate, isLoading: isDeleting } = useClearList()
 
   const initialChecked = data.reduce((checked: Checked, i) => {
     checked[i.id] = { isChecked: false, recipeId: i.recipeId }
@@ -123,7 +125,7 @@ export function useListController(data: Ingredient[]) {
     allChecked,
     handleCheck,
     handleCheckAll,
-    isLoading,
+    isDeleting,
     noneChecked,
     handleRemoveChecked
   }
@@ -206,90 +208,14 @@ export function useAddToList() {
   })
 }
 
-export function useClearList(data: Ingredient[]) {
+export function useClearList() {
   const utils = api.useContext()
   return api.list.clear.useMutation({
-    async onMutate(variables) {
-      const ingredientsToClearEntity = variables.reduce(
-        (
-          acc: Record<
-            number,
-            {
-              id: number
-              recipeId: number | null
-            }
-          >,
-          i
-        ) => {
-          if (!(i.id in acc)) {
-            acc[i.id] = i
-          }
-          return acc
-        },
-        {}
-      )
-
-      const newIngredients = (
-        old:
-          | {
-              ingredients: Ingredient[]
-            }
-          | null
-          | undefined
-      ) => {
-        if (old?.ingredients) {
-          const localStorageChecked = JSON.parse(
-            localStorage.checkedIngredients
-          ) as Checked
-
-          const newIngredients = old.ingredients.filter((i) => {
-            if (i.id in ingredientsToClearEntity) {
-              delete localStorageChecked[i.id]
-
-              return false
-            }
-
-            return false
-          })
-
-          return { ingredients: newIngredients }
-        }
-
-        return old || { ingredients: [] }
-      }
-
-      await utils.list.byUserId.cancel()
-      const previousValue = utils.list.byUserId.getData()
-
-      utils.list.byUserId.setData(undefined, (old) => {
-        if (old?.ingredients) {
-          const newList: {
-            ingredients: Ingredient[]
-          } = {
-            ingredients: newIngredients(old).ingredients
-          }
-
-          return newList
-        }
-        return old
-      })
-
-      return previousValue
+    onSuccess: () => {
+      utils.list.invalidate()
     },
-
-    onError: (_error, _, ctx) => {
-      utils.list.byUserId.setData(undefined, ctx)
-    },
-
-    onSettled: () => {
-      utils.list.byUserId.invalidate()
-      const recipeIdSet = Array.from(new Set(data.map((i) => i.recipeId)))
-      recipeIdSet.forEach((id) => {
-        if (id) {
-          utils.recipe.ingredientsAndInstructions.invalidate({ id })
-        }
-      })
-      localStorage.checkedIngredients = JSON.stringify({})
+    onError: (error) => {
+      toast.error(error.message)
     }
   })
 }
