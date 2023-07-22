@@ -38,9 +38,10 @@ export const useChat = () => {
 
   const { mutate } = api.chat.addMessages.useMutation({
     onSuccess(data, input) {
+      console.log('input', input?.chatId)
       if (!input?.chatId) {
         const payload = data as Message[]
-        if (payload.length && payload[0].chatId) {
+        if (payload.length && !!payload[0].chatId) {
           dispatch({ type: 'chatIdChanged', payload: payload[0].chatId })
         }
       }
@@ -192,7 +193,7 @@ function useChatReducer(initialState: ChatState) {
       const { type, payload } = action
       switch (type) {
         case 'chatIdChanged':
-          localStorage.currentChatId = JSON.stringify(payload ? payload : 0)
+          localStorage.currentChatId = JSON.stringify(!!payload ? payload : 0)
 
           return {
             ...state,
