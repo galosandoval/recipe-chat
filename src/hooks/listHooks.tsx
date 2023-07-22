@@ -180,14 +180,14 @@ export function useAddToList() {
           const newList: {
             ingredients: Ingredient[]
           } = {
+            ...old.ingredients,
             ingredients: [
               {
                 id: 0,
                 name: newIngredientName,
                 listId,
                 recipeId: null
-              },
-              ...old.ingredients
+              }
             ]
           }
 

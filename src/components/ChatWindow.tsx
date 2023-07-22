@@ -30,7 +30,7 @@ type MessageContentProps = Omit<
 
 export default function ChatWindow(props: MessageContentProps) {
   return (
-    // Prevents ScrollToBottom from creating class name on server side
+    // NoSsr prevents ScrollToBottom from creating class name on server side
     <NoSsr>
       <ScrollToBottom
         initialScrollBehavior='auto'

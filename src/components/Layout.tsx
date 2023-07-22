@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode, memo, useState } from 'react'
+import React, { ReactNode, memo } from 'react'
 import {
   ChatBubbleLeftRightIcon,
   PencilSquareIcon,
