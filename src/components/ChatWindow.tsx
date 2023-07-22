@@ -80,7 +80,7 @@ const Content = memo(function Content(props: MessageContentProps) {
 
   return (
     <>
-      <div className='flex flex-col gap-4 pb-16 pt-16'>
+      <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
         <ChatWindowContent
           handleFillMessage={handleFillMessage}
           saveRecipe={memoizedSaveRecipe}
@@ -172,7 +172,7 @@ function ChatWindowContent({
     !data?.user?.id
   ) {
     return (
-      <div className='h-full'>
+      <div className='h-full bg-primary-content'>
         <MessageList
           saveRecipe={saveRecipe}
           recipeFilters={recipeFilters}
@@ -235,29 +235,31 @@ const MessageList = memo(function MessageList({
 
   return (
     <>
-      <div className='prose mx-auto my-2 grid grid-cols-3 px-2'>
-        {handleChangeChat && handleGetChatsOnSuccess ? (
-          <ChatsSideBarButton
-            chatId={chatId}
-            isChatsModalOpen={isChatsModalOpen}
-            recipeFilters={recipeFilters}
-            handleChangeChat={handleChangeChat}
-            handleToggleChatsModal={handleToggleChatsModal}
-            onSuccess={handleGetChatsOnSuccess}
-          />
-        ) : (
-          <div></div>
-        )}
-        <div className='flex items-center justify-center gap-2'>
-          <h2 className='mb-2 mt-2'>Chat</h2>
-          <ChatBubbleLeftIcon />
+      <div className='bg-base-100 py-2 '>
+        <div className='prose mx-auto grid grid-cols-3 px-2'>
+          {handleChangeChat && handleGetChatsOnSuccess ? (
+            <ChatsSideBarButton
+              chatId={chatId}
+              isChatsModalOpen={isChatsModalOpen}
+              recipeFilters={recipeFilters}
+              handleChangeChat={handleChangeChat}
+              handleToggleChatsModal={handleToggleChatsModal}
+              onSuccess={handleGetChatsOnSuccess}
+            />
+          ) : (
+            <div></div>
+          )}
+          <div className='flex items-center justify-center gap-2'>
+            <h2 className='mb-2 mt-2'>Chat</h2>
+            <ChatBubbleLeftIcon />
+          </div>
+          <button
+            onClick={handleStartNewChat}
+            className='btn-ghost btn-circle btn justify-self-end'
+          >
+            <PlusIcon />
+          </button>
         </div>
-        <button
-          onClick={handleStartNewChat}
-          className='btn-ghost btn-circle btn justify-self-end'
-        >
-          <PlusIcon />
-        </button>
       </div>
       {data.map((m, i) => (
         <Message
@@ -294,8 +296,8 @@ const Message = function Message({
 
   if (message.role === 'assistant') {
     return (
-      <div className='flex flex-col bg-primary-content p-4'>
-        <div className='prose mx-auto'>
+      <div className='flex flex-col bg-primary-content p-4 pb-20'>
+        <div className='prose mx-auto w-full'>
           <div className='flex w-full justify-start gap-2 self-center'>
             <div>
               <UserCircleIcon />
