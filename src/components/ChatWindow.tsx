@@ -4,7 +4,7 @@ import ScrollToBottom, {
 } from 'react-scroll-to-bottom'
 import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
 import { ChatType, SaveRecipe, useSaveRecipe } from 'hooks/chatHooks'
-import { MouseEvent, memo, useMemo } from 'react'
+import { MouseEvent, memo, useEffect, useMemo } from 'react'
 import { ScreenLoader } from './loaders/ScreenLoader'
 import { QueryStatus } from '@tanstack/react-query'
 import { RecipeFiltersType } from './RecipeFilters'
@@ -33,8 +33,8 @@ export default function ChatWindow(props: MessageContentProps) {
     // NoSsr prevents ScrollToBottom from creating class name on server side
     <NoSsr>
       <ScrollToBottom
-        initialScrollBehavior='auto'
         followButtonClassName='hidden'
+        initialScrollBehavior='auto'
         className='h-full'
       >
         <Content {...props} />
@@ -62,6 +62,12 @@ const Content = memo(function Content(props: MessageContentProps) {
 
   const memoizedSaveRecipe = useMemo(() => saveRecipe, [])
   const momoizedRecipeFilters = useMemo(() => recipeFilters, [])
+
+  useEffect(() => {
+    if (props.fetchStatus === 'idle' && props.status === 'success') {
+      scrollToBottom({ behavior: 'auto' })
+    }
+  }, [props.fetchStatus, props.status])
 
   if (
     'status' in props &&
