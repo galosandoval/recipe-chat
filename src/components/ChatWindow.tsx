@@ -289,46 +289,48 @@ const Message = function Message({
   if (message.role === 'assistant') {
     return (
       <div className='flex flex-col bg-primary-content p-4'>
-        <div className='flex w-full justify-start gap-2 self-center'>
-          <div>
-            <UserCircleIcon />
-          </div>
+        <div className='prose mx-auto'>
+          <div className='flex w-full justify-start gap-2 self-center'>
+            <div>
+              <UserCircleIcon />
+            </div>
 
-          <div className='prose flex flex-col pb-12'>
-            <p className='mb-0 mt-0 whitespace-pre-line'>
-              {message.content || ''}
-            </p>
+            <div className='prose flex flex-col pb-12'>
+              <p className='mb-0 mt-0 whitespace-pre-line'>
+                {message.content || ''}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
-          {message?.recipeId ? (
-            // Go to recipe
-            <Button
-              className='btn-ghost btn-circle btn text-success'
-              onClick={() =>
-                handleGoToRecipe({
-                  recipeId: message.recipeId,
-                  recipeName: recipeName
-                })
-              }
-            >
-              <BookmarkSolidIcon />
-            </Button>
-          ) : !isSendingMessage ? (
-            // Save
-            <Button
-              className='btn-ghost btn-circle btn'
-              isLoading={status === 'loading'}
-              onClick={() =>
-                handleSaveRecipe({
-                  content: message.content || '',
-                  messageId: Number(message.id)
-                })
-              }
-            >
-              <BookmarkOutlineIcon />
-            </Button>
-          ) : null}
+          <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
+            {message?.recipeId ? (
+              // Go to recipe
+              <Button
+                className='btn-ghost btn-circle btn text-success'
+                onClick={() =>
+                  handleGoToRecipe({
+                    recipeId: message.recipeId,
+                    recipeName: recipeName
+                  })
+                }
+              >
+                <BookmarkSolidIcon />
+              </Button>
+            ) : !isSendingMessage ? (
+              // Save
+              <Button
+                className='btn-ghost btn-circle btn'
+                isLoading={status === 'loading'}
+                onClick={() =>
+                  handleSaveRecipe({
+                    content: message.content || '',
+                    messageId: Number(message.id)
+                  })
+                }
+              >
+                <BookmarkOutlineIcon />
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
     )
