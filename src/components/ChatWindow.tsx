@@ -52,7 +52,9 @@ const Content = memo(function Content(props: MessageContentProps) {
     isChatsModalOpen,
     isSendingMessage,
     handleStartNewChat,
-    handleToggleChatsModal
+    handleToggleChatsModal,
+    fetchStatus: chatsFetchStatus,
+    status: chatsQueryStatus
   } = props
 
   const scrollToBottom = useScrollToBottom()
@@ -63,17 +65,39 @@ const Content = memo(function Content(props: MessageContentProps) {
   const memoizedSaveRecipe = useMemo(() => saveRecipe, [])
   const momoizedRecipeFilters = useMemo(() => recipeFilters, [])
 
+  const isLocalStorageAvailable =
+    typeof window !== 'undefined' &&
+    typeof localStorage.currentChatId === 'string' &&
+    JSON.parse(localStorage.currentChatId) === 0
+
+  const isMessagesSuccess =
+    chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
+
+  const shouldBeLoading = isLocalStorageAvailable && !isMessagesSuccess
+
   useEffect(() => {
-    if (props.fetchStatus === 'idle' && props.status === 'success') {
+    if (isMessagesSuccess) {
       scrollToBottom({ behavior: 'auto' })
     }
-  }, [props.fetchStatus, props.status])
+  }, [chatsFetchStatus, chatsQueryStatus])
 
   if (
-    'status' in props &&
-    props.status === 'loading' &&
-    'fetchStatus' in props &&
-    props.fetchStatus !== 'idle'
+    (messages.length === 0 || !messages.length) &&
+    chatsQueryStatus !== 'success'
+  ) {
+    return (
+      <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
+        <ValueProps handleFillMessage={handleFillMessage} />
+      </div>
+    )
+  }
+
+  if (
+    ('status' in props &&
+      chatsQueryStatus === 'loading' &&
+      'fetchStatus' in props &&
+      chatsFetchStatus !== 'idle') ||
+    (shouldBeLoading && messages.length === 0)
   ) {
     return <ScreenLoader />
   }
@@ -87,8 +111,7 @@ const Content = memo(function Content(props: MessageContentProps) {
           recipeFilters={momoizedRecipeFilters}
           messages={messages as []}
           chatId={state?.chatId}
-          messagesStatus={'status' in props ? props.status : undefined}
-          messagesLength={messages?.length}
+          messagesStatus={'status' in props ? chatsQueryStatus : undefined}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
           handleGetChatsOnSuccess={
@@ -122,7 +145,6 @@ const Content = memo(function Content(props: MessageContentProps) {
 })
 
 function ChatWindowContent({
-  messagesLength,
   messages,
   messagesStatus,
   saveRecipe,
@@ -136,7 +158,6 @@ function ChatWindowContent({
   chatId,
   handleFillMessage
 }: {
-  messagesLength: number
   messagesStatus?: QueryStatus
   recipeFilters: RecipeFiltersType
   handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
@@ -161,16 +182,7 @@ function ChatWindowContent({
 }) {
   const { data } = useSession()
 
-  if (messagesLength === 0 || !messagesLength) {
-    return <ValueProps handleFillMessage={handleFillMessage} />
-  }
-
-  if (
-    messagesStatus === 'success' ||
-    isSendingMessage ||
-    messagesLength > 0 ||
-    !data?.user?.id
-  ) {
+  if (messages.length || isSendingMessage || !data?.user?.id) {
     return (
       <div className='h-full bg-primary-content'>
         <MessageList
