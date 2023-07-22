@@ -181,13 +181,13 @@ export function useAddToList() {
             ingredients: Ingredient[]
           } = {
             ingredients: [
-              ...old.ingredients,
               {
                 id: 0,
                 name: newIngredientName,
                 listId,
                 recipeId: null
-              }
+              },
+              ...old.ingredients
             ]
           }
 
