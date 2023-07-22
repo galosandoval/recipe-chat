@@ -60,9 +60,6 @@ const Content = memo(function Content(props: MessageContentProps) {
   const scrollToBottom = useScrollToBottom()
   const [sticky] = useSticky()
 
-  const { ...saveRecipe } = useSaveRecipe(state?.chatId)
-
-  const memoizedSaveRecipe = useMemo(() => saveRecipe, [])
   const momoizedRecipeFilters = useMemo(() => recipeFilters, [])
 
   const isLocalStorageAvailable =
@@ -107,7 +104,6 @@ const Content = memo(function Content(props: MessageContentProps) {
       <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
         <ChatWindowContent
           handleFillMessage={handleFillMessage}
-          saveRecipe={memoizedSaveRecipe}
           recipeFilters={momoizedRecipeFilters}
           messages={messages as []}
           chatId={state?.chatId}
@@ -147,7 +143,6 @@ const Content = memo(function Content(props: MessageContentProps) {
 function ChatWindowContent({
   messages,
   messagesStatus,
-  saveRecipe,
   recipeFilters,
   handleGetChatsOnSuccess,
   handleChangeChat,
@@ -161,7 +156,6 @@ function ChatWindowContent({
   messagesStatus?: QueryStatus
   recipeFilters: RecipeFiltersType
   handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
-  saveRecipe: SaveRecipe
   handleGetChatsOnSuccess?: (
     data: (Chat & {
       messages: Message[]
@@ -186,7 +180,6 @@ function ChatWindowContent({
     return (
       <div className='h-full bg-primary-content'>
         <MessageList
-          saveRecipe={saveRecipe}
           recipeFilters={recipeFilters}
           data={messages as []}
           chatId={chatId}
@@ -212,7 +205,6 @@ type MessageListProps = {
   isChatsModalOpen: boolean
   recipeFilters: RecipeFiltersType
   isSendingMessage: boolean
-  saveRecipe: SaveRecipe
 
   handleChangeChat?: (
     chat: Chat & {
@@ -235,7 +227,6 @@ const MessageList = memo(function MessageList({
   recipeFilters,
   isChatsModalOpen,
   isSendingMessage,
-  saveRecipe,
   handleGetChatsOnSuccess,
   handleChangeChat,
   handleStartNewChat,
@@ -277,8 +268,8 @@ const MessageList = memo(function MessageList({
         <Message
           message={m}
           key={m?.content || '' + i}
-          saveRecipe={saveRecipe}
           isSendingMessage={isSendingMessage}
+          chatId={chatId}
         />
       ))}
       {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
@@ -288,14 +279,14 @@ const MessageList = memo(function MessageList({
 
 const Message = function Message({
   message,
-  saveRecipe,
-  isSendingMessage
+  isSendingMessage,
+  chatId
 }: {
   message: PrismaMessage
-  saveRecipe: SaveRecipe
   isSendingMessage: boolean
+  chatId?: number
 }) {
-  const { handleGoToRecipe, handleSaveRecipe, status } = saveRecipe
+  const { handleGoToRecipe, handleSaveRecipe, status } = useSaveRecipe(chatId)
 
   let recipeName = ''
   const nameIdx = message.content.toLowerCase().indexOf('name:')
@@ -343,7 +334,9 @@ const Message = function Message({
                 onClick={() =>
                   handleSaveRecipe({
                     content: message.content || '',
-                    messageId: Number(message.id)
+                    messageId: Number.isNaN(Number(message.id))
+                      ? undefined
+                      : message.id
                   })
                 }
               >

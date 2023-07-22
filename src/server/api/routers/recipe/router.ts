@@ -126,7 +126,8 @@ export const recipeRouter = createTRPCRouter({
           },
           include: {
             ingredients: true,
-            instructions: true
+            instructions: true,
+            Message: { include: {} }
           }
         })
 
