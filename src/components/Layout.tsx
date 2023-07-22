@@ -8,9 +8,7 @@ import {
   XIcon,
   ListBulletIcon
 } from './Icons'
-import { DropdownMenuWithTheme } from './DropdownMenu'
-import { ThemeToggle } from './ThemeToggle'
-import { AuthModal } from './AuthModal'
+import { ProtectedDropdownMenu, PublicDropdownMenu } from './DropdownMenus'
 
 export default function Layout({
   children,
@@ -32,7 +30,7 @@ const RootLayout = memo(function RootLayout({
   const router = useRouter()
   const { data } = useSession()
 
-  let navbar = <MenuNavbar />
+  let navbar = <RoutesNavbar />
 
   if (!data) {
     navbar = <PublicNavbar />
@@ -48,7 +46,7 @@ const RootLayout = memo(function RootLayout({
     >
       <div className='relative flex h-full max-w-full flex-1 overflow-hidden'>
         <div className='flex h-full max-w-full flex-1 flex-col'>
-          <div className='backdrop fixed top-0 z-10 flex w-full justify-center bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
+          <div className='fixed top-0 z-10 flex w-full justify-center border-b border-b-base-300 bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
             {navbar}
           </div>
           <main className='transition-width relative flex h-full w-full flex-1 flex-col items-stretch overflow-auto'>
@@ -61,23 +59,15 @@ const RootLayout = memo(function RootLayout({
 })
 
 function PublicNavbar() {
-  const [isOpen, setIsOpen] = useState(false)
-
   return (
     <>
       <nav className='navbar prose grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
-        <button
-          onClick={() => setIsOpen(true)}
-          className='link-primary link mr-6 justify-self-center'
-        >
-          Sign up
-        </button>
+        <div></div>
         <h1 className='mb-0 text-base'>Recipe Chat</h1>
-        <div className='ml-auto'>
-          <ThemeToggle />
+        <div className='justify-self-end'>
+          <PublicDropdownMenu />
         </div>
       </nav>
-      <AuthModal closeModal={() => setIsOpen(false)} isOpen={isOpen} />
     </>
   )
 }
@@ -141,7 +131,7 @@ function EditRecipeNavbar() {
   )
 }
 
-function MenuNavbar() {
+function RoutesNavbar() {
   const router = useRouter()
   const menuItems = [
     {
@@ -208,7 +198,7 @@ function MenuNavbar() {
         </Link>
       ))}
 
-      <DropdownMenuWithTheme />
+      <ProtectedDropdownMenu />
     </nav>
   )
 }

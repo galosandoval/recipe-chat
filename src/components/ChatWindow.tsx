@@ -229,7 +229,7 @@ const MessageList = memo(function MessageList({
 
   return (
     <>
-      <div className='prose mx-auto mt-2 grid grid-cols-3 px-2'>
+      <div className='prose mx-auto my-2 grid grid-cols-3 px-2'>
         {handleChangeChat && handleGetChatsOnSuccess ? (
           <ChatsSideBarButton
             chatId={chatId}
