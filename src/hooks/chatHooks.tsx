@@ -241,6 +241,10 @@ export const useSaveRecipe = (chatId?: number) => {
         utils.chat.getMessagesByChatId.invalidate({ chatId })
       }
 
+      if (chatId) {
+        utils.chat.getMessagesByChatId.invalidate({ chatId })
+      }
+
       toast.success('Recipe saved successfully!')
     },
     onError: (error) => {
@@ -270,7 +274,7 @@ export const useSaveRecipe = (chatId?: number) => {
   )
 
   const handleSaveRecipe = useCallback(
-    ({ content, messageId }: { content: string; messageId: number }) => {
+    ({ content, messageId }: { content: string; messageId?: number }) => {
       if (!content) return
 
       const {
