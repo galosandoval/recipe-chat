@@ -8,7 +8,7 @@ import { ErrorMessage } from 'components/ErrorMessageContent'
 import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { Modal } from './Modal'
-import { useState } from 'react'
+import { forwardRef, useState } from 'react'
 
 export const signUpSchema = z
   .object({
@@ -28,8 +28,10 @@ export const signUpSchema = z
   })
 
 type SignUpSchemaType = z.infer<typeof signUpSchema>
+// eslint-disable-next-line @typescript-eslint/ban-types
 
-export function SignUpModal() {
+// eslint-disable-next-line react/display-name
+export const SignUpModal = forwardRef<HTMLDivElement>((_p, ref) => {
   const {
     register,
     handleSubmit,
@@ -44,7 +46,7 @@ export function SignUpModal() {
   const [isOpen, setIsOpen] = useState(false)
 
   const { mutate, isLoading } = api.auth.signUp.useMutation({
-    onSuccess: async ({ id }, { email, password }) => {
+    onSuccess: async ({}, { email, password }) => {
       const response = await signIn('credentials', {
         email,
         password,
@@ -79,9 +81,12 @@ export function SignUpModal() {
   }
 
   return (
-    <>
-      <Button className='btn-ghost btn' onClick={() => setIsOpen(true)}>
-        <span>Sign up</span>
+    <div ref={ref}>
+      <Button
+        className='btn-ghost btn w-full whitespace-nowrap'
+        onClick={() => setIsOpen(true)}
+      >
+        Sign up
         <svg
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
@@ -158,9 +163,9 @@ export function SignUpModal() {
           </form>
         </div>
       </Modal>
-    </>
+    </div>
   )
-}
+})
 
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -168,7 +173,8 @@ export const loginSchema = z.object({
 })
 type LoginSchemaType = z.infer<typeof loginSchema>
 
-export function LoginModal() {
+// eslint-disable-next-line react/display-name
+export const LoginModal = forwardRef<HTMLDivElement>((_, ref) => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const {
@@ -195,9 +201,9 @@ export function LoginModal() {
   }
 
   return (
-    <>
-      <Button className='btn-ghost btn' onClick={() => setIsOpen(true)}>
-        <span>Log in</span>
+    <div ref={ref}>
+      <Button className='btn-ghost btn w-full' onClick={() => setIsOpen(true)}>
+        Log in
         <svg
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
@@ -254,6 +260,6 @@ export function LoginModal() {
           </form>
         </div>
       </Modal>
-    </>
+    </div>
   )
-}
+})

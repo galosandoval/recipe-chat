@@ -64,12 +64,12 @@ export function ThemeToggle({
   }
 
   return (
-    <div className='relative'>
+    <div className='relative w-full'>
       <button
         onClick={handleToggleTheme}
-        className='btn-ghost no-animation btn w-[8rem]'
+        className='btn-ghost no-animation btn w-full'
       >
-        <span>Theme</span>
+        Theme
         {theme === 'night' ? <SunIcon /> : <MoonIcon />}
       </button>
     </div>
