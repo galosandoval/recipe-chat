@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { forwardRef, useEffect, useState } from 'react'
 import { MoonIcon, SunIcon } from './Icons'
 import { themeChange } from 'theme-change'
 
@@ -42,36 +42,38 @@ export function useTheme() {
   return { theme, updateTheme }
 }
 
-export function ThemeToggle({
-  theme,
-  updateTheme
-}: {
+type ThemeToggleProps = {
   theme: Theme
   updateTheme: (theme: Theme) => void
-}) {
-  const handleToggleTheme = () => {
-    const { theme } = localStorage
-
-    if (theme === darkTheme) {
-      localStorage.theme = lightTheme
-      document.documentElement.setAttribute('data-theme', lightTheme)
-      updateTheme(lightTheme)
-    } else {
-      localStorage.theme = darkTheme
-      document.documentElement.setAttribute('data-theme', darkTheme)
-      updateTheme(darkTheme)
-    }
-  }
-
-  return (
-    <div className='relative w-full'>
-      <button
-        onClick={handleToggleTheme}
-        className='btn-ghost no-animation btn w-full'
-      >
-        Theme
-        {theme === 'night' ? <SunIcon /> : <MoonIcon />}
-      </button>
-    </div>
-  )
 }
+
+// eslint-disable-next-line react/display-name
+export const ThemeToggle = forwardRef<HTMLDivElement, ThemeToggleProps>(
+  ({ theme, updateTheme }: ThemeToggleProps, ref) => {
+    const handleToggleTheme = () => {
+      const { theme } = localStorage
+
+      if (theme === darkTheme) {
+        localStorage.theme = lightTheme
+        document.documentElement.setAttribute('data-theme', lightTheme)
+        updateTheme(lightTheme)
+      } else {
+        localStorage.theme = darkTheme
+        document.documentElement.setAttribute('data-theme', darkTheme)
+        updateTheme(darkTheme)
+      }
+    }
+
+    return (
+      <div className='relative w-full' ref={ref}>
+        <button
+          onClick={handleToggleTheme}
+          className='btn-ghost no-animation btn w-full'
+        >
+          Theme
+          {theme === 'night' ? <SunIcon /> : <MoonIcon />}
+        </button>
+      </div>
+    )
+  }
+)
