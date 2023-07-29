@@ -3,8 +3,8 @@ import ScrollToBottom, {
   useSticky
 } from 'react-scroll-to-bottom'
 import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
-import { ChatType, SaveRecipe, useSaveRecipe } from 'hooks/chatHooks'
-import { MouseEvent, memo, useEffect, useMemo } from 'react'
+import { ChatType, useSaveRecipe } from 'hooks/chatHooks'
+import { memo, useEffect, useMemo } from 'react'
 import { ScreenLoader } from './loaders/ScreenLoader'
 import { QueryStatus } from '@tanstack/react-query'
 import { RecipeFiltersType } from './RecipeFilters'
@@ -103,7 +103,6 @@ const Content = memo(function Content(props: MessageContentProps) {
     <>
       <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
         <ChatWindowContent
-          handleFillMessage={handleFillMessage}
           recipeFilters={momoizedRecipeFilters}
           messages={messages as []}
           chatId={state?.chatId}
@@ -150,12 +149,10 @@ function ChatWindowContent({
   handleToggleChatsModal,
   isChatsModalOpen,
   isSendingMessage,
-  chatId,
-  handleFillMessage
+  chatId
 }: {
   messagesStatus?: QueryStatus
   recipeFilters: RecipeFiltersType
-  handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
   handleGetChatsOnSuccess?: (
     data: (Chat & {
       messages: Message[]
