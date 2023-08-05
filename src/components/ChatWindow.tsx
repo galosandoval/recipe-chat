@@ -3,8 +3,8 @@ import ScrollToBottom, {
   useSticky
 } from 'react-scroll-to-bottom'
 import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
-import { ChatType, SaveRecipe, useSaveRecipe } from 'hooks/chatHooks'
-import { MouseEvent, memo, useEffect, useMemo } from 'react'
+import { ChatType, useSaveRecipe } from 'hooks/chatHooks'
+import { memo, useEffect, useMemo } from 'react'
 import { ScreenLoader } from './loaders/ScreenLoader'
 import { QueryStatus } from '@tanstack/react-query'
 import { RecipeFiltersType } from './RecipeFilters'
@@ -45,7 +45,7 @@ export default function ChatWindow(props: MessageContentProps) {
 
 const Content = memo(function Content(props: MessageContentProps) {
   const {
-    state,
+    chatId,
     recipeFilters,
     handleFillMessage,
     messages,
@@ -103,10 +103,9 @@ const Content = memo(function Content(props: MessageContentProps) {
     <>
       <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
         <ChatWindowContent
-          handleFillMessage={handleFillMessage}
           recipeFilters={momoizedRecipeFilters}
           messages={messages as []}
-          chatId={state?.chatId}
+          chatId={chatId}
           messagesStatus={'status' in props ? chatsQueryStatus : undefined}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
@@ -150,12 +149,10 @@ function ChatWindowContent({
   handleToggleChatsModal,
   isChatsModalOpen,
   isSendingMessage,
-  chatId,
-  handleFillMessage
+  chatId
 }: {
   messagesStatus?: QueryStatus
   recipeFilters: RecipeFiltersType
-  handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
   handleGetChatsOnSuccess?: (
     data: (Chat & {
       messages: Message[]
@@ -298,6 +295,18 @@ const Message = function Message({
   }
 
   if (message.role === 'assistant') {
+    console.log('assistant messageId', message.id)
+    console.log('typeof message.id', typeof message.id)
+
+    let messageId: number | undefined
+    if (
+      typeof message.id === 'string' &&
+      typeof parseInt(message.id) === 'number'
+    ) {
+      messageId = parseInt(message.id)
+    } else {
+      messageId = undefined
+    }
     return (
       <div className='flex flex-col bg-primary-content p-4 pb-20'>
         <div className='prose mx-auto w-full'>
@@ -334,9 +343,10 @@ const Message = function Message({
                 onClick={() =>
                   handleSaveRecipe({
                     content: message.content || '',
-                    messageId: Number.isNaN(Number(message.id))
-                      ? undefined
-                      : message.id
+                    messageId
+                    // messageId: Number.isNaN(Number(message.id))
+                    //   ? undefined
+                    //   : message.id
                   })
                 }
               >

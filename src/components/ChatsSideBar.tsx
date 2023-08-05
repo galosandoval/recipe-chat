@@ -29,7 +29,7 @@ const useGetChats = (
 export const ChatsSideBarButton = memo(function ChatsSideBarButton({
   chatId,
   isChatsModalOpen,
-  recipeFilters,
+  // recipeFilters,
   onSuccess,
   handleToggleChatsModal,
   handleChangeChat
@@ -150,7 +150,7 @@ function ChatOption({
 
   return (
     <div
-      className={`flex flex-col px-2 py-2 ${
+      className={`flex select-none flex-col px-2 py-2 hover:bg-primary-content ${
         chatId === chat.id ? 'bg-primary-content' : ''
       }`}
     >
