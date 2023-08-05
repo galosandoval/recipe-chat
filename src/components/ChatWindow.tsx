@@ -45,7 +45,7 @@ export default function ChatWindow(props: MessageContentProps) {
 
 const Content = memo(function Content(props: MessageContentProps) {
   const {
-    state,
+    chatId,
     recipeFilters,
     handleFillMessage,
     messages,
@@ -105,7 +105,7 @@ const Content = memo(function Content(props: MessageContentProps) {
         <ChatWindowContent
           recipeFilters={momoizedRecipeFilters}
           messages={messages as []}
-          chatId={state?.chatId}
+          chatId={chatId}
           messagesStatus={'status' in props ? chatsQueryStatus : undefined}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
@@ -295,6 +295,18 @@ const Message = function Message({
   }
 
   if (message.role === 'assistant') {
+    console.log('assistant messageId', message.id)
+    console.log('typeof message.id', typeof message.id)
+
+    let messageId: number | undefined
+    if (
+      typeof message.id === 'string' &&
+      typeof parseInt(message.id) === 'number'
+    ) {
+      messageId = parseInt(message.id)
+    } else {
+      messageId = undefined
+    }
     return (
       <div className='flex flex-col bg-primary-content p-4 pb-20'>
         <div className='prose mx-auto w-full'>
@@ -331,9 +343,10 @@ const Message = function Message({
                 onClick={() =>
                   handleSaveRecipe({
                     content: message.content || '',
-                    messageId: Number.isNaN(Number(message.id))
-                      ? undefined
-                      : message.id
+                    messageId
+                    // messageId: Number.isNaN(Number(message.id))
+                    //   ? undefined
+                    //   : message.id
                   })
                 }
               >

@@ -203,7 +203,7 @@ function FoundRecipe({
           <h2 className='divider'>Directions</h2>
           <ol className='flex list-none flex-col gap-4 pl-0'>
             {instructions.map((i, index, array) => (
-              <li key={i.id} className='bg-base-300 px-7 pb-2'>
+              <li key={i.id} className='mb-0 mt-0 bg-base-300 px-7 pb-2'>
                 <h3>
                   Step {index + 1}/{array.length}
                 </h3>
