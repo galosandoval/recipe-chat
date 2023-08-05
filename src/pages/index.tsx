@@ -14,7 +14,7 @@ export default function PublicChatView() {
     isChatsModalOpen,
     messages,
     recipeFilters,
-    state,
+    chatId,
     fetchStatus,
     handleChangeChat,
     handleGetChatsOnSuccess,
@@ -37,7 +37,7 @@ export default function PublicChatView() {
             isChatsModalOpen={isChatsModalOpen}
             messages={messages}
             recipeFilters={recipeFilters}
-            state={state}
+            chatId={chatId}
             fetchStatus={fetchStatus}
             handleChangeChat={handleChangeChat}
             handleGetChatsOnSuccess={handleGetChatsOnSuccess}
