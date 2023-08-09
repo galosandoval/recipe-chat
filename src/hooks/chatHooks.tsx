@@ -72,9 +72,7 @@ export const useChat = () => {
   })
 
   const enabled = isAuthenticated && !!state.chatId
-  console.log('enabled', enabled)
-  console.log('state.chatId', state.chatId)
-  console.log('typeof state.chatId', typeof state.chatId)
+
   const { status, fetchStatus } = api.chat.getMessagesByChatId.useQuery(
     { chatId: state.chatId || 0 },
     {
@@ -110,7 +108,6 @@ export const useChat = () => {
         messages: Message[]
       }
     ) => {
-      console.log('handleChangeChat chatid', chat.id)
       dispatch({ type: 'chatIdChanged', payload: chat.id })
       handleToggleChatsModal()
     },
@@ -175,6 +172,7 @@ export const useChat = () => {
     input,
     messages,
     isSendingMessage,
+    isAuthenticated,
 
     handleGetChatsOnSuccess,
     handleInputChange: useCallback(handleInputChange, []),
@@ -279,7 +277,7 @@ export const useSaveRecipe = (chatId?: number) => {
   const handleSaveRecipe = useCallback(
     ({ content, messageId }: { content: string; messageId?: number }) => {
       if (!content) return
-
+      console.log('messageId handle save recipe', messageId)
       const {
         name,
         description,

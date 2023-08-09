@@ -51,6 +51,7 @@ const Content = memo(function Content(props: MessageContentProps) {
     messages,
     isChatsModalOpen,
     isSendingMessage,
+    isAuthenticated,
     handleStartNewChat,
     handleToggleChatsModal,
     fetchStatus: chatsFetchStatus,
@@ -109,6 +110,7 @@ const Content = memo(function Content(props: MessageContentProps) {
           messagesStatus={'status' in props ? chatsQueryStatus : undefined}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
+          isAuthenticated={isAuthenticated}
           handleGetChatsOnSuccess={
             'handleGetChatsOnSuccess' in props
               ? props.handleGetChatsOnSuccess
@@ -143,6 +145,7 @@ function ChatWindowContent({
   messages,
   messagesStatus,
   recipeFilters,
+  isAuthenticated,
   handleGetChatsOnSuccess,
   handleChangeChat,
   handleStartNewChat,
@@ -153,6 +156,7 @@ function ChatWindowContent({
 }: {
   messagesStatus?: QueryStatus
   recipeFilters: RecipeFiltersType
+  isAuthenticated: boolean
   handleGetChatsOnSuccess?: (
     data: (Chat & {
       messages: Message[]
@@ -183,6 +187,7 @@ function ChatWindowContent({
           status={messagesStatus}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
+          isAuthenticated={isAuthenticated}
           handleGetChatsOnSuccess={handleGetChatsOnSuccess}
           handleChangeChat={handleChangeChat}
           handleStartNewChat={handleStartNewChat}
@@ -202,7 +207,7 @@ type MessageListProps = {
   isChatsModalOpen: boolean
   recipeFilters: RecipeFiltersType
   isSendingMessage: boolean
-
+  isAuthenticated: boolean
   handleChangeChat?: (
     chat: Chat & {
       messages: PrismaMessage[]
@@ -223,6 +228,7 @@ const MessageList = memo(function MessageList({
   chatId,
   recipeFilters,
   isChatsModalOpen,
+  isAuthenticated,
   isSendingMessage,
   handleGetChatsOnSuccess,
   handleChangeChat,
@@ -237,7 +243,7 @@ const MessageList = memo(function MessageList({
     <>
       <div className='bg-base-100 py-2 '>
         <div className='prose mx-auto grid grid-cols-3 px-2'>
-          {handleChangeChat && handleGetChatsOnSuccess ? (
+          {handleChangeChat && handleGetChatsOnSuccess && isAuthenticated ? (
             <ChatsSideBarButton
               chatId={chatId}
               isChatsModalOpen={isChatsModalOpen}
@@ -295,18 +301,17 @@ const Message = function Message({
   }
 
   if (message.role === 'assistant') {
-    console.log('assistant messageId', message.id)
-    console.log('typeof message.id', typeof message.id)
-
     let messageId: number | undefined
     if (
       typeof message.id === 'string' &&
-      typeof parseInt(message.id) === 'number'
+      typeof parseInt(message.id) === 'number' &&
+      !Number.isNaN(parseInt(message.id))
     ) {
       messageId = parseInt(message.id)
     } else {
       messageId = undefined
     }
+
     return (
       <div className='flex flex-col bg-primary-content p-4 pb-20'>
         <div className='prose mx-auto w-full'>

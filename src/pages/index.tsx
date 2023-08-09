@@ -8,18 +8,19 @@ export default function PublicChatView() {
     // recipeFilters,
     input,
     isSendingMessage,
-    handleFillMessage,
-    handleStartNewChat,
-    handleToggleChatsModal,
     isChatsModalOpen,
     messages,
     recipeFilters,
     chatId,
     fetchStatus,
+    status,
+    isAuthenticated,
+    handleFillMessage,
+    handleStartNewChat,
+    handleToggleChatsModal,
+
     handleChangeChat,
     handleGetChatsOnSuccess,
-    status,
-
     handleInputChange,
     handleSubmit
   } = useChat()
@@ -42,6 +43,7 @@ export default function PublicChatView() {
             handleChangeChat={handleChangeChat}
             handleGetChatsOnSuccess={handleGetChatsOnSuccess}
             status={status}
+            isAuthenticated={isAuthenticated}
           />
         </div>
         <SubmitMessageForm
