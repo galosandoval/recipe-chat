@@ -7,6 +7,7 @@ import { api } from 'utils/api'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toast } from 'components/Toast'
 import { Roboto } from 'next/font/google'
+import { useEffect } from 'react'
 
 const roboto = Roboto({
   weight: ['100', '300', '400', '500', '700', '900'],
@@ -19,6 +20,15 @@ const App: AppType<{ session: Session | null }> = ({
   pageProps: { session, ...pageProps }
 }) => {
   const font = `${roboto.variable}`
+  useEffect(() => {
+    return () => {
+      if (
+        typeof window !== undefined &&
+        typeof localStorage?.currentChatId === 'string'
+      )
+        localStorage.currentChatId = 0
+    }
+  }, [])
 
   return (
     <SessionProvider session={session}>

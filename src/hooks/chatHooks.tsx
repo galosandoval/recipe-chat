@@ -62,9 +62,16 @@ export const useChat = () => {
     setMessages
   } = useAiChat({
     onFinish: (message) => {
+      console.log('message', message)
       if (isAuthenticated) {
         mutate({
-          messages: [{ content: input, role: 'user' }, message],
+          messages: [
+            { content: input, role: 'user' },
+            message as {
+              role: 'user' | 'system' | 'assistant'
+              content: string
+            }
+          ],
           chatId: !!state.chatId ? state.chatId : undefined
         })
       }

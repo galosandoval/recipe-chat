@@ -54,9 +54,7 @@ export const authOptions: NextAuthOptions = {
       return session
     }
   },
-  // secret: process.env.NEXT_PUBLIC_NEXTAUTH_SECRET,
   jwt: {
-    // secret: process.env.NEXT_PUBLIC_NEXTAUTH_SECRET,
     maxAge: 15 * 24 * 30 * 60 // 15 days
   },
   session: {
@@ -67,7 +65,6 @@ export const authOptions: NextAuthOptions = {
     error: '/',
     signOut: '/'
   },
-  // adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
       name: 'credentials',
