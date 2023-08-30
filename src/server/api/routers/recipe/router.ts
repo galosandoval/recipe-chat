@@ -10,7 +10,7 @@ import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
 
 import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
-import { LinkedData, createRecipeSchema, updateRecipeSchema } from './interface'
+import { LinkedData, updateRecipeSchema } from './interface'
 
 export const recipeRouter = createTRPCRouter({
   entity: protectedProcedure.query(async ({ ctx }) => {
@@ -29,7 +29,7 @@ export const recipeRouter = createTRPCRouter({
   }),
 
   byIds: protectedProcedure
-    .input(z.array(z.number()))
+    .input(z.array(z.string()))
     .query(async ({ input, ctx }) => {
       return ctx.prisma.recipe.findMany({ where: { id: { in: input } } })
     }),
@@ -108,7 +108,21 @@ export const recipeRouter = createTRPCRouter({
     }),
 
   create: protectedProcedure
-    .input(createRecipeSchema)
+    .input(
+      z.object({
+        description: z.string().optional(),
+        name: z.string(),
+        imgUrl: z.string().optional(),
+        author: z.string().optional(),
+        address: z.string().optional(),
+        ingredients: z.array(z.string()),
+        instructions: z.array(z.string()),
+        url: z.string().optional(),
+        prepTime: z.string().optional(),
+        cookTime: z.string().optional(),
+        messageId: z.string().optional()
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       {
         const { ingredients, instructions, messageId, ...rest } = input
@@ -144,7 +158,7 @@ export const recipeRouter = createTRPCRouter({
     }),
 
   ingredientsAndInstructions: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       return ctx.prisma.recipe.findFirst({
         where: { id: { equals: input.id } },
@@ -322,7 +336,7 @@ export const recipeRouter = createTRPCRouter({
       return input.id
     }),
   delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const deleteIngredients = ctx.prisma.ingredient.deleteMany({
         where: { recipeId: input.id }

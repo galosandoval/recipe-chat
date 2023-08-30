@@ -12,7 +12,3 @@ export const clearListSchema = z.array(
 )
 export type ClearList = z.infer<typeof clearListSchema>
 
-export const addIngredientSchema = z.object({
-  newIngredientName: z.string().min(3).max(50),
-  listId: z.number()
-})

@@ -71,7 +71,7 @@ async function main() {
   // })
 
   const alice = await prisma.user.upsert({
-    where: { id: 1 },
+    where: { id: '1' },
     update: {},
     create: {
       username: 'alice@prisma.io',

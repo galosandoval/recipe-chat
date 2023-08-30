@@ -81,7 +81,7 @@ export const useChat = () => {
   const enabled = isAuthenticated && !!state.chatId
 
   const { status, fetchStatus } = api.chat.getMessagesByChatId.useQuery(
-    { chatId: state.chatId || 0 },
+    { chatId: state.chatId || '' },
     {
       enabled,
       onSuccess: (data) => {
@@ -128,7 +128,7 @@ export const useChat = () => {
   const handleStartNewChat = useCallback(() => {
     setMessages([])
 
-    if (isAuthenticated) dispatch({ type: 'chatIdChanged', payload: 0 })
+    if (isAuthenticated) dispatch({ type: 'chatIdChanged', payload: '' })
   }, [])
 
   const handleToggleChatsModal = useCallback(() => {
@@ -164,7 +164,7 @@ export const useChat = () => {
         type: 'chatIdChanged',
         payload:
           localStorage.currentChatId !== undefined
-            ? (JSON.parse(localStorage.currentChatId) as number)
+            ? (JSON.parse(localStorage.currentChatId) as string)
             : undefined
       })
     }
@@ -192,7 +192,7 @@ export const useChat = () => {
 }
 
 type ChatState = {
-  chatId?: number
+  chatId?: string
 }
 
 function useChatReducer(initialState: ChatState) {
@@ -210,7 +210,7 @@ function useChatReducer(initialState: ChatState) {
 
         case 'reset':
           return {
-            chatId: 0
+            chatId: ''
           }
 
         default:
@@ -226,7 +226,7 @@ function useChatReducer(initialState: ChatState) {
 type ChatAction =
   | {
       type: 'chatIdChanged'
-      payload: number | undefined
+      payload: string | undefined
     }
   | {
       type: 'reset'
@@ -240,7 +240,7 @@ export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
 export type SaveRecipe = ReturnType<typeof useSaveRecipe>
 
-export const useSaveRecipe = (chatId?: number) => {
+export const useSaveRecipe = (chatId?: string) => {
   const utils = api.useContext()
   const { mutate, status, data } = api.recipe.create.useMutation({
     onSuccess: () => {
@@ -269,7 +269,7 @@ export const useSaveRecipe = (chatId?: number) => {
       recipeId,
       recipeName
     }: {
-      recipeId: number | null
+      recipeId: string | null
       recipeName?: string
     }) => {
       if (recipeId && recipeName) {
@@ -282,9 +282,9 @@ export const useSaveRecipe = (chatId?: number) => {
   )
 
   const handleSaveRecipe = useCallback(
-    ({ content, messageId }: { content: string; messageId?: number }) => {
+    ({ content, messageId }: { content: string; messageId?: string }) => {
       if (!content) return
-      console.log('messageId handle save recipe', messageId)
+
       const {
         name,
         description,

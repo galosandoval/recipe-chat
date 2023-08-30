@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 export const chatRouter = createTRPCRouter({
   getChats: protectedProcedure
-    .input(z.object({ userId: z.number() }))
+    .input(z.object({ userId: z.string() }))
     .query(async ({ ctx, input }) => {
       return ctx.prisma.chat.findMany({
         where: {
@@ -31,7 +31,7 @@ export const chatRouter = createTRPCRouter({
   getMessagesByChatId: protectedProcedure
     .input(
       z.object({
-        chatId: z.number()
+        chatId: z.string()
       })
     )
     .query(async ({ ctx, input }) => {
@@ -56,7 +56,7 @@ export const chatRouter = createTRPCRouter({
         messages: z.array(
           z.object({
             name: z.string().min(3).max(50),
-            userId: z.number(),
+            userId: z.string(),
             role: z.enum(['system', 'user', 'assistant']),
             content: z.string().min(1).max(255)
           })
@@ -82,12 +82,12 @@ export const chatRouter = createTRPCRouter({
         messages: z.array(
           z.object({
             name: z.string().min(3).max(50),
-            userId: z.number(),
+            userId: z.string(),
             role: z.enum(['system', 'user', 'assistant']),
             content: z.string().min(1).max(255)
           })
         ),
-        userId: z.number()
+        userId: z.string()
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -104,7 +104,7 @@ export const chatRouter = createTRPCRouter({
   addMessages: protectedProcedure
     .input(
       z.object({
-        chatId: z.number().optional(),
+        chatId: z.string().optional(),
         messages: z.array(
           z.object({
             content: z.string().min(1),

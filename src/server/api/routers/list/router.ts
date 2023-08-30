@@ -1,14 +1,14 @@
+import { z } from 'zod'
 import { createTRPCRouter, protectedProcedure } from '../../trpc'
-import {
-  ClearList,
-  addIngredientSchema,
-  clearListSchema,
-  ingredientSchema
-} from './interface'
+import { RouterInputs,  } from 'utils/api'
 
 export const listRouter = createTRPCRouter({
   upsert: protectedProcedure
-    .input(ingredientSchema)
+    .input(z.array(
+      z.object({
+        id: z.string()
+      })
+    ))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.session.user.id
       return ctx.prisma.list.upsert({
@@ -34,7 +34,10 @@ export const listRouter = createTRPCRouter({
   }),
 
   add: protectedProcedure
-    .input(addIngredientSchema)
+    .input(z.object({
+      newIngredientName: z.string().min(3).max(50),
+      listId: z.string()
+    }))
     .mutation(async ({ ctx, input }) => {
       const newIngredient = await ctx.prisma.ingredient.create({
         data: { name: input.newIngredientName }
@@ -47,11 +50,13 @@ export const listRouter = createTRPCRouter({
     }),
 
   clear: protectedProcedure
-    .input(clearListSchema)
+    .input(z.array(
+      z.object({ id: z.string(), recipeId: z.string().nullable() })
+    ))
     .mutation(async ({ ctx, input }) => {
       // delete ingredients that are not connected to a recipe
-      const toDisconnect: ClearList = []
-      const toDelete: ClearList = []
+      const toDisconnect: RouterInputs['list']['clear'] = []
+      const toDelete:  RouterInputs['list']['clear'] = []
 
       for (const ingredient of input) {
         if (ingredient.recipeId) {

@@ -92,7 +92,7 @@ const Content = memo(function Content(props: MessageContentProps) {
 
   if (
     ('status' in props &&
-      chatsQueryStatus === 'loading' &&
+      // chatsQueryStatus === 'loading' &&
       'fetchStatus' in props &&
       chatsFetchStatus !== 'idle') ||
     (shouldBeLoading && messages.length === 0)
@@ -172,7 +172,7 @@ function ChatWindowContent({
   handleToggleChatsModal: () => void
   isChatsModalOpen: boolean
   isSendingMessage: boolean
-  chatId?: number
+  chatId?: string
   messages: Message[]
 }) {
   const { data } = useSession()
@@ -203,7 +203,7 @@ function ChatWindowContent({
 type MessageListProps = {
   data: PrismaMessage[]
   status?: QueryStatus
-  chatId?: number
+  chatId?: string
   isChatsModalOpen: boolean
   recipeFilters: RecipeFiltersType
   isSendingMessage: boolean
@@ -287,7 +287,7 @@ const Message = function Message({
 }: {
   message: PrismaMessage
   isSendingMessage: boolean
-  chatId?: number
+  chatId?: string
 }) {
   const { handleGoToRecipe, handleSaveRecipe, status } = useSaveRecipe(chatId)
 
@@ -301,13 +301,13 @@ const Message = function Message({
   }
 
   if (message.role === 'assistant') {
-    let messageId: number | undefined
+    let messageId: string | undefined
     if (
       typeof message.id === 'string' &&
       typeof parseInt(message.id) === 'number' &&
       !Number.isNaN(parseInt(message.id))
     ) {
-      messageId = parseInt(message.id)
+      messageId = message.id
     } else {
       messageId = undefined
     }

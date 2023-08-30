@@ -18,7 +18,6 @@
 import { type CreateNextContextOptions } from '@trpc/server/adapters/next'
 import { type Session } from 'next-auth'
 
-import { getServerAuthSession } from '../auth'
 import { prisma } from '../db'
 
 type CreateContextOptions = {
@@ -67,6 +66,7 @@ export type Context = inferAsyncReturnType<typeof createTRPCContext>
  */
 import { inferAsyncReturnType, initTRPC, TRPCError } from '@trpc/server'
 import superjson from 'superjson'
+import { getServerAuthSession } from 'pages/api/auth/[...nextauth]'
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
