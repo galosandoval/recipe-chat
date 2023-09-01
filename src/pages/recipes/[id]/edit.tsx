@@ -4,7 +4,7 @@ import {
   useDeleteRecipe,
   useEditRecipe,
   useRecipeEntity,
-  useRecipeIngredientsAndInstructions
+  useRecipe
 } from 'hooks/recipeHooks'
 import { MyHead } from 'components/Head'
 import { useForm } from 'react-hook-form'
@@ -32,8 +32,7 @@ export default function EditByIdView() {
 export function EditById({ id }: { id: string }) {
   const { data: recipes, status: recipesStatus } = useRecipeEntity()
 
-  const { data: recipeInfo, status: recipeStatus } =
-    useRecipeIngredientsAndInstructions(id)
+  const { data: recipeInfo, status: recipeStatus } = useRecipe(id)
 
   const isError = recipesStatus === 'error' && recipeStatus === 'error'
   const isSuccess = recipesStatus === 'success' && recipeStatus === 'success'

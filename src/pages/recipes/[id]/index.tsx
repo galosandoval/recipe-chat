@@ -2,17 +2,13 @@ import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Button } from 'components/Button'
-import {
-  useAddToList,
-  useRecipeEntity,
-  useRecipeIngredientsAndInstructions
-} from 'hooks/recipeHooks'
+import { useAddToList, useRecipe } from 'hooks/recipeHooks'
 import { Checkbox } from 'components/Checkbox'
 import { MyHead } from 'components/Head'
 import NoSleep from 'nosleep.js'
 import { ListBulletIcon, PlusIcon } from 'components/Icons'
 import { ScreenLoader } from 'components/loaders/ScreenLoader'
-import { RouterInputs } from 'utils/api'
+import { RouterInputs, RouterOutputs } from 'utils/api'
 
 export default function RecipeByIdView() {
   const router = useRouter()
@@ -37,18 +33,14 @@ export default function RecipeByIdView() {
 }
 
 export function RecipeById({ id }: { id: string }) {
-  const { data: recipes, status: recipesStatus } = useRecipeEntity()
+  const { data, status } = useRecipe(id)
 
-  const { data: recipeInfo, status: recipeStatus } =
-    useRecipeIngredientsAndInstructions(id)
+  if (status === 'error') return <div className=''>Something went wrong</div>
 
-  const isError = recipesStatus === 'error' && recipeStatus === 'error'
-  const isSuccess = recipesStatus === 'success' && recipeStatus === 'success'
+  if (status === 'success') {
+    if (!data) return null
 
-  if (isError) return <div className=''>Something went wrong</div>
-
-  if (isSuccess && recipes && recipeInfo) {
-    return <FoundRecipe data={{ ...recipeInfo, ...recipes[id] }} />
+    return <FoundRecipe data={data} />
   }
 
   return <ScreenLoader />
@@ -59,11 +51,10 @@ type Checked = Record<string, boolean>
 function FoundRecipe({
   data
 }: {
-  data: Recipe & {
-    ingredients: Ingredient[]
-    instructions: Instruction[]
-  }
+  data: NonNullable<RouterOutputs['recipe']['byId']>
 }) {
+  const { mutate, isLoading } = useAddToList()
+
   const {
     ingredients,
     address,
@@ -74,8 +65,6 @@ function FoundRecipe({
     prepTime,
     cookTime
   } = data
-
-  const { mutate, isLoading } = useAddToList(id)
 
   const initialChecked: Checked = {}
   ingredients.forEach((i) => {

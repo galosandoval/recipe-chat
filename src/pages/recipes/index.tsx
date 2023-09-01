@@ -5,20 +5,26 @@ import { useForm } from 'react-hook-form'
 import { ErrorMessage } from '@hookform/error-message'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  useCreateRecipe,
-  useParseRecipe,
-  useRecipeEntity
-} from 'hooks/recipeHooks'
+import useDebounce, { useCreateRecipe, useParseRecipe } from 'hooks/recipeHooks'
 import { Button } from 'components/Button'
 import { Modal } from 'components/Modal'
 import { FormLoader } from 'components/loaders/FormLoader'
 import { MyHead } from 'components/Head'
 import { Dialog } from '@headlessui/react'
 import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
-import { ChangeEvent, RefObject, SetStateAction, useRef, useState } from 'react'
+import {
+  ChangeEvent,
+  Fragment,
+  RefObject,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 import { MagnifyingGlassCircleIcon, XCircleIcon } from 'components/Icons'
 import { ScreenLoader } from 'components/loaders/ScreenLoader'
+import { api } from 'utils/api'
+import { useInView } from 'react-intersection-observer'
+import { QueryStatus } from '@tanstack/react-query'
 
 export default function RecipesView() {
   return (
@@ -30,45 +36,88 @@ export default function RecipesView() {
 }
 
 export function Recipes() {
-  const { data, isSuccess } = useRecipeEntity()
+  const { ref, inView } = useInView()
+
   const [search, setSearch] = useState('')
+
+  const debouncedSearch = useDebounce(search, 500)
+  const { data, status, hasNextPage, fetchNextPage } =
+    api.recipe.infiniteRecipes.useInfiniteQuery(
+      {
+        limit: 9,
+        search: debouncedSearch
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor
+      }
+    )
+
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value)
   }
 
-  if (isSuccess) {
-    const cards = Object.values(data)
+  const handleSearchButtonClick = !!search
+    ? () => setSearch('')
+    : () => inputRef.current?.focus()
 
-    return (
-      <div className='container mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2 pt-16'>
-        {cards.length > 0 && (
-          <SearchBar
-            handleChange={handleChange}
-            inputRef={inputRef}
-            search={search}
-            setSearch={setSearch}
-          />
-        )}
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage()
+    }
+  }, [inView, hasNextPage])
 
-        <CardList data={Object.values(data)} search={search} />
-      </div>
-    )
-  }
-  return <ScreenLoader />
+  console.log(data?.pages)
+  const pages = data?.pages ?? []
+  return (
+    <SearchBarWrapper
+      handleChange={handleChange}
+      handleSearchButtonClick={handleSearchButtonClick}
+      inputRef={inputRef}
+      search={search}
+    >
+      <Pages pages={pages} search={search} status={status} />
+      <span ref={ref}></span>
+    </SearchBarWrapper>
+  )
+}
+
+function SearchBarWrapper({
+  children,
+  handleChange,
+  inputRef,
+  search,
+  handleSearchButtonClick
+}: {
+  children: React.ReactNode
+  handleChange: (event: ChangeEvent<HTMLInputElement>) => void
+  inputRef: RefObject<HTMLInputElement>
+  search: string
+  handleSearchButtonClick: () => void
+}) {
+  return (
+    <div className='container mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2 pt-16'>
+      <SearchBar
+        handleChange={handleChange}
+        handleSearchButtonClick={handleSearchButtonClick}
+        inputRef={inputRef}
+        search={search}
+      />
+      {children}
+    </div>
+  )
 }
 
 function SearchBar({
   inputRef,
   search,
-  setSearch,
+  handleSearchButtonClick,
   handleChange
 }: {
   inputRef: RefObject<HTMLInputElement>
   search: string
-  setSearch: (value: SetStateAction<string>) => void
-
+  handleSearchButtonClick: () => void
   handleChange: (event: ChangeEvent<HTMLInputElement>) => void
 }) {
   return (
@@ -83,7 +132,7 @@ function SearchBar({
       />
       <button
         type='button'
-        onClick={() => (!!search ? setSearch('') : inputRef.current?.focus())}
+        onClick={handleSearchButtonClick}
         className='btn-sm join-item btn rounded-r-full'
       >
         {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
@@ -92,7 +141,51 @@ function SearchBar({
   )
 }
 
-function CardList({ data, search }: { data: Recipe[]; search: string }) {
+function Pages({
+  search,
+  pages,
+  status
+}: {
+  pages: {
+    items: {
+      id: string
+      userId: string | null
+      description: string | null
+      name: string
+      imgUrl: string | null
+      author: string | null
+      address: string | null
+      prepTime: string | null
+      cookTime: string | null
+      createdAt: Date
+      updatedAt: Date
+    }[]
+    nextCursor: string | undefined
+  }[]
+  search: string
+  status: QueryStatus
+}) {
+  if (status === 'loading') {
+    return <ScreenLoader />
+  }
+
+  return (
+    <div className='mx-auto mt-4 grid max-w-4xl grid-cols-2 gap-5 pb-8 md:grid-cols-4'>
+      {!search && <CreateRecipeButton />}
+      {pages.map((page, i) => (
+        <Fragment key={i}>
+          {page.items.length > 0 ? (
+            <Cards data={page.items} search={search} />
+          ) : (
+            <p>No recipes found</p>
+          )}
+        </Fragment>
+      ))}
+    </div>
+  )
+}
+
+function Cards({ data, search }: { data: Recipe[]; search: string }) {
   let sortedData = data.sort((a, b) => {
     if (a.name < b.name) {
       return -1
@@ -109,21 +202,12 @@ function CardList({ data, search }: { data: Recipe[]; search: string }) {
     )
   }
 
-  if (sortedData.length === 0) {
-    return (
-      <div className='h-44'>
-        <CreateRecipeButton />
-      </div>
-    )
-  }
-
   return (
-    <div className='mx-auto mt-4 grid max-w-4xl grid-cols-2 gap-5 pb-8 md:grid-cols-4'>
-      {!search && <CreateRecipeButton />}
+    <>
       {sortedData.map((recipe) => (
         <Card key={recipe.id} data={recipe} />
       ))}
-    </div>
+    </>
   )
 }
 

@@ -6,10 +6,27 @@ import { toast } from 'react-hot-toast'
 import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
 import { useForm } from 'react-hook-form'
 
-export const useRecipeEntity = () => api.recipe.entity.useQuery(undefined, {})
+import React from 'react'
 
-export const useRecipeIngredientsAndInstructions = (id: string) =>
-  api.recipe.ingredientsAndInstructions.useQuery({
+export default function useDebounce(value: string, delay = 500) {
+  const [debouncedValue, setDebouncedValue] = React.useState(value)
+
+  React.useEffect(() => {
+    const handler: NodeJS.Timeout = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    // Cancel the timeout if value changes (also on delay change or unmount)
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
+}
+
+export const useRecipe = (id: string) =>
+  api.recipe.byId.useQuery({
     id
   })
 
@@ -43,11 +60,11 @@ export function useParseRecipe() {
   }
 }
 
-export const useAddToList = (recipeId: string) => {
+export const useAddToList = () => {
   const utils = api.useContext()
   return api.list.upsert.useMutation({
-    onSuccess: () => {
-      utils.recipe.ingredientsAndInstructions.invalidate({ id: recipeId })
+    onSuccess: ({ id }) => {
+      utils.recipe.byId.invalidate({ id })
       utils.list.invalidate()
 
       toast.success('Added to list')
@@ -117,8 +134,7 @@ export const useEditRecipe = () => {
 
   return api.recipe.edit.useMutation({
     onSuccess: async (data, { newName }) => {
-      util.recipe.entity.invalidate()
-      util.recipe.ingredientsAndInstructions.invalidate({ id: data })
+      util.recipe.byId.invalidate({ id: data })
       router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
     }
   })
