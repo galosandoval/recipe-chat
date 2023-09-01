@@ -10,9 +10,9 @@ import {
 import { Checkbox } from 'components/Checkbox'
 import { MyHead } from 'components/Head'
 import NoSleep from 'nosleep.js'
-import { CreateList } from 'server/api/routers/list/interface'
 import { ListBulletIcon, PlusIcon } from 'components/Icons'
 import { ScreenLoader } from 'components/loaders/ScreenLoader'
+import { RouterInputs } from 'utils/api'
 
 export default function RecipeByIdView() {
   const router = useRouter()
@@ -30,13 +30,13 @@ export default function RecipeByIdView() {
     <>
       <MyHead title={`Listy - ${name}`} />
       <div className='pt-16'>
-        <RecipeById id={parseInt(id as string)} />
+        <RecipeById id={id as string} />
       </div>
     </>
   )
 }
 
-export function RecipeById({ id }: { id: number }) {
+export function RecipeById({ id }: { id: string }) {
   const { data: recipes, status: recipesStatus } = useRecipeEntity()
 
   const { data: recipeInfo, status: recipeStatus } =
@@ -109,7 +109,7 @@ function FoundRecipe({
   let goToListTimer: ReturnType<typeof setTimeout> | undefined = undefined
   const handleAddToList = () => {
     const checkedIngredients = ingredients.filter((i) => checked[i.id])
-    const newList: CreateList = checkedIngredients
+    const newList: RouterInputs['list']['upsert'] = checkedIngredients
     mutate(newList)
     setAddedToList(true)
 

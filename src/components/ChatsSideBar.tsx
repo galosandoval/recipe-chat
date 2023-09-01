@@ -18,7 +18,7 @@ const useGetChats = (
   const { status: authStatus, data } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   return api.chat.getChats.useQuery(
-    { userId: data?.user.id || 0 },
+    { userId: data?.user.id ||'' },
     {
       onSuccess,
       enabled: isAuthenticated
@@ -34,7 +34,7 @@ export const ChatsSideBarButton = memo(function ChatsSideBarButton({
   handleToggleChatsModal,
   handleChangeChat
 }: {
-  chatId?: number
+  chatId?: string
   isChatsModalOpen: boolean
   recipeFilters: RecipeFiltersType
   handleChangeChat: (
@@ -78,7 +78,7 @@ function ChatList({
   handleChangeChat,
   onSuccess
 }: {
-  chatId?: number
+  chatId?: string
   handleChangeChat: (
     chat: Chat & {
       messages: Message[]
@@ -127,7 +127,7 @@ function ChatOption({
   chat: Chat & {
     messages: Message[]
   }
-  chatId?: number
+  chatId?: string
   handleChangeChat: (
     chat: Chat & {
       messages: Message[]

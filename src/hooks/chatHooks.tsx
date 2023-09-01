@@ -38,7 +38,6 @@ export const useChat = () => {
 
   const { mutate } = api.chat.addMessages.useMutation({
     onSuccess(data, input) {
-      console.log('input', input?.chatId)
       if (!input?.chatId) {
         const payload = data as Message[]
         if (payload.length && !!payload[0].chatId) {
@@ -64,19 +63,25 @@ export const useChat = () => {
     onFinish: (message) => {
       if (isAuthenticated) {
         mutate({
-          messages: [{ content: input, role: 'user' }, message],
+          messages: [
+            { content: input, role: 'user' },
+            message as {
+              role: 'user' | 'system' | 'assistant'
+              content: string
+            }
+          ],
           chatId: !!state.chatId ? state.chatId : undefined
         })
       }
     }
   })
 
-  const enabled = isAuthenticated && !!state.chatId
-  console.log('enabled', enabled)
-  console.log('state.chatId', state.chatId)
-  console.log('typeof state.chatId', typeof state.chatId)
+  const [shouldFetchChat, setShouldFetchChat] = useState(true)
+
+  const enabled = isAuthenticated && !!state.chatId && shouldFetchChat
+
   const { status, fetchStatus } = api.chat.getMessagesByChatId.useQuery(
-    { chatId: state.chatId || 0 },
+    { chatId: state.chatId || '' },
     {
       enabled,
       onSuccess: (data) => {
@@ -97,7 +102,10 @@ export const useChat = () => {
         messages: Message[]
       })[]
     ) => {
-      if (typeof localStorage.currentChatId !== 'string' && data[0]?.id) {
+      if (
+        typeof sessionStorage.getItem('currentChatId') !== 'string' &&
+        data[0]?.id
+      ) {
         dispatch({ type: 'chatIdChanged', payload: data[0].id })
       }
     },
@@ -110,7 +118,6 @@ export const useChat = () => {
         messages: Message[]
       }
     ) => {
-      console.log('handleChangeChat chatid', chat.id)
       dispatch({ type: 'chatIdChanged', payload: chat.id })
       handleToggleChatsModal()
     },
@@ -124,7 +131,7 @@ export const useChat = () => {
   const handleStartNewChat = useCallback(() => {
     setMessages([])
 
-    if (isAuthenticated) dispatch({ type: 'chatIdChanged', payload: 0 })
+    if (isAuthenticated) dispatch({ type: 'chatIdChanged', payload: '' })
   }, [])
 
   const handleToggleChatsModal = useCallback(() => {
@@ -133,6 +140,7 @@ export const useChat = () => {
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
+      setShouldFetchChat(false)
       if (isSendingMessage) {
         stop()
       } else {
@@ -154,13 +162,15 @@ export const useChat = () => {
   useEffect(() => {
     if (
       typeof window !== undefined &&
-      typeof localStorage?.currentChatId === 'string'
+      typeof sessionStorage?.getItem('currentChatId') === 'string'
     ) {
+      const currentChatId = sessionStorage.getItem('currentChatId')
+
       dispatch({
         type: 'chatIdChanged',
         payload:
-          localStorage.currentChatId !== undefined
-            ? (JSON.parse(localStorage.currentChatId) as number)
+          currentChatId !== undefined
+            ? JSON.parse(currentChatId as string)
             : undefined
       })
     }
@@ -175,6 +185,7 @@ export const useChat = () => {
     input,
     messages,
     isSendingMessage,
+    isAuthenticated,
 
     handleGetChatsOnSuccess,
     handleInputChange: useCallback(handleInputChange, []),
@@ -187,7 +198,7 @@ export const useChat = () => {
 }
 
 type ChatState = {
-  chatId?: number
+  chatId?: string
 }
 
 function useChatReducer(initialState: ChatState) {
@@ -196,7 +207,10 @@ function useChatReducer(initialState: ChatState) {
       const { type, payload } = action
       switch (type) {
         case 'chatIdChanged':
-          localStorage.currentChatId = JSON.stringify(!!payload ? payload : 0)
+          sessionStorage.setItem(
+            'currentChatId',
+            JSON.stringify(!!payload ? payload : '')
+          )
 
           return {
             ...state,
@@ -205,7 +219,7 @@ function useChatReducer(initialState: ChatState) {
 
         case 'reset':
           return {
-            chatId: 0
+            chatId: ''
           }
 
         default:
@@ -221,7 +235,7 @@ function useChatReducer(initialState: ChatState) {
 type ChatAction =
   | {
       type: 'chatIdChanged'
-      payload: number | undefined
+      payload: string | undefined
     }
   | {
       type: 'reset'
@@ -235,7 +249,7 @@ export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
 export type SaveRecipe = ReturnType<typeof useSaveRecipe>
 
-export const useSaveRecipe = (chatId?: number) => {
+export const useSaveRecipe = (chatId?: string) => {
   const utils = api.useContext()
   const { mutate, status, data } = api.recipe.create.useMutation({
     onSuccess: () => {
@@ -264,7 +278,7 @@ export const useSaveRecipe = (chatId?: number) => {
       recipeId,
       recipeName
     }: {
-      recipeId: number | null
+      recipeId: string | null
       recipeName?: string
     }) => {
       if (recipeId && recipeName) {
@@ -277,7 +291,7 @@ export const useSaveRecipe = (chatId?: number) => {
   )
 
   const handleSaveRecipe = useCallback(
-    ({ content, messageId }: { content: string; messageId?: number }) => {
+    ({ content, messageId }: { content: string; messageId?: string }) => {
       if (!content) return
 
       const {

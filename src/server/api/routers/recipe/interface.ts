@@ -1,21 +1,5 @@
-import { RouterInputs, RouterOutputs } from 'utils/api'
+import { RouterOutputs } from 'utils/api'
 import { z } from 'zod'
-
-export const createRecipeSchema = z.object({
-  description: z.string().optional(),
-  name: z.string(),
-  imgUrl: z.string().optional(),
-  author: z.string().optional(),
-  address: z.string().optional(),
-  ingredients: z.array(z.string()),
-  instructions: z.array(z.string()),
-  url: z.string().optional(),
-  prepTime: z.string().optional(),
-  cookTime: z.string().optional(),
-  messageId: z.number().optional()
-})
-
-export type CreateRecipe = RouterInputs['recipe']['create']
 
 export type LinkedData =
   | ({
@@ -39,16 +23,16 @@ export type LinkedDataRecipeField = {
   description?: string
   headline?: string
   image?: {
-    height?: number
+    height?: string
     url?: string
-    width?: number
+    width?: string
   }
   name?: string
   recipeIngredient?: string[]
   recipeInstructions?: {
     text?: string
   }[]
-  recipeYield?: number
+  recipeYield?: string
   url?: string
   parsingType: 'linkedData'
 }
@@ -73,24 +57,24 @@ const editRecipeSchema = z.object({
 const ingredientsAndInstructionsSchema = z.object({
   ingredients: z.array(
     z.object({
-      id: z.number(),
+      id: z.string(),
       name: z.string(),
-      listId: z.number().nullable(),
-      recipeId: z.number().nullable()
+      listId: z.string().nullable(),
+      recipeId: z.string().nullable()
     })
   ),
   instructions: z.array(
     z.object({
-      id: z.number(),
+      id: z.string(),
       description: z.string(),
-      recipeId: z.number()
+      recipeId: z.string()
     })
   )
 })
 
 export const updateRecipeSchema = z
   .object({
-    id: z.number(),
+    id: z.string(),
     newDescription: z.string().optional(),
     newName: z.string(),
     newImgUrl: z.string().optional(),
@@ -100,13 +84,13 @@ export const updateRecipeSchema = z
     newCookTime: z.string().optional(),
     newIngredients: z.array(
       z.object({
-        id: z.number(),
+        id: z.string(),
         name: z.string(),
-        listId: z.number().optional()
+        listId: z.string().optional()
       })
     ),
     newInstructions: z.array(
-      z.object({ id: z.number(), description: z.string() })
+      z.object({ id: z.string(), description: z.string() })
     )
   })
   .merge(ingredientsAndInstructionsSchema)
@@ -125,5 +109,5 @@ export const generateSchema = z.object({
   content: z.string(),
   messages: z.array(messageSchema).nullish(),
   filters: z.array(z.string()).optional(),
-  chatId: z.number().optional()
+  chatId: z.string().optional()
 })

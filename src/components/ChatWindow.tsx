@@ -1,5 +1,6 @@
 import ScrollToBottom, {
   useScrollToBottom,
+  useScrollToTop,
   useSticky
 } from 'react-scroll-to-bottom'
 import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
@@ -12,6 +13,7 @@ import { ValueProps } from './ValueProps'
 import { ChatsSideBarButton } from './ChatsSideBar'
 import {
   ArrowSmallDownIcon,
+  ArrowSmallUpIcon,
   BookmarkOutlineIcon,
   BookmarkSolidIcon,
   ChatBubbleLeftIcon,
@@ -51,6 +53,7 @@ const Content = memo(function Content(props: MessageContentProps) {
     messages,
     isChatsModalOpen,
     isSendingMessage,
+    isAuthenticated,
     handleStartNewChat,
     handleToggleChatsModal,
     fetchStatus: chatsFetchStatus,
@@ -58,19 +61,22 @@ const Content = memo(function Content(props: MessageContentProps) {
   } = props
 
   const scrollToBottom = useScrollToBottom()
+  const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
 
   const momoizedRecipeFilters = useMemo(() => recipeFilters, [])
 
-  const isLocalStorageAvailable =
+  const currentChatId = sessionStorage.getItem('currentChatId')
+
+  const isSessionStorageAvailable =
     typeof window !== 'undefined' &&
-    typeof localStorage.currentChatId === 'string' &&
-    JSON.parse(localStorage.currentChatId) === 0
+    typeof currentChatId === 'string' &&
+    JSON.parse(currentChatId) === ''
 
   const isMessagesSuccess =
     chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
 
-  const shouldBeLoading = isLocalStorageAvailable && !isMessagesSuccess
+  const shouldBeLoading = isSessionStorageAvailable && !isMessagesSuccess
 
   useEffect(() => {
     if (isMessagesSuccess) {
@@ -78,10 +84,7 @@ const Content = memo(function Content(props: MessageContentProps) {
     }
   }, [chatsFetchStatus, chatsQueryStatus])
 
-  if (
-    (messages.length === 0 || !messages.length) &&
-    chatsQueryStatus !== 'success'
-  ) {
+  if (messages.length === 0 || !messages.length) {
     return (
       <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
         <ValueProps handleFillMessage={handleFillMessage} />
@@ -90,8 +93,7 @@ const Content = memo(function Content(props: MessageContentProps) {
   }
 
   if (
-    ('status' in props &&
-      chatsQueryStatus === 'loading' &&
+    (chatsQueryStatus === 'loading' &&
       'fetchStatus' in props &&
       chatsFetchStatus !== 'idle') ||
     (shouldBeLoading && messages.length === 0)
@@ -109,6 +111,7 @@ const Content = memo(function Content(props: MessageContentProps) {
           messagesStatus={'status' in props ? chatsQueryStatus : undefined}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
+          isAuthenticated={isAuthenticated}
           handleGetChatsOnSuccess={
             'handleGetChatsOnSuccess' in props
               ? props.handleGetChatsOnSuccess
@@ -135,6 +138,20 @@ const Content = memo(function Content(props: MessageContentProps) {
           <ArrowSmallDownIcon />
         </button>
       </div>
+      <div
+        className={`absolute bottom-20 left-4 duration-300 transition-all${
+          sticky
+            ? ' translate-y-0 opacity-100'
+            : ' invisible translate-y-4 opacity-0'
+        }`}
+      >
+        <button
+          className='glass btn-circle btn'
+          onClick={() => scrollToTop({ behavior: 'smooth' })}
+        >
+          <ArrowSmallUpIcon />
+        </button>
+      </div>
     </>
   )
 })
@@ -143,6 +160,7 @@ function ChatWindowContent({
   messages,
   messagesStatus,
   recipeFilters,
+  isAuthenticated,
   handleGetChatsOnSuccess,
   handleChangeChat,
   handleStartNewChat,
@@ -153,6 +171,7 @@ function ChatWindowContent({
 }: {
   messagesStatus?: QueryStatus
   recipeFilters: RecipeFiltersType
+  isAuthenticated: boolean
   handleGetChatsOnSuccess?: (
     data: (Chat & {
       messages: Message[]
@@ -168,7 +187,7 @@ function ChatWindowContent({
   handleToggleChatsModal: () => void
   isChatsModalOpen: boolean
   isSendingMessage: boolean
-  chatId?: number
+  chatId?: string
   messages: Message[]
 }) {
   const { data } = useSession()
@@ -183,6 +202,7 @@ function ChatWindowContent({
           status={messagesStatus}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
+          isAuthenticated={isAuthenticated}
           handleGetChatsOnSuccess={handleGetChatsOnSuccess}
           handleChangeChat={handleChangeChat}
           handleStartNewChat={handleStartNewChat}
@@ -198,11 +218,11 @@ function ChatWindowContent({
 type MessageListProps = {
   data: PrismaMessage[]
   status?: QueryStatus
-  chatId?: number
+  chatId?: string
   isChatsModalOpen: boolean
   recipeFilters: RecipeFiltersType
   isSendingMessage: boolean
-
+  isAuthenticated: boolean
   handleChangeChat?: (
     chat: Chat & {
       messages: PrismaMessage[]
@@ -223,6 +243,7 @@ const MessageList = memo(function MessageList({
   chatId,
   recipeFilters,
   isChatsModalOpen,
+  isAuthenticated,
   isSendingMessage,
   handleGetChatsOnSuccess,
   handleChangeChat,
@@ -237,7 +258,7 @@ const MessageList = memo(function MessageList({
     <>
       <div className='bg-base-100 py-2 '>
         <div className='prose mx-auto grid grid-cols-3 px-2'>
-          {handleChangeChat && handleGetChatsOnSuccess ? (
+          {handleChangeChat && handleGetChatsOnSuccess && isAuthenticated ? (
             <ChatsSideBarButton
               chatId={chatId}
               isChatsModalOpen={isChatsModalOpen}
@@ -281,7 +302,7 @@ const Message = function Message({
 }: {
   message: PrismaMessage
   isSendingMessage: boolean
-  chatId?: number
+  chatId?: string
 }) {
   const { handleGoToRecipe, handleSaveRecipe, status } = useSaveRecipe(chatId)
 
@@ -295,18 +316,17 @@ const Message = function Message({
   }
 
   if (message.role === 'assistant') {
-    console.log('assistant messageId', message.id)
-    console.log('typeof message.id', typeof message.id)
-
-    let messageId: number | undefined
+    let messageId: string | undefined
     if (
       typeof message.id === 'string' &&
-      typeof parseInt(message.id) === 'number'
+      typeof parseInt(message.id) === 'number' &&
+      !Number.isNaN(parseInt(message.id))
     ) {
-      messageId = parseInt(message.id)
+      messageId = message.id
     } else {
       messageId = undefined
     }
+
     return (
       <div className='flex flex-col bg-primary-content p-4 pb-20'>
         <div className='prose mx-auto w-full'>

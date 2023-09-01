@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   firstName String?
   lastName  String?
   username  String   @unique
@@ -24,24 +24,24 @@ model User {
 }
 
 model Chat {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(cuid())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  userId    Int
+  userId    String
   user      User      @relation(fields: [userId], references: [id])
   messages  Message[]
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   chat      Chat     @relation(fields: [chatId], references: [id])
-  chatId    Int
+  chatId    String
   content   String
   role      Role
   recipe    Recipe?  @relation(fields: [recipeId], references: [id])
-  recipeId  Int?     @unique
+  recipeId  String?  @unique
 }
 
 enum Role {
@@ -51,9 +51,9 @@ enum Role {
 }
 
 model Recipe {
-  id           Int           @id @default(autoincrement())
+  id           String        @id @default(cuid())
   user         User?         @relation(fields: [userId], references: [id])
-  userId       Int?
+  userId       String?
   description  String?
   name         String
   imgUrl       String?
@@ -69,26 +69,26 @@ model Recipe {
 }
 
 model Instruction {
-  id          Int    @id @default(autoincrement())
+  id          String @id @default(cuid())
   description String
   recipe      Recipe @relation(fields: [recipeId], references: [id])
-  recipeId    Int
+  recipeId    String
 }
 
 model Ingredient {
-  id       Int     @id @default(autoincrement())
+  id       String  @id @default(cuid())
   name     String
   recipe   Recipe? @relation(fields: [recipeId], references: [id])
-  recipeId Int?
+  recipeId String?
   list     List?   @relation(fields: [listId], references: [id])
-  listId   Int?
+  listId   String?
 }
 
 model List {
-  id          Int          @id @default(autoincrement())
+  id          String       @id @default(cuid())
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   user        User         @relation(fields: [userId], references: [id])
-  userId      Int          @unique
+  userId      String       @unique
   ingredients Ingredient[]
 }
