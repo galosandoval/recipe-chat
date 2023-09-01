@@ -20,14 +20,12 @@ export const listRouter = createTRPCRouter({
       })
     }),
 
-  byUserId: protectedProcedure
-    .input(z.string())
-    .query(async ({ ctx, input }) => {
-      return ctx.prisma.list.findFirst({
-        where: { userId: { equals: input } },
-        select: { ingredients: { orderBy: { id: 'asc' } } }
-      })
-    }),
+  byUserId: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.list.findFirst({
+      where: { userId: { equals: ctx.session.user.id } },
+      select: { ingredients: { orderBy: { id: 'asc' } } }
+    })
+  }),
 
   findId: protectedProcedure.query(async ({ ctx }) => {
     const list = await ctx.prisma.list.findFirst({

@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Ingredient, Recipe } from '@prisma/client'
-import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
@@ -8,12 +7,7 @@ import { api } from 'utils/api'
 import { z } from 'zod'
 
 export const useList = () => {
-  const session = useSession()
-  const userId = session.data?.user.id || ''
-
-  return api.list.byUserId.useQuery(userId, {
-    enabled: !!userId
-  })
+  return api.list.byUserId.useQuery(undefined, {})
 }
 
 const selectRecipeNames = (data: Recipe[]) => {
@@ -149,6 +143,7 @@ export function useAddIngredientForm() {
     register,
     handleSubmit,
     reset,
+    setFocus,
     formState: { isValid }
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema)
@@ -161,6 +156,7 @@ export function useAddIngredientForm() {
       addToList({ newIngredientName: values.newIngredientName, listId })
       reset()
     }
+    setTimeout(() => setFocus('newIngredientName'))
   }
 
   return {
@@ -180,12 +176,10 @@ export type AddIngredientFormProps = Omit<
 
 export function useAddToList() {
   const utils = api.useContext()
-  const { data } = useSession()
-  const userId = data?.user.id || ''
 
   return api.list.add.useMutation({
     onSuccess: () => {
-      utils.list.byUserId.invalidate(userId)
+      utils.list.byUserId.invalidate(undefined)
     }
   })
 }
