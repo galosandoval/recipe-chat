@@ -47,7 +47,8 @@ export const api = createTRPCNext<AppRouter>({
       queryClientConfig: {
         defaultOptions: {
           queries: {
-            refetchOnWindowFocus: process.env.NODE_ENV === 'production'
+            refetchOnWindowFocus: process.env.NODE_ENV === 'production',
+            staleTime: 30 * 60
           }
         }
       }

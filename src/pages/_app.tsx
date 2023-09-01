@@ -20,15 +20,6 @@ const App: AppType<{ session: Session | null }> = ({
   pageProps: { session, ...pageProps }
 }) => {
   const font = `${roboto.variable}`
-  useEffect(() => {
-    return () => {
-      if (
-        typeof window !== undefined &&
-        typeof localStorage?.currentChatId === 'string'
-      )
-        localStorage.currentChatId = 0
-    }
-  }, [])
 
   return (
     <SessionProvider session={session}>

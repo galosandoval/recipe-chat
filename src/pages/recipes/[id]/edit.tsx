@@ -23,13 +23,13 @@ export default function EditByIdView() {
     <>
       <MyHead title={`Listy - Edit ${name}`} />
       <div className='pt-16'>
-        <EditById id={parseInt(id as string)} />
+        <EditById id={id as string} />
       </div>
     </>
   )
 }
 
-export function EditById({ id }: { id: number }) {
+export function EditById({ id }: { id: string }) {
   const { data: recipes, status: recipesStatus } = useRecipeEntity()
 
   const { data: recipeInfo, status: recipeStatus } =
@@ -98,7 +98,7 @@ function FoundRecipe({
       newIngredients.length,
       oldIngredients.length
     )
-    const ingredientsToChange: { id: number; name: string; listId?: number }[] =
+    const ingredientsToChange: { id: string; name: string; listId?: string }[] =
       []
 
     for (let i = 0; i < maxIngredientsLength; i++) {
@@ -107,7 +107,7 @@ function FoundRecipe({
 
       if (!!newIngredient) {
         const changedIngredient = {
-          id: oldIngredient?.id || 0,
+          id: oldIngredient?.id || '',
           name: newIngredient || '',
           listId: oldIngredient?.listId || undefined
         }
@@ -123,7 +123,7 @@ function FoundRecipe({
       oldInstructions.length
     )
 
-    const instructionsToChange: { id: number; description: string }[] = []
+    const instructionsToChange: { id: string; description: string }[] = []
 
     for (let i = 0; i < maxInstructionLength; i++) {
       const newInstruction = newInstructions[i]
@@ -131,7 +131,7 @@ function FoundRecipe({
 
       if (!!newInstruction) {
         instructionsToChange.push({
-          id: oldInstruction?.id || 0,
+          id: oldInstruction?.id || '',
           description: newInstruction || ''
         })
       }
@@ -162,7 +162,7 @@ function FoundRecipe({
     })
   }
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     deleteRecipe({ id })
   }
 
@@ -241,23 +241,25 @@ function FoundRecipe({
             className='textarea-bordered textarea resize-none'
           />
         </div>
-        <Button
-          isLoading={isLoading}
-          disabled={!isDirty || !isValid}
-          className='btn-success btn mt-2 w-full'
-          type='submit'
-        >
-          <CheckIcon />
-        </Button>
+        <div className='grid grid-cols-2 w-full gap-2'>
+          <Button
+            isLoading={isLoading}
+            className='btn-error btn mt-2 w-full'
+            type='button'
+            onClick={() => setIsOpen(true)}
+          >
+            <TrashIcon />
+          </Button>
 
-        <Button
-          isLoading={isLoading}
-          className='btn-error btn mt-2 w-full'
-          type='button'
-          onClick={() => setIsOpen(true)}
-        >
-          <TrashIcon />
-        </Button>
+          <Button
+            isLoading={isLoading}
+            disabled={!isDirty || !isValid}
+            className='btn-success btn mt-2 w-full'
+            type='submit'
+          >
+            <CheckIcon />
+          </Button>
+        </div>
       </form>
       <Modal isOpen={isOpen} closeModal={handleCloseConfirmationModal}>
         <div className='mx-2 my-1'>

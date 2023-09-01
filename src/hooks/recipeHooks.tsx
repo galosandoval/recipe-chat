@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 
 export const useRecipeEntity = () => api.recipe.entity.useQuery(undefined, {})
 
-export const useRecipeIngredientsAndInstructions = (id: number) =>
+export const useRecipeIngredientsAndInstructions = (id: string) =>
   api.recipe.ingredientsAndInstructions.useQuery({
     id
   })
@@ -43,7 +43,7 @@ export function useParseRecipe() {
   }
 }
 
-export const useAddToList = (recipeId: number) => {
+export const useAddToList = (recipeId: string) => {
   const utils = api.useContext()
   return api.list.upsert.useMutation({
     onSuccess: () => {

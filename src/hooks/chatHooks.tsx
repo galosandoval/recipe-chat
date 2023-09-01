@@ -38,7 +38,6 @@ export const useChat = () => {
 
   const { mutate } = api.chat.addMessages.useMutation({
     onSuccess(data, input) {
-      console.log('input', input?.chatId)
       if (!input?.chatId) {
         const payload = data as Message[]
         if (payload.length && !!payload[0].chatId) {
@@ -62,7 +61,6 @@ export const useChat = () => {
     setMessages
   } = useAiChat({
     onFinish: (message) => {
-      console.log('message', message)
       if (isAuthenticated) {
         mutate({
           messages: [
@@ -78,7 +76,9 @@ export const useChat = () => {
     }
   })
 
-  const enabled = isAuthenticated && !!state.chatId
+  const [shouldFetchChat, setShouldFetchChat] = useState(true)
+
+  const enabled = isAuthenticated && !!state.chatId && shouldFetchChat
 
   const { status, fetchStatus } = api.chat.getMessagesByChatId.useQuery(
     { chatId: state.chatId || '' },
@@ -102,7 +102,10 @@ export const useChat = () => {
         messages: Message[]
       })[]
     ) => {
-      if (typeof localStorage.currentChatId !== 'string' && data[0]?.id) {
+      if (
+        typeof sessionStorage.getItem('currentChatId') !== 'string' &&
+        data[0]?.id
+      ) {
         dispatch({ type: 'chatIdChanged', payload: data[0].id })
       }
     },
@@ -137,6 +140,7 @@ export const useChat = () => {
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
+      setShouldFetchChat(false)
       if (isSendingMessage) {
         stop()
       } else {
@@ -158,13 +162,15 @@ export const useChat = () => {
   useEffect(() => {
     if (
       typeof window !== undefined &&
-      typeof localStorage?.currentChatId === 'string'
+      typeof sessionStorage?.getItem('currentChatId') === 'string'
     ) {
+      const currentChatId = sessionStorage.getItem('currentChatId')
+
       dispatch({
         type: 'chatIdChanged',
         payload:
-          localStorage.currentChatId !== undefined
-            ? (JSON.parse(localStorage.currentChatId) as string)
+          currentChatId !== undefined
+            ? JSON.parse(currentChatId as string)
             : undefined
       })
     }
@@ -201,7 +207,10 @@ function useChatReducer(initialState: ChatState) {
       const { type, payload } = action
       switch (type) {
         case 'chatIdChanged':
-          localStorage.currentChatId = JSON.stringify(!!payload ? payload : 0)
+          sessionStorage.setItem(
+            'currentChatId',
+            JSON.stringify(!!payload ? payload : '')
+          )
 
           return {
             ...state,

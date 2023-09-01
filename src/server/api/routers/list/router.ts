@@ -1,14 +1,16 @@
 import { z } from 'zod'
 import { createTRPCRouter, protectedProcedure } from '../../trpc'
-import { RouterInputs,  } from 'utils/api'
+import { RouterInputs } from 'utils/api'
 
 export const listRouter = createTRPCRouter({
   upsert: protectedProcedure
-    .input(z.array(
-      z.object({
-        id: z.string()
-      })
-    ))
+    .input(
+      z.array(
+        z.object({
+          id: z.string()
+        })
+      )
+    )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.session.user.id
       return ctx.prisma.list.upsert({
@@ -18,12 +20,14 @@ export const listRouter = createTRPCRouter({
       })
     }),
 
-  byUserId: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.prisma.list.findFirst({
-      where: { userId: { equals: ctx.session.user.id } },
-      select: { ingredients: { orderBy: { id: 'asc' } } }
-    })
-  }),
+  byUserId: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.list.findFirst({
+        where: { userId: { equals: input } },
+        select: { ingredients: { orderBy: { id: 'asc' } } }
+      })
+    }),
 
   findId: protectedProcedure.query(async ({ ctx }) => {
     const list = await ctx.prisma.list.findFirst({
@@ -34,10 +38,12 @@ export const listRouter = createTRPCRouter({
   }),
 
   add: protectedProcedure
-    .input(z.object({
-      newIngredientName: z.string().min(3).max(50),
-      listId: z.string()
-    }))
+    .input(
+      z.object({
+        newIngredientName: z.string().min(3).max(50),
+        listId: z.string()
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const newIngredient = await ctx.prisma.ingredient.create({
         data: { name: input.newIngredientName }
@@ -50,13 +56,13 @@ export const listRouter = createTRPCRouter({
     }),
 
   clear: protectedProcedure
-    .input(z.array(
-      z.object({ id: z.string(), recipeId: z.string().nullable() })
-    ))
+    .input(
+      z.array(z.object({ id: z.string(), recipeId: z.string().nullable() }))
+    )
     .mutation(async ({ ctx, input }) => {
       // delete ingredients that are not connected to a recipe
       const toDisconnect: RouterInputs['list']['clear'] = []
-      const toDelete:  RouterInputs['list']['clear'] = []
+      const toDelete: RouterInputs['list']['clear'] = []
 
       for (const ingredient of input) {
         if (ingredient.recipeId) {

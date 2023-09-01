@@ -1,5 +1,6 @@
 import ScrollToBottom, {
   useScrollToBottom,
+  useScrollToTop,
   useSticky
 } from 'react-scroll-to-bottom'
 import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
@@ -12,6 +13,7 @@ import { ValueProps } from './ValueProps'
 import { ChatsSideBarButton } from './ChatsSideBar'
 import {
   ArrowSmallDownIcon,
+  ArrowSmallUpIcon,
   BookmarkOutlineIcon,
   BookmarkSolidIcon,
   ChatBubbleLeftIcon,
@@ -59,19 +61,22 @@ const Content = memo(function Content(props: MessageContentProps) {
   } = props
 
   const scrollToBottom = useScrollToBottom()
+  const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
 
   const momoizedRecipeFilters = useMemo(() => recipeFilters, [])
 
-  const isLocalStorageAvailable =
+  const currentChatId = sessionStorage.getItem('currentChatId')
+
+  const isSessionStorageAvailable =
     typeof window !== 'undefined' &&
-    typeof localStorage.currentChatId === 'string' &&
-    JSON.parse(localStorage.currentChatId) === 0
+    typeof currentChatId === 'string' &&
+    JSON.parse(currentChatId) === ''
 
   const isMessagesSuccess =
     chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
 
-  const shouldBeLoading = isLocalStorageAvailable && !isMessagesSuccess
+  const shouldBeLoading = isSessionStorageAvailable && !isMessagesSuccess
 
   useEffect(() => {
     if (isMessagesSuccess) {
@@ -79,10 +84,7 @@ const Content = memo(function Content(props: MessageContentProps) {
     }
   }, [chatsFetchStatus, chatsQueryStatus])
 
-  if (
-    (messages.length === 0 || !messages.length) &&
-    chatsQueryStatus !== 'success'
-  ) {
+  if (messages.length === 0 || !messages.length) {
     return (
       <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
         <ValueProps handleFillMessage={handleFillMessage} />
@@ -91,8 +93,7 @@ const Content = memo(function Content(props: MessageContentProps) {
   }
 
   if (
-    ('status' in props &&
-      // chatsQueryStatus === 'loading' &&
+    (chatsQueryStatus === 'loading' &&
       'fetchStatus' in props &&
       chatsFetchStatus !== 'idle') ||
     (shouldBeLoading && messages.length === 0)
@@ -135,6 +136,20 @@ const Content = memo(function Content(props: MessageContentProps) {
           onClick={() => scrollToBottom({ behavior: 'smooth' })}
         >
           <ArrowSmallDownIcon />
+        </button>
+      </div>
+      <div
+        className={`absolute bottom-20 left-4 duration-300 transition-all${
+          sticky
+            ? ' translate-y-0 opacity-100'
+            : ' invisible translate-y-4 opacity-0'
+        }`}
+      >
+        <button
+          className='glass btn-circle btn'
+          onClick={() => scrollToTop({ behavior: 'smooth' })}
+        >
+          <ArrowSmallUpIcon />
         </button>
       </div>
     </>
