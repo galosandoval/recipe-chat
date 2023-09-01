@@ -28,6 +28,53 @@ export const recipeRouter = createTRPCRouter({
     return entity
   }),
 
+  infiniteRecipes: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(50),
+        cursor: z.string().nullish(),
+        search: z.string()
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const limit = input.limit
+      const cursor = input.cursor
+      const userId = ctx?.session?.user.id
+
+      const items = await ctx.prisma.recipe.findMany({
+        take: limit + 1, // get an extra item at the end which we'll use as next cursor
+        where: {
+          userId: { equals: userId },
+          name: { contains: input.search, mode: 'insensitive' }
+        },
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: {
+          name: 'asc'
+        }
+      })
+      let nextCursor: typeof cursor | undefined = undefined
+      if (items.length > limit) {
+        const nextItem = items.pop()
+        nextCursor = nextItem?.id
+      }
+      return {
+        items,
+        nextCursor
+      }
+    }),
+
+  byId: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      return ctx.prisma.recipe.findFirst({
+        where: { id: { equals: input.id } },
+        include: {
+          ingredients: { orderBy: { id: 'asc' } },
+          instructions: { orderBy: { id: 'asc' } }
+        }
+      })
+    }),
+
   byIds: protectedProcedure
     .input(z.array(z.string()))
     .query(async ({ input, ctx }) => {
@@ -155,18 +202,6 @@ export const recipeRouter = createTRPCRouter({
 
         return newRecipe
       }
-    }),
-
-  ingredientsAndInstructions: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input, ctx }) => {
-      return ctx.prisma.recipe.findFirst({
-        where: { id: { equals: input.id } },
-        select: {
-          ingredients: { orderBy: { id: 'asc' } },
-          instructions: { orderBy: { id: 'asc' } }
-        }
-      })
     }),
 
   edit: protectedProcedure

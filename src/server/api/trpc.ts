@@ -114,6 +114,19 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   })
 })
 
+const addSleep = t.middleware(async ({ ctx, next }) => {
+  if (process.env.NODE_ENV === 'development') {
+    function sleep() {
+      return new Promise((resolve) => setTimeout(resolve, 1000))
+    }
+    await sleep()
+  }
+
+  return next({
+    ctx
+  })
+})
+
 /**
  * Protected (authenticated) procedure
  *
@@ -123,4 +136,6 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  *
  * @see https://trpc.io/docs/procedures
  */
-export const protectedProcedure = t.procedure.use(enforceUserIsAuthed)
+export const protectedProcedure = t.procedure
+  .use(enforceUserIsAuthed)
+  .use(addSleep)
