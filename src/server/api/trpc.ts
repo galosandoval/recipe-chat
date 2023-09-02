@@ -137,5 +137,5 @@ const addSleep = t.middleware(async ({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure
-  .use(enforceUserIsAuthed)
   .use(addSleep)
+  .use(enforceUserIsAuthed)

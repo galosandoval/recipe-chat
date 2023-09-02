@@ -1,11 +1,6 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
-import {
-  useDeleteRecipe,
-  useEditRecipe,
-  useRecipeEntity,
-  useRecipe
-} from 'hooks/recipeHooks'
+import { useDeleteRecipe, useEditRecipe, useRecipe } from 'hooks/recipeHooks'
 import { MyHead } from 'components/Head'
 import { useForm } from 'react-hook-form'
 import { Button } from 'components/Button'
@@ -30,17 +25,12 @@ export default function EditByIdView() {
 }
 
 export function EditById({ id }: { id: string }) {
-  const { data: recipes, status: recipesStatus } = useRecipeEntity()
+  const { data, status } = useRecipe(id)
 
-  const { data: recipeInfo, status: recipeStatus } = useRecipe(id)
+  if (status === 'error') return <div className=''>Something went wrong</div>
 
-  const isError = recipesStatus === 'error' && recipeStatus === 'error'
-  const isSuccess = recipesStatus === 'success' && recipeStatus === 'success'
-
-  if (isError) return <div className=''>Something went wrong</div>
-
-  if (isSuccess && recipes && recipeInfo) {
-    return <FoundRecipe data={{ ...recipeInfo, ...recipes[id] }} />
+  if (status === 'success' && data) {
+    return <FoundRecipe data={data} />
   }
 
   return <div>Loading...</div>

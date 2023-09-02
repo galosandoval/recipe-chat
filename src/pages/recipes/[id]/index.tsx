@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { Ingredient, Instruction, Recipe } from '@prisma/client'
+import { Ingredient } from '@prisma/client'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Button } from 'components/Button'
 import { useAddToList, useRecipe } from 'hooks/recipeHooks'
@@ -61,7 +61,6 @@ function FoundRecipe({
     author,
     description,
     instructions,
-    id,
     prepTime,
     cookTime
   } = data
