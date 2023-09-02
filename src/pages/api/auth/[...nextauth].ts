@@ -17,7 +17,7 @@ const maxAuthAge = 15 * 24 * 60 * 60 // 15 days
  *
  * @see https://next-auth.js.org/configuration/options
  **/
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   callbacks: {
     jwt: async ({ token, user }) => {
       if (user) {
