@@ -60,10 +60,6 @@ const Content = memo(function Content(props: MessageContentProps) {
     status: chatsQueryStatus
   } = props
 
-  useEffect(() => {
-    console.log(chatId)
-  }, [chatId])
-
   const scrollToBottom = useScrollToBottom()
   const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
@@ -76,10 +72,6 @@ const Content = memo(function Content(props: MessageContentProps) {
 
   const isSessionStorageAvailable =
     typeof window !== 'undefined' && typeof currentChatId === 'string'
-
-  console.log(isSessionStorageAvailable)
-
-  console.log(currentChatId)
 
   const isNewChat =
     (currentChatId === '' || currentChatId === null) &&
