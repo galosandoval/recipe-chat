@@ -33,7 +33,6 @@ export const useChat = () => {
   const router = useRouter()
   const { status: authStatus, data } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
-  console.log(authStatus)
   const userId = data?.user.id
   const utils = api.useContext()
 

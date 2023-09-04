@@ -33,7 +33,6 @@ function ErrorMessageContent({ message }: { message: string }) {
 
 export function handleError({ message }: { message: string }) {
   if (typeof message === 'string' && message[0] === '[') {
-    console.log(JSON.parse(message))
     return JSON.stringify(message, null, 2)
   }
 
