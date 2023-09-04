@@ -13,20 +13,26 @@ import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
 import { LinkedData, updateRecipeSchema } from './interface'
 
 export const recipeRouter = createTRPCRouter({
-  entity: protectedProcedure.query(async ({ ctx }) => {
+  recentRecipes: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx?.session?.user.id
-    const recipeList = await ctx.prisma.recipe.findMany({
-      where: { userId: { equals: userId } }
+
+    return ctx.prisma.recipe.findMany({
+      where: { userId: { equals: userId } },
+      orderBy: { lastViewedAt: 'desc' },
+      take: 4
     })
-
-    const entity: { [recipeId: string]: Recipe } = {}
-
-    recipeList.forEach((element) => {
-      entity[element.id] = element
-    })
-
-    return entity
   }),
+
+  updateLastViewedAt: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      const updatedRecipe = await ctx.prisma.recipe.update({
+        where: { id: input },
+        data: { lastViewedAt: new Date() }
+      })
+
+      return updatedRecipe
+    }),
 
   infiniteRecipes: protectedProcedure
     .input(

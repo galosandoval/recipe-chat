@@ -146,7 +146,7 @@ export const useDeleteRecipe = () => {
 
   return api.recipe.delete.useMutation({
     onSuccess: () => {
-      utils.recipe.entity.invalidate()
+      utils.recipe.invalidate()
       router.push('/recipes')
       toast.success('Recipe deleted')
     }
