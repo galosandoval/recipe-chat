@@ -85,10 +85,6 @@ const Content = memo(function Content(props: MessageContentProps) {
     (currentChatId === '' || currentChatId === null) &&
     !isSendingMessage &&
     messages.length === 0
-  console.log(isNewChat)
-
-  console.log(chatsFetchStatus)
-  console.log(chatsQueryStatus)
 
   const isMessagesSuccess =
     chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
@@ -97,8 +93,6 @@ const Content = memo(function Content(props: MessageContentProps) {
     isSessionStorageAvailable &&
     (messages.length === 0 || !isMessagesSuccess) &&
     chatsFetchStatus === 'fetching'
-  console.log(shouldBeLoading)
-  console.log(isSendingMessage)
 
   useEffect(() => {
     if (isMessagesSuccess) {
@@ -113,13 +107,7 @@ const Content = memo(function Content(props: MessageContentProps) {
       </div>
     )
   }
-  if (
-    // (chatsQueryStatus === 'loading' &&
-    //   'fetchStatus' in props &&
-    //   chatsFetchStatus !== 'idle') ||
-    shouldBeLoading &&
-    !isSendingMessage
-  ) {
+  if (shouldBeLoading && !isSendingMessage) {
     return <ScreenLoader />
   }
 
