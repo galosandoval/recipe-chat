@@ -10,7 +10,7 @@ import { ScreenLoader } from './loaders/ScreenLoader'
 import { QueryStatus } from '@tanstack/react-query'
 import { RecipeFiltersType } from './RecipeFilters'
 import { ValueProps } from './ValueProps'
-import { ChatsSideBarButton } from './ChatsSideBar'
+import { ChatsSideBarButton } from './ChatSideBar'
 import {
   ArrowSmallDownIcon,
   ArrowSmallUpIcon,
@@ -60,23 +60,45 @@ const Content = memo(function Content(props: MessageContentProps) {
     status: chatsQueryStatus
   } = props
 
+  useEffect(() => {
+    console.log(chatId)
+  }, [chatId])
+
   const scrollToBottom = useScrollToBottom()
   const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
 
   const momoizedRecipeFilters = useMemo(() => recipeFilters, [])
 
-  const currentChatId = sessionStorage.getItem('currentChatId')
+  const currentChatId = JSON.parse(
+    sessionStorage.getItem('currentChatId') as string
+  )
 
   const isSessionStorageAvailable =
-    typeof window !== 'undefined' &&
-    typeof currentChatId === 'string' &&
-    JSON.parse(currentChatId) === ''
+    typeof window !== 'undefined' && typeof currentChatId === 'string'
+
+  console.log(isSessionStorageAvailable)
+
+  console.log(currentChatId)
+
+  const isNewChat =
+    (currentChatId === '' || currentChatId === null) &&
+    !isSendingMessage &&
+    messages.length === 0
+  console.log(isNewChat)
+
+  console.log(chatsFetchStatus)
+  console.log(chatsQueryStatus)
 
   const isMessagesSuccess =
     chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
 
-  const shouldBeLoading = isSessionStorageAvailable && !isMessagesSuccess
+  const shouldBeLoading =
+    isSessionStorageAvailable &&
+    (messages.length === 0 || !isMessagesSuccess) &&
+    chatsFetchStatus === 'fetching'
+  console.log(shouldBeLoading)
+  console.log(isSendingMessage)
 
   useEffect(() => {
     if (isMessagesSuccess) {
@@ -84,19 +106,19 @@ const Content = memo(function Content(props: MessageContentProps) {
     }
   }, [chatsFetchStatus, chatsQueryStatus])
 
-  if (messages.length === 0 || !messages.length) {
+  if (isNewChat) {
     return (
       <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
         <ValueProps handleFillMessage={handleFillMessage} />
       </div>
     )
   }
-
   if (
-    (chatsQueryStatus === 'loading' &&
-      'fetchStatus' in props &&
-      chatsFetchStatus !== 'idle') ||
-    (shouldBeLoading && messages.length === 0)
+    // (chatsQueryStatus === 'loading' &&
+    //   'fetchStatus' in props &&
+    //   chatsFetchStatus !== 'idle') ||
+    shouldBeLoading &&
+    !isSendingMessage
   ) {
     return <ScreenLoader />
   }
@@ -140,7 +162,7 @@ const Content = memo(function Content(props: MessageContentProps) {
       </div>
       <div
         className={`absolute bottom-20 left-4 duration-300 transition-all${
-          sticky
+          sticky && !isSendingMessage
             ? ' translate-y-0 opacity-100'
             : ' invisible translate-y-4 opacity-0'
         }`}

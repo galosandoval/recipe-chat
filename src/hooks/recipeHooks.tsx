@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form'
 import React from 'react'
 
 export default function useDebounce(value: string, delay = 500) {
-  const [debouncedValue, setDebouncedValue] = React.useState(value)
+  const [debouncedValue, setDebouncedValue] = useState(value)
 
   React.useEffect(() => {
     const handler: NodeJS.Timeout = setTimeout(() => {

@@ -36,11 +36,11 @@ export default function RecipesView() {
 }
 
 export function Recipes() {
-  const { ref, inView } = useInView()
+  const { ref: inViewRef, inView } = useInView()
 
   const [search, setSearch] = useState('')
 
-  const debouncedSearch = useDebounce(search, 500)
+  const debouncedSearch = useDebounce(search)
   const { data, status, hasNextPage, fetchNextPage } =
     api.recipe.infiniteRecipes.useInfiniteQuery(
       {
@@ -48,7 +48,8 @@ export function Recipes() {
         search: debouncedSearch
       },
       {
-        getNextPageParam: (lastPage) => lastPage.nextCursor
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        keepPreviousData: true
       }
     )
 
@@ -68,8 +69,8 @@ export function Recipes() {
     }
   }, [inView, hasNextPage])
 
-  console.log(data?.pages)
   const pages = data?.pages ?? []
+
   return (
     <SearchBarWrapper
       handleChange={handleChange}
@@ -78,7 +79,7 @@ export function Recipes() {
       search={search}
     >
       <Pages pages={pages} search={search} status={status} />
-      <span ref={ref}></span>
+      <span ref={inViewRef}></span>
     </SearchBarWrapper>
   )
 }

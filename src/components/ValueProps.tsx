@@ -42,7 +42,7 @@ export function ValueProps({
             onClick={handleFillMessage}
           >
             <span className='w-60'>
-              Which salad recipe will go well with my steak and potatoes?
+              Which salad recipe will pair well with my steak and potatoes?
             </span>
             <span>
               <ArrowUTurnLeftIcon />
@@ -52,7 +52,7 @@ export function ValueProps({
             className='btn-outline btn w-full normal-case'
             onClick={handleFillMessage}
           >
-            <span className='w-60'>What&apos;s a the best risotto recipe?</span>
+            <span className='w-60'>What&apos;s the best risotto recipe?</span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>
