@@ -8,7 +8,6 @@ import {
 } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
-
 import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
 import { LinkedData, updateRecipeSchema } from './interface'
 
@@ -197,7 +196,7 @@ export const recipeRouter = createTRPCRouter({
           }
         })
 
-        if (messageId && newRecipe.id) {
+        if (messageId && messageId.length > 10 && newRecipe.id) {
           await ctx.prisma.message.update({
             where: { id: messageId },
             data: {

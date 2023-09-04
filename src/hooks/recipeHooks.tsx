@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../utils/api'
 import { RecipeUrlSchemaType } from 'pages/recipes'
 import { useRouter } from 'next/router'
@@ -6,12 +6,10 @@ import { toast } from 'react-hot-toast'
 import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
 import { useForm } from 'react-hook-form'
 
-import React from 'react'
-
 export default function useDebounce(value: string, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handler: NodeJS.Timeout = setTimeout(() => {
       setDebouncedValue(value)
     }, delay)
