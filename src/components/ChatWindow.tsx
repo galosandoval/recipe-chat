@@ -355,7 +355,8 @@ const Message = function Message({
                   })
                 }
               >
-                <BookmarkSolidIcon />
+                {/* <BookmarkSolidIcon /> */}
+                Go to recipe
               </Button>
             ) : !isSendingMessage ? (
               // Save
@@ -372,7 +373,8 @@ const Message = function Message({
                   })
                 }
               >
-                <BookmarkOutlineIcon />
+                {/* <BookmarkOutlineIcon /> */}
+                Save
               </Button>
             ) : null}
           </div>

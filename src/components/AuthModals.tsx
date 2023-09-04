@@ -75,7 +75,6 @@ export function useSignUp() {
           message: error.message
         })
       }
-      console.log('error', error)
     }
   })
 
