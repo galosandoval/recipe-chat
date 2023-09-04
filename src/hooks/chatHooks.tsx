@@ -33,6 +33,7 @@ export const useChat = () => {
   const router = useRouter()
   const { status: authStatus, data } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
+  console.log(authStatus)
   const userId = data?.user.id
   const utils = api.useContext()
 
@@ -118,6 +119,7 @@ export const useChat = () => {
         messages: Message[]
       }
     ) => {
+      setShouldFetchChat(true)
       dispatch({ type: 'chatIdChanged', payload: chat.id })
       handleToggleChatsModal()
     },
@@ -207,19 +209,11 @@ function useChatReducer(initialState: ChatState) {
       const { type, payload } = action
       switch (type) {
         case 'chatIdChanged':
-          sessionStorage.setItem(
-            'currentChatId',
-            JSON.stringify(!!payload ? payload : '')
-          )
+          sessionStorage.setItem('currentChatId', JSON.stringify(payload))
 
           return {
             ...state,
             chatId: payload
-          }
-
-        case 'reset':
-          return {
-            chatId: ''
           }
 
         default:

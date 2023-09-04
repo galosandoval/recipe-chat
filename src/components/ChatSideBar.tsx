@@ -3,7 +3,6 @@ import { AdjustmentsHorizontalIcon, ListBulletIcon } from './Icons'
 import { Drawer } from './Drawer'
 import { formatTimeAgo } from 'utils/relativeTimeFormat'
 import { RecipeFiltersType } from './RecipeFilters'
-import { memo } from 'react'
 import { api } from 'utils/api'
 import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/ScreenLoader'
@@ -18,7 +17,7 @@ const useGetChats = (
   const { status: authStatus, data } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   return api.chat.getChats.useQuery(
-    { userId: data?.user.id ||'' },
+    { userId: data?.user.id || '' },
     {
       onSuccess,
       enabled: isAuthenticated
@@ -26,7 +25,7 @@ const useGetChats = (
   )
 }
 
-export const ChatsSideBarButton = memo(function ChatsSideBarButton({
+export function ChatsSideBarButton({
   chatId,
   isChatsModalOpen,
   // recipeFilters,
@@ -71,7 +70,7 @@ export const ChatsSideBarButton = memo(function ChatsSideBarButton({
       </Drawer>
     </>
   )
-})
+}
 
 function ChatList({
   chatId,
