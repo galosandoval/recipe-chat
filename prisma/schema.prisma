@@ -65,6 +65,7 @@ model Recipe {
   prepTime     String?
   cookTime     String?
   message      Message?
+  categories   String[]      @default([])
   lastViewedAt DateTime      @default(now())
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt

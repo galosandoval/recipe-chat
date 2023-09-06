@@ -20,7 +20,8 @@ const useGetChats = (
     { userId: data?.user.id || '' },
     {
       onSuccess,
-      enabled: isAuthenticated
+      enabled: isAuthenticated,
+      keepPreviousData: true
     }
   )
 }
