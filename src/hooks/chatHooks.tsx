@@ -1,5 +1,5 @@
 import { Chat, Message } from '@prisma/client'
-import { useChat as useAiChat } from 'ai/react'
+import { useChat as useAiChat, Message as AiMessage } from 'ai/react'
 import { useRecipeFilters } from 'components/RecipeFilters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
@@ -36,20 +36,6 @@ export const useChat = () => {
   const userId = data?.user.id
   const utils = api.useContext()
 
-  const { mutate } = api.chat.addMessages.useMutation({
-    onSuccess(data, input) {
-      if (!input?.chatId) {
-        const payload = data as Message[]
-        if (payload.length && !!payload[0].chatId) {
-          dispatch({ type: 'chatIdChanged', payload: payload[0].chatId })
-        }
-      }
-      if (userId) {
-        utils.chat.getChats.invalidate({ userId })
-      }
-    }
-  })
-
   const {
     messages,
     input,
@@ -60,21 +46,50 @@ export const useChat = () => {
     isLoading: isSendingMessage,
     setMessages
   } = useAiChat({
-    onFinish: (message) => {
-      if (isAuthenticated) {
-        mutate({
-          messages: [
-            { content: input, role: 'user' },
-            message as {
-              role: 'user' | 'system' | 'assistant'
-              content: string
-            }
-          ],
-          chatId: !!state.chatId ? state.chatId : undefined
-        })
+    onFinish: (messages) => onFinishMessage(messages)
+  })
+
+  const { mutate: addMessages } = api.chat.addMessages.useMutation({
+    onSuccess(data, input) {
+      console.log(data)
+      console.log(input)
+      const payload = data
+      console.log(payload)
+      payload
+
+      console.log(payload)
+
+      // if (payload.length && !!payload[0].chatId) {
+      //   dispatch({ type: 'chatIdChanged', payload: payload[0].chatId })
+      // }
+      // setMessages(data)
+
+      if (userId) {
+        utils.chat.getChats.invalidate({ userId })
       }
     }
   })
+
+  const { mutate: create } = api.chat.create.useMutation({
+    onSuccess(data) {
+      dispatch({ type: 'chatIdChanged', payload: data.id })
+    }
+  })
+
+  function onFinishMessage(message: AiMessage) {
+    if (isAuthenticated) {
+      if (!!state.chatId) {
+        addMessages({
+          messages: [{ content: input, role: 'user' }, message as Message],
+          chatId: state.chatId
+        })
+      } else {
+        create({
+          messages: [{ content: input, role: 'user' }, message as Message]
+        })
+      }
+    }
+  }
 
   const [shouldFetchChat, setShouldFetchChat] = useState(true)
 
@@ -245,12 +260,8 @@ export type SaveRecipe = ReturnType<typeof useSaveRecipe>
 export const useSaveRecipe = (chatId?: string) => {
   const utils = api.useContext()
   const { mutate, status, data } = api.recipe.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (newRecipeId) => {
       utils.recipe.invalidate()
-      if (chatId) {
-        utils.chat.getMessagesByChatId.invalidate({ chatId })
-      }
-
       if (chatId) {
         utils.chat.getMessagesByChatId.invalidate({ chatId })
       }

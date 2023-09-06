@@ -5,6 +5,14 @@ import {
 } from 'server/api/trpc'
 import { z } from 'zod'
 
+const messagesSchema = z.array(
+  z.object({
+    content: z.string().min(1),
+    role: z.enum(['system', 'user', 'assistant']),
+    id: z.string().optional()
+  })
+)
+
 export const chatRouter = createTRPCRouter({
   getChats: protectedProcedure
     .input(z.object({ userId: z.string() }))
@@ -43,7 +51,7 @@ export const chatRouter = createTRPCRouter({
         include: {
           messages: {
             orderBy: {
-              id: 'asc'
+              createdAt: 'asc'
             }
           }
         }
@@ -53,14 +61,7 @@ export const chatRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        messages: z.array(
-          z.object({
-            name: z.string().min(3).max(50),
-            userId: z.string(),
-            role: z.enum(['system', 'user', 'assistant']),
-            content: z.string().min(1).max(255)
-          })
-        )
+        messages: messagesSchema
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -69,9 +70,19 @@ export const chatRouter = createTRPCRouter({
       return ctx.prisma.chat.create({
         data: {
           userId,
+
           messages: {
-            createMany: { data: input.messages }
+            createMany: {
+              data: input.messages.map((message) => ({
+                content: message.content,
+                role: message.role
+              }))
+            }
           }
+        },
+
+        include: {
+          messages: true
         }
       })
     }),
@@ -104,40 +115,17 @@ export const chatRouter = createTRPCRouter({
   addMessages: protectedProcedure
     .input(
       z.object({
-        chatId: z.string().optional(),
-        messages: z.array(
-          z.object({
-            content: z.string().min(1),
-            role: z.enum(['system', 'user', 'assistant'])
-          })
-        )
+        chatId: z.string(),
+        messages: messagesSchema
       })
     )
     .mutation(async ({ ctx, input }) => {
       const { chatId, messages } = input
 
-      if (chatId) {
-        const newMessages = await ctx.prisma.message.createMany({
-          data: messages.map((m) => ({ ...m, chatId }))
-        })
+      const newMessages = await ctx.prisma.message.createMany({
+        data: messages.map((m) => ({ ...m, chatId }))
+      })
 
-        return newMessages
-      } else {
-        const userId = ctx.session.user.id
-
-        const newChat = await ctx.prisma.chat.create({
-          data: {
-            userId,
-            messages: {
-              createMany: { data: messages.map((m) => ({ ...m, chatId })) }
-            }
-          },
-          include: {
-            messages: true
-          }
-        })
-
-        return newChat.messages
-      }
+      return newMessages
     })
 })

@@ -361,7 +361,7 @@ const Message = function Message({
             ) : !isSendingMessage ? (
               // Save
               <Button
-                className='btn-ghost btn-circle btn'
+                className='btn-ghost btn'
                 isLoading={status === 'loading'}
                 onClick={() =>
                   handleSaveRecipe({
