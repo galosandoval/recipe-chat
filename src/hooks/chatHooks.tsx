@@ -32,6 +32,7 @@ export const useChat = () => {
   })
   const router = useRouter()
   const { status: authStatus, data } = useSession()
+
   const isAuthenticated = authStatus === 'authenticated'
   const userId = data?.user.id
   const utils = api.useContext()
@@ -50,29 +51,24 @@ export const useChat = () => {
   })
 
   const { mutate: addMessages } = api.chat.addMessages.useMutation({
-    onSuccess(data, input) {
-      console.log(data)
-      console.log(input)
-      const payload = data
-      console.log(payload)
-      payload
-
-      console.log(payload)
-
-      // if (payload.length && !!payload[0].chatId) {
-      //   dispatch({ type: 'chatIdChanged', payload: payload[0].chatId })
+    onSuccess(data) {
       // }
-      // setMessages(data)
-
-      if (userId) {
-        utils.chat.getChats.invalidate({ userId })
-      }
+      setMessages(data)
     }
   })
 
   const { mutate: create } = api.chat.create.useMutation({
     onSuccess(data) {
       dispatch({ type: 'chatIdChanged', payload: data.id })
+      const messages = data.messages.map((m) => ({
+        content: m.content,
+        id: m.id,
+        role: m.role,
+        recipeId: m.recipeId
+      }))
+
+      setMessages(messages)
+      utils.chat.getMessagesByChatId.invalidate({ chatId: data.id })
     }
   })
 
@@ -101,11 +97,10 @@ export const useChat = () => {
       enabled,
       onSuccess: (data) => {
         if (data) {
-          setMessages(
-            data.messages.map((m) => ({ ...m, id: JSON.stringify(m.id) }))
-          )
+          setMessages(data.messages)
         }
-      }
+      },
+      keepPreviousData: true
     }
   )
 
@@ -133,8 +128,8 @@ export const useChat = () => {
         messages: Message[]
       }
     ) => {
-      setShouldFetchChat(true)
       dispatch({ type: 'chatIdChanged', payload: chat.id })
+      setShouldFetchChat(true)
       handleToggleChatsModal()
     },
     []
@@ -145,9 +140,9 @@ export const useChat = () => {
   }, [])
 
   const handleStartNewChat = useCallback(() => {
+    stop()
     setMessages([])
-
-    if (isAuthenticated) dispatch({ type: 'chatIdChanged', payload: '' })
+    dispatch({ type: 'chatIdChanged', payload: '' })
   }, [])
 
   const handleToggleChatsModal = useCallback(() => {
@@ -192,6 +187,12 @@ export const useChat = () => {
     }
   }, [])
 
+  const {
+    handleGoToRecipe,
+    handleSaveRecipe,
+    status: saveRecipeStatus
+  } = useSaveRecipe(messages, setMessages)
+
   return {
     recipeFilters,
     chatId: state.chatId,
@@ -202,6 +203,10 @@ export const useChat = () => {
     messages,
     isSendingMessage,
     isAuthenticated,
+    saveRecipeStatus,
+
+    handleGoToRecipe,
+    handleSaveRecipe,
 
     handleGetChatsOnSuccess,
     handleInputChange: useCallback(handleInputChange, []),
@@ -257,14 +262,29 @@ export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
 export type SaveRecipe = ReturnType<typeof useSaveRecipe>
 
-export const useSaveRecipe = (chatId?: string) => {
+export const useSaveRecipe = (
+  messages: AiMessage[],
+  setMessages: (messages: AiMessage[]) => void
+) => {
   const utils = api.useContext()
-  const { mutate, status, data } = api.recipe.create.useMutation({
-    onSuccess: (newRecipeId) => {
+  const {
+    mutate: createRecipe,
+    status,
+    data
+  } = api.recipe.create.useMutation({
+    onSuccess: (newRecipe, { messageId }) => {
       utils.recipe.invalidate()
-      if (chatId) {
-        utils.chat.getMessagesByChatId.invalidate({ chatId })
+      const messagesCopy = [...messages]
+      if (messageId) {
+        const messageToChange = messagesCopy.find(
+          (message) => message.id === messageId
+        ) as Message
+        if (messageToChange) {
+          messageToChange.recipeId = newRecipe.id
+        }
       }
+
+      setMessages(messagesCopy)
 
       toast.success('Recipe saved successfully!')
     },
@@ -307,7 +327,7 @@ export const useSaveRecipe = (chatId?: string) => {
         instructions
       } = transformContentToRecipe(content)
 
-      mutate({
+      createRecipe({
         name,
         description,
         prepTime,

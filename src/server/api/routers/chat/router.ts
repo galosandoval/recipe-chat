@@ -51,7 +51,7 @@ export const chatRouter = createTRPCRouter({
         include: {
           messages: {
             orderBy: {
-              createdAt: 'asc'
+              id: 'asc'
             }
           }
         }
@@ -122,10 +122,12 @@ export const chatRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { chatId, messages } = input
 
-      const newMessages = await ctx.prisma.message.createMany({
-        data: messages.map((m) => ({ ...m, chatId }))
-      })
-
-      return newMessages
+      return await ctx.prisma.$transaction(
+        messages.map((m) =>
+          ctx.prisma.message.create({
+            data: { content: m.content, role: m.role, chatId }
+          })
+        )
+      )
     })
 })

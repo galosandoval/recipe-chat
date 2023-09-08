@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { api } from 'utils/api'
+import { Loader } from './loaders/RecentRecipeLoader'
 
 export function RecentRecipes() {
   const { data, status } = api.recipe.recentRecipes.useQuery()
@@ -11,8 +12,7 @@ export function RecentRecipes() {
 
   if (status === 'success') {
     return (
-      <>
-        <h2 className='col-span-2 prose'>Recent Recipes</h2>
+      <Container>
         <div className='col-span-2 grid grid-cols-2 grid-2 gap-4'>
           {data.map((recipe) => (
             <Link
@@ -61,9 +61,23 @@ export function RecentRecipes() {
             </Link>
           ))}
         </div>
-      </>
+      </Container>
     )
   }
 
-  return <div>loading..</div>
+  return (
+    <Container>
+      <Loader />
+    </Container>
+  )
+}
+
+function Container({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <h2 className='col-span-2 prose'>Recent Recipes</h2>
+
+      {children}
+    </>
+  )
 }

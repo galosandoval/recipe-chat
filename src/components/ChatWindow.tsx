@@ -4,18 +4,16 @@ import ScrollToBottom, {
   useSticky
 } from 'react-scroll-to-bottom'
 import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
-import { ChatType, useSaveRecipe } from 'hooks/chatHooks'
+import { ChatType } from 'hooks/chatHooks'
 import { memo, useEffect, useMemo } from 'react'
 import { ScreenLoader } from './loaders/ScreenLoader'
-import { QueryStatus } from '@tanstack/react-query'
+import { MutationStatus, QueryStatus } from '@tanstack/react-query'
 import { RecipeFiltersType } from './RecipeFilters'
 import { ValueProps } from './ValueProps'
 import { ChatsSideBarButton } from './ChatSideBar'
 import {
   ArrowSmallDownIcon,
   ArrowSmallUpIcon,
-  BookmarkOutlineIcon,
-  BookmarkSolidIcon,
   ChatBubbleLeftIcon,
   PlusIcon,
   UserCircleIcon
@@ -56,8 +54,13 @@ const Content = memo(function Content(props: MessageContentProps) {
     isAuthenticated,
     handleStartNewChat,
     handleToggleChatsModal,
+    handleGoToRecipe,
+    handleSaveRecipe,
+    handleChangeChat,
+    saveRecipeStatus,
     fetchStatus: chatsFetchStatus,
-    status: chatsQueryStatus
+    status: chatsQueryStatus,
+    handleGetChatsOnSuccess
   } = props
 
   const scrollToBottom = useScrollToBottom()
@@ -107,6 +110,9 @@ const Content = memo(function Content(props: MessageContentProps) {
     <>
       <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
         <ChatWindowContent
+          saveRecipeStatus={saveRecipeStatus}
+          handleGoToRecipe={handleGoToRecipe}
+          handleSaveRecipe={handleSaveRecipe}
           recipeFilters={momoizedRecipeFilters}
           messages={messages as []}
           chatId={chatId}
@@ -116,11 +122,11 @@ const Content = memo(function Content(props: MessageContentProps) {
           isAuthenticated={isAuthenticated}
           handleGetChatsOnSuccess={
             'handleGetChatsOnSuccess' in props
-              ? props.handleGetChatsOnSuccess
+              ? handleGetChatsOnSuccess
               : undefined
           }
           handleChangeChat={
-            'handleChangeChat' in props ? props.handleChangeChat : undefined
+            'handleChangeChat' in props ? handleChangeChat : undefined
           }
           handleStartNewChat={handleStartNewChat}
           handleToggleChatsModal={handleToggleChatsModal}
@@ -167,7 +173,10 @@ function ChatWindowContent({
   handleChangeChat,
   handleStartNewChat,
   handleToggleChatsModal,
+  handleGoToRecipe,
+  handleSaveRecipe,
   isChatsModalOpen,
+  saveRecipeStatus,
   isSendingMessage,
   chatId
 }: {
@@ -191,6 +200,21 @@ function ChatWindowContent({
   isSendingMessage: boolean
   chatId?: string
   messages: Message[]
+  saveRecipeStatus: MutationStatus
+  handleGoToRecipe: ({
+    recipeId,
+    recipeName
+  }: {
+    recipeId: string | null
+    recipeName: string
+  }) => void
+  handleSaveRecipe: ({
+    content,
+    messageId
+  }: {
+    content: string
+    messageId?: string | undefined
+  }) => void
 }) {
   const { data } = useSession()
 
@@ -198,6 +222,9 @@ function ChatWindowContent({
     return (
       <div className='h-full bg-primary-content'>
         <MessageList
+          saveRecipeStatus={saveRecipeStatus}
+          handleGoToRecipe={handleGoToRecipe}
+          handleSaveRecipe={handleSaveRecipe}
           recipeFilters={recipeFilters}
           data={messages as []}
           chatId={chatId}
@@ -217,7 +244,22 @@ function ChatWindowContent({
   return <ScreenLoader />
 }
 
-type MessageListProps = {
+const MessageList = memo(function MessageList({
+  data,
+  status,
+  chatId,
+  recipeFilters,
+  isChatsModalOpen,
+  isAuthenticated,
+  isSendingMessage,
+  saveRecipeStatus,
+  handleGetChatsOnSuccess,
+  handleChangeChat,
+  handleStartNewChat,
+  handleToggleChatsModal,
+  handleGoToRecipe,
+  handleSaveRecipe
+}: {
   data: PrismaMessage[]
   status?: QueryStatus
   chatId?: string
@@ -225,6 +267,7 @@ type MessageListProps = {
   recipeFilters: RecipeFiltersType
   isSendingMessage: boolean
   isAuthenticated: boolean
+  saveRecipeStatus: MutationStatus
   handleChangeChat?: (
     chat: Chat & {
       messages: PrismaMessage[]
@@ -237,21 +280,21 @@ type MessageListProps = {
       messages: Message[]
     })[]
   ) => void
-}
-
-const MessageList = memo(function MessageList({
-  data,
-  status,
-  chatId,
-  recipeFilters,
-  isChatsModalOpen,
-  isAuthenticated,
-  isSendingMessage,
-  handleGetChatsOnSuccess,
-  handleChangeChat,
-  handleStartNewChat,
-  handleToggleChatsModal
-}: MessageListProps) {
+  handleGoToRecipe: ({
+    recipeId,
+    recipeName
+  }: {
+    recipeId: string | null
+    recipeName: string
+  }) => void
+  handleSaveRecipe: ({
+    content,
+    messageId
+  }: {
+    content: string
+    messageId?: string | undefined
+  }) => void
+}) {
   if (status === 'error') {
     return <p>Error</p>
   }
@@ -284,15 +327,19 @@ const MessageList = memo(function MessageList({
           </button>
         </div>
       </div>
-      {data.map((m, i) => (
-        <Message
-          message={m}
-          key={m?.content || '' + i}
-          isSendingMessage={isSendingMessage}
-          chatId={chatId}
-        />
-      ))}
-      {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
+      <div className='pb-16 bg-primary-content'>
+        {data.map((m, i) => (
+          <Message
+            message={m}
+            key={m?.content || '' + i}
+            isSendingMessage={isSendingMessage}
+            handleGoToRecipe={handleGoToRecipe}
+            handleSaveRecipe={handleSaveRecipe}
+            saveRecipeStatus={saveRecipeStatus}
+          />
+        ))}
+        {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
+      </div>
     </>
   )
 })
@@ -300,14 +347,28 @@ const MessageList = memo(function MessageList({
 const Message = function Message({
   message,
   isSendingMessage,
-  chatId
+  handleGoToRecipe,
+  handleSaveRecipe,
+  saveRecipeStatus
 }: {
   message: PrismaMessage
   isSendingMessage: boolean
-  chatId?: string
+  saveRecipeStatus: MutationStatus
+  handleGoToRecipe: ({
+    recipeId,
+    recipeName
+  }: {
+    recipeId: string | null
+    recipeName: string
+  }) => void
+  handleSaveRecipe: ({
+    content,
+    messageId
+  }: {
+    content: string
+    messageId?: string | undefined
+  }) => void
 }) {
-  const { handleGoToRecipe, handleSaveRecipe, status } = useSaveRecipe(chatId)
-
   let recipeName = ''
   const nameIdx = message.content.toLowerCase().indexOf('name:')
   if (nameIdx !== -1) {
@@ -318,19 +379,8 @@ const Message = function Message({
   }
 
   if (message.role === 'assistant') {
-    let messageId: string | undefined
-    if (
-      typeof message.id === 'string' &&
-      typeof parseInt(message.id) === 'number' &&
-      !Number.isNaN(parseInt(message.id))
-    ) {
-      messageId = message.id
-    } else {
-      messageId = undefined
-    }
-
     return (
-      <div className='flex flex-col bg-primary-content p-4 pb-20'>
+      <div className='flex flex-col p-4'>
         <div className='prose mx-auto w-full'>
           <div className='flex w-full justify-start gap-2 self-center'>
             <div>
@@ -347,7 +397,7 @@ const Message = function Message({
             {message?.recipeId ? (
               // Go to recipe
               <Button
-                className='btn-ghost btn-circle btn text-success'
+                className='btn-ghost btn'
                 onClick={() =>
                   handleGoToRecipe({
                     recipeId: message.recipeId,
@@ -362,14 +412,11 @@ const Message = function Message({
               // Save
               <Button
                 className='btn-ghost btn'
-                isLoading={status === 'loading'}
+                isLoading={saveRecipeStatus === 'loading'}
                 onClick={() =>
                   handleSaveRecipe({
                     content: message.content || '',
-                    messageId
-                    // messageId: Number.isNaN(Number(message.id))
-                    //   ? undefined
-                    //   : message.id
+                    messageId: message.id
                   })
                 }
               >
