@@ -148,32 +148,36 @@ function AddIngredientForm({
 
   return (
     <form
-      className='form-control w-full bg-base-300/75 p-2'
+      className='absolute bottom-0 left-0 flex w-full items-center md:rounded-md'
       onSubmit={handleSubmit(onSubmitNewIngredient)}
     >
-      <div className='input-group'>
-        <input
-          type='text'
-          placeholder='Add to list'
-          className='input-bordered input w-full'
-          {...register('newIngredientName')}
-        />
-        <button disabled={isDisabled} className='btn-success btn-square btn'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth={1.5}
-            stroke='currentColor'
-            className='h-6 w-6'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
-            />
-          </svg>
-        </button>
+      <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 sm:mb-2 sm:rounded-lg'>
+        <div className='flex w-full px-2 py-1'>
+          <input
+            type='text'
+            placeholder='Add to list'
+            className='input-bordered input w-full'
+            {...register('newIngredientName')}
+          />
+        </div>
+        <div className='mr-1'>
+          <button disabled={isDisabled} className='btn-success btn-square btn'>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='h-6 w-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </form>
   )

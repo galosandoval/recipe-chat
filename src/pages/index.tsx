@@ -9,20 +9,10 @@ export default function PublicChatView() {
     input,
     isSendingMessage,
     isChatsModalOpen,
-    messages,
-    recipeFilters,
-    chatId,
-    fetchStatus,
-    status,
-    isAuthenticated,
-    handleFillMessage,
-    handleStartNewChat,
-    handleToggleChatsModal,
-
-    handleChangeChat,
-    handleGetChatsOnSuccess,
+    handleSubmit,
     handleInputChange,
-    handleSubmit
+
+    ...rest
   } = useChat()
 
   return (
@@ -32,18 +22,8 @@ export default function PublicChatView() {
         <div className='flex-1 overflow-hidden'>
           <ChatWindow
             isSendingMessage={isSendingMessage}
-            handleFillMessage={handleFillMessage}
-            handleStartNewChat={handleStartNewChat}
-            handleToggleChatsModal={handleToggleChatsModal}
             isChatsModalOpen={isChatsModalOpen}
-            messages={messages}
-            recipeFilters={recipeFilters}
-            chatId={chatId}
-            fetchStatus={fetchStatus}
-            handleChangeChat={handleChangeChat}
-            handleGetChatsOnSuccess={handleGetChatsOnSuccess}
-            status={status}
-            isAuthenticated={isAuthenticated}
+            {...rest}
           />
         </div>
         <SubmitMessageForm

@@ -15,9 +15,9 @@ export function SubmitMessageForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`absolute bottom-0 left-0 flex w-full items-center`}
+      className={`absolute bottom-0 left-0 flex w-full items-center md:rounded-md`}
     >
-      <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 md:mb-2 md:rounded-lg'>
+      <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <textarea
             value={input}
