@@ -1,4 +1,4 @@
-import { authRouter } from './routers/authRouter'
+import { authRouter } from './routers/auth-router'
 import { chatRouter } from './routers/chat/router'
 import { listRouter } from './routers/list/router'
 import { recipeRouter } from './routers/recipe/router'

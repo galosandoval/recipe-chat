@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 import { Ingredient } from '@prisma/client'
-import { Checkbox } from 'components/Checkbox'
-import { Button } from 'components/Button'
+import { Checkbox } from 'components/checkbox'
+import { Button } from 'components/button'
 import {
   AddIngredientFormProps,
   Checked,
@@ -9,9 +9,9 @@ import {
   useList,
   useListController,
   useRecipeNames
-} from 'hooks/listHooks'
-import { MyHead } from 'components/Head'
-import { ScreenLoader } from 'components/loaders/ScreenLoader'
+} from 'hooks/list'
+import { MyHead } from 'components/head'
+import { ScreenLoader } from 'components/loaders/screen-loader'
 
 export default function ListView() {
   return (
