@@ -20,11 +20,15 @@ import {
   useRef,
   useState
 } from 'react'
-import { MagnifyingGlassCircleIcon, XCircleIcon } from 'components/Icons'
-import { ScreenLoader } from 'components/loaders/ScreenLoader'
+import {
+  MagnifyingGlassCircleIcon,
+  PlusIcon,
+  XCircleIcon
+} from 'components/Icons'
+import { LoadingSpinner, ScreenLoader } from 'components/loaders/ScreenLoader'
 import { api } from 'utils/api'
 import { useInView } from 'react-intersection-observer'
-import { QueryStatus } from '@tanstack/react-query'
+import { FetchStatus, QueryStatus } from '@tanstack/react-query'
 import { RecentRecipes } from 'components/RecentRecipes'
 
 export default function RecipesView() {
@@ -42,10 +46,10 @@ export function Recipes() {
   const [search, setSearch] = useState('')
 
   const debouncedSearch = useDebounce(search)
-  const { data, status, hasNextPage, fetchNextPage } =
+  const { data, status, hasNextPage, fetchNextPage, fetchStatus } =
     api.recipe.infiniteRecipes.useInfiniteQuery(
       {
-        limit: 9,
+        limit: 10,
         search: debouncedSearch
       },
       {
@@ -79,7 +83,13 @@ export function Recipes() {
       inputRef={inputRef}
       search={search}
     >
-      <Pages pages={pages} search={search} status={status} />
+      <Pages
+        pages={pages}
+        search={search}
+        status={status}
+        fetchStatus={fetchStatus}
+      />
+
       <span ref={inViewRef}></span>
     </SearchBarWrapper>
   )
@@ -99,7 +109,7 @@ function SearchBarWrapper({
   handleSearchButtonClick: () => void
 }) {
   return (
-    <div className='container mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2 pt-16'>
+    <div className='relative container mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2 pt-16'>
       <SearchBar
         handleChange={handleChange}
         handleSearchButtonClick={handleSearchButtonClick}
@@ -123,22 +133,28 @@ function SearchBar({
   handleChange: (event: ChangeEvent<HTMLInputElement>) => void
 }) {
   return (
-    <div className='prose join mx-auto mt-2 w-full'>
-      <input
-        type='text'
-        className='input-bordered input input-sm join-item w-full'
-        value={search}
-        onChange={handleChange}
-        placeholder='Search...'
-        ref={inputRef}
-      />
-      <button
-        type='button'
-        onClick={handleSearchButtonClick}
-        className='btn-sm join-item btn rounded-r-full'
-      >
-        {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
-      </button>
+    <div className='fixed  bottom-0 left-0 flex w-full items-center md:rounded-md'>
+      <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 sm:mb-2 sm:rounded-lg'>
+        <div className='flex w-full px-2 py-1'>
+          <input
+            type='text'
+            className='input-bordered input w-full'
+            value={search}
+            onChange={handleChange}
+            placeholder='Search...'
+            ref={inputRef}
+          />
+        </div>
+        <div className='mr-2'>
+          <button
+            type='button'
+            onClick={handleSearchButtonClick}
+            className='btn-success btn-square btn'
+          >
+            {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -146,7 +162,8 @@ function SearchBar({
 function Pages({
   search,
   pages,
-  status
+  status,
+  fetchStatus
 }: {
   pages: {
     items: Recipe[]
@@ -154,18 +171,20 @@ function Pages({
   }[]
   search: string
   status: QueryStatus
+  fetchStatus: FetchStatus
 }) {
   if (status === 'loading') {
     return <ScreenLoader />
   }
 
   return (
-    <div className='mx-auto mt-4 grid max-w-4xl grid-cols-2 gap-5 pb-8 md:grid-cols-4'>
+    <div className='mx-auto mt-4 grid max-w-4xl grid-cols-2 gap-5 mb-24 md:grid-cols-4'>
       <RecentRecipes />
 
-      <h2 className='prose col-span-2'>All Recipes</h2>
-
-      {!search && <CreateRecipeButton />}
+      <div className='col-span-2 flex justify-between items-center h-10'>
+        <h2 className='prose'>All Recipes</h2>
+        {!search && <CreateRecipeButton />}
+      </div>
 
       {pages.map((page, i) => (
         <Fragment key={i}>
@@ -176,6 +195,12 @@ function Pages({
           )}
         </Fragment>
       ))}
+
+      {fetchStatus === 'fetching' && (
+        <div className='flex justify-center col-span-2 mt-4'>
+          <LoadingSpinner />
+        </div>
+      )}
     </div>
   )
 }
@@ -299,15 +324,13 @@ function CreateRecipeButton() {
 
   return (
     <>
-      <div className='card flex h-64 items-center justify-center overflow-hidden'>
-        <Button
-          type='button'
-          onClick={openModal}
-          className='btn-accent btn h-full'
-        >
-          Create from website
-        </Button>
-      </div>
+      <Button
+        type='button'
+        onClick={openModal}
+        className='btn-accent btn btn-circle'
+      >
+        <PlusIcon size={6} />
+      </Button>
       <Modal closeModal={closeModal} isOpen={isOpen}>
         {modalContent}
       </Modal>

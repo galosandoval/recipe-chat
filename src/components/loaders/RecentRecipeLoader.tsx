@@ -1,5 +1,5 @@
 export function Loader() {
-  const cardAmount = Array(4).fill(Math.random)
+  const cardAmount = [1, 2, 3, 4]
 
   return (
     <>

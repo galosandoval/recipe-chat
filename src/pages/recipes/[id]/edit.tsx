@@ -17,7 +17,7 @@ export default function EditByIdView() {
   return (
     <>
       <MyHead title={`Listy - Edit ${name}`} />
-      <div className='pt-16'>
+      <div className='pt-16 sm:flex sm:justify-center'>
         <EditById id={id as string} />
       </div>
     </>
@@ -51,6 +51,7 @@ function FoundRecipe({
     name,
     prepTime,
     cookTime,
+    notes,
     id
   } = data
 
@@ -73,7 +74,8 @@ function FoundRecipe({
       ingredients: ingredients.map((i) => i.name).join('\n') || '',
       instructions: instructions.map((i) => i.description).join('\n') || '',
       name: name || '',
-      prepTime: prepTime || ''
+      prepTime: prepTime || '',
+      notes: notes || ''
     }
   })
 
@@ -147,7 +149,9 @@ function FoundRecipe({
       cookTime: cookTime || '',
       prepTime: prepTime || '',
       name: name || '',
-      description: description || ''
+      description: description || '',
+      notes,
+      newNotes: values.notes
     })
   }
 
@@ -230,9 +234,21 @@ function FoundRecipe({
             className='textarea-bordered textarea resize-none'
           />
         </div>
+
+        <div className='flex w-full flex-col'>
+          <label htmlFor='notes' className='label'>
+            <span className='label-text'>Notes</span>
+          </label>
+          <textarea
+            id='notes'
+            rows={4}
+            {...register('notes')}
+            className='textarea-bordered textarea resize-none'
+          />
+        </div>
         <div className='grid grid-cols-2 w-full gap-2'>
           <Button
-            isLoading={isLoading}
+            disabled={isLoading}
             className='btn-error btn mt-2 w-full'
             type='button'
             onClick={() => setIsOpen(true)}

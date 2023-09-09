@@ -160,7 +160,7 @@ function AddIngredientForm({
             {...register('newIngredientName')}
           />
         </div>
-        <div className='mr-1'>
+        <div className='mr-2'>
           <button disabled={isDisabled} className='btn-success btn-square btn'>
             <svg
               xmlns='http://www.w3.org/2000/svg'

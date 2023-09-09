@@ -224,7 +224,10 @@ export const recipeRouter = createTRPCRouter({
         newPrepTime,
         newCookTime,
         newDescription,
-        description
+        newNotes,
+        notes,
+        description,
+        id
       } = input
 
       const promiseArr: (
@@ -247,9 +250,13 @@ export const recipeRouter = createTRPCRouter({
         data.name = newName
       }
 
+      if (newNotes && newNotes !== notes) {
+        data.notes = newNotes
+      }
+
       if (Object.values(data).length) {
         const updatePromise = ctx.prisma.recipe.update({
-          where: { id: input.id },
+          where: { id },
           data
         })
         promiseArr.push(updatePromise)
@@ -375,6 +382,25 @@ export const recipeRouter = createTRPCRouter({
 
       return input.id
     }),
+
+  addNotes: protectedProcedure
+    .input(z.object({ notes: z.string().nonempty(), id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const updatedRecipe = await ctx.prisma.recipe.update({
+        where: { id: input.id },
+        data: { notes: input.notes }
+      })
+
+      if (!updatedRecipe) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Recipe not found'
+        })
+      }
+
+      return true
+    }),
+
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {

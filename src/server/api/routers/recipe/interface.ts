@@ -51,7 +51,8 @@ const editRecipeSchema = z.object({
   name: z.string().optional(),
   imgUrl: z.string().optional(),
   prepTime: z.string().optional(),
-  cookTime: z.string().optional()
+  cookTime: z.string().optional(),
+  notes: z.string().optional()
 })
 
 const ingredientsAndInstructionsSchema = z.object({
@@ -91,7 +92,8 @@ export const updateRecipeSchema = z
     ),
     newInstructions: z.array(
       z.object({ id: z.string(), description: z.string() })
-    )
+    ),
+    newNotes: z.string().optional()
   })
   .merge(ingredientsAndInstructionsSchema)
   .merge(editRecipeSchema)
