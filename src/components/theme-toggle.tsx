@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useState } from 'react'
-import { MoonIcon, SunIcon } from './Icons'
+import { MoonIcon, SunIcon } from './icons'
 import { themeChange } from 'theme-change'
 
 export const darkTheme = 'night'

@@ -6,13 +6,13 @@ import {
 } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Button } from 'components/Button'
+import { Button } from 'components/button'
 import { api } from 'utils/api'
 import { signIn } from 'next-auth/react'
-import { ErrorMessage } from 'components/ErrorMessageContent'
+import { ErrorMessage } from 'components/error-message-content'
 import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router'
-import { Modal } from './Modal'
+import { Modal } from './modal'
 import { useState } from 'react'
 
 export const signUpSchema = z

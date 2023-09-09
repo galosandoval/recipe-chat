@@ -5,11 +5,11 @@ import { useForm } from 'react-hook-form'
 import { ErrorMessage } from '@hookform/error-message'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import useDebounce, { useCreateRecipe, useParseRecipe } from 'hooks/recipeHooks'
-import { Button } from 'components/Button'
-import { Modal } from 'components/Modal'
-import { FormLoader } from 'components/loaders/FormLoader'
-import { MyHead } from 'components/Head'
+import useDebounce, { useCreateRecipe, useParseRecipe } from 'hooks/recipe'
+import { Button } from 'components/button'
+import { Modal } from 'components/modal'
+import { FormLoader } from 'components/loaders/form'
+import { MyHead } from 'components/head'
 import { Dialog } from '@headlessui/react'
 import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
 import {
@@ -24,12 +24,12 @@ import {
   MagnifyingGlassCircleIcon,
   PlusIcon,
   XCircleIcon
-} from 'components/Icons'
-import { LoadingSpinner, ScreenLoader } from 'components/loaders/ScreenLoader'
+} from 'components/icons'
+import { LoadingSpinner, ScreenLoader } from 'components/loaders/screen-loader'
 import { api } from 'utils/api'
 import { useInView } from 'react-intersection-observer'
 import { FetchStatus, QueryStatus } from '@tanstack/react-query'
-import { RecentRecipes } from 'components/RecentRecipes'
+import { RecentRecipes } from 'components/recent-recipes'
 
 export default function RecipesView() {
   return (
@@ -49,7 +49,7 @@ export function Recipes() {
   const { data, status, hasNextPage, fetchNextPage, fetchStatus } =
     api.recipe.infiniteRecipes.useInfiniteQuery(
       {
-        limit: 10,
+        limit: 8,
         search: debouncedSearch
       },
       {
@@ -181,7 +181,7 @@ function Pages({
     <div className='mx-auto mt-4 grid max-w-4xl grid-cols-2 gap-5 mb-24 md:grid-cols-4'>
       <RecentRecipes />
 
-      <div className='col-span-2 flex justify-between items-center h-10'>
+      <div className='col-span-2 sm:col-span-4 flex justify-between items-center h-10'>
         <h2 className='prose'>All Recipes</h2>
         {!search && <CreateRecipeButton />}
       </div>
@@ -197,7 +197,7 @@ function Pages({
       ))}
 
       {fetchStatus === 'fetching' && (
-        <div className='flex justify-center col-span-2 mt-4'>
+        <div className='flex justify-center col-span-2 sm:col-span-4 mt-4'>
           <LoadingSpinner />
         </div>
       )}

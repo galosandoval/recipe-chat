@@ -1,7 +1,7 @@
-import { MyHead } from 'components/Head'
-import ChatWindow from 'components/ChatWindow'
-import { SubmitMessageForm } from 'components/SubmitMessageForm'
-import { useChat } from 'hooks/chatHooks'
+import { MyHead } from 'components/head'
+import ChatWindow from 'components/chat-window'
+import { SubmitMessageForm } from 'components/submit-message-form'
+import { useChat } from 'hooks/chat'
 
 export default function ChatView() {
   const {

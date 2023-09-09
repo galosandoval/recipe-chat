@@ -7,8 +7,8 @@ import {
   PencilSquareIcon,
   XIcon,
   ListBulletIcon
-} from './Icons'
-import { ProtectedDropdownMenu, PublicDropdownMenu } from './DropdownMenus'
+} from './icons'
+import { ProtectedDropdownMenu, PublicDropdownMenu } from './dropdown-menus'
 
 export default function Layout({
   children,
