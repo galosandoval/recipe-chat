@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { Ingredient } from '@prisma/client'
+import { Ingredient, Instruction } from '@prisma/client'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Button } from 'components/Button'
 import { useAddToList, useRecipe } from 'hooks/recipeHooks'
@@ -8,7 +8,10 @@ import { MyHead } from 'components/Head'
 import NoSleep from 'nosleep.js'
 import { ListBulletIcon, PlusIcon } from 'components/Icons'
 import { ScreenLoader } from 'components/loaders/ScreenLoader'
-import { RouterInputs, RouterOutputs } from 'utils/api'
+import { RouterInputs, RouterOutputs, api } from 'utils/api'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
 export default function RecipeByIdView() {
   const router = useRouter()
@@ -62,7 +65,9 @@ function FoundRecipe({
     description,
     instructions,
     prepTime,
-    cookTime
+    cookTime,
+    notes,
+    id
   } = data
 
   const initialChecked: Checked = {}
@@ -188,18 +193,9 @@ function FoundRecipe({
           />
         </div>
         <div className='pt-4'>
-          <h2 className='divider'>Directions</h2>
-          <ol className='flex list-none flex-col gap-4 pl-0'>
-            {instructions.map((i, index, array) => (
-              <li key={i.id} className='mb-0 mt-0 bg-base-300 px-7 pb-2'>
-                <h3>
-                  Step {index + 1}/{array.length}
-                </h3>
-                <p>{i.description}</p>
-              </li>
-            ))}
-          </ol>
+          <Instructions instructions={instructions} />
         </div>
+        <Notes notes={notes} id={id} />
       </div>
     </div>
   )
@@ -238,6 +234,80 @@ function Ingredients({
           )
         })}
       </div>
+    </>
+  )
+}
+
+function Instructions({ instructions }: { instructions: Instruction[] }) {
+  return (
+    <>
+      <h2 className='divider'>Directions</h2>
+      <ol className='flex list-none flex-col gap-4 pl-0'>
+        {instructions.map((i, index, array) => (
+          <li key={i.id} className='mb-0 mt-0 bg-base-300 px-7 pb-2'>
+            <h3>
+              Step {index + 1}/{array.length}
+            </h3>
+            <p>{i.description}</p>
+          </li>
+        ))}
+      </ol>
+    </>
+  )
+}
+
+const addNotesSchema = z.object({
+  notes: z.string().nonempty()
+})
+type AddNotes = z.infer<typeof addNotesSchema>
+
+function Notes({ notes, id }: { notes: string; id: string }) {
+  const utils = api.useContext()
+  const { mutate } = api.recipe.addNotes.useMutation({
+    onSuccess() {
+      utils.recipe.byId.invalidate({ id })
+    }
+  })
+
+  const {
+    register,
+    handleSubmit,
+    formState: { isDirty, isValid }
+  } = useForm<AddNotes>({
+    resolver: zodResolver(addNotesSchema)
+  })
+
+  if (notes) {
+    return (
+      <>
+        <h2 className='divider'>Notes</h2>
+        <p className='whitespace-pre-line'>{notes}</p>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <h2 className='divider'>Notes</h2>
+      <form
+        onSubmit={handleSubmit(({ notes }) => {
+          mutate({ id, notes })
+        })}
+        className='flex flex-col gap-2'
+      >
+        <textarea
+          className='textarea textarea-primary resize-none w-full'
+          placeholder='Add notes here'
+          {...register('notes')}
+        ></textarea>
+        <Button
+          disabled={!isDirty || !isValid}
+          type='submit'
+          className='btn btn-primary self-end'
+        >
+          Save
+        </Button>
+      </form>
     </>
   )
 }

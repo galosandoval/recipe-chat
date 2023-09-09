@@ -23,6 +23,7 @@ export type FormValues = {
   description: string
   prepTime: string
   cookTime: string
+  notes: string
 }
 
 export type ChatType = ReturnType<typeof useChat>
