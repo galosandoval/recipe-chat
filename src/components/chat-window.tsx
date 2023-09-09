@@ -6,7 +6,7 @@ import ScrollToBottom, {
 import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
 import { ChatType } from 'hooks/chat'
 import { memo, useEffect, useMemo } from 'react'
-import { ScreenLoader } from './loaders/screen-loader'
+import { ScreenLoader } from './loaders/screen'
 import { MutationStatus, QueryStatus } from '@tanstack/react-query'
 import { RecipeFiltersType } from './recipe-filters'
 import { ValueProps } from './value-props'

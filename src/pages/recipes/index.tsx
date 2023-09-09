@@ -25,11 +25,11 @@ import {
   PlusIcon,
   XCircleIcon
 } from 'components/icons'
-import { LoadingSpinner, ScreenLoader } from 'components/loaders/screen-loader'
+import { LoadingSpinner, ScreenLoader } from 'components/loaders/screen'
 import { api } from 'utils/api'
 import { useInView } from 'react-intersection-observer'
 import { FetchStatus, QueryStatus } from '@tanstack/react-query'
-import { RecentRecipes } from 'components/recent-recipes'
+import { RecentRecipes } from 'components/recipe-list-recent'
 
 export default function RecipesView() {
   return (

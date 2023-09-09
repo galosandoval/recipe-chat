@@ -5,7 +5,7 @@ import { formatTimeAgo } from 'utils/relative-time-format'
 import { RecipeFiltersType } from './recipe-filters'
 import { api } from 'utils/api'
 import { useSession } from 'next-auth/react'
-import { ScreenLoader } from './loaders/screen-loader'
+import { ScreenLoader } from './loaders/screen'
 
 const useGetChats = (
   onSuccess: (

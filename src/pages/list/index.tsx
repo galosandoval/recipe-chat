@@ -11,7 +11,7 @@ import {
   useRecipeNames
 } from 'hooks/list'
 import { MyHead } from 'components/head'
-import { ScreenLoader } from 'components/loaders/screen-loader'
+import { ScreenLoader } from 'components/loaders/screen'
 
 export default function ListView() {
   return (

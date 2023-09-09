@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { api } from 'utils/api'
-import { Loader } from './loaders/recent-recipes'
+import { Loader } from './loaders/recipe-list-recent'
 
 export function RecentRecipes() {
   const { data, status } = api.recipe.recentRecipes.useQuery()
