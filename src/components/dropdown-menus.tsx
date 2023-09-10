@@ -142,6 +142,11 @@ export function PublicDropdownMenu() {
 
 export function ProtectedDropdownMenu() {
   const { theme, updateTheme } = useTheme()
+  const handleSignOut = () => {
+    signOut({ callbackUrl: '/' })
+
+    sessionStorage.removeItem('currentChatId')
+  }
 
   return (
     <DropdownMenu>
@@ -152,7 +157,7 @@ export function ProtectedDropdownMenu() {
       </Menu.Item>
       <Menu.Item>
         <button
-          onClick={() => signOut({ callbackUrl: '/' })}
+          onClick={handleSignOut}
           className='btn-ghost no-animation btn w-[8rem]'
         >
           <span>Logout</span>
