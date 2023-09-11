@@ -34,10 +34,8 @@ export function ListByUserId() {
 
 function ListController({ data }: { data: Ingredient[] }) {
   const {
-    allChecked,
     byRecipe,
     handleCheck,
-    handleCheckAll,
     handleRemoveChecked,
     handleToggleByRecipe,
     noneChecked,
