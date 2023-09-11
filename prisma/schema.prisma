@@ -86,6 +86,7 @@ model Ingredient {
   recipeId String?
   list     List?   @relation(fields: [listId], references: [id])
   listId   String?
+  checked  Boolean @default(false)
 }
 
 model List {

@@ -27,19 +27,10 @@ export const listRouter = createTRPCRouter({
     })
   }),
 
-  findId: protectedProcedure.query(async ({ ctx }) => {
-    const list = await ctx.prisma.list.findFirst({
-      where: { userId: { equals: ctx.session.user.id } },
-      select: { id: true }
-    })
-    return list?.id
-  }),
-
   add: protectedProcedure
     .input(
       z.object({
-        newIngredientName: z.string().min(3).max(50),
-        listId: z.string()
+        newIngredientName: z.string().min(3).max(50)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -51,6 +42,35 @@ export const listRouter = createTRPCRouter({
         where: { userId: ctx.session.user.id },
         data: { ingredients: { connect: { id: newIngredient.id } } }
       })
+    }),
+
+  check: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        checked: z.boolean()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.ingredient.update({
+        where: { id: input.id },
+        data: { checked: input.checked }
+      })
+    }),
+
+  checkMany: protectedProcedure
+    .input(z.array(z.object({ id: z.string(), checked: z.boolean() })))
+    .mutation(async ({ ctx, input }) => {
+      const mutations = input.map(({ id, checked }) =>
+        ctx.prisma.ingredient.update({
+          where: { id },
+          data: { checked }
+        })
+      )
+
+      const transaction = await ctx.prisma.$transaction(mutations)
+
+      return { count: transaction.length }
     }),
 
   clear: protectedProcedure

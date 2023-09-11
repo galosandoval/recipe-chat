@@ -1,5 +1,5 @@
 import { ChangeEventHandler, FormEvent } from 'react'
-import { Button } from './Button'
+import { Button } from './button'
 
 export function SubmitMessageForm({
   handleInputChange,

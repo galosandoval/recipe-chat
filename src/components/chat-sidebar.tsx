@@ -1,11 +1,11 @@
 import { Chat, Message } from '@prisma/client'
-import { AdjustmentsHorizontalIcon, ListBulletIcon } from './Icons'
-import { Drawer } from './Drawer'
-import { formatTimeAgo } from 'utils/relativeTimeFormat'
-import { RecipeFiltersType } from './RecipeFilters'
+import { AdjustmentsHorizontalIcon, ListBulletIcon } from './icons'
+import { Drawer } from './drawer'
+import { formatTimeAgo } from 'utils/relative-time-format'
+import { RecipeFiltersType } from './recipe-filters'
 import { api } from 'utils/api'
 import { useSession } from 'next-auth/react'
-import { ScreenLoader } from './loaders/ScreenLoader'
+import { ScreenLoader } from './loaders/screen'
 
 const useGetChats = (
   onSuccess: (

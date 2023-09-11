@@ -4,24 +4,24 @@ import ScrollToBottom, {
   useSticky
 } from 'react-scroll-to-bottom'
 import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
-import { ChatType } from 'hooks/chatHooks'
+import { ChatType } from 'hooks/chat'
 import { memo, useEffect, useMemo } from 'react'
-import { ScreenLoader } from './loaders/ScreenLoader'
+import { ScreenLoader } from './loaders/screen'
 import { MutationStatus, QueryStatus } from '@tanstack/react-query'
-import { RecipeFiltersType } from './RecipeFilters'
-import { ValueProps } from './ValueProps'
-import { ChatsSideBarButton } from './ChatSideBar'
+import { RecipeFiltersType } from './recipe-filters'
+import { ValueProps } from './value-props'
+import { ChatsSideBarButton } from './chat-sidebar'
 import {
   ArrowSmallDownIcon,
   ArrowSmallUpIcon,
   ChatBubbleLeftIcon,
   PlusIcon,
   UserCircleIcon
-} from './Icons'
-import { ChatLoader } from './loaders/ChatLoader'
-import { Button } from './Button'
+} from './icons'
+import { ChatLoader } from './loaders/chat'
+import { Button } from './button'
 import { useSession } from 'next-auth/react'
-import NoSsr from './NoSsr'
+import NoSsr from './no-ssr'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -217,6 +217,9 @@ function ChatWindowContent({
   }) => void
 }) {
   const { data } = useSession()
+  console.log(messages.length)
+  console.log(isSendingMessage)
+  console.log(!data?.user?.id)
 
   if (messages.length || isSendingMessage || !data?.user?.id) {
     return (

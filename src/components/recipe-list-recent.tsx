@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { api } from 'utils/api'
-import { Loader } from './loaders/RecentRecipeLoader'
+import { Loader } from './loaders/recipe-list-recent'
 
 export function RecentRecipes() {
   const { data, status } = api.recipe.recentRecipes.useQuery()
@@ -13,7 +13,7 @@ export function RecentRecipes() {
   if (status === 'success') {
     return (
       <Container>
-        <div className='col-span-2 grid grid-cols-2 grid-2 gap-4'>
+        <div className='col-span-2 sm:col-span-4 grid grid-cols-2 grid-2 gap-4 sm:grid-cols-4'>
           {data.map((recipe) => (
             <Link
               href={`/recipes/${recipe.id}?name=${encodeURIComponent(
@@ -55,7 +55,7 @@ export function RecentRecipes() {
                   </svg>
                 </div>
               )}
-              <p className='whitespace-nowrap text-xs prose text-left self-center'>
+              <p className='whitespace-nowrap text-xs prose text-left self-center truncate'>
                 {recipe.name}
               </p>
             </Link>
@@ -75,7 +75,7 @@ export function RecentRecipes() {
 function Container({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <h2 className='col-span-2 prose'>Recent Recipes</h2>
+      <h2 className='col-span-2 sm:col-span-4 prose'>Recent Recipes</h2>
 
       {children}
     </>

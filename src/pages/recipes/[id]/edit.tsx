@@ -1,14 +1,14 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
-import { useDeleteRecipe, useEditRecipe, useRecipe } from 'hooks/recipeHooks'
-import { MyHead } from 'components/Head'
+import { useDeleteRecipe, useEditRecipe, useRecipe } from 'hooks/recipe'
+import { MyHead } from 'components/head'
 import { useForm } from 'react-hook-form'
-import { Button } from 'components/Button'
+import { Button } from 'components/button'
 import { UpdateRecipe } from 'server/api/routers/recipe/interface'
-import { FormValues } from 'hooks/chatHooks'
-import { CheckIcon, TrashIcon } from 'components/Icons'
+import { FormValues } from 'hooks/chat'
+import { CheckIcon, TrashIcon } from 'components/icons'
 import { useState } from 'react'
-import { Modal } from 'components/Modal'
+import { Modal } from 'components/modal'
 
 export default function EditByIdView() {
   const router = useRouter()

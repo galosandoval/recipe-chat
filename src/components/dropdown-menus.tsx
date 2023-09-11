@@ -1,8 +1,8 @@
 import { Menu, Transition } from '@headlessui/react'
-import { ThemeToggle, useTheme } from './ThemeToggle'
-import { ArrowLeftOnRectangleIcon, UserPlusIcon } from './Icons'
+import { ThemeToggle, useTheme } from './theme-toggle'
+import { ArrowLeftOnRectangleIcon, UserPlusIcon } from './icons'
 import { signOut } from 'next-auth/react'
-import { LoginModal, SignUpModal, useLogin, useSignUp } from './AuthModals'
+import { LoginModal, SignUpModal, useLogin, useSignUp } from './auth-modals'
 
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
   return (
@@ -142,6 +142,11 @@ export function PublicDropdownMenu() {
 
 export function ProtectedDropdownMenu() {
   const { theme, updateTheme } = useTheme()
+  const handleSignOut = () => {
+    signOut({ callbackUrl: '/' })
+
+    sessionStorage.removeItem('currentChatId')
+  }
 
   return (
     <DropdownMenu>
@@ -152,7 +157,7 @@ export function ProtectedDropdownMenu() {
       </Menu.Item>
       <Menu.Item>
         <button
-          onClick={() => signOut({ callbackUrl: '/' })}
+          onClick={handleSignOut}
           className='btn-ghost no-animation btn w-[8rem]'
         >
           <span>Logout</span>
