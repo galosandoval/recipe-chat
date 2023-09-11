@@ -7,7 +7,9 @@ import { api } from 'utils/api'
 import { z } from 'zod'
 
 export const useList = () => {
-  return api.list.byUserId.useQuery(undefined, {})
+  return api.list.byUserId.useQuery(undefined, {
+    keepPreviousData: true
+  })
 }
 
 const selectRecipeNames = (data: Recipe[]) => {
@@ -22,123 +24,17 @@ export function useRecipeNames(ids: string[]) {
   })
 }
 
-export function useFindListId() {
-  return api.list.findId.useQuery()
-}
-
 export type Checked = Record<
   string,
   { isChecked: boolean; recipeId: string | null }
 >
 
 export function useListController(data: Ingredient[]) {
-  const { mutate: clearMutate, isLoading: isDeleting } = useClearList()
+  const allChecked = data.every((c) => c.checked)
+  const noneChecked = data.every((c) => !c.checked)
 
-  const initialChecked = data.reduce((checked: Checked, i) => {
-    checked[i.id] = { isChecked: false, recipeId: i.recipeId }
-    return checked
-  }, {})
+  const utils = api.useContext()
 
-  const [checked, setChecked] = useState(() =>
-    typeof localStorage.checkedIngredients === 'string' &&
-    localStorage.checkedIngredients.length > 2
-      ? (JSON.parse(localStorage.checkedIngredients) as Checked)
-      : initialChecked
-  )
-
-  const [byRecipe, setByRecipe] = useState(() =>
-    typeof localStorage.byRecipe === 'string'
-      ? (JSON.parse(localStorage.byRecipe) as boolean)
-      : false
-  )
-
-  const allChecked = Object.values(checked).every((c) => c.isChecked)
-  const noneChecked = Object.values(checked).every((c) => !c.isChecked)
-
-  const handleToggleByRecipe = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setByRecipe(event.target.checked)
-  }
-
-  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked((state) => ({
-      ...state,
-      [event.target.id]: {
-        ...state[event.target.id],
-        isChecked: event.target.checked
-      }
-    }))
-  }
-
-  const handleCheckAll = () => {
-    if (allChecked) {
-      setChecked(initialChecked)
-    } else {
-      for (const id in checked) {
-        setChecked((state) => ({
-          ...state,
-          [id]: { ...state[id], isChecked: true }
-        }))
-      }
-    }
-  }
-
-  const handleRemoveChecked = () => {
-    const checkedIngredients = Object.keys(checked).reduce(
-      (toRemove: { id: string; recipeId: string | null }[], c) => {
-        if (checked[c].isChecked) {
-          toRemove.push({ id: c, recipeId: checked[c].recipeId })
-        }
-        return toRemove
-      },
-      []
-    )
-
-    clearMutate(checkedIngredients)
-  }
-
-  useEffect(() => {
-    localStorage.checkedIngredients = JSON.stringify(checked)
-  }, [checked])
-
-  useEffect(() => {
-    const updateWithAddedIngredients = (
-      state: React.SetStateAction<Checked>
-    ) => {
-      const recentlyAddedIngredients = data.filter((i) => !(i.id in state))
-      const toAdd: Checked = {}
-      recentlyAddedIngredients.forEach(
-        (i) => (toAdd[i.id] = { isChecked: false, recipeId: i.recipeId })
-      )
-      return { ...state, ...toAdd }
-    }
-
-    setChecked(updateWithAddedIngredients)
-  }, [data])
-
-  useEffect(() => {
-    localStorage.byRecipe = JSON.stringify(byRecipe)
-  }, [byRecipe])
-
-  return {
-    handleToggleByRecipe,
-    byRecipe,
-    checked,
-    allChecked,
-    handleCheck,
-    handleCheckAll,
-    isDeleting,
-    noneChecked,
-    handleRemoveChecked
-  }
-}
-
-const formSchema = z.object({
-  newIngredientName: z.string().min(3).max(50)
-})
-type FormValues = z.infer<typeof formSchema>
-
-export function useAddIngredientForm() {
-  const { data: listId, status } = useFindListId()
   const {
     register,
     handleSubmit,
@@ -148,50 +44,200 @@ export function useAddIngredientForm() {
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema)
   })
+  const { mutate: addToList, status: addStatus } = api.list.add.useMutation({
+    onMutate: async (input) => {
+      await utils.list.byUserId.cancel(undefined)
 
-  const { mutate: addToList, status: addStatus } = useAddToList()
+      const prevList = utils.list.byUserId.getData(undefined)
+
+      let ingredients: Ingredient[] = []
+
+      if (prevList) {
+        ingredients = [
+          ...prevList.ingredients,
+          {
+            id: '',
+            checked: false,
+            listId: '',
+            name: input.newIngredientName,
+            recipeId: ''
+          }
+        ]
+      }
+
+      utils.list.byUserId.setData(undefined, () => ({ ingredients }))
+      return { prevList }
+    },
+
+    onSuccess: () => {
+      utils.list.byUserId.invalidate(undefined)
+    },
+
+    onError: (error, _, ctx) => {
+      const prevList = ctx?.prevList
+      if (prevList) {
+        utils.list.byUserId.setData(undefined, prevList)
+      }
+      toast.error(error.message)
+    }
+  })
 
   const onSubmitNewIngredient = (values: FormValues) => {
-    if (listId) {
-      addToList({ newIngredientName: values.newIngredientName, listId })
-      reset()
-    }
+    addToList({ newIngredientName: values.newIngredientName })
+    reset()
     setTimeout(() => setFocus('newIngredientName'))
   }
 
+  const { mutate: deleteListItem } = api.list.clear.useMutation({
+    async onMutate(input) {
+      await utils.list.byUserId.cancel(undefined)
+
+      const idDict = input.reduce((dict, i) => {
+        dict[i.id] = true
+        return dict
+      }, {} as Record<string, boolean>)
+
+      // Snapshot the previous value
+      const prevList = utils.list.byUserId.getData()
+
+      let ingredients: Ingredient[] = []
+      if (prevList) {
+        ingredients = prevList.ingredients.filter((i) => !(i.id in idDict))
+      }
+
+      // Optimistically update to the new value
+
+      utils.list.byUserId.setData(undefined, () => ({ ingredients }))
+      // Return a context object with the snapshotted value
+      return { prevList }
+    },
+    onSuccess: () => {
+      utils.list.byUserId.invalidate(undefined)
+    },
+    onError: (error, _, ctx) => {
+      const prevList = ctx?.prevList
+      if (prevList) {
+        utils.list.byUserId.setData(undefined, prevList)
+      }
+      toast.error(error.message)
+    }
+  })
+
+  const [byRecipe, setByRecipe] = useState(() =>
+    typeof localStorage.byRecipe === 'string'
+      ? (JSON.parse(localStorage.byRecipe) as boolean)
+      : false
+  )
+
+  const { mutate: checkIngredient } = api.list.check.useMutation({
+    onMutate: async (input) => {
+      await utils.list.byUserId.cancel(undefined)
+
+      const prevList = utils.list.byUserId.getData(undefined)
+
+      let ingredients: Ingredient[] = []
+      if (prevList) {
+        ingredients = prevList.ingredients.map((i) => {
+          if (i.id === input.id) {
+            return { ...i, checked: input.checked }
+          }
+
+          return i
+        })
+      }
+
+      utils.list.byUserId.setData(undefined, () => ({ ingredients }))
+      return { prevList }
+    },
+
+    onSuccess: () => {
+      utils.list.byUserId.invalidate(undefined)
+    },
+
+    onError: (error, _, ctx) => {
+      const prevList = ctx?.prevList
+      if (prevList) {
+        utils.list.byUserId.setData(undefined, prevList)
+      }
+      toast.error(error.message)
+    }
+  })
+
+  const { mutate: checkMany } = api.list.checkMany.useMutation({
+    onMutate: async () => {
+      await utils.list.byUserId.cancel(undefined)
+
+      const prevList = utils.list.byUserId.getData(undefined)
+
+      if (prevList) {
+        utils.list.byUserId.setData(undefined, () => ({
+          ingredients: prevList.ingredients.map((i) => ({
+            ...i,
+            checked: allChecked
+          }))
+        }))
+      }
+
+      return { prevList }
+    },
+
+    onSuccess: () => {
+      utils.list.byUserId.invalidate(undefined)
+    },
+
+    onError: (error, _, ctx) => {
+      const prevList = ctx?.prevList
+      if (prevList) {
+        utils.list.byUserId.setData(undefined, prevList)
+      }
+      toast.error(error.message)
+    }
+  })
+
+  const handleToggleByRecipe = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setByRecipe(event.target.checked)
+  }
+
+  const handleCheck = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    ingredientId: string
+  ) => {
+    checkIngredient({ id: ingredientId, checked: event.target.checked })
+  }
+
+  const handleCheckAll = () => {
+    const checked = allChecked ? true : false
+
+    checkMany(data.map((i) => ({ checked, id: i.id })))
+  }
+
+  const handleRemoveChecked = () => {
+    const checkedIngredients = data.filter((i) => i.checked)
+
+    deleteListItem(checkedIngredients)
+  }
+
+  useEffect(() => {
+    localStorage.byRecipe = JSON.stringify(byRecipe)
+  }, [byRecipe])
+
   return {
+    handleToggleByRecipe,
+    byRecipe,
+    allChecked,
+    handleCheck,
+    handleCheckAll,
+    noneChecked,
+    handleRemoveChecked,
     isValid,
     addStatus,
     register,
     handleSubmit,
-    onSubmitNewIngredient,
-    status
+    onSubmitNewIngredient
   }
 }
 
-export type AddIngredientFormProps = Omit<
-  ReturnType<typeof useAddIngredientForm>,
-  'addStatus'
->
-
-export function useAddToList() {
-  const utils = api.useContext()
-
-  return api.list.add.useMutation({
-    onSuccess: () => {
-      utils.list.byUserId.invalidate(undefined)
-    }
-  })
-}
-
-export function useClearList() {
-  const utils = api.useContext()
-  return api.list.clear.useMutation({
-    onSuccess: () => {
-      utils.list.invalidate()
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    }
-  })
-}
+const formSchema = z.object({
+  newIngredientName: z.string().min(3).max(50)
+})
+type FormValues = z.infer<typeof formSchema>

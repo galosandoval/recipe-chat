@@ -217,6 +217,9 @@ function ChatWindowContent({
   }) => void
 }) {
   const { data } = useSession()
+  console.log(messages.length)
+  console.log(isSendingMessage)
+  console.log(!data?.user?.id)
 
   if (messages.length || isSendingMessage || !data?.user?.id) {
     return (

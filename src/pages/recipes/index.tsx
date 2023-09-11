@@ -327,7 +327,7 @@ function CreateRecipeButton() {
       <Button
         type='button'
         onClick={openModal}
-        className='btn-accent btn btn-circle'
+        className='btn-ghost btn btn-circle'
       >
         <PlusIcon size={6} />
       </Button>

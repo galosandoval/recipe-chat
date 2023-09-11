@@ -19,16 +19,21 @@ const maxAuthAge = 15 * 24 * 60 * 60 // 15 days
  **/
 const authOptions: NextAuthOptions = {
   callbacks: {
-    jwt: async ({ token, user }) => {
+    jwt: async ({ token, user, account, profile, session }) => {
+      console.log(token, user, account, profile, session)
       if (user) {
         token.id = user.id
+        //@ts-expect-error - listId is not in the default session
+        token.listId = user.listId
       }
 
       return token
     },
     session: async ({ session, token }) => {
+      console.log(session, token)
       if (token?.id) {
         session.user.id = token.id as string
+        session.user.listId = token.listId as string
       }
 
       return session
@@ -59,13 +64,13 @@ const authOptions: NextAuthOptions = {
         const username = credentials?.email.toLowerCase()
 
         const user = await prisma.user.findFirst({
-          where: { username }
+          where: { username },
+          include: { list: { select: { id: true } } }
         })
 
         if (!user) {
           return null
         }
-
         const isValidPassword = await compare(
           credentials?.password || '',
           user.password
@@ -76,7 +81,8 @@ const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: `${user.id}`
+          id: user.id,
+          listId: user?.list?.id
         }
       }
     })
@@ -117,6 +123,7 @@ declare module 'next-auth' {
   interface Session extends DefaultSession {
     user: {
       id: string
+      listId: string
 
       // ...other properties
       // role: UserRole;
