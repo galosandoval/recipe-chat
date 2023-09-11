@@ -2,13 +2,13 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { ReactNode, memo } from 'react'
+import { ProtectedDropdownMenu, PublicDropdownMenu } from './dropdown-menus'
 import {
   ChatBubbleLeftRightIcon,
+  ListBulletIcon,
   PencilSquareIcon,
-  XIcon,
-  ListBulletIcon
+  XIcon
 } from './icons'
-import { ProtectedDropdownMenu, PublicDropdownMenu } from './dropdown-menus'
 
 export default function Layout({
   children,
