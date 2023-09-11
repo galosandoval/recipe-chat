@@ -291,7 +291,7 @@ export const recipeRouter = createTRPCRouter({
         promiseArr.push(addIngredientsPromise)
       }
 
-      const ingredientsToUpdate: Ingredient[] = []
+      const ingredientsToUpdate: Omit<Ingredient, 'checked'>[] = []
       for (let i = 0; i < ingredientsToUpdateCount; i++) {
         const oldIngredient = ingredients[i]
         const newIngredient = newIngredients[i]
