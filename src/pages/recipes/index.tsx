@@ -6,10 +6,10 @@ import { ErrorMessage } from '@hookform/error-message'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useDebounce, { useCreateRecipe, useParseRecipe } from 'hooks/recipe'
-import { Button } from 'components/button'
-import { Modal } from 'components/modal'
-import { FormLoader } from 'components/loaders/form'
-import { MyHead } from 'components/head'
+import { Button } from 'componentz/button'
+import { Modal } from 'componentz/modal'
+import { FormLoader } from 'componentz/loaders/form'
+import { MyHead } from 'componentz/head'
 import { Dialog } from '@headlessui/react'
 import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
 import {
@@ -24,12 +24,12 @@ import {
   MagnifyingGlassCircleIcon,
   PlusIcon,
   XCircleIcon
-} from 'components/icon'
-import { LoadingSpinner, ScreenLoader } from 'components/loaders/screen'
+} from 'componentz/icon'
+import { LoadingSpinner, ScreenLoader } from 'componentz/loaders/screen'
 import { api } from 'utils/api'
 import { useInView } from 'react-intersection-observer'
 import { FetchStatus, QueryStatus } from '@tanstack/react-query'
-import { RecentRecipes } from 'components/recipe-list-recent'
+import { RecentRecipes } from 'componentz/recipe-list-recent'
 
 export default function RecipesView() {
   return (

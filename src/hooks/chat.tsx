@@ -1,6 +1,6 @@
 import { Chat, Message } from '@prisma/client'
 import { useChat as useAiChat, Message as AiMessage } from 'ai/react'
-import { useRecipeFilters } from 'components/recipe-filters'
+import { useRecipeFilters } from 'componentz/recipe-filters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import {
