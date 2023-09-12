@@ -1,6 +1,6 @@
 import { MouseEvent } from 'react'
 import { Button } from './button'
-import { ArrowUTurnLeftIcon } from './icon'
+import { ArrowUTurnLeftIcon } from './icons'
 
 export function ValueProps({
   handleFillMessage

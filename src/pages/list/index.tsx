@@ -1,10 +1,10 @@
 import React, { ReactNode } from 'react'
 import { Ingredient } from '@prisma/client'
-import { Checkbox } from 'componentz/checkbox'
-import { Button } from 'componentz/button'
+import { Checkbox } from 'components/checkbox'
+import { Button } from 'components/button'
 import { useList, useListController, useRecipeNames } from 'hooks/list'
-import { MyHead } from 'componentz/head'
-import { ScreenLoader } from 'componentz/loaders/screen'
+import { MyHead } from 'components/head'
+import { ScreenLoader } from 'components/loaders/screen'
 import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
 
 export default function ListView() {

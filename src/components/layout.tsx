@@ -8,7 +8,7 @@ import {
   ListBulletIcon,
   PencilSquareIcon,
   XIcon
-} from './icon'
+} from './icons'
 
 export default function Layout({
   children,

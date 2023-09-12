@@ -6,7 +6,7 @@ import {
   PlusCircleIcon,
   XCircleIcon,
   XIcon
-} from './icon'
+} from './icons'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'

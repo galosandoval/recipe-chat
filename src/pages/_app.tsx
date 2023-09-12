@@ -2,10 +2,10 @@ import '../globals.css'
 import { type AppType } from 'next/app'
 import { type Session } from 'next-auth'
 import { SessionProvider } from 'next-auth/react'
-import Layout from 'componentz/layout'
+import Layout from 'components/layout'
 import { api } from 'utils/api'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { Toast } from 'componentz/toast'
+import { Toast } from 'components/toast'
 import { Roboto } from 'next/font/google'
 
 const roboto = Roboto({

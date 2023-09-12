@@ -1,6 +1,6 @@
-import { MyHead } from 'componentz/head'
-import { SubmitMessageForm } from 'componentz/submit-message-form'
-import ChatWindow from 'componentz/chat-window'
+import { MyHead } from 'components/head'
+import { SubmitMessageForm } from 'components/submit-message-form'
+import ChatWindow from 'components/chat-window'
 import { useChat } from 'hooks/chat'
 
 export default function PublicChatView() {

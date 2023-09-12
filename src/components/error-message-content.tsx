@@ -2,7 +2,7 @@ import {
   FieldValuesFromFieldErrors,
   ErrorMessage as _ErrorMessage
 } from '@hookform/error-message'
-import { ExclamationCircle } from './icon'
+import { ExclamationCircle } from './icons'
 import { FieldErrorsImpl, FieldName } from 'react-hook-form'
 
 type ErrorMessageProps<T extends Record<string, string>> = {
