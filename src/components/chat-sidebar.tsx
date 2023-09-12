@@ -1,5 +1,5 @@
 import { Chat, Message } from '@prisma/client'
-import { AdjustmentsHorizontalIcon, ListBulletIcon } from './icons'
+import { AdjustmentsHorizontalIcon, ListBulletIcon } from './icon'
 import { Drawer } from './drawer'
 import { formatTimeAgo } from 'utils/relative-time-format'
 import { RecipeFiltersType } from './recipe-filters'

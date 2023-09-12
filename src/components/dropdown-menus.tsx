@@ -1,6 +1,6 @@
 import { Menu, Transition } from '@headlessui/react'
 import { ThemeToggle, useTheme } from './theme-toggle'
-import { ArrowLeftOnRectangleIcon, UserPlusIcon } from './icons'
+import { ArrowLeftOnRectangleIcon, UserPlusIcon } from './icon'
 import { signOut } from 'next-auth/react'
 import { LoginModal, SignUpModal, useLogin, useSignUp } from './auth-modals'
 

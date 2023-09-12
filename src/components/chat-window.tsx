@@ -17,7 +17,7 @@ import {
   ChatBubbleLeftIcon,
   PlusIcon,
   UserCircleIcon
-} from './icons'
+} from './icon'
 import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
