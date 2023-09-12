@@ -24,7 +24,7 @@ import {
   MagnifyingGlassCircleIcon,
   PlusIcon,
   XCircleIcon
-} from 'components/icons'
+} from 'components/icon'
 import { LoadingSpinner, ScreenLoader } from 'components/loaders/screen'
 import { api } from 'utils/api'
 import { useInView } from 'react-intersection-observer'

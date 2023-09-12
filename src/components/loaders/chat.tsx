@@ -1,4 +1,4 @@
-import { UserCircleIcon } from 'components/icons'
+import { UserCircleIcon } from 'components/icon'
 
 export const ChatLoader = () => {
   return (

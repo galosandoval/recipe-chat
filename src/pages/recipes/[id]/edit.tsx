@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { Button } from 'components/button'
 import { UpdateRecipe } from 'server/api/routers/recipe/interface'
 import { FormValues } from 'hooks/chat'
-import { CheckIcon, TrashIcon } from 'components/icons'
+import { CheckIcon, TrashIcon } from 'components/icon'
 import { useState } from 'react'
 import { Modal } from 'components/modal'
 
