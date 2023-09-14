@@ -205,7 +205,7 @@ function FoundRecipe({
             <input
               id='cookTime'
               type='text'
-              className='input-bordered input mr-2'
+              className='input-bordered input pr-2'
               {...register('cookTime')}
             />
           </div>

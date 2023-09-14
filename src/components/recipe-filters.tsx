@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   CheckIcon,
   FunnelIcon,
@@ -68,10 +68,6 @@ export function useRecipeFilters() {
     reset()
   }
 
-  useEffect(() => {
-    localStorage.checkedFilters = JSON.stringify(filters)
-  }, [filters])
-
   return {
     filters,
     filtersArr,
@@ -102,51 +98,53 @@ export function RecipeFilters({
   handleToggleCanDelete
 }: RecipeFiltersType) {
   return (
-    <div className='mt-2 flex flex-col items-center justify-center gap-2 px-2'>
+    <div className='flex w-full flex-1 gap-2 flex-col items-center justify-center'>
       <div className='flex items-center gap-2'>
-        <h2 className='mb-0 mt-0'>Filters</h2>
+        <h2 className='mb-1 mt-2'>Filters</h2>
         <FunnelIcon />
       </div>
 
-      <div className='flex flex-wrap gap-2'>
-        {filtersArr.length > 0 && (
-          <button
-            onClick={handleToggleCanDelete}
-            className={`badge badge-ghost flex h-fit items-center gap-1 py-0`}
-          >
-            <span>
-              {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
-            </span>
-          </button>
-        )}
+      {filtersArr.length > 0 && (
+        <div className='flex w-full flex-wrap gap-4'>
+          {filtersArr.map((filter) => {
+            const checked = filters[filter] && !canDelete
+            return (
+              <button
+                onClick={
+                  canDelete
+                    ? () => handleRemoveFilter(filter)
+                    : () => handleCheck(filter)
+                }
+                key={filter}
+                className={`badge flex h-fit items-center gap-1 py-0 ${
+                  canDelete
+                    ? 'badge-error badge-outline'
+                    : checked
+                    ? 'badge-primary badge-outline'
+                    : 'badge-ghost'
+                }`}
+              >
+                <span className='flex items-center'>
+                  {checked && <CheckIcon size={4} />}
+                  <span className=''>{filter}</span>
+                  {canDelete && <XCircleIcon size={5} />}
+                </span>
+              </button>
+            )
+          })}
 
-        {filtersArr.map((filter) => {
-          const checked = filters[filter] && !canDelete
-          return (
+          {filtersArr.length > 0 && (
             <button
-              onClick={
-                canDelete
-                  ? () => handleRemoveFilter(filter)
-                  : () => handleCheck(filter)
-              }
-              key={filter}
-              className={`badge flex h-fit items-center gap-1 py-0 ${
-                canDelete
-                  ? 'badge-error badge-outline'
-                  : checked
-                  ? 'badge-primary badge-outline'
-                  : 'badge-ghost'
-              }`}
+              onClick={handleToggleCanDelete}
+              className={`btn-circle badge-ghost btn ml-auto`}
             >
-              <span className='flex items-center'>
-                {checked && <CheckIcon size={4} />}
-                <span className=''>{filter}</span>
-                {canDelete && <XCircleIcon size={5} />}
+              <span>
+                {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
               </span>
             </button>
-          )
-        })}
-      </div>
+          )}
+        </div>
+      )}
 
       <form className='join' onSubmit={handleSubmit(onSubmit)}>
         <input

@@ -2,7 +2,6 @@ import { Chat, Message } from '@prisma/client'
 import { AdjustmentsHorizontalIcon, ListBulletIcon } from './icons'
 import { Drawer } from './drawer'
 import { formatTimeAgo } from 'utils/relative-time-format'
-import { RecipeFiltersType } from './recipe-filters'
 import { api } from 'utils/api'
 import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/screen'
@@ -29,14 +28,12 @@ const useGetChats = (
 export function ChatsSideBarButton({
   chatId,
   isChatsModalOpen,
-  // recipeFilters,
   onSuccess,
   handleToggleChatsModal,
   handleChangeChat
 }: {
   chatId?: string
   isChatsModalOpen: boolean
-  recipeFilters: RecipeFiltersType
   handleChangeChat: (
     chat: Chat & {
       messages: Message[]
@@ -60,8 +57,6 @@ export function ChatsSideBarButton({
 
       <Drawer closeModal={handleToggleChatsModal} isOpen={isChatsModalOpen}>
         <div className='flex h-full flex-col justify-between'>
-          {/* <RecipeFilters {...recipeFilters} /> */}
-
           <ChatList
             onSuccess={onSuccess}
             chatId={chatId}

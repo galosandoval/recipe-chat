@@ -27,6 +27,7 @@ export type FormValues = {
 }
 
 export type ChatType = ReturnType<typeof useChat>
+
 export const useChat = () => {
   const [state, dispatch] = useChatReducer({
     chatId: undefined

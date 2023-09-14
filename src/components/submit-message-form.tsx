@@ -27,7 +27,7 @@ export function SubmitMessageForm({
           />
         </div>
 
-        <div className='mr-2'>
+        <div className='pr-2'>
           <Button
             type='submit'
             disabled={input.length < 5 && !isSendingMessage}

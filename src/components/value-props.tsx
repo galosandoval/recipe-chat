@@ -3,12 +3,15 @@ import { Button } from './button'
 import { ArrowUTurnLeftIcon } from './icons'
 
 export function ValueProps({
+  children,
   handleFillMessage
 }: {
+  children: React.ReactNode
   handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
 }) {
   return (
     <div className='prose mx-auto flex flex-col items-center justify-center gap-2 overflow-y-auto px-4 pb-4'>
+      {children}
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <div className='flex items-center gap-2'>
           <h2 className='mb-2 mt-2'>Examples</h2>
@@ -27,6 +30,7 @@ export function ValueProps({
             />
           </svg>
         </div>
+
         <div className='flex w-full flex-col items-center gap-4'>
           <Button
             className='btn-outline btn w-full normal-case'
