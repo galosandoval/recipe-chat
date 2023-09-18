@@ -19,7 +19,7 @@ export const useList = () => {
   )
 }
 
-function useUserId() {
+export function useUserId() {
   const session = useSession()
   const userId = session.data?.user?.id || ''
 

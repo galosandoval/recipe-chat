@@ -1,6 +1,7 @@
-import { Chat, Message } from '@prisma/client'
+import { createId } from '@paralleldrive/cuid2'
+import { Chat, Filter, Message } from '@prisma/client'
 import { useChat as useAiChat, Message as AiMessage } from 'ai/react'
-import { useRecipeFilters } from 'components/recipe-filters'
+import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import {
@@ -38,6 +39,9 @@ export const useChat = () => {
   const isAuthenticated = authStatus === 'authenticated'
   const userId = data?.user.id
   const utils = api.useContext()
+  const filters = useFilters()
+
+  const filtersData = filters.data
 
   const {
     messages,
@@ -50,11 +54,26 @@ export const useChat = () => {
     setMessages
   } = useAiChat({
     onFinish: (messages) => onFinishMessage(messages)
+    // sendExtraMessageFields: true,
+    // initialMessages:
+    //   filtersData && filtersData.length > 0
+    //     ? transformFiltersToInitialMessage(filtersData)
+    //     : undefined
   })
+
+  function transformFiltersToInitialMessage(filters: Filter[]): AiMessage[] {
+    const filterArr = filters.map((f) => f.name)
+    const content = `The following recipes match your filters: ${filterArr.join(
+      ', '
+    )}`
+
+    const id = createId()
+
+    return [{ content, id, role: 'system' }]
+  }
 
   const { mutate: addMessages } = api.chat.addMessages.useMutation({
     onSuccess(data) {
-      // }
       setMessages(data)
     }
   })
@@ -157,13 +176,11 @@ export const useChat = () => {
       if (isSendingMessage) {
         stop()
       } else {
-        submitMessages(event)
+        submitMessages(event, { options: {} })
       }
     },
     [isSendingMessage, stop, submitMessages]
   )
-
-  const recipeFilters = useRecipeFilters()
 
   useEffect(() => {
     if (userId) {
@@ -196,7 +213,7 @@ export const useChat = () => {
   } = useSaveRecipe(messages, setMessages)
 
   return {
-    recipeFilters,
+    filters,
     chatId: state.chatId,
     fetchStatus,
     status,

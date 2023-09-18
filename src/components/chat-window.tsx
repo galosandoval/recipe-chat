@@ -8,7 +8,7 @@ import { ChatType } from 'hooks/chat'
 import { memo, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { MutationStatus, QueryStatus } from '@tanstack/react-query'
-import { RecipeFilters } from './recipe-filters'
+import { Filters } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { ChatsSideBarButton } from './chat-sidebar'
 import {
@@ -46,7 +46,7 @@ export default function ChatWindow(props: MessageContentProps) {
 const Content = memo(function Content(props: MessageContentProps) {
   const {
     chatId,
-    recipeFilters,
+    filters,
     handleFillMessage,
     messages,
     isChatsModalOpen,
@@ -97,7 +97,7 @@ const Content = memo(function Content(props: MessageContentProps) {
     return (
       <div className='flex flex-col gap-4 pb-16 pt-16'>
         <ValueProps handleFillMessage={handleFillMessage}>
-          <RecipeFilters {...recipeFilters} />
+          <Filters {...filters} />
         </ValueProps>
       </div>
     )

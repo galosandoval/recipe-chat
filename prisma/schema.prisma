@@ -20,8 +20,7 @@ model User {
   list      List?
   recipes   Recipe[]
   chats     Chat[]
-  filterId  String?  @unique
-  filter    Filter?
+  filter    Filter[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -37,9 +36,10 @@ model Chat {
 
 model Filter {
   id        String   @id @default(cuid())
-  words     String[]
+  name      String
   user      User     @relation(fields: [userId], references: [id])
   userId    String   @unique
+  checked   Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
