@@ -1,5 +1,4 @@
-import { createId } from '@paralleldrive/cuid2'
-import { Chat, Filter, Message } from '@prisma/client'
+import { Chat, Message } from '@prisma/client'
 import { useChat as useAiChat, Message as AiMessage } from 'ai/react'
 import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
@@ -43,6 +42,14 @@ export const useChat = () => {
 
   const filtersData = filters.data
 
+  const filterStrings: string[] = []
+
+  if (filtersData) {
+    filtersData.forEach((filter) => {
+      if (filter.checked) filterStrings.push(filter.name)
+    })
+  }
+
   const {
     messages,
     input,
@@ -53,30 +60,13 @@ export const useChat = () => {
     isLoading: isSendingMessage,
     setMessages
   } = useAiChat({
-    onFinish: (messages) => onFinishMessage(messages)
-    // sendExtraMessageFields: true,
-    // initialMessages:
-    //   filtersData && filtersData.length > 0
-    //     ? transformFiltersToInitialMessage(filtersData)
-    //     : undefined
-  })
-
-  function transformFiltersToInitialMessage(filters: Filter[]): AiMessage[] {
-    const filterArr = filters.map((f) => f.name)
-    const content = `The following recipes match your filters: ${filterArr.join(
-      ', '
-    )}`
-
-    const id = createId()
-
-    return [{ content, id, role: 'system' }]
-  }
-
-  const { mutate: addMessages } = api.chat.addMessages.useMutation({
-    onSuccess(data) {
-      setMessages(data)
+    onFinish: (messages) => onFinishMessage(messages),
+    body: {
+      filters: filterStrings
     }
   })
+
+  const { mutate: addMessages } = api.chat.addMessages.useMutation()
 
   const { mutate: create } = api.chat.create.useMutation({
     onSuccess(data) {
