@@ -16,6 +16,7 @@ import { Filter } from '@prisma/client'
 import { QueryStatus } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { createId } from '@paralleldrive/cuid2'
+import { useSession } from 'next-auth/react'
 
 const createFilterSchema = z.object({
   name: z.string().min(3).max(50)
@@ -187,6 +188,12 @@ export function Filters({
   handleRemoveFilter,
   handleToggleCanDelete
 }: RecipeFiltersType) {
+  const session = useSession()
+
+  if (session.status !== 'authenticated') {
+    return null
+  }
+
   return (
     <div className='flex w-full flex-1 gap-2 flex-col items-center justify-center'>
       <div className='flex items-center gap-2'>
