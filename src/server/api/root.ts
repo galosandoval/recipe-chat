@@ -1,4 +1,3 @@
-import { authRouter } from './routers/auth-router'
 import { chatRouter } from './routers/chat/router'
 import { filterRouter } from './routers/filter/router'
 import { listRouter } from './routers/list/router'
@@ -13,7 +12,6 @@ import { createTRPCRouter } from './trpc'
  */
 export const appRouter = createTRPCRouter({
   recipe: recipeRouter,
-  auth: authRouter,
   list: listRouter,
   chat: chatRouter,
   user: userRouter,
