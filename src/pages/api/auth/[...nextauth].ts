@@ -63,7 +63,7 @@ const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findFirst({
           where: { username },
-          include: { list: { select: { id: true } } }
+          select: { list: { select: { id: true } }, password: true, id: true }
         })
 
         if (!user) {
