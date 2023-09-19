@@ -1,5 +1,5 @@
-import { authRouter } from './routers/auth-router'
 import { chatRouter } from './routers/chat/router'
+import { filterRouter } from './routers/filter/router'
 import { listRouter } from './routers/list/router'
 import { recipeRouter } from './routers/recipe/router'
 import { userRouter } from './routers/user/router'
@@ -12,10 +12,10 @@ import { createTRPCRouter } from './trpc'
  */
 export const appRouter = createTRPCRouter({
   recipe: recipeRouter,
-  auth: authRouter,
   list: listRouter,
   chat: chatRouter,
-  user: userRouter
+  user: userRouter,
+  filter: filterRouter
 })
 
 // export type definition of API

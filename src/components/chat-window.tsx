@@ -3,12 +3,12 @@ import ScrollToBottom, {
   useScrollToTop,
   useSticky
 } from 'react-scroll-to-bottom'
-import { Chat, Message, Message as PrismaMessage } from '@prisma/client'
+import { Chat, Filter, Message, Message as PrismaMessage } from '@prisma/client'
 import { ChatType } from 'hooks/chat'
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { MutationStatus, QueryStatus } from '@tanstack/react-query'
-import { RecipeFiltersType } from './recipe-filters'
+import { Filters } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { ChatsSideBarButton } from './chat-sidebar'
 import {
@@ -46,7 +46,7 @@ export default function ChatWindow(props: MessageContentProps) {
 const Content = memo(function Content(props: MessageContentProps) {
   const {
     chatId,
-    recipeFilters,
+    filters,
     handleFillMessage,
     messages,
     isChatsModalOpen,
@@ -63,11 +63,10 @@ const Content = memo(function Content(props: MessageContentProps) {
     handleGetChatsOnSuccess
   } = props
 
+  const { data } = filters
   const scrollToBottom = useScrollToBottom()
   const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
-
-  const momoizedRecipeFilters = useMemo(() => recipeFilters, [])
 
   const currentChatId = JSON.parse(
     sessionStorage.getItem('currentChatId') as string
@@ -97,8 +96,10 @@ const Content = memo(function Content(props: MessageContentProps) {
 
   if (isNewChat) {
     return (
-      <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
-        <ValueProps handleFillMessage={handleFillMessage} />
+      <div className='flex flex-col gap-4 pb-16 pt-16'>
+        <ValueProps handleFillMessage={handleFillMessage}>
+          <Filters {...filters} />
+        </ValueProps>
       </div>
     )
   }
@@ -113,7 +114,6 @@ const Content = memo(function Content(props: MessageContentProps) {
           saveRecipeStatus={saveRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
           handleSaveRecipe={handleSaveRecipe}
-          recipeFilters={momoizedRecipeFilters}
           messages={messages as []}
           chatId={chatId}
           messagesStatus={'status' in props ? chatsQueryStatus : undefined}
@@ -130,6 +130,7 @@ const Content = memo(function Content(props: MessageContentProps) {
           }
           handleStartNewChat={handleStartNewChat}
           handleToggleChatsModal={handleToggleChatsModal}
+          filters={data || []}
         />
       </div>
       <div
@@ -167,7 +168,6 @@ const Content = memo(function Content(props: MessageContentProps) {
 function ChatWindowContent({
   messages,
   messagesStatus,
-  recipeFilters,
   isAuthenticated,
   handleGetChatsOnSuccess,
   handleChangeChat,
@@ -175,13 +175,13 @@ function ChatWindowContent({
   handleToggleChatsModal,
   handleGoToRecipe,
   handleSaveRecipe,
+  filters,
   isChatsModalOpen,
   saveRecipeStatus,
   isSendingMessage,
   chatId
 }: {
   messagesStatus?: QueryStatus
-  recipeFilters: RecipeFiltersType
   isAuthenticated: boolean
   handleGetChatsOnSuccess?: (
     data: (Chat & {
@@ -196,6 +196,7 @@ function ChatWindowContent({
 
   handleStartNewChat: () => void
   handleToggleChatsModal: () => void
+  filters: Filter[]
   isChatsModalOpen: boolean
   isSendingMessage: boolean
   chatId?: string
@@ -217,9 +218,6 @@ function ChatWindowContent({
   }) => void
 }) {
   const { data } = useSession()
-  console.log(messages.length)
-  console.log(isSendingMessage)
-  console.log(!data?.user?.id)
 
   if (messages.length || isSendingMessage || !data?.user?.id) {
     return (
@@ -228,13 +226,13 @@ function ChatWindowContent({
           saveRecipeStatus={saveRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
           handleSaveRecipe={handleSaveRecipe}
-          recipeFilters={recipeFilters}
           data={messages as []}
           chatId={chatId}
           status={messagesStatus}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
           isAuthenticated={isAuthenticated}
+          filters={filters}
           handleGetChatsOnSuccess={handleGetChatsOnSuccess}
           handleChangeChat={handleChangeChat}
           handleStartNewChat={handleStartNewChat}
@@ -251,11 +249,11 @@ const MessageList = memo(function MessageList({
   data,
   status,
   chatId,
-  recipeFilters,
   isChatsModalOpen,
   isAuthenticated,
   isSendingMessage,
   saveRecipeStatus,
+  filters,
   handleGetChatsOnSuccess,
   handleChangeChat,
   handleStartNewChat,
@@ -267,10 +265,10 @@ const MessageList = memo(function MessageList({
   status?: QueryStatus
   chatId?: string
   isChatsModalOpen: boolean
-  recipeFilters: RecipeFiltersType
   isSendingMessage: boolean
   isAuthenticated: boolean
   saveRecipeStatus: MutationStatus
+  filters: Filter[]
   handleChangeChat?: (
     chat: Chat & {
       messages: PrismaMessage[]
@@ -310,7 +308,6 @@ const MessageList = memo(function MessageList({
             <ChatsSideBarButton
               chatId={chatId}
               isChatsModalOpen={isChatsModalOpen}
-              recipeFilters={recipeFilters}
               handleChangeChat={handleChangeChat}
               handleToggleChatsModal={handleToggleChatsModal}
               onSuccess={handleGetChatsOnSuccess}
@@ -339,6 +336,7 @@ const MessageList = memo(function MessageList({
             handleGoToRecipe={handleGoToRecipe}
             handleSaveRecipe={handleSaveRecipe}
             saveRecipeStatus={saveRecipeStatus}
+            filters={filters}
           />
         ))}
         {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
@@ -350,6 +348,7 @@ const MessageList = memo(function MessageList({
 const Message = function Message({
   message,
   isSendingMessage,
+  filters,
   handleGoToRecipe,
   handleSaveRecipe,
   saveRecipeStatus
@@ -357,6 +356,7 @@ const Message = function Message({
   message: PrismaMessage
   isSendingMessage: boolean
   saveRecipeStatus: MutationStatus
+  filters: Filter[]
   handleGoToRecipe: ({
     recipeId,
     recipeName
@@ -433,6 +433,8 @@ const Message = function Message({
     )
   }
 
+  // user message
+
   return (
     <div className='flex flex-col items-center self-center bg-base-200 p-4'>
       <div className='prose mx-auto w-full'>
@@ -446,6 +448,16 @@ const Message = function Message({
             <UserCircleIcon />
           </div>
         </div>
+        {filters.length ? (
+          <div className='flex gap-2 pt-2'>
+            <h3 className='text-sm mb-0 mt-0'>Filters:</h3>
+            {filters.map((f) => (
+              <div className='badge badge-primary badge-outline' key={f.id}>
+                {f.name}
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   )

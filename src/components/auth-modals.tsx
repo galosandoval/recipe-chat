@@ -48,7 +48,7 @@ export function useSignUp() {
   // const { mutate: createChat } = api.chat.createPublic.useMutation()
   const [isOpen, setIsOpen] = useState(false)
 
-  const { mutate, isLoading } = api.auth.signUp.useMutation({
+  const { mutate, isLoading } = api.user.signUp.useMutation({
     onSuccess: async ({}, { email, password }) => {
       const response = await signIn('credentials', {
         email,

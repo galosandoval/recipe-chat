@@ -1,6 +1,6 @@
 import { Chat, Message } from '@prisma/client'
 import { useChat as useAiChat, Message as AiMessage } from 'ai/react'
-import { useRecipeFilters } from 'components/recipe-filters'
+import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import {
@@ -27,6 +27,7 @@ export type FormValues = {
 }
 
 export type ChatType = ReturnType<typeof useChat>
+
 export const useChat = () => {
   const [state, dispatch] = useChatReducer({
     chatId: undefined
@@ -37,6 +38,17 @@ export const useChat = () => {
   const isAuthenticated = authStatus === 'authenticated'
   const userId = data?.user.id
   const utils = api.useContext()
+  const filters = useFilters()
+
+  const filtersData = filters.data
+
+  const filterStrings: string[] = []
+
+  if (filtersData) {
+    filtersData.forEach((filter) => {
+      if (filter.checked) filterStrings.push(filter.name)
+    })
+  }
 
   const {
     messages,
@@ -48,15 +60,13 @@ export const useChat = () => {
     isLoading: isSendingMessage,
     setMessages
   } = useAiChat({
-    onFinish: (messages) => onFinishMessage(messages)
-  })
-
-  const { mutate: addMessages } = api.chat.addMessages.useMutation({
-    onSuccess(data) {
-      // }
-      setMessages(data)
+    onFinish: (messages) => onFinishMessage(messages),
+    body: {
+      filters: filterStrings
     }
   })
+
+  const { mutate: addMessages } = api.chat.addMessages.useMutation()
 
   const { mutate: create } = api.chat.create.useMutation({
     onSuccess(data) {
@@ -156,13 +166,11 @@ export const useChat = () => {
       if (isSendingMessage) {
         stop()
       } else {
-        submitMessages(event)
+        submitMessages(event, { options: {} })
       }
     },
     [isSendingMessage, stop, submitMessages]
   )
-
-  const recipeFilters = useRecipeFilters()
 
   useEffect(() => {
     if (userId) {
@@ -195,7 +203,7 @@ export const useChat = () => {
   } = useSaveRecipe(messages, setMessages)
 
   return {
-    recipeFilters,
+    filters,
     chatId: state.chatId,
     fetchStatus,
     status,

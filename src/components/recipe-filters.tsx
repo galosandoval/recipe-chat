@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   CheckIcon,
   FunnelIcon,
@@ -10,30 +10,123 @@ import {
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { api } from 'utils/api'
+import { useUserId } from 'hooks/list'
+import { Filter } from '@prisma/client'
+import { QueryStatus } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
+import { createId } from '@paralleldrive/cuid2'
 
-type Filters = Record<string, boolean>
 const createFilterSchema = z.object({
   name: z.string().min(3).max(50)
 })
 type CreateFilter = z.infer<typeof createFilterSchema>
 
-export function useRecipeFilters() {
-  const [filters, setFilters] = useState<Filters>(
-    typeof window !== 'undefined' &&
-      typeof localStorage.checkedFilters === 'string'
-      ? (JSON.parse(localStorage.checkedFilters) as Filters)
-      : {}
+export function useFilters() {
+  const userId = useUserId()
+  const utils = api.useContext()
+
+  const { data, status } = api.filter.getByUserId.useQuery(
+    { userId },
+    { enabled: !!userId }
   )
-  const [canDelete, setCanDelete] = useState(false)
 
-  const filtersArr = Object.keys(filters)
+  const { mutate: create } = api.filter.create.useMutation({
+    onMutate: async (input) => {
+      await utils.filter.getByUserId.cancel({ userId })
 
-  const checkedFilters: string[] = []
-  for (const [filter, checked] of Object.entries(filters)) {
-    if (checked) {
-      checkedFilters.push(filter)
+      const previousFilters = utils.filter.getByUserId.getData({ userId })
+
+      if (!previousFilters) return previousFilters
+
+      utils.filter.getByUserId.setData({ userId }, (old) => {
+        if (!old) return old
+
+        return [
+          ...old,
+          {
+            ...input,
+            checked: true,
+            id: input.id,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }
+        ]
+      })
+
+      return { previousFilters }
     }
-  }
+  })
+
+  const { mutate: checkFilter } = api.filter.check.useMutation({
+    onMutate: async (input) => {
+      await utils.filter.getByUserId.cancel({ userId })
+
+      const previousFilters = utils.filter.getByUserId.getData({ userId })
+
+      if (!previousFilters) return previousFilters
+
+      utils.filter.getByUserId.setData({ userId }, (old) => {
+        if (!old) return old
+
+        const index = old.findIndex((f) => f.id === input.filterId)
+
+        old[index].checked = input.checked
+
+        return old
+      })
+
+      return { previousFilters }
+    },
+
+    onSuccess: () => {
+      utils.filter.getByUserId.invalidate({ userId })
+    },
+
+    onError: (error, _, ctx) => {
+      const previousFilters = ctx?.previousFilters
+      if (previousFilters) {
+        utils.filter.getByUserId.setData({ userId }, previousFilters)
+      }
+      toast.error(error.message)
+    }
+  })
+
+  const { mutate: deleteFilter } = api.filter.delete.useMutation({
+    onMutate: async (input) => {
+      await utils.filter.getByUserId.cancel({ userId })
+
+      const previousFilters = utils.filter.getByUserId.getData({ userId })
+
+      if (!previousFilters) return previousFilters
+
+      utils.filter.getByUserId.setData({ userId }, (old) => {
+        if (!old) return old
+
+        const index = old.findIndex((f) => f.id === input.filterId)
+
+        old.splice(index, 1)
+
+        return old
+      })
+
+      return { previousFilters }
+    },
+
+    onSuccess: () => {
+      utils.filter.getByUserId.invalidate({ userId })
+    },
+
+    onError: (error, _, ctx) => {
+      const previousFilters = ctx?.previousFilters
+      if (previousFilters) {
+        utils.filter.getByUserId.setData({ userId }, previousFilters)
+      }
+      toast.error(error.message)
+    }
+  })
+
+  const [canDelete, setCanDelete] = useState(false)
 
   const {
     register,
@@ -48,105 +141,67 @@ export function useRecipeFilters() {
     setCanDelete((prev) => !prev)
   }
 
-  const handleCheck = (filter: string) => {
-    setFilters((prev) => ({ ...prev, [filter]: !prev[filter] }))
+  const handleCheck = (id: string, checked: boolean) => {
+    checkFilter({ checked, filterId: id })
   }
 
-  const handleRemoveFilter = (filter: string) => {
-    setFilters((prev) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [filter]: _, ...rest } = prev
-      return rest
-    })
+  const handleRemoveFilter = (id: string) => {
+    deleteFilter({ filterId: id })
   }
 
   const onSubmit = (data: CreateFilter) => {
     setCanDelete(false)
 
-    setFilters((prev) => ({ ...prev, [data.name]: true }))
+    const id = createId()
+
+    create({ name: data.name, userId, id })
 
     reset()
   }
 
-  useEffect(() => {
-    localStorage.checkedFilters = JSON.stringify(filters)
-  }, [filters])
-
   return {
-    filters,
-    filtersArr,
+    data,
+    canDelete,
+    isBtnDisabled: !isDirty || !isValid,
+    status,
     handleCheck,
     handleSubmit,
     onSubmit,
     register,
-    canDelete,
     handleToggleCanDelete,
-    handleRemoveFilter,
-    isBtnDisabled: !isDirty || !isValid,
-    checkedFilters
+    handleRemoveFilter
   }
 }
 
-export type RecipeFiltersType = ReturnType<typeof useRecipeFilters>
+export type RecipeFiltersType = ReturnType<typeof useFilters>
 
-export function RecipeFilters({
-  filtersArr,
+export function Filters({
   handleSubmit,
   onSubmit,
-  filters,
+  data,
   register,
   handleCheck,
   isBtnDisabled,
   canDelete,
+  status,
   handleRemoveFilter,
   handleToggleCanDelete
 }: RecipeFiltersType) {
   return (
-    <div className='mt-2 flex flex-col items-center justify-center gap-2 px-2'>
+    <div className='flex w-full flex-1 gap-2 flex-col items-center justify-center'>
       <div className='flex items-center gap-2'>
-        <h2 className='mb-0 mt-0'>Filters</h2>
+        <h2 className='mb-1 mt-2'>Filters</h2>
         <FunnelIcon />
       </div>
 
-      <div className='flex flex-wrap gap-2'>
-        {filtersArr.length > 0 && (
-          <button
-            onClick={handleToggleCanDelete}
-            className={`badge badge-ghost flex h-fit items-center gap-1 py-0`}
-          >
-            <span>
-              {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
-            </span>
-          </button>
-        )}
-
-        {filtersArr.map((filter) => {
-          const checked = filters[filter] && !canDelete
-          return (
-            <button
-              onClick={
-                canDelete
-                  ? () => handleRemoveFilter(filter)
-                  : () => handleCheck(filter)
-              }
-              key={filter}
-              className={`badge flex h-fit items-center gap-1 py-0 ${
-                canDelete
-                  ? 'badge-error badge-outline'
-                  : checked
-                  ? 'badge-primary badge-outline'
-                  : 'badge-ghost'
-              }`}
-            >
-              <span className='flex items-center'>
-                {checked && <CheckIcon size={4} />}
-                <span className=''>{filter}</span>
-                {canDelete && <XCircleIcon size={5} />}
-              </span>
-            </button>
-          )
-        })}
-      </div>
+      <List
+        canDelete={canDelete}
+        filters={data || []}
+        status={status}
+        handleCheck={handleCheck}
+        handleRemoveFilter={handleRemoveFilter}
+        handleToggleCanDelete={handleToggleCanDelete}
+      />
 
       <form className='join' onSubmit={handleSubmit(onSubmit)}>
         <input
@@ -164,4 +219,79 @@ export function RecipeFilters({
       </form>
     </div>
   )
+}
+
+function List({
+  filters,
+  canDelete,
+  status,
+  handleRemoveFilter,
+  handleCheck,
+  handleToggleCanDelete
+}: {
+  filters: Filter[]
+  canDelete: boolean
+  status: QueryStatus
+  handleRemoveFilter: (id: string) => void
+  handleCheck: (id: string, checked: boolean) => void
+  handleToggleCanDelete: () => void
+}) {
+  if (status === 'error') {
+    return <div>Could not get filters, please try again</div>
+  }
+
+  if (status === 'success' && filters) {
+    return (
+      <>
+        {filters.length > 0 && (
+          <div className='flex w-full flex-wrap gap-4'>
+            {filters.map((filter) => {
+              const checked = filter.checked && !canDelete
+
+              return (
+                <button
+                  onClick={
+                    canDelete
+                      ? () => handleRemoveFilter(filter.id)
+                      : () => handleCheck(filter.id, !filter.checked)
+                  }
+                  key={filter.id}
+                  className={`badge flex h-fit items-center gap-1 py-0 ${
+                    canDelete
+                      ? 'badge-error badge-outline'
+                      : checked
+                      ? 'badge-primary badge-outline'
+                      : 'badge-ghost'
+                  }`}
+                >
+                  <span className='flex items-center'>
+                    {checked && <CheckIcon size={4} />}
+                    <span className=''>{filter.name}</span>
+                    {canDelete && <XCircleIcon size={5} />}
+                  </span>
+                </button>
+              )
+            })}
+
+            {filters.length > 0 && (
+              <button
+                onClick={handleToggleCanDelete}
+                className={`btn-circle badge-ghost btn ml-auto`}
+              >
+                <span>
+                  {canDelete ? (
+                    <XIcon size={5} />
+                  ) : (
+                    <PencilSquareIcon size={5} />
+                  )}
+                </span>
+              </button>
+            )}
+          </div>
+        )}
+      </>
+    )
+  }
+
+  return <div className='flex w-full flex-wrap gap-4'>Loading...</div>
 }

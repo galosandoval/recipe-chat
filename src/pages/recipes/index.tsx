@@ -145,7 +145,7 @@ function SearchBar({
             ref={inputRef}
           />
         </div>
-        <div className='mr-2'>
+        <div className='pr-2'>
           <button
             type='button'
             onClick={handleSearchButtonClick}
@@ -442,7 +442,7 @@ function CreateRecipe({
             <input
               id='cookTime'
               type='text'
-              className='input-bordered input input-sm mr-2'
+              className='input-bordered input input-sm pr-2'
               {...register('cookTime')}
             />
           </div>

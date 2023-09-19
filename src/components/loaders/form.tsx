@@ -5,14 +5,14 @@ export function FormLoader() {
         <span className='label-text'>Name</span>
       </label>
       <div
-        className='m-5 h-4 w-52 animate-pulse rounded bg-base-300'
+        className='p-5 h-4 w-52 animate-pulse rounded bg-base-300'
         style={{ animationDuration: '1s', animationDelay: '0.0s' }}
       ></div>
       <label htmlFor='description' className='label'>
         <span className='label-text'>Description</span>
       </label>
       <div
-        className='m-5 h-4 w-72 animate-pulse rounded bg-base-300'
+        className='p-5 h-4 w-72 animate-pulse rounded bg-base-300'
         style={{ animationDuration: '1s', animationDelay: '0.25s' }}
       ></div>
       <div className='flex gap-2'>
@@ -21,7 +21,7 @@ export function FormLoader() {
             <span className='label-text'>Prep time</span>
           </label>
           <div
-            className='m-5 h-4 w-1/2 animate-pulse rounded bg-base-300'
+            className='p-5 h-4 w-1/2 animate-pulse rounded bg-base-300'
             style={{ animationDuration: '1s', animationDelay: '0.5s' }}
           ></div>
         </div>
@@ -30,7 +30,7 @@ export function FormLoader() {
             <span className='label-text'>Cook time</span>
           </label>
           <div
-            className='m-5 h-4 w-1/2 animate-pulse rounded bg-base-300'
+            className='p-5 h-4 w-1/2 animate-pulse rounded bg-base-300'
             style={{ animationDuration: '1s', animationDelay: '0.5s' }}
           ></div>
         </div>
@@ -38,7 +38,7 @@ export function FormLoader() {
       <label htmlFor='ingredients' className='label'>
         <span className='label-text'>Ingredients</span>
       </label>
-      <div className='m-5 flex flex-col gap-3'>
+      <div className='p-5 flex flex-col gap-3'>
         <div
           className='h-4 w-1/2 animate-pulse rounded bg-base-300'
           style={{ animationDuration: '1s', animationDelay: '0.75s' }}
@@ -91,7 +91,7 @@ export function FormLoader() {
       <label htmlFor='instructions' className='label'>
         <span className='label-text'>Instructions</span>
       </label>
-      <div className='m-5 flex flex-col gap-3'>
+      <div className='p-5 flex flex-col gap-3'>
         <div
           className='h-4 w-4/5 animate-pulse rounded bg-base-300'
           style={{ animationDuration: '1s', animationDelay: '1s' }}
