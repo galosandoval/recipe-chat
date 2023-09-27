@@ -179,8 +179,11 @@ function Pages({
 
   return (
     <div className='mx-auto mt-4 grid max-w-4xl grid-cols-2 gap-5 mb-24 md:grid-cols-4'>
-      <RecentRecipes />
-
+      {pages.length > 0 && pages[0].items.length > 0 ? (
+        <>
+          <RecentRecipes />
+        </>
+      ) : null}
       <div className='col-span-2 sm:col-span-4 flex justify-between items-center h-10'>
         <h2 className='prose'>All Recipes</h2>
         {!search && <CreateRecipeButton />}
@@ -191,7 +194,15 @@ function Pages({
           {page.items.length > 0 ? (
             <Cards data={page.items} search={search} />
           ) : (
-            <p>No recipes found</p>
+            <div className='prose col-span-2 sm:col-span-4'>
+              <p>
+                No recipes found. Save recipes from chats{' '}
+                <Link className='link' href='/chat'>
+                  {' '}
+                  here
+                </Link>
+              </p>
+            </div>
           )}
         </Fragment>
       ))}

@@ -34,11 +34,11 @@ export const useChat = () => {
   })
   const router = useRouter()
   const { status: authStatus, data } = useSession()
+  const filters = useFilters()
 
   const isAuthenticated = authStatus === 'authenticated'
   const userId = data?.user.id
   const utils = api.useContext()
-  const filters = useFilters()
 
   const filtersData = filters.data
 
@@ -163,12 +163,14 @@ export const useChat = () => {
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       setShouldFetchChat(false)
+
       if (isSendingMessage) {
         stop()
       } else {
         submitMessages(event, { options: {} })
       }
     },
+
     [isSendingMessage, stop, submitMessages]
   )
 
