@@ -435,6 +435,8 @@ const Message = function Message({
 
   // user message
 
+  const activeFilters = filters.filter((f) => f.checked)
+
   return (
     <div className='flex flex-col items-center self-center bg-base-200 p-4'>
       <div className='prose mx-auto w-full'>
@@ -448,17 +450,21 @@ const Message = function Message({
             <UserCircleIcon />
           </div>
         </div>
-        {filters.length ? (
-          <div className='flex gap-2 pt-2'>
-            <h3 className='text-sm mb-0 mt-0'>Filters:</h3>
-            {filters.map((f) => (
-              <div className='badge badge-primary badge-outline' key={f.id}>
-                {f.name}
-              </div>
-            ))}
-          </div>
-        ) : null}
+        {activeFilters.length ? <ActiveFilters data={activeFilters} /> : null}
       </div>
+    </div>
+  )
+}
+
+function ActiveFilters({ data }: { data: Filter[] }) {
+  return (
+    <div className='flex gap-2 pt-2'>
+      <h3 className='text-sm mb-0 mt-0'>Filters:</h3>
+      {data.map((f) => (
+        <div className='badge badge-primary badge-outline' key={f.id}>
+          {f.name}
+        </div>
+      ))}
     </div>
   )
 }
