@@ -11,6 +11,22 @@ const nextConfig = {
         pathname: '/f/**'
       }
     ]
+  },
+
+  redirects: async () => {
+    return [
+      {
+        source: '/',
+        destination: '/chat',
+        permanent: false,
+        has: [
+          {
+            type: 'cookie',
+            key: 'next-auth.session-token'
+          }
+        ]
+      }
+    ]
   }
 }
 
