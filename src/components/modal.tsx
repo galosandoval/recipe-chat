@@ -35,7 +35,7 @@ export const Modal = ({
           leaveTo='opacity-0 translate-y-1'
           className='w-[95%] max-w-md'
         >
-          <Dialog.Panel className='transform overflow-hidden rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
+          <Dialog.Panel className='transform overflow-hidden rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all'>
             {children}
           </Dialog.Panel>
         </Transition.Child>
