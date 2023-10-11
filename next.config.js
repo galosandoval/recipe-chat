@@ -18,7 +18,7 @@ const nextConfig = {
       {
         source: '/',
         destination: '/chat',
-        permanent: false,
+        permanent: true,
         has: [
           {
             type: 'cookie',
