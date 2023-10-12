@@ -1,0 +1,17 @@
+{
+  "app-name": "Recipe Chat",
+
+  "value-props": {
+    "title": "Ejemplos",
+    "first-button": "What should I make for dinner tonight?",
+    "second-button": "What can I make with chicken?",
+    "third-button": "What's the best risotto recipe?"
+  },
+
+  "capabilities": {
+    "title": "Capabilities",
+    "first-description": "Remembers previous messages in the same chat",
+    "second-description": "Provide follow-up corrections",
+    "third-description": "Save generated recipes to your account"
+  }
+}

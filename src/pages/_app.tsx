@@ -7,6 +7,7 @@ import { api } from 'utils/api'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toast } from 'components/toast'
 import { Roboto } from 'next/font/google'
+import { appWithTranslation } from 'next-i18next'
 
 const roboto = Roboto({
   weight: ['100', '300', '400', '500', '700', '900'],
@@ -31,4 +32,4 @@ const App: AppType<{ session: Session | null }> = ({
   )
 }
 
-export default api.withTRPC(App)
+export default api.withTRPC(appWithTranslation(App))

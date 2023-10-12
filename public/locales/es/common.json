@@ -1,0 +1,17 @@
+{
+  "app-name": "Receta Chat",
+
+  "value-props": {
+    "title": "Ejemplos",
+    "first-button": "¿Que podria hacer para cenar esta noche?",
+    "second-button": "¿Como se hace un risotto?",
+    "third-button": "¿Que puedo hacer con pollo?"
+  },
+
+  "capabilities": {
+    "title": "Funciones",
+    "first-description": "Recuerda que dijiste en este chat",
+    "second-description": "Permite corigir tu receta",
+    "third-description": "Guarda tus recetas"
+  }
+}
