@@ -32,7 +32,7 @@ export const chatRouter = createTRPCRouter({
       })
     }),
 
-  getMessagesByChatId: protectedProcedure
+  getMessagesById: protectedProcedure
     .input(
       z.object({
         chatId: z.string()

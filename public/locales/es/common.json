@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "app-name": "Recipe Chat",
+
+    "menu": {
+      "sign-up": "Registro",
+      "login": "Inicio",
+      "logout": "Cierra",
+      "theme": "tema"
+    }
+  },
+
+  "auth": {
+    "sign-up": "Registro",
+    "login": "Iniciar Sesión",
+    "email": "Email",
+    "password": "Contraseña",
+    "confirm-password": "Confirmar Contraseña"
+  },
+
+  "value-props": {
+    "title": "Ejemplos",
+    "first-button": "¿Que podria hacer para cenar esta noche?",
+    "second-button": "¿Como se hace un risotto?",
+    "third-button": "¿Que puedo hacer con pollo?"
+  },
+
+  "capabilities": {
+    "title": "Funciones",
+    "first-description": "Recuerda que ecribiste en este chat",
+    "second-description": "Permite corregir tu receta",
+    "third-description": "Guarda tus recetas"
+  },
+
+  "chat-form-placeholder": "Pregunta sobre una receta",
+
+  "filters": {
+    "title": "Filtros",
+    "placeholder": "Nuevo filtro"
+  },
+
+  "chat-window": {
+    "to-recipe": "ir a recete",
+    "save": "guardar"
+  }
+}

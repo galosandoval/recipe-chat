@@ -1,6 +1,7 @@
 import { MouseEvent } from 'react'
 import { Button } from './button'
 import { ArrowUTurnLeftIcon } from './icons'
+import { useTranslation } from 'hooks/useTranslation'
 
 export function ValueProps({
   children,
@@ -9,12 +10,14 @@ export function ValueProps({
   children: React.ReactNode
   handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
 }) {
+  const t = useTranslation()
+
   return (
-    <div className='prose mx-auto flex flex-col items-center justify-center gap-2 overflow-y-auto px-4 pb-4'>
+    <div className='prose mx-auto flex flex-col items-center justify-center gap-2 overflow-y-auto pb-4'>
       {children}
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <div className='flex items-center gap-2'>
-          <h2 className='mb-2 mt-2'>Examples</h2>
+          <h2 className='mb-2 mt-2'>{t('value-props.title')}</h2>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             fill='none'
@@ -36,7 +39,7 @@ export function ValueProps({
             className='btn-outline btn w-full normal-case'
             onClick={handleFillMessage}
           >
-            <span className='w-60'>What should I make for dinner tonight?</span>
+            <span className='w-60'>{t('value-props.first-button')}</span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>
@@ -45,9 +48,7 @@ export function ValueProps({
             className='btn-outline btn w-full normal-case'
             onClick={handleFillMessage}
           >
-            <span className='w-60'>
-              Which salad recipe will pair well with my steak and potatoes?
-            </span>
+            <span className='w-60'>{t('value-props.second-button')}</span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>
@@ -56,7 +57,7 @@ export function ValueProps({
             className='btn-outline btn w-full normal-case'
             onClick={handleFillMessage}
           >
-            <span className='w-60'>What&apos;s the best risotto recipe?</span>
+            <span className='w-60'>{t('value-props.third-button')}</span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>
@@ -66,7 +67,7 @@ export function ValueProps({
 
       <div className='flex flex-col items-center justify-center'>
         <div className='flex items-center gap-2'>
-          <h2 className='mb-2 mt-2'>Capabilities</h2>
+          <h2 className='mb-2 mt-2'>{t('capabilities.title')}</h2>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             fill='none'
@@ -84,13 +85,13 @@ export function ValueProps({
         </div>
         <div className='flex w-full flex-col items-center gap-4'>
           <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
-            Remembers what users said in previous messages in the same chat
+            {t('capabilities.first-description')}
           </div>
           <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
-            Allows user to provide follow-up corrections
+            {t('capabilities.second-description')}
           </div>
           <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold  normal-case text-base-content'>
-            Save generated recipes to your account
+            {t('capabilities.third-description')}
           </div>
         </div>
       </div>

@@ -22,6 +22,7 @@ import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import NoSsr from './no-ssr'
+import { useTranslation } from 'hooks/useTranslation'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -372,6 +373,8 @@ const Message = function Message({
     messageId?: string | undefined
   }) => void
 }) {
+  const t = useTranslation()
+
   let recipeName = ''
   const nameIdx = message.content.toLowerCase().indexOf('name:')
   if (nameIdx !== -1) {
@@ -400,7 +403,7 @@ const Message = function Message({
             {message?.recipeId ? (
               // Go to recipe
               <Button
-                className='btn-ghost btn'
+                className='btn-outline btn'
                 onClick={() =>
                   handleGoToRecipe({
                     recipeId: message.recipeId,
@@ -408,13 +411,12 @@ const Message = function Message({
                   })
                 }
               >
-                {/* <BookmarkSolidIcon /> */}
-                Go to recipe
+                {t('chat-window.to-recipe')}
               </Button>
             ) : !isSendingMessage ? (
               // Save
               <Button
-                className='btn-ghost btn'
+                className='btn btn-outline'
                 isLoading={saveRecipeStatus === 'loading'}
                 onClick={() =>
                   handleSaveRecipe({
@@ -423,8 +425,7 @@ const Message = function Message({
                   })
                 }
               >
-                {/* <BookmarkOutlineIcon /> */}
-                Save
+                {t('chat-window.save')}
               </Button>
             ) : null}
           </div>

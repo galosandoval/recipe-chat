@@ -17,6 +17,7 @@ import { QueryStatus } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
+import { useTranslation } from 'hooks/useTranslation'
 
 const createFilterSchema = z.object({
   name: z.string().min(3).max(50)
@@ -190,6 +191,8 @@ export function Filters({
 }: RecipeFiltersType) {
   const session = useSession()
 
+  const t = useTranslation()
+
   if (session.status !== 'authenticated') {
     return null
   }
@@ -197,7 +200,7 @@ export function Filters({
   return (
     <div className='flex w-full flex-1 gap-2 flex-col items-center justify-center'>
       <div className='flex items-center gap-2'>
-        <h2 className='mb-1 mt-2'>Filters</h2>
+        <h2 className='mb-1 mt-2'>{t('filters.title')}</h2>
         <FunnelIcon />
       </div>
 
@@ -214,7 +217,7 @@ export function Filters({
         <input
           {...register('name')}
           className='input-bordered input input-sm join-item'
-          placeholder='New filter'
+          placeholder={t('filters.placeholder')}
         />
         <button
           type='submit'

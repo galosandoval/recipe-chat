@@ -79,7 +79,7 @@ export const useChat = () => {
       }))
 
       setMessages(messages)
-      utils.chat.getMessagesByChatId.invalidate({ chatId: data.id })
+      utils.chat.getMessagesById.invalidate({ chatId: data.id })
     }
   })
 
@@ -102,7 +102,7 @@ export const useChat = () => {
 
   const enabled = isAuthenticated && !!state.chatId && shouldFetchChat
 
-  const { status, fetchStatus } = api.chat.getMessagesByChatId.useQuery(
+  const { status, fetchStatus } = api.chat.getMessagesById.useQuery(
     { chatId: state.chatId || '' },
     {
       enabled,

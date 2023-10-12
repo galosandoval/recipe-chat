@@ -3,6 +3,7 @@ import { ThemeToggle, useTheme } from './theme-toggle'
 import { ArrowLeftOnRectangleIcon, UserPlusIcon } from './icons'
 import { signOut } from 'next-auth/react'
 import { LoginModal, SignUpModal, useLogin, useSignUp } from './auth-modals'
+import { useTranslation } from 'hooks/useTranslation'
 
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
   return (
@@ -40,6 +41,8 @@ export function DropdownMenu({ children }: { children: React.ReactNode }) {
 }
 
 export function PublicDropdownMenu() {
+  const t = useTranslation()
+
   const { theme, updateTheme } = useTheme()
 
   const {
@@ -91,23 +94,17 @@ export function PublicDropdownMenu() {
           leaveFrom='transform scale-100 opacity-100'
           leaveTo='transform scale-95 opacity-0'
         >
-          <Menu.Items className='absolute right-0 top-[0.5rem] z-20 flex w-32 flex-col gap-1 rounded-md bg-primary-content shadow'>
+          <Menu.Items className='absolute right-0 top-[0.5rem] z-20 flex flex-col gap-1 rounded-md bg-primary-content shadow'>
             <Menu.Item>
-              <button
-                className='btn-ghost btn w-full whitespace-nowrap'
-                onClick={handleOpenSignUpModal}
-              >
-                Sign up
+              <button className='btn-ghost btn' onClick={handleOpenSignUpModal}>
+                <span>{t('nav.menu.sign-up')}</span>
                 <UserPlusIcon />
               </button>
             </Menu.Item>
 
             <Menu.Item>
-              <button
-                className='btn-ghost btn w-full whitespace-nowrap'
-                onClick={handleOpenLoginModal}
-              >
-                Log in
+              <button className='btn-ghost btn' onClick={handleOpenLoginModal}>
+                {t('nav.menu.login')}
                 <ArrowLeftOnRectangleIcon />
               </button>
             </Menu.Item>
@@ -141,7 +138,10 @@ export function PublicDropdownMenu() {
 }
 
 export function ProtectedDropdownMenu() {
+  const t = useTranslation()
+
   const { theme, updateTheme } = useTheme()
+
   const handleSignOut = () => {
     signOut({ callbackUrl: '/' })
 
@@ -160,7 +160,7 @@ export function ProtectedDropdownMenu() {
           onClick={handleSignOut}
           className='btn-ghost no-animation btn w-[8rem]'
         >
-          <span>Logout</span>
+          <span>{t('nav.menu.logout')}</span>
           <ArrowLeftOnRectangleIcon />
         </button>
       </Menu.Item>
