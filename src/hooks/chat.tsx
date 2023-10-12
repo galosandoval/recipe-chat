@@ -61,6 +61,7 @@ export const useChat = () => {
     setMessages
   } = useAiChat({
     onFinish: (messages) => onFinishMessage(messages),
+
     body: {
       filters: filterStrings
     }
@@ -277,7 +278,10 @@ export const useSaveRecipe = (
   messages: AiMessage[],
   setMessages: (messages: AiMessage[]) => void
 ) => {
+  const router = useRouter()
+
   const utils = api.useContext()
+
   const {
     mutate: createRecipe,
     status,
@@ -303,8 +307,6 @@ export const useSaveRecipe = (
       toast.error('Error: ' + error.message)
     }
   })
-
-  const router = useRouter()
 
   const memoizedData = useMemo(() => data, [data])
 
@@ -336,7 +338,7 @@ export const useSaveRecipe = (
         prepTime,
         ingredients,
         instructions
-      } = transformContentToRecipe(content)
+      } = transformContentToRecipe({ content, locale: router.locale })
 
       createRecipe({
         name,
@@ -365,61 +367,139 @@ export const useSaveRecipe = (
   }
 }
 
-function transformContentToRecipe(content: string) {
+function transformContentToRecipe({
+  content,
+  locale
+}: {
+  content: string
+  locale?: string
+}) {
+  const {
+    cookTimeField,
+    descriptionField,
+    ingredientsField,
+    instructionsField,
+    prepTimeField,
+    nameField
+  } = getTranslatedFields({ locale })
+
+  const nameIdx = content.toLowerCase().indexOf(nameField)
+
   let name = ''
-  const nameIdx = content.toLowerCase().indexOf('name:')
+
   if (nameIdx !== -1) {
     const endIdx = content.indexOf('\n', nameIdx)
+
     if (endIdx !== -1) {
-      name = content.slice(nameIdx + 6, endIdx)
+      name = content.slice(nameIdx + nameField.length + 1, endIdx)
     }
   }
 
+  const descriptionIdx = content
+    .toLowerCase()
+    .indexOf(descriptionField, nameIdx)
+
   let description = ''
-  const descriptionIdx = content.toLowerCase().indexOf('description:', nameIdx)
+
   if (descriptionIdx !== -1) {
     const endIdx = content.indexOf('\n', descriptionIdx)
     if (endIdx !== -1) {
-      description = content.slice(descriptionIdx + 13, endIdx)
+      description = content.slice(
+        descriptionIdx + descriptionField.length + 1,
+        endIdx
+      )
     }
   }
 
+  const prepTimeIdx = content.toLowerCase().indexOf(prepTimeField)
+
   let prepTime = ''
-  const prepTimeIdx = content.toLowerCase().indexOf('preparation time:')
+
   if (prepTimeIdx !== -1) {
     const endIdx = content.indexOf('\n', prepTimeIdx)
     if (endIdx !== -1) {
-      prepTime = content.slice(prepTimeIdx + 18, endIdx)
+      prepTime = content.slice(prepTimeIdx + prepTimeField.length + 1, endIdx)
     }
   }
 
+  const cookTimeIdx = content.toLowerCase().indexOf(cookTimeField)
+
   let cookTime = ''
-  const cookTimeIdx = content.toLowerCase().indexOf('cook time:')
+
   if (cookTimeIdx !== -1) {
     const endIdx = content.indexOf('\n', cookTimeIdx)
     if (endIdx !== -1) {
-      cookTime = content.slice(cookTimeIdx + 11, endIdx)
+      cookTime = content.slice(cookTimeIdx + cookTimeField.length + 1, endIdx)
     }
   }
 
+  const instructionsIdx = content.toLowerCase().indexOf(instructionsField)
+
   let instructions = ''
-  const instructionsIdx = content.toLowerCase().indexOf('instructions:')
+
   if (instructionsIdx !== -1) {
     const endIdx = content.indexOf('\n\n', instructionsIdx)
     if (endIdx !== -1) {
-      instructions = content.slice(instructionsIdx + 14, endIdx)
+      instructions = content.slice(
+        instructionsIdx + instructionsField.length + 1,
+        endIdx
+      )
     }
   }
 
+  const ingredientsIdx = content.toLowerCase().indexOf(ingredientsField)
+
   let ingredients = ''
-  const ingredientsIdx = content.toLowerCase().indexOf('ingredients:')
-  if (ingredientsIdx !== -1) {
-    if (instructionsIdx !== -1) {
-      ingredients = content.slice(ingredientsIdx + 13, instructionsIdx - 2)
-    }
+
+  if (ingredientsIdx !== -1 && instructionsIdx !== -1) {
+    ingredients = content.slice(
+      ingredientsIdx + ingredientsField.length + 1,
+      instructionsIdx - 2
+    )
   }
 
   return { name, description, prepTime, cookTime, instructions, ingredients }
+}
+
+function getTranslatedFields({ locale }: { locale?: string }) {
+  let descriptionField = 'description:'
+  if (locale && locale === 'es') {
+    descriptionField = 'descripción:'
+  }
+
+  let ingredientsField = 'ingredients:'
+  if (locale && locale === 'es') {
+    ingredientsField = 'ingredientes:'
+  }
+
+  let instructionsField = 'instructions:'
+  if (locale && locale === 'es') {
+    instructionsField = 'instrucciones:'
+  }
+
+  let cookTimeField = 'cook time:'
+  if (locale && locale === 'es') {
+    cookTimeField = 'tiempo de cocción:'
+  }
+
+  let prepTimeField = 'preparation time:'
+  if (locale && locale === 'es') {
+    prepTimeField = 'tiempo de preparación:'
+  }
+
+  let nameField = 'name:'
+  if (locale && locale === 'es') {
+    nameField = 'nombre:'
+  }
+
+  return {
+    descriptionField,
+    ingredientsField,
+    instructionsField,
+    cookTimeField,
+    prepTimeField,
+    nameField
+  }
 }
 
 function removeLeadingHyphens(str: string) {
