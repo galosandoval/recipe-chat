@@ -23,6 +23,7 @@ import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import NoSsr from './no-ssr'
 import { useTranslation } from 'hooks/useTranslation'
+import { useRouter } from 'next/router'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -374,13 +375,21 @@ const Message = function Message({
   }) => void
 }) {
   const t = useTranslation()
+  const router = useRouter()
+
+  let name = 'name:'
+  if (router.locale === 'es') {
+    name = 'nombre:'
+  }
 
   let recipeName = ''
-  const nameIdx = message.content.toLowerCase().indexOf('name:')
+  const nameIdx = message.content.toLowerCase().indexOf(name)
+
   if (nameIdx !== -1) {
     const endIdx = message.content.indexOf('\n', nameIdx)
+
     if (endIdx !== -1) {
-      recipeName = message.content.slice(nameIdx + 6, endIdx)
+      recipeName = message.content.slice(nameIdx + name.length + 1, endIdx)
     }
   }
 
