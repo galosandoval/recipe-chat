@@ -1,5 +1,6 @@
 import { ChangeEventHandler, FormEvent } from 'react'
 import { Button } from './button'
+import { useTranslation } from 'hooks/useTranslation'
 
 export function SubmitMessageForm({
   handleInputChange,
@@ -12,6 +13,8 @@ export function SubmitMessageForm({
   input: string
   isSendingMessage: boolean
 }) {
+  const t = useTranslation('common')
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -22,7 +25,7 @@ export function SubmitMessageForm({
           <textarea
             value={input}
             onChange={handleInputChange}
-            placeholder='Ask about a recipe'
+            placeholder={t('chat-form-placeholder')}
             className='input-bordered input relative w-full resize-none pt-2'
           />
         </div>

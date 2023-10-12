@@ -1,5 +1,22 @@
 {
-  "app-name": "Receta Chat",
+  "nav": {
+    "app-name": "Recipe Chat",
+
+    "menu": {
+      "sign-up": "Registro",
+      "login": "Inicio",
+      "logout": "Cierra",
+      "theme": "tema"
+    }
+  },
+
+  "auth": {
+    "sign-up": "Registro",
+    "login": "Iniciar Sesión",
+    "email": "Email",
+    "password": "Contraseña",
+    "confirm-password": "Confirmar Contraseña"
+  },
 
   "value-props": {
     "title": "Ejemplos",
@@ -10,8 +27,20 @@
 
   "capabilities": {
     "title": "Funciones",
-    "first-description": "Recuerda que dijiste en este chat",
-    "second-description": "Permite corigir tu receta",
+    "first-description": "Recuerda que ecribiste en este chat",
+    "second-description": "Permite corregir tu receta",
     "third-description": "Guarda tus recetas"
+  },
+
+  "chat-form-placeholder": "Pregunta sobre una receta",
+
+  "filters": {
+    "title": "Filtros",
+    "placeholder": "Nuevo filtro"
+  },
+
+  "chat-window": {
+    "to-recipe": "ir a recete",
+    "save": "guardar"
   }
 }

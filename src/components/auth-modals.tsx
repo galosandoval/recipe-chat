@@ -14,6 +14,7 @@ import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { Modal } from './modal'
 import { useState } from 'react'
+import { useTranslation } from 'hooks/useTranslation'
 
 export const signUpSchema = z
   .object({
@@ -119,16 +120,22 @@ export function SignUpModal({
   register: UseFormRegister<SignUpSchemaType>
   handleSubmit: UseFormHandleSubmit<SignUpSchemaType>
 }) {
+  const t = useTranslation()
+
   return (
     <Modal isOpen={isOpen} closeModal={closeModal}>
       <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
-        <h1 className='px-5'>Sign up</h1>
+        <h1 className='px-5'>{t('auth.sign-up')}</h1>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-control'>
             <label htmlFor='email' className='label pb-1 pt-0'>
-              <span className='label-text'>Email</span>
+              <span className='label-text'>
+                {t('auth.email')}
+                <span className='text-error'>*</span>
+              </span>
             </label>
+
             <input
               className={`input-bordered input ${
                 errors.email ? 'input-error' : ''
@@ -136,12 +143,17 @@ export function SignUpModal({
               id='email'
               {...register('email')}
             />
+
             <ErrorMessage errors={errors} name='email' />
           </div>
           <div className='form-control'>
             <label htmlFor='password' className='label pb-1 pt-0'>
-              <span className='label-text'>Password</span>
+              <span className='label-text'>
+                {t('auth.password')}
+                <span className='text-error'>*</span>
+              </span>
             </label>
+
             <input
               className={`input-bordered input ${
                 errors.password ? 'input-error' : ''
@@ -154,8 +166,12 @@ export function SignUpModal({
           </div>
           <div className='form-control'>
             <label htmlFor='confirmPassword' className='label pb-1 pt-0'>
-              <span className='label-text'>Confirm Password</span>
+              <span className='label-text'>
+                {t('auth.confirm-password')}
+                <span className='text-error'>*</span>
+              </span>
             </label>
+
             <input
               className={`input-bordered input ${
                 errors.confirm ? 'input-error' : ''
@@ -164,15 +180,17 @@ export function SignUpModal({
               type='password'
               {...register('confirm')}
             />
+
             <ErrorMessage errors={errors} name='confirm' />
           </div>
+
           <div className='flex w-full max-w-[300px] flex-col items-center gap-2'>
             <Button
               className='btn-primary btn w-3/4'
               type='submit'
               isLoading={isLoading}
             >
-              Sign up
+              {t('auth.sign-up')}
             </Button>
           </div>
         </form>
@@ -189,6 +207,7 @@ type LoginSchemaType = z.infer<typeof loginSchema>
 
 export function useLogin() {
   const router = useRouter()
+
   const [isOpen, setIsOpen] = useState(false)
   const {
     register,
@@ -250,14 +269,16 @@ export function LoginModal({
   register: UseFormRegister<LoginSchemaType>
   handleSubmit: UseFormHandleSubmit<LoginSchemaType>
 }) {
+  const t = useTranslation()
+
   return (
     <Modal isOpen={isOpen} closeModal={closeModal}>
       <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
-        <h1 className='text-center'>Login</h1>
+        <h1 className='text-center'>{t('auth.login')}</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-control'>
             <label htmlFor='email' className='label pb-1'>
-              <span className='label-text'>Email</span>
+              <span className='label-text'>{t('auth.email')}</span>
             </label>
             <input
               id='email'
@@ -269,7 +290,7 @@ export function LoginModal({
           </div>
           <div className='form-control'>
             <label htmlFor='password' className='label pb-1'>
-              <span className='label-text'>Password</span>
+              <span className='label-text'>{t('auth.password')}</span>
             </label>
             <input
               id='password'
@@ -286,7 +307,7 @@ export function LoginModal({
               type='submit'
               className='btn-primary btn w-3/4'
             >
-              Login
+              {t('auth.login')}
             </Button>
           </div>
         </form>

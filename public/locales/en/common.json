@@ -1,8 +1,25 @@
 {
-  "app-name": "Recipe Chat",
+  "nav": {
+    "app-name": "Recipe Chat",
+
+    "menu": {
+      "sign-up": "Sign up",
+      "login": "Login",
+      "logout": "logout",
+      "theme": "theme"
+    }
+  },
+
+  "auth": {
+    "sign-up": "Sign up",
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "confirm-password": "Confirm password"
+  },
 
   "value-props": {
-    "title": "Ejemplos",
+    "title": "Examples",
     "first-button": "What should I make for dinner tonight?",
     "second-button": "What can I make with chicken?",
     "third-button": "What's the best risotto recipe?"
@@ -13,5 +30,17 @@
     "first-description": "Remembers previous messages in the same chat",
     "second-description": "Provide follow-up corrections",
     "third-description": "Save generated recipes to your account"
+  },
+
+  "chat-form-placeholder": "Ask about a recipe",
+
+  "filters": {
+    "title": "Filters",
+    "placeholder": "New filter"
+  },
+
+  "chat-window": {
+    "to-recipe": "go to recipe",
+    "save": "save"
   }
 }

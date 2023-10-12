@@ -2,6 +2,19 @@ import { MyHead } from 'components/head'
 import { SubmitMessageForm } from 'components/submit-message-form'
 import ChatWindow from 'components/chat-window'
 import { useChat } from 'hooks/chat'
+import { GetStaticProps } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+
+export const getStaticProps = (async ({ locale }) => {
+  const localeFiles = ['common']
+
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? 'en', localeFiles))
+      // Will be passed to the page component as props
+    }
+  }
+}) satisfies GetStaticProps
 
 export default function PublicChatView() {
   const {

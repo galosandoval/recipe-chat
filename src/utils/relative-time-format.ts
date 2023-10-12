@@ -17,9 +17,11 @@ export function formatTimeAgo(date: Date) {
 
   for (let i = 0; i < DIVISIONS.length; i++) {
     const division = DIVISIONS[i]
+
     if (Math.abs(duration) < division.amount) {
       return rtf.format(Math.round(duration), division.name)
     }
+
     duration /= division.amount
   }
 
