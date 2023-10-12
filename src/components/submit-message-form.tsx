@@ -13,7 +13,7 @@ export function SubmitMessageForm({
   input: string
   isSendingMessage: boolean
 }) {
-  const t = useTranslation('common')
+  const t = useTranslation()
 
   return (
     <form
