@@ -18,7 +18,8 @@
     "confirm-password": "Confirm password",
     "sign-up-success": "Sign up successful!",
     "login-success": "Login successful!",
-    "invalid-creds": "Invalid credentials"
+    "invalid-creds": "Invalid credentials",
+    "sign-up-info": "Please sign up to save recipes"
   },
 
   "list": {
