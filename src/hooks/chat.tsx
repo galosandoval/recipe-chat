@@ -64,7 +64,8 @@ export const useChat = () => {
     onFinish: (messages) => onFinishMessage(messages),
 
     body: {
-      filters: filterStrings
+      filters: filterStrings,
+      locale: router.locale
     }
   })
 
