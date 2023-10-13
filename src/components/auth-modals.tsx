@@ -36,6 +36,8 @@ export const signUpSchema = z
 type SignUpSchemaType = z.infer<typeof signUpSchema>
 
 export function useSignUp() {
+  const t = useTranslation()
+
   const {
     register,
     handleSubmit,
@@ -60,7 +62,7 @@ export function useSignUp() {
       if (response?.ok) {
         router.push('/chat')
 
-        toast.success('Signed up successfully')
+        toast.success(t('auth.sign-up-success'))
       }
     },
     onError: (error) => {
@@ -206,6 +208,8 @@ export const loginSchema = z.object({
 type LoginSchemaType = z.infer<typeof loginSchema>
 
 export function useLogin() {
+  const t = useTranslation()
+
   const router = useRouter()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -225,10 +229,10 @@ export function useLogin() {
     }
 
     if (response?.status === 401) {
-      toast.error('Invalid credentials')
+      toast.error(t('auth.invalid-creds'))
 
-      setError('email', { message: 'Invalid credentials' })
-      setError('password', { message: 'Invalid credentials' })
+      setError('email', { message: t('auth.invalid-creds') })
+      setError('password', { message: t('auth.invalid-creds') })
     }
   }
 

@@ -9,6 +9,20 @@ import { FormValues } from 'hooks/chat'
 import { CheckIcon, TrashIcon } from 'components/icons'
 import { useState } from 'react'
 import { Modal } from 'components/modal'
+import { GetServerSideProps } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useTranslation } from 'hooks/useTranslation'
+
+export const getServerSideProps = (async ({ locale }) => {
+  const localeFiles = ['common']
+
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? 'en', localeFiles))
+      // Will be passed to the page component as props
+    }
+  }
+}) satisfies GetServerSideProps
 
 export default function EditByIdView() {
   const router = useRouter()
@@ -25,15 +39,18 @@ export default function EditByIdView() {
 }
 
 export function EditById({ id }: { id: string }) {
+  const t = useTranslation()
+
   const { data, status } = useRecipe(id)
 
-  if (status === 'error') return <div className=''>Something went wrong</div>
+  if (status === 'error')
+    return <div className=''>{t('error.something-went-wrong')}</div>
 
   if (status === 'success' && data) {
     return <FoundRecipe data={data} />
   }
 
-  return <div>Loading...</div>
+  return <div>{t('loading')}</div>
 }
 
 function FoundRecipe({
@@ -44,6 +61,8 @@ function FoundRecipe({
     instructions: Instruction[]
   }
 }) {
+  const t = useTranslation()
+
   const {
     ingredients,
     description,
@@ -167,7 +186,7 @@ function FoundRecipe({
       >
         <div className='flex w-full flex-col'>
           <label htmlFor='name' className='label'>
-            <span className='label-text'>Name</span>
+            <span className='label-text'>{t('recipes.name')}</span>
           </label>
           <input
             id='name'
@@ -177,7 +196,7 @@ function FoundRecipe({
         </div>
         <div className='flex w-full flex-col'>
           <label htmlFor='description' className='label'>
-            <span className='label-text'>Description</span>
+            <span className='label-text'>{t('recipes.description')}</span>
           </label>
           <textarea
             id='description'
@@ -189,7 +208,7 @@ function FoundRecipe({
         <div className='flex w-full gap-2'>
           <div className='flex w-1/2 flex-col'>
             <label htmlFor='prepTime' className='label'>
-              <span className='label-text'>Prep time</span>
+              <span className='label-text'>{t('recipes.prep-time')}</span>
             </label>
             <input
               id='prepTime'
@@ -200,7 +219,7 @@ function FoundRecipe({
           </div>
           <div className='flex w-1/2 flex-col'>
             <label htmlFor='cookTime' className='label'>
-              <span className='label-text'>Cook time</span>
+              <span className='label-text'>{t('recipes.cook-time')}</span>
             </label>
             <input
               id='cookTime'
@@ -213,7 +232,7 @@ function FoundRecipe({
 
         <div className='flex w-full flex-col'>
           <label htmlFor='ingredients' className='label'>
-            <span className='label-text'>Ingredients</span>
+            <span className='label-text'>{t('recipes.ingredients')}</span>
           </label>
           <textarea
             id='ingredients'
@@ -225,7 +244,7 @@ function FoundRecipe({
 
         <div className='flex w-full flex-col'>
           <label htmlFor='instructions' className='label'>
-            <span className='label-text'>Instructions</span>
+            <span className='label-text'>{t('recipes.instructions')}</span>
           </label>
           <textarea
             id='instructions'
@@ -237,7 +256,7 @@ function FoundRecipe({
 
         <div className='flex w-full flex-col'>
           <label htmlFor='notes' className='label'>
-            <span className='label-text'>Notes</span>
+            <span className='label-text'>{t('recipes.notes')}</span>
           </label>
           <textarea
             id='notes'
@@ -266,16 +285,14 @@ function FoundRecipe({
           </Button>
         </div>
       </form>
+
       <Modal isOpen={isOpen} closeModal={handleCloseConfirmationModal}>
         <div className='mx-2 my-1'>
           <div className=''>
-            <h1 className='mb-0 text-xl'>Delete recipe</h1>
+            <h1 className='mb-0 text-xl'>{t('recipes.by-id.delete.title')}</h1>
           </div>
           <div className=''>
-            <p className=''>
-              Are you sure you want to delete this recipe? This action cannot be
-              undone.
-            </p>
+            <p className=''>{t('recipes.by-id.delete.message')}</p>
           </div>
           <div className='flex justify-end'>
             <Button

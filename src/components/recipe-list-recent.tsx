@@ -2,12 +2,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { api } from 'utils/api'
 import { Loader } from './loaders/recipe-list-recent'
+import { useTranslation } from 'hooks/useTranslation'
 
 export function RecentRecipes() {
+  const t = useTranslation()
+
   const { data, status } = api.recipe.recentRecipes.useQuery()
 
   if (status === 'error') {
-    return <div className=''>Something went wrong</div>
+    return <div className=''>{t('error.something-went-wrong')}</div>
   }
 
   if (status === 'success') {
@@ -73,9 +76,11 @@ export function RecentRecipes() {
 }
 
 function Container({ children }: { children: React.ReactNode }) {
+  const t = useTranslation()
+
   return (
     <>
-      <h2 className='col-span-2 sm:col-span-4 prose'>Recent Recipes</h2>
+      <h2 className='col-span-2 sm:col-span-4 prose'>{t('recipes.recent')}</h2>
 
       {children}
     </>

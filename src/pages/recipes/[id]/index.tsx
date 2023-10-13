@@ -12,6 +12,20 @@ import { RouterInputs, RouterOutputs, api } from 'utils/api'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { GetServerSideProps } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useTranslation } from 'hooks/useTranslation'
+
+export const getServerSideProps = (async ({ locale }) => {
+  const localeFiles = ['common']
+
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? 'en', localeFiles))
+      // Will be passed to the page component as props
+    }
+  }
+}) satisfies GetServerSideProps
 
 export default function RecipeByIdView() {
   const router = useRouter()
@@ -36,9 +50,12 @@ export default function RecipeByIdView() {
 }
 
 export function RecipeById({ id }: { id: string }) {
+  const t = useTranslation()
+
   const { data, status } = useRecipe(id)
 
-  if (status === 'error') return <div className=''>Something went wrong</div>
+  if (status === 'error')
+    return <div className=''>{t('error.something-went-wrong')}</div>
 
   if (status === 'success') {
     if (!data) return null
@@ -56,6 +73,8 @@ function FoundRecipe({
 }: {
   data: NonNullable<RouterOutputs['recipe']['byId']>
 }) {
+  const t = useTranslation()
+
   const { mutate, isLoading } = useAddToList()
 
   const {
@@ -153,12 +172,12 @@ function FoundRecipe({
         {prepTime && cookTime && (
           <div className='stats mb-2 shadow'>
             <div className='stat place-items-center'>
-              <div className='stat-title'>Prep Time</div>
+              <div className='stat-title'>{t('recipes.prep-time')}</div>
               <div className='stat-value text-base'>{prepTime}</div>
             </div>
 
             <div className='stat place-items-center'>
-              <div className='stat-title'>Cook Time</div>
+              <div className='stat-title'>{t('recipes.cook-time')}</div>
               <div className='stat-value text-base'>{cookTime}</div>
             </div>
           </div>
@@ -173,14 +192,20 @@ function FoundRecipe({
             isLoading={isLoading}
           >
             {addedToList ? <ListBulletIcon /> : <PlusIcon />}
-            {addedToList ? 'Go to list' : 'Add to list'}
+            {addedToList
+              ? t('recipes.by-id.go-to-list')
+              : t('recipes.by-id.add-to-list')}
           </Button>
         </div>
         <div className=''>
           <div>
             <Checkbox
               id='check-all'
-              label={allChecked ? 'Deselect All' : 'Select All'}
+              label={
+                allChecked
+                  ? t('recipes.by-id.deselect-all')
+                  : t('recipes.by-id.select-all')
+              }
               checked={allChecked}
               onChange={handleCheckAll}
             />
@@ -210,9 +235,11 @@ function Ingredients({
   checked: Checked
   handleCheck: (event: ChangeEvent<HTMLInputElement>) => void
 }) {
+  const t = useTranslation()
+
   return (
     <>
-      <h2 className='divider'>Ingredients</h2>
+      <h2 className='divider'>{t('recipes.ingredients')}</h2>
       <div>
         {ingredients.map((i) => {
           if (i.name.endsWith(':')) {
@@ -239,14 +266,16 @@ function Ingredients({
 }
 
 function Instructions({ instructions }: { instructions: Instruction[] }) {
+  const t = useTranslation()
+
   return (
     <>
-      <h2 className='divider'>Directions</h2>
+      <h2 className='divider'>{t('recipes.instructions')}</h2>
       <ol className='flex list-none flex-col gap-4 pl-0'>
         {instructions.map((i, index, array) => (
           <li key={i.id} className='mb-0 mt-0 bg-base-300 px-7 pb-2'>
             <h3>
-              Step {index + 1}/{array.length}
+              {t('recipes.step')} {index + 1}/{array.length}
             </h3>
             <p>{i.description}</p>
           </li>
@@ -262,6 +291,8 @@ const addNotesSchema = z.object({
 type AddNotes = z.infer<typeof addNotesSchema>
 
 function Notes({ notes, id }: { notes: string; id: string }) {
+  const t = useTranslation()
+
   const utils = api.useContext()
   const { mutate } = api.recipe.addNotes.useMutation({
     onSuccess() {
@@ -280,7 +311,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
   if (notes) {
     return (
       <>
-        <h2 className='divider'>Notes</h2>
+        <h2 className='divider'>{t('recipes.notes')}</h2>
         <p className='whitespace-pre-line'>{notes}</p>
       </>
     )
@@ -288,7 +319,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
 
   return (
     <>
-      <h2 className='divider'>Notes</h2>
+      <h2 className='divider'>{t('recipes.notes')}</h2>
       <form
         onSubmit={handleSubmit(({ notes }) => {
           mutate({ id, notes })
@@ -297,7 +328,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
       >
         <textarea
           className='textarea textarea-primary resize-none w-full'
-          placeholder='Add notes here'
+          placeholder={t('recipes.by-id.placeholder')}
           {...register('notes')}
         ></textarea>
         <Button
@@ -305,7 +336,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
           type='submit'
           className='btn btn-primary self-end'
         >
-          Save
+          {t('recipes.save')}
         </Button>
       </form>
     </>
