@@ -18,6 +18,12 @@
     "confirm-password": "Confirm password"
   },
 
+  "list": {
+    "by-recipe": "By recipe",
+    "no-items": "No in your list",
+    "add-to-list": "Add to list"
+  },
+
   "value-props": {
     "title": "Examples",
     "first-button": "What should I make for dinner tonight?",
@@ -41,6 +47,54 @@
 
   "chat-window": {
     "to-recipe": "go to recipe",
-    "save": "save"
-  }
+    "save": "save",
+    "save-success": "Recipe saved successfully"
+  },
+
+  "recipes": {
+    "no-recipes": {
+      "message": "No recipes found. Save recipes from chats ",
+      "link": "here"
+    },
+
+    "recent": "Recent recipes",
+    "your": "Your recipes",
+    "search": "Search recipes",
+
+    "name": "Name",
+    "description": "Description",
+    "ingredients": "Ingredients",
+    "instructions": "Instructions",
+    "cook-time": "Cook time",
+    "prep-time": "Prep time",
+    "notes": "Notes",
+
+    "step": "Step",
+
+    "paste": "Paste a recipe from the web",
+    "url": "Recipe URL",
+    "upload": "Upload",
+    "cancel": "Cancel",
+    "save": "Save",
+
+    "by-id": {
+      "go-to-list": "Go to list",
+      "add-to-list": "Add to list",
+      "deselect-all": "Deselect all",
+      "select-all": "Select all",
+      "placeholder": "Add notes here",
+      "edit": "Edit recipe",
+
+      "delete": {
+        "title": "Delete recipe",
+        "message": "Are you sure you want to delete this recipe? This action cannot be undone."
+      }
+    }
+  },
+
+  "error": {
+    "something-went-wrong": "Something went wrong"
+  },
+
+  "loading": "Loading..."
 }

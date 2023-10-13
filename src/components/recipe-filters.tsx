@@ -246,8 +246,10 @@ function List({
   handleCheck: (id: string, checked: boolean) => void
   handleToggleCanDelete: () => void
 }) {
+  const t = useTranslation()
+
   if (status === 'error') {
-    return <div>Could not get filters, please try again</div>
+    return <div>{t('error.something-went-wrong')}</div>
   }
 
   if (status === 'success' && filters) {
@@ -303,5 +305,5 @@ function List({
     )
   }
 
-  return <div className='flex w-full flex-wrap gap-4'>Loading...</div>
+  return <div className='flex w-full flex-wrap gap-4'>{t('loading')}</div>
 }

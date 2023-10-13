@@ -467,9 +467,11 @@ const Message = function Message({
 }
 
 function ActiveFilters({ data }: { data: Filter[] }) {
+  const t = useTranslation()
+
   return (
     <div className='flex gap-2 pt-2'>
-      <h3 className='text-sm mb-0 mt-0'>Filters:</h3>
+      <h3 className='text-sm mb-0 mt-0'>{t('filters.title')}:</h3>
       {data.map((f) => (
         <div className='badge badge-primary badge-outline' key={f.id}>
           {f.name}

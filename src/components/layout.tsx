@@ -117,6 +117,8 @@ function RecipeByIdNavbar() {
 }
 
 function EditRecipeNavbar() {
+  const t = useTranslation()
+
   const router = useRouter()
   return (
     <nav className='navbar prose grid w-full grid-cols-3 gap-24 bg-transparent px-4 '>
@@ -127,7 +129,7 @@ function EditRecipeNavbar() {
         <XIcon />
       </button>
       <h1 className='mb-0 justify-self-center whitespace-nowrap text-center text-base'>
-        Edit Recipe
+        {t('recipes.by-id.edit')}
       </h1>
     </nav>
   )

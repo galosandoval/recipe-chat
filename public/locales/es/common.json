@@ -18,6 +18,12 @@
     "confirm-password": "Confirmar Contraseña"
   },
 
+  "list": {
+    "by-recipe": "Por receta",
+    "no-items": "No hay elementos en esta lista",
+    "add-to-list": "Agregar a tu lista"
+  },
+
   "value-props": {
     "title": "Ejemplos",
     "first-button": "¿Que podria hacer para cenar esta noche?",
@@ -42,5 +48,52 @@
   "chat-window": {
     "to-recipe": "ir a receta",
     "save": "guardar"
-  }
+  },
+
+  "recipes": {
+    "no-recipes": {
+      "message": "No tienes recetas guardada. Guarda recetas de chats ",
+      "link": "aqui"
+    },
+
+    "recent": "Recetas recientes",
+    "your": "Tus recetas",
+    "search": "Buscar recetas",
+
+    "name": "Nombre",
+    "description": "Descripción",
+    "ingredients": "Ingredientes",
+    "instructions": "Instrucciones",
+    "cook-time": "Tiempo de cocción",
+    "prep-time": "Tiempo de preparación",
+    "notes": "Notas",
+
+    "step": "Paso",
+
+    "paste": "Pegar una receta de la web",
+    "url": "Receta URL",
+    "upload": "Subir",
+    "cancel": "Cancelar",
+    "save": "guardar",
+
+    "by-id": {
+      "go-to-list": "Ir a lista",
+      "add-to-list": "Agregar a tu lista",
+      "deselect-all": "Deseleccionar todo",
+      "select-all": "Seleccionar todo",
+      "placeholder": "Agrega notas aqui",
+      "edit": "Editar receta",
+
+      "delete": {
+        "title": "Borrar receta",
+        "message": "¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer."
+      }
+    }
+  },
+
+  "error": {
+    "something-went-wrong": "Algo salió mal"
+  },
+
+  "loading": "Cargando..."
 }

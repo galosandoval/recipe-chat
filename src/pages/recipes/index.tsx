@@ -30,6 +30,20 @@ import { api } from 'utils/api'
 import { useInView } from 'react-intersection-observer'
 import { FetchStatus, QueryStatus } from '@tanstack/react-query'
 import { RecentRecipes } from 'components/recipe-list-recent'
+import { GetStaticProps } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useTranslation } from 'hooks/useTranslation'
+
+export const getStaticProps = (async ({ locale }) => {
+  const localeFiles = ['common']
+
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? 'en', localeFiles))
+      // Will be passed to the page component as props
+    }
+  }
+}) satisfies GetStaticProps
 
 export default function RecipesView() {
   return (
@@ -132,6 +146,8 @@ function SearchBar({
   handleSearchButtonClick: () => void
   handleChange: (event: ChangeEvent<HTMLInputElement>) => void
 }) {
+  const t = useTranslation()
+
   return (
     <div className='fixed  bottom-0 left-0 flex w-full items-center md:rounded-md'>
       <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 sm:mb-2 sm:rounded-lg'>
@@ -141,7 +157,7 @@ function SearchBar({
             className='input-bordered input w-full'
             value={search}
             onChange={handleChange}
-            placeholder='Search...'
+            placeholder={t('recipes.search')}
             ref={inputRef}
           />
         </div>
@@ -173,6 +189,8 @@ function Pages({
   status: QueryStatus
   fetchStatus: FetchStatus
 }) {
+  const t = useTranslation()
+
   if (status === 'loading') {
     return <ScreenLoader />
   }
@@ -185,7 +203,7 @@ function Pages({
         </>
       ) : null}
       <div className='col-span-2 sm:col-span-4 flex justify-between items-center h-10'>
-        <h2 className='prose'>All Recipes</h2>
+        <h2 className='prose'>{t('recipes.your')}</h2>
         {!search && <CreateRecipeButton />}
       </div>
 
@@ -196,10 +214,9 @@ function Pages({
           ) : (
             <div className='prose col-span-2 sm:col-span-4'>
               <p>
-                No recipes found. Save recipes from chats{' '}
+                {t('recipes.no-recipes.message')}
                 <Link className='link' href='/chat'>
-                  {' '}
-                  here
+                  {t('recipes.no-recipes.link')}
                 </Link>
               </p>
             </div>
@@ -338,7 +355,7 @@ function CreateRecipeButton() {
       <Button
         type='button'
         onClick={openModal}
-        className='btn-ghost btn btn-circle'
+        className='btn-outline btn btn-circle'
       >
         <PlusIcon size={6} />
       </Button>
@@ -360,6 +377,8 @@ export function UploadRecipeUrlForm({
 }: {
   onSubmit(values: RecipeUrlSchemaType): void
 }) {
+  const t = useTranslation()
+
   const {
     register,
     handleSubmit,
@@ -371,14 +390,18 @@ export function UploadRecipeUrlForm({
   return (
     <>
       <Dialog.Title as='h3' className='mt-0'>
-        Paste a recipe from the web
+        {t('recipes.url')}
       </Dialog.Title>
       <form onSubmit={handleSubmit(onSubmit)} className=''>
         <div className='prose mt-2 flex flex-col gap-1'>
           <label htmlFor='url' className='label'>
-            <span className='label-text'>Recipe URL</span>
+            <span className='label-text'>{t('recipes.paste')}</span>
           </label>
-          <input {...register('url')} className='input select-auto' autoFocus />
+          <input
+            {...register('url')}
+            className='input input-bordered select-auto'
+            autoFocus
+          />
           <ErrorMessage
             errors={errors}
             name='url'
@@ -387,7 +410,7 @@ export function UploadRecipeUrlForm({
         </div>
         <div className='mt-4'>
           <Button className='btn-primary btn w-full' type='submit'>
-            Upload
+            {t('recipes.name')}
           </Button>
         </div>
       </form>
@@ -402,6 +425,8 @@ function CreateRecipe({
   data: LinkedDataRecipeField
   closeModal: () => void
 }) {
+  const t = useTranslation()
+
   const { handleSubmit, getValues, register, onSubmit, isSuccess, isLoading } =
     useCreateRecipe(data)
 
@@ -415,7 +440,7 @@ function CreateRecipe({
       <div className='mt-2 flex max-h-[38rem] flex-col gap-5 overflow-y-auto px-1 pb-1'>
         <div className='flex flex-col'>
           <label htmlFor='name' className='label'>
-            <span className='label-text'>Name</span>
+            <span className='label-text'>{t('recipes.name')}</span>
           </label>
           <input
             id='name'
@@ -425,7 +450,7 @@ function CreateRecipe({
         </div>
         <div className='flex flex-col'>
           <label htmlFor='description' className='label'>
-            <span className='label-text'>Description</span>
+            <span className='label-text'>{t('recipes.description')}</span>
           </label>
           <input
             id='description'
@@ -437,7 +462,7 @@ function CreateRecipe({
         <div className='flex gap-2'>
           <div className='flex w-1/2 flex-col'>
             <label htmlFor='prepTime' className='label'>
-              <span className='label-text'>Prep time</span>
+              <span className='label-text'>{t('recipes.prep-time')}</span>
             </label>
             <input
               id='prepTime'
@@ -448,7 +473,7 @@ function CreateRecipe({
           </div>
           <div className='flex w-1/2 flex-col'>
             <label htmlFor='cookTime' className='label'>
-              <span className='label-text'>Cook time</span>
+              <span className='label-text'>{t('recipes.cook-time')}</span>
             </label>
             <input
               id='cookTime'
@@ -460,7 +485,7 @@ function CreateRecipe({
         </div>
         <div className='flex flex-col'>
           <label htmlFor='ingredients' className='label'>
-            <span className='label-text'>Ingredients</span>
+            <span className='label-text'>{t('recipes.ingredients')}</span>
           </label>
           <textarea
             id='ingredients'
@@ -471,7 +496,7 @@ function CreateRecipe({
         </div>
         <div className='flex flex-col'>
           <label htmlFor='instructions' className='label'>
-            <span className='label-text'>Instructions</span>
+            <span className='label-text'>{t('recipes.instructions')}</span>
           </label>
           <textarea
             id='instructions'
@@ -493,14 +518,14 @@ function CreateRecipe({
               onClick={closeModal}
               className='btn-ghost btn w-1/2'
             >
-              Cancel
+              {t('recipes.cancel')}
             </Button>
             <Button
               isLoading={isLoading}
               className='btn-primary btn w-1/2'
               type='submit'
             >
-              Save
+              {t('recipes.save')}
             </Button>
           </>
         )}
