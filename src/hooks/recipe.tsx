@@ -82,7 +82,7 @@ export const useCreateRecipe = (data: LinkedDataRecipeField) => {
     cookTime,
     prepTime
   } = data
-  const { mutate, isLoading, isSuccess } = api.recipe.useMutation({
+  const { mutate, isLoading, isSuccess } = api.recipe.create.useMutation({
     onSuccess: (data) => {
       router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
       utils.recipe.invalidate()

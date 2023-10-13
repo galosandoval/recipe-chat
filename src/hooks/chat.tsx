@@ -15,6 +15,7 @@ import {
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
 import { z } from 'zod'
+import { useTranslation } from './useTranslation'
 
 export type FormValues = {
   name: string
@@ -67,7 +68,19 @@ export const useChat = () => {
     }
   })
 
-  const { mutate: addMessages } = api.chat.addMessages.useMutation()
+  const { mutate: addMessages } = api.chat.addMessages.useMutation({
+    onSuccess(data) {
+      const messages = data.map((m) => ({
+        content: m.content,
+        id: m.id,
+        role: m.role,
+        recipeId: m.recipeId
+      }))
+
+      setMessages(messages)
+      utils.chat.getMessagesById.invalidate({ chatId: state.chatId })
+    }
+  })
 
   const { mutate: create } = api.chat.create.useMutation({
     onSuccess(data) {
@@ -278,6 +291,8 @@ export const useSaveRecipe = (
   messages: AiMessage[],
   setMessages: (messages: AiMessage[]) => void
 ) => {
+  const t = useTranslation()
+
   const router = useRouter()
 
   const utils = api.useContext()
@@ -301,7 +316,7 @@ export const useSaveRecipe = (
 
       setMessages(messagesCopy)
 
-      toast.success('Recipe saved successfully!')
+      toast.success(t('chat-window.save-success'))
     },
     onError: (error) => {
       toast.error('Error: ' + error.message)

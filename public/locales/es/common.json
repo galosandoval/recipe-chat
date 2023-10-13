@@ -47,7 +47,8 @@
 
   "chat-window": {
     "to-recipe": "ir a receta",
-    "save": "guardar"
+    "save": "guardar",
+    "save-success": "¡Receta guardada!"
   },
 
   "recipes": {

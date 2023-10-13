@@ -15,7 +15,10 @@
     "login": "Login",
     "email": "Email",
     "password": "Password",
-    "confirm-password": "Confirm password"
+    "confirm-password": "Confirm password",
+    "sign-up-success": "Sign up successful!",
+    "login-success": "Login successful!",
+    "invalid-creds": "Invalid credentials"
   },
 
   "list": {
@@ -48,7 +51,7 @@
   "chat-window": {
     "to-recipe": "go to recipe",
     "save": "save",
-    "save-success": "Recipe saved successfully"
+    "save-success": "Recipe saved successfully!"
   },
 
   "recipes": {
