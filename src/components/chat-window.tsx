@@ -4,7 +4,7 @@ import ScrollToBottom, {
   useSticky
 } from 'react-scroll-to-bottom'
 import { Chat, Filter, Message, Message as PrismaMessage } from '@prisma/client'
-import { ChatType } from 'hooks/chat'
+import { ChatType } from 'hooks/useChat'
 import { memo, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { MutationStatus, QueryStatus } from '@tanstack/react-query'
@@ -24,6 +24,7 @@ import { useSession } from 'next-auth/react'
 import NoSsr from './no-ssr'
 import { useTranslation } from 'hooks/useTranslation'
 import { useRouter } from 'next/router'
+import { SignUpModal } from './auth-modals'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -60,6 +61,13 @@ const Content = memo(function Content(props: MessageContentProps) {
     handleSaveRecipe,
     handleChangeChat,
     saveRecipeStatus,
+    handleClose,
+    handleSubmitRegister,
+    isLoading,
+    isOpen,
+    onSubmit,
+    register,
+    registerErrors,
     fetchStatus: chatsFetchStatus,
     status: chatsQueryStatus,
     handleGetChatsOnSuccess
@@ -163,6 +171,16 @@ const Content = memo(function Content(props: MessageContentProps) {
           <ArrowSmallUpIcon />
         </button>
       </div>
+
+      <SignUpModal
+        closeModal={handleClose}
+        errors={registerErrors}
+        handleSubmit={handleSubmitRegister}
+        isLoading={isLoading}
+        isOpen={isOpen}
+        onSubmit={onSubmit}
+        register={register}
+      />
     </>
   )
 })

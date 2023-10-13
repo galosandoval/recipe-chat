@@ -16,6 +16,7 @@ import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
 import { z } from 'zod'
 import { useTranslation } from './useTranslation'
+import { useSignUp } from 'components/auth-modals'
 
 export type FormValues = {
   name: string
@@ -216,7 +217,14 @@ export const useChat = () => {
   const {
     handleGoToRecipe,
     handleSaveRecipe,
-    status: saveRecipeStatus
+    status: saveRecipeStatus,
+    errors: registerErrors,
+    handleClose,
+    handleSubmit: handleSubmitRegister,
+    isLoading,
+    isOpen,
+    onSubmit,
+    register
   } = useSaveRecipe(messages, setMessages)
 
   return {
@@ -230,10 +238,16 @@ export const useChat = () => {
     isSendingMessage,
     isAuthenticated,
     saveRecipeStatus,
+    registerErrors,
+    isOpen,
+    isLoading,
 
     handleGoToRecipe,
     handleSaveRecipe,
-
+    handleClose,
+    handleSubmitRegister,
+    onSubmit,
+    register,
     handleGetChatsOnSuccess,
     handleInputChange: useCallback(handleInputChange, []),
     handleToggleChatsModal,
@@ -293,10 +307,23 @@ export const useSaveRecipe = (
   setMessages: (messages: AiMessage[]) => void
 ) => {
   const t = useTranslation()
+  const { status: authStatus } = useSession()
+  const isAuthenticated = authStatus === 'authenticated'
 
   const router = useRouter()
 
   const utils = api.useContext()
+
+  const {
+    errors,
+    handleClose,
+    handleOpen,
+    handleSubmit,
+    isLoading,
+    isOpen,
+    onSubmit,
+    register
+  } = useSignUp()
 
   const {
     mutate: createRecipe,
@@ -347,6 +374,37 @@ export const useSaveRecipe = (
     ({ content, messageId }: { content: string; messageId?: string }) => {
       if (!content) return
 
+      if (!isAuthenticated) {
+        handleOpen()
+        toast.success('Please sign up to save recipes.', {
+          style: {
+            // @ts-expect-error replicates the tailwind config
+            '--tw-bg-opacity': 1,
+            backgroundColor: 'hsl(var(--in))',
+            '--tw-text-opacity': 1,
+            color: 'hsl(var(--inc)/var(--tw-text-opacity))'
+          },
+
+          icon: (
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='w-6 h-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z'
+              />
+            </svg>
+          )
+        })
+        return
+      }
+
       const {
         name,
         description,
@@ -371,13 +429,19 @@ export const useSaveRecipe = (
         messageId
       })
     },
-    []
+    [isAuthenticated]
   )
 
   return {
     status,
     data: memoizedData,
-
+    errors,
+    handleClose,
+    handleSubmit,
+    isLoading,
+    isOpen,
+    onSubmit,
+    register,
     handleSaveRecipe,
     handleGoToRecipe
   }

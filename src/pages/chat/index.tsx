@@ -1,7 +1,7 @@
 import { MyHead } from 'components/head'
 import ChatWindow from 'components/chat-window'
 import { SubmitMessageForm } from 'components/submit-message-form'
-import { useChat } from 'hooks/chat'
+import { useChat } from 'hooks/useChat'
 import { GetStaticProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 

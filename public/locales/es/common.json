@@ -15,7 +15,8 @@
     "login": "Iniciar Sesión",
     "email": "Email",
     "password": "Contraseña",
-    "confirm-password": "Confirmar Contraseña"
+    "confirm-password": "Confirmar Contraseña",
+    "sign-up-info": "Favor de registrarse para guardar sus recetas"
   },
 
   "list": {
