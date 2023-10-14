@@ -49,7 +49,9 @@
   "chat-window": {
     "to-recipe": "ir a receta",
     "save": "guardar",
-    "save-success": "¡Receta guardada!"
+    "save-success": "¡Receta guardada!",
+    "chats": "Recientes chats",
+    "no-chats": "No se encontraron chats. Iniciar un nuevo chat preguntando sobre una receta"
   },
 
   "recipes": {

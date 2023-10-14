@@ -96,14 +96,20 @@ export function PublicDropdownMenu() {
         >
           <Menu.Items className='absolute right-0 top-[0.5rem] z-20 flex flex-col gap-1 rounded-md bg-primary-content shadow'>
             <Menu.Item>
-              <button className='btn-ghost btn' onClick={handleOpenSignUpModal}>
+              <button
+                className='btn-ghost btn whitespace-nowrap'
+                onClick={handleOpenSignUpModal}
+              >
                 <span>{t('nav.menu.sign-up')}</span>
                 <UserPlusIcon />
               </button>
             </Menu.Item>
 
             <Menu.Item>
-              <button className='btn-ghost btn' onClick={handleOpenLoginModal}>
+              <button
+                className='btn-ghost btn whitespace-nowrap'
+                onClick={handleOpenLoginModal}
+              >
                 {t('nav.menu.login')}
                 <ArrowLeftOnRectangleIcon />
               </button>

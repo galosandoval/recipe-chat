@@ -157,7 +157,7 @@ export const useChat = () => {
     ) => {
       dispatch({ type: 'chatIdChanged', payload: chat.id })
       setShouldFetchChat(true)
-      handleToggleChatsModal()
+      setIsChatsModalOpen(false)
     },
     []
   )
