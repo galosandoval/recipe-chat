@@ -1,6 +1,7 @@
-const rtf = new Intl.RelativeTimeFormat(undefined, {
-  numeric: 'auto'
-})
+const rtf = (locale?: string) =>
+  new Intl.RelativeTimeFormat(locale, {
+    numeric: 'auto'
+  })
 
 const DIVISIONS: { amount: number; name: Intl.RelativeTimeFormatUnit }[] = [
   { amount: 60, name: 'seconds' },
@@ -12,14 +13,14 @@ const DIVISIONS: { amount: number; name: Intl.RelativeTimeFormatUnit }[] = [
   { amount: Number.POSITIVE_INFINITY, name: 'years' }
 ]
 
-export function formatTimeAgo(date: Date) {
+export function formatTimeAgo(date: Date, locale?: string) {
   let duration = (Number(date) - Number(new Date())) / 1000
 
   for (let i = 0; i < DIVISIONS.length; i++) {
     const division = DIVISIONS[i]
 
     if (Math.abs(duration) < division.amount) {
-      return rtf.format(Math.round(duration), division.name)
+      return rtf(locale).format(Math.round(duration), division.name)
     }
 
     duration /= division.amount

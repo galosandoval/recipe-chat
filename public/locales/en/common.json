@@ -24,7 +24,7 @@
 
   "list": {
     "by-recipe": "By recipe",
-    "no-items": "No in your list",
+    "no-items": "No items in your list",
     "add-to-list": "Add to list"
   },
 
@@ -52,7 +52,9 @@
   "chat-window": {
     "to-recipe": "go to recipe",
     "save": "save",
-    "save-success": "Recipe saved successfully!"
+    "save-success": "Recipe saved successfully!",
+    "chats": "Recent chats",
+    "no-chats": "No chats found. Start a new chat by asking about a recipe"
   },
 
   "recipes": {

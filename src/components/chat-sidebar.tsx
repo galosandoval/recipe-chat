@@ -1,10 +1,16 @@
 import { Chat, Message } from '@prisma/client'
-import { AdjustmentsHorizontalIcon, ListBulletIcon } from './icons'
+import {
+  AdjustmentsHorizontalIcon,
+  ChatBubbleLeftIcon,
+  ListBulletIcon
+} from './icons'
 import { Drawer } from './drawer'
 import { formatTimeAgo } from 'utils/relative-time-format'
 import { api } from 'utils/api'
 import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/screen'
+import { useTranslation } from 'hooks/useTranslation'
+import { useRouter } from 'next/router'
 
 const useGetChats = (
   onSuccess: (
@@ -14,15 +20,95 @@ const useGetChats = (
   ) => void
 ) => {
   const { status: authStatus, data } = useSession()
+
   const isAuthenticated = authStatus === 'authenticated'
+
   return api.chat.getChats.useQuery(
     { userId: data?.user.id || '' },
+
     {
       onSuccess,
       enabled: isAuthenticated,
       keepPreviousData: true
     }
   )
+}
+
+export function ChatsSection({
+  handleChangeChat,
+  chatId
+}: {
+  handleChangeChat: (
+    chat: Chat & {
+      messages: Message[]
+    }
+  ) => void
+  chatId?: string
+}) {
+  const t = useTranslation()
+
+  return (
+    <div className='flex flex-col items-center justify-center w-full'>
+      <div className='flex items-center gap-2'>
+        <h2 className='mb-2 mt-2'>{t('chat-window.chats')}</h2>
+        <ChatBubbleLeftIcon />
+      </div>
+      <div className='flex w-full flex-col items-center gap-4'>
+        <Chats chatId={chatId} handleChangeChat={handleChangeChat} />
+      </div>
+    </div>
+  )
+}
+
+function Chats({
+  chatId,
+  handleChangeChat
+}: {
+  chatId?: string
+  handleChangeChat: (
+    chat: Chat & {
+      messages: Message[]
+    }
+  ) => void
+}) {
+  const t = useTranslation()
+
+  const { status: authStatus, data: session } = useSession()
+
+  const isAuthenticated = authStatus === 'authenticated'
+
+  const { data, status } = api.chat.getChats.useQuery(
+    { userId: session?.user.id || '' },
+    {
+      enabled: isAuthenticated,
+      keepPreviousData: true
+    }
+  )
+
+  if (status === 'error') {
+    return <div>{t('error.something-went-wrong')}</div>
+  }
+
+  if (status === 'success') {
+    if (data.length === 0) {
+      return <div className=''>{t('chat-window.no-chats')}</div>
+    }
+
+    return (
+      <div className='flex h-full flex-col justify-end gap-2 w-full'>
+        {data.map((chat) => (
+          <ChatOption
+            key={chat.id}
+            chat={chat}
+            chatId={chatId}
+            handleChangeChat={handleChangeChat}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  return <div className=''>{t('loading')}</div>
 }
 
 export function ChatsSideBarButton({
@@ -85,21 +171,24 @@ function ChatList({
     })[]
   ) => void
 }) {
+  const t = useTranslation()
+
   const { data, status } = useGetChats(onSuccess)
 
   if (status === 'error') {
-    return <div>Error</div>
+    return <div>{t('error.something-went-wrong')}</div>
   }
+
   if (status === 'success') {
     return (
-      <div className='flex h-full flex-col justify-end gap-2 pb-8'>
+      <div className='flex h-full flex-col justify-end gap-2'>
         {data.length > 0 && (
           <div className='flex items-center justify-center gap-2'>
-            <h2 className='mb-0 mt-0'>Recent chats</h2>
+            <h2 className='mb-0 mt-0'>{t('chat-window.chats')}</h2>
             <ListBulletIcon />
           </div>
         )}
-        {[...data].reverse().map((chat) => (
+        {data.map((chat) => (
           <ChatOption
             key={chat.id}
             chat={chat}
@@ -129,16 +218,25 @@ function ChatOption({
     }
   ) => void
 }) {
+  const router = useRouter()
+
   const { content, role } = chat.messages[0]
 
   let message = content
 
+  let fieldToIndex = 'name:'
+  if (router.locale === 'es') {
+    fieldToIndex = 'nombre:'
+  }
+
   if (role === 'assistant') {
-    const nameIdx = content.toLowerCase().indexOf('name:')
+    const nameIdx = content.toLowerCase().indexOf(fieldToIndex)
+
     if (nameIdx !== -1) {
       const endIdx = content.indexOf('\n', nameIdx)
+
       if (endIdx !== -1) {
-        message = content.slice(nameIdx + 6, endIdx)
+        message = content.slice(nameIdx + fieldToIndex.length + 1, endIdx)
       }
     }
   }
@@ -165,7 +263,7 @@ function ChatOption({
       </div>
 
       <span className='self-end text-xs text-primary'>
-        {formatTimeAgo(chat.updatedAt)}
+        {formatTimeAgo(chat.updatedAt, router.locale)}
       </span>
     </div>
   )

@@ -5,12 +5,12 @@ import ScrollToBottom, {
 } from 'react-scroll-to-bottom'
 import { Chat, Filter, Message, Message as PrismaMessage } from '@prisma/client'
 import { ChatType } from 'hooks/useChat'
-import { memo, useEffect } from 'react'
+import { Dispatch, SetStateAction, memo, useEffect, useState } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { MutationStatus, QueryStatus } from '@tanstack/react-query'
 import { Filters } from './recipe-filters'
 import { ValueProps } from './value-props'
-import { ChatsSideBarButton } from './chat-sidebar'
+import { ChatsSection, ChatsSideBarButton } from './chat-sidebar'
 import {
   ArrowSmallDownIcon,
   ArrowSmallUpIcon,
@@ -32,6 +32,8 @@ type MessageContentProps = Omit<
 >
 
 export default function ChatWindow(props: MessageContentProps) {
+  const [scrollMode, setScrollMode] = useState<'bottom' | 'top'>('top')
+
   return (
     // NoSsr prevents ScrollToBottom from creating class name on server side
     <NoSsr>
@@ -39,18 +41,24 @@ export default function ChatWindow(props: MessageContentProps) {
         followButtonClassName='hidden'
         initialScrollBehavior='auto'
         className='h-full'
+        mode={scrollMode}
       >
-        <Content {...props} />
+        <Content setScrollMode={setScrollMode} {...props} />
       </ScrollToBottom>
     </NoSsr>
   )
 }
 
-const Content = memo(function Content(props: MessageContentProps) {
+const Content = memo(function Content(
+  props: MessageContentProps & {
+    setScrollMode: Dispatch<SetStateAction<'bottom' | 'top'>>
+  }
+) {
   const {
     chatId,
     filters,
     handleFillMessage,
+    setScrollMode,
     messages,
     isChatsModalOpen,
     isSendingMessage,
@@ -98,6 +106,15 @@ const Content = memo(function Content(props: MessageContentProps) {
     (messages.length === 0 || !isMessagesSuccess) &&
     chatsFetchStatus === 'fetching'
 
+  // don't scroll to bottom when showing value props
+  useEffect(() => {
+    if (isNewChat) {
+      setScrollMode('top')
+    } else {
+      setScrollMode('bottom')
+    }
+  }, [isNewChat])
+
   useEffect(() => {
     if (isMessagesSuccess) {
       scrollToBottom({ behavior: 'auto' })
@@ -108,6 +125,8 @@ const Content = memo(function Content(props: MessageContentProps) {
     return (
       <div className='flex flex-col gap-4 pb-16 pt-16'>
         <ValueProps handleFillMessage={handleFillMessage}>
+          <ChatsSection chatId={chatId} handleChangeChat={handleChangeChat} />
+
           <Filters {...filters} />
         </ValueProps>
       </div>
@@ -335,10 +354,12 @@ const MessageList = memo(function MessageList({
           ) : (
             <div></div>
           )}
+
           <div className='flex items-center justify-center gap-2'>
             <h2 className='mb-2 mt-2'>Chat</h2>
             <ChatBubbleLeftIcon />
           </div>
+
           <button
             onClick={handleStartNewChat}
             className='btn-ghost btn-circle btn justify-self-end'
@@ -347,6 +368,7 @@ const MessageList = memo(function MessageList({
           </button>
         </div>
       </div>
+
       <div className='pb-16 bg-primary-content'>
         {data.map((m, i) => (
           <Message
@@ -359,6 +381,7 @@ const MessageList = memo(function MessageList({
             filters={filters}
           />
         ))}
+
         {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
       </div>
     </>

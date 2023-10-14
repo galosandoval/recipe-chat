@@ -1,4 +1,4 @@
-import { ChangeEventHandler, FormEvent } from 'react'
+import { ChangeEventHandler, FormEvent, useEffect, useRef } from 'react'
 import { Button } from './button'
 import { useTranslation } from 'hooks/useTranslation'
 
@@ -15,6 +15,12 @@ export function SubmitMessageForm({
 }) {
   const t = useTranslation()
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    textareaRef.current?.focus()
+  }, [])
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -27,6 +33,7 @@ export function SubmitMessageForm({
             onChange={handleInputChange}
             placeholder={t('chat-form-placeholder')}
             className='input-bordered input relative w-full resize-none pt-2'
+            ref={textareaRef}
           />
         </div>
 
