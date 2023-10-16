@@ -11,28 +11,7 @@ import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/screen'
 import { useTranslation } from 'hooks/useTranslation'
 import { useRouter } from 'next/router'
-
-const useGetChats = (
-  onSuccess: (
-    data: (Chat & {
-      messages: Message[]
-    })[]
-  ) => void
-) => {
-  const { status: authStatus, data } = useSession()
-
-  const isAuthenticated = authStatus === 'authenticated'
-
-  return api.chat.getChats.useQuery(
-    { userId: data?.user.id || '' },
-
-    {
-      onSuccess,
-      enabled: isAuthenticated,
-      keepPreviousData: true
-    }
-  )
-}
+import { Session } from 'next-auth'
 
 export function ChatsSection({
   handleChangeChat,
@@ -47,6 +26,14 @@ export function ChatsSection({
 }) {
   const t = useTranslation()
 
+  const { status: authStatus, data: session } = useSession()
+
+  const isAuthenticated = authStatus === 'authenticated'
+
+  if (!isAuthenticated) {
+    return null
+  }
+
   return (
     <div className='flex flex-col items-center justify-center w-full'>
       <div className='flex items-center gap-2'>
@@ -54,7 +41,12 @@ export function ChatsSection({
         <ChatBubbleLeftIcon />
       </div>
       <div className='flex w-full flex-col items-center gap-4'>
-        <Chats chatId={chatId} handleChangeChat={handleChangeChat} />
+        <Chats
+          isAuthenticated={isAuthenticated}
+          chatId={chatId}
+          session={session}
+          handleChangeChat={handleChangeChat}
+        />
       </div>
     </div>
   )
@@ -62,9 +54,13 @@ export function ChatsSection({
 
 function Chats({
   chatId,
+  isAuthenticated,
+  session,
   handleChangeChat
 }: {
   chatId?: string
+  isAuthenticated: boolean
+  session: Session | null
   handleChangeChat: (
     chat: Chat & {
       messages: Message[]
@@ -72,10 +68,6 @@ function Chats({
   ) => void
 }) {
   const t = useTranslation()
-
-  const { status: authStatus, data: session } = useSession()
-
-  const isAuthenticated = authStatus === 'authenticated'
 
   const { data, status } = api.chat.getChats.useQuery(
     { userId: session?.user.id || '' },
@@ -154,6 +146,31 @@ export function ChatsSideBarButton({
   )
 }
 
+const useGetChats = (
+  onSuccess: (
+    data: (Chat & {
+      messages: Message[]
+    })[]
+  ) => void
+) => {
+  const { status: authStatus, data } = useSession()
+
+  const isAuthenticated = authStatus === 'authenticated'
+
+  return {
+    ...api.chat.getChats.useQuery(
+      { userId: data?.user.id || '' },
+
+      {
+        onSuccess,
+        enabled: isAuthenticated,
+        keepPreviousData: true
+      }
+    ),
+    isAuthenticated
+  }
+}
+
 function ChatList({
   chatId,
   handleChangeChat,
@@ -173,7 +190,11 @@ function ChatList({
 }) {
   const t = useTranslation()
 
-  const { data, status } = useGetChats(onSuccess)
+  const { data, status, isAuthenticated } = useGetChats(onSuccess)
+
+  if (!isAuthenticated) {
+    return null
+  }
 
   if (status === 'error') {
     return <div>{t('error.something-went-wrong')}</div>
