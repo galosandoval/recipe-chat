@@ -30,7 +30,7 @@ export default function PublicChatView() {
 
   return (
     <>
-      <MyHead title='Listy - Chat' />
+      <MyHead title='Recipe Chat - Powered By ChatGPT' />
       <div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto'>
         <div className='flex-1 overflow-hidden'>
           <ChatWindow

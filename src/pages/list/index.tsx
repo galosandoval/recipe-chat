@@ -24,7 +24,7 @@ export const getStaticProps = (async ({ locale }) => {
 export default function ListView() {
   return (
     <>
-      <MyHead title='Listy - List' />
+      <MyHead title='Grocery List' />
       <div className='prose mx-auto w-full pt-16'>
         <ListByUserId />
       </div>

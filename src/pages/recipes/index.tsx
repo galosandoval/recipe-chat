@@ -48,7 +48,7 @@ export const getStaticProps = (async ({ locale }) => {
 export default function RecipesView() {
   return (
     <>
-      <MyHead title='Listy - Recipes' />
+      <MyHead title='Recipes' />
       <Recipes />
     </>
   )

@@ -41,7 +41,7 @@ export default function RecipeByIdView() {
 
   return (
     <>
-      <MyHead title={`Listy - ${name}`} />
+      <MyHead title={name as string} />
       <div className='pt-16'>
         <RecipeById id={id as string} />
       </div>

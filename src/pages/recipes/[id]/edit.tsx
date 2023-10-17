@@ -30,7 +30,7 @@ export default function EditByIdView() {
 
   return (
     <>
-      <MyHead title={`Listy - Edit ${name}`} />
+      <MyHead title={`Edit ${name}`} />
       <div className='pt-16 sm:flex sm:justify-center'>
         <EditById id={id as string} />
       </div>
