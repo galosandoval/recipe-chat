@@ -16,23 +16,7 @@ const nextConfig = {
     ]
   },
 
-  i18n,
-
-  redirects: async () => {
-    return [
-      {
-        source: '/',
-        destination: '/chat',
-        permanent: true,
-        has: [
-          {
-            type: 'cookie',
-            key: 'next-auth.session-token'
-          }
-        ]
-      }
-    ]
-  }
+  i18n
 }
 
 module.exports = nextConfig
