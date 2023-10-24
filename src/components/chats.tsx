@@ -209,14 +209,16 @@ function ChatList({
             <ListBulletIcon />
           </div>
         )}
-        {data.map((chat) => (
-          <ChatOption
-            key={chat.id}
-            chat={chat}
-            chatId={chatId}
-            handleChangeChat={handleChangeChat}
-          />
-        ))}
+        <div className=''>
+          {data.map((chat) => (
+            <ChatOption
+              key={chat.id}
+              chat={chat}
+              chatId={chatId}
+              handleChangeChat={handleChangeChat}
+            />
+          ))}
+        </div>
       </div>
     )
   }
@@ -264,26 +266,20 @@ function ChatOption({
 
   return (
     <div
-      className={`flex select-none flex-col px-2 py-2 hover:bg-primary-content ${
+      className={`flex flex-col px-2 py-2 hover:bg-primary-content rounded select-none ${
         chatId === chat.id ? 'bg-primary-content' : ''
       }`}
     >
-      <div
+      <p
         onClick={() => handleChangeChat(chat)}
-        className={`flex items-center gap-2 ${
+        className={`truncate mt-1 mb-1 ${
           chatId === chat.id ? 'text-primary' : ''
         }`}
       >
-        <span
-          className={`text-base-content ${
-            chatId === chat.id ? 'text-primary' : ''
-          }`}
-        >
-          {message}
-        </span>
-      </div>
+        {message}
+      </p>
 
-      <span className='self-end text-xs text-primary'>
+      <span className='ml-auto text-xs text-primary'>
         {formatTimeAgo(chat.updatedAt, router.locale)}
       </span>
     </div>

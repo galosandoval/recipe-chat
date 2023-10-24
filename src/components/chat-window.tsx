@@ -10,7 +10,7 @@ import { ScreenLoader } from './loaders/screen'
 import { MutationStatus, QueryStatus } from '@tanstack/react-query'
 import { Filters } from './recipe-filters'
 import { ValueProps } from './value-props'
-import { ChatsSection, ChatsSideBarButton } from './chat-sidebar'
+import { ChatsSection, ChatsSideBarButton } from './chats'
 import {
   ArrowSmallDownIcon,
   ArrowSmallUpIcon,
