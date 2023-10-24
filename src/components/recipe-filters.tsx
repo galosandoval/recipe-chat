@@ -18,10 +18,12 @@ import toast from 'react-hot-toast'
 import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
 import { useTranslation } from 'hooks/useTranslation'
+import { ValuePropsHeader } from './value-props'
 
 const createFilterSchema = z.object({
   name: z.string().min(3).max(50)
 })
+
 type CreateFilter = z.infer<typeof createFilterSchema>
 
 export function useFilters() {
@@ -197,12 +199,11 @@ export function Filters({
     return null
   }
 
+  const activeFilters = data?.filter((f) => f.checked)
+
   return (
     <div className='flex w-full flex-1 gap-2 flex-col items-center justify-center'>
-      <div className='flex items-center gap-2'>
-        <h2 className='mb-1 mt-2'>{t('filters.title')}</h2>
-        <FunnelIcon />
-      </div>
+      <ValuePropsHeader icon={<FunnelIcon />} label={t('filters.title')} />
 
       <List
         canDelete={canDelete}
@@ -212,6 +213,12 @@ export function Filters({
         handleRemoveFilter={handleRemoveFilter}
         handleToggleCanDelete={handleToggleCanDelete}
       />
+
+      {data?.length && (
+        <small className=''>
+          {t('filters.active')} {activeFilters?.length}
+        </small>
+      )}
 
       <form className='join' onSubmit={handleSubmit(onSubmit)}>
         <input
@@ -253,9 +260,11 @@ function List({
   }
 
   if (status === 'success' && filters) {
+    const notEmpty = filters.length > 0
+
     return (
       <>
-        {filters.length > 0 && (
+        {notEmpty && (
           <div className='flex w-full flex-wrap gap-4'>
             {filters.map((filter) => {
               const checked = filter.checked && !canDelete
@@ -285,20 +294,14 @@ function List({
               )
             })}
 
-            {filters.length > 0 && (
-              <button
-                onClick={handleToggleCanDelete}
-                className={`btn-circle badge-ghost btn ml-auto`}
-              >
-                <span>
-                  {canDelete ? (
-                    <XIcon size={5} />
-                  ) : (
-                    <PencilSquareIcon size={5} />
-                  )}
-                </span>
-              </button>
-            )}
+            <button
+              onClick={handleToggleCanDelete}
+              className={`btn-circle badge-ghost btn ml-auto`}
+            >
+              <span>
+                {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
+              </span>
+            </button>
           </div>
         )}
       </>
