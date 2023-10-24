@@ -35,7 +35,7 @@ export function ChatsSection({
   }
 
   return (
-    <div className='flex flex-col items-center justify-center w-full'>
+    <div className='max-w-sm flex flex-col items-center justify-center w-full'>
       <div className='flex items-center gap-2'>
         <h2 className='mb-2 mt-2'>{t('chat-window.chats')}</h2>
         <ChatBubbleLeftIcon />
