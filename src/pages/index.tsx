@@ -30,7 +30,6 @@ export const getServerSideProps = (async ({ locale, req, res }) => {
 
 export default function PublicChatView() {
   const {
-    // recipeFilters,
     input,
     isSendingMessage,
     isChatsModalOpen,

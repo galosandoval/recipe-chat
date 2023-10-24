@@ -214,11 +214,11 @@ export function Filters({
         handleToggleCanDelete={handleToggleCanDelete}
       />
 
-      {data?.length && (
+      {data?.length ? (
         <small className=''>
           {t('filters.active')} {activeFilters?.length}
         </small>
-      )}
+      ) : null}
 
       <form className='join' onSubmit={handleSubmit(onSubmit)}>
         <input
