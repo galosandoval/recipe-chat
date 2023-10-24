@@ -2,11 +2,23 @@ import { MyHead } from 'components/head'
 import { SubmitMessageForm } from 'components/submit-message-form'
 import ChatWindow from 'components/chat-window'
 import { useChat } from 'hooks/useChat'
-import { GetStaticProps } from 'next'
+import { GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { getServerAuthSession } from './api/auth/[...nextauth]'
 
-export const getStaticProps = (async ({ locale }) => {
+export const getServerSideProps = (async ({ locale, req, res }) => {
   const localeFiles = ['common']
+
+  const session = await getServerAuthSession({ req, res })
+
+  if (session) {
+    return {
+      redirect: {
+        destination: '/chat',
+        permanent: false
+      }
+    }
+  }
 
   return {
     props: {
@@ -14,7 +26,7 @@ export const getStaticProps = (async ({ locale }) => {
       // Will be passed to the page component as props
     }
   }
-}) satisfies GetStaticProps
+}) satisfies GetServerSideProps
 
 export default function PublicChatView() {
   const {
