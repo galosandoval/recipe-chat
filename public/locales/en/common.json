@@ -46,7 +46,8 @@
 
   "filters": {
     "title": "Filters",
-    "placeholder": "New filter"
+    "placeholder": "New filter",
+    "active": "Active filters:"
   },
 
   "chat-window": {

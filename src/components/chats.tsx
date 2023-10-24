@@ -12,6 +12,7 @@ import { ScreenLoader } from './loaders/screen'
 import { useTranslation } from 'hooks/useTranslation'
 import { useRouter } from 'next/router'
 import { Session } from 'next-auth'
+import { ValuePropsHeader } from './value-props'
 
 export function ChatsSection({
   handleChangeChat,
@@ -36,10 +37,11 @@ export function ChatsSection({
 
   return (
     <div className='max-w-sm flex flex-col items-center justify-center w-full'>
-      <div className='flex items-center gap-2'>
-        <h2 className='mb-2 mt-2'>{t('chat-window.chats')}</h2>
-        <ChatBubbleLeftIcon />
-      </div>
+      <ValuePropsHeader
+        icon={<ChatBubbleLeftIcon />}
+        label={t('chat-window.chats')}
+      />
+
       <div className='flex w-full flex-col items-center gap-4'>
         <Chats
           isAuthenticated={isAuthenticated}
