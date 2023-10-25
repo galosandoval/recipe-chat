@@ -1,8 +1,8 @@
 import { Menu, Transition } from '@headlessui/react'
 import { ThemeToggle, useTheme } from './theme-toggle'
-import { ArrowLeftOnRectangleIcon, UserPlusIcon } from './icons'
+import { ArrowLeftOnRectangleIcon } from './icons'
 import { signOut } from 'next-auth/react'
-import { LoginModal, SignUpModal, useLogin, useSignUp } from './auth-modals'
+import { LoginModal, useLogin } from './auth-modals'
 import { useTranslation } from 'hooks/useTranslation'
 
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
@@ -46,17 +46,6 @@ export function PublicDropdownMenu() {
   const { theme, updateTheme } = useTheme()
 
   const {
-    handleOpen: handleOpenSignUpModal,
-    handleClose: handleCloseSignUpModal,
-    isOpen,
-    errors: signUpErrors,
-    handleSubmit: handleSignUpSubmit,
-    isLoading: isSubmittingSignUp,
-    onSubmit: onSubmitSignUp,
-    register: registerSignUp
-  } = useSignUp()
-
-  const {
     errors: loginErrors,
     handleClose: handleCloseLoginModal,
     handleOpen: handleOpenLoginModal,
@@ -98,16 +87,6 @@ export function PublicDropdownMenu() {
             <Menu.Item>
               <button
                 className='btn-ghost btn whitespace-nowrap'
-                onClick={handleOpenSignUpModal}
-              >
-                <span>{t('nav.menu.sign-up')}</span>
-                <UserPlusIcon />
-              </button>
-            </Menu.Item>
-
-            <Menu.Item>
-              <button
-                className='btn-ghost btn whitespace-nowrap'
                 onClick={handleOpenLoginModal}
               >
                 {t('nav.menu.login')}
@@ -121,15 +100,7 @@ export function PublicDropdownMenu() {
           </Menu.Items>
         </Transition>
       </Menu>
-      <SignUpModal
-        closeModal={handleCloseSignUpModal}
-        errors={signUpErrors}
-        handleSubmit={handleSignUpSubmit}
-        isLoading={isSubmittingSignUp}
-        isOpen={isOpen}
-        onSubmit={onSubmitSignUp}
-        register={registerSignUp}
-      />
+
       <LoginModal
         closeModal={handleCloseLoginModal}
         errors={loginErrors}
