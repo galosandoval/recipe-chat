@@ -2,7 +2,6 @@ import { Menu, Transition } from '@headlessui/react'
 import { ThemeToggle, useTheme } from './theme-toggle'
 import { ArrowLeftOnRectangleIcon } from './icons'
 import { signOut } from 'next-auth/react'
-import { LoginModal, useLogin } from './auth-modals'
 import { useTranslation } from 'hooks/useTranslation'
 
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
@@ -38,10 +37,6 @@ export function DropdownMenu({ children }: { children: React.ReactNode }) {
       </Transition>
     </Menu>
   )
-}
-
-export function PublicDropdownMenu() {
-  return <></>
 }
 
 export function ProtectedDropdownMenu() {

@@ -2,7 +2,7 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { ReactNode, memo } from 'react'
-import { ProtectedDropdownMenu, PublicDropdownMenu } from './dropdown-menus'
+import { ProtectedDropdownMenu } from './dropdown-menus'
 import {
   ChatBubbleLeftRightIcon,
   ListBulletIcon,
@@ -10,7 +10,6 @@ import {
   XIcon
 } from './icons'
 import { useTranslation } from 'hooks/useTranslation'
-import { SignUpModal, useSignUp } from './auth-modals'
 import { ThemeToggle, useTheme } from './theme-toggle'
 
 export default function Layout({
