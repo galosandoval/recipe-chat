@@ -28,7 +28,7 @@ export default function ChatView() {
 
   return (
     <>
-      <MyHead title='Recipe Chat - Powered by ChatGPT' />
+      <MyHead title='RecipeChat - Powered by ChatGPT' />
       <div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto'>
         <div className='flex-1 overflow-hidden'>
           <ChatWindow isSendingMessage={isSendingMessage} {...rest} />
