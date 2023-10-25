@@ -2,6 +2,8 @@ import { MouseEvent } from 'react'
 import { Button } from './button'
 import { ArrowUTurnLeftIcon } from './icons'
 import { useTranslation } from 'hooks/useTranslation'
+import { LoginModal, SignUpModal, useLogin, useSignUp } from './auth-modals'
+import { useSession } from 'next-auth/react'
 
 export function ValueProps({
   children,
@@ -100,7 +102,96 @@ export function ValueProps({
           </div>
         </div>
       </div>
+
+      <Auth />
     </div>
+  )
+}
+
+function Auth() {
+  const session = useSession()
+  const isAuthenticated = session.status === 'authenticated'
+
+  const t = useTranslation()
+  const {
+    handleOpen: handleOpenSignUpModal,
+    handleClose: handleCloseSignUpModal,
+    isOpen,
+    errors: signUpErrors,
+    handleSubmit: handleSignUpSubmit,
+    isLoading: isSubmittingSignUp,
+    onSubmit: onSubmitSignUp,
+    register: registerSignUp
+  } = useSignUp()
+
+  const {
+    errors: loginErrors,
+    handleClose: handleCloseLoginModal,
+    handleOpen: handleOpenLoginModal,
+    handleSubmit: handleSubmitLogin,
+    isOpen: isLoginOpen,
+    isSubmitting: isLoggingIn,
+    onSubmit: onSubmitLogin,
+    register: registerLogin
+  } = useLogin()
+
+  if (isAuthenticated) {
+    return null
+  }
+
+  return (
+    <>
+      <div className='flex flex-col items-center justify-center'>
+        <ValuePropsHeader
+          icon={
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='w-6 h-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z'
+              />
+            </svg>
+          }
+          label={t('value-props.save-recipes')}
+        />
+
+        <div className='flex flex-col w-full gap-2'>
+          <button onClick={handleOpenSignUpModal} className='btn btn-primary'>
+            {t('nav.menu.sign-up')}
+          </button>
+          <button onClick={handleOpenLoginModal} className='btn btn-outline'>
+            {t('nav.menu.login')}
+          </button>
+        </div>
+      </div>
+
+      <SignUpModal
+        closeModal={handleCloseSignUpModal}
+        errors={signUpErrors}
+        handleSubmit={handleSignUpSubmit}
+        isLoading={isSubmittingSignUp}
+        isOpen={isOpen}
+        onSubmit={onSubmitSignUp}
+        register={registerSignUp}
+      />
+
+      <LoginModal
+        closeModal={handleCloseLoginModal}
+        errors={loginErrors}
+        handleSubmit={handleSubmitLogin}
+        isOpen={isLoginOpen}
+        isSubmitting={isLoggingIn}
+        onSubmit={onSubmitLogin}
+        register={registerLogin}
+      />
+    </>
   )
 }
 

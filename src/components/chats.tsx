@@ -85,7 +85,7 @@ function Chats({
 
   if (status === 'success') {
     if (data.length === 0) {
-      return <div className=''>{t('chat-window.no-chats')}</div>
+      return <p className='px-4'>{t('chat-window.no-chats')}</p>
     }
 
     return (

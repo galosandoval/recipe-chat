@@ -45,12 +45,13 @@ export function useTheme() {
 
 type ThemeToggleProps = {
   theme: Theme
+  showLabel?: boolean
   updateTheme: (theme: Theme) => void
 }
 
 // eslint-disable-next-line react/display-name
 export const ThemeToggle = forwardRef<HTMLDivElement, ThemeToggleProps>(
-  ({ theme, updateTheme }: ThemeToggleProps, ref) => {
+  ({ theme, updateTheme, showLabel }: ThemeToggleProps, ref) => {
     const t = useTranslation()
 
     const handleToggleTheme = () => {
@@ -73,7 +74,7 @@ export const ThemeToggle = forwardRef<HTMLDivElement, ThemeToggleProps>(
           onClick={handleToggleTheme}
           className='btn-ghost no-animation btn w-full'
         >
-          {t('nav.menu.theme')}
+          {showLabel ? t('nav.menu.theme') : null}
           {theme === 'night' ? <SunIcon /> : <MoonIcon />}
         </button>
       </div>

@@ -29,7 +29,8 @@
     "title": "Ejemplos",
     "first-button": "¿Que podria hacer para cenar esta noche?",
     "second-button": "¿Como se hace un risotto?",
-    "third-button": "¿Que puedo hacer con pollo?"
+    "third-button": "¿Que puedo hacer con pollo?",
+    "save-recipes": "Guarda tus recetas"
   },
 
   "capabilities": {
