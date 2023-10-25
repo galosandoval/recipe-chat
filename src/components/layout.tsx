@@ -62,38 +62,16 @@ const RootLayout = memo(function RootLayout({
 
 function PublicNavbar() {
   const t = useTranslation()
-  const {
-    handleOpen: handleOpenSignUpModal,
-    handleClose: handleCloseSignUpModal,
-    isOpen,
-    errors: signUpErrors,
-    handleSubmit: handleSignUpSubmit,
-    isLoading: isSubmittingSignUp,
-    onSubmit: onSubmitSignUp,
-    register: registerSignUp
-  } = useSignUp()
 
   return (
     <>
       <nav className='navbar prose grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
-        <button onClick={handleOpenSignUpModal} className='link link-primary'>
-          {t('nav.menu.sign-up')}
-        </button>
+        <div></div>
         <h1 className='mb-0 text-base'>{t('nav.app-name')}</h1>
         <div className='justify-self-end'>
           <PublicDropdownMenu />
         </div>
       </nav>
-
-      <SignUpModal
-        closeModal={handleCloseSignUpModal}
-        errors={signUpErrors}
-        handleSubmit={handleSignUpSubmit}
-        isLoading={isSubmittingSignUp}
-        isOpen={isOpen}
-        onSubmit={onSubmitSignUp}
-        register={registerSignUp}
-      />
     </>
   )
 }

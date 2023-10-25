@@ -32,7 +32,8 @@
     "title": "Examples",
     "first-button": "What should I make for dinner tonight?",
     "second-button": "What can I make with chicken?",
-    "third-button": "What's the best risotto recipe?"
+    "third-button": "What's the best risotto recipe?",
+    "save-recipes": "Save recipes"
   },
 
   "capabilities": {
