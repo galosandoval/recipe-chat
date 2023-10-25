@@ -11,6 +11,7 @@ import {
 } from './icons'
 import { useTranslation } from 'hooks/useTranslation'
 import { SignUpModal, useSignUp } from './auth-modals'
+import { ThemeToggle, useTheme } from './theme-toggle'
 
 export default function Layout({
   children,
@@ -62,6 +63,7 @@ const RootLayout = memo(function RootLayout({
 
 function PublicNavbar() {
   const t = useTranslation()
+  const { theme, updateTheme } = useTheme()
 
   return (
     <>
@@ -69,7 +71,7 @@ function PublicNavbar() {
         <div></div>
         <h1 className='mb-0 text-base'>{t('nav.app-name')}</h1>
         <div className='justify-self-end'>
-          <PublicDropdownMenu />
+          <ThemeToggle theme={theme} updateTheme={updateTheme} />
         </div>
       </nav>
     </>
