@@ -101,7 +101,10 @@
     "something-went-wrong": "Algo salió mal"
   },
 
-  "loading": "Cargando...",
+  "loading": { "screen": "Cargando...", "logging-in": "Iniciando sesión..." },
 
-  "toast": { "sign-up": "Registrate y guarda tus recetas " }
+  "toast": {
+    "sign-up": "Registrate y guarda tus recetas",
+    "logging-in-success": "¡Bienvenido!"
+  }
 }

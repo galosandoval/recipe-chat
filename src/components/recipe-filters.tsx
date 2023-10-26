@@ -308,5 +308,7 @@ function List({
     )
   }
 
-  return <div className='flex w-full flex-wrap gap-4'>{t('loading')}</div>
+  return (
+    <div className='flex w-full flex-wrap gap-4'>{t('loading.screen')}</div>
+  )
 }

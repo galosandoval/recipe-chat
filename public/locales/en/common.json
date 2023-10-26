@@ -104,7 +104,10 @@
     "something-went-wrong": "Something went wrong"
   },
 
-  "loading": "Loading...",
+  "loading": { "screen": "Loading...", "logging-in": "Logging in..." },
 
-  "toast": { "sign-up": "Please sign up to save recipes" }
+  "toast": {
+    "sign-up": "Please sign up to save recipes",
+    "logging-in-success": "Here is your recipe!"
+  }
 }

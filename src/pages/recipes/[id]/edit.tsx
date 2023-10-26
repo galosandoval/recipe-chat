@@ -50,7 +50,7 @@ export function EditById({ id }: { id: string }) {
     return <FoundRecipe data={data} />
   }
 
-  return <div>{t('loading')}</div>
+  return <div>{t('loading.screen')}</div>
 }
 
 function FoundRecipe({

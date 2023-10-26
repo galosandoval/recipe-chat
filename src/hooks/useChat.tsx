@@ -17,6 +17,13 @@ import { api } from 'utils/api'
 import { z } from 'zod'
 import { useTranslation } from './useTranslation'
 import { useSignUp } from 'components/auth-modals'
+import {
+  errorToastStyling,
+  infoToastOptions,
+  loadingToastStyling,
+  successToastStyling
+} from 'components/toast'
+import { CheckIcon, ExclamationCircle } from 'components/icons'
 
 export type FormValues = {
   name: string
@@ -35,11 +42,10 @@ export const useChat = () => {
     chatId: undefined
   })
   const router = useRouter()
-  const { status: authStatus, data } = useSession()
+  const { status: authStatus } = useSession()
   const filters = useFilters()
 
   const isAuthenticated = authStatus === 'authenticated'
-  const userId = data?.user.id
   const utils = api.useContext()
 
   const filtersData = filters.data
@@ -191,13 +197,6 @@ export const useChat = () => {
   )
 
   useEffect(() => {
-    if (userId) {
-      utils.chat.getChats.prefetch({ userId })
-      router.push('/chat')
-    }
-  }, [userId])
-
-  useEffect(() => {
     if (
       typeof window !== undefined &&
       typeof sessionStorage?.getItem('currentChatId') === 'string'
@@ -315,17 +314,6 @@ export const useSaveRecipe = (
   const utils = api.useContext()
 
   const {
-    errors,
-    handleClose,
-    handleOpen,
-    handleSubmit,
-    isLoading,
-    isOpen,
-    onSubmit,
-    register
-  } = useSignUp()
-
-  const {
     mutate: createRecipe,
     status,
     data
@@ -333,6 +321,7 @@ export const useSaveRecipe = (
     onSuccess: (newRecipe, { messageId }) => {
       utils.recipe.invalidate()
       const messagesCopy = [...messages]
+
       if (messageId) {
         const messageToChange = messagesCopy.find(
           (message) => message.id === messageId
@@ -351,7 +340,137 @@ export const useSaveRecipe = (
     }
   })
 
+  const { mutateAsync: createRecipePublicAsync } =
+    api.recipe.create.useMutation({
+      onSuccess: (newRecipe, { messageId }) => {
+        utils.recipe.invalidate()
+        // const messagesCopy = [...messages]
+
+        // if (messageId) {
+        //   const messageToChange = messagesCopy.find(
+        //     (message) => message.id === messageId
+        //   ) as Message
+        //   if (messageToChange) {
+        //     messageToChange.recipeId = newRecipe.id
+        //   }
+        // }
+
+        // setMessages(messagesCopy)
+
+        // toast.success(t('chat-window.save-success'))
+      },
+      onError: (error) => {
+        toast.error('Error: ' + error.message)
+      }
+    })
+
   const memoizedData = useMemo(() => data, [data])
+
+  useEffect(() => {
+    toast.promise(
+      new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 5000)),
+      {
+        loading: 'Loading...',
+        success: () => 'Completed!',
+        error: () => 'An error occurred.'
+      },
+      {
+        loading: {
+          icon: (
+            // spinner
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='w-6 h-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99'
+              />
+            </svg>
+          ),
+          style: loadingToastStyling
+        },
+
+        success: {
+          icon: <CheckIcon />,
+          style: successToastStyling
+        }
+      }
+    )
+  }, [])
+
+  const onSignUpSuccess = async () => {
+    const lastMessage = messages.at(-1)
+
+    if (!lastMessage) throw new Error('No last message')
+
+    const recipe = transformContentToRecipe({
+      content: lastMessage.content,
+      locale: router.locale
+    })
+
+    const newRecipePromise = createRecipePublicAsync({ ...recipe })
+    const newRecipe = await toast.promise(
+      newRecipePromise,
+      {
+        loading: t('loading.logging-in'),
+        success: () => t('toast.logging-in-success'),
+        error: () => t('error.some-thing-went-wrong')
+      },
+      {
+        loading: {
+          icon: (
+            // spinner
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='w-6 h-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99'
+              />
+            </svg>
+          ),
+          style: loadingToastStyling
+        },
+
+        success: {
+          icon: <CheckIcon />,
+          style: successToastStyling
+        },
+
+        error: {
+          icon: <ExclamationCircle />,
+          style: errorToastStyling
+        }
+      }
+    )
+
+    router.push(
+      `recipes/${newRecipe.id}?name=${encodeURIComponent(newRecipe.name)}`
+    )
+  }
+
+  const {
+    errors,
+    isLoading,
+    isOpen,
+    handleClose,
+    handleOpen,
+    handleSubmit,
+    onSubmit,
+    register
+  } = useSignUp(onSignUpSuccess)
 
   const handleGoToRecipe = useCallback(
     ({
@@ -377,58 +496,17 @@ export const useSaveRecipe = (
       if (!isAuthenticated) {
         handleOpen()
 
-        toast.success(t('toast.sign-up'), {
-          style: {
-            // @ts-expect-error replicates the tailwind config
-            '--tw-bg-opacity': 1,
-            backgroundColor: 'hsl(var(--in))',
-            '--tw-text-opacity': 1,
-            color: 'hsl(var(--inc)/var(--tw-text-opacity))'
-          },
-
-          icon: (
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='w-6 h-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z'
-              />
-            </svg>
-          ),
-
-          duration: 10000
-        })
+        toast(t('toast.sign-up'), infoToastOptions)
         return
       }
 
-      const {
-        name,
-        description,
-        cookTime,
-        prepTime,
-        ingredients,
-        instructions
-      } = transformContentToRecipe({ content, locale: router.locale })
+      const recipe = transformContentToRecipe({
+        content,
+        locale: router.locale
+      })
 
       createRecipe({
-        name,
-        description,
-        prepTime,
-        cookTime,
-        instructions: removeLeadingHyphens(instructions)
-          .split('\n')
-          .filter(Boolean),
-        ingredients: ingredients
-          .split('\n')
-          .map((s) => removeLeadingHyphens(s))
-          .filter(Boolean),
+        ...recipe,
         messageId
       })
     },
@@ -541,7 +619,19 @@ function transformContentToRecipe({
     )
   }
 
-  return { name, description, prepTime, cookTime, instructions, ingredients }
+  return {
+    name,
+    description,
+    prepTime,
+    cookTime,
+    instructions: removeLeadingHyphens(instructions)
+      .split('\n')
+      .filter(Boolean),
+    ingredients: ingredients
+      .split('\n')
+      .map((s) => removeLeadingHyphens(s))
+      .filter(Boolean)
+  }
 }
 
 function getTranslatedFields({ locale }: { locale?: string }) {
