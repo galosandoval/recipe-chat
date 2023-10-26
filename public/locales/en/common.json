@@ -108,6 +108,6 @@
 
   "toast": {
     "sign-up": "Please sign up to save recipes",
-    "logging-in-success": "Here is your recipe!"
+    "logging-in-success": "Welcome!"
   }
 }

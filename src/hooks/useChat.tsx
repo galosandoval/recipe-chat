@@ -18,12 +18,11 @@ import { z } from 'zod'
 import { useTranslation } from './useTranslation'
 import { useSignUp } from 'components/auth-modals'
 import {
-  errorToastStyling,
+  errorToastOptions,
   infoToastOptions,
-  loadingToastStyling,
-  successToastStyling
+  loadingToastOptions,
+  successToastOptions
 } from 'components/toast'
-import { CheckIcon, ExclamationCircle } from 'components/icons'
 
 export type FormValues = {
   name: string
@@ -340,69 +339,13 @@ export const useSaveRecipe = (
     }
   })
 
-  const { mutateAsync: createRecipePublicAsync } =
-    api.recipe.create.useMutation({
-      onSuccess: (newRecipe, { messageId }) => {
-        utils.recipe.invalidate()
-        // const messagesCopy = [...messages]
-
-        // if (messageId) {
-        //   const messageToChange = messagesCopy.find(
-        //     (message) => message.id === messageId
-        //   ) as Message
-        //   if (messageToChange) {
-        //     messageToChange.recipeId = newRecipe.id
-        //   }
-        // }
-
-        // setMessages(messagesCopy)
-
-        // toast.success(t('chat-window.save-success'))
-      },
-      onError: (error) => {
-        toast.error('Error: ' + error.message)
-      }
-    })
+  const { mutateAsync: createRecipeAsync } = api.recipe.create.useMutation({
+    onError: (error) => {
+      toast.error('Error: ' + error.message)
+    }
+  })
 
   const memoizedData = useMemo(() => data, [data])
-
-  useEffect(() => {
-    toast.promise(
-      new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 5000)),
-      {
-        loading: 'Loading...',
-        success: () => 'Completed!',
-        error: () => 'An error occurred.'
-      },
-      {
-        loading: {
-          icon: (
-            // spinner
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='w-6 h-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99'
-              />
-            </svg>
-          ),
-          style: loadingToastStyling
-        },
-
-        success: {
-          icon: <CheckIcon />,
-          style: successToastStyling
-        }
-      }
-    )
-  }, [])
 
   const onSignUpSuccess = async () => {
     const lastMessage = messages.at(-1)
@@ -414,7 +357,7 @@ export const useSaveRecipe = (
       locale: router.locale
     })
 
-    const newRecipePromise = createRecipePublicAsync({ ...recipe })
+    const newRecipePromise = createRecipeAsync({ ...recipe })
     const newRecipe = await toast.promise(
       newRecipePromise,
       {
@@ -423,36 +366,9 @@ export const useSaveRecipe = (
         error: () => t('error.some-thing-went-wrong')
       },
       {
-        loading: {
-          icon: (
-            // spinner
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='w-6 h-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99'
-              />
-            </svg>
-          ),
-          style: loadingToastStyling
-        },
-
-        success: {
-          icon: <CheckIcon />,
-          style: successToastStyling
-        },
-
-        error: {
-          icon: <ExclamationCircle />,
-          style: errorToastStyling
-        }
+        loading: loadingToastOptions,
+        success: { ...successToastOptions, duration: 3000 },
+        error: errorToastOptions
       }
     )
 

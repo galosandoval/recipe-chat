@@ -5,21 +5,9 @@ export function Toast() {
   return (
     <Toaster
       toastOptions={{
-        success: {
-          icon: <CheckIcon />,
-          style: successToastStyling
-        },
+        success: successToastOptions,
 
-        error: {
-          icon: <ExclamationCircle />,
-          style: {
-            // @ts-expect-error replicates the tailwind config
-            '--tw-bg-opacity': 1,
-            backgroundColor: 'hsl(var(--er) / var(--tw-bg-opacity))',
-            '--tw-text-opacity': 1,
-            color: 'hsl(var(--erc, var(--nc)) / var(--tw-text-opacity))'
-          }
-        }
+        error: errorToastOptions
       }}
     />
   )
@@ -40,9 +28,9 @@ export const successToastStyling: ToastOptions['style'] = {
 export const loadingToastStyling: ToastOptions['style'] = {
   // @ts-expect-error replicates the tailwind config
   '--tw-bg-opacity': 1,
-  backgroundColor: 'hsl(var(--pc) / var(--tw-bg-opacity))',
+  backgroundColor: 'hsl(var(--in))',
   '--tw-text-opacity': 1,
-  color: 'hsl(var(--bc) / var(--tw-text-opacity, 1))',
+  color: 'hsl(var(--inc) / var(--tw-text-opacity))',
   transitionDuration: '150ms',
   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
   transitionProperty:
@@ -61,14 +49,40 @@ export const errorToastStyling: ToastOptions['style'] = {
     'color, background-color, border-color, text-decoration-color, fill, stroke'
 }
 
-export const infoToastOptions = {
+export const loadingToastOptions: ToastOptions = {
+  icon: (
+    // spinner
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      fill='none'
+      viewBox='0 0 24 24'
+      strokeWidth={1.5}
+      stroke='currentColor'
+      className='w-6 h-6 animate-spin'
+    >
+      <path
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        d='M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99'
+      />
+    </svg>
+  ),
+  style: loadingToastStyling
+}
+
+export const successToastOptions: ToastOptions = {
+  icon: <CheckIcon />,
+  style: successToastStyling
+}
+
+export const errorToastOptions: ToastOptions = {
+  icon: <ExclamationCircle />,
+  style: errorToastStyling
+}
+
+export const infoToastOptions: ToastOptions = {
   duration: 6000,
-  style: {
-    '--tw-bg-opacity': 1,
-    backgroundColor: 'hsl(var(--in))',
-    '--tw-text-opacity': 1,
-    color: 'hsl(var(--inc) / var(--tw-text-opacity))'
-  },
+  style: loadingToastStyling,
   icon: (
     // i icon
     <svg
