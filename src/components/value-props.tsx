@@ -141,7 +141,7 @@ function Auth() {
 
   return (
     <>
-      <div className='flex flex-col items-center justify-center'>
+      <div className='flex flex-col items-center justify-center w-full'>
         <ValuePropsHeader
           icon={
             <svg

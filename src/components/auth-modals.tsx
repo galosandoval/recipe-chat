@@ -35,7 +35,9 @@ export const signUpSchema = z
 
 type SignUpSchemaType = z.infer<typeof signUpSchema>
 
-export function useSignUp() {
+export function useSignUp(
+  successCallback?: (data: { email: string; password: string }) => void
+) {
   const t = useTranslation()
 
   const {
@@ -59,7 +61,9 @@ export function useSignUp() {
         redirect: false
       })
 
-      if (response?.ok) {
+      if (successCallback) {
+        successCallback({ email, password })
+      } else if (response?.ok) {
         router.push('/chat')
 
         toast.success(t('auth.sign-up-success'))

@@ -17,6 +17,12 @@ import { api } from 'utils/api'
 import { z } from 'zod'
 import { useTranslation } from './useTranslation'
 import { useSignUp } from 'components/auth-modals'
+import {
+  errorToastOptions,
+  infoToastOptions,
+  loadingToastOptions,
+  successToastOptions
+} from 'components/toast'
 
 export type FormValues = {
   name: string
@@ -35,11 +41,10 @@ export const useChat = () => {
     chatId: undefined
   })
   const router = useRouter()
-  const { status: authStatus, data } = useSession()
+  const { status: authStatus } = useSession()
   const filters = useFilters()
 
   const isAuthenticated = authStatus === 'authenticated'
-  const userId = data?.user.id
   const utils = api.useContext()
 
   const filtersData = filters.data
@@ -191,13 +196,6 @@ export const useChat = () => {
   )
 
   useEffect(() => {
-    if (userId) {
-      utils.chat.getChats.prefetch({ userId })
-      router.push('/chat')
-    }
-  }, [userId])
-
-  useEffect(() => {
     if (
       typeof window !== undefined &&
       typeof sessionStorage?.getItem('currentChatId') === 'string'
@@ -315,17 +313,6 @@ export const useSaveRecipe = (
   const utils = api.useContext()
 
   const {
-    errors,
-    handleClose,
-    handleOpen,
-    handleSubmit,
-    isLoading,
-    isOpen,
-    onSubmit,
-    register
-  } = useSignUp()
-
-  const {
     mutate: createRecipe,
     status,
     data
@@ -333,6 +320,7 @@ export const useSaveRecipe = (
     onSuccess: (newRecipe, { messageId }) => {
       utils.recipe.invalidate()
       const messagesCopy = [...messages]
+
       if (messageId) {
         const messageToChange = messagesCopy.find(
           (message) => message.id === messageId
@@ -351,7 +339,54 @@ export const useSaveRecipe = (
     }
   })
 
+  const { mutateAsync: createRecipeAsync } = api.recipe.create.useMutation({
+    onError: (error) => {
+      toast.error('Error: ' + error.message)
+    }
+  })
+
   const memoizedData = useMemo(() => data, [data])
+
+  const onSignUpSuccess = async () => {
+    const lastMessage = messages.at(-1)
+
+    if (!lastMessage) throw new Error('No last message')
+
+    const recipe = transformContentToRecipe({
+      content: lastMessage.content,
+      locale: router.locale
+    })
+
+    const newRecipePromise = createRecipeAsync({ ...recipe })
+    const newRecipe = await toast.promise(
+      newRecipePromise,
+      {
+        loading: t('loading.logging-in'),
+        success: () => t('toast.logging-in-success'),
+        error: () => t('error.some-thing-went-wrong')
+      },
+      {
+        loading: loadingToastOptions,
+        success: { ...successToastOptions, duration: 3000 },
+        error: errorToastOptions
+      }
+    )
+
+    router.push(
+      `recipes/${newRecipe.id}?name=${encodeURIComponent(newRecipe.name)}`
+    )
+  }
+
+  const {
+    errors,
+    isLoading,
+    isOpen,
+    handleClose,
+    handleOpen,
+    handleSubmit,
+    onSubmit,
+    register
+  } = useSignUp(onSignUpSuccess)
 
   const handleGoToRecipe = useCallback(
     ({
@@ -377,58 +412,17 @@ export const useSaveRecipe = (
       if (!isAuthenticated) {
         handleOpen()
 
-        toast.success(t('toast.sign-up'), {
-          style: {
-            // @ts-expect-error replicates the tailwind config
-            '--tw-bg-opacity': 1,
-            backgroundColor: 'hsl(var(--in))',
-            '--tw-text-opacity': 1,
-            color: 'hsl(var(--inc)/var(--tw-text-opacity))'
-          },
-
-          icon: (
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='w-6 h-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z'
-              />
-            </svg>
-          ),
-
-          duration: 10000
-        })
+        toast(t('toast.sign-up'), infoToastOptions)
         return
       }
 
-      const {
-        name,
-        description,
-        cookTime,
-        prepTime,
-        ingredients,
-        instructions
-      } = transformContentToRecipe({ content, locale: router.locale })
+      const recipe = transformContentToRecipe({
+        content,
+        locale: router.locale
+      })
 
       createRecipe({
-        name,
-        description,
-        prepTime,
-        cookTime,
-        instructions: removeLeadingHyphens(instructions)
-          .split('\n')
-          .filter(Boolean),
-        ingredients: ingredients
-          .split('\n')
-          .map((s) => removeLeadingHyphens(s))
-          .filter(Boolean),
+        ...recipe,
         messageId
       })
     },
@@ -541,7 +535,19 @@ function transformContentToRecipe({
     )
   }
 
-  return { name, description, prepTime, cookTime, instructions, ingredients }
+  return {
+    name,
+    description,
+    prepTime,
+    cookTime,
+    instructions: removeLeadingHyphens(instructions)
+      .split('\n')
+      .filter(Boolean),
+    ingredients: ingredients
+      .split('\n')
+      .map((s) => removeLeadingHyphens(s))
+      .filter(Boolean)
+  }
 }
 
 function getTranslatedFields({ locale }: { locale?: string }) {

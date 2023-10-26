@@ -102,7 +102,7 @@ function Chats({
     )
   }
 
-  return <div className=''>{t('loading')}</div>
+  return <div className=''>{t('loading.screen')}</div>
 }
 
 export function ChatsSideBarButton({
