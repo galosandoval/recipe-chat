@@ -101,5 +101,7 @@
     "something-went-wrong": "Algo salió mal"
   },
 
-  "loading": "Cargando..."
+  "loading": "Cargando...",
+
+  "toast": { "sign-up": "Registrate y guarda tus recetas " }
 }
