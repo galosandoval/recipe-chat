@@ -60,6 +60,7 @@ enum Role {
   system
   user
   assistant
+  function
 }
 
 model Recipe {

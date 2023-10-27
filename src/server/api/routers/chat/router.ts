@@ -4,7 +4,7 @@ import { z } from 'zod'
 const messagesSchema = z.array(
   z.object({
     content: z.string().min(1),
-    role: z.enum(['system', 'user', 'assistant']),
+    role: z.enum(['system', 'user', 'assistant', 'function']),
     id: z.string().optional()
   })
 )
@@ -82,31 +82,6 @@ export const chatRouter = createTRPCRouter({
         }
       })
     }),
-
-  // createPublic: publicProcedure
-  //   .input(
-  //     z.object({
-  //       messages: z.array(
-  //         z.object({
-  //           name: z.string().min(3).max(50),
-  //           userId: z.string(),
-  //           role: z.enum(['system', 'user', 'assistant']),
-  //           content: z.string().min(1).max(255)
-  //         })
-  //       ),
-  //       userId: z.string()
-  //     })
-  //   )
-  //   .mutation(async ({ ctx, input }) => {
-  //     return ctx.prisma.chat.create({
-  //       data: {
-  //         userId: input.userId,
-  //         messages: {
-  //           createMany: { data: input.messages }
-  //         }
-  //       }
-  //     })
-  //   }),
 
   addMessages: protectedProcedure
     .input(
