@@ -156,7 +156,7 @@ export const useChat = () => {
       }
     })
 
-  const { mutateAsync: createRecipeAsync } =
+  const { mutateAsync: createChatAndRecipeAsync } =
     api.user.createChatAndRecipe.useMutation({
       onError: (error) => {
         toast.error('Error: ' + error.message)
@@ -232,6 +232,7 @@ export const useChat = () => {
   } = useSignUp(onSignUpSuccess)
 
   async function onSignUpSuccess() {
+    // TODO - this is a hack to get the selected recipe to save
     const lastMessage = messages.at(-1)
 
     if (!lastMessage) throw new Error('No last message')
@@ -241,11 +242,11 @@ export const useChat = () => {
       locale: router.locale
     })
 
-    const newRecipePromise = createRecipeAsync({
+    const newRecipePromise = createChatAndRecipeAsync({
       recipe,
       messages
     })
-    const newRecipe = await toast.promise(
+    const user = await toast.promise(
       newRecipePromise,
       {
         loading: t('loading.logging-in'),
@@ -260,8 +261,8 @@ export const useChat = () => {
     )
 
     router.push(
-      `recipes/${newRecipe.id}?name=${encodeURIComponent(
-        newRecipe.recipes[0].name
+      `recipes/${user.recipes[0].id}?name=${encodeURIComponent(
+        user.recipes[0].name
       )}`
     )
   }
