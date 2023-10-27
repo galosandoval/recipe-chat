@@ -75,7 +75,7 @@ export const userRouter = createTRPCRouter({
       const { recipe, messages } = input
       const userId = ctx.session.user.id
 
-      const recipeId = createId()
+      const messageId = createId()
       const chatId = createId()
 
       const { ingredients, instructions, ...rest } = recipe
@@ -93,7 +93,7 @@ export const userRouter = createTRPCRouter({
                       return {
                         content: message.content,
                         role: message.role,
-                        recipeId
+                        id: messageId
                       }
                     }
 
@@ -105,7 +105,6 @@ export const userRouter = createTRPCRouter({
           },
           recipes: {
             create: {
-              id: recipeId,
               ingredients: {
                 create: ingredients.map((ingredient) => ({
                   name: ingredient
@@ -116,7 +115,8 @@ export const userRouter = createTRPCRouter({
                   description: instruction
                 }))
               },
-              ...rest
+              ...rest,
+              message: { connect: { id: messageId } }
             }
           }
         },
