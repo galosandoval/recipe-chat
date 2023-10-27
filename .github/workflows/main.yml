@@ -1,20 +1,9 @@
 name: Deploy
+
 on:
   push:
     branches:
       - main
-
-uses: actions/cache@v3
-with:
-  # See here for caching with `yarn` https://github.com/actions/cache/blob/main/examples.md#node---yarn or you can leverage caching with actions/setup-node https://github.com/actions/setup-node
-  path: |
-    ~/.npm
-    ${{ github.workspace }}/.next/cache
-  # Generate a new cache whenever packages or source files change.
-  key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
-  # If source files changed but packages didn't, rebuild from a prior cache.
-  restore-keys: |
-    ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
 
 jobs:
   deploy:
@@ -22,14 +11,26 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          # Generate a new cache whenever packages or source files change.
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          # If source files changed but packages didn't, rebuild from a prior cache.
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
       - name: Setup Node
         uses: actions/setup-node@v3
+
       - name: Install dependencies
         run: npm install
+
       - run: npm run build
+
       - name: Apply all pending migrations to the database
         run: npx prisma migrate deploy
         env:
           DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING }}
           DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL }}
-          
