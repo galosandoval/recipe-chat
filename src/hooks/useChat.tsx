@@ -3,15 +3,7 @@ import { useChat as useAiChat, Message as AiMessage } from 'ai/react'
 import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import {
-  FormEvent,
-  MouseEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useState
-} from 'react'
+import { FormEvent, MouseEvent, useCallback, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
 import { z } from 'zod'
@@ -37,9 +29,10 @@ export type FormValues = {
 export type ChatType = ReturnType<typeof useChat>
 
 export const useChat = () => {
-  const [state, dispatch] = useChatReducer({
-    chatId: undefined
-  })
+  const t = useTranslation()
+
+  const [sessionChatId, changeSessionChatId] = useSessionChatId()
+
   const router = useRouter()
   const { status: authStatus } = useSession()
   const filters = useFilters()
@@ -85,13 +78,14 @@ export const useChat = () => {
       }))
 
       setMessages(messages)
-      utils.chat.getMessagesById.invalidate({ chatId: state.chatId })
+      utils.chat.getMessagesById.invalidate({ chatId: sessionChatId })
     }
   })
 
-  const { mutate: create } = api.chat.create.useMutation({
+  const { mutate: createChat } = api.chat.create.useMutation({
     onSuccess(data) {
-      dispatch({ type: 'chatIdChanged', payload: data.id })
+      changeSessionChatId(data.id)
+
       const messages = data.messages.map((m) => ({
         content: m.content,
         id: m.id,
@@ -106,13 +100,13 @@ export const useChat = () => {
 
   function onFinishMessage(message: AiMessage) {
     if (isAuthenticated) {
-      if (!!state.chatId) {
+      if (!!sessionChatId) {
         addMessages({
           messages: [{ content: input, role: 'user' }, message as Message],
-          chatId: state.chatId
+          chatId: sessionChatId
         })
       } else {
-        create({
+        createChat({
           messages: [{ content: input, role: 'user' }, message as Message]
         })
       }
@@ -121,10 +115,10 @@ export const useChat = () => {
 
   const [shouldFetchChat, setShouldFetchChat] = useState(true)
 
-  const enabled = isAuthenticated && !!state.chatId && shouldFetchChat
+  const enabled = isAuthenticated && !!sessionChatId && shouldFetchChat
 
   const { status, fetchStatus } = api.chat.getMessagesById.useQuery(
-    { chatId: state.chatId || '' },
+    { chatId: sessionChatId || '' },
     {
       enabled,
       onSuccess: (data) => {
@@ -138,6 +132,37 @@ export const useChat = () => {
 
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
+  const { mutate: createRecipe, status: createRecipeStatus } =
+    api.recipe.create.useMutation({
+      onSuccess: (newRecipe, { messageId }) => {
+        utils.recipe.invalidate()
+        const messagesCopy = [...messages]
+
+        if (messageId) {
+          const messageToChange = messagesCopy.find(
+            (message) => message.id === messageId
+          ) as Message
+          if (messageToChange) {
+            messageToChange.recipeId = newRecipe.id
+          }
+        }
+
+        setMessages(messagesCopy)
+
+        toast.success(t('chat-window.save-success'))
+      },
+      onError: (error) => {
+        toast.error('Error: ' + error.message)
+      }
+    })
+
+  const { mutateAsync: createRecipeAsync } =
+    api.user.createChatAndRecipe.useMutation({
+      onError: (error) => {
+        toast.error('Error: ' + error.message)
+      }
+    })
+
   const handleGetChatsOnSuccess = useCallback(
     (
       data: (Chat & {
@@ -148,7 +173,7 @@ export const useChat = () => {
         typeof sessionStorage.getItem('currentChatId') !== 'string' &&
         data[0]?.id
       ) {
-        dispatch({ type: 'chatIdChanged', payload: data[0].id })
+        changeSessionChatId(data[0].id)
       }
     },
     []
@@ -160,7 +185,7 @@ export const useChat = () => {
         messages: Message[]
       }
     ) => {
-      dispatch({ type: 'chatIdChanged', payload: chat.id })
+      changeSessionChatId(chat.id)
       setShouldFetchChat(true)
       setIsChatsModalOpen(false)
     },
@@ -174,7 +199,7 @@ export const useChat = () => {
   const handleStartNewChat = useCallback(() => {
     stop()
     setMessages([])
-    dispatch({ type: 'chatIdChanged', payload: '' })
+    changeSessionChatId('')
   }, [])
 
   const handleToggleChatsModal = useCallback(() => {
@@ -195,159 +220,18 @@ export const useChat = () => {
     [isSendingMessage, stop, submitMessages]
   )
 
-  useEffect(() => {
-    if (
-      typeof window !== undefined &&
-      typeof sessionStorage?.getItem('currentChatId') === 'string'
-    ) {
-      const currentChatId = sessionStorage.getItem('currentChatId')
-
-      dispatch({
-        type: 'chatIdChanged',
-        payload:
-          currentChatId !== undefined
-            ? JSON.parse(currentChatId as string)
-            : undefined
-      })
-    }
-  }, [])
-
   const {
-    handleGoToRecipe,
-    handleSaveRecipe,
-    status: saveRecipeStatus,
-    errors: registerErrors,
-    handleClose,
-    handleSubmit: handleSubmitRegister,
-    isLoading,
-    isOpen,
-    onSubmit,
-    register
-  } = useSaveRecipe(messages, setMessages)
+    errors: signUpErrors,
+    isLoading: isSigningUp,
+    isOpen: isSignUpModalOpen,
+    handleClose: handleCloseSignUpModal,
+    handleOpen: handleOpenSignUpModal,
+    handleSubmit: handleSubmitCreds,
+    onSubmit: onSubmitCreds,
+    register: registerCreds
+  } = useSignUp(onSignUpSuccess)
 
-  return {
-    filters,
-    chatId: state.chatId,
-    fetchStatus,
-    status,
-    isChatsModalOpen,
-    input,
-    messages,
-    isSendingMessage,
-    isAuthenticated,
-    saveRecipeStatus,
-    registerErrors,
-    isOpen,
-    isLoading,
-
-    handleGoToRecipe,
-    handleSaveRecipe,
-    handleClose,
-    handleSubmitRegister,
-    onSubmit,
-    register,
-    handleGetChatsOnSuccess,
-    handleInputChange: useCallback(handleInputChange, []),
-    handleToggleChatsModal,
-    handleChangeChat,
-    handleStartNewChat,
-    handleFillMessage,
-    handleSubmit
-  }
-}
-
-type ChatState = {
-  chatId?: string
-}
-
-function useChatReducer(initialState: ChatState) {
-  const [state, dispatch] = useReducer(
-    (state: ChatState, action: ChatAction) => {
-      const { type, payload } = action
-      switch (type) {
-        case 'chatIdChanged':
-          sessionStorage.setItem('currentChatId', JSON.stringify(payload))
-
-          return {
-            ...state,
-            chatId: payload
-          }
-
-        default:
-          return state
-      }
-    },
-    initialState
-  )
-
-  return [state, dispatch] as const
-}
-
-type ChatAction =
-  | {
-      type: 'chatIdChanged'
-      payload: string | undefined
-    }
-  | {
-      type: 'reset'
-      payload: undefined
-    }
-
-export const errorMessage = 'Please try rephrasing your question.'
-
-const sendMessageFormSchema = z.object({ message: z.string().min(6) })
-export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
-
-export type SaveRecipe = ReturnType<typeof useSaveRecipe>
-
-export const useSaveRecipe = (
-  messages: AiMessage[],
-  setMessages: (messages: AiMessage[]) => void
-) => {
-  const t = useTranslation()
-  const { status: authStatus } = useSession()
-  const isAuthenticated = authStatus === 'authenticated'
-
-  const router = useRouter()
-
-  const utils = api.useContext()
-
-  const {
-    mutate: createRecipe,
-    status,
-    data
-  } = api.recipe.create.useMutation({
-    onSuccess: (newRecipe, { messageId }) => {
-      utils.recipe.invalidate()
-      const messagesCopy = [...messages]
-
-      if (messageId) {
-        const messageToChange = messagesCopy.find(
-          (message) => message.id === messageId
-        ) as Message
-        if (messageToChange) {
-          messageToChange.recipeId = newRecipe.id
-        }
-      }
-
-      setMessages(messagesCopy)
-
-      toast.success(t('chat-window.save-success'))
-    },
-    onError: (error) => {
-      toast.error('Error: ' + error.message)
-    }
-  })
-
-  const { mutateAsync: createRecipeAsync } = api.recipe.create.useMutation({
-    onError: (error) => {
-      toast.error('Error: ' + error.message)
-    }
-  })
-
-  const memoizedData = useMemo(() => data, [data])
-
-  const onSignUpSuccess = async () => {
+  async function onSignUpSuccess() {
     const lastMessage = messages.at(-1)
 
     if (!lastMessage) throw new Error('No last message')
@@ -357,7 +241,10 @@ export const useSaveRecipe = (
       locale: router.locale
     })
 
-    const newRecipePromise = createRecipeAsync({ ...recipe })
+    const newRecipePromise = createRecipeAsync({
+      recipe,
+      messages
+    })
     const newRecipe = await toast.promise(
       newRecipePromise,
       {
@@ -373,20 +260,11 @@ export const useSaveRecipe = (
     )
 
     router.push(
-      `recipes/${newRecipe.id}?name=${encodeURIComponent(newRecipe.name)}`
+      `recipes/${newRecipe.id}?name=${encodeURIComponent(
+        newRecipe.recipes[0].name
+      )}`
     )
   }
-
-  const {
-    errors,
-    isLoading,
-    isOpen,
-    handleClose,
-    handleOpen,
-    handleSubmit,
-    onSubmit,
-    register
-  } = useSignUp(onSignUpSuccess)
 
   const handleGoToRecipe = useCallback(
     ({
@@ -410,7 +288,7 @@ export const useSaveRecipe = (
       if (!content) return
 
       if (!isAuthenticated) {
-        handleOpen()
+        handleOpenSignUpModal()
 
         toast(t('toast.sign-up'), infoToastOptions)
         return
@@ -430,19 +308,66 @@ export const useSaveRecipe = (
   )
 
   return {
+    filters,
+    chatId: sessionChatId,
+    fetchStatus,
     status,
-    data: memoizedData,
-    errors,
-    handleClose,
-    handleSubmit,
-    isLoading,
-    isOpen,
-    onSubmit,
-    register,
+    isChatsModalOpen,
+    input,
+    messages,
+    isSendingMessage,
+    isAuthenticated,
+    createRecipeStatus,
+    signUpErrors,
+    isSignUpModalOpen,
+    isSigningUp,
+
+    handleGoToRecipe,
     handleSaveRecipe,
-    handleGoToRecipe
+    handleCloseSignUpModal,
+    handleSubmitCreds,
+    onSubmitCreds,
+    registerCreds,
+    handleGetChatsOnSuccess,
+    handleInputChange: useCallback(handleInputChange, []),
+    handleToggleChatsModal,
+    handleChangeChat,
+    handleStartNewChat,
+    handleFillMessage,
+    handleSubmit
   }
 }
+
+function useSessionChatId() {
+  const [chatId, setChatId] = useState<string | undefined>(undefined)
+
+  const changeChatId = (chatId: string | undefined) => {
+    sessionStorage.setItem('currentChatId', JSON.stringify(chatId))
+    setChatId(chatId)
+  }
+
+  useEffect(() => {
+    if (
+      typeof window !== undefined &&
+      typeof sessionStorage?.getItem('currentChatId') === 'string'
+    ) {
+      const currentChatId = sessionStorage.getItem('currentChatId')
+
+      setChatId(
+        currentChatId !== undefined
+          ? JSON.parse(currentChatId as string)
+          : undefined
+      )
+    }
+  }, [])
+
+  return [chatId, changeChatId] as const
+}
+
+export const errorMessage = 'Please try rephrasing your question.'
+
+const sendMessageFormSchema = z.object({ message: z.string().min(6) })
+export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
 function transformContentToRecipe({
   content,

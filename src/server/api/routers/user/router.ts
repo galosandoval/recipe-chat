@@ -1,3 +1,4 @@
+import { createId } from '@paralleldrive/cuid2'
 import { TRPCError } from '@trpc/server'
 import { hash } from 'bcryptjs'
 import {
@@ -47,5 +48,83 @@ export const userRouter = createTRPCRouter({
           list: { create: {} }
         }
       })
+    }),
+
+  createChatAndRecipe: protectedProcedure
+    .input(
+      z.object({
+        recipe: z.object({
+          description: z.string().optional(),
+          name: z.string(),
+          imgUrl: z.string().optional(),
+          author: z.string().optional(),
+          ingredients: z.array(z.string()),
+          instructions: z.array(z.string()),
+          prepTime: z.string().optional(),
+          cookTime: z.string().optional()
+        }),
+        messages: z
+          .object({
+            content: z.string().min(1),
+            role: z.enum(['system', 'user', 'assistant', 'function'])
+          })
+          .array()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { recipe, messages } = input
+      const userId = ctx.session.user.id
+
+      const recipeId = createId()
+      const chatId = createId()
+
+      const { ingredients, instructions, ...rest } = recipe
+
+      const onboardedUser = await ctx.prisma.user.update({
+        where: { id: userId },
+        data: {
+          chats: {
+            create: {
+              id: chatId,
+              messages: {
+                createMany: {
+                  data: messages.map((message, i, array) => {
+                    if (i === array.length - 1) {
+                      return {
+                        content: message.content,
+                        role: message.role,
+                        recipeId
+                      }
+                    }
+
+                    return { content: message.content, role: message.role }
+                  })
+                }
+              }
+            }
+          },
+          recipes: {
+            create: {
+              id: recipeId,
+              ingredients: {
+                create: ingredients.map((ingredient) => ({
+                  name: ingredient
+                }))
+              },
+              instructions: {
+                create: instructions.map((instruction) => ({
+                  description: instruction
+                }))
+              },
+              ...rest
+            }
+          }
+        },
+        include: {
+          recipes: true
+        }
+      })
+
+      return onboardedUser
     })
 })

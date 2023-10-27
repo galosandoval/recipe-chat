@@ -68,14 +68,14 @@ const Content = memo(function Content(
     handleGoToRecipe,
     handleSaveRecipe,
     handleChangeChat,
-    saveRecipeStatus,
-    handleClose,
-    handleSubmitRegister,
-    isLoading,
-    isOpen,
-    onSubmit,
-    register,
-    registerErrors,
+    createRecipeStatus,
+    handleCloseSignUpModal,
+    handleSubmitCreds,
+    isSigningUp,
+    isSignUpModalOpen,
+    onSubmitCreds,
+    registerCreds,
+    signUpErrors,
     fetchStatus: chatsFetchStatus,
     status: chatsQueryStatus,
     handleGetChatsOnSuccess
@@ -140,7 +140,7 @@ const Content = memo(function Content(
     <>
       <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
         <ChatWindowContent
-          saveRecipeStatus={saveRecipeStatus}
+          saveRecipeStatus={createRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
           handleSaveRecipe={handleSaveRecipe}
           messages={messages as []}
@@ -192,13 +192,13 @@ const Content = memo(function Content(
       </div>
 
       <SignUpModal
-        closeModal={handleClose}
-        errors={registerErrors}
-        handleSubmit={handleSubmitRegister}
-        isLoading={isLoading}
-        isOpen={isOpen}
-        onSubmit={onSubmit}
-        register={register}
+        closeModal={handleCloseSignUpModal}
+        errors={signUpErrors}
+        handleSubmit={handleSubmitCreds}
+        isLoading={isSigningUp}
+        isOpen={isSignUpModalOpen}
+        onSubmit={onSubmitCreds}
+        register={registerCreds}
       />
     </>
   )
