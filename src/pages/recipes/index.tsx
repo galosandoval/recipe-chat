@@ -2,6 +2,7 @@ import { Recipe } from '@prisma/client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
+import { ErrorMessage } from '@hookform/error-message'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useDebounce, { useCreateRecipe, useParseRecipe } from 'hooks/useRecipe'
@@ -32,8 +33,6 @@ import { RecentRecipes } from 'components/recipe-list-recent'
 import { GetStaticProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'hooks/useTranslation'
-import { TFunction } from 'i18next'
-import { ErrorMessage } from 'components/error-message-content'
 
 export const getStaticProps = (async ({ locale }) => {
   const localeFiles = ['common']
@@ -367,12 +366,11 @@ function CreateRecipeButton() {
   )
 }
 
-const recipeUrlSchema = (t: TFunction) =>
-  z.object({
-    url: z.string().url(t('recipes.enter-url'))
-  })
+const recipeUrlSchema = z.object({
+  url: z.string().url('Enter a valid url that contains a recipe.')
+})
 
-export type RecipeUrlSchemaType = z.infer<ReturnType<typeof recipeUrlSchema>>
+export type RecipeUrlSchemaType = z.infer<typeof recipeUrlSchema>
 
 export function UploadRecipeUrlForm({
   onSubmit
@@ -386,7 +384,7 @@ export function UploadRecipeUrlForm({
     handleSubmit,
     formState: { errors }
   } = useForm<RecipeUrlSchemaType>({
-    resolver: zodResolver(recipeUrlSchema(t))
+    resolver: zodResolver(recipeUrlSchema)
   })
 
   return (
@@ -404,7 +402,11 @@ export function UploadRecipeUrlForm({
             className='input input-bordered select-auto'
             autoFocus
           />
-          <ErrorMessage errors={errors} name='url' />
+          <ErrorMessage
+            errors={errors}
+            name='url'
+            render={({ message }) => <p className='text-error'>{message}</p>}
+          />
         </div>
         <div className='mt-4'>
           <Button className='btn-primary btn w-full' type='submit'>

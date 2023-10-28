@@ -17,18 +17,18 @@ import { useState } from 'react'
 import { useTranslation } from 'hooks/useTranslation'
 import { TFunction } from 'i18next'
 
-export const signUpSchema = (t: TFunction) =>
+export const signUpSchema = (t: TFunction<'common', undefined>) =>
   z
     .object({
       email: z.string().email(t('auth.email-required')),
       password: z
         .string()
-        .min(6, t('auth.min-chars-6'))
-        .max(20, t('auth.max-chars-20')),
+        .min(6, t('auth.min-characters'))
+        .max(20, t('auth.max-characters')),
       confirm: z
         .string()
-        .min(6, t('auth.min-chars-6'))
-        .max(20, t('auth.max-chars-20'))
+        .min(6, t('auth.min-characters'))
+        .max(20, t('auth.max-characters'))
     })
     .refine((data) => data.confirm === data.password, {
       message: t('auth.passwords-dont-match'),
@@ -205,12 +205,11 @@ export function SignUpModal({
   )
 }
 
-export const loginSchema = (t: TFunction) =>
-  z.object({
-    email: z.string().email(t('auth.email-required')),
-    password: z.string().min(1, t('required'))
-  })
-type LoginSchemaType = z.infer<ReturnType<typeof loginSchema>>
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(4).max(14)
+})
+type LoginSchemaType = z.infer<typeof loginSchema>
 
 export function useLogin() {
   const t = useTranslation()
@@ -224,7 +223,7 @@ export function useLogin() {
     setError,
     formState: { errors, isSubmitting }
   } = useForm<LoginSchemaType>({
-    resolver: zodResolver(loginSchema(t))
+    resolver: zodResolver(loginSchema)
   })
 
   const onSubmit = async (data: LoginSchemaType) => {
@@ -289,7 +288,6 @@ export function LoginModal({
             <label htmlFor='email' className='label pb-1'>
               <span className='label-text'>{t('auth.email')}</span>
             </label>
-
             <input
               id='email'
               className={`input-bordered input ${
@@ -297,15 +295,11 @@ export function LoginModal({
               }`}
               {...register('email')}
             />
-
-            <ErrorMessage errors={errors} name='email' />
           </div>
-
           <div className='form-control'>
             <label htmlFor='password' className='label pb-1'>
               <span className='label-text'>{t('auth.password')}</span>
             </label>
-
             <input
               id='password'
               className={`input-bordered input ${
@@ -314,8 +308,6 @@ export function LoginModal({
               type='password'
               {...register('password')}
             />
-
-            <ErrorMessage errors={errors} name='password' />
           </div>
           <div className='mt-4 flex w-full max-w-[300px] flex-col items-center gap-2'>
             <Button
