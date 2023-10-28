@@ -16,7 +16,11 @@
     "email": "Email",
     "password": "Contraseña",
     "confirm-password": "Confirmar Contraseña",
-    "sign-up-info": "Favor de registrarse para guardar sus recetas"
+    "sign-up-info": "Favor de registrarse para guardar sus recetas",
+    "min-characters": "Mínimo 6 caracteres",
+    "max-characters": "Mínimo 20 caracteres",
+    "passwords-dont-match": "Las contraseñas no coinciden",
+    "email-required": "Correo electrónico no válido"
   },
 
   "list": {

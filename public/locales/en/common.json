@@ -19,7 +19,11 @@
     "sign-up-success": "Sign up successful!",
     "login-success": "Login successful!",
     "invalid-creds": "Invalid credentials",
-    "sign-up-info": "Please sign up to save recipes"
+    "sign-up-info": "Please sign up to save recipes",
+    "min-characters": "Minimum 6 characters",
+    "max-characters": "Minimum 20 characters",
+    "passwords-dont-match": "Passwords don't match",
+    "email-required": "Invalid email"
   },
 
   "list": {

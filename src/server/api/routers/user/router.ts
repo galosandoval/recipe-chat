@@ -21,10 +21,7 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         email: z.string().email(),
-        password: z
-          .string()
-          .min(6, 'Needs at least 6 characters')
-          .max(20, 'Needs at most 20 characters')
+        password: z.string().min(6).max(20)
       })
     )
     .mutation(async ({ input, ctx }) => {

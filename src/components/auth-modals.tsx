@@ -15,25 +15,27 @@ import { useRouter } from 'next/router'
 import { Modal } from './modal'
 import { useState } from 'react'
 import { useTranslation } from 'hooks/useTranslation'
+import { TFunction } from 'i18next'
 
-export const signUpSchema = z
-  .object({
-    email: z.string().email(),
-    password: z
-      .string()
-      .min(6, 'Needs at least 6 characters')
-      .max(20, 'Needs at most 20 characters'),
-    confirm: z
-      .string()
-      .min(6, 'Needs at least 6 characters')
-      .max(20, 'Needs at most 20 characters')
-  })
-  .refine((data) => data.confirm === data.password, {
-    message: "Passwords don't match",
-    path: ['confirm']
-  })
+export const signUpSchema = (t: TFunction<'common', undefined>) =>
+  z
+    .object({
+      email: z.string().email(t('auth.email-required')),
+      password: z
+        .string()
+        .min(6, t('auth.min-characters'))
+        .max(20, t('auth.max-characters')),
+      confirm: z
+        .string()
+        .min(6, t('auth.min-characters'))
+        .max(20, t('auth.max-characters'))
+    })
+    .refine((data) => data.confirm === data.password, {
+      message: t('auth.passwords-dont-match'),
+      path: ['confirm']
+    })
 
-type SignUpSchemaType = z.infer<typeof signUpSchema>
+type SignUpSchemaType = z.infer<ReturnType<typeof signUpSchema>>
 
 export function useSignUp(successCallback?: () => void) {
   const t = useTranslation()
@@ -44,7 +46,7 @@ export function useSignUp(successCallback?: () => void) {
     formState: { errors },
     setError
   } = useForm<SignUpSchemaType>({
-    resolver: zodResolver(signUpSchema)
+    resolver: zodResolver(signUpSchema(t))
   })
   const router = useRouter()
 
