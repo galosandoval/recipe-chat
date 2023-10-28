@@ -15,25 +15,27 @@ import { useRouter } from 'next/router'
 import { Modal } from './modal'
 import { useState } from 'react'
 import { useTranslation } from 'hooks/useTranslation'
+import { TFunction } from 'i18next'
 
-export const signUpSchema = z
-  .object({
-    email: z.string().email(),
-    password: z
-      .string()
-      .min(6, 'Needs at least 6 characters')
-      .max(20, 'Needs at most 20 characters'),
-    confirm: z
-      .string()
-      .min(6, 'Needs at least 6 characters')
-      .max(20, 'Needs at most 20 characters')
-  })
-  .refine((data) => data.confirm === data.password, {
-    message: "Passwords don't match",
-    path: ['confirm']
-  })
+export const signUpSchema = (t: TFunction) =>
+  z
+    .object({
+      email: z.string().email(t('auth.email-required')),
+      password: z
+        .string()
+        .min(6, t('auth.min-chars-6'))
+        .max(20, t('auth.max-chars-20')),
+      confirm: z
+        .string()
+        .min(6, t('auth.min-chars-6'))
+        .max(20, t('auth.max-chars-20'))
+    })
+    .refine((data) => data.confirm === data.password, {
+      message: t('auth.passwords-dont-match'),
+      path: ['confirm']
+    })
 
-type SignUpSchemaType = z.infer<typeof signUpSchema>
+type SignUpSchemaType = z.infer<ReturnType<typeof signUpSchema>>
 
 export function useSignUp(successCallback?: () => void) {
   const t = useTranslation()
@@ -44,7 +46,7 @@ export function useSignUp(successCallback?: () => void) {
     formState: { errors },
     setError
   } = useForm<SignUpSchemaType>({
-    resolver: zodResolver(signUpSchema)
+    resolver: zodResolver(signUpSchema(t))
   })
   const router = useRouter()
 
@@ -203,11 +205,12 @@ export function SignUpModal({
   )
 }
 
-export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(4).max(14)
-})
-type LoginSchemaType = z.infer<typeof loginSchema>
+export const loginSchema = (t: TFunction) =>
+  z.object({
+    email: z.string().email(t('auth.email-required')),
+    password: z.string().min(1, t('required'))
+  })
+type LoginSchemaType = z.infer<ReturnType<typeof loginSchema>>
 
 export function useLogin() {
   const t = useTranslation()
@@ -221,7 +224,7 @@ export function useLogin() {
     setError,
     formState: { errors, isSubmitting }
   } = useForm<LoginSchemaType>({
-    resolver: zodResolver(loginSchema)
+    resolver: zodResolver(loginSchema(t))
   })
 
   const onSubmit = async (data: LoginSchemaType) => {
@@ -286,6 +289,7 @@ export function LoginModal({
             <label htmlFor='email' className='label pb-1'>
               <span className='label-text'>{t('auth.email')}</span>
             </label>
+
             <input
               id='email'
               className={`input-bordered input ${
@@ -293,11 +297,15 @@ export function LoginModal({
               }`}
               {...register('email')}
             />
+
+            <ErrorMessage errors={errors} name='email' />
           </div>
+
           <div className='form-control'>
             <label htmlFor='password' className='label pb-1'>
               <span className='label-text'>{t('auth.password')}</span>
             </label>
+
             <input
               id='password'
               className={`input-bordered input ${
@@ -306,6 +314,8 @@ export function LoginModal({
               type='password'
               {...register('password')}
             />
+
+            <ErrorMessage errors={errors} name='password' />
           </div>
           <div className='mt-4 flex w-full max-w-[300px] flex-col items-center gap-2'>
             <Button
