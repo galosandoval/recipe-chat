@@ -10,19 +10,15 @@
     }
   },
 
-  "required": "Requerido",
-
   "auth": {
     "sign-up": "Registro",
     "login": "Iniciar Sesión",
     "email": "Email",
     "password": "Contraseña",
     "confirm-password": "Confirmar Contraseña",
-    "sign-up-success": "¡Registro exitoso!",
-    "invalid-creds": "Credenciales inválidas",
     "sign-up-info": "Favor de registrarse para guardar sus recetas",
-    "min-chars-6": "Mínimo 6 caracteres",
-    "max-chars-20": "Mínimo 20 caracteres",
+    "min-characters": "Mínimo 6 caracteres",
+    "max-characters": "Mínimo 20 caracteres",
     "passwords-dont-match": "Las contraseñas no coinciden",
     "email-required": "Correo electrónico no válido"
   },
@@ -101,20 +97,18 @@
       "delete": {
         "title": "Borrar receta",
         "message": "¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer."
-      },
-
-      "enter-url": "Ingresa una URL válida que contenga una receta."
+      }
     }
   },
 
   "error": {
-    "something-went-wrong": "Algo salió mal."
+    "something-went-wrong": "Algo salió mal"
   },
 
   "loading": { "screen": "Cargando...", "logging-in": "Iniciando sesión..." },
 
   "toast": {
-    "sign-up": "Registrate y guarda tus recetas.",
-    "login-success": "¡Bienvenido! Aquí tienes la receta que guardaste:"
+    "sign-up": "Registrate y guarda tus recetas",
+    "logging-in-success": "¡Bienvenido!"
   }
 }

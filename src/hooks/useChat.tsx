@@ -250,7 +250,7 @@ export const useChat = () => {
       newRecipePromise,
       {
         loading: t('loading.logging-in'),
-        success: () => t('toast.login-success'),
+        success: () => t('toast.logging-in-success'),
         error: () => t('error.some-thing-went-wrong')
       },
       {
