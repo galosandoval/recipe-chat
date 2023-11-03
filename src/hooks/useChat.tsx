@@ -192,8 +192,10 @@ export const useChat = () => {
     []
   )
 
-  const handleFillMessage = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    setInput(e.currentTarget.innerText.toLowerCase())
+  const handleFillMessage = useCallback((e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    submitMessages(e)
   }, [])
 
   const handleStartNewChat = useCallback(() => {

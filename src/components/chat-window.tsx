@@ -5,7 +5,14 @@ import ScrollToBottom, {
 } from 'react-scroll-to-bottom'
 import { Chat, Filter, Message, Message as PrismaMessage } from '@prisma/client'
 import { ChatType } from 'hooks/useChat'
-import { Dispatch, SetStateAction, memo, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  MouseEvent,
+  SetStateAction,
+  memo,
+  useEffect,
+  useState
+} from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { MutationStatus, QueryStatus } from '@tanstack/react-query'
 import { Filters } from './recipe-filters'
@@ -124,7 +131,13 @@ const Content = memo(function Content(
   if (isNewChat) {
     return (
       <div className='flex flex-col gap-4 pb-16 pt-16'>
-        <ValueProps handleFillMessage={handleFillMessage}>
+        <ValueProps
+          handleFillMessage={
+            handleFillMessage as unknown as (
+              e: MouseEvent<HTMLButtonElement>
+            ) => void
+          }
+        >
           <ChatsSection chatId={chatId} handleChangeChat={handleChangeChat} />
 
           <Filters {...filters} />
