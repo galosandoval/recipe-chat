@@ -32,7 +32,7 @@ export function SubmitMessageForm({
             value={input}
             onChange={handleInputChange}
             placeholder={t('chat-form-placeholder')}
-            className='input-bordered input relative w-full resize-none pt-2'
+            className='input input-bordered relative w-full resize-none pt-2'
             ref={textareaRef}
           />
         </div>

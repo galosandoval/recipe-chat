@@ -94,7 +94,7 @@ function ListController({ data }: { data: Ingredient[] }) {
         <Button
           disabled={noneChecked}
           onClick={handleRemoveChecked}
-          className='btn-error btn'
+          className='btn btn-error'
         >
           <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -130,9 +130,9 @@ function EmptyList({ children }: { children: ReactNode }) {
   const t = useTranslation()
 
   return (
-    <div className='h-[calc(100svh-64px)] text-primary grid place-items-center'>
+    <div className='grid h-[calc(100svh-64px)] place-items-center text-primary'>
       <div
-        className='bg-primary-content rounded-lg'
+        className='rounded-lg bg-primary-content'
         style={{
           backgroundImage
         }}
@@ -178,12 +178,12 @@ function AddIngredientForm({
           <input
             type='text'
             placeholder={t('list.add-to-list')}
-            className='input-bordered input w-full'
+            className='input input-bordered w-full'
             {...register('newIngredientName')}
           />
         </div>
         <div className='pr-2'>
-          <button disabled={isDisabled} className='btn-success btn-square btn'>
+          <button disabled={isDisabled} className='btn btn-square btn-success'>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               fill='none'

@@ -16,14 +16,14 @@ export function RecentRecipes() {
   if (status === 'success') {
     return (
       <Container>
-        <div className='col-span-2 sm:col-span-4 grid grid-cols-2 grid-2 gap-4 sm:grid-cols-4'>
+        <div className='grid-2 col-span-2 grid grid-cols-2 gap-4 sm:col-span-4 sm:grid-cols-4'>
           {data.map((recipe) => (
             <Link
               href={`/recipes/${recipe.id}?name=${encodeURIComponent(
                 recipe.name
               )}`}
               key={recipe.id}
-              className='flex bg-base-300 rounded-md overflow-hidden gap-2'
+              className='flex gap-2 overflow-hidden rounded-md bg-base-300'
             >
               {recipe.imgUrl ? (
                 <Image
@@ -33,7 +33,7 @@ export function RecentRecipes() {
                   width={100}
                 />
               ) : (
-                <div className='bg-primary-content self-center'>
+                <div className='self-center bg-primary-content'>
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
                     width='260'
@@ -58,7 +58,7 @@ export function RecentRecipes() {
                   </svg>
                 </div>
               )}
-              <p className='whitespace-nowrap text-xs prose text-left self-center truncate'>
+              <p className='prose self-center truncate whitespace-nowrap text-left text-xs'>
                 {recipe.name}
               </p>
             </Link>
@@ -80,7 +80,7 @@ function Container({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <h2 className='col-span-2 sm:col-span-4 prose'>{t('recipes.recent')}</h2>
+      <h2 className='prose col-span-2 sm:col-span-4'>{t('recipes.recent')}</h2>
 
       {children}
     </>

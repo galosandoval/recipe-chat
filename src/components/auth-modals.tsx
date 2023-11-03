@@ -143,7 +143,7 @@ export function SignUpModal({
             </label>
 
             <input
-              className={`input-bordered input ${
+              className={`input input-bordered ${
                 errors.email ? 'input-error' : ''
               }`}
               id='email'
@@ -161,7 +161,7 @@ export function SignUpModal({
             </label>
 
             <input
-              className={`input-bordered input ${
+              className={`input input-bordered ${
                 errors.password ? 'input-error' : ''
               }`}
               id='password'
@@ -179,7 +179,7 @@ export function SignUpModal({
             </label>
 
             <input
-              className={`input-bordered input ${
+              className={`input input-bordered ${
                 errors.confirm ? 'input-error' : ''
               }`}
               id='confirmPassword'
@@ -192,7 +192,7 @@ export function SignUpModal({
 
           <div className='flex w-full max-w-[300px] flex-col items-center gap-2'>
             <Button
-              className='btn-primary btn w-3/4'
+              className='btn btn-primary w-3/4'
               type='submit'
               isLoading={isLoading}
             >
@@ -292,7 +292,7 @@ export function LoginModal({
 
             <input
               id='email'
-              className={`input-bordered input ${
+              className={`input input-bordered ${
                 errors.email ? 'input-error' : ''
               }`}
               {...register('email')}
@@ -308,7 +308,7 @@ export function LoginModal({
 
             <input
               id='password'
-              className={`input-bordered input ${
+              className={`input input-bordered ${
                 errors.password ? 'input-error' : ''
               }`}
               type='password'
@@ -321,7 +321,7 @@ export function LoginModal({
             <Button
               isLoading={isSubmitting}
               type='submit'
-              className='btn-primary btn w-3/4'
+              className='btn btn-primary w-3/4'
             >
               {t('auth.login')}
             </Button>

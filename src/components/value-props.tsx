@@ -40,7 +40,7 @@ export function ValueProps({
 
         <div className='flex w-full flex-col items-center gap-4'>
           <Button
-            className='btn-outline btn w-full normal-case'
+            className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
           >
             <span className='w-60'>{t('value-props.first-button')}</span>
@@ -49,7 +49,7 @@ export function ValueProps({
             </span>
           </Button>
           <Button
-            className='btn-outline btn w-full normal-case'
+            className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
           >
             <span className='w-60'>{t('value-props.second-button')}</span>
@@ -58,7 +58,7 @@ export function ValueProps({
             </span>
           </Button>
           <Button
-            className='btn-outline btn w-full normal-case'
+            className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
           >
             <span className='w-60'>{t('value-props.third-button')}</span>
@@ -141,7 +141,7 @@ function Auth() {
 
   return (
     <>
-      <div className='flex flex-col items-center justify-center w-full'>
+      <div className='flex w-full flex-col items-center justify-center'>
         <ValuePropsHeader
           icon={
             <svg
@@ -150,7 +150,7 @@ function Auth() {
               viewBox='0 0 24 24'
               strokeWidth={1.5}
               stroke='currentColor'
-              className='w-6 h-6'
+              className='h-6 w-6'
             >
               <path
                 strokeLinecap='round'
@@ -162,7 +162,7 @@ function Auth() {
           label={t('value-props.save-recipes')}
         />
 
-        <div className='flex flex-col w-full gap-2'>
+        <div className='flex w-full flex-col gap-2'>
           <button onClick={handleOpenSignUpModal} className='btn btn-primary'>
             {t('nav.menu.sign-up')}
           </button>

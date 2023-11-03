@@ -108,10 +108,13 @@ export function useListController(data: Ingredient[]) {
     async onMutate(input) {
       await utils.list.byUserId.cancel({ userId })
 
-      const idDict = input.reduce((dict, i) => {
-        dict[i.id] = true
-        return dict
-      }, {} as Record<string, boolean>)
+      const idDict = input.reduce(
+        (dict, i) => {
+          dict[i.id] = true
+          return dict
+        },
+        {} as Record<string, boolean>
+      )
 
       // Snapshot the previous value
       const prevList = utils.list.byUserId.getData()

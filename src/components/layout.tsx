@@ -66,7 +66,7 @@ function PublicNavbar() {
 
   return (
     <>
-      <nav className='navbar prose grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
+      <nav className='prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
         <div></div>
         <h1 className='mb-0 text-base'>{t('nav.app-name')}</h1>
         <div className='justify-self-end'>
@@ -80,9 +80,9 @@ function PublicNavbar() {
 function RecipeByIdNavbar() {
   const router = useRouter()
   return (
-    <nav className='navbar prose grid w-full grid-cols-6 bg-transparent px-4'>
+    <nav className='prose navbar grid w-full grid-cols-6 bg-transparent px-4'>
       <button
-        className='btn-ghost btn-circle btn'
+        className='btn btn-circle btn-ghost'
         onClick={() => router.push('/recipes')}
       >
         <svg
@@ -104,7 +104,7 @@ function RecipeByIdNavbar() {
         {router.query.name}
       </h1>
       <button
-        className='btn-ghost btn-circle btn justify-self-end'
+        className='btn btn-circle btn-ghost justify-self-end'
         onClick={() =>
           router.push(
             `/recipes/${router.query.id}/edit?name=${router.query.name}`
@@ -124,9 +124,9 @@ function EditRecipeNavbar() {
 
   const router = useRouter()
   return (
-    <nav className='navbar prose grid w-full grid-cols-3 gap-24 bg-transparent px-4 '>
+    <nav className='prose navbar grid w-full grid-cols-3 gap-24 bg-transparent px-4 '>
       <button
-        className='btn-ghost btn-circle btn'
+        className='btn btn-circle btn-ghost'
         onClick={() => router.back()}
       >
         <XIcon />
