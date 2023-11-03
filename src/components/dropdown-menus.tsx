@@ -7,7 +7,7 @@ import { useTranslation } from 'hooks/useTranslation'
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
   return (
     <Menu as='div' className='relative'>
-      <Menu.Button className='btn-ghost btn-circle btn'>
+      <Menu.Button className='btn btn-circle btn-ghost'>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
@@ -60,7 +60,7 @@ export function ProtectedDropdownMenu() {
       <Menu.Item>
         <button
           onClick={handleSignOut}
-          className='btn-ghost no-animation btn w-[8rem]'
+          className='btn btn-ghost no-animation w-[8rem]'
         >
           <span>{t('nav.menu.logout')}</span>
           <ArrowLeftOnRectangleIcon />

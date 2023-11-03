@@ -170,7 +170,7 @@ const Content = memo(function Content(
         }`}
       >
         <button
-          className='glass btn-circle btn'
+          className='btn btn-circle glass'
           onClick={() => scrollToBottom({ behavior: 'smooth' })}
         >
           <ArrowSmallDownIcon />
@@ -184,7 +184,7 @@ const Content = memo(function Content(
         }`}
       >
         <button
-          className='glass btn-circle btn'
+          className='btn btn-circle glass'
           onClick={() => scrollToTop({ behavior: 'smooth' })}
         >
           <ArrowSmallUpIcon />
@@ -362,14 +362,14 @@ const MessageList = memo(function MessageList({
 
           <button
             onClick={handleStartNewChat}
-            className='btn-ghost btn-circle btn justify-self-end'
+            className='btn btn-circle btn-ghost justify-self-end'
           >
             <PlusIcon />
           </button>
         </div>
       </div>
 
-      <div className='pb-16 bg-primary-content'>
+      <div className='bg-primary-content pb-16'>
         {data.map((m, i) => (
           <Message
             message={m}
@@ -453,7 +453,7 @@ const Message = function Message({
             {message?.recipeId ? (
               // Go to recipe
               <Button
-                className='btn-outline btn'
+                className='btn btn-outline'
                 onClick={() =>
                   handleGoToRecipe({
                     recipeId: message.recipeId,
@@ -512,7 +512,7 @@ function ActiveFilters({ data }: { data: Filter[] }) {
 
   return (
     <div className='flex gap-2 pt-2'>
-      <h3 className='text-sm mb-0 mt-0'>{t('filters.title')}:</h3>
+      <h3 className='mb-0 mt-0 text-sm'>{t('filters.title')}:</h3>
       {data.map((f) => (
         <div className='badge badge-primary badge-outline' key={f.id}>
           {f.name}

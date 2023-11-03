@@ -202,7 +202,7 @@ export function Filters({
   const activeFilters = data?.filter((f) => f.checked)
 
   return (
-    <div className='flex w-full flex-1 gap-2 flex-col items-center justify-center'>
+    <div className='flex w-full flex-1 flex-col items-center justify-center gap-2'>
       <ValuePropsHeader icon={<FunnelIcon />} label={t('filters.title')} />
 
       <List
@@ -223,13 +223,13 @@ export function Filters({
       <form className='join' onSubmit={handleSubmit(onSubmit)}>
         <input
           {...register('name')}
-          className='input-bordered input input-sm join-item'
+          className='input join-item input-bordered input-sm'
           placeholder={t('filters.placeholder')}
         />
         <button
           type='submit'
           disabled={isBtnDisabled}
-          className='no-animation btn-sm join-item btn rounded-r-full'
+          className='btn join-item no-animation btn-sm rounded-r-full'
         >
           <PlusCircleIcon />
         </button>
@@ -296,7 +296,7 @@ function List({
 
             <button
               onClick={handleToggleCanDelete}
-              className={`btn-circle badge-ghost btn ml-auto`}
+              className={`btn btn-circle badge-ghost ml-auto`}
             >
               <span>
                 {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}

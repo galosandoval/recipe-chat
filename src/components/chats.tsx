@@ -36,7 +36,7 @@ export function ChatsSection({
   }
 
   return (
-    <div className='max-w-sm flex flex-col items-center justify-center w-full'>
+    <div className='flex w-full max-w-sm flex-col items-center justify-center'>
       <ValuePropsHeader
         icon={<ChatBubbleLeftIcon />}
         label={t('chat-window.chats')}
@@ -89,7 +89,7 @@ function Chats({
     }
 
     return (
-      <div className='flex h-full flex-col justify-end gap-2 w-full'>
+      <div className='flex h-full w-full flex-col justify-end gap-2'>
         {data.map((chat) => (
           <ChatOption
             key={chat.id}
@@ -130,7 +130,7 @@ export function ChatsSideBarButton({
     <>
       <button
         onClick={handleToggleChatsModal}
-        className="justify-self-start' btn-ghost btn-circle btn"
+        className="justify-self-start' btn btn-circle btn-ghost"
       >
         <AdjustmentsHorizontalIcon />
       </button>
@@ -268,13 +268,13 @@ function ChatOption({
 
   return (
     <div
-      className={`flex flex-col px-2 py-2 hover:bg-primary-content rounded select-none ${
+      className={`flex select-none flex-col rounded px-2 py-2 hover:bg-primary-content ${
         chatId === chat.id ? 'bg-primary-content' : ''
       }`}
     >
       <p
         onClick={() => handleChangeChat(chat)}
-        className={`truncate mt-1 mb-1 ${
+        className={`mb-1 mt-1 truncate ${
           chatId === chat.id ? 'text-primary' : ''
         }`}
       >

@@ -58,7 +58,7 @@ export const loadingToastOptions: ToastOptions = {
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      className='w-6 h-6 animate-spin'
+      className='h-6 w-6 animate-spin'
     >
       <path
         strokeLinecap='round'
