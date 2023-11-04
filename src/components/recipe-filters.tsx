@@ -237,16 +237,15 @@ export function Filters({
         />
         <button
           type='submit'
-          className='btn join-item no-animation btn-sm rounded-r-full'
+          className='btn btn-outline join-item no-animation btn-sm'
         >
           <PlusCircleIcon />
+          <span>{t('filters.add')}</span>
         </button>
       </form>
 
       {errors.name && (
-        <div className='flex w-full items-center pl-1 sm:pl-4'>
-          <ErrorMessage name='name' errors={errors} />
-        </div>
+        <ErrorMessage name='name' errors={errors} align='center' />
       )}
     </div>
   )
