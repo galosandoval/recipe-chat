@@ -8,7 +8,7 @@ export function SubmitMessageForm({
   isSendingMessage,
   input
 }: {
-  handleSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleSubmit: (event: FormEvent<HTMLFormElement>) => void
   handleInputChange: ChangeEventHandler<HTMLTextAreaElement>
   input: string
   isSendingMessage: boolean
