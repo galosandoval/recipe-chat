@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { api } from '../utils/api'
-import { RecipeUrlSchemaType } from 'pages/recipes'
+import { type RecipeUrlSchemaType } from 'pages/recipes'
 import { useRouter } from 'next/router'
 import { toast } from 'react-hot-toast'
-import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
+import { type LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
 import { useForm } from 'react-hook-form'
 
 export default function useDebounce(value: string, delay = 500) {
@@ -44,7 +44,7 @@ export function useParseRecipe() {
     setIsOpen(true)
   }
 
-  async function onSubmitUrl(values: RecipeUrlSchemaType) {
+  function onSubmitUrl(values: RecipeUrlSchemaType) {
     mutate(values.url)
   }
 
@@ -61,9 +61,9 @@ export function useParseRecipe() {
 export const useAddToList = () => {
   const utils = api.useContext()
   return api.list.upsert.useMutation({
-    onSuccess: ({ id }) => {
-      utils.recipe.byId.invalidate({ id })
-      utils.list.invalidate()
+    onSuccess: async ({ id }) => {
+      await utils.recipe.byId.invalidate({ id })
+      await utils.list.invalidate()
 
       toast.success('Added to list')
     }
@@ -83,9 +83,11 @@ export const useCreateRecipe = (data: LinkedDataRecipeField) => {
     prepTime
   } = data
   const { mutate, isLoading, isSuccess } = api.recipe.create.useMutation({
-    onSuccess: (data) => {
-      router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
-      utils.recipe.invalidate()
+    onSuccess: async (data) => {
+      await router.push(
+        `recipes/${data.id}?name=${encodeURIComponent(data.name)}`
+      )
+      await utils.recipe.invalidate()
     }
   })
 
@@ -132,8 +134,8 @@ export const useEditRecipe = () => {
 
   return api.recipe.edit.useMutation({
     onSuccess: async (data, { newName }) => {
-      util.recipe.byId.invalidate({ id: data })
-      router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
+      await util.recipe.byId.invalidate({ id: data })
+      await router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
     }
   })
 }
@@ -143,9 +145,9 @@ export const useDeleteRecipe = () => {
   const router = useRouter()
 
   return api.recipe.delete.useMutation({
-    onSuccess: () => {
-      utils.recipe.invalidate()
-      router.push('/recipes')
+    onSuccess: async () => {
+      await utils.recipe.invalidate()
+      await router.push('/recipes')
       toast.success('Recipe deleted')
     }
   })

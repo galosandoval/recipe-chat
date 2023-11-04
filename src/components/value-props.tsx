@@ -1,7 +1,7 @@
-import { MouseEvent } from 'react'
+import { type MouseEvent } from 'react'
 import { Button } from './button'
 import { ArrowUTurnLeftIcon } from './icons'
-import { useTranslation } from 'hooks/useTranslation'
+import { useTranslation } from 'hooks/use-translation'
 import { LoginModal, SignUpModal, useLogin, useSignUp } from './auth-modals'
 import { useSession } from 'next-auth/react'
 
@@ -39,6 +39,7 @@ export function ValueProps({
 
         <div className='flex w-full flex-col items-center gap-4'>
           <Button
+            type='submit'
             className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
           >
@@ -48,6 +49,7 @@ export function ValueProps({
             </span>
           </Button>
           <Button
+            type='submit'
             className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
           >
@@ -57,6 +59,7 @@ export function ValueProps({
             </span>
           </Button>
           <Button
+            type='submit'
             className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
           >

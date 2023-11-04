@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import useDebounce, { useCreateRecipe, useParseRecipe } from 'hooks/useRecipe'
+import useDebounce, { useCreateRecipe, useParseRecipe } from 'hooks/use-recipe'
 import { Button } from 'components/button'
 import { Modal } from 'components/modal'
 import { FormLoader } from 'components/loaders/form'
@@ -31,7 +31,7 @@ import { FetchStatus, QueryStatus } from '@tanstack/react-query'
 import { RecentRecipes } from 'components/recipe-list-recent'
 import { GetStaticProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'hooks/useTranslation'
+import { useTranslation } from 'hooks/use-translation'
 import { TFunction } from 'i18next'
 import { ErrorMessage } from 'components/error-message-content'
 
@@ -124,7 +124,7 @@ function SearchBarWrapper({
   handleSearchButtonClick: () => void
 }) {
   return (
-    <div className='relative container mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2 pt-16'>
+    <div className='container relative mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2 pt-16'>
       <SearchBar
         handleChange={handleChange}
         handleSearchButtonClick={handleSearchButtonClick}
@@ -155,7 +155,7 @@ function SearchBar({
         <div className='flex w-full px-2 py-1'>
           <input
             type='text'
-            className='input-bordered input w-full'
+            className='input input-bordered w-full'
             value={search}
             onChange={handleChange}
             placeholder={t('recipes.search')}
@@ -166,7 +166,7 @@ function SearchBar({
           <button
             type='button'
             onClick={handleSearchButtonClick}
-            className='btn-success btn-square btn'
+            className='btn btn-square btn-success'
           >
             {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
           </button>
@@ -197,13 +197,13 @@ function Pages({
   }
 
   return (
-    <div className='mx-auto mt-4 grid max-w-4xl grid-cols-2 gap-5 mb-24 md:grid-cols-4'>
+    <div className='mx-auto mb-24 mt-4 grid max-w-4xl grid-cols-2 gap-5 md:grid-cols-4'>
       {pages.length > 0 && pages[0].items.length > 0 ? (
         <>
           <RecentRecipes />
         </>
       ) : null}
-      <div className='col-span-2 sm:col-span-4 flex justify-between items-center h-10'>
+      <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
         <h2 className='prose'>{t('recipes.your')}</h2>
         {!search && <CreateRecipeButton />}
       </div>
@@ -226,7 +226,7 @@ function Pages({
       ))}
 
       {fetchStatus === 'fetching' && (
-        <div className='flex justify-center col-span-2 sm:col-span-4 mt-4'>
+        <div className='col-span-2 mt-4 flex justify-center sm:col-span-4'>
           <LoadingSpinner />
         </div>
       )}
@@ -356,7 +356,7 @@ function CreateRecipeButton() {
       <Button
         type='button'
         onClick={openModal}
-        className='btn-outline btn btn-circle'
+        className='btn btn-circle btn-outline'
       >
         <PlusIcon size={6} />
       </Button>
@@ -407,7 +407,7 @@ export function UploadRecipeUrlForm({
           <ErrorMessage errors={errors} name='url' />
         </div>
         <div className='mt-4'>
-          <Button className='btn-primary btn w-full' type='submit'>
+          <Button className='btn btn-primary w-full' type='submit'>
             {t('recipes.name')}
           </Button>
         </div>
@@ -443,7 +443,7 @@ function CreateRecipe({
           <input
             id='name'
             {...register('name')}
-            className='input-bordered input'
+            className='input input-bordered'
           />
         </div>
         <div className='flex flex-col'>
@@ -453,7 +453,7 @@ function CreateRecipe({
           <input
             id='description'
             {...register('description')}
-            className='input-bordered input'
+            className='input input-bordered'
           />
         </div>
 
@@ -465,7 +465,7 @@ function CreateRecipe({
             <input
               id='prepTime'
               type='text'
-              className='input-bordered input input-sm'
+              className='input input-bordered input-sm'
               {...register('prepTime')}
             />
           </div>
@@ -476,7 +476,7 @@ function CreateRecipe({
             <input
               id='cookTime'
               type='text'
-              className='input-bordered input input-sm pr-2'
+              className='input input-bordered input-sm pr-2'
               {...register('cookTime')}
             />
           </div>
@@ -489,7 +489,7 @@ function CreateRecipe({
             id='ingredients'
             rows={ingredientsRowSize}
             {...register('ingredients')}
-            className='textarea-bordered textarea resize-none'
+            className='textarea textarea-bordered resize-none'
           />
         </div>
         <div className='flex flex-col'>
@@ -500,13 +500,13 @@ function CreateRecipe({
             id='instructions'
             rows={instructionsRowSize}
             {...register('instructions')}
-            className='textarea-bordered textarea resize-none'
+            className='textarea textarea-bordered resize-none'
           />
         </div>
       </div>
       <div className='flex w-full gap-1 px-2 py-2'>
         {isSuccess ? (
-          <Button className='btn-ghost btn w-1/2' onClick={closeModal}>
+          <Button className='btn btn-ghost w-1/2' onClick={closeModal}>
             Return
           </Button>
         ) : (
@@ -514,13 +514,13 @@ function CreateRecipe({
             <Button
               type='button'
               onClick={closeModal}
-              className='btn-ghost btn w-1/2'
+              className='btn btn-ghost w-1/2'
             >
               {t('recipes.cancel')}
             </Button>
             <Button
               isLoading={isLoading}
-              className='btn-primary btn w-1/2'
+              className='btn btn-primary w-1/2'
               type='submit'
             >
               {t('recipes.save')}

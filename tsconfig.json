@@ -19,13 +19,15 @@
     // "paths": {}
   },
   "include": [
+    ".eslintrc.cjs",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.js",
     "src/*.tsx",
     "src/*.ts",
-    "tailwind.config.cjs"
+    "tailwind.config.cjs",
+    ".next/types/**/*.ts"
   ],
   "incremental": true,
   "noUncheckedIndexedAccess": true,

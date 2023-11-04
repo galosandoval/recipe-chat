@@ -1,17 +1,17 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
-import { useDeleteRecipe, useEditRecipe, useRecipe } from 'hooks/useRecipe'
+import { useDeleteRecipe, useEditRecipe, useRecipe } from 'hooks/use-recipe'
 import { MyHead } from 'components/head'
 import { useForm } from 'react-hook-form'
 import { Button } from 'components/button'
 import { UpdateRecipe } from 'server/api/routers/recipe/interface'
-import { FormValues } from 'hooks/useChat'
+import { FormValues } from 'hooks/use-chat'
 import { CheckIcon, TrashIcon } from 'components/icons'
 import { useState } from 'react'
 import { Modal } from 'components/modal'
 import { GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'hooks/useTranslation'
+import { useTranslation } from 'hooks/use-translation'
 
 export const getServerSideProps = (async ({ locale }) => {
   const localeFiles = ['common']
@@ -191,7 +191,7 @@ function FoundRecipe({
           <input
             id='name'
             {...register('name')}
-            className='input-bordered input'
+            className='input input-bordered'
           />
         </div>
         <div className='flex w-full flex-col'>
@@ -202,7 +202,7 @@ function FoundRecipe({
             id='description'
             rows={4}
             {...register('description')}
-            className='textarea-bordered textarea resize-none'
+            className='textarea textarea-bordered resize-none'
           />
         </div>
         <div className='flex w-full gap-2'>
@@ -213,7 +213,7 @@ function FoundRecipe({
             <input
               id='prepTime'
               type='text'
-              className='input-bordered input'
+              className='input input-bordered'
               {...register('prepTime')}
             />
           </div>
@@ -224,7 +224,7 @@ function FoundRecipe({
             <input
               id='cookTime'
               type='text'
-              className='input-bordered input pr-2'
+              className='input input-bordered pr-2'
               {...register('cookTime')}
             />
           </div>
@@ -238,7 +238,7 @@ function FoundRecipe({
             id='ingredients'
             rows={4}
             {...register('ingredients')}
-            className='textarea-bordered textarea resize-none'
+            className='textarea textarea-bordered resize-none'
           />
         </div>
 
@@ -250,7 +250,7 @@ function FoundRecipe({
             id='instructions'
             rows={4}
             {...register('instructions')}
-            className='textarea-bordered textarea resize-none'
+            className='textarea textarea-bordered resize-none'
           />
         </div>
 
@@ -262,13 +262,13 @@ function FoundRecipe({
             id='notes'
             rows={4}
             {...register('notes')}
-            className='textarea-bordered textarea resize-none'
+            className='textarea textarea-bordered resize-none'
           />
         </div>
-        <div className='grid grid-cols-2 w-full gap-2'>
+        <div className='grid w-full grid-cols-2 gap-2'>
           <Button
             disabled={isLoading}
-            className='btn-error btn mt-2 w-full'
+            className='btn btn-error mt-2 w-full'
             type='button'
             onClick={() => setIsOpen(true)}
           >
@@ -278,7 +278,7 @@ function FoundRecipe({
           <Button
             isLoading={isLoading}
             disabled={!isDirty || !isValid}
-            className='btn-success btn mt-2 w-full'
+            className='btn btn-success mt-2 w-full'
             type='submit'
           >
             <CheckIcon />
@@ -296,7 +296,7 @@ function FoundRecipe({
           </div>
           <div className='flex justify-end'>
             <Button
-              className='btn-ghost btn w-1/4'
+              className='btn btn-ghost w-1/4'
               onClick={handleCloseConfirmationModal}
             >
               <svg
@@ -317,7 +317,7 @@ function FoundRecipe({
             <Button
               onClick={() => handleDelete(data.id)}
               isLoading={deleteStatus === 'loading'}
-              className='btn-error btn w-1/4'
+              className='btn btn-error w-1/4'
             >
               <TrashIcon />
             </Button>

@@ -1,15 +1,15 @@
 import { z } from 'zod'
 import {
-  Ingredient,
-  Instruction,
-  Prisma,
-  PrismaPromise,
-  Recipe
+  type Ingredient,
+  type Instruction,
+  type Prisma,
+  type PrismaPromise,
+  type Recipe
 } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
 import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
-import { LinkedData, updateRecipeSchema } from './interface'
+import { type LinkedData, updateRecipeSchema } from './interface'
 
 export const recipeRouter = createTRPCRouter({
   recentRecipes: protectedProcedure.query(async ({ ctx }) => {
@@ -95,8 +95,11 @@ export const recipeRouter = createTRPCRouter({
       const $ = cheerio.load(text)
       const jsonRaw =
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ($("script[type='application/ld+json']")[0].children[0] as any)
-          ?.data as string
+        (
+          $("script[type='application/ld+json']")[0] as unknown as {
+            children: { data: string }[]
+          }
+        ).children[0]?.data
 
       const jsonRawNoSpaces = jsonRaw.replace(/\n/g, '')
       const parsed = JSON.parse(jsonRawNoSpaces) as LinkedData
@@ -301,7 +304,7 @@ export const recipeRouter = createTRPCRouter({
             id: newIngredient.id,
             name: newIngredient.name,
             recipeId: input.id,
-            listId: newIngredient.listId || null
+            listId: newIngredient.listId ?? null
           })
         }
       }

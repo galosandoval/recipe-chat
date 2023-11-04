@@ -5,7 +5,7 @@ export const PlusIcon = ({ size }: { size?: number }) => (
     viewBox='0 0 24 24'
     strokeWidth={1.5}
     stroke='currentColor'
-    className={`h-${size || 6} w-${size || 6}`}
+    className={`h-${size ?? 6} w-${size ?? 6}`}
   >
     <path
       strokeLinecap='round'
@@ -22,7 +22,7 @@ export const ListBulletIcon = ({ size }: { size?: number }) => (
     viewBox='0 0 24 24'
     strokeWidth={1.5}
     stroke='currentColor'
-    className={`h-${size || 6} w-${size || 6}`}
+    className={`h-${size ?? 6} w-${size ?? 6}`}
   >
     <path
       strokeLinecap='round'
@@ -76,7 +76,7 @@ export const CheckIcon = ({ size }: { size?: number }) => {
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      className={`h-${size || 6} w-${size || 6}`}
+      className={`h-${size ?? 6} w-${size ?? 6}`}
     >
       <path
         strokeLinecap='round'
@@ -95,7 +95,7 @@ export const XIcon = ({ size }: { size?: number }) => {
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      className={`h-${size || 6} w-${size || 6}`}
+      className={`h-${size ?? 6} w-${size ?? 6}`}
     >
       <path
         strokeLinecap='round'
@@ -114,7 +114,7 @@ export const XCircleIcon = ({ size }: { size?: number }) => {
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      className={`h-${size || 6} w-${size || 6}`}
+      className={`h-${size ?? 6} w-${size ?? 6}`}
     >
       <path
         strokeLinecap='round'
@@ -133,7 +133,7 @@ export const PencilSquareIcon = ({ size }: { size?: number }) => {
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      className={`h-${size || 6} w-${size || 6}`}
+      className={`h-${size ?? 6} w-${size ?? 6}`}
     >
       <path
         strokeLinecap='round'
@@ -152,7 +152,7 @@ export const ChatBubbleLeftRightIcon = ({ size }: { size?: number }) => {
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      className={`h-${size || 6} w-${size || 6}`}
+      className={`h-${size ?? 6} w-${size ?? 6}`}
     >
       <path
         strokeLinecap='round'
@@ -171,7 +171,7 @@ export const ChatBubbleLeftIcon = ({ size }: { size?: number }) => {
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      className={`h-${size || 6} w-${size || 6}`}
+      className={`h-${size ?? 6} w-${size ?? 6}`}
     >
       <path
         strokeLinecap='round'

@@ -1,7 +1,7 @@
 import {
-  FieldErrorsImpl,
-  UseFormHandleSubmit,
-  UseFormRegister,
+  type FieldErrorsImpl,
+  type UseFormHandleSubmit,
+  type UseFormRegister,
   useForm
 } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,8 +14,8 @@ import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { Modal } from './modal'
 import { useState } from 'react'
-import { useTranslation } from 'hooks/useTranslation'
-import { TFunction } from 'i18next'
+import { useTranslation } from 'hooks/use-translation'
+import { type TFunction } from 'i18next'
 
 export const signUpSchema = (t: TFunction) =>
   z
@@ -37,7 +37,7 @@ export const signUpSchema = (t: TFunction) =>
 
 type SignUpSchemaType = z.infer<ReturnType<typeof signUpSchema>>
 
-export function useSignUp(successCallback?: () => void) {
+export function useSignUp(successCallback?: () => Promise<void>) {
   const t = useTranslation()
 
   const {
@@ -62,9 +62,9 @@ export function useSignUp(successCallback?: () => void) {
       })
 
       if (successCallback) {
-        successCallback()
+        await successCallback()
       } else if (response?.ok) {
-        router.push('/chat')
+        await router.push('/chat')
 
         toast.success(t('auth.sign-up-success'))
       }
@@ -85,7 +85,7 @@ export function useSignUp(successCallback?: () => void) {
     }
   })
 
-  const onSubmit = async (values: SignUpSchemaType) => {
+  const onSubmit = (values: SignUpSchemaType) => {
     mutate(values)
   }
 
@@ -230,7 +230,7 @@ export function useLogin() {
   const onSubmit = async (data: LoginSchemaType) => {
     const response = await signIn('credentials', { redirect: false, ...data })
     if (response?.ok) {
-      router.push('/chat')
+      await router.push('/chat')
     }
 
     if (response?.status === 401) {

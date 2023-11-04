@@ -3,18 +3,23 @@ import ScrollToBottom, {
   useScrollToTop,
   useSticky
 } from 'react-scroll-to-bottom'
-import { Chat, Filter, Message, Message as PrismaMessage } from '@prisma/client'
-import { ChatType } from 'hooks/useChat'
 import {
-  Dispatch,
-  MouseEvent,
-  SetStateAction,
+  type Chat,
+  type Filter,
+  Message,
+  type Message as PrismaMessage
+} from '@prisma/client'
+import { type ChatType } from 'hooks/use-chat'
+import {
+  type Dispatch,
+  type MouseEvent,
+  type SetStateAction,
   memo,
   useEffect,
   useState
 } from 'react'
 import { ScreenLoader } from './loaders/screen'
-import { MutationStatus, QueryStatus } from '@tanstack/react-query'
+import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
 import { Filters } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { ChatsSection, ChatsSideBarButton } from './chats'
@@ -29,7 +34,7 @@ import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import NoSsr from './no-ssr'
-import { useTranslation } from 'hooks/useTranslation'
+import { useTranslation } from 'hooks/use-translation'
 import { useRouter } from 'next/router'
 import { SignUpModal } from './auth-modals'
 
@@ -93,8 +98,9 @@ const Content = memo(function Content(
   const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const currentChatId = JSON.parse(
-    sessionStorage.getItem('currentChatId') as string
+    sessionStorage.getItem('currentChatId') ?? 'null'
   )
 
   const isSessionStorageAvailable =
@@ -172,9 +178,10 @@ const Content = memo(function Content(
           }
           handleStartNewChat={handleStartNewChat}
           handleToggleChatsModal={handleToggleChatsModal}
-          filters={data || []}
+          filters={data ?? []}
         />
       </div>
+
       <div
         className={`absolute bottom-20 right-4 duration-300 transition-all${
           !sticky
