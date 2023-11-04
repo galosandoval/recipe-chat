@@ -8,20 +8,34 @@ import { type FieldErrors, type FieldName } from 'react-hook-form'
 type ErrorMessageProps<T extends Record<string, string>> = {
   errors: Partial<FieldErrors<T>>
   name: FieldName<FieldValuesFromFieldErrors<Partial<FieldErrors<T>>>>
+  align?: 'start' | 'center' | 'end'
 }
 
 export function ErrorMessage<T extends Record<string, string>>({
   name,
-  errors
+  errors,
+  align
 }: ErrorMessageProps<T>) {
   return (
-    <div className='relative h-8 py-1'>
-      <_ErrorMessage errors={errors} name={name} render={ErrorMessageContent} />
+    <div
+      className={`relative flex h-8 w-full justify-${align ?? 'start'} py-1`}
+    >
+      <_ErrorMessage
+        errors={errors}
+        name={name}
+        render={(data) => ErrorMessageContent({ ...data, align })}
+      />
     </div>
   )
 }
 
-function ErrorMessageContent({ message }: { message: string }) {
+function ErrorMessageContent({
+  message,
+  align
+}: {
+  message: string
+  align?: 'start' | 'center' | 'end'
+}) {
   const errorMessage = handleError({ message })
   return (
     <div className='absolute flex items-center justify-start gap-1 truncate text-error'>
