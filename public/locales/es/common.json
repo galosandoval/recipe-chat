@@ -53,7 +53,8 @@
   "filters": {
     "title": "Filtros",
     "placeholder": "Nuevo filtro",
-    "active": "Filtros activos:"
+    "active": "Filtros activos:",
+    "min-chars-3": "Mínimo 3 caracteres"
   },
 
   "chat-window": {
