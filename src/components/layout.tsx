@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode, memo } from 'react'
+import React, { type ReactNode, memo } from 'react'
 import { ProtectedDropdownMenu } from './dropdown-menus'
 import {
   ChatBubbleLeftRightIcon,
@@ -9,7 +9,7 @@ import {
   PencilSquareIcon,
   XIcon
 } from './icons'
-import { useTranslation } from 'hooks/useTranslation'
+import { useTranslation } from 'hooks/use-translation'
 import { ThemeToggle, useTheme } from './theme-toggle'
 
 export default function Layout({
@@ -107,7 +107,9 @@ function RecipeByIdNavbar() {
         className='btn btn-circle btn-ghost justify-self-end'
         onClick={() =>
           router.push(
-            `/recipes/${router.query.id}/edit?name=${router.query.name}`
+            `/recipes/${router?.query?.id as string}/edit?name=${
+              router?.query?.name as string
+            }`
           )
         }
       >

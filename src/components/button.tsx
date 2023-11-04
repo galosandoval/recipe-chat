@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes } from 'react'
+import { type ButtonHTMLAttributes } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
@@ -44,7 +44,7 @@ export const Button = ({
       {...attributes}
       type={type}
       className={className}
-      disabled={isLoading || attributes.disabled}
+      disabled={isLoading ?? attributes.disabled}
     >
       {isLoading ? iconToRender : children}
     </button>

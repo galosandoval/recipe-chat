@@ -1,9 +1,9 @@
 import {
-  FieldValuesFromFieldErrors,
+  type FieldValuesFromFieldErrors,
   ErrorMessage as _ErrorMessage
 } from '@hookform/error-message'
 import { ExclamationCircle } from './icons'
-import { FieldErrors, FieldName } from 'react-hook-form'
+import { type FieldErrors, type FieldName } from 'react-hook-form'
 
 type ErrorMessageProps<T extends Record<string, string>> = {
   errors: Partial<FieldErrors<T>>
@@ -32,7 +32,7 @@ function ErrorMessageContent({ message }: { message: string }) {
 }
 
 export function handleError({ message }: { message: string }) {
-  if (typeof message === 'string' && message[0] === '[') {
+  if (typeof message === 'string' && message.startsWith('[')) {
     return JSON.stringify(message, null, 2)
   }
 

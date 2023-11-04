@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Ingredient, Recipe } from '@prisma/client'
+import { type Ingredient, type Recipe } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -21,7 +21,7 @@ export const useList = () => {
 
 export function useUserId() {
   const session = useSession()
-  const userId = session.data?.user?.id || ''
+  const userId = session.data?.user?.id ?? ''
 
   return userId
 }
@@ -85,8 +85,8 @@ export function useListController(data: Ingredient[]) {
       return { prevList }
     },
 
-    onSuccess: () => {
-      utils.list.byUserId.invalidate({ userId })
+    onSuccess: async () => {
+      await utils.list.byUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
@@ -130,8 +130,8 @@ export function useListController(data: Ingredient[]) {
       // Return a context object with the snapshotted value
       return { prevList }
     },
-    onSuccess: () => {
-      utils.list.byUserId.invalidate({ userId })
+    onSuccess: async () => {
+      await utils.list.byUserId.invalidate({ userId })
     },
     onError: (error, _, ctx) => {
       const prevList = ctx?.prevList
@@ -169,8 +169,8 @@ export function useListController(data: Ingredient[]) {
       return { prevList }
     },
 
-    onSuccess: () => {
-      utils.list.byUserId.invalidate({ userId })
+    onSuccess: async () => {
+      await utils.list.byUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
@@ -200,8 +200,8 @@ export function useListController(data: Ingredient[]) {
       return { prevList }
     },
 
-    onSuccess: () => {
-      utils.list.byUserId.invalidate({ userId })
+    onSuccess: async () => {
+      await utils.list.byUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {

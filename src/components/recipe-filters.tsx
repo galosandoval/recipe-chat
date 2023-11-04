@@ -11,13 +11,13 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from 'utils/api'
-import { useUserId } from 'hooks/useList'
-import { Filter } from '@prisma/client'
-import { QueryStatus } from '@tanstack/react-query'
+import { useUserId } from 'hooks/use-list'
+import { type Filter } from '@prisma/client'
+import { type QueryStatus } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
-import { useTranslation } from 'hooks/useTranslation'
+import { useTranslation } from 'hooks/use-translation'
 import { ValuePropsHeader } from './value-props'
 
 const createFilterSchema = z.object({
@@ -83,8 +83,8 @@ export function useFilters() {
       return { previousFilters }
     },
 
-    onSuccess: () => {
-      utils.filter.getByUserId.invalidate({ userId })
+    onSuccess: async () => {
+      await utils.filter.getByUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
@@ -117,8 +117,8 @@ export function useFilters() {
       return { previousFilters }
     },
 
-    onSuccess: () => {
-      utils.filter.getByUserId.invalidate({ userId })
+    onSuccess: async () => {
+      await utils.filter.getByUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
@@ -207,7 +207,7 @@ export function Filters({
 
       <List
         canDelete={canDelete}
-        filters={data || []}
+        filters={data ?? []}
         status={status}
         handleCheck={handleCheck}
         handleRemoveFilter={handleRemoveFilter}

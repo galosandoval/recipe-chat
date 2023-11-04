@@ -1,6 +1,6 @@
 import { ChangeEventHandler, FormEvent, useEffect, useRef } from 'react'
 import { Button } from './button'
-import { useTranslation } from 'hooks/useTranslation'
+import { useTranslation } from 'hooks/use-translation'
 
 export function SubmitMessageForm({
   handleInputChange,
@@ -8,7 +8,7 @@ export function SubmitMessageForm({
   isSendingMessage,
   input
 }: {
-  handleSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleSubmit: (event: FormEvent<HTMLFormElement>) => void
   handleInputChange: ChangeEventHandler<HTMLTextAreaElement>
   input: string
   isSendingMessage: boolean

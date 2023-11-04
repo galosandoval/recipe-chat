@@ -1,4 +1,4 @@
-import { ToastOptions, Toaster } from 'react-hot-toast'
+import { type ToastOptions, Toaster } from 'react-hot-toast'
 import { CheckIcon, ExclamationCircle } from './icons'
 
 export function Toast() {

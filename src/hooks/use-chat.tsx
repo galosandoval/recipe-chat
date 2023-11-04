@@ -1,13 +1,13 @@
-import { Chat, Message } from '@prisma/client'
-import { useChat as useAiChat, Message as AiMessage } from 'ai/react'
+import { type Chat, type Message } from '@prisma/client'
+import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
 import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { FormEvent, MouseEvent, useCallback, useEffect, useState } from 'react'
+import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
 import { z } from 'zod'
-import { useTranslation } from './useTranslation'
+import { useTranslation } from './use-translation'
 import { useSignUp } from 'components/auth-modals'
 import {
   errorToastOptions,
@@ -15,6 +15,7 @@ import {
   loadingToastOptions,
   successToastOptions
 } from 'components/toast'
+import { createId } from '@paralleldrive/cuid2'
 
 export type FormValues = {
   name: string
@@ -53,12 +54,13 @@ export const useChat = () => {
   const {
     messages,
     input,
-    setInput,
     handleInputChange,
     stop,
+    setInput,
     handleSubmit: submitMessages,
     isLoading: isSendingMessage,
-    setMessages
+    setMessages,
+    reload
   } = useAiChat({
     onFinish: (messages) => onFinishMessage(messages),
 
@@ -69,7 +71,7 @@ export const useChat = () => {
   })
 
   const { mutate: addMessages } = api.chat.addMessages.useMutation({
-    onSuccess(data) {
+    async onSuccess(data) {
       const messages = data.map((m) => ({
         content: m.content,
         id: m.id,
@@ -78,12 +80,12 @@ export const useChat = () => {
       }))
 
       setMessages(messages)
-      utils.chat.getMessagesById.invalidate({ chatId: sessionChatId })
+      await utils.chat.getMessagesById.invalidate({ chatId: sessionChatId })
     }
   })
 
   const { mutate: createChat } = api.chat.create.useMutation({
-    onSuccess(data) {
+    async onSuccess(data) {
       changeSessionChatId(data.id)
 
       const messages = data.messages.map((m) => ({
@@ -94,7 +96,7 @@ export const useChat = () => {
       }))
 
       setMessages(messages)
-      utils.chat.getMessagesById.invalidate({ chatId: data.id })
+      await utils.chat.getMessagesById.invalidate({ chatId: data.id })
     }
   })
 
@@ -107,7 +109,10 @@ export const useChat = () => {
         })
       } else {
         createChat({
-          messages: [{ content: input, role: 'user' }, message as Message]
+          messages: [
+            { content: messages[0].content, role: 'user' },
+            message as Message
+          ]
         })
       }
     }
@@ -118,7 +123,7 @@ export const useChat = () => {
   const enabled = isAuthenticated && !!sessionChatId && shouldFetchChat
 
   const { status, fetchStatus } = api.chat.getMessagesById.useQuery(
-    { chatId: sessionChatId || '' },
+    { chatId: sessionChatId ?? '' },
     {
       enabled,
       onSuccess: (data) => {
@@ -134,8 +139,8 @@ export const useChat = () => {
 
   const { mutate: createRecipe, status: createRecipeStatus } =
     api.recipe.create.useMutation({
-      onSuccess: (newRecipe, { messageId }) => {
-        utils.recipe.invalidate()
+      async onSuccess(newRecipe, { messageId }) {
+        await utils.recipe.invalidate()
         const messagesCopy = [...messages]
 
         if (messageId) {
@@ -176,7 +181,7 @@ export const useChat = () => {
         changeSessionChatId(data[0].id)
       }
     },
-    []
+    [changeSessionChatId]
   )
 
   const handleChangeChat = useCallback(
@@ -192,9 +197,14 @@ export const useChat = () => {
     []
   )
 
-  const handleFillMessage = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    setInput(e.currentTarget.innerText.toLowerCase())
-  }, [])
+  const handleFillMessage = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setMessages([
+      { content: e.currentTarget.innerText, role: 'user', id: createId() }
+    ])
+    setInput('')
+    reload()
+  }
 
   const handleStartNewChat = useCallback(() => {
     stop()
@@ -207,7 +217,7 @@ export const useChat = () => {
   }, [])
 
   const handleSubmit = useCallback(
-    async (event: FormEvent<HTMLFormElement>) => {
+    (event: FormEvent<HTMLFormElement>) => {
       setShouldFetchChat(false)
 
       if (isSendingMessage) {
@@ -260,7 +270,7 @@ export const useChat = () => {
       }
     )
 
-    router.push(
+    await router.push(
       `recipes/${user.recipes[0].id}?name=${encodeURIComponent(
         user.recipes[0].name
       )}`
@@ -268,7 +278,7 @@ export const useChat = () => {
   }
 
   const handleGoToRecipe = useCallback(
-    ({
+    async ({
       recipeId,
       recipeName
     }: {
@@ -276,7 +286,7 @@ export const useChat = () => {
       recipeName?: string
     }) => {
       if (recipeId && recipeName) {
-        router.push(
+        await router.push(
           `recipes/${recipeId}?name=${encodeURIComponent(recipeName)}`
         )
       }
@@ -355,9 +365,7 @@ function useSessionChatId() {
       const currentChatId = sessionStorage.getItem('currentChatId')
 
       setChatId(
-        currentChatId !== undefined
-          ? JSON.parse(currentChatId as string)
-          : undefined
+        currentChatId ? (JSON.parse(currentChatId) as string) : undefined
       )
     }
   }, [])
@@ -518,9 +526,9 @@ function getTranslatedFields({ locale }: { locale?: string }) {
 }
 
 function removeLeadingHyphens(str: string) {
-  if (str && str[0] === '-') {
+  if (str && str.startsWith('-')) {
     return str.slice(2)
   }
-
+  z
   return str
 }

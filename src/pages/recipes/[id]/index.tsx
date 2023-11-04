@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import { Ingredient, Instruction } from '@prisma/client'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Button } from 'components/button'
-import { useAddToList, useRecipe } from 'hooks/useRecipe'
+import { useAddToList, useRecipe } from 'hooks/use-recipe'
 import { Checkbox } from 'components/checkbox'
 import { MyHead } from 'components/head'
 import NoSleep from 'nosleep.js'
@@ -14,7 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'hooks/useTranslation'
+import { useTranslation } from 'hooks/use-translation'
 
 export const getServerSideProps = (async ({ locale }) => {
   const localeFiles = ['common']
@@ -327,7 +327,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
         className='flex flex-col gap-2'
       >
         <textarea
-          className='textarea textarea-primary resize-none w-full'
+          className='textarea textarea-primary w-full resize-none'
           placeholder={t('recipes.by-id.placeholder')}
           {...register('notes')}
         ></textarea>
