@@ -137,7 +137,7 @@ const Content = memo(function Content(
   if (isNewChat) {
     return (
       <div className='flex flex-col gap-4 pb-16 pt-16'>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        {/*  eslint-disable-next-line @typescript-eslint/no-unsafe-call */}
         <ValueProps handleFillMessage={handleFillMessage as any}>
           <ChatsSection chatId={chatId} handleChangeChat={handleChangeChat} />
 
