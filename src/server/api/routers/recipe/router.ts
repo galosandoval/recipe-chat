@@ -199,7 +199,7 @@ export const recipeRouter = createTRPCRouter({
           }
         })
 
-        if (messageId && newRecipe.id) {
+        if (messageId && messageId.length > 9 && newRecipe.id) {
           await ctx.prisma.message.update({
             where: { id: messageId },
             data: {

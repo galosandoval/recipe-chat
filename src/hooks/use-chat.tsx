@@ -15,6 +15,7 @@ import {
   loadingToastOptions,
   successToastOptions
 } from 'components/toast'
+import { createId } from '@paralleldrive/cuid2'
 
 export type FormValues = {
   name: string
@@ -55,9 +56,11 @@ export const useChat = () => {
     input,
     handleInputChange,
     stop,
+    setInput,
     handleSubmit: submitMessages,
     isLoading: isSendingMessage,
-    setMessages
+    setMessages,
+    reload
   } = useAiChat({
     onFinish: (messages) => onFinishMessage(messages),
 
@@ -106,7 +109,10 @@ export const useChat = () => {
         })
       } else {
         createChat({
-          messages: [{ content: input, role: 'user' }, message as Message]
+          messages: [
+            { content: messages[0].content, role: 'user' },
+            message as Message
+          ]
         })
       }
     }
@@ -191,14 +197,14 @@ export const useChat = () => {
     []
   )
 
-  const handleFillMessage = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-
-      submitMessages(e)
-    },
-    [submitMessages]
-  )
+  const handleFillMessage = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setMessages([
+      { content: e.currentTarget.innerText, role: 'user', id: createId() }
+    ])
+    setInput('')
+    reload()
+  }
 
   const handleStartNewChat = useCallback(() => {
     stop()
