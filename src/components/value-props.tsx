@@ -16,6 +16,7 @@ export function ValueProps({
 
   return (
     <div className='prose mx-auto flex flex-col items-center justify-center gap-2 overflow-y-auto pb-4'>
+      {children}
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <ValuePropsHeader
           icon={
@@ -104,8 +105,6 @@ export function ValueProps({
           </div>
         </div>
       </div>
-
-      {children}
 
       <Auth />
     </div>
