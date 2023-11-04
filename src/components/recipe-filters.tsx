@@ -19,14 +19,22 @@ import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
 import { useTranslation } from 'hooks/use-translation'
 import { ValuePropsHeader } from './value-props'
+import { ErrorMessage } from './error-message-content'
+import { TFunction } from 'i18next'
 
-const createFilterSchema = z.object({
-  name: z.string().min(3).max(50)
-})
+const createFilterSchema = (t: TFunction) =>
+  z.object({
+    name: z
+      .string()
+      .min(3, t('filters.min-chars-3'))
+      .max(50, t('filters.min-chars-50'))
+  })
 
-type CreateFilter = z.infer<typeof createFilterSchema>
+type CreateFilter = z.infer<ReturnType<typeof createFilterSchema>>
 
 export function useFilters() {
+  const t = useTranslation()
+
   const userId = useUserId()
   const utils = api.useContext()
 
@@ -136,9 +144,9 @@ export function useFilters() {
     register,
     handleSubmit,
     reset,
-    formState: { isDirty, isValid }
+    formState: { isDirty, isValid, errors }
   } = useForm<CreateFilter>({
-    resolver: zodResolver(createFilterSchema)
+    resolver: zodResolver(createFilterSchema(t))
   })
 
   const handleToggleCanDelete = () => {
@@ -168,6 +176,7 @@ export function useFilters() {
     canDelete,
     isBtnDisabled: !isDirty || !isValid,
     status,
+    errors,
     handleCheck,
     handleSubmit,
     onSubmit,
@@ -185,7 +194,7 @@ export function Filters({
   data,
   register,
   handleCheck,
-  isBtnDisabled,
+  errors,
   canDelete,
   status,
   handleRemoveFilter,
@@ -228,12 +237,17 @@ export function Filters({
         />
         <button
           type='submit'
-          disabled={isBtnDisabled}
           className='btn join-item no-animation btn-sm rounded-r-full'
         >
           <PlusCircleIcon />
         </button>
       </form>
+
+      {errors.name && (
+        <div className='flex w-full items-center pl-1 sm:pl-4'>
+          <ErrorMessage name='name' errors={errors} />
+        </div>
+      )}
     </div>
   )
 }
