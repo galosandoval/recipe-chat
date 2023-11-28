@@ -7,10 +7,10 @@ import { useSession } from 'next-auth/react'
 
 export function ValueProps({
   children,
-  handleFillMessage
+  handleSendChatExample
 }: {
   children: React.ReactNode
-  handleFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
+  handleSendChatExample: (e: MouseEvent<HTMLButtonElement>) => void
 }) {
   const t = useTranslation()
 
@@ -41,7 +41,7 @@ export function ValueProps({
           <Button
             type='submit'
             className='btn btn-outline w-full normal-case'
-            onClick={handleFillMessage}
+            onClick={handleSendChatExample}
           >
             <span className='w-60'>{t('value-props.first-button')}</span>
             <span>
@@ -51,7 +51,7 @@ export function ValueProps({
           <Button
             type='submit'
             className='btn btn-outline w-full normal-case'
-            onClick={handleFillMessage}
+            onClick={handleSendChatExample}
           >
             <span className='w-60'>{t('value-props.second-button')}</span>
             <span>
@@ -61,7 +61,7 @@ export function ValueProps({
           <Button
             type='submit'
             className='btn btn-outline w-full normal-case'
-            onClick={handleFillMessage}
+            onClick={handleSendChatExample}
           >
             <span className='w-60'>{t('value-props.third-button')}</span>
             <span>

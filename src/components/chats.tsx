@@ -245,6 +245,10 @@ function ChatOption({
 }) {
   const router = useRouter()
 
+  if (chat.messages.length === 0) {
+    return null
+  }
+
   const { content, role } = chat.messages[0]
 
   let message = content

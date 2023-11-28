@@ -51,22 +51,19 @@ export const useChat = () => {
     })
   }
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    stop,
-    setInput,
-    handleSubmit: submitMessages,
-    isLoading: isSendingMessage,
-    setMessages,
-    reload
-  } = useAiChat({
-    onFinish: (messages) => onFinishMessage(messages),
+  const { mutate: createChat } = api.chat.create.useMutation({
+    async onSuccess(data) {
+      changeSessionChatId(data.id)
 
-    body: {
-      filters: filterStrings,
-      locale: router.locale
+      const messages = data.messages.map((m) => ({
+        content: m.content,
+        id: m.id,
+        role: m.role,
+        recipeId: m.recipeId
+      }))
+
+      setMessages(messages)
+      await utils.chat.getMessagesById.invalidate({ chatId: data.id })
     }
   })
 
@@ -84,39 +81,69 @@ export const useChat = () => {
     }
   })
 
-  const { mutate: createChat } = api.chat.create.useMutation({
-    async onSuccess(data) {
-      changeSessionChatId(data.id)
+  const {
+    messages,
+    input,
+    handleInputChange,
+    stop,
+    setInput,
+    handleSubmit: submitMessages,
+    isLoading: isSendingMessage,
+    setMessages,
+    reload,
+    append
+  } = useAiChat({
+    onFinish: (message) => {
+      console.log(isAuthenticated, !!sessionChatId, message)
+      if (isAuthenticated) {
+        if (!!sessionChatId) {
+          addMessages({
+            messages: [{ content: input, role: 'user' }, message as Message],
+            chatId: sessionChatId
+          })
+        } else {
+          const messagesToAdd = [
+            { content: messages[0].content, role: 'user' as Message['role'] },
+            message
+          ]
 
-      const messages = data.messages.map((m) => ({
-        content: m.content,
-        id: m.id,
-        role: m.role,
-        recipeId: m.recipeId
-      }))
+          console.log(messagesToAdd)
 
-      setMessages(messages)
-      await utils.chat.getMessagesById.invalidate({ chatId: data.id })
+          createChat({
+            messages: messagesToAdd
+          })
+        }
+      }
+    },
+
+    body: {
+      filters: filterStrings,
+      locale: router.locale
     }
   })
 
-  function onFinishMessage(message: AiMessage) {
-    if (isAuthenticated) {
-      if (!!sessionChatId) {
-        addMessages({
-          messages: [{ content: input, role: 'user' }, message as Message],
-          chatId: sessionChatId
-        })
-      } else {
-        createChat({
-          messages: [
-            { content: messages[0].content, role: 'user' },
-            message as Message
-          ]
-        })
-      }
-    }
-  }
+  // function onFinishMessage(message: AiMessage) {
+  //   console.log(isAuthenticated, sessionChatId)
+  //   if (isAuthenticated) {
+  //     if (!!sessionChatId) {
+  //       addMessages({
+  //         messages: [{ content: input, role: 'user' }, message as Message],
+  //         chatId: sessionChatId
+  //       })
+  //     } else {
+  //       const messagesToAdd = [
+  //         { content: messages[0].content, role: 'user' as Message['role'] },
+  //         message
+  //       ]
+
+  //       console.log(messagesToAdd)
+
+  //       createChat({
+  //         messages: messagesToAdd
+  //       })
+  //     }
+  //   }
+  // }
 
   const [shouldFetchChat, setShouldFetchChat] = useState(true)
 
@@ -199,11 +226,11 @@ export const useChat = () => {
 
   const handleFillMessage = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setMessages([
-      { content: e.currentTarget.innerText, role: 'user', id: createId() }
-    ])
+    // setMessages([
+    //   { content: e.currentTarget.innerText, role: 'user', id: createId() }
+    // ])
     setInput('')
-    reload()
+    append({ content: e.currentTarget.innerText, role: 'user', id: createId() })
   }
 
   const handleStartNewChat = useCallback(() => {
