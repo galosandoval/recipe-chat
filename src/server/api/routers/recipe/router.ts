@@ -193,6 +193,7 @@ export const recipeRouter = createTRPCRouter({
               create: ingredients.map((i) => ({ name: i }))
             }
           },
+
           include: {
             ingredients: true,
             instructions: true

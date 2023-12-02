@@ -100,5 +100,66 @@ export const chatRouter = createTRPCRouter({
           })
         )
       )
+    }),
+
+  upsert: protectedProcedure
+    .input(
+      z.object({
+        chatId: z.string().optional(),
+        messages: messagesSchema
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { chatId, messages } = input
+
+      if (chatId) {
+        // add messages
+
+        const lastTwoMessages = messages.slice(-2)
+
+        const newMessages = await ctx.prisma.$transaction(
+          lastTwoMessages.map((m) =>
+            ctx.prisma.message.create({
+              data: { content: m.content, role: m.role, chatId }
+            })
+          )
+        )
+
+        return {
+          success: true,
+          message: 'successfully added messages',
+          messages: newMessages
+        } as const
+      } else {
+        // create chat
+
+        const userId = ctx.session.user.id
+
+        const newChat = await ctx.prisma.chat.create({
+          data: {
+            userId,
+
+            messages: {
+              createMany: {
+                data: messages.map((message) => ({
+                  content: message.content,
+                  role: message.role
+                }))
+              }
+            }
+          },
+
+          include: {
+            messages: true
+          }
+        })
+
+        return {
+          success: true,
+          message: 'successfully created a chat',
+          chatId: newChat.id,
+          messages: newChat.messages
+        } as const
+      }
     })
 })

@@ -6,13 +6,11 @@ import ScrollToBottom, {
 import {
   type Chat,
   type Filter,
-  Message,
   type Message as PrismaMessage
 } from '@prisma/client'
 import { type ChatType } from 'hooks/use-chat'
 import {
   type Dispatch,
-  type MouseEvent,
   type SetStateAction,
   memo,
   useEffect,
@@ -37,6 +35,7 @@ import NoSsr from './no-ssr'
 import { useTranslation } from 'hooks/use-translation'
 import { useRouter } from 'next/router'
 import { SignUpModal } from './auth-modals'
+import { type Message } from 'ai'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -138,7 +137,7 @@ const Content = memo(function Content(
     return (
       <div className='flex flex-col gap-4 pb-16 pt-16'>
         {/*  eslint-disable-next-line @typescript-eslint/no-unsafe-call */}
-        <ValueProps handleFillMessage={handleFillMessage as any}>
+        <ValueProps handleSendChatExample={handleFillMessage as any}>
           <ChatsSection chatId={chatId} handleChangeChat={handleChangeChat} />
 
           <Filters {...filters} />
@@ -239,7 +238,7 @@ function ChatWindowContent({
   isAuthenticated: boolean
   handleGetChatsOnSuccess?: (
     data: (Chat & {
-      messages: Message[]
+      messages: PrismaMessage[]
     })[]
   ) => void
   handleChangeChat?: (
@@ -332,7 +331,7 @@ const MessageList = memo(function MessageList({
   handleToggleChatsModal: () => void
   handleGetChatsOnSuccess?: (
     data: (Chat & {
-      messages: Message[]
+      messages: PrismaMessage[]
     })[]
   ) => void
   handleGoToRecipe: ({
@@ -388,7 +387,7 @@ const MessageList = memo(function MessageList({
         {data.map((m, i) => (
           <Message
             message={m}
-            key={m?.content || '' + i}
+            key={m?.id || '' + i}
             isSendingMessage={isSendingMessage}
             handleGoToRecipe={handleGoToRecipe}
             handleSaveRecipe={handleSaveRecipe}

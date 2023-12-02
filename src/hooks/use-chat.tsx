@@ -3,10 +3,17 @@ import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
 import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { type FormEvent, useCallback, useEffect, useState } from 'react'
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useRef
+} from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
-import { z } from 'zod'
+import { set, z } from 'zod'
 import { useTranslation } from './use-translation'
 import { useSignUp } from 'components/auth-modals'
 import {
@@ -51,22 +58,26 @@ export const useChat = () => {
     })
   }
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    stop,
-    setInput,
-    handleSubmit: submitMessages,
-    isLoading: isSendingMessage,
-    setMessages,
-    reload
-  } = useAiChat({
-    onFinish: (messages) => onFinishMessage(messages),
+  const { mutate: createChat } = api.chat.create.useMutation({
+    async onSuccess(data) {
+      // changeSessionChatId(data.id)
+      sessionStorage.setItem('currentChatId', JSON.stringify(data.id))
 
-    body: {
-      filters: filterStrings,
-      locale: router.locale
+      const messages = data.messages.map((m) => ({
+        content: m.content,
+        id: m.id,
+        role: m.role,
+        recipeId: m.recipeId
+      }))
+
+      setMessages(data.messages)
+
+      utils.chat.getMessagesById.setData({ chatId: data.id }, (old) => {
+        if (!old) return old
+
+        return { ...old, messages: data.messages }
+      })
+      await utils.chat.getMessagesById.invalidate({ chatId: data.id })
     }
   })
 
@@ -84,38 +95,71 @@ export const useChat = () => {
     }
   })
 
-  const { mutate: createChat } = api.chat.create.useMutation({
+  const { mutate: upsertChat } = api.chat.upsert.useMutation({
     async onSuccess(data) {
-      changeSessionChatId(data.id)
-
-      const messages = data.messages.map((m) => ({
-        content: m.content,
-        id: m.id,
-        role: m.role,
-        recipeId: m.recipeId
-      }))
-
-      setMessages(messages)
-      await utils.chat.getMessagesById.invalidate({ chatId: data.id })
+      if (data.chatId) {
+        sessionStorage.setItem('currentChatId', JSON.stringify(data.chatId))
+      }
+      setMessages(data.messages)
     }
   })
 
-  function onFinishMessage(message: AiMessage) {
-    if (isAuthenticated) {
-      if (!!sessionChatId) {
-        addMessages({
-          messages: [{ content: input, role: 'user' }, message as Message],
-          chatId: sessionChatId
-        })
-      } else {
-        createChat({
-          messages: [
-            { content: messages[0].content, role: 'user' },
-            message as Message
-          ]
-        })
-      }
+  const {
+    messages,
+    input,
+    handleInputChange,
+    stop,
+    setInput,
+    handleSubmit: submitMessages,
+    isLoading: isSendingMessage,
+    setMessages,
+    reload,
+    append
+  } = useAiChat({
+    onFinish(message) {
+      onFinishMessage(message)
+    },
+
+    body: {
+      filters: filterStrings,
+      locale: router.locale
     }
+  })
+
+  const messagesRef = useRef<AiMessage[]>([])
+
+  useEffect(() => {
+    messagesRef.current = messages
+  }, [messages])
+
+  function onFinishMessage(message: AiMessage) {
+    if (!messagesRef.current?.length) {
+      throw new Error('No messages')
+    }
+
+    upsertChat({
+      chatId: sessionChatId,
+      messages: messagesRef.current.map((message) => ({
+        content: message.content,
+        role: message.role,
+        id: createId()
+      }))
+    })
+
+    // if (isAuthenticated && messagesRef?.current) {
+    //   if (!!sessionChatId) {
+    //     addMessages({
+    //       messages: messagesRef.current.at(-1)
+    //         ? [messagesRef.current.at(-1)]
+    //         : [],
+    //       chatId: sessionChatId
+    //     })
+    //   } else if (messagesRef.current.length === 2) {
+    //     createChat({
+    //       messages: messagesRef.current
+    //     })
+    //   }
+    // }
   }
 
   const [shouldFetchChat, setShouldFetchChat] = useState(true)
@@ -199,11 +243,11 @@ export const useChat = () => {
 
   const handleFillMessage = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setMessages([
-      { content: e.currentTarget.innerText, role: 'user', id: createId() }
-    ])
-    setInput('')
-    reload()
+    // setMessages([
+    //   { content: e.currentTarget.innerText, role: 'user', id: createId() }
+    // ])
+    // setInput('')
+    append({ content: e.currentTarget.innerText, role: 'user', id: createId() })
   }
 
   const handleStartNewChat = useCallback(() => {
