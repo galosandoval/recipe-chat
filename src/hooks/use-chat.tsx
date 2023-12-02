@@ -3,10 +3,17 @@ import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
 import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { type FormEvent, useCallback, useEffect, useState } from 'react'
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useRef
+} from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
-import { z } from 'zod'
+import { set, z } from 'zod'
 import { useTranslation } from './use-translation'
 import { useSignUp } from 'components/auth-modals'
 import {
@@ -53,7 +60,8 @@ export const useChat = () => {
 
   const { mutate: createChat } = api.chat.create.useMutation({
     async onSuccess(data) {
-      changeSessionChatId(data.id)
+      // changeSessionChatId(data.id)
+      sessionStorage.setItem('currentChatId', JSON.stringify(data.id))
 
       const messages = data.messages.map((m) => ({
         content: m.content,
@@ -62,7 +70,13 @@ export const useChat = () => {
         recipeId: m.recipeId
       }))
 
-      setMessages(messages)
+      setMessages(data.messages)
+
+      utils.chat.getMessagesById.setData({ chatId: data.id }, (old) => {
+        if (!old) return old
+
+        return { ...old, messages: data.messages }
+      })
       await utils.chat.getMessagesById.invalidate({ chatId: data.id })
     }
   })
@@ -81,6 +95,15 @@ export const useChat = () => {
     }
   })
 
+  const { mutate: upsertChat } = api.chat.upsert.useMutation({
+    async onSuccess(data) {
+      if (data.chatId) {
+        sessionStorage.setItem('currentChatId', JSON.stringify(data.chatId))
+      }
+      setMessages(data.messages)
+    }
+  })
+
   const {
     messages,
     input,
@@ -93,27 +116,8 @@ export const useChat = () => {
     reload,
     append
   } = useAiChat({
-    onFinish: (message) => {
-      console.log(isAuthenticated, !!sessionChatId, message)
-      if (isAuthenticated) {
-        if (!!sessionChatId) {
-          addMessages({
-            messages: [{ content: input, role: 'user' }, message as Message],
-            chatId: sessionChatId
-          })
-        } else {
-          const messagesToAdd = [
-            { content: messages[0].content, role: 'user' as Message['role'] },
-            message
-          ]
-
-          console.log(messagesToAdd)
-
-          createChat({
-            messages: messagesToAdd
-          })
-        }
-      }
+    onFinish(message) {
+      onFinishMessage(message)
     },
 
     body: {
@@ -122,28 +126,41 @@ export const useChat = () => {
     }
   })
 
-  // function onFinishMessage(message: AiMessage) {
-  //   console.log(isAuthenticated, sessionChatId)
-  //   if (isAuthenticated) {
-  //     if (!!sessionChatId) {
-  //       addMessages({
-  //         messages: [{ content: input, role: 'user' }, message as Message],
-  //         chatId: sessionChatId
-  //       })
-  //     } else {
-  //       const messagesToAdd = [
-  //         { content: messages[0].content, role: 'user' as Message['role'] },
-  //         message
-  //       ]
+  const messagesRef = useRef<AiMessage[]>([])
 
-  //       console.log(messagesToAdd)
+  useEffect(() => {
+    messagesRef.current = messages
+  }, [messages])
 
-  //       createChat({
-  //         messages: messagesToAdd
-  //       })
-  //     }
-  //   }
-  // }
+  function onFinishMessage(message: AiMessage) {
+    if (!messagesRef.current?.length) {
+      throw new Error('No messages')
+    }
+
+    upsertChat({
+      chatId: sessionChatId,
+      messages: messagesRef.current.map((message) => ({
+        content: message.content,
+        role: message.role,
+        id: createId()
+      }))
+    })
+
+    // if (isAuthenticated && messagesRef?.current) {
+    //   if (!!sessionChatId) {
+    //     addMessages({
+    //       messages: messagesRef.current.at(-1)
+    //         ? [messagesRef.current.at(-1)]
+    //         : [],
+    //       chatId: sessionChatId
+    //     })
+    //   } else if (messagesRef.current.length === 2) {
+    //     createChat({
+    //       messages: messagesRef.current
+    //     })
+    //   }
+    // }
+  }
 
   const [shouldFetchChat, setShouldFetchChat] = useState(true)
 
@@ -229,7 +246,7 @@ export const useChat = () => {
     // setMessages([
     //   { content: e.currentTarget.innerText, role: 'user', id: createId() }
     // ])
-    setInput('')
+    // setInput('')
     append({ content: e.currentTarget.innerText, role: 'user', id: createId() })
   }
 

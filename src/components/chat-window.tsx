@@ -387,7 +387,7 @@ const MessageList = memo(function MessageList({
         {data.map((m, i) => (
           <Message
             message={m}
-            key={m?.content || '' + i}
+            key={m?.id || '' + i}
             isSendingMessage={isSendingMessage}
             handleGoToRecipe={handleGoToRecipe}
             handleSaveRecipe={handleSaveRecipe}

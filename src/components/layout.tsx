@@ -83,7 +83,7 @@ function RecipeByIdNavbar() {
     <nav className='prose navbar grid w-full grid-cols-6 bg-transparent px-4'>
       <button
         className='btn btn-circle btn-ghost'
-        onClick={() => router.push('/recipes')}
+        onClick={() => router.back()}
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'
