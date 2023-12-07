@@ -254,11 +254,11 @@ function ChatOption({
 
   let message = content
 
-  if (role === 'assistant') {
-    const recipe = transformContentToRecipe({ content: content })
+  // if (role === 'assistant') {
+  //   const recipe = transformContentToRecipe({ content: content })
 
-    message = recipe.name
-  }
+  //   message = recipe.name
+  // }
 
   return (
     <div
