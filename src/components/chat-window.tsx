@@ -8,7 +8,7 @@ import {
   type Filter,
   type Message as PrismaMessage
 } from '@prisma/client'
-import { type ChatType } from 'hooks/use-chat'
+import { transformContentToRecipe, type ChatType } from 'hooks/use-chat'
 import {
   type Dispatch,
   type SetStateAction,
@@ -437,18 +437,17 @@ const Message = function Message({
     name = 'nombre:'
   }
 
-  let recipeName = ''
-  const nameIdx = message.content.toLowerCase().indexOf(name)
-
-  if (nameIdx !== -1) {
-    const endIdx = message.content.indexOf('\n', nameIdx)
-
-    if (endIdx !== -1) {
-      recipeName = message.content.slice(nameIdx + name.length + 1, endIdx)
-    }
-  }
-
   if (message.role === 'assistant') {
+    const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
+      const recipe = transformContentToRecipe({ content: message.content })
+      const recipeName = recipe.name
+
+      handleGoToRecipe({
+        recipeId,
+        recipeName
+      })
+    }
+
     return (
       <div className='flex flex-col p-4'>
         <div className='prose mx-auto w-full'>
@@ -469,9 +468,8 @@ const Message = function Message({
               <Button
                 className='btn btn-outline'
                 onClick={() =>
-                  handleGoToRecipe({
-                    recipeId: message.recipeId,
-                    recipeName: recipeName
+                  goToRecipe({
+                    recipeId: message.recipeId
                   })
                 }
               >
