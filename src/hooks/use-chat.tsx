@@ -1,4 +1,4 @@
-import { Recipe, type Chat, type Message } from '@prisma/client'
+import { type Chat, type Message } from '@prisma/client'
 import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
 import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
@@ -13,7 +13,7 @@ import {
 } from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
-import { set, z } from 'zod'
+import { z } from 'zod'
 import { useTranslation } from './use-translation'
 import { useSignUp } from 'components/auth-modals'
 import {
@@ -58,42 +58,6 @@ export const useChat = () => {
     })
   }
 
-  const { mutate: createChat } = api.chat.create.useMutation({
-    async onSuccess(data) {
-      sessionStorage.setItem('currentChatId', JSON.stringify(data.id))
-
-      const messages = data.messages.map((m) => ({
-        content: m.content,
-        id: m.id,
-        role: m.role,
-        recipeId: m.recipeId
-      }))
-
-      setMessages(data.messages)
-
-      utils.chat.getMessagesById.setData({ chatId: data.id }, (old) => {
-        if (!old) return old
-
-        return { ...old, messages: data.messages }
-      })
-      await utils.chat.getMessagesById.invalidate({ chatId: data.id })
-    }
-  })
-
-  const { mutate: addMessages } = api.chat.addMessages.useMutation({
-    async onSuccess(data) {
-      const messages = data.map((m) => ({
-        content: m.content,
-        id: m.id,
-        role: m.role,
-        recipeId: m.recipeId
-      }))
-
-      setMessages(messages)
-      await utils.chat.getMessagesById.invalidate({ chatId: sessionChatId })
-    }
-  })
-
   const { mutate: upsertChat } = api.chat.upsert.useMutation({
     async onSuccess(data) {
       if (data.chatId) {
@@ -108,11 +72,9 @@ export const useChat = () => {
     input,
     handleInputChange,
     stop,
-    setInput,
     handleSubmit: submitMessages,
     isLoading: isSendingMessage,
     setMessages,
-    reload,
     append
   } = useAiChat({
     onFinish(message) {
@@ -125,6 +87,25 @@ export const useChat = () => {
     }
   })
 
+  const handleSubmitMessage = () => {
+    let chatId = ''
+
+    const currentChatId = sessionStorage.getItem('currentChatId')
+
+    if (currentChatId && JSON.parse(currentChatId)) {
+      chatId = JSON.parse(currentChatId)
+    }
+
+    upsertChat({
+      chatId,
+      messages: messagesRef.current.map((message) => ({
+        content: message.content,
+        role: message.role
+        // id: createId()
+      }))
+    })
+  }
+
   const messagesRef = useRef<AiMessage[]>([])
 
   useEffect(() => {
@@ -136,14 +117,20 @@ export const useChat = () => {
       throw new Error('No messages')
     }
 
-    upsertChat({
-      chatId: sessionChatId,
-      messages: messagesRef.current.map((message) => ({
-        content: message.content,
-        role: message.role,
-        id: createId()
-      }))
-    })
+    handleSubmitMessage()
+
+    // upsertChat({
+    //   chatId:
+    //     sessionStorage?.getItem('currentChatId') &&
+    //     (JSON.parse(sessionStorage.getItem('currentChatId')) as string)
+    //       ? JSON.parse(sessionStorage.getItem('currentChatId'))
+    //       : '',
+    //   messages: messagesRef.current.map((message) => ({
+    //     content: message.content,
+    //     role: message.role,
+    //     id: createId()
+    //   }))
+    // })
   }
 
   const [shouldFetchChat, setShouldFetchChat] = useState(true)
@@ -228,7 +215,7 @@ export const useChat = () => {
   const handleFillMessage = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    append({ content: e.currentTarget.innerText, role: 'user', id: createId() })
+    append({ content: e.currentTarget.innerText, role: 'user' })
   }
 
   const handleStartNewChat = useCallback(() => {

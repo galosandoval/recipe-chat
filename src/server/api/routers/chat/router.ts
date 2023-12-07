@@ -117,7 +117,7 @@ export const chatRouter = createTRPCRouter({
 
         const lastTwoMessages = messages.slice(-2)
 
-        const newMessages = await ctx.prisma.$transaction(
+        await ctx.prisma.$transaction(
           lastTwoMessages.map((m) =>
             ctx.prisma.message.create({
               data: { content: m.content, role: m.role, chatId }
@@ -125,10 +125,19 @@ export const chatRouter = createTRPCRouter({
           )
         )
 
+        const allMessages = await ctx.prisma.message.findMany({
+          where: {
+            chatId
+          },
+          orderBy: {
+            id: 'asc'
+          }
+        })
+
         return {
           success: true,
           message: 'successfully added messages',
-          messages: newMessages
+          messages: allMessages
         } as const
       } else {
         // create chat
