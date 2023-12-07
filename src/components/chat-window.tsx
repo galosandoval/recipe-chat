@@ -490,13 +490,6 @@ const Message = function Message({
     )
   }
 
-  function removeBracketsAndQuotes(str: string) {
-    // removes {} and [] and "" and , from string
-    return str.replace(/[{}[\]""]/g, '').replace(/,/g, ' ')
-  }
-
-  // user message
-
   const activeFilters = filters.filter((f) => f.checked)
 
   return (
@@ -516,6 +509,11 @@ const Message = function Message({
       </div>
     </div>
   )
+}
+
+function removeBracketsAndQuotes(str: string) {
+  // removes {} and [] and "" and , from string
+  return str.replace(/[{}[\]""]/g, '').replace(/,/g, ' ')
 }
 
 function ActiveFilters({ data }: { data: Filter[] }) {
