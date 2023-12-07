@@ -13,7 +13,7 @@ import {
 } from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
-import { set, z } from 'zod'
+import { z } from 'zod'
 import { useTranslation } from './use-translation'
 import { useSignUp } from 'components/auth-modals'
 import {
@@ -58,43 +58,6 @@ export const useChat = () => {
     })
   }
 
-  const { mutate: createChat } = api.chat.create.useMutation({
-    async onSuccess(data) {
-      // changeSessionChatId(data.id)
-      sessionStorage.setItem('currentChatId', JSON.stringify(data.id))
-
-      const messages = data.messages.map((m) => ({
-        content: m.content,
-        id: m.id,
-        role: m.role,
-        recipeId: m.recipeId
-      }))
-
-      setMessages(data.messages)
-
-      utils.chat.getMessagesById.setData({ chatId: data.id }, (old) => {
-        if (!old) return old
-
-        return { ...old, messages: data.messages }
-      })
-      await utils.chat.getMessagesById.invalidate({ chatId: data.id })
-    }
-  })
-
-  const { mutate: addMessages } = api.chat.addMessages.useMutation({
-    async onSuccess(data) {
-      const messages = data.map((m) => ({
-        content: m.content,
-        id: m.id,
-        role: m.role,
-        recipeId: m.recipeId
-      }))
-
-      setMessages(messages)
-      await utils.chat.getMessagesById.invalidate({ chatId: sessionChatId })
-    }
-  })
-
   const { mutate: upsertChat } = api.chat.upsert.useMutation({
     async onSuccess(data) {
       if (data.chatId) {
@@ -109,11 +72,9 @@ export const useChat = () => {
     input,
     handleInputChange,
     stop,
-    setInput,
     handleSubmit: submitMessages,
     isLoading: isSendingMessage,
     setMessages,
-    reload,
     append
   } = useAiChat({
     onFinish(message) {
@@ -126,40 +87,50 @@ export const useChat = () => {
     }
   })
 
+  const handleSubmitMessage = () => {
+    let chatId = ''
+
+    const currentChatId = sessionStorage.getItem('currentChatId')
+
+    if (currentChatId && JSON.parse(currentChatId)) {
+      chatId = JSON.parse(currentChatId)
+    }
+
+    upsertChat({
+      chatId,
+      messages: messagesRef.current.map((message) => ({
+        content: message.content,
+        role: message.role
+        // id: createId()
+      }))
+    })
+  }
+
   const messagesRef = useRef<AiMessage[]>([])
 
   useEffect(() => {
     messagesRef.current = messages
   }, [messages])
 
-  function onFinishMessage(message: AiMessage) {
+  function onFinishMessage(_: AiMessage) {
     if (!messagesRef.current?.length) {
       throw new Error('No messages')
     }
 
-    upsertChat({
-      chatId: sessionChatId,
-      messages: messagesRef.current.map((message) => ({
-        content: message.content,
-        role: message.role,
-        id: createId()
-      }))
-    })
+    handleSubmitMessage()
 
-    // if (isAuthenticated && messagesRef?.current) {
-    //   if (!!sessionChatId) {
-    //     addMessages({
-    //       messages: messagesRef.current.at(-1)
-    //         ? [messagesRef.current.at(-1)]
-    //         : [],
-    //       chatId: sessionChatId
-    //     })
-    //   } else if (messagesRef.current.length === 2) {
-    //     createChat({
-    //       messages: messagesRef.current
-    //     })
-    //   }
-    // }
+    // upsertChat({
+    //   chatId:
+    //     sessionStorage?.getItem('currentChatId') &&
+    //     (JSON.parse(sessionStorage.getItem('currentChatId')) as string)
+    //       ? JSON.parse(sessionStorage.getItem('currentChatId'))
+    //       : '',
+    //   messages: messagesRef.current.map((message) => ({
+    //     content: message.content,
+    //     role: message.role,
+    //     id: createId()
+    //   }))
+    // })
   }
 
   const [shouldFetchChat, setShouldFetchChat] = useState(true)
@@ -243,11 +214,8 @@ export const useChat = () => {
 
   const handleFillMessage = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // setMessages([
-    //   { content: e.currentTarget.innerText, role: 'user', id: createId() }
-    // ])
-    // setInput('')
-    append({ content: e.currentTarget.innerText, role: 'user', id: createId() })
+
+    append({ content: e.currentTarget.innerText, role: 'user' })
   }
 
   const handleStartNewChat = useCallback(() => {
@@ -292,8 +260,7 @@ export const useChat = () => {
     if (!lastMessage) throw new Error('No last message')
 
     const recipe = transformContentToRecipe({
-      content: lastMessage.content,
-      locale: router.locale
+      content: lastMessage.content
     })
 
     const newRecipePromise = createChatAndRecipeAsync({
@@ -350,8 +317,7 @@ export const useChat = () => {
       }
 
       const recipe = transformContentToRecipe({
-        content,
-        locale: router.locale
+        content
       })
 
       createRecipe({
@@ -422,157 +388,14 @@ export const errorMessage = 'Please try rephrasing your question.'
 const sendMessageFormSchema = z.object({ message: z.string().min(6) })
 export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
-function transformContentToRecipe({
-  content,
-  locale
-}: {
-  content: string
-  locale?: string
-}) {
-  const {
-    cookTimeField,
-    descriptionField,
-    ingredientsField,
-    instructionsField,
-    prepTimeField,
-    nameField
-  } = getTranslatedFields({ locale })
-
-  const nameIdx = content.toLowerCase().indexOf(nameField)
-
-  let name = ''
-
-  if (nameIdx !== -1) {
-    const endIdx = content.indexOf('\n', nameIdx)
-
-    if (endIdx !== -1) {
-      name = content.slice(nameIdx + nameField.length + 1, endIdx)
-    }
+export function transformContentToRecipe({ content }: { content: string }) {
+  return JSON.parse(content) as {
+    name: string
+    description: string
+    prepTime: string
+    cookTime: string
+    categories: string[]
+    instructions: string[]
+    ingredients: string[]
   }
-
-  const descriptionIdx = content
-    .toLowerCase()
-    .indexOf(descriptionField, nameIdx)
-
-  let description = ''
-
-  if (descriptionIdx !== -1) {
-    const endIdx = content.indexOf('\n', descriptionIdx)
-    if (endIdx !== -1) {
-      description = content.slice(
-        descriptionIdx + descriptionField.length + 1,
-        endIdx
-      )
-    }
-  }
-
-  const prepTimeIdx = content.toLowerCase().indexOf(prepTimeField)
-
-  let prepTime = ''
-
-  if (prepTimeIdx !== -1) {
-    const endIdx = content.indexOf('\n', prepTimeIdx)
-    if (endIdx !== -1) {
-      prepTime = content.slice(prepTimeIdx + prepTimeField.length + 1, endIdx)
-    }
-  }
-
-  const cookTimeIdx = content.toLowerCase().indexOf(cookTimeField)
-
-  let cookTime = ''
-
-  if (cookTimeIdx !== -1) {
-    const endIdx = content.indexOf('\n', cookTimeIdx)
-    if (endIdx !== -1) {
-      cookTime = content.slice(cookTimeIdx + cookTimeField.length + 1, endIdx)
-    }
-  }
-
-  const instructionsIdx = content.toLowerCase().indexOf(instructionsField)
-
-  let instructions = ''
-
-  if (instructionsIdx !== -1) {
-    const endIdx = content.indexOf('\n\n', instructionsIdx)
-    if (endIdx !== -1) {
-      instructions = content.slice(
-        instructionsIdx + instructionsField.length + 1,
-        endIdx
-      )
-    }
-  }
-
-  const ingredientsIdx = content.toLowerCase().indexOf(ingredientsField)
-
-  let ingredients = ''
-
-  if (ingredientsIdx !== -1 && instructionsIdx !== -1) {
-    ingredients = content.slice(
-      ingredientsIdx + ingredientsField.length + 1,
-      instructionsIdx - 2
-    )
-  }
-
-  return {
-    name,
-    description,
-    prepTime,
-    cookTime,
-    instructions: removeLeadingHyphens(instructions)
-      .split('\n')
-      .filter(Boolean),
-    ingredients: ingredients
-      .split('\n')
-      .map((s) => removeLeadingHyphens(s))
-      .filter(Boolean)
-  }
-}
-
-function getTranslatedFields({ locale }: { locale?: string }) {
-  let descriptionField = 'description:'
-  if (locale && locale === 'es') {
-    descriptionField = 'descripción:'
-  }
-
-  let ingredientsField = 'ingredients:'
-  if (locale && locale === 'es') {
-    ingredientsField = 'ingredientes:'
-  }
-
-  let instructionsField = 'instructions:'
-  if (locale && locale === 'es') {
-    instructionsField = 'instrucciones:'
-  }
-
-  let cookTimeField = 'cook time:'
-  if (locale && locale === 'es') {
-    cookTimeField = 'tiempo de cocción:'
-  }
-
-  let prepTimeField = 'preparation time:'
-  if (locale && locale === 'es') {
-    prepTimeField = 'tiempo de preparación:'
-  }
-
-  let nameField = 'name:'
-  if (locale && locale === 'es') {
-    nameField = 'nombre:'
-  }
-
-  return {
-    descriptionField,
-    ingredientsField,
-    instructionsField,
-    cookTimeField,
-    prepTimeField,
-    nameField
-  }
-}
-
-function removeLeadingHyphens(str: string) {
-  if (str && str.startsWith('-')) {
-    return str.slice(2)
-  }
-  z
-  return str
 }

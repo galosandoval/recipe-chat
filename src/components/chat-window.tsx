@@ -8,7 +8,7 @@ import {
   type Filter,
   type Message as PrismaMessage
 } from '@prisma/client'
-import { type ChatType } from 'hooks/use-chat'
+import { transformContentToRecipe, type ChatType } from 'hooks/use-chat'
 import {
   type Dispatch,
   type SetStateAction,
@@ -430,25 +430,18 @@ const Message = function Message({
   }) => void
 }) {
   const t = useTranslation()
-  const router = useRouter()
-
-  let name = 'name:'
-  if (router.locale === 'es') {
-    name = 'nombre:'
-  }
-
-  let recipeName = ''
-  const nameIdx = message.content.toLowerCase().indexOf(name)
-
-  if (nameIdx !== -1) {
-    const endIdx = message.content.indexOf('\n', nameIdx)
-
-    if (endIdx !== -1) {
-      recipeName = message.content.slice(nameIdx + name.length + 1, endIdx)
-    }
-  }
 
   if (message.role === 'assistant') {
+    const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
+      const recipe = transformContentToRecipe({ content: message.content })
+      const recipeName = recipe.name
+
+      handleGoToRecipe({
+        recipeId,
+        recipeName
+      })
+    }
+
     return (
       <div className='flex flex-col p-4'>
         <div className='prose mx-auto w-full'>
@@ -459,7 +452,7 @@ const Message = function Message({
 
             <div className='prose flex flex-col pb-12'>
               <p className='mb-0 mt-0 whitespace-pre-line'>
-                {message.content || ''}
+                {removeBracketsAndQuotes(message.content) || ''}
               </p>
             </div>
           </div>
@@ -469,9 +462,8 @@ const Message = function Message({
               <Button
                 className='btn btn-outline'
                 onClick={() =>
-                  handleGoToRecipe({
-                    recipeId: message.recipeId,
-                    recipeName: recipeName
+                  goToRecipe({
+                    recipeId: message.recipeId
                   })
                 }
               >
@@ -496,6 +488,11 @@ const Message = function Message({
         </div>
       </div>
     )
+  }
+
+  function removeBracketsAndQuotes(str: string) {
+    // removes {} and [] and "" and , from string
+    return str.replace(/[{}[\]""]/g, '').replace(/,/g, ' ')
   }
 
   // user message

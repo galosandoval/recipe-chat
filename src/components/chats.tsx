@@ -13,6 +13,7 @@ import { useTranslation } from 'hooks/use-translation'
 import { useRouter } from 'next/router'
 import { Session } from 'next-auth'
 import { ValuePropsHeader } from './value-props'
+import { transformContentToRecipe } from 'hooks/use-chat'
 
 export function ChatsSection({
   handleChangeChat,
@@ -253,21 +254,10 @@ function ChatOption({
 
   let message = content
 
-  let fieldToIndex = 'name:'
-  if (router.locale === 'es') {
-    fieldToIndex = 'nombre:'
-  }
-
   if (role === 'assistant') {
-    const nameIdx = content.toLowerCase().indexOf(fieldToIndex)
+    const recipe = transformContentToRecipe({ content: content })
 
-    if (nameIdx !== -1) {
-      const endIdx = content.indexOf('\n', nameIdx)
-
-      if (endIdx !== -1) {
-        message = content.slice(nameIdx + fieldToIndex.length + 1, endIdx)
-      }
-    }
+    message = recipe.name
   }
 
   return (
