@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction } from '@prisma/client'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button } from 'components/button'
 import { useAddToList, useRecipe } from 'hooks/use-recipe'
 import { Checkbox } from 'components/checkbox'
@@ -15,6 +15,9 @@ import { z } from 'zod'
 import { GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'hooks/use-translation'
+import { PutBlobResult } from '@vercel/blob'
+import toast from 'react-hot-toast'
+import Image from 'next/image'
 
 export const getServerSideProps = (async ({ locale }) => {
   const localeFiles = ['common']
@@ -152,6 +155,9 @@ function FoundRecipe({
     router.push('/list')
   }
 
+  const inputFileRef = useRef<HTMLInputElement>(null)
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+
   useEffect(() => {
     return () => clearTimeout(goToListTimer)
   }, [goToListTimer])
@@ -159,7 +165,61 @@ function FoundRecipe({
   return (
     <div className='container prose mx-auto flex flex-col items-center pb-4'>
       <div className='flex flex-col'>
-        <div className=''></div>
+        <form
+          className='gap flex flex-col py-5'
+          onSubmit={async (event) => {
+            event.preventDefault()
+            console.log(inputFileRef.current?.files)
+            if (!inputFileRef.current?.files) {
+              toast.error('No file selected')
+              return
+            }
+
+            const file = inputFileRef.current.files[0]
+
+            console.log(file)
+
+            const response = await fetch(`/api/upload?filename=${file.name}`, {
+              method: 'POST',
+              body: file
+            })
+
+            console.log(response)
+
+            const newBlob = (await response.json()) as PutBlobResult
+            console.log(newBlob)
+            console.log(newBlob.url)
+            setBlobUrl(newBlob.url)
+          }}
+        >
+          <label className='label' htmlFor='file-input'>
+            Add a photo
+          </label>
+          <input
+            id='file-input'
+            type='file'
+            className='file-input file-input-bordered file-input-primary w-full max-w-xs'
+            ref={inputFileRef}
+          />
+
+          {blobUrl && (
+            <Image src={blobUrl} alt='recipe' width={200} height={200} />
+          )}
+          <Image
+            src={
+              'https://nvpvglkh9iqe2xny.public.blob.vercel-storage.com/profile-pic-CO0nUYaGnQWg5hfnUjNjcYcwEARDWf.jpeg'
+            }
+            alt='me'
+            width={200}
+            height={200}
+          />
+
+          <div className='mx-auto pt-4'>
+            <Button className='btn btn-primary' type='submit'>
+              Save image
+            </Button>
+          </div>
+        </form>
         <div className='px-4'>
           {renderAddress}
           {renderAuthor}
