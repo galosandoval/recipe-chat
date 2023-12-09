@@ -2,7 +2,6 @@ import toast, {
   type ToastOptions,
   Toaster,
   useToasterStore,
-  resolveValue,
   ToastBar
 } from 'react-hot-toast'
 import { CheckIcon, ExclamationCircle } from './icons'

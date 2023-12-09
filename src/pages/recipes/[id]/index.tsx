@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction } from '@prisma/client'
-import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
 import { Button } from 'components/button'
 import { useAddToList, useRecipe } from 'hooks/use-recipe'
 import { Checkbox } from 'components/checkbox'
@@ -18,6 +18,7 @@ import { useTranslation } from 'hooks/use-translation'
 import { BlobAccessError, PutBlobResult } from '@vercel/blob'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
+
 export const getServerSideProps = (async ({ locale }) => {
   const localeFiles = ['common']
 
@@ -88,6 +89,7 @@ function FoundRecipe({
     prepTime,
     cookTime,
     notes,
+    imgUrl,
     id
   } = data
 
@@ -154,9 +156,6 @@ function FoundRecipe({
     router.push('/list')
   }
 
-  const inputFileRef = useRef<HTMLInputElement>(null)
-  const [blobUrl, setBlobUrl] = useState<string | null>(null)
-
   useEffect(() => {
     return () => clearTimeout(goToListTimer)
   }, [goToListTimer])
@@ -164,67 +163,8 @@ function FoundRecipe({
   return (
     <div className='container prose mx-auto flex flex-col items-center pb-4'>
       <div className='flex flex-col'>
-        <form
-          className='gap flex flex-col justify-center py-5'
-          onSubmit={async (event) => {
-            event.preventDefault()
+        <ImageUpload id={id} url={imgUrl} />
 
-            try {
-              if (!inputFileRef.current?.files?.length) {
-                throw Error('No file selected')
-              }
-
-              const file = inputFileRef.current.files[0]
-
-              const response = await fetch(
-                `/api/upload?filename=${file.name}`,
-                {
-                  method: 'POST',
-                  body: file
-                }
-              )
-
-              const newBlob = (await response.json()) as PutBlobResult
-              setBlobUrl(newBlob.url)
-            } catch (error) {
-              // handle a recognized error
-              if (error instanceof BlobAccessError || error instanceof Error) {
-                toast.error(error.message)
-              } else if (error instanceof Error) {
-                toast.error(error.message)
-              } else {
-                // handle an unrecognized error
-                toast.error(t('error.something-went-wrong'))
-              }
-            }
-          }}
-        >
-          <label className='label' htmlFor='file-input'>
-            Add a photo
-          </label>
-          <input
-            id='file-input'
-            type='file'
-            name='file'
-            className='file-input file-input-bordered file-input-primary w-full max-w-xs'
-            // required
-            ref={inputFileRef}
-          />
-
-          {blobUrl && (
-            <Image src={blobUrl} alt='recipe' width={200} height={200} />
-          )}
-          {blobUrl && (
-            <div>
-              Blob url: <a href={blobUrl}>{blobUrl}</a>
-            </div>
-          )}
-          <div className='mx-auto pt-4'>
-            <Button className='btn btn-primary' type='submit'>
-              Save image
-            </Button>
-          </div>
-        </form>
         <div className='px-4'>
           {renderAddress}
           {renderAuthor}
@@ -288,6 +228,134 @@ function FoundRecipe({
         <Notes notes={notes} id={id} />
       </div>
     </div>
+  )
+}
+
+const MAX_FILE_SIZE = 4500000
+const ACCEPTED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp'
+]
+
+const uploadImgSchema = z
+  .any()
+  .refine(
+    (files) => files?.[0]?.size <= MAX_FILE_SIZE,
+    `Max image size is 5MB.`
+  )
+  .refine(
+    (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+    'Only .jpg, .jpeg, .png and .webp formats are supported.'
+  )
+
+function ImageUpload({ id, url }: { id: string; url: string | null }) {
+  const utils = api.useContext()
+  const t = useTranslation()
+
+  const inputFileRef = useRef<HTMLInputElement>(null)
+
+  const { mutate: updateImgUrl } = api.recipe.updateImgUrl.useMutation({
+    onMutate: async ({ id, imgUrl }) => {
+      await utils.recipe.byId.cancel({ id })
+
+      const previousData = utils.recipe.byId.getData({ id })
+
+      if (!previousData) return previousData
+
+      utils.recipe.byId.setData({ id }, (old) => {
+        if (!old) return old
+
+        return {
+          ...old,
+          imgUrl
+        }
+      })
+
+      return { previousData }
+    },
+
+    onSuccess: async () => {
+      await utils.recipe.byId.invalidate({ id })
+    },
+
+    onError: (error, _, context) => {
+      const previousData = context?.previousData
+
+      if (previousData && previousData) {
+        utils.recipe.byId.setData({ id }, previousData)
+      }
+
+      toast.error(error.message)
+    }
+  })
+
+  const handleSubmitImageUrl = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    try {
+      if (!inputFileRef.current?.files?.length) {
+        throw Error('No file selected')
+      }
+
+      const file = inputFileRef.current.files[0]
+
+      const response = await fetch(`/api/upload?filename=${file.name}`, {
+        method: 'POST',
+        body: file
+      })
+
+      const newBlob = (await response.json()) as PutBlobResult
+
+      updateImgUrl({ id, imgUrl: newBlob.url })
+    } catch (error) {
+      // handle a recognized error
+      if (error instanceof BlobAccessError || error instanceof Error) {
+        toast.error(error.message)
+      } else if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        // handle an unrecognized error
+        toast.error(t('error.something-went-wrong'))
+      }
+    }
+  }
+  return (
+    <>
+      {url ? (
+        <Image
+          className='mx-auto rounded'
+          src={url}
+          alt='recipe'
+          width={300}
+          height={300}
+        />
+      ) : (
+        <form
+          className='gap flex flex-col justify-center px-4 py-5'
+          onSubmit={handleSubmitImageUrl}
+        >
+          <label className='label' htmlFor='file-input'>
+            Add a photo
+          </label>
+          <input
+            id='file-input'
+            type='file'
+            name='file'
+            className='file-input file-input-bordered file-input-primary w-full max-w-xs'
+            // required
+            ref={inputFileRef}
+          />
+
+          <div className='mx-auto pt-4'>
+            <Button className='btn btn-primary' type='submit'>
+              Save image
+            </Button>
+          </div>
+        </form>
+      )}
+    </>
   )
 }
 
