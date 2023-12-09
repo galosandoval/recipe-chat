@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction } from '@prisma/client'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
 import { Button } from 'components/button'
 import { useAddToList, useRecipe } from 'hooks/use-recipe'
 import { Checkbox } from 'components/checkbox'
@@ -15,6 +15,9 @@ import { z } from 'zod'
 import { GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'hooks/use-translation'
+import { BlobAccessError, PutBlobResult } from '@vercel/blob'
+import toast from 'react-hot-toast'
+import Image from 'next/image'
 
 export const getServerSideProps = (async ({ locale }) => {
   const localeFiles = ['common']
@@ -86,6 +89,7 @@ function FoundRecipe({
     prepTime,
     cookTime,
     notes,
+    imgUrl,
     id
   } = data
 
@@ -159,7 +163,8 @@ function FoundRecipe({
   return (
     <div className='container prose mx-auto flex flex-col items-center pb-4'>
       <div className='flex flex-col'>
-        <div className=''></div>
+        <ImageUpload id={id} url={imgUrl} />
+
         <div className='px-4'>
           {renderAddress}
           {renderAuthor}
@@ -223,6 +228,124 @@ function FoundRecipe({
         <Notes notes={notes} id={id} />
       </div>
     </div>
+  )
+}
+
+const MAX_FILE_SIZE = 4500000
+const ACCEPTED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp'
+]
+
+function ImageUpload({ id, url }: { id: string; url: string | null }) {
+  const utils = api.useContext()
+  const t = useTranslation()
+
+  const inputFileRef = useRef<HTMLInputElement>(null)
+
+  const { mutate: updateImgUrl } = api.recipe.updateImgUrl.useMutation({
+    onMutate: async ({ id, imgUrl }) => {
+      await utils.recipe.byId.cancel({ id })
+
+      const previousData = utils.recipe.byId.getData({ id })
+
+      if (!previousData) return previousData
+
+      utils.recipe.byId.setData({ id }, (old) => {
+        if (!old) return old
+
+        return {
+          ...old,
+          imgUrl
+        }
+      })
+
+      return { previousData }
+    },
+
+    onSuccess: async () => {
+      await utils.recipe.byId.invalidate({ id })
+    },
+
+    onError: (error, _, context) => {
+      const previousData = context?.previousData
+
+      if (previousData && previousData) {
+        utils.recipe.byId.setData({ id }, previousData)
+      }
+
+      toast.error(error.message)
+    }
+  })
+
+  const handleSubmitImageUrl = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    try {
+      if (!inputFileRef.current?.files?.length) {
+        throw Error(t('recipes.by-id.no-file'))
+      }
+
+      const file = inputFileRef.current.files[0]
+
+      const response = await fetch(`/api/upload?filename=${file.name}`, {
+        method: 'POST',
+        body: file
+      })
+
+      const newBlob = (await response.json()) as PutBlobResult
+
+      updateImgUrl({ id, imgUrl: newBlob.url })
+    } catch (error) {
+      // handle a recognized error
+      if (error instanceof BlobAccessError || error instanceof Error) {
+        toast.error(error.message)
+      } else if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        // handle an unrecognized error
+        toast.error(t('error.something-went-wrong'))
+      }
+    }
+  }
+
+  return (
+    <>
+      {url ? (
+        <Image
+          className='mx-auto rounded'
+          src={url}
+          alt='recipe'
+          width={300}
+          height={300}
+        />
+      ) : (
+        <form
+          className='gap flex flex-col justify-center px-4 py-5'
+          onSubmit={handleSubmitImageUrl}
+        >
+          <label className='label' htmlFor='file-input'>
+            {t('recipes.by-id.add-image')}
+          </label>
+          <input
+            id='file-input'
+            type='file'
+            name='file'
+            className='file-input file-input-bordered file-input-primary w-full max-w-xs'
+            // required
+            ref={inputFileRef}
+          />
+
+          <div className='mx-auto pt-4'>
+            <Button className='btn btn-primary' type='submit'>
+              {t('recipes.by-id.save-image')}
+            </Button>
+          </div>
+        </form>
+      )}
+    </>
   )
 }
 

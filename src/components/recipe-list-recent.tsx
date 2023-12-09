@@ -29,8 +29,8 @@ export function RecentRecipes() {
                 <Image
                   src={recipe.imgUrl}
                   alt='recipe'
-                  height={100}
-                  width={100}
+                  height={40}
+                  width={40}
                 />
               ) : (
                 <div className='self-center bg-primary-content'>

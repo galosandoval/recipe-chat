@@ -213,6 +213,24 @@ export const recipeRouter = createTRPCRouter({
       }
     }),
 
+  updateImgUrl: protectedProcedure
+    .input(z.object({ id: z.string(), imgUrl: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const updatedRecipe = await ctx.prisma.recipe.update({
+        where: { id: input.id },
+        data: { imgUrl: input.imgUrl }
+      })
+
+      if (!updatedRecipe) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Recipe not found'
+        })
+      }
+
+      return true
+    }),
+
   edit: protectedProcedure
     .input(updateRecipeSchema)
     .mutation(async ({ input, ctx }) => {

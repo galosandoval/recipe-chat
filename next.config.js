@@ -12,6 +12,12 @@ const nextConfig = {
         hostname: 'uploadthing.com',
         port: '',
         pathname: '/f/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'nvpvglkh9iqe2xny.public.blob.vercel-storage.com',
+        port: '',
+        pathname: '/**'
       }
     ]
   },

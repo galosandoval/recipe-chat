@@ -92,14 +92,21 @@
     "upload": "Upload",
     "cancel": "Cancel",
     "save": "Save",
+    "delete": "Delete",
 
     "by-id": {
+      "add-image": "Add an image",
+      "save-image": "Save image",
       "go-to-list": "Go to list",
       "add-to-list": "Add to list",
       "deselect-all": "Deselect all",
       "select-all": "Select all",
       "placeholder": "Add notes here",
       "edit": "Edit recipe",
+      "select-image": "Select image",
+      "update-image": "Update image",
+      "update-image-success": "Image updated successfully!",
+      "no-file": "No file selected",
 
       "delete": {
         "title": "Delete recipe",
