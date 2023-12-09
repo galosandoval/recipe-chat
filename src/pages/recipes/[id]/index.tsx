@@ -15,10 +15,9 @@ import { z } from 'zod'
 import { GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'hooks/use-translation'
-import { PutBlobResult } from '@vercel/blob'
+import { BlobAccessError, PutBlobResult } from '@vercel/blob'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
-
 export const getServerSideProps = (async ({ locale }) => {
   const localeFiles = ['common']
 
@@ -166,30 +165,38 @@ function FoundRecipe({
     <div className='container prose mx-auto flex flex-col items-center pb-4'>
       <div className='flex flex-col'>
         <form
-          className='gap flex flex-col py-5'
+          className='gap flex flex-col justify-center py-5'
           onSubmit={async (event) => {
             event.preventDefault()
-            console.log(inputFileRef.current?.files)
-            if (!inputFileRef.current?.files) {
-              toast.error('No file selected')
-              return
+
+            try {
+              if (!inputFileRef.current?.files?.length) {
+                throw Error('No file selected')
+              }
+
+              const file = inputFileRef.current.files[0]
+
+              const response = await fetch(
+                `/api/upload?filename=${file.name}`,
+                {
+                  method: 'POST',
+                  body: file
+                }
+              )
+
+              const newBlob = (await response.json()) as PutBlobResult
+              setBlobUrl(newBlob.url)
+            } catch (error) {
+              // handle a recognized error
+              if (error instanceof BlobAccessError || error instanceof Error) {
+                toast.error(error.message)
+              } else if (error instanceof Error) {
+                toast.error(error.message)
+              } else {
+                // handle an unrecognized error
+                toast.error(t('error.something-went-wrong'))
+              }
             }
-
-            const file = inputFileRef.current.files[0]
-
-            console.log(file)
-
-            const response = await fetch(`/api/upload?filename=${file.name}`, {
-              method: 'POST',
-              body: file
-            })
-
-            console.log(response)
-
-            const newBlob = (await response.json()) as PutBlobResult
-            console.log(newBlob)
-            console.log(newBlob.url)
-            setBlobUrl(newBlob.url)
           }}
         >
           <label className='label' htmlFor='file-input'>
@@ -198,22 +205,20 @@ function FoundRecipe({
           <input
             id='file-input'
             type='file'
+            name='file'
             className='file-input file-input-bordered file-input-primary w-full max-w-xs'
+            // required
             ref={inputFileRef}
           />
 
           {blobUrl && (
             <Image src={blobUrl} alt='recipe' width={200} height={200} />
           )}
-          <Image
-            src={
-              'https://nvpvglkh9iqe2xny.public.blob.vercel-storage.com/profile-pic-CO0nUYaGnQWg5hfnUjNjcYcwEARDWf.jpeg'
-            }
-            alt='me'
-            width={200}
-            height={200}
-          />
-
+          {blobUrl && (
+            <div>
+              Blob url: <a href={blobUrl}>{blobUrl}</a>
+            </div>
+          )}
           <div className='mx-auto pt-4'>
             <Button className='btn btn-primary' type='submit'>
               Save image

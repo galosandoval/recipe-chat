@@ -2,26 +2,20 @@ import { put } from '@vercel/blob'
 import { NextResponse, NextRequest } from 'next/server'
 
 export const config = {
-  runtime: 'edge',
-  api: { bodyParser: false }
+  runtime: 'edge'
 }
 
-export default async function upload(req: NextRequest) {
-  console.log('first')
-
-  console.log(req.url)
-
+export default async function POST(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const filename = searchParams.get('filename')
 
   if (!filename) {
     return NextResponse.error()
   }
-  console.log('fileNmae', filename)
-  const blob = await put(filename, req as any, {
+
+  const blob = await put(filename, req.body as any, {
     access: 'public'
   })
 
   return NextResponse.json(blob)
 }
-// nvpvglkh9iqe2xny.public.blob.vercel-storage.com

@@ -1,15 +1,37 @@
-import { type ToastOptions, Toaster } from 'react-hot-toast'
+import toast, {
+  type ToastOptions,
+  Toaster,
+  useToasterStore,
+  resolveValue,
+  ToastBar
+} from 'react-hot-toast'
 import { CheckIcon, ExclamationCircle } from './icons'
 
 export function Toast() {
-  return (
-    <Toaster
-      toastOptions={{
-        success: successToastOptions,
+  const { toasts } = useToasterStore()
 
-        error: errorToastOptions
-      }}
-    />
+  const lastToastId = toasts.at(-1)?.id
+
+  const handleClickToaster = () => {
+    toast.dismiss(lastToastId)
+  }
+
+  return (
+    <button onClick={handleClickToaster}>
+      <Toaster
+        toastOptions={{
+          success: successToastOptions,
+
+          error: errorToastOptions
+        }}
+      >
+        {(t) => (
+          <div onClick={() => toast.dismiss(t.id)}>
+            <ToastBar toast={t} />
+          </div>
+        )}
+      </Toaster>
+    </button>
   )
 }
 
