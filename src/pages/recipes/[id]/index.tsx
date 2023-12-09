@@ -239,17 +239,6 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/webp'
 ]
 
-const uploadImgSchema = z
-  .any()
-  .refine(
-    (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-    `Max image size is 5MB.`
-  )
-  .refine(
-    (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-    'Only .jpg, .jpeg, .png and .webp formats are supported.'
-  )
-
 function ImageUpload({ id, url }: { id: string; url: string | null }) {
   const utils = api.useContext()
   const t = useTranslation()
@@ -296,7 +285,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
 
     try {
       if (!inputFileRef.current?.files?.length) {
-        throw Error('No file selected')
+        throw Error(t('recipes.by-id.no-file'))
       }
 
       const file = inputFileRef.current.files[0]
@@ -321,6 +310,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
       }
     }
   }
+
   return (
     <>
       {url ? (
@@ -337,7 +327,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
           onSubmit={handleSubmitImageUrl}
         >
           <label className='label' htmlFor='file-input'>
-            Add a photo
+            {t('recipes.by-id.add-image')}
           </label>
           <input
             id='file-input'
@@ -350,7 +340,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
 
           <div className='mx-auto pt-4'>
             <Button className='btn btn-primary' type='submit'>
-              Save image
+              {t('recipes.by-id.save-image')}
             </Button>
           </div>
         </form>

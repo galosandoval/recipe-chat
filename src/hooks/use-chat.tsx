@@ -3,14 +3,7 @@ import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
 import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import {
-  type FormEvent,
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-  useRef
-} from 'react'
+import { type FormEvent, useCallback, useEffect, useState, useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from 'utils/api'
 import { z } from 'zod'
@@ -22,7 +15,6 @@ import {
   loadingToastOptions,
   successToastOptions
 } from 'components/toast'
-import { createId } from '@paralleldrive/cuid2'
 
 export type FormValues = {
   name: string

@@ -7,11 +7,15 @@ import { Button } from 'components/button'
 import { UpdateRecipe } from 'server/api/routers/recipe/interface'
 import { FormValues } from 'hooks/use-chat'
 import { CheckIcon, TrashIcon } from 'components/icons'
-import { useState } from 'react'
+import { ChangeEvent, FormEvent, useRef, useState } from 'react'
 import { Modal } from 'components/modal'
 import { GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'hooks/use-translation'
+import Image from 'next/image'
+import { api } from 'utils/api'
+import { BlobAccessError, PutBlobResult } from '@vercel/blob'
+import toast from 'react-hot-toast'
 
 export const getServerSideProps = (async ({ locale }) => {
   const localeFiles = ['common']
@@ -62,6 +66,8 @@ function FoundRecipe({
   }
 }) {
   const t = useTranslation()
+  const utils = api.useContext()
+  const router = useRouter()
 
   const {
     ingredients,
@@ -71,16 +77,9 @@ function FoundRecipe({
     prepTime,
     cookTime,
     notes,
+    imgUrl,
     id
   } = data
-
-  const { mutate: editRecipe, isLoading } = useEditRecipe()
-  const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
-  const [isOpen, setIsOpen] = useState(false)
-
-  const handleCloseConfirmationModal = () => {
-    setIsOpen(false)
-  }
 
   const {
     register,
@@ -97,6 +96,20 @@ function FoundRecipe({
       notes: notes || ''
     }
   })
+
+  const { mutate: editRecipe, isLoading } = api.recipe.edit.useMutation({
+    onSuccess: async (data, { newName }) => {
+      await utils.recipe.byId.invalidate({ id: data })
+      await router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
+    }
+  })
+
+  const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleCloseConfirmationModal = () => {
+    setIsOpen(false)
+  }
 
   const onSubmit = (values: FormValues) => {
     const newIngredients = values.ingredients
@@ -179,10 +192,12 @@ function FoundRecipe({
   }
 
   return (
-    <>
+    <div className='flex flex-col gap-4'>
+      <UpdateImage imgUrl={imgUrl} id={id} />
+
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className='prose mx-2 flex flex-col items-center pb-4 md:mx-auto'
+        className='prose mx-2 flex flex-col items-center pb-12 md:mx-auto'
       >
         <div className='flex w-full flex-col'>
           <label htmlFor='name' className='label'>
@@ -194,6 +209,7 @@ function FoundRecipe({
             className='input input-bordered'
           />
         </div>
+
         <div className='flex w-full flex-col'>
           <label htmlFor='description' className='label'>
             <span className='label-text'>{t('recipes.description')}</span>
@@ -205,6 +221,7 @@ function FoundRecipe({
             className='textarea textarea-bordered resize-none'
           />
         </div>
+
         <div className='flex w-full gap-2'>
           <div className='flex w-1/2 flex-col'>
             <label htmlFor='prepTime' className='label'>
@@ -217,6 +234,7 @@ function FoundRecipe({
               {...register('prepTime')}
             />
           </div>
+
           <div className='flex w-1/2 flex-col'>
             <label htmlFor='cookTime' className='label'>
               <span className='label-text'>{t('recipes.cook-time')}</span>
@@ -234,6 +252,7 @@ function FoundRecipe({
           <label htmlFor='ingredients' className='label'>
             <span className='label-text'>{t('recipes.ingredients')}</span>
           </label>
+
           <textarea
             id='ingredients'
             rows={4}
@@ -246,6 +265,7 @@ function FoundRecipe({
           <label htmlFor='instructions' className='label'>
             <span className='label-text'>{t('recipes.instructions')}</span>
           </label>
+
           <textarea
             id='instructions'
             rows={4}
@@ -258,6 +278,7 @@ function FoundRecipe({
           <label htmlFor='notes' className='label'>
             <span className='label-text'>{t('recipes.notes')}</span>
           </label>
+
           <textarea
             id='notes'
             rows={4}
@@ -265,24 +286,26 @@ function FoundRecipe({
             className='textarea textarea-bordered resize-none'
           />
         </div>
-        <div className='grid w-full grid-cols-2 gap-2'>
-          <Button
-            disabled={isLoading}
-            className='btn btn-error mt-2 w-full'
-            type='button'
-            onClick={() => setIsOpen(true)}
-          >
-            <TrashIcon />
-          </Button>
+        <div className='fixed bottom-0 w-full bg-base-100/80'>
+          <div className='mx-auto grid max-w-sm grid-cols-2 gap-2 px-1 py-2'>
+            <Button
+              disabled={isLoading}
+              className='btn btn-error'
+              type='button'
+              onClick={() => setIsOpen(true)}
+            >
+              <TrashIcon /> Delete
+            </Button>
 
-          <Button
-            isLoading={isLoading}
-            disabled={!isDirty || !isValid}
-            className='btn btn-success mt-2 w-full'
-            type='submit'
-          >
-            <CheckIcon />
-          </Button>
+            <Button
+              isLoading={isLoading}
+              disabled={!isDirty || !isValid}
+              className='btn btn-success'
+              type='submit'
+            >
+              <CheckIcon /> {t('recipes.delete')}
+            </Button>
+          </div>
         </div>
       </form>
 
@@ -291,6 +314,7 @@ function FoundRecipe({
           <div className=''>
             <h1 className='mb-0 text-xl'>{t('recipes.by-id.delete.title')}</h1>
           </div>
+
           <div className=''>
             <p className=''>{t('recipes.by-id.delete.message')}</p>
           </div>
@@ -314,6 +338,7 @@ function FoundRecipe({
                 />
               </svg>
             </Button>
+
             <Button
               onClick={() => handleDelete(data.id)}
               isLoading={deleteStatus === 'loading'}
@@ -324,6 +349,121 @@ function FoundRecipe({
           </div>
         </div>
       </Modal>
-    </>
+    </div>
+  )
+}
+
+function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
+  const utils = api.useContext()
+  const t = useTranslation()
+  const inputFileRef = useRef<HTMLInputElement>(null)
+
+  const { mutate: updateImgUrl, status } = api.recipe.updateImgUrl.useMutation({
+    onMutate: async ({ id, imgUrl }) => {
+      await utils.recipe.byId.cancel({ id })
+
+      const previousData = utils.recipe.byId.getData({ id })
+
+      if (!previousData) return previousData
+
+      utils.recipe.byId.setData({ id }, (old) => {
+        if (!old) return old
+
+        return {
+          ...old,
+          imgUrl
+        }
+      })
+
+      return { previousData }
+    },
+
+    onSuccess: async () => {
+      await utils.recipe.byId.invalidate({ id })
+
+      toast.success(t('recipes.by-id.update-image-success'))
+    },
+
+    onError: (error, _, context) => {
+      const previousData = context?.previousData
+
+      if (previousData && previousData) {
+        utils.recipe.byId.setData({ id }, previousData)
+      }
+
+      toast.error(error.message)
+    }
+  })
+
+  const handleFileInput = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    try {
+      if (!inputFileRef.current?.files?.length) {
+        throw Error(t('recipes.by-id.no-file'))
+      }
+
+      const file = inputFileRef.current.files[0]
+
+      const response = await fetch(`/api/upload?filename=${file.name}`, {
+        method: 'POST',
+        body: file
+      })
+
+      const newBlob = (await response.json()) as PutBlobResult
+
+      updateImgUrl({ id, imgUrl: newBlob.url })
+    } catch (error) {
+      // handle a recognized error
+      if (error instanceof BlobAccessError || error instanceof Error) {
+        toast.error(error.message)
+      } else if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        // handle an unrecognized error
+        toast.error(t('error.something-went-wrong'))
+      }
+    }
+  }
+
+  return (
+    <div className=''>
+      {imgUrl && (
+        <form className='relative w-full' onSubmit={handleFileInput}>
+          <Image
+            className='mx-auto rounded'
+            src={imgUrl}
+            alt='recipe'
+            width={300}
+            height={300}
+          />
+          <span className='absolute inset-0 flex flex-col items-center justify-center gap-4 rounded bg-primary-content/70 backdrop-blur-sm'>
+            <div className='px-5'>
+              <label className='label' htmlFor='file-input'>
+                {t('recipes.by-id.select-image')}
+              </label>
+
+              <input
+                id='file-input'
+                type='file'
+                name='file'
+                className='file-input file-input-bordered file-input-primary w-full max-w-xs'
+                ref={inputFileRef}
+              />
+            </div>
+
+            <div className='flex w-full justify-center'>
+              <Button
+                isLoading={status === 'loading'}
+                type='submit'
+                className='btn btn-primary'
+              >
+                {t('recipes.by-id.update-image')}
+              </Button>
+            </div>
+          </span>
+        </form>
+      )}
+    </div>
   )
 }

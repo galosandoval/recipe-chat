@@ -91,14 +91,21 @@
     "upload": "Subir",
     "cancel": "Cancelar",
     "save": "guardar",
+    "delete": "borrar",
 
     "by-id": {
+      "add-image": "Agregar imagen",
+      "save-image": "Guardar imagen",
       "go-to-list": "Ir a lista",
       "add-to-list": "Agregar a tu lista",
       "deselect-all": "Deseleccionar todo",
       "select-all": "Seleccionar todo",
       "placeholder": "Agrega notas aqui",
       "edit": "Editar receta",
+      "select-image": "Seleccionar imagen",
+      "update-image": "Actualizar imagen",
+      "update-image-success": "¡Imagen actualizada!",
+      "no-file": "No hay archivo seleccionado",
 
       "delete": {
         "title": "Borrar receta",
