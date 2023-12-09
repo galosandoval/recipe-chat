@@ -10,6 +10,7 @@ import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
 import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
 import { type LinkedData, updateRecipeSchema } from './interface'
+import { del } from '@vercel/blob'
 
 export const recipeRouter = createTRPCRouter({
   recentRecipes: protectedProcedure.query(async ({ ctx }) => {
@@ -214,8 +215,18 @@ export const recipeRouter = createTRPCRouter({
     }),
 
   updateImgUrl: protectedProcedure
-    .input(z.object({ id: z.string(), imgUrl: z.string() }))
+    .input(
+      z.object({
+        id: z.string(),
+        imgUrl: z.string(),
+        oldUrl: z.string().optional()
+      })
+    )
     .mutation(async ({ input, ctx }) => {
+      if (input.oldUrl) {
+        await del(input.oldUrl)
+      }
+
       const updatedRecipe = await ctx.prisma.recipe.update({
         where: { id: input.id },
         data: { imgUrl: input.imgUrl }

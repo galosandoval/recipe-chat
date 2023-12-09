@@ -412,7 +412,7 @@ function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
 
       const newBlob = (await response.json()) as PutBlobResult
 
-      updateImgUrl({ id, imgUrl: newBlob.url })
+      updateImgUrl({ id, imgUrl: newBlob.url, oldUrl: imgUrl ?? undefined })
     } catch (error) {
       // handle a recognized error
       if (error instanceof BlobAccessError || error instanceof Error) {
