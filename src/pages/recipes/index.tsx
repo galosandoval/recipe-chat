@@ -150,7 +150,7 @@ function SearchBar({
   const t = useTranslation()
 
   return (
-    <div className='fixed  bottom-0 left-0 flex w-full items-center md:rounded-md'>
+    <div className='fixed bottom-0 left-0 flex w-full items-center md:rounded-md'>
       <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <input
@@ -197,7 +197,7 @@ function Pages({
   }
 
   return (
-    <div className='mx-auto mb-24 mt-4 grid max-w-4xl grid-cols-2 gap-5 md:grid-cols-4'>
+    <div className='mx-auto mb-24 mt-4 grid max-w-4xl grid-cols-2 gap-5 sm:grid-cols-4'>
       {pages.length > 0 && pages[0].items.length > 0 ? (
         <>
           <RecentRecipes />
@@ -285,12 +285,21 @@ function Card({ data }: { data: Recipe }) {
     <Link
       href={`/recipes/${data.id}?name=${encodeURIComponent(data.name)}`}
       key={data.id}
-      className='overflow-hidden rounded-lg bg-base-200 shadow-xl'
+      className='col-span-1 overflow-hidden rounded-lg bg-base-200 shadow-xl'
       onClick={handleUpdateLastViewedAt}
     >
       <div className='w-full'>
         {data.imgUrl ? (
-          <Image src={data.imgUrl} alt='recipe' width={260} height={260} />
+          <div className='w-full'>
+            <div className='relative h-36'>
+              <Image
+                className='object-fill sm:object-contain'
+                src={data.imgUrl}
+                alt='recipe'
+                fill
+              />
+            </div>
+          </div>
         ) : (
           <div className='bg-primary-content'>
             <svg
@@ -298,7 +307,7 @@ function Card({ data }: { data: Recipe }) {
               width='260'
               height='260'
               viewBox='0 0 260 260'
-              className='h-44 w-full fill-current'
+              className='h-36 w-full fill-current'
             >
               <g fillRule='evenodd'>
                 <g id='i-like-food' fill='currentColor'>
