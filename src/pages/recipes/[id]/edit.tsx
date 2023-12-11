@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import { Ingredient, Instruction, Recipe } from '@prisma/client'
 import { useDeleteRecipe, useEditRecipe, useRecipe } from 'hooks/use-recipe'
 import { MyHead } from 'components/head'
-import { useForm } from 'react-hook-form'
+import { UseFormHandleSubmit, useForm } from 'react-hook-form'
 import { Button } from 'components/button'
 import { UpdateRecipe } from 'server/api/routers/recipe/interface'
 import { FormValues } from 'hooks/use-chat'
@@ -65,7 +65,6 @@ function FoundRecipe({
     instructions: Instruction[]
   }
 }) {
-  const t = useTranslation()
   const utils = api.useContext()
   const router = useRouter()
 
@@ -103,13 +102,6 @@ function FoundRecipe({
       await router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
     }
   })
-
-  const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
-  const [isOpen, setIsOpen] = useState(false)
-
-  const handleCloseConfirmationModal = () => {
-    setIsOpen(false)
-  }
 
   const onSubmit = (values: FormValues) => {
     const newIngredients = values.ingredients
@@ -187,14 +179,205 @@ function FoundRecipe({
     })
   }
 
-  const handleDelete = (id: string) => {
-    deleteRecipe({ id })
+  return (
+    <div className='flex flex-col gap-4'>
+      <UpdateImage imgUrl={imgUrl} id={id} name={name} />
+
+      <MutateRecipeIngredientsAndInstructions
+        handleSubmit={handleSubmit}
+        onSubmit={onSubmit}
+        data={data}
+        register={register}
+        isLoading={isLoading}
+        isDirty={isDirty}
+        isValid={isValid}
+      />
+    </div>
+  )
+}
+
+function UpdateImage({
+  imgUrl,
+  id,
+  name
+}: {
+  imgUrl: string | null
+  id: string
+  name: string
+}) {
+  const utils = api.useContext()
+  const t = useTranslation()
+  const router = useRouter()
+
+  const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
+    'update-image' | 'upload-image' | 'uploading-image'
+  >('update-image')
+
+  const { mutate: updateImgUrl, status } = api.recipe.updateImgUrl.useMutation({
+    onMutate: async ({ id, imgUrl }) => {
+      await utils.recipe.byId.cancel({ id })
+
+      const previousData = utils.recipe.byId.getData({ id })
+
+      if (!previousData) return previousData
+
+      utils.recipe.byId.setData({ id }, (old) => {
+        if (!old) return old
+
+        return {
+          ...old,
+          imgUrl
+        }
+      })
+
+      return { previousData }
+    },
+
+    onSuccess: async () => {
+      await utils.recipe.byId.invalidate({ id })
+
+      toast.success(t('recipes.by-id.update-image-success'))
+      router.push(`/recipes/${id}?name=${encodeURIComponent(name)}`)
+    },
+
+    onError: (error, _, context) => {
+      const previousData = context?.previousData
+
+      if (previousData && previousData) {
+        utils.recipe.byId.setData({ id }, previousData)
+      }
+
+      toast.error(error.message)
+    }
+  })
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) return
+
+    const fileList = event.target.files
+
+    if (!fileList) {
+      const fileInput = document.querySelector(
+        '#file-input'
+      ) as HTMLInputElement | null
+
+      if (fileInput) {
+        fileInput.click()
+      }
+    } else if (fileList.length) {
+      setUploadImgButtonLabel('uploading-image')
+
+      try {
+        if (!fileList?.length) {
+          throw Error(t('recipes.by-id.no-file'))
+        }
+
+        const file = fileList[0]
+
+        const response = await fetch(`/api/upload?filename=${file.name}`, {
+          method: 'POST',
+          body: file
+        })
+
+        const newBlob = (await response.json()) as PutBlobResult
+
+        updateImgUrl({ id, imgUrl: newBlob.url, oldUrl: imgUrl ?? undefined })
+      } catch (error) {
+        // handle a recognized error
+        if (error instanceof BlobAccessError || error instanceof Error) {
+          toast.error(error.message)
+        } else if (error instanceof Error) {
+          toast.error(error.message)
+        } else {
+          // handle an unrecognized error
+          toast.error(t('error.something-went-wrong'))
+        }
+      }
+      setUploadImgButtonLabel('upload-image')
+    }
   }
 
   return (
-    <div className='flex flex-col gap-4'>
-      <UpdateImage imgUrl={imgUrl} id={id} />
+    <div className=''>
+      {imgUrl && (
+        <div className='relative w-full' onSubmit={handleFileChange}>
+          <Image
+            className='mx-auto rounded'
+            src={imgUrl}
+            alt='recipe'
+            width={300}
+            height={300}
+          />
+          <span className='absolute inset-0 flex flex-col items-center justify-center gap-4 rounded bg-primary-content/70 backdrop-blur-sm'>
+            <div className='px-5'>
+              <input
+                id='file-input'
+                type='file'
+                name='file'
+                className='hidden'
+                onChange={handleFileChange}
+              />
+            </div>
 
+            <div className='flex w-full justify-center'>
+              <Button
+                isLoading={status === 'loading'}
+                className='btn btn-primary'
+                onClick={() => {
+                  const fileInput = document.querySelector(
+                    '#file-input'
+                  ) as HTMLInputElement | null
+
+                  if (fileInput) {
+                    fileInput.click()
+                  }
+                }}
+              >
+                {/* {t('recipes.by-id.update-image')} */}
+                {t(`recipes.by-id.${uploadImgButtonLabel}`)}
+              </Button>
+            </div>
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MutateRecipeIngredientsAndInstructions({
+  handleSubmit,
+  onSubmit,
+  register,
+  data,
+  isLoading,
+  isDirty,
+  isValid
+}: {
+  handleSubmit: UseFormHandleSubmit<FormValues, undefined>
+  onSubmit: (values: FormValues) => void
+  data: Recipe & {
+    ingredients: Ingredient[]
+    instructions: Instruction[]
+  }
+  register: any
+  isLoading: boolean
+  isDirty: boolean
+  isValid: boolean
+}) {
+  const t = useTranslation()
+
+  const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleCloseConfirmationModal = () => {
+    setIsOpen(false)
+  }
+
+  const handleDelete = (id: string) => {
+    deleteRecipe({ id })
+  }
+  return (
+    <>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className='prose mx-2 flex flex-col items-center pb-12 md:mx-auto'
@@ -303,7 +486,7 @@ function FoundRecipe({
               className='btn btn-success'
               type='submit'
             >
-              <CheckIcon /> {t('recipes.delete')}
+              <CheckIcon /> {t('recipes.save')}
             </Button>
           </div>
         </div>
@@ -349,121 +532,6 @@ function FoundRecipe({
           </div>
         </div>
       </Modal>
-    </div>
-  )
-}
-
-function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
-  const utils = api.useContext()
-  const t = useTranslation()
-  const inputFileRef = useRef<HTMLInputElement>(null)
-
-  const { mutate: updateImgUrl, status } = api.recipe.updateImgUrl.useMutation({
-    onMutate: async ({ id, imgUrl }) => {
-      await utils.recipe.byId.cancel({ id })
-
-      const previousData = utils.recipe.byId.getData({ id })
-
-      if (!previousData) return previousData
-
-      utils.recipe.byId.setData({ id }, (old) => {
-        if (!old) return old
-
-        return {
-          ...old,
-          imgUrl
-        }
-      })
-
-      return { previousData }
-    },
-
-    onSuccess: async () => {
-      await utils.recipe.byId.invalidate({ id })
-
-      toast.success(t('recipes.by-id.update-image-success'))
-    },
-
-    onError: (error, _, context) => {
-      const previousData = context?.previousData
-
-      if (previousData && previousData) {
-        utils.recipe.byId.setData({ id }, previousData)
-      }
-
-      toast.error(error.message)
-    }
-  })
-
-  const handleFileInput = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    try {
-      if (!inputFileRef.current?.files?.length) {
-        throw Error(t('recipes.by-id.no-file'))
-      }
-
-      const file = inputFileRef.current.files[0]
-
-      const response = await fetch(`/api/upload?filename=${file.name}`, {
-        method: 'POST',
-        body: file
-      })
-
-      const newBlob = (await response.json()) as PutBlobResult
-
-      updateImgUrl({ id, imgUrl: newBlob.url, oldUrl: imgUrl ?? undefined })
-    } catch (error) {
-      // handle a recognized error
-      if (error instanceof BlobAccessError || error instanceof Error) {
-        toast.error(error.message)
-      } else if (error instanceof Error) {
-        toast.error(error.message)
-      } else {
-        // handle an unrecognized error
-        toast.error(t('error.something-went-wrong'))
-      }
-    }
-  }
-
-  return (
-    <div className=''>
-      {imgUrl && (
-        <form className='relative w-full' onSubmit={handleFileInput}>
-          <Image
-            className='mx-auto rounded'
-            src={imgUrl}
-            alt='recipe'
-            width={300}
-            height={300}
-          />
-          <span className='absolute inset-0 flex flex-col items-center justify-center gap-4 rounded bg-primary-content/70 backdrop-blur-sm'>
-            <div className='px-5'>
-              <label className='label' htmlFor='file-input'>
-                {t('recipes.by-id.select-image')}
-              </label>
-
-              <input
-                id='file-input'
-                type='file'
-                name='file'
-                className='file-input file-input-bordered file-input-primary w-full max-w-xs'
-                ref={inputFileRef}
-              />
-            </div>
-
-            <div className='flex w-full justify-center'>
-              <Button
-                isLoading={status === 'loading'}
-                type='submit'
-                className='btn btn-primary'
-              >
-                {t('recipes.by-id.update-image')}
-              </Button>
-            </div>
-          </span>
-        </form>
-      )}
-    </div>
+    </>
   )
 }

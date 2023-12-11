@@ -94,7 +94,6 @@
     "delete": "borrar",
 
     "by-id": {
-      "add-image": "Agregar imagen",
       "save-image": "Guardar imagen",
       "go-to-list": "Ir a lista",
       "add-to-list": "Agregar a tu lista",
@@ -104,6 +103,8 @@
       "edit": "Editar receta",
       "select-image": "Seleccionar imagen",
       "update-image": "Actualizar imagen",
+      "upload-image": "Subir imagen",
+      "uploading-image": "Subiendo imagen...",
       "update-image-success": "¡Imagen actualizada!",
       "no-file": "No hay archivo seleccionado",
 

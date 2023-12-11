@@ -95,7 +95,6 @@
     "delete": "Delete",
 
     "by-id": {
-      "add-image": "Add an image",
       "save-image": "Save image",
       "go-to-list": "Go to list",
       "add-to-list": "Add to list",
@@ -105,6 +104,8 @@
       "edit": "Edit recipe",
       "select-image": "Select image",
       "update-image": "Update image",
+      "upload-image": "Upload image",
+      "uploading-image": "Uploading...",
       "update-image-success": "Image updated successfully!",
       "no-file": "No file selected",
 
