@@ -210,8 +210,8 @@ function UpdateImage({
   const router = useRouter()
 
   const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
-    'Select image' | 'Upload Image' | 'Uploading...'
-  >('Select image')
+    'update-image' | 'upload-image' | 'uploading-image'
+  >('update-image')
 
   const { mutate: updateImgUrl, status } = api.recipe.updateImgUrl.useMutation({
     onMutate: async ({ id, imgUrl }) => {
@@ -265,7 +265,7 @@ function UpdateImage({
         fileInput.click()
       }
     } else if (fileList.length) {
-      setUploadImgButtonLabel('Uploading...')
+      setUploadImgButtonLabel('uploading-image')
 
       try {
         if (!fileList?.length) {
@@ -293,7 +293,7 @@ function UpdateImage({
           toast.error(t('error.something-went-wrong'))
         }
       }
-      setUploadImgButtonLabel('Upload Image')
+      setUploadImgButtonLabel('upload-image')
     }
   }
 
@@ -334,7 +334,7 @@ function UpdateImage({
                 }}
               >
                 {/* {t('recipes.by-id.update-image')} */}
-                {uploadImgButtonLabel}
+                {t(`recipes.by-id.${uploadImgButtonLabel}`)}
               </Button>
             </div>
           </span>

@@ -237,8 +237,8 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
   const t = useTranslation()
 
   const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
-    'Select image' | 'Upload Image' | 'Uploading...'
-  >('Select image')
+    'select-image' | 'upload-image' | 'uploading-image'
+  >('select-image')
 
   const { mutate: updateImgUrl } = api.recipe.updateImgUrl.useMutation({
     onMutate: async ({ id, imgUrl }) => {
@@ -262,11 +262,11 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
 
     onSuccess: async () => {
       await utils.recipe.byId.invalidate({ id })
-      setUploadImgButtonLabel('Select image')
+      setUploadImgButtonLabel('select-image')
     },
 
     onError: (error, _, context) => {
-      setUploadImgButtonLabel('Select image')
+      setUploadImgButtonLabel('select-image')
 
       const previousData = context?.previousData
 
@@ -278,50 +278,6 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
     }
   })
 
-  // const handleSubmitImageUrl = async () => {
-
-  //   if (!fileList) {
-  //     const fileInput = document.querySelector(
-  //       '#file-input'
-  //     ) as HTMLInputElement | null
-
-  //     if (fileInput) {
-  //       fileInput.click()
-  //     }
-  //   } else if (fileList.length) {
-  //     setUploadImgButtonLabel('Uploading...')
-
-  //     try {
-  //       if (!fileList?.length) {
-  //         throw Error(t('recipes.by-id.no-file'))
-  //       }
-
-  //       const file = fileList[0]
-
-  //       const response = await fetch(`/api/upload?filename=${file.name}`, {
-  //         method: 'POST',
-  //         body: file
-  //       })
-
-  //       const newBlob = (await response.json()) as PutBlobResult
-
-  //       updateImgUrl({ id, imgUrl: newBlob.url })
-  //     } catch (error) {
-  //       setUploadImgButtonLabel('Select image')
-
-  //       // handle a recognized error
-  //       if (error instanceof BlobAccessError || error instanceof Error) {
-  //         toast.error(error.message)
-  //       } else if (error instanceof Error) {
-  //         toast.error(error.message)
-  //       } else {
-  //         // handle an unrecognized error
-  //         toast.error(t('error.something-went-wrong'))
-  //       }
-  //     }
-  //   }
-  // }
-
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     console.log(event.target.files)
 
@@ -330,7 +286,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
     const fileList = event.target.files
 
     if (fileList.length) {
-      setUploadImgButtonLabel('Uploading...')
+      setUploadImgButtonLabel('uploading-image')
 
       try {
         if (!fileList?.length) {
@@ -348,7 +304,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
 
         updateImgUrl({ id, imgUrl: newBlob.url })
       } catch (error) {
-        setUploadImgButtonLabel('Select image')
+        setUploadImgButtonLabel('select-image')
 
         // handle a recognized error
         if (error instanceof BlobAccessError || error instanceof Error) {
@@ -362,7 +318,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
       }
     }
 
-    setUploadImgButtonLabel('Upload Image')
+    setUploadImgButtonLabel('upload-image')
   }
 
   return (
