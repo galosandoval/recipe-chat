@@ -279,8 +279,6 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
   })
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target.files)
-
     if (!event.target.files) return
 
     const fileList = event.target.files
@@ -375,12 +373,6 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
             </svg>
             {uploadImgButtonLabel}
           </Button>
-
-          <div className='mx-auto pt-4'>
-            {/* <Button className='btn btn-primary' type='submit'>
-              {t('recipes.by-id.save-image')}
-            </Button> */}
-          </div>
         </div>
       )}
     </>

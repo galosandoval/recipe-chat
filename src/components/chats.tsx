@@ -260,7 +260,6 @@ function ChatOption({
       message = recipe.name
     } catch (error) {
       message = content
-      console.log(error)
     }
   }
 
