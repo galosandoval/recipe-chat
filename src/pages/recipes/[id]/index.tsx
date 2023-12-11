@@ -9,7 +9,7 @@ import NoSleep from 'nosleep.js'
 import { ListBulletIcon, PlusIcon } from 'components/icons'
 import { ScreenLoader } from 'components/loaders/screen'
 import { RouterInputs, RouterOutputs, api } from 'utils/api'
-import { useForm } from 'react-hook-form'
+import { set, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { GetServerSideProps } from 'next'
@@ -18,6 +18,7 @@ import { useTranslation } from 'hooks/use-translation'
 import { BlobAccessError, PutBlobResult } from '@vercel/blob'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
+import { f } from '@vercel/blob/dist/put-96a1f07e'
 
 export const getServerSideProps = (async ({ locale }) => {
   const localeFiles = ['common']
@@ -231,19 +232,13 @@ function FoundRecipe({
   )
 }
 
-const MAX_FILE_SIZE = 4500000
-const ACCEPTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp'
-]
-
 function ImageUpload({ id, url }: { id: string; url: string | null }) {
   const utils = api.useContext()
   const t = useTranslation()
 
-  const inputFileRef = useRef<HTMLInputElement>(null)
+  const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
+    'Select image' | 'Upload Image' | 'Uploading...'
+  >('Select image')
 
   const { mutate: updateImgUrl } = api.recipe.updateImgUrl.useMutation({
     onMutate: async ({ id, imgUrl }) => {
@@ -267,9 +262,12 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
 
     onSuccess: async () => {
       await utils.recipe.byId.invalidate({ id })
+      setUploadImgButtonLabel('Select image')
     },
 
     onError: (error, _, context) => {
+      setUploadImgButtonLabel('Select image')
+
       const previousData = context?.previousData
 
       if (previousData && previousData) {
@@ -280,35 +278,91 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
     }
   })
 
-  const handleSubmitImageUrl = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  // const handleSubmitImageUrl = async () => {
 
-    try {
-      if (!inputFileRef.current?.files?.length) {
-        throw Error(t('recipes.by-id.no-file'))
-      }
+  //   if (!fileList) {
+  //     const fileInput = document.querySelector(
+  //       '#file-input'
+  //     ) as HTMLInputElement | null
 
-      const file = inputFileRef.current.files[0]
+  //     if (fileInput) {
+  //       fileInput.click()
+  //     }
+  //   } else if (fileList.length) {
+  //     setUploadImgButtonLabel('Uploading...')
 
-      const response = await fetch(`/api/upload?filename=${file.name}`, {
-        method: 'POST',
-        body: file
-      })
+  //     try {
+  //       if (!fileList?.length) {
+  //         throw Error(t('recipes.by-id.no-file'))
+  //       }
 
-      const newBlob = (await response.json()) as PutBlobResult
+  //       const file = fileList[0]
 
-      updateImgUrl({ id, imgUrl: newBlob.url })
-    } catch (error) {
-      // handle a recognized error
-      if (error instanceof BlobAccessError || error instanceof Error) {
-        toast.error(error.message)
-      } else if (error instanceof Error) {
-        toast.error(error.message)
-      } else {
-        // handle an unrecognized error
-        toast.error(t('error.something-went-wrong'))
+  //       const response = await fetch(`/api/upload?filename=${file.name}`, {
+  //         method: 'POST',
+  //         body: file
+  //       })
+
+  //       const newBlob = (await response.json()) as PutBlobResult
+
+  //       updateImgUrl({ id, imgUrl: newBlob.url })
+  //     } catch (error) {
+  //       setUploadImgButtonLabel('Select image')
+
+  //       // handle a recognized error
+  //       if (error instanceof BlobAccessError || error instanceof Error) {
+  //         toast.error(error.message)
+  //       } else if (error instanceof Error) {
+  //         toast.error(error.message)
+  //       } else {
+  //         // handle an unrecognized error
+  //         toast.error(t('error.something-went-wrong'))
+  //       }
+  //     }
+  //   }
+  // }
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target.files)
+
+    if (!event.target.files) return
+
+    const fileList = event.target.files
+
+    if (fileList.length) {
+      setUploadImgButtonLabel('Uploading...')
+
+      try {
+        if (!fileList?.length) {
+          throw Error(t('recipes.by-id.no-file'))
+        }
+
+        const file = fileList[0]
+
+        const response = await fetch(`/api/upload?filename=${file.name}`, {
+          method: 'POST',
+          body: file
+        })
+
+        const newBlob = (await response.json()) as PutBlobResult
+
+        updateImgUrl({ id, imgUrl: newBlob.url })
+      } catch (error) {
+        setUploadImgButtonLabel('Select image')
+
+        // handle a recognized error
+        if (error instanceof BlobAccessError || error instanceof Error) {
+          toast.error(error.message)
+        } else if (error instanceof Error) {
+          toast.error(error.message)
+        } else {
+          // handle an unrecognized error
+          toast.error(t('error.something-went-wrong'))
+        }
       }
     }
+
+    setUploadImgButtonLabel('Upload Image')
   }
 
   return (
@@ -322,28 +376,56 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
           height={300}
         />
       ) : (
-        <form
-          className='gap flex flex-col justify-center px-4 py-5'
-          onSubmit={handleSubmitImageUrl}
-        >
-          <label className='label' htmlFor='file-input'>
-            {t('recipes.by-id.add-image')}
-          </label>
+        <div className='gap flex flex-col justify-center px-4 py-5'>
           <input
             id='file-input'
             type='file'
             name='file'
-            className='file-input file-input-bordered file-input-primary w-full max-w-xs'
-            // required
-            ref={inputFileRef}
+            className='invisible'
+            onChange={handleFileChange}
           />
 
+          <Button
+            onClick={() => {
+              const fileInput = document.querySelector(
+                '#file-input'
+              ) as HTMLInputElement | null
+
+              if (fileInput) {
+                fileInput.click()
+              }
+            }}
+            className='btn btn-primary'
+          >
+            {/* camera icon */}
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth={1.5}
+              stroke='currentColor'
+              className='h-6 w-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z'
+              />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z'
+              />
+            </svg>
+            {uploadImgButtonLabel}
+          </Button>
+
           <div className='mx-auto pt-4'>
-            <Button className='btn btn-primary' type='submit'>
+            {/* <Button className='btn btn-primary' type='submit'>
               {t('recipes.by-id.save-image')}
-            </Button>
+            </Button> */}
           </div>
-        </form>
+        </div>
       )}
     </>
   )
