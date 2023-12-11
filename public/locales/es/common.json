@@ -104,6 +104,7 @@
       "select-image": "Seleccionar imagen",
       "update-image": "Actualizar imagen",
       "upload-image": "Subir imagen",
+      "uploading-image": "Subiendo imagen...",
       "update-image-success": "¡Imagen actualizada!",
       "no-file": "No hay archivo seleccionado",
 
