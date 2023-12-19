@@ -23,7 +23,7 @@ export function RecentRecipes() {
                 recipe.name
               )}`}
               key={recipe.id}
-              className='flex gap-2 overflow-hidden rounded-md bg-base-300'
+              className='flex h-10 gap-2 overflow-hidden rounded-md bg-base-300'
             >
               {recipe.imgUrl ? (
                 <Image
@@ -31,6 +31,7 @@ export function RecentRecipes() {
                   alt='recipe'
                   height={40}
                   width={40}
+                  className='object-fill'
                 />
               ) : (
                 <div className='self-center bg-primary-content'>

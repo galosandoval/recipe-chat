@@ -297,6 +297,7 @@ function Card({ data }: { data: Recipe }) {
                 src={data.imgUrl}
                 alt='recipe'
                 fill
+                sizes='(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 33vw'
               />
             </div>
           </div>
