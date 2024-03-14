@@ -117,7 +117,7 @@ export function useListController(data: Ingredient[]) {
       )
 
       // Snapshot the previous value
-      const prevList = utils.list.byUserId.getData()
+      const prevList = utils.list.byUserId.getData({ userId })
 
       let ingredients: Ingredient[] = []
       if (prevList) {
