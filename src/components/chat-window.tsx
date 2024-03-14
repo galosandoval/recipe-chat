@@ -33,7 +33,6 @@ import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import NoSsr from './no-ssr'
 import { useTranslation } from 'hooks/use-translation'
-import { useRouter } from 'next/router'
 import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
 

@@ -2,7 +2,7 @@ import { MyHead } from 'components/head'
 import { SubmitMessageForm } from 'components/submit-message-form'
 import ChatWindow from 'components/chat-window'
 import { useChat } from 'hooks/use-chat'
-import { GetServerSideProps } from 'next'
+import { type GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { getServerAuthSession } from './api/auth/[...nextauth]'
 

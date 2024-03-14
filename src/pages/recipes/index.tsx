@@ -1,4 +1,4 @@
-import { Recipe } from '@prisma/client'
+import { type Recipe } from '@prisma/client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -10,11 +10,11 @@ import { Modal } from 'components/modal'
 import { FormLoader } from 'components/loaders/form'
 import { MyHead } from 'components/head'
 import { Dialog } from '@headlessui/react'
-import { LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
+import { type LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
 import {
-  ChangeEvent,
+  type ChangeEvent,
   Fragment,
-  RefObject,
+  type RefObject,
   useEffect,
   useRef,
   useState
@@ -27,12 +27,12 @@ import {
 import { LoadingSpinner, ScreenLoader } from 'components/loaders/screen'
 import { api } from 'utils/api'
 import { useInView } from 'react-intersection-observer'
-import { FetchStatus, QueryStatus } from '@tanstack/react-query'
+import { type FetchStatus, type QueryStatus } from '@tanstack/react-query'
 import { RecentRecipes } from 'components/recipe-list-recent'
-import { GetStaticProps } from 'next'
+import { type GetStaticProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'hooks/use-translation'
-import { TFunction } from 'i18next'
+import { type TFunction } from 'i18next'
 import { ErrorMessage } from 'components/error-message-content'
 
 export const getStaticProps = (async ({ locale }) => {

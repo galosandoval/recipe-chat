@@ -23,19 +23,13 @@ export function ErrorMessage<T extends Record<string, string>>({
       <_ErrorMessage
         errors={errors}
         name={name}
-        render={(data) => ErrorMessageContent({ ...data, align })}
+        render={(data) => ErrorMessageContent({ ...data })}
       />
     </div>
   )
 }
 
-function ErrorMessageContent({
-  message,
-  align
-}: {
-  message: string
-  align?: 'start' | 'center' | 'end'
-}) {
+function ErrorMessageContent({ message }: { message: string }) {
   const errorMessage = handleError({ message })
   return (
     <div className='absolute flex items-center justify-start gap-1 truncate text-error'>
