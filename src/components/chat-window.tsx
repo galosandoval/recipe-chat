@@ -151,7 +151,7 @@ const Content = memo(function Content(
 
   return (
     <>
-      <div className='flex h-full flex-col gap-4 pb-16 pt-16'>
+      <div className='flex h-full flex-col gap-4 pt-16'>
         <ChatWindowContent
           saveRecipeStatus={createRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
@@ -191,7 +191,7 @@ const Content = memo(function Content(
         </button>
       </div>
       <div
-        className={`absolute bottom-20 left-4 duration-300 transition-all${
+        className={`absolute bottom-4 left-4 duration-300 transition-all${
           sticky && !isSendingMessage
             ? ' translate-y-0 opacity-100'
             : ' invisible translate-y-4 opacity-0'
@@ -383,7 +383,7 @@ const MessageList = memo(function MessageList({
         </div>
       </div>
 
-      <div className='bg-primary-content pb-16'>
+      <div className='bg-primary-content'>
         {data.map((m, i) => (
           <Message
             message={m}
@@ -450,7 +450,7 @@ const Message = function Message({
               <UserCircleIcon />
             </div>
 
-            <div className='prose flex flex-col pb-12'>
+            <div className='prose flex flex-col pb-4'>
               <p className='mb-0 mt-0 whitespace-pre-line'>
                 {removeBracketsAndQuotes(message.content) || ''}
               </p>

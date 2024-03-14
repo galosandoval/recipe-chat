@@ -76,7 +76,7 @@ function ListController({ data }: { data: Ingredient[] }) {
   }
 
   return (
-    <div className='mx-2 flex h-[calc(100svh-64px)] flex-col pb-[56rem] pt-2'>
+    <div className='mx-2 flex flex-col pb-[56rem] pt-2'>
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
           <label className='label flex cursor-pointer gap-2'>
