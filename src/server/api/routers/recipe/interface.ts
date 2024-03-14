@@ -1,4 +1,4 @@
-import { RouterOutputs } from 'utils/api'
+import { type RouterOutputs } from 'utils/api'
 import { z } from 'zod'
 
 export type LinkedData =

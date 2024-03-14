@@ -20,7 +20,7 @@ import { useSession } from 'next-auth/react'
 import { useTranslation } from 'hooks/use-translation'
 import { ValuePropsHeader } from './value-props'
 import { ErrorMessage } from './error-message-content'
-import { TFunction } from 'i18next'
+import { type TFunction } from 'i18next'
 
 const createFilterSchema = (t: TFunction) =>
   z.object({

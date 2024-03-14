@@ -1,7 +1,7 @@
 import { OpenAIStream, StreamingTextResponse } from 'ai'
-import { NextRequest } from 'next/server'
+import { type NextRequest } from 'next/server'
 import {
-  ChatCompletionRequestMessage,
+  type ChatCompletionRequestMessage,
   Configuration,
   OpenAIApi
 } from 'openai-edge'

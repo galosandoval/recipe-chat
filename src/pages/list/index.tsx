@@ -1,13 +1,13 @@
-import React, { ReactNode } from 'react'
-import { Ingredient } from '@prisma/client'
+import React, { type ReactNode } from 'react'
+import { type Ingredient } from '@prisma/client'
 import { Checkbox } from 'components/checkbox'
 import { Button } from 'components/button'
 import { useList, useListController, useRecipeNames } from 'hooks/use-list'
 import { MyHead } from 'components/head'
 import { ScreenLoader } from 'components/loaders/screen'
-import { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
+import { type UseFormHandleSubmit, type UseFormRegister } from 'react-hook-form'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { GetStaticProps } from 'next'
+import { type GetStaticProps } from 'next'
 import { useTranslation } from 'hooks/use-translation'
 
 export const getStaticProps = (async ({ locale }) => {

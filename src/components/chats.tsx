@@ -1,4 +1,4 @@
-import { Chat, Message } from '@prisma/client'
+import { type Chat, type Message } from '@prisma/client'
 import {
   AdjustmentsHorizontalIcon,
   ChatBubbleLeftIcon,
@@ -11,7 +11,7 @@ import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/screen'
 import { useTranslation } from 'hooks/use-translation'
 import { useRouter } from 'next/router'
-import { Session } from 'next-auth'
+import { type Session } from 'next-auth'
 import { ValuePropsHeader } from './value-props'
 import { transformContentToRecipe } from 'hooks/use-chat'
 

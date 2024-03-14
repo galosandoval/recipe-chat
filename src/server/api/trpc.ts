@@ -64,7 +64,7 @@ export type Context = inferAsyncReturnType<typeof createTRPCContext>
  * This is where the tRPC API is initialized, connecting the context and
  * transformer.
  */
-import { inferAsyncReturnType, initTRPC, TRPCError } from '@trpc/server'
+import { type inferAsyncReturnType, initTRPC, TRPCError } from '@trpc/server'
 import superjson from 'superjson'
 import { getServerAuthSession } from 'pages/api/auth/[...nextauth]'
 

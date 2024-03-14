@@ -1,4 +1,9 @@
-import { ChangeEventHandler, FormEvent, useEffect, useRef } from 'react'
+import {
+  type ChangeEventHandler,
+  type FormEvent,
+  useEffect,
+  useRef
+} from 'react'
 import { Button } from './button'
 import { useTranslation } from 'hooks/use-translation'
 
