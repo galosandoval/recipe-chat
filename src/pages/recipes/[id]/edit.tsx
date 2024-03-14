@@ -35,7 +35,7 @@ export default function EditByIdView() {
   return (
     <>
       <MyHead title={`Edit ${name}`} />
-      <div className='pt-16 sm:flex sm:justify-center'>
+      <div className='overflow-y-auto pt-16 sm:flex sm:justify-center'>
         <EditById id={id as string} />
       </div>
     </>
@@ -380,7 +380,7 @@ function MutateRecipeIngredientsAndInstructions({
     <>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className='prose mx-2 flex flex-col items-center pb-12 md:mx-auto'
+        className='prose mx-2 flex flex-col items-center gap-4 pb-16 md:mx-auto'
       >
         <div className='flex w-full flex-col'>
           <label htmlFor='name' className='label'>

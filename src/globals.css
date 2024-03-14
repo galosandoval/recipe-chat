@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+#__next {
+  height: 100svh;
+  overflow-y: hidden;
+}
 .btn {
   @apply flex-nowrap;
 }

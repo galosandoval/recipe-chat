@@ -24,7 +24,7 @@ export default function ListView() {
   return (
     <>
       <MyHead title='Grocery List' />
-      <div className='prose mx-auto w-full pt-16'>
+      <div className='prose mx-auto w-full py-16'>
         <ListByUserId />
       </div>
     </>
@@ -76,7 +76,7 @@ function ListController({ data }: { data: Ingredient[] }) {
   }
 
   return (
-    <div className='mx-2 flex flex-col pb-[56rem] pt-2'>
+    <div className='mx-2 flex flex-col pt-2'>
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
           <label className='label flex cursor-pointer gap-2'>
@@ -129,7 +129,7 @@ function EmptyList({ children }: { children: ReactNode }) {
   const t = useTranslation()
 
   return (
-    <div className='grid h-[calc(100svh-64px)] place-items-center text-primary'>
+    <div className='grid place-items-center text-primary'>
       <div
         className='rounded-lg bg-primary-content'
         style={{
@@ -169,7 +169,7 @@ function AddIngredientForm({
 
   return (
     <form
-      className='absolute bottom-0 left-0 flex w-full items-center md:rounded-md'
+      className='fixed bottom-0 left-0 flex w-full items-center md:rounded-md'
       onSubmit={handleSubmit(onSubmitNewIngredient)}
     >
       <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 sm:mb-2 sm:rounded-lg'>
@@ -177,7 +177,7 @@ function AddIngredientForm({
           <input
             type='text'
             placeholder={t('list.add-to-list')}
-            className='input input-bordered w-full'
+            className='input input-bordered w-full bg-base-100/75 focus:bg-base-100'
             {...register('newIngredientName')}
           />
         </div>

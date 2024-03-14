@@ -124,7 +124,7 @@ function SearchBarWrapper({
   handleSearchButtonClick: () => void
 }) {
   return (
-    <div className='container relative mx-auto flex min-h-[calc(100svh-96px)] flex-col overflow-y-auto px-2 pt-16'>
+    <div className='container relative mx-auto flex flex-col overflow-y-auto px-2 pt-16'>
       <SearchBar
         handleChange={handleChange}
         handleSearchButtonClick={handleSearchButtonClick}
@@ -155,7 +155,7 @@ function SearchBar({
         <div className='flex w-full px-2 py-1'>
           <input
             type='text'
-            className='input input-bordered w-full'
+            className='input input-bordered w-full bg-base-100/75 focus:bg-base-100'
             value={search}
             onChange={handleChange}
             placeholder={t('recipes.search')}
@@ -197,7 +197,7 @@ function Pages({
   }
 
   return (
-    <div className='mx-auto mb-24 mt-4 grid max-w-4xl grid-cols-2 gap-5 sm:grid-cols-4'>
+    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-5 pb-20 pt-4 sm:grid-cols-4'>
       {pages.length > 0 && pages[0].items.length > 0 ? (
         <>
           <RecentRecipes />
