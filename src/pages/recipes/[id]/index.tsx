@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { Ingredient, Instruction } from '@prisma/client'
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { Button } from 'components/button'
 import { useAddToList, useRecipe } from 'hooks/use-recipe'
 import { Checkbox } from 'components/checkbox'
@@ -18,7 +18,6 @@ import { useTranslation } from 'hooks/use-translation'
 import { BlobAccessError, PutBlobResult } from '@vercel/blob'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
-import { f } from '@vercel/blob/dist/put-96a1f07e'
 
 export const getServerSideProps = (async ({ locale }) => {
   const localeFiles = ['common']
@@ -26,7 +25,6 @@ export const getServerSideProps = (async ({ locale }) => {
   return {
     props: {
       ...(await serverSideTranslations(locale ?? 'en', localeFiles))
-      // Will be passed to the page component as props
     }
   }
 }) satisfies GetServerSideProps
