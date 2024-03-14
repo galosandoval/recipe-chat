@@ -44,7 +44,7 @@ export default function RecipeByIdView() {
   return (
     <>
       <MyHead title={name as string} />
-      <div className='pt-16'>
+      <div className='overflow-y-auto pt-16'>
         <RecipeById id={id as string} />
       </div>
     </>
@@ -160,7 +160,7 @@ function FoundRecipe({
   }, [goToListTimer])
 
   return (
-    <div className='container prose mx-auto flex flex-col items-center pb-4'>
+    <div className='prose mx-auto flex flex-col items-center pb-4'>
       <div className='flex flex-col'>
         <ImageUpload id={id} url={imgUrl} />
 

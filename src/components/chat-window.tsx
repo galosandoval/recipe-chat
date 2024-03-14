@@ -134,7 +134,7 @@ const Content = memo(function Content(
 
   if (isNewChat) {
     return (
-      <div className='flex flex-col gap-4 pb-16 pt-16'>
+      <div className='flex flex-col gap-4'>
         {/*  eslint-disable-next-line @typescript-eslint/no-unsafe-call */}
         <ValueProps handleSendChatExample={handleFillMessage as any}>
           <ChatsSection chatId={chatId} handleChangeChat={handleChangeChat} />
@@ -150,7 +150,7 @@ const Content = memo(function Content(
 
   return (
     <>
-      <div className='flex h-full flex-col gap-4 pt-16'>
+      <div className='flex h-full flex-col gap-4'>
         <ChatWindowContent
           saveRecipeStatus={createRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
@@ -190,7 +190,7 @@ const Content = memo(function Content(
         </button>
       </div>
       <div
-        className={`absolute bottom-4 left-4 duration-300 transition-all${
+        className={`absolute bottom-20 left-4 duration-300 transition-all${
           sticky && !isSendingMessage
             ? ' translate-y-0 opacity-100'
             : ' invisible translate-y-4 opacity-0'
@@ -273,7 +273,7 @@ function ChatWindowContent({
 
   if (messages.length || isSendingMessage || !data?.user?.id) {
     return (
-      <div className='h-full bg-primary-content'>
+      <div className='h-full bg-primary-content py-16'>
         <MessageList
           saveRecipeStatus={saveRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
@@ -354,7 +354,7 @@ const MessageList = memo(function MessageList({
 
   return (
     <>
-      <div className='bg-base-100 py-2 '>
+      <div className='bg-base-100 py-2'>
         <div className='prose mx-auto grid grid-cols-3 px-2'>
           {handleChangeChat && handleGetChatsOnSuccess && isAuthenticated ? (
             <ChatsSideBarButton
@@ -382,7 +382,7 @@ const MessageList = memo(function MessageList({
         </div>
       </div>
 
-      <div className='bg-primary-content'>
+      <div className='bg-primary-content pb-16'>
         {data.map((m, i) => (
           <Message
             message={m}
