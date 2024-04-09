@@ -3,6 +3,7 @@ import { ThemeToggle, useTheme } from './theme-toggle'
 import { ArrowLeftOnRectangleIcon } from './icons'
 import { signOut } from 'next-auth/react'
 import { useTranslation } from 'hooks/use-translation'
+import { useRouter } from 'next/router'
 
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
   return (
@@ -41,11 +42,11 @@ export function DropdownMenu({ children }: { children: React.ReactNode }) {
 
 export function ProtectedDropdownMenu() {
   const t = useTranslation()
-
+  const router = useRouter()
   const { theme, updateTheme } = useTheme()
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: '/' })
+    signOut({ callbackUrl: router.pathname })
 
     sessionStorage.removeItem('currentChatId')
   }

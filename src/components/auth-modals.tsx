@@ -50,7 +50,6 @@ export function useSignUp(successCallback?: () => Promise<void>) {
   })
   const router = useRouter()
 
-  // const { mutate: createChat } = api.chat.createPublic.useMutation()
   const [isOpen, setIsOpen] = useState(false)
 
   const { mutate, isLoading } = api.user.signUp.useMutation({
@@ -228,9 +227,11 @@ export function useLogin() {
   })
 
   const onSubmit = async (data: LoginSchemaType) => {
+    const callback = decodeURIComponent(router.query.callbackUrl as string)
+
     const response = await signIn('credentials', { redirect: false, ...data })
     if (response?.ok) {
-      await router.push('/chat')
+      await router.push(callback)
     }
 
     if (response?.status === 401) {

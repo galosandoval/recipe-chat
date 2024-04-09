@@ -110,19 +110,6 @@ export const useChat = () => {
     }
 
     handleSubmitMessage()
-
-    // upsertChat({
-    //   chatId:
-    //     sessionStorage?.getItem('currentChatId') &&
-    //     (JSON.parse(sessionStorage.getItem('currentChatId')) as string)
-    //       ? JSON.parse(sessionStorage.getItem('currentChatId'))
-    //       : '',
-    //   messages: messagesRef.current.map((message) => ({
-    //     content: message.content,
-    //     role: message.role,
-    //     id: createId()
-    //   }))
-    // })
   }
 
   const [shouldFetchChat, setShouldFetchChat] = useState(true)

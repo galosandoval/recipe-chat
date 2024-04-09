@@ -10,6 +10,7 @@ export const getServerSideProps = (async ({ locale, req, res }) => {
   const localeFiles = ['common']
 
   const session = await getServerAuthSession({ req, res })
+  console.log(session)
 
   if (session) {
     return {
@@ -19,6 +20,8 @@ export const getServerSideProps = (async ({ locale, req, res }) => {
       }
     }
   }
+
+  console.log(session)
 
   return {
     props: {
