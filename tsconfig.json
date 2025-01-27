@@ -15,8 +15,10 @@
     "jsx": "preserve",
     "incremental": true,
     "sourceMap": true,
-    "baseUrl": "src/"
-    // "paths": {}
+    "baseUrl": "src/",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
   },
   "include": [
     ".eslintrc.cjs",
