@@ -74,7 +74,7 @@ export function useSignUp(successCallback?: () => Promise<void>) {
           type: 'pattern',
           message: error.message
         })
-      }else       if (error.message && error.message.includes('password')) {
+      } else if (error.message && error.message.includes('password')) {
         setError('password', {
           type: 'pattern',
           message: error.message
