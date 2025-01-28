@@ -1,10 +1,10 @@
-import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
+import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import { z } from 'zod'
 
 const messagesSchema = z.array(
   z.object({
     content: z.string().min(1),
-    role: z.enum(['system', 'user', 'assistant', 'function']),
+    role: z.enum(['system', 'user', 'assistant', 'function', 'data', 'tool']),
     id: z.string().optional()
   })
 )

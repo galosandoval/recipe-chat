@@ -1,20 +1,20 @@
 import { type Chat, type Message } from '@prisma/client'
 import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
-import { useFilters } from 'components/recipe-filters'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { type FormEvent, useCallback, useEffect, useState, useRef } from 'react'
 import { toast } from 'react-hot-toast'
-import { api } from 'utils/api'
+import { api } from '~/utils/api'
 import { z } from 'zod'
 import { useTranslation } from './use-translation'
-import { useSignUp } from 'components/auth-modals'
+import { useSignUp } from '~/components/auth-modals'
 import {
   errorToastOptions,
   infoToastOptions,
   loadingToastOptions,
   successToastOptions
-} from 'components/toast'
+} from '~/components/toast'
+import { useFilters } from '~/components/recipe-filters'
 
 export type FormValues = {
   name: string

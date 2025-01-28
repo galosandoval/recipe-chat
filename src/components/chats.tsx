@@ -5,15 +5,15 @@ import {
   ListBulletIcon
 } from './icons'
 import { Drawer } from './drawer'
-import { formatTimeAgo } from 'utils/relative-time-format'
-import { api } from 'utils/api'
+import { formatTimeAgo } from '~/utils/relative-time-format'
+import { api } from '~/utils/api'
 import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/screen'
-import { useTranslation } from 'hooks/use-translation'
+import { useTranslation } from '~/hooks/use-translation'
 import { useRouter } from 'next/router'
 import { type Session } from 'next-auth'
 import { ValuePropsHeader } from './value-props'
-import { transformContentToRecipe } from 'hooks/use-chat'
+import { transformContentToRecipe } from '~/hooks/use-chat'
 
 export function ChatsSection({
   handleChangeChat,

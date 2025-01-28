@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useState } from 'react'
 import { MoonIcon, SunIcon } from './icons'
 import { themeChange } from 'theme-change'
-import { useTranslation } from 'hooks/use-translation'
+import { useTranslation } from '~/hooks/use-translation'
 
 export const darkTheme = 'night'
 export const lightTheme = 'winter'

@@ -66,7 +66,7 @@ export type Context = inferAsyncReturnType<typeof createTRPCContext>
  */
 import { type inferAsyncReturnType, initTRPC, TRPCError } from '@trpc/server'
 import superjson from 'superjson'
-import { getServerAuthSession } from 'pages/api/auth/[...nextauth]'
+import { getServerAuthSession } from '~/pages/api/auth/[...nextauth]'
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,

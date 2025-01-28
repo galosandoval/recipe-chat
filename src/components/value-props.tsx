@@ -1,7 +1,7 @@
 import { type MouseEvent } from 'react'
 import { Button } from './button'
 import { ArrowUTurnLeftIcon } from './icons'
-import { useTranslation } from 'hooks/use-translation'
+import { useTranslation } from '~/hooks/use-translation'
 import { LoginModal, SignUpModal, useLogin, useSignUp } from './auth-modals'
 import { useSession } from 'next-auth/react'
 

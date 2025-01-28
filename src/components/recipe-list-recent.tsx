@@ -1,8 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { api } from 'utils/api'
+import { api } from '~/utils/api'
 import { Loader } from './loaders/recipe-list-recent'
-import { useTranslation } from 'hooks/use-translation'
+import { useTranslation } from '~/hooks/use-translation'
 
 export function RecentRecipes() {
   const t = useTranslation()

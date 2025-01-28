@@ -8,7 +8,7 @@ import {
 } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
-import { createTRPCRouter, protectedProcedure } from 'server/api/trpc'
+import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import { type LinkedData, updateRecipeSchema } from './interface'
 import { del } from '@vercel/blob'
 
