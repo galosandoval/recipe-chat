@@ -8,7 +8,7 @@ import {
   type Filter,
   type Message as PrismaMessage
 } from '@prisma/client'
-import { transformContentToRecipe, type ChatType } from 'hooks/use-chat'
+import { transformContentToRecipe, type ChatType } from '~/hooks/use-chat'
 import {
   type Dispatch,
   type SetStateAction,
@@ -32,7 +32,7 @@ import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import NoSsr from './no-ssr'
-import { useTranslation } from 'hooks/use-translation'
+import { useTranslation } from '~/hooks/use-translation'
 import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
 

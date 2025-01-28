@@ -61,6 +61,8 @@ enum Role {
   user
   assistant
   function
+  data
+  tool
 }
 
 model Recipe {

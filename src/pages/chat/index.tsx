@@ -1,7 +1,7 @@
-import { MyHead } from 'components/head'
-import ChatWindow from 'components/chat-window'
-import { SubmitMessageForm } from 'components/submit-message-form'
-import { useChat } from 'hooks/use-chat'
+import { MyHead } from '~/components/head'
+import ChatWindow from '~/components/chat-window'
+import { SubmitMessageForm } from '~/components/submit-message-form'
+import { useChat } from '~/hooks/use-chat'
 import { type GetStaticProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 

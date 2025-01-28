@@ -7,7 +7,7 @@ import {
   type DefaultSession
 } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
-import { prisma } from 'server/db'
+import { prisma } from '~/server/db'
 
 const maxAuthAge = 15 * 24 * 60 * 60 // 15 days
 

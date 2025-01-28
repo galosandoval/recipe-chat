@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { i18n } = require('./next-i18next.config')
+// import { i18n } from './next-i18next.config.cjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -22,7 +22,11 @@ const nextConfig = {
     ]
   },
 
-  i18n
+  i18n: {
+    locales: ['en', 'es'],
+    defaultLocale: 'en',
+    localePath: require('path').resolve('./public/locales')
+  }
 }
 
 module.exports = nextConfig

@@ -9,7 +9,7 @@ import {
   PencilSquareIcon,
   XIcon
 } from './icons'
-import { useTranslation } from 'hooks/use-translation'
+import { useTranslation } from '~/hooks/use-translation'
 import { ThemeToggle, useTheme } from './theme-toggle'
 
 export default function Layout({

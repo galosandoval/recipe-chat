@@ -2,7 +2,7 @@ import { Menu, Transition } from '@headlessui/react'
 import { ThemeToggle, useTheme } from './theme-toggle'
 import { ArrowLeftOnRectangleIcon } from './icons'
 import { signOut } from 'next-auth/react'
-import { useTranslation } from 'hooks/use-translation'
+import { useTranslation } from '~/hooks/use-translation'
 import { useRouter } from 'next/router'
 
 export function DropdownMenu({ children }: { children: React.ReactNode }) {

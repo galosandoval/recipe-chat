@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
-import { api } from 'utils/api'
+import { api } from '~/utils/api'
 import { z } from 'zod'
 
 export const useList = () => {

@@ -5,7 +5,7 @@ import {
   useRef
 } from 'react'
 import { Button } from './button'
-import { useTranslation } from 'hooks/use-translation'
+import { useTranslation } from '~/hooks/use-translation'
 
 export function SubmitMessageForm({
   handleInputChange,

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { api } from '../utils/api'
-import { type RecipeUrlSchemaType } from 'pages/recipes'
+import { type RecipeUrlSchemaType } from '~/pages/recipes'
 import { useRouter } from 'next/router'
 import { toast } from 'react-hot-toast'
-import { type LinkedDataRecipeField } from 'server/api/routers/recipe/interface'
+import { type LinkedDataRecipeField } from '~/server/api/routers/recipe/interface'
 import { useForm } from 'react-hook-form'
 
 export default function useDebounce(value: string, delay = 500) {

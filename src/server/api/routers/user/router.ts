@@ -5,7 +5,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure
-} from 'server/api/trpc'
+} from '~/server/api/trpc'
 import { z } from 'zod'
 
 export const userRouter = createTRPCRouter({
@@ -63,7 +63,14 @@ export const userRouter = createTRPCRouter({
         messages: z
           .object({
             content: z.string().min(1),
-            role: z.enum(['system', 'user', 'assistant', 'function'])
+            role: z.enum([
+              'system',
+              'user',
+              'assistant',
+              'function',
+              'data',
+              'tool'
+            ])
           })
           .array()
       })

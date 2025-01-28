@@ -16,10 +16,12 @@ export const config = {
   runtime: 'edge'
 }
 
+export const messageRole = ['system', 'user', 'assistant', 'function'] as const
+
 const chatParams = z.object({
   messages: z.array(
     z.object({
-      role: z.enum(['user', 'assistant', 'system']),
+      role: z.enum(messageRole),
       content: z.string()
     })
   ),
