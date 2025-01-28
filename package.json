@@ -29,7 +29,7 @@
     "@trpc/server": "^10.7.0",
     "@vercel/analytics": "^1.1.1",
     "@vercel/blob": "^0.15.1",
-    "ai": "^2.2.13",
+    "ai": "^2.2.37",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.12",
     "daisyui": "^3.0.0",
