@@ -1,9 +1,9 @@
-import { chatRouter } from './routers/chat/router'
-import { filterRouter } from './routers/filter/router'
-import { listRouter } from './routers/list/router'
-import { recipeRouter } from './routers/recipe/router'
-import { userRouter } from './routers/user/router'
-import { createTRPCRouter } from './trpc'
+import { chatRouter } from './chat/router'
+import { filterRouter } from './filter/router'
+import { listRouter } from './list/router'
+import { recipeRouter } from './recipe/router'
+import { userRouter } from './user/router'
+import { createTRPCRouter } from '../trpc'
 
 /**
  * This is the primary router for your server.
@@ -11,7 +11,7 @@ import { createTRPCRouter } from './trpc'
  * All routers added in /api/routers should be manually added here
  */
 export const appRouter = createTRPCRouter({
-  recipe: recipeRouter,
+  recipes: recipeRouter,
   list: listRouter,
   chat: chatRouter,
   user: userRouter,

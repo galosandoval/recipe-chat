@@ -33,7 +33,7 @@ const selectRecipeNames = (data: Recipe[]) => {
 }
 
 export function useRecipeNames(ids: string[]) {
-  return api.recipe.byIds.useQuery(ids, {
+  return api.recipes.byIds.useQuery(ids, {
     select: selectRecipeNames
   })
 }

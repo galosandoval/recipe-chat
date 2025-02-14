@@ -7,7 +7,7 @@ import { useTranslation } from '~/hooks/use-translation'
 export function RecentRecipes() {
   const t = useTranslation()
 
-  const { data, status } = api.recipe.recentRecipes.useQuery()
+  const { data, status } = api.recipes.recentRecipes.useQuery()
 
   if (status === 'error') {
     return <div className=''>{t('error.something-went-wrong')}</div>

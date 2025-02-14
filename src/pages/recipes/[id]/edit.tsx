@@ -96,9 +96,9 @@ function FoundRecipe({
     }
   })
 
-  const { mutate: editRecipe, isLoading } = api.recipe.edit.useMutation({
+  const { mutate: editRecipe, isLoading } = api.recipes.edit.useMutation({
     onSuccess: async (data, { newName }) => {
-      await utils.recipe.byId.invalidate({ id: data })
+      await utils.recipes.byId.invalidate({ id: data })
       await router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
     }
   })
@@ -213,43 +213,45 @@ function UpdateImage({
     'update-image' | 'upload-image' | 'uploading-image'
   >('update-image')
 
-  const { mutate: updateImgUrl, status } = api.recipe.updateImgUrl.useMutation({
-    onMutate: async ({ id, imgUrl }) => {
-      await utils.recipe.byId.cancel({ id })
+  const { mutate: updateImgUrl, status } = api.recipes.updateImgUrl.useMutation(
+    {
+      onMutate: async ({ id, imgUrl }) => {
+        await utils.recipes.byId.cancel({ id })
 
-      const previousData = utils.recipe.byId.getData({ id })
+        const previousData = utils.recipes.byId.getData({ id })
 
-      if (!previousData) return previousData
+        if (!previousData) return previousData
 
-      utils.recipe.byId.setData({ id }, (old) => {
-        if (!old) return old
+        utils.recipes.byId.setData({ id }, (old) => {
+          if (!old) return old
 
-        return {
-          ...old,
-          imgUrl
+          return {
+            ...old,
+            imgUrl
+          }
+        })
+
+        return { previousData }
+      },
+
+      onSuccess: async () => {
+        await utils.recipes.byId.invalidate({ id })
+
+        toast.success(t('recipes.by-id.update-image-success'))
+        router.push(`/recipes/${id}?name=${encodeURIComponent(name)}`)
+      },
+
+      onError: (error, _, context) => {
+        const previousData = context?.previousData
+
+        if (previousData && previousData) {
+          utils.recipes.byId.setData({ id }, previousData)
         }
-      })
 
-      return { previousData }
-    },
-
-    onSuccess: async () => {
-      await utils.recipe.byId.invalidate({ id })
-
-      toast.success(t('recipes.by-id.update-image-success'))
-      router.push(`/recipes/${id}?name=${encodeURIComponent(name)}`)
-    },
-
-    onError: (error, _, context) => {
-      const previousData = context?.previousData
-
-      if (previousData && previousData) {
-        utils.recipe.byId.setData({ id }, previousData)
+        toast.error(error.message)
       }
-
-      toast.error(error.message)
     }
-  })
+  )
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return

@@ -132,9 +132,9 @@ export const useChat = () => {
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const { mutate: createRecipe, status: createRecipeStatus } =
-    api.recipe.create.useMutation({
+    api.recipes.create.useMutation({
       async onSuccess(newRecipe, { messageId }) {
-        await utils.recipe.invalidate()
+        await utils.recipes.invalidate()
         const messagesCopy = [...messages]
 
         if (messageId) {
