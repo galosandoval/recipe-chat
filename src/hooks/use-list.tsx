@@ -10,7 +10,7 @@ import { z } from 'zod'
 export const useList = () => {
   const userId = useUserId()
 
-  return api.list.byUserId.useQuery(
+  return api.lists.byUserId.useQuery(
     { userId },
     {
       keepPreviousData: true,
@@ -60,11 +60,11 @@ export function useListController(data: Ingredient[]) {
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema)
   })
-  const { mutate: addToList, status: addStatus } = api.list.add.useMutation({
+  const { mutate: addToList, status: addStatus } = api.lists.add.useMutation({
     onMutate: async (input) => {
-      await utils.list.byUserId.cancel({ userId })
+      await utils.lists.byUserId.cancel({ userId })
 
-      const prevList = utils.list.byUserId.getData({ userId })
+      const prevList = utils.lists.byUserId.getData({ userId })
 
       let ingredients: Ingredient[] = []
 
@@ -81,18 +81,18 @@ export function useListController(data: Ingredient[]) {
         ]
       }
 
-      utils.list.byUserId.setData({ userId }, () => ({ ingredients }))
+      utils.lists.byUserId.setData({ userId }, () => ({ ingredients }))
       return { prevList }
     },
 
     onSuccess: async () => {
-      await utils.list.byUserId.invalidate({ userId })
+      await utils.lists.byUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
       const prevList = ctx?.prevList
       if (prevList) {
-        utils.list.byUserId.setData({ userId }, prevList)
+        utils.lists.byUserId.setData({ userId }, prevList)
       }
       toast.error(error.message)
     }
@@ -104,9 +104,9 @@ export function useListController(data: Ingredient[]) {
     setTimeout(() => setFocus('newIngredientName'))
   }
 
-  const { mutate: deleteListItem } = api.list.clear.useMutation({
+  const { mutate: deleteListItem } = api.lists.clear.useMutation({
     async onMutate(input) {
-      await utils.list.byUserId.cancel({ userId })
+      await utils.lists.byUserId.cancel({ userId })
 
       const idDict = input.reduce(
         (dict, i) => {
@@ -117,7 +117,7 @@ export function useListController(data: Ingredient[]) {
       )
 
       // Snapshot the previous value
-      const prevList = utils.list.byUserId.getData({ userId })
+      const prevList = utils.lists.byUserId.getData({ userId })
 
       let ingredients: Ingredient[] = []
       if (prevList) {
@@ -126,17 +126,17 @@ export function useListController(data: Ingredient[]) {
 
       // Optimistically update to the new value
 
-      utils.list.byUserId.setData({ userId }, () => ({ ingredients }))
+      utils.lists.byUserId.setData({ userId }, () => ({ ingredients }))
       // Return a context object with the snapshotted value
       return { prevList }
     },
     onSuccess: async () => {
-      await utils.list.byUserId.invalidate({ userId })
+      await utils.lists.byUserId.invalidate({ userId })
     },
     onError: (error, _, ctx) => {
       const prevList = ctx?.prevList
       if (prevList) {
-        utils.list.byUserId.setData({ userId }, prevList)
+        utils.lists.byUserId.setData({ userId }, prevList)
       }
       toast.error(error.message)
     }
@@ -148,11 +148,11 @@ export function useListController(data: Ingredient[]) {
       : false
   )
 
-  const { mutate: checkIngredient } = api.list.check.useMutation({
+  const { mutate: checkIngredient } = api.lists.check.useMutation({
     onMutate: async (input) => {
-      await utils.list.byUserId.cancel({ userId })
+      await utils.lists.byUserId.cancel({ userId })
 
-      const prevList = utils.list.byUserId.getData({ userId })
+      const prevList = utils.lists.byUserId.getData({ userId })
 
       let ingredients: Ingredient[] = []
       if (prevList) {
@@ -165,31 +165,31 @@ export function useListController(data: Ingredient[]) {
         })
       }
 
-      utils.list.byUserId.setData({ userId }, () => ({ ingredients }))
+      utils.lists.byUserId.setData({ userId }, () => ({ ingredients }))
       return { prevList }
     },
 
     onSuccess: async () => {
-      await utils.list.byUserId.invalidate({ userId })
+      await utils.lists.byUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
       const prevList = ctx?.prevList
       if (prevList) {
-        utils.list.byUserId.setData({ userId }, prevList)
+        utils.lists.byUserId.setData({ userId }, prevList)
       }
       toast.error(error.message)
     }
   })
 
-  const { mutate: checkMany } = api.list.checkMany.useMutation({
+  const { mutate: checkMany } = api.lists.checkMany.useMutation({
     onMutate: async () => {
-      await utils.list.byUserId.cancel({ userId })
+      await utils.lists.byUserId.cancel({ userId })
 
-      const prevList = utils.list.byUserId.getData({ userId })
+      const prevList = utils.lists.byUserId.getData({ userId })
 
       if (prevList) {
-        utils.list.byUserId.setData({ userId }, () => ({
+        utils.lists.byUserId.setData({ userId }, () => ({
           ingredients: prevList.ingredients.map((i) => ({
             ...i,
             checked: allChecked
@@ -201,13 +201,13 @@ export function useListController(data: Ingredient[]) {
     },
 
     onSuccess: async () => {
-      await utils.list.byUserId.invalidate({ userId })
+      await utils.lists.byUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
       const prevList = ctx?.prevList
       if (prevList) {
-        utils.list.byUserId.setData({ userId }, prevList)
+        utils.lists.byUserId.setData({ userId }, prevList)
       }
       toast.error(error.message)
     }

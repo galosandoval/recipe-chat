@@ -52,7 +52,7 @@ export function useSignUp(successCallback?: () => Promise<void>) {
 
   const [isOpen, setIsOpen] = useState(false)
 
-  const { mutate, isLoading } = api.user.signUp.useMutation({
+  const { mutate, isLoading } = api.users.signUp.useMutation({
     onSuccess: async ({}, { email, password }) => {
       const response = await signIn('credentials', {
         email,

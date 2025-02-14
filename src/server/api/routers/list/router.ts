@@ -81,8 +81,8 @@ export const listRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       // delete ingredients that are not connected to a recipe
-      const toDisconnect: RouterInputs['list']['clear'] = []
-      const toDelete: RouterInputs['list']['clear'] = []
+      const toDisconnect: RouterInputs['lists']['clear'] = []
+      const toDelete: RouterInputs['lists']['clear'] = []
 
       for (const ingredient of input) {
         if (ingredient.recipeId) {

@@ -60,10 +60,10 @@ export function useParseRecipe() {
 
 export const useAddToList = () => {
   const utils = api.useContext()
-  return api.list.upsert.useMutation({
+  return api.lists.upsert.useMutation({
     onSuccess: async ({ id }) => {
       await utils.recipes.byId.invalidate({ id })
-      await utils.list.invalidate()
+      await utils.lists.invalidate()
 
       toast.success('Added to list')
     }
