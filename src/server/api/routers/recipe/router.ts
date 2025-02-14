@@ -9,7 +9,10 @@ import {
 import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
-import { type LinkedData, updateRecipeSchema } from './interface'
+import {
+  type LinkedData,
+  updateRecipeSchema
+} from '~/server/api/schemas/recipes'
 import { del } from '@vercel/blob'
 
 export const recipeRouter = createTRPCRouter({

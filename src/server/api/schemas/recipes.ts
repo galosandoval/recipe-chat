@@ -105,7 +105,7 @@ const messageSchema = z.object({
   role: z.enum(['user', 'assistant', 'system'])
 })
 
-export type Message = RouterOutputs['chat']['addMessages']
+export type Message = RouterOutputs['chats']['addMessages']
 
 export const generateSchema = z.object({
   content: z.string(),

@@ -13,7 +13,7 @@ import { Modal } from '~/components/modal'
 import { FormLoader } from '~/components/loaders/form'
 import { MyHead } from '~/components/head'
 import { Dialog } from '@headlessui/react'
-import { type LinkedDataRecipeField } from '~/server/api/routers/recipe/interface'
+import { type LinkedDataRecipeField } from '~/server/api/schemas/recipes'
 import {
   type ChangeEvent,
   Fragment,

@@ -2,7 +2,7 @@ import { chatRouter } from './chat/router'
 import { filterRouter } from './filter/router'
 import { listRouter } from './list/router'
 import { recipeRouter } from './recipe/router'
-import { userRouter } from './user/router'
+import { userRouter } from './users'
 import { createTRPCRouter } from '../trpc'
 
 /**

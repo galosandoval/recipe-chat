@@ -124,7 +124,7 @@ function FoundRecipe({
   let goToListTimer: ReturnType<typeof setTimeout> | undefined = undefined
   const handleAddToList = () => {
     const checkedIngredients = ingredients.filter((i) => checked[i.id])
-    const newList: RouterInputs['list']['upsert'] = checkedIngredients
+    const newList: RouterInputs['lists']['upsert'] = checkedIngredients
     mutate(newList)
     setAddedToList(true)
 

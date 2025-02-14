@@ -1,45 +1,46 @@
-import { TRPCError } from '@trpc/server'
+import { createId } from '@paralleldrive/cuid2'
+import { hash } from 'bcryptjs'
 import {
   CreateChatAndRecipeSchema,
   SignUpSchema
 } from '~/server/api/schemas/users'
-import { createUser, getUserByUsername } from '~/server/api/data-access/users'
-import { Context } from '~/server/api/trpc'
-import { createId } from '@paralleldrive/cuid2'
+import { prisma } from '~/server/db'
 
-export async function signUp(input: SignUpSchema) {
-  const username = input.email.toLowerCase()
-
-  const duplicateUser = await getUserByUsername(username)
-
-  if (duplicateUser) {
-    throw new TRPCError({
-      code: 'CONFLICT',
-      message: 'User already exists.'
-    })
-  }
-  return createUser(input)
+export async function getUserById(id: string) {
+  return await prisma.user.findUnique({
+    where: { id }
+  })
 }
 
-export async function createChatAndRecipe(
-  ctx: Context,
+export async function getUserByUsername(username: string) {
+  return await prisma.user.findUnique({
+    where: { username }
+  })
+}
+
+export async function createUser(input: SignUpSchema) {
+  const { email, password } = input
+  const username = email.toLowerCase()
+  const hashedPassword = await hash(password, 10)
+  return await prisma.user.create({
+    data: {
+      username,
+      password: hashedPassword,
+      list: { create: {} }
+    }
+  })
+}
+
+export async function updateUser(
+  userId: string,
   input: CreateChatAndRecipeSchema
 ) {
   const { recipe, messages } = input
-  const userId = ctx?.session?.user.id
-
-  if (!userId) {
-    throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'Unauthorized'
-    })
-  }
+  const { ingredients, instructions, ...rest } = recipe
   const messageId = createId()
   const chatId = createId()
 
-  const { ingredients, instructions, ...rest } = recipe
-
-  const onboardedUser = await ctx.prisma.user.update({
+  return await prisma.user.update({
     where: { id: userId },
     data: {
       chats: {
@@ -83,6 +84,4 @@ export async function createChatAndRecipe(
       recipes: true
     }
   })
-
-  return onboardedUser
 }
