@@ -1,11 +1,4 @@
 import { z } from 'zod'
-import {
-  type Ingredient,
-  type Instruction,
-  type Prisma,
-  type PrismaPromise,
-  type Recipe
-} from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import * as cheerio from 'cheerio'
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
@@ -16,7 +9,7 @@ import {
   updateRecipeImgUrlSchema
 } from '~/server/api/schemas/recipes'
 import { del } from '@vercel/blob'
-import { recipesDataAccess } from '~/server/api/data-access/recipes'
+import { RecipesDataAccess } from '~/server/api/data-access/recipes'
 import { messagesDataAccess } from '~/server/api/data-access/messages'
 import { ingredientsDataAccess } from '~/server/api/data-access/ingredients'
 import { instructionsDataAccess } from '~/server/api/data-access/instructions'
@@ -24,6 +17,7 @@ import { editRecipe } from '../use-cases/recipes'
 
 export const recipesRouter = createTRPCRouter({
   recentRecipes: protectedProcedure.query(async ({ ctx }) => {
+    const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
     const userId = ctx.session.user.id
 
     return recipesDataAccess.getRecentRecipes(userId)
@@ -31,8 +25,11 @@ export const recipesRouter = createTRPCRouter({
 
   updateLastViewedAt: protectedProcedure
     .input(z.string())
-    .mutation(async ({ input }) => {
-      return recipesDataAccess.updateLastViewedAt(input)
+    .mutation(async ({ input, ctx }) => {
+      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      return recipesDataAccess.updateRecipeFields(input, {
+        lastViewedAt: new Date()
+      })
     }),
 
   infiniteRecipes: protectedProcedure
@@ -47,7 +44,7 @@ export const recipesRouter = createTRPCRouter({
       const limit = input.limit
       const cursor = input.cursor
       const userId = ctx?.session?.user.id
-
+      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
       return recipesDataAccess.getInfiniteRecipes(
         userId,
         limit,
@@ -58,13 +55,15 @@ export const recipesRouter = createTRPCRouter({
 
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
       return recipesDataAccess.getRecipeById(input.id)
     }),
 
   byIds: protectedProcedure
     .input(z.array(z.string()))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
       return recipesDataAccess.getRecipesByIds(input)
     }),
 
@@ -148,7 +147,7 @@ export const recipesRouter = createTRPCRouter({
     .input(createRecipeSchema)
     .mutation(async ({ input, ctx }) => {
       const { messageId, ...rest } = input
-
+      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
       const newRecipe = await recipesDataAccess.createRecipe(
         rest,
         ctx.session.user.id
@@ -163,14 +162,16 @@ export const recipesRouter = createTRPCRouter({
 
   updateImgUrl: protectedProcedure
     .input(updateRecipeImgUrlSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+
       if (input.oldUrl) {
         await del(input.oldUrl)
       }
 
-      const updatedRecipe = await recipesDataAccess.updateRecipeImgUrl(
+      const updatedRecipe = await recipesDataAccess.updateRecipeFields(
         input.id,
-        input.imgUrl
+        { imgUrl: input.imgUrl }
       )
 
       if (!updatedRecipe) {
@@ -185,16 +186,17 @@ export const recipesRouter = createTRPCRouter({
 
   edit: protectedProcedure
     .input(updateRecipeSchema)
-    .mutation(async ({ input }) => {
-      return await editRecipe(input)
+    .mutation(async ({ input, ctx }) => {
+      return await editRecipe(input, ctx.prisma)
     }),
 
   addNotes: protectedProcedure
     .input(z.object({ notes: z.string().nonempty(), id: z.string() }))
-    .mutation(async ({ input }) => {
-      const updatedRecipe = await recipesDataAccess.updateRecipeNotes(
+    .mutation(async ({ input, ctx }) => {
+      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const updatedRecipe = await recipesDataAccess.updateRecipeFields(
         input.id,
-        input.notes
+        { notes: input.notes }
       )
 
       if (!updatedRecipe) {
@@ -209,7 +211,9 @@ export const recipesRouter = createTRPCRouter({
 
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+
       const deleteIngredients =
         ingredientsDataAccess.deleteIngredientsByRecipeId(input.id)
 
@@ -218,7 +222,7 @@ export const recipesRouter = createTRPCRouter({
 
       const deleteRecipe = recipesDataAccess.deleteRecipeById(input.id)
 
-      return await recipesDataAccess.prisma.$transaction(async (prisma) => {
+      return await ctx.prisma.$transaction(async (prisma) => {
         await deleteIngredients
         await deleteInstructions
         await deleteRecipe

@@ -1,16 +1,20 @@
-import { type Prisma, type Recipe } from '@prisma/client'
-import { recipesDataAccess } from '../data-access/recipes'
+import { type Recipe, type PrismaClient } from '@prisma/client'
+import { RecipesDataAccess } from '../data-access/recipes'
 import { UpdateRecipe } from '../schemas/recipes'
-import { prisma } from '~/server/db'
 
-export async function editRecipe(recipe: UpdateRecipe) {
+export async function editRecipe(recipe: UpdateRecipe, prisma: PrismaClient) {
   const { id, ingredients, newIngredients, instructions, newInstructions } =
     recipe
-
   return prisma.$transaction(async (tx) => {
-    await updateRecipeFields(id, recipe, tx)
-    await handleIngredients(id, ingredients, newIngredients, tx)
-    await handleInstructions(id, instructions, newInstructions, tx)
+    const recipesDataAccess = new RecipesDataAccess(tx as PrismaClient)
+    await updateRecipeFields(id, recipe, recipesDataAccess)
+    await handleIngredients(id, ingredients, newIngredients, recipesDataAccess)
+    await handleInstructions(
+      id,
+      instructions,
+      newInstructions,
+      recipesDataAccess
+    )
     return id
   })
 }
@@ -19,7 +23,7 @@ export async function editRecipe(recipe: UpdateRecipe) {
 async function updateRecipeFields(
   id: string,
   recipe: UpdateRecipe,
-  tx: Prisma.TransactionClient
+  recipesDataAccess: RecipesDataAccess
 ) {
   const data = {} as Partial<Recipe>
   const {
@@ -52,7 +56,7 @@ async function updateRecipeFields(
   }
 
   if (Object.keys(data).length > 0) {
-    await recipesDataAccess.updateRecipeFields(id, data, tx)
+    await recipesDataAccess.updateRecipeFields(id, data)
   }
 }
 
@@ -60,23 +64,21 @@ async function handleIngredients(
   id: string,
   ingredients: UpdateRecipe['ingredients'],
   newIngredients: UpdateRecipe['newIngredients'],
-  tx: Prisma.TransactionClient
+  recipesDataAccess: RecipesDataAccess
 ) {
   const ingredientsToDelete = ingredients.filter(
     (old) => !newIngredients.some((n) => n.id === old.id)
   )
   if (ingredientsToDelete.length > 0) {
     await recipesDataAccess.deleteIngredientsByIds(
-      ingredientsToDelete.map((i) => i.id),
-      tx
+      ingredientsToDelete.map((i) => i.id)
     )
   }
 
   const ingredientsToCreate = newIngredients.filter((n) => n.id === '')
   if (ingredientsToCreate.length > 0) {
     await recipesDataAccess.createIngredients(
-      ingredientsToCreate.map((i) => ({ name: i.name, recipeId: id })),
-      tx
+      ingredientsToCreate.map((i) => ({ name: i.name, recipeId: id }))
     )
   }
 
@@ -85,7 +87,7 @@ async function handleIngredients(
   )
 
   if (ingredientsToUpdate.length > 0) {
-    await recipesDataAccess.updateIngredients(ingredientsToUpdate, tx)
+    await recipesDataAccess.updateIngredients(ingredientsToUpdate)
   }
 }
 
@@ -93,7 +95,7 @@ async function handleInstructions(
   id: string,
   instructions: UpdateRecipe['instructions'],
   newInstructions: UpdateRecipe['newInstructions'],
-  tx: Prisma.TransactionClient
+  recipesDataAccess: RecipesDataAccess
 ) {
   // Delete instructions that no longer exist
   const instructionsToDelete = instructions.filter(
@@ -101,8 +103,7 @@ async function handleInstructions(
   )
   if (instructionsToDelete.length > 0) {
     await recipesDataAccess.deleteInstructionsByIds(
-      instructionsToDelete.map((i) => i.id),
-      tx
+      instructionsToDelete.map((i) => i.id)
     )
   }
 
@@ -113,8 +114,7 @@ async function handleInstructions(
       instructionsToCreate.map((i) => ({
         description: i.description,
         recipeId: id
-      })),
-      tx
+      }))
     )
   }
 
@@ -126,6 +126,6 @@ async function handleInstructions(
   )
 
   if (instructionsToUpdate.length > 0) {
-    await recipesDataAccess.updateInstructions(instructionsToUpdate, tx)
+    await recipesDataAccess.updateInstructions(instructionsToUpdate)
   }
 }

@@ -1,9 +1,9 @@
 import { prisma } from '~/server/db'
-import { CreateRecipe, UpdateRecipe } from '../schemas/recipes'
+import { CreateRecipe } from '../schemas/recipes'
 import { Prisma, PrismaClient, Recipe } from '@prisma/client'
 
-class RecipesDataAccess {
-  constructor(readonly prisma: PrismaClient) {}
+export class RecipesDataAccess {
+  constructor(private readonly prisma: PrismaClient) {}
 
   async getRecipeById(id: string) {
     return await this.prisma.recipe.findFirst({
@@ -26,13 +26,6 @@ class RecipesDataAccess {
       where: { userId: { equals: userId } },
       orderBy: { lastViewedAt: 'desc' },
       take: 4
-    })
-  }
-
-  async updateLastViewedAt(recipeId: string) {
-    return await this.prisma.recipe.update({
-      where: { id: recipeId },
-      data: { lastViewedAt: new Date() }
     })
   }
 
@@ -83,33 +76,14 @@ class RecipesDataAccess {
     })
   }
 
-  async updateRecipeImgUrl(id: string, imgUrl: string) {
-    return await prisma.recipe.update({
-      where: { id },
-      data: { imgUrl }
-    })
-  }
-
-  async updateRecipeNotes(id: string, notes: string) {
-    return await prisma.recipe.update({
-      where: { id },
-      data: { notes }
-    })
-  }
-
   async deleteRecipeById(id: string) {
     return await this.prisma.recipe.delete({
       where: { id }
     })
   }
 
-  async updateRecipeFields(
-    id: string,
-    data: Partial<Recipe>,
-    tx?: Prisma.TransactionClient
-  ) {
-    const client = tx ?? this.prisma
-    return await client.recipe.update({
+  async updateRecipeFields(id: string, data: Partial<Recipe>) {
+    return await this.prisma.recipe.update({
       where: { id },
       data
     })
@@ -155,23 +129,19 @@ class RecipesDataAccess {
   }
 
   async createInstructions(
-    instructions: { description: string; recipeId: string }[],
-    tx?: Prisma.TransactionClient
+    instructions: { description: string; recipeId: string }[]
   ) {
-    const client = tx ?? this.prisma
-    return await client.instruction.createMany({
+    return await this.prisma.instruction.createMany({
       data: instructions
     })
   }
 
   async updateInstructions(
-    instructions: { id: string; description: string }[],
-    tx?: Prisma.TransactionClient
+    instructions: { id: string; description: string }[]
   ) {
-    const client = tx ?? this.prisma
     return Promise.all(
       instructions.map((instruction) =>
-        client.instruction.update({
+        this.prisma.instruction.update({
           where: { id: instruction.id },
           data: { description: instruction.description }
         })
@@ -180,4 +150,4 @@ class RecipesDataAccess {
   }
 }
 
-export const recipesDataAccess = new RecipesDataAccess(prisma)
+
