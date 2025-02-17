@@ -1,28 +1,40 @@
-import { type Recipe, type Ingredient, type Instruction } from '@prisma/client'
+import { type Prisma, type Recipe } from '@prisma/client'
 import { recipesDataAccess } from '../data-access/recipes'
 import { UpdateRecipe } from '../schemas/recipes'
+import { prisma } from '~/server/db'
 
-export async function editRecipe({
-  id,
-  newIngredients,
-  ingredients,
-  instructions,
-  newInstructions,
-  newName,
-  name,
-  prepTime,
-  cookTime,
-  newPrepTime,
-  newCookTime,
-  newDescription,
-  newNotes,
-  notes,
-  description
-}: UpdateRecipe) {
-  const promises = []
+export async function editRecipe(recipe: UpdateRecipe) {
+  const { id, ingredients, newIngredients, instructions, newInstructions } =
+    recipe
 
-  // Handle recipe fields update
+  return prisma.$transaction(async (tx) => {
+    await updateRecipeFields(id, recipe, tx)
+    await handleIngredients(id, ingredients, newIngredients, tx)
+    await handleInstructions(id, instructions, newInstructions, tx)
+    return id
+  })
+}
+
+// Helper functions
+async function updateRecipeFields(
+  id: string,
+  recipe: UpdateRecipe,
+  tx: Prisma.TransactionClient
+) {
   const data = {} as Partial<Recipe>
+  const {
+    newPrepTime,
+    prepTime,
+    newCookTime,
+    cookTime,
+    newDescription,
+    description,
+    newName,
+    name,
+    newNotes,
+    notes
+  } = recipe
+
   if (newPrepTime && newPrepTime !== prepTime) {
     data.prepTime = newPrepTime
   }
@@ -40,79 +52,80 @@ export async function editRecipe({
   }
 
   if (Object.keys(data).length > 0) {
-    promises.push(recipesDataAccess.updateRecipeFields(id, data))
+    await recipesDataAccess.updateRecipeFields(id, data, tx)
   }
+}
 
-  // Handle ingredients
-  const oldIngredientsLength = ingredients.length
-  const newIngredientsLength = newIngredients.length
-
-  let ingredientsToUpdateCount = newIngredientsLength
-  if (oldIngredientsLength > newIngredientsLength) {
-    const deleteCount = oldIngredientsLength - newIngredientsLength
-    const start = oldIngredientsLength - deleteCount
-    const ingredientsToDelete = ingredients.slice(start).map((i) => i.id)
-    promises.push(recipesDataAccess.deleteIngredientsByIds(ingredientsToDelete))
-  } else if (oldIngredientsLength < newIngredientsLength) {
-    ingredientsToUpdateCount = oldIngredientsLength
-    const addCount = newIngredientsLength - oldIngredientsLength
-    const start = newIngredientsLength - addCount
-    const ingredientsToAdd = newIngredients.slice(start).map((i) => ({
-      name: i.name,
-      recipeId: id
-    }))
-    promises.push(recipesDataAccess.createIngredients(ingredientsToAdd))
-  }
-
-  // Handle ingredient updates
-  for (let i = 0; i < ingredientsToUpdateCount; i++) {
-    const oldIngredient = ingredients[i]
-    const newIngredient = newIngredients[i]
-    if (oldIngredient.name !== newIngredient.name) {
-      promises.push(
-        recipesDataAccess.updateIngredient(newIngredient.id, {
-          name: newIngredient.name
-        })
-      )
-    }
-  }
-
-  // Handle instructions
-  const oldInstructionsLength = instructions.length
-  const newInstructionsLength = newInstructions.length
-
-  let instructionsToUpdateCount = newInstructionsLength
-  if (oldInstructionsLength > newInstructionsLength) {
-    const deleteCount = oldInstructionsLength - newInstructionsLength
-    const start = oldInstructionsLength - deleteCount
-    const instructionsToDelete = instructions.slice(start).map((i) => i.id)
-    promises.push(
-      recipesDataAccess.deleteInstructionsByIds(instructionsToDelete)
+async function handleIngredients(
+  id: string,
+  ingredients: UpdateRecipe['ingredients'],
+  newIngredients: UpdateRecipe['newIngredients'],
+  tx: Prisma.TransactionClient
+) {
+  const ingredientsToDelete = ingredients.filter(
+    (old) => !newIngredients.some((n) => n.id === old.id)
+  )
+  if (ingredientsToDelete.length > 0) {
+    await recipesDataAccess.deleteIngredientsByIds(
+      ingredientsToDelete.map((i) => i.id),
+      tx
     )
-  } else if (oldInstructionsLength < newInstructionsLength) {
-    instructionsToUpdateCount = oldInstructionsLength
-    const addCount = newInstructionsLength - oldInstructionsLength
-    const start = newInstructionsLength - addCount
-    const instructionsToAdd = newInstructions.slice(start).map((i) => ({
-      description: i.description,
-      recipeId: id
-    }))
-    promises.push(recipesDataAccess.createInstructions(instructionsToAdd))
   }
 
-  // Handle instruction updates
-  for (let i = 0; i < instructionsToUpdateCount; i++) {
-    const oldInstruction = instructions[i]
-    const newInstruction = newInstructions[i]
-    if (oldInstruction.description !== newInstruction.description) {
-      promises.push(
-        recipesDataAccess.updateInstruction(newInstruction.id, {
-          description: newInstruction.description
-        })
-      )
-    }
+  const ingredientsToCreate = newIngredients.filter((n) => n.id === '')
+  if (ingredientsToCreate.length > 0) {
+    await recipesDataAccess.createIngredients(
+      ingredientsToCreate.map((i) => ({ name: i.name, recipeId: id })),
+      tx
+    )
   }
 
-  await Promise.all(promises)
-  return id
+  const ingredientsToUpdate = newIngredients.filter((n) =>
+    ingredients.some((old) => old.id === n.id && old.name !== n.name)
+  )
+
+  if (ingredientsToUpdate.length > 0) {
+    await recipesDataAccess.updateIngredients(ingredientsToUpdate, tx)
+  }
+}
+
+async function handleInstructions(
+  id: string,
+  instructions: UpdateRecipe['instructions'],
+  newInstructions: UpdateRecipe['newInstructions'],
+  tx: Prisma.TransactionClient
+) {
+  // Delete instructions that no longer exist
+  const instructionsToDelete = instructions.filter(
+    (old) => !newInstructions.some((n) => n.id === old.id)
+  )
+  if (instructionsToDelete.length > 0) {
+    await recipesDataAccess.deleteInstructionsByIds(
+      instructionsToDelete.map((i) => i.id),
+      tx
+    )
+  }
+
+  // Create instructions that are new
+  const instructionsToCreate = newInstructions.filter((n) => n.id === '')
+  if (instructionsToCreate.length > 0) {
+    await recipesDataAccess.createInstructions(
+      instructionsToCreate.map((i) => ({
+        description: i.description,
+        recipeId: id
+      })),
+      tx
+    )
+  }
+
+  // Update instructions
+  const instructionsToUpdate = newInstructions.filter((n) =>
+    instructions.some(
+      (old) => old.id === n.id && old.description !== n.description
+    )
+  )
+
+  if (instructionsToUpdate.length > 0) {
+    await recipesDataAccess.updateInstructions(instructionsToUpdate, tx)
+  }
 }

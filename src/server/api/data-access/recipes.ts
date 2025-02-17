@@ -1,6 +1,6 @@
 import { prisma } from '~/server/db'
-import { CreateRecipe } from '../schemas/recipes'
-import { PrismaClient, Recipe } from '@prisma/client'
+import { CreateRecipe, UpdateRecipe } from '../schemas/recipes'
+import { Prisma, PrismaClient, Recipe } from '@prisma/client'
 
 class RecipesDataAccess {
   constructor(readonly prisma: PrismaClient) {}
@@ -103,51 +103,80 @@ class RecipesDataAccess {
     })
   }
 
-  async updateRecipeFields(id: string, data: Partial<Recipe>) {
-    return await this.prisma.recipe.update({
+  async updateRecipeFields(
+    id: string,
+    data: Partial<Recipe>,
+    tx?: Prisma.TransactionClient
+  ) {
+    const client = tx ?? this.prisma
+    return await client.recipe.update({
       where: { id },
       data
     })
   }
 
-  async deleteIngredientsByIds(ids: string[]) {
-    return await this.prisma.ingredient.deleteMany({
+  async deleteIngredientsByIds(ids: string[], tx?: Prisma.TransactionClient) {
+    const client = tx ?? this.prisma
+    return await client.ingredient.deleteMany({
       where: { id: { in: ids } }
     })
   }
 
-  async createIngredients(ingredients: { name: string; recipeId: string }[]) {
-    return await this.prisma.ingredient.createMany({
+  async createIngredients(
+    ingredients: { name: string; recipeId: string }[],
+    tx?: Prisma.TransactionClient
+  ) {
+    const client = tx ?? this.prisma
+    return await client.ingredient.createMany({
       data: ingredients
     })
   }
 
-  async updateIngredient(id: string, data: { name: string }) {
-    return await this.prisma.ingredient.update({
-      where: { id },
-      data
-    })
+  async updateIngredients(
+    ingredients: { id: string; name: string }[],
+    tx?: Prisma.TransactionClient
+  ) {
+    const client = tx ?? this.prisma
+    return Promise.all(
+      ingredients.map((ingredient) =>
+        client.ingredient.update({
+          where: { id: ingredient.id },
+          data: { name: ingredient.name }
+        })
+      )
+    )
   }
 
-  async deleteInstructionsByIds(ids: string[]) {
-    return await this.prisma.instruction.deleteMany({
+  async deleteInstructionsByIds(ids: string[], tx?: Prisma.TransactionClient) {
+    const client = tx ?? this.prisma
+    return await client.instruction.deleteMany({
       where: { id: { in: ids } }
     })
   }
 
   async createInstructions(
-    instructions: { description: string; recipeId: string }[]
+    instructions: { description: string; recipeId: string }[],
+    tx?: Prisma.TransactionClient
   ) {
-    return await this.prisma.instruction.createMany({
+    const client = tx ?? this.prisma
+    return await client.instruction.createMany({
       data: instructions
     })
   }
 
-  async updateInstruction(id: string, data: { description: string }) {
-    return await this.prisma.instruction.update({
-      where: { id },
-      data
-    })
+  async updateInstructions(
+    instructions: { id: string; description: string }[],
+    tx?: Prisma.TransactionClient
+  ) {
+    const client = tx ?? this.prisma
+    return Promise.all(
+      instructions.map((instruction) =>
+        client.instruction.update({
+          where: { id: instruction.id },
+          data: { description: instruction.description }
+        })
+      )
+    )
   }
 }
 
