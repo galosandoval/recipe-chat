@@ -11,8 +11,8 @@ import {
 import { del } from '@vercel/blob'
 import { RecipesDataAccess } from '~/server/api/data-access/recipes'
 import { messagesDataAccess } from '~/server/api/data-access/messages'
-import { ingredientsDataAccess } from '~/server/api/data-access/ingredients'
-import { instructionsDataAccess } from '~/server/api/data-access/instructions'
+import { IngredientsDataAccess } from '~/server/api/data-access/ingredients'
+import { InstructionsDataAccess } from '~/server/api/data-access/instructions'
 import { editRecipe } from '../use-cases/recipes'
 
 export const recipesRouter = createTRPCRouter({
@@ -213,6 +213,8 @@ export const recipesRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const ingredientsDataAccess = new IngredientsDataAccess(ctx.prisma)
+      const instructionsDataAccess = new InstructionsDataAccess(ctx.prisma)
 
       const deleteIngredients =
         ingredientsDataAccess.deleteIngredientsByRecipeId(input.id)

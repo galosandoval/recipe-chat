@@ -1,12 +1,9 @@
-import { PrismaClient, Instruction } from '@prisma/client'
-import { prisma } from '~/server/db'
+import { PrismaClient } from '@prisma/client'
 
-class InstructionsDataAccess {
-  constructor(readonly prisma: PrismaClient) {}
+export class InstructionsDataAccess {
+  constructor(private readonly prisma: PrismaClient) {}
 
   async deleteInstructionsByRecipeId(recipeId: string) {
     return await this.prisma.instruction.deleteMany({ where: { recipeId } })
   }
 }
-
-export const instructionsDataAccess = new InstructionsDataAccess(prisma)
