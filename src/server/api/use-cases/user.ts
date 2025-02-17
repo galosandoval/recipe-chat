@@ -3,14 +3,14 @@ import {
   CreateChatAndRecipeSchema,
   SignUpSchema
 } from '~/server/api/schemas/users'
-import { createUser, getUserByUsername } from '~/server/api/data-access/users'
+import { usersDataAccess } from '~/server/api/data-access/users'
 import { Context } from '~/server/api/trpc'
 import { createId } from '@paralleldrive/cuid2'
 
 export async function signUp(input: SignUpSchema) {
   const username = input.email.toLowerCase()
 
-  const duplicateUser = await getUserByUsername(username)
+  const duplicateUser = await usersDataAccess.getUserByUsername(username)
 
   if (duplicateUser) {
     throw new TRPCError({
@@ -18,7 +18,7 @@ export async function signUp(input: SignUpSchema) {
       message: 'User already exists.'
     })
   }
-  return createUser(input)
+  return usersDataAccess.createUser(input)
 }
 
 export async function createChatAndRecipe(
