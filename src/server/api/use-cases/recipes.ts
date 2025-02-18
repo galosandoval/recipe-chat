@@ -56,7 +56,7 @@ async function updateRecipeFields(
   }
 
   if (Object.keys(data).length > 0) {
-    await recipesDataAccess.updateRecipeFields(id, data)
+    await recipesDataAccess.updateRecipe(id, data)
   }
 }
 

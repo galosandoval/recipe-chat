@@ -10,7 +10,7 @@ import {
 } from '~/server/api/schemas/recipes'
 import { del } from '@vercel/blob'
 import { RecipesDataAccess } from '~/server/api/data-access/recipes'
-import { messagesDataAccess } from '~/server/api/data-access/messages'
+import { MessagesDataAccess } from '~/server/api/data-access/messages'
 import { IngredientsDataAccess } from '~/server/api/data-access/ingredients'
 import { InstructionsDataAccess } from '~/server/api/data-access/instructions'
 import { editRecipe } from '../use-cases/recipes'
@@ -27,7 +27,7 @@ export const recipesRouter = createTRPCRouter({
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
       const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
-      return recipesDataAccess.updateRecipeFields(input, {
+      return recipesDataAccess.updateRecipe(input, {
         lastViewedAt: new Date()
       })
     }),
@@ -148,13 +148,17 @@ export const recipesRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { messageId, ...rest } = input
       const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const messagesDataAccess = new MessagesDataAccess(ctx.prisma)
+
       const newRecipe = await recipesDataAccess.createRecipe(
         rest,
         ctx.session.user.id
       )
 
       if (messageId && messageId.length > 9 && newRecipe.id) {
-        await messagesDataAccess.updateMessageRecipeId(messageId, newRecipe.id)
+        await messagesDataAccess.updateMessage(messageId, {
+          recipeId: newRecipe.id
+        })
       }
 
       return newRecipe
@@ -169,10 +173,9 @@ export const recipesRouter = createTRPCRouter({
         await del(input.oldUrl)
       }
 
-      const updatedRecipe = await recipesDataAccess.updateRecipeFields(
-        input.id,
-        { imgUrl: input.imgUrl }
-      )
+      const updatedRecipe = await recipesDataAccess.updateRecipe(input.id, {
+        imgUrl: input.imgUrl
+      })
 
       if (!updatedRecipe) {
         throw new TRPCError({
@@ -194,10 +197,9 @@ export const recipesRouter = createTRPCRouter({
     .input(z.object({ notes: z.string().nonempty(), id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
-      const updatedRecipe = await recipesDataAccess.updateRecipeFields(
-        input.id,
-        { notes: input.notes }
-      )
+      const updatedRecipe = await recipesDataAccess.updateRecipe(input.id, {
+        notes: input.notes
+      })
 
       if (!updatedRecipe) {
         throw new TRPCError({

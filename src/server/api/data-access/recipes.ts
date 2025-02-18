@@ -82,7 +82,7 @@ export class RecipesDataAccess {
     })
   }
 
-  async updateRecipeFields(id: string, data: Partial<Recipe>) {
+  async updateRecipe(id: string, data: Partial<Recipe>) {
     return await this.prisma.recipe.update({
       where: { id },
       data

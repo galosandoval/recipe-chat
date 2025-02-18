@@ -3,11 +3,13 @@ import {
   CreateChatAndRecipeSchema,
   SignUpSchema
 } from '~/server/api/schemas/users'
-import { usersDataAccess } from '~/server/api/data-access/users'
+import { UsersDataAccess } from '~/server/api/data-access/users'
 import { Context } from '~/server/api/trpc'
 import { createId } from '@paralleldrive/cuid2'
+import { PrismaClient } from '@prisma/client'
 
-export async function signUp(input: SignUpSchema) {
+export async function signUp(input: SignUpSchema, prisma: PrismaClient) {
+  const usersDataAccess = new UsersDataAccess(prisma)
   const username = input.email.toLowerCase()
 
   const duplicateUser = await usersDataAccess.getUserByUsername(username)

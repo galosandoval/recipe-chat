@@ -5,10 +5,9 @@ import {
   CreateChatAndRecipeSchema,
   SignUpSchema
 } from '~/server/api/schemas/users'
-import { prisma } from '~/server/db'
 
-class UsersDataAccess {
-  constructor(readonly prisma: PrismaClient) {}
+export class UsersDataAccess {
+  constructor(private readonly prisma: PrismaClient) {}
 
   async getUserById(id: string) {
     return await this.prisma.user.findUnique({
@@ -88,4 +87,3 @@ class UsersDataAccess {
   }
 }
 
-export const usersDataAccess = new UsersDataAccess(prisma)

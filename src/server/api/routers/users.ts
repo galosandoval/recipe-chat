@@ -1,4 +1,3 @@
-import { createId } from '@paralleldrive/cuid2'
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -9,16 +8,19 @@ import {
   createChatAndRecipeSchema,
   signUpSchema
 } from '~/server/api/schemas/users'
-import { usersDataAccess } from '~/server/api/data-access/users'
+import { UsersDataAccess } from '~/server/api/data-access/users'
 
 export const userRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx }) => {
+    const usersDataAccess = new UsersDataAccess(ctx.prisma)
     return usersDataAccess.getUserById(ctx.session.user.id)
   }),
 
-  signUp: publicProcedure.input(signUpSchema).mutation(async ({ input }) => {
-    return signUp(input)
-  }),
+  signUp: publicProcedure
+    .input(signUpSchema)
+    .mutation(async ({ input, ctx }) => {
+      return signUp(input, ctx.prisma)
+    }),
 
   createChatAndRecipe: protectedProcedure
     .input(createChatAndRecipeSchema)

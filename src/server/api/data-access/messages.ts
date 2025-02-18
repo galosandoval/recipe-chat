@@ -1,17 +1,12 @@
-import { PrismaClient } from '@prisma/client'
-import { prisma } from '~/server/db'
+import { PrismaClient, Message } from '@prisma/client'
 
-class MessagesDataAccess {
-  constructor(readonly prisma: PrismaClient) {}
+export class MessagesDataAccess {
+  constructor(private readonly prisma: PrismaClient) {}
 
-  async updateMessageRecipeId(messageId: string, recipeId: string) {
+  async updateMessage(messageId: string, data: Partial<Message>) {
     return await this.prisma.message.update({
       where: { id: messageId },
-      data: {
-        recipeId
-      }
+      data
     })
   }
 }
-
-export const messagesDataAccess = new MessagesDataAccess(prisma)
