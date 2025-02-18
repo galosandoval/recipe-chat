@@ -13,7 +13,7 @@ import { Modal } from '~/components/modal'
 import { FormLoader } from '~/components/loaders/form'
 import { MyHead } from '~/components/head'
 import { Dialog } from '@headlessui/react'
-import { type LinkedDataRecipeField } from '~/server/api/routers/recipe/interface'
+import { type LinkedDataRecipeField } from '~/server/api/schemas/recipes'
 import {
   type ChangeEvent,
   Fragment,
@@ -65,7 +65,7 @@ export function Recipes() {
 
   const debouncedSearch = useDebounce(search)
   const { data, status, hasNextPage, fetchNextPage, fetchStatus } =
-    api.recipe.infiniteRecipes.useInfiniteQuery(
+    api.recipes.infiniteRecipes.useInfiniteQuery(
       {
         limit: 8,
         search: debouncedSearch
@@ -264,7 +264,7 @@ function Cards({ data, search }: { data: Recipe[]; search: string }) {
 }
 
 function Card({ data }: { data: Recipe }) {
-  const { mutate } = api.recipe.updateLastViewedAt.useMutation()
+  const { mutate } = api.recipes.updateLastViewedAt.useMutation()
 
   let address: React.ReactNode = null
   if (data.address) {

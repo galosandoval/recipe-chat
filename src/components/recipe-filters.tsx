@@ -38,20 +38,20 @@ export function useFilters() {
   const userId = useUserId()
   const utils = api.useContext()
 
-  const { data, status } = api.filter.getByUserId.useQuery(
+  const { data, status } = api.filters.getByUserId.useQuery(
     { userId },
     { enabled: !!userId }
   )
 
-  const { mutate: create } = api.filter.create.useMutation({
+  const { mutate: create } = api.filters.create.useMutation({
     onMutate: async (input) => {
-      await utils.filter.getByUserId.cancel({ userId })
+      await utils.filters.getByUserId.cancel({ userId })
 
-      const previousFilters = utils.filter.getByUserId.getData({ userId })
+      const previousFilters = utils.filters.getByUserId.getData({ userId })
 
       if (!previousFilters) return previousFilters
 
-      utils.filter.getByUserId.setData({ userId }, (old) => {
+      utils.filters.getByUserId.setData({ userId }, (old) => {
         if (!old) return old
 
         return [
@@ -70,15 +70,15 @@ export function useFilters() {
     }
   })
 
-  const { mutate: checkFilter } = api.filter.check.useMutation({
+  const { mutate: checkFilter } = api.filters.check.useMutation({
     onMutate: async (input) => {
-      await utils.filter.getByUserId.cancel({ userId })
+      await utils.filters.getByUserId.cancel({ userId })
 
-      const previousFilters = utils.filter.getByUserId.getData({ userId })
+      const previousFilters = utils.filters.getByUserId.getData({ userId })
 
       if (!previousFilters) return previousFilters
 
-      utils.filter.getByUserId.setData({ userId }, (old) => {
+      utils.filters.getByUserId.setData({ userId }, (old) => {
         if (!old) return old
 
         const index = old.findIndex((f) => f.id === input.filterId)
@@ -92,27 +92,27 @@ export function useFilters() {
     },
 
     onSuccess: async () => {
-      await utils.filter.getByUserId.invalidate({ userId })
+      await utils.filters.getByUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
       const previousFilters = ctx?.previousFilters
       if (previousFilters) {
-        utils.filter.getByUserId.setData({ userId }, previousFilters)
+        utils.filters.getByUserId.setData({ userId }, previousFilters)
       }
       toast.error(error.message)
     }
   })
 
-  const { mutate: deleteFilter } = api.filter.delete.useMutation({
+  const { mutate: deleteFilter } = api.filters.delete.useMutation({
     onMutate: async (input) => {
-      await utils.filter.getByUserId.cancel({ userId })
+      await utils.filters.getByUserId.cancel({ userId })
 
-      const previousFilters = utils.filter.getByUserId.getData({ userId })
+      const previousFilters = utils.filters.getByUserId.getData({ userId })
 
       if (!previousFilters) return previousFilters
 
-      utils.filter.getByUserId.setData({ userId }, (old) => {
+      utils.filters.getByUserId.setData({ userId }, (old) => {
         if (!old) return old
 
         const index = old.findIndex((f) => f.id === input.filterId)
@@ -126,13 +126,13 @@ export function useFilters() {
     },
 
     onSuccess: async () => {
-      await utils.filter.getByUserId.invalidate({ userId })
+      await utils.filters.getByUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
       const previousFilters = ctx?.previousFilters
       if (previousFilters) {
-        utils.filter.getByUserId.setData({ userId }, previousFilters)
+        utils.filters.getByUserId.setData({ userId }, previousFilters)
       }
       toast.error(error.message)
     }

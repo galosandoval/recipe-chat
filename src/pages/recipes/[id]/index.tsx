@@ -73,7 +73,7 @@ type Checked = Record<string, boolean>
 function FoundRecipe({
   data
 }: {
-  data: NonNullable<RouterOutputs['recipe']['byId']>
+  data: NonNullable<RouterOutputs['recipes']['byId']>
 }) {
   const t = useTranslation()
 
@@ -124,7 +124,7 @@ function FoundRecipe({
   let goToListTimer: ReturnType<typeof setTimeout> | undefined = undefined
   const handleAddToList = () => {
     const checkedIngredients = ingredients.filter((i) => checked[i.id])
-    const newList: RouterInputs['list']['upsert'] = checkedIngredients
+    const newList: RouterInputs['lists']['upsert'] = checkedIngredients
     mutate(newList)
     setAddedToList(true)
 
@@ -238,15 +238,15 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
     'select-image' | 'upload-image' | 'uploading-image'
   >('select-image')
 
-  const { mutate: updateImgUrl } = api.recipe.updateImgUrl.useMutation({
+  const { mutate: updateImgUrl } = api.recipes.updateImgUrl.useMutation({
     onMutate: async ({ id, imgUrl }) => {
-      await utils.recipe.byId.cancel({ id })
+      await utils.recipes.byId.cancel({ id })
 
-      const previousData = utils.recipe.byId.getData({ id })
+      const previousData = utils.recipes.byId.getData({ id })
 
       if (!previousData) return previousData
 
-      utils.recipe.byId.setData({ id }, (old) => {
+      utils.recipes.byId.setData({ id }, (old) => {
         if (!old) return old
 
         return {
@@ -259,7 +259,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
     },
 
     onSuccess: async () => {
-      await utils.recipe.byId.invalidate({ id })
+      await utils.recipes.byId.invalidate({ id })
       setUploadImgButtonLabel('select-image')
     },
 
@@ -269,7 +269,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
       const previousData = context?.previousData
 
       if (previousData && previousData) {
-        utils.recipe.byId.setData({ id }, previousData)
+        utils.recipes.byId.setData({ id }, previousData)
       }
 
       toast.error(error.message)
@@ -445,9 +445,9 @@ function Notes({ notes, id }: { notes: string; id: string }) {
   const t = useTranslation()
 
   const utils = api.useContext()
-  const { mutate } = api.recipe.addNotes.useMutation({
+  const { mutate } = api.recipes.addNotes.useMutation({
     onSuccess() {
-      utils.recipe.byId.invalidate({ id })
+      utils.recipes.byId.invalidate({ id })
     }
   })
 

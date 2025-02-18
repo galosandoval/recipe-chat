@@ -55,6 +55,21 @@ const editRecipeSchema = z.object({
   notes: z.string().optional()
 })
 
+export const createRecipeSchema = z.object({
+  description: z.string().optional(),
+  name: z.string(),
+  imgUrl: z.string().optional(),
+  author: z.string().optional(),
+  address: z.string().optional(),
+  ingredients: z.array(z.string()),
+  instructions: z.array(z.string()),
+  url: z.string().optional(),
+  prepTime: z.string().optional(),
+  cookTime: z.string().optional(),
+  messageId: z.string().optional()
+})
+export type CreateRecipe = z.infer<typeof createRecipeSchema>
+
 const ingredientsAndInstructionsSchema = z.object({
   ingredients: z.array(
     z.object({
@@ -105,7 +120,7 @@ const messageSchema = z.object({
   role: z.enum(['user', 'assistant', 'system'])
 })
 
-export type Message = RouterOutputs['chat']['addMessages']
+export type Message = RouterOutputs['chats']['addMessages']
 
 export const generateSchema = z.object({
   content: z.string(),
@@ -113,3 +128,11 @@ export const generateSchema = z.object({
   filters: z.array(z.string()).optional(),
   chatId: z.string().optional()
 })
+
+export const updateRecipeImgUrlSchema = z.object({
+  id: z.string(),
+  imgUrl: z.string(),
+  oldUrl: z.string().optional()
+})
+export type UpdateRecipeImgUrl = z.infer<typeof updateRecipeImgUrlSchema>
+

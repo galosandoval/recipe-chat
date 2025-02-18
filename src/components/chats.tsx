@@ -72,7 +72,7 @@ function Chats({
 }) {
   const t = useTranslation()
 
-  const { data, status } = api.chat.getChats.useQuery(
+  const { data, status } = api.chats.getChats.useQuery(
     { userId: session?.user.id || '' },
     {
       enabled: isAuthenticated,
@@ -161,7 +161,7 @@ const useGetChats = (
   const isAuthenticated = authStatus === 'authenticated'
 
   return {
-    ...api.chat.getChats.useQuery(
+    ...api.chats.getChats.useQuery(
       { userId: data?.user.id || '' },
 
       {

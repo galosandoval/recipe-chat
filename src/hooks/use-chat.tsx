@@ -50,7 +50,7 @@ export const useChat = () => {
     })
   }
 
-  const { mutate: upsertChat } = api.chat.upsert.useMutation({
+  const { mutate: upsertChat } = api.chats.upsert.useMutation({
     async onSuccess(data) {
       if (data.chatId) {
         sessionStorage.setItem('currentChatId', JSON.stringify(data.chatId))
@@ -116,7 +116,7 @@ export const useChat = () => {
 
   const enabled = isAuthenticated && !!sessionChatId && shouldFetchChat
 
-  const { status, fetchStatus } = api.chat.getMessagesById.useQuery(
+  const { status, fetchStatus } = api.chats.getMessagesById.useQuery(
     { chatId: sessionChatId ?? '' },
     {
       enabled,
@@ -132,9 +132,9 @@ export const useChat = () => {
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
   const { mutate: createRecipe, status: createRecipeStatus } =
-    api.recipe.create.useMutation({
+    api.recipes.create.useMutation({
       async onSuccess(newRecipe, { messageId }) {
-        await utils.recipe.invalidate()
+        await utils.recipes.invalidate()
         const messagesCopy = [...messages]
 
         if (messageId) {
@@ -156,7 +156,7 @@ export const useChat = () => {
     })
 
   const { mutateAsync: createChatAndRecipeAsync } =
-    api.user.createChatAndRecipe.useMutation({
+    api.users.createChatAndRecipe.useMutation({
       onError: (error) => {
         toast.error('Error: ' + error.message)
       }
