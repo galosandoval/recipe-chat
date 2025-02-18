@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { api } from '~/utils/api'
 import { z } from 'zod'
+import { createId } from '@paralleldrive/cuid2'
 
 export const useList = () => {
   const userId = useUserId()
@@ -72,7 +73,7 @@ export function useListController(data: Ingredient[]) {
         ingredients = [
           ...prevList.ingredients,
           {
-            id: '',
+            id: input.id,
             checked: false,
             listId: '',
             name: input.newIngredientName,
@@ -99,9 +100,9 @@ export function useListController(data: Ingredient[]) {
   })
 
   const onSubmitNewIngredient = (values: FormValues) => {
-    addToList({ newIngredientName: values.newIngredientName })
+    const newId = createId()
+    addToList({ newIngredientName: values.newIngredientName, id: newId })
     reset()
-    setTimeout(() => setFocus('newIngredientName'))
   }
 
   const { mutate: deleteListItem } = api.lists.clear.useMutation({

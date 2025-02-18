@@ -156,12 +156,9 @@ function AddIngredientForm({
     newIngredientName: string
   }>
   onSubmitNewIngredient: (data: { newIngredientName: string }) => void
-  handleSubmit: UseFormHandleSubmit<
-    {
-      newIngredientName: string
-    },
-    undefined
-  >
+  handleSubmit: UseFormHandleSubmit<{
+    newIngredientName: string
+  }>
 }) {
   const t = useTranslation()
 
@@ -222,9 +219,9 @@ function Lists({
 
   return (
     <div className='flex flex-col divide-y divide-neutral-content'>
-      {data.map((i) => (
+      {data.map((i, id) => (
         <Checkbox
-          key={i.id}
+          key={i.id ?? id}
           checked={i.checked}
           id={i.id.toString()}
           label={i.name}

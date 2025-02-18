@@ -1,6 +1,6 @@
 import { chatRouter } from './chat/router'
 import { filterRouter } from './filter/router'
-import { listRouter } from './list/router'
+import { listsRouter } from './lists'
 import { recipesRouter } from './recipes'
 import { userRouter } from './users'
 import { createTRPCRouter } from '../trpc'
@@ -12,7 +12,7 @@ import { createTRPCRouter } from '../trpc'
  */
 export const appRouter = createTRPCRouter({
   recipes: recipesRouter,
-  lists: listRouter,
+  lists: listsRouter,
   chats: chatRouter,
   users: userRouter,
   filters: filterRouter
