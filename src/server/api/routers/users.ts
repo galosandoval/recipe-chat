@@ -3,7 +3,7 @@ import {
   protectedProcedure,
   publicProcedure
 } from '~/server/api/trpc'
-import { createChatAndRecipe, signUp } from '~/server/api/use-cases/user'
+import { createChatAndRecipe, signUp } from '~/server/api/use-cases/users'
 import {
   createChatAndRecipeSchema,
   signUpSchema
