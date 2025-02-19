@@ -55,7 +55,8 @@
     "placeholder": "Nuevo filtro",
     "active": "Filtros activos:",
     "min-chars-3": "Mínimo 3 caracteres",
-    "add": "Agregar filtro"
+    "add": "Agregar filtro",
+    "no-filters": "No se encontraron filtros. Agrega un filtro para empezar."
   },
 
   "chat-window": {

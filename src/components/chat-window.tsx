@@ -18,7 +18,7 @@ import {
 } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
-import { Filters } from './recipe-filters'
+import { Filters, FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { ChatsSection, ChatsSideBarButton } from './chats'
 import {
@@ -66,7 +66,7 @@ const Content = memo(function Content(
 ) {
   const {
     chatId,
-    filters,
+    // filters,
     handleFillMessage,
     setScrollMode,
     messages,
@@ -91,7 +91,7 @@ const Content = memo(function Content(
     handleGetChatsOnSuccess
   } = props
 
-  const { data } = filters
+  // const { data } = filters
   const scrollToBottom = useScrollToBottom()
   const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
@@ -139,7 +139,7 @@ const Content = memo(function Content(
         <ValueProps handleSendChatExample={handleFillMessage as any}>
           <ChatsSection chatId={chatId} handleChangeChat={handleChangeChat} />
 
-          <Filters {...filters} />
+          <FiltersByUser />
         </ValueProps>
       </div>
     )
@@ -171,7 +171,7 @@ const Content = memo(function Content(
           }
           handleStartNewChat={handleStartNewChat}
           handleToggleChatsModal={handleToggleChatsModal}
-          filters={data ?? []}
+          // filters={data ?? []}
         />
       </div>
 
@@ -227,7 +227,7 @@ function ChatWindowContent({
   handleToggleChatsModal,
   handleGoToRecipe,
   handleSaveRecipe,
-  filters,
+  // filters,
   isChatsModalOpen,
   saveRecipeStatus,
   isSendingMessage,
@@ -248,7 +248,7 @@ function ChatWindowContent({
 
   handleStartNewChat: () => void
   handleToggleChatsModal: () => void
-  filters: Filter[]
+  // filters: Filter[]
   isChatsModalOpen: boolean
   isSendingMessage: boolean
   chatId?: string
@@ -284,7 +284,7 @@ function ChatWindowContent({
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
           isAuthenticated={isAuthenticated}
-          filters={filters}
+          // filters={filters}
           handleGetChatsOnSuccess={handleGetChatsOnSuccess}
           handleChangeChat={handleChangeChat}
           handleStartNewChat={handleStartNewChat}
@@ -305,7 +305,7 @@ const MessageList = memo(function MessageList({
   isAuthenticated,
   isSendingMessage,
   saveRecipeStatus,
-  filters,
+  // filters,
   handleGetChatsOnSuccess,
   handleChangeChat,
   handleStartNewChat,
@@ -320,7 +320,7 @@ const MessageList = memo(function MessageList({
   isSendingMessage: boolean
   isAuthenticated: boolean
   saveRecipeStatus: MutationStatus
-  filters: Filter[]
+  // filters: Filter[]
   handleChangeChat?: (
     chat: Chat & {
       messages: PrismaMessage[]
@@ -391,7 +391,7 @@ const MessageList = memo(function MessageList({
             handleGoToRecipe={handleGoToRecipe}
             handleSaveRecipe={handleSaveRecipe}
             saveRecipeStatus={saveRecipeStatus}
-            filters={filters}
+            // filters={filters}
           />
         ))}
 
@@ -404,7 +404,7 @@ const MessageList = memo(function MessageList({
 const Message = function Message({
   message,
   isSendingMessage,
-  filters,
+  // filters,
   handleGoToRecipe,
   handleSaveRecipe,
   saveRecipeStatus
@@ -412,7 +412,7 @@ const Message = function Message({
   message: PrismaMessage
   isSendingMessage: boolean
   saveRecipeStatus: MutationStatus
-  filters: Filter[]
+  // filters: Filter[]
   handleGoToRecipe: ({
     recipeId,
     recipeName
@@ -489,8 +489,6 @@ const Message = function Message({
     )
   }
 
-  const activeFilters = filters.filter((f) => f.checked)
-
   return (
     <div className='flex flex-col items-center self-center bg-base-200 p-4'>
       <div className='prose mx-auto w-full'>
@@ -504,7 +502,7 @@ const Message = function Message({
             <UserCircleIcon />
           </div>
         </div>
-        {activeFilters.length ? <ActiveFilters data={activeFilters} /> : null}
+        <ActiveFilters />
       </div>
     </div>
   )
@@ -515,13 +513,27 @@ function removeBracketsAndQuotes(str: string) {
   return str.replace(/[{}[\]""]/g, '').replace(/,/g, ' ')
 }
 
-function ActiveFilters({ data }: { data: Filter[] }) {
+function ActiveFilters() {
+  const { data: filters, status } = useFiltersByUser()
   const t = useTranslation()
+
+  if (status === 'loading') {
+    return <div>{t('loading.screen')}</div>
+  }
+
+  if (status === 'error' || !filters) {
+    return <div>{t('error.something-went-wrong')}</div>
+  }
+  const activeFilters = filters.filter((f) => f.checked)
+
+  if (activeFilters.length === 0) {
+    return null
+  }
 
   return (
     <div className='flex gap-2 pt-2'>
       <h3 className='mb-0 mt-0 text-sm'>{t('filters.title')}:</h3>
-      {data.map((f) => (
+      {activeFilters.map((f) => (
         <div className='badge badge-primary badge-outline' key={f.id}>
           {f.name}
         </div>

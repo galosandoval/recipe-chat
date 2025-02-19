@@ -56,7 +56,8 @@
     "active": "Active filters:",
     "min-chars-3": "Minimum 3 characters",
     "max-chars-50": "Maximum 50 characters",
-    "add": "Add filter"
+    "add": "Add filter",
+    "no-filters": "No filters found. Add a filter to get started."
   },
 
   "chat-window": {
