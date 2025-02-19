@@ -3,11 +3,7 @@ import ScrollToBottom, {
   useScrollToTop,
   useSticky
 } from 'react-scroll-to-bottom'
-import {
-  type Chat,
-  type Filter,
-  type Message as PrismaMessage
-} from '@prisma/client'
+import { type Chat, type Message as PrismaMessage } from '@prisma/client'
 import { transformContentToRecipe, type ChatType } from '~/hooks/use-chat'
 import {
   type Dispatch,
@@ -18,7 +14,7 @@ import {
 } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
-import { Filters, FiltersByUser, useFiltersByUser } from './recipe-filters'
+import { FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { ChatsSection, ChatsSideBarButton } from './chats'
 import {

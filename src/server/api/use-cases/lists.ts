@@ -1,6 +1,5 @@
-import { type PrismaClient, type Ingredient } from '@prisma/client'
+import { type PrismaClient } from '@prisma/client'
 import { ListDataAccess } from '../data-access/lists'
-import { type RouterInputs } from '~/utils/api'
 import { IngredientsDataAccess } from '../data-access/ingredients'
 
 interface IngredientInput {

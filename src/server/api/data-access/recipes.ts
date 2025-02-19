@@ -1,6 +1,6 @@
 import { prisma } from '~/server/db'
-import { CreateRecipe } from '../schemas/recipes'
-import { Prisma, PrismaClient, Recipe } from '@prisma/client'
+import { type CreateRecipe } from '../schemas/recipes'
+import { type Prisma, type PrismaClient, type Recipe } from '@prisma/client'
 
 export class RecipesDataAccess {
   constructor(private readonly prisma: PrismaClient) {}

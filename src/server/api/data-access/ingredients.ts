@@ -1,4 +1,4 @@
-import { Ingredient, PrismaClient } from '@prisma/client'
+import { type Ingredient, type PrismaClient } from '@prisma/client'
 
 export class IngredientsDataAccess {
   constructor(private readonly prisma: PrismaClient) {}

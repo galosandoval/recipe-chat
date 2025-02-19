@@ -1,9 +1,9 @@
 import { type PrismaClient } from '@prisma/client'
 import { FiltersDataAccess } from '~/server/api/data-access/filters'
 import {
-  CreateFilterSchema,
-  CheckFilterSchema,
-  DeleteFilterSchema
+  type CreateFilterSchema,
+  type CheckFilterSchema,
+  type DeleteFilterSchema
 } from '~/server/api/schemas/filters'
 
 export async function getAllFilters(userId: string, prisma: PrismaClient) {

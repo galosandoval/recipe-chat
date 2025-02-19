@@ -1,4 +1,4 @@
-import { PrismaClient, Message } from '@prisma/client'
+import { type PrismaClient, type Message } from '@prisma/client'
 
 export class MessagesDataAccess {
   constructor(private readonly prisma: PrismaClient) {}

@@ -226,7 +226,8 @@ export const recipesRouter = createTRPCRouter({
 
       const deleteRecipe = recipesDataAccess.deleteRecipeById(input.id)
 
-      return await ctx.prisma.$transaction(async (prisma) => {
+      return await ctx.prisma.$transaction(async (_prisma) => {
+        // TODO: implement prisma into methods
         await deleteIngredients
         await deleteInstructions
         await deleteRecipe
