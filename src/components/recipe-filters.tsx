@@ -8,12 +8,11 @@ import {
   XIcon
 } from './icons'
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '~/utils/api'
 import { useUserId } from '~/hooks/use-list'
 import { type Filter } from '@prisma/client'
-import { type QueryStatus } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
@@ -32,18 +31,196 @@ const createFilterSchema = (t: TFunction) =>
 
 type CreateFilter = z.infer<ReturnType<typeof createFilterSchema>>
 
-export function useFilters() {
-  const t = useTranslation()
-
+export const useFiltersByUser = () => {
   const userId = useUserId()
-  const utils = api.useContext()
-
   const { data, status } = api.filters.getByUserId.useQuery(
     { userId },
     { enabled: !!userId }
   )
 
-  const { mutate: create } = api.filters.create.useMutation({
+  return { data, status }
+}
+
+export function FiltersByUser() {
+  const { data, status } = useFiltersByUser()
+  const t = useTranslation()
+
+  if (status === 'error') {
+    return <div>{t('error.something-went-wrong')}</div>
+  }
+
+  if (status === 'loading') {
+    return <div>{t('loading.screen')}</div>
+  }
+
+  return <Filters data={data ?? []} />
+}
+
+function CreateFilterForm({
+  onCreate
+}: {
+  onCreate: (data: CreateFilter) => void
+}) {
+  const t = useTranslation()
+  const {
+    handleSubmit,
+    resetField,
+    setFocus,
+    control,
+    formState: { errors, isDirty, touchedFields }
+  } = useForm<CreateFilter>({
+    resolver: zodResolver(createFilterSchema(t)),
+    defaultValues: {
+      name: ''
+    }
+  })
+
+  const onSubmit = (data: CreateFilter) => {
+    onCreate(data)
+    resetField('name')
+    setFocus('name')
+  }
+
+  return (
+    <>
+      <form className='join' onSubmit={handleSubmit(onSubmit)}>
+        <Controller
+          name='name'
+          control={control}
+          render={({ field }) => (
+            <input
+              {...field}
+              className='input join-item input-bordered input-sm'
+              placeholder={t('filters.placeholder')}
+            />
+          )}
+        />
+        <button
+          type='submit'
+          className='btn btn-outline join-item no-animation btn-sm'
+        >
+          <PlusCircleIcon />
+          <span>{t('filters.add')}</span>
+        </button>
+      </form>
+      {errors.name && isDirty && touchedFields.name && (
+        <ErrorMessage name='name' errors={errors} align='center' />
+      )}
+    </>
+  )
+}
+
+function FilterItem({
+  filter,
+  canDelete,
+  onCheck,
+  onRemove
+}: {
+  filter: Filter
+  canDelete: boolean
+  onCheck: (id: string, checked: boolean) => void
+  onRemove: (id: string) => void
+}) {
+  const checked = filter.checked && !canDelete
+
+  return (
+    <button
+      onClick={
+        canDelete
+          ? () => onRemove(filter.id)
+          : () => onCheck(filter.id, !filter.checked)
+      }
+      key={filter.id}
+      className={`badge flex h-fit items-center gap-1 py-0 ${
+        canDelete
+          ? 'badge-error badge-outline'
+          : checked
+          ? 'badge-primary badge-outline'
+          : 'badge-ghost'
+      }`}
+    >
+      <span className='flex items-center'>
+        {checked && <CheckIcon size={4} />}
+        <span className=''>{filter.name}</span>
+        {canDelete && <XCircleIcon size={5} />}
+      </span>
+    </button>
+  )
+}
+
+function FilterList({
+  filters,
+  canDelete,
+  onCheck,
+  onRemove
+}: {
+  filters: Filter[]
+  canDelete: boolean
+  onCheck: (id: string, checked: boolean) => void
+  onRemove: (id: string) => void
+}) {
+  const t = useTranslation()
+
+  if (filters.length === 0) {
+    return <div>{t('filters.no-filters')}</div>
+  }
+
+  return (
+    <div className='flex w-full flex-wrap gap-4'>
+      {filters.map((filter) => (
+        <FilterItem
+          key={filter.id}
+          filter={filter}
+          canDelete={canDelete}
+          onCheck={onCheck}
+          onRemove={onRemove}
+        />
+      ))}
+    </div>
+  )
+}
+
+function FilterControls({
+  canDelete,
+  onToggleCanDelete
+}: {
+  canDelete: boolean
+  onToggleCanDelete: () => void
+}) {
+  return (
+    <button
+      onClick={onToggleCanDelete}
+      className={`btn btn-circle badge-ghost ml-auto`}
+    >
+      <span>
+        {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
+      </span>
+    </button>
+  )
+}
+
+function ActiveFiltersSummary({
+  activeFiltersCount
+}: {
+  activeFiltersCount: number
+}) {
+  const t = useTranslation()
+  return (
+    <small className=''>
+      {t('filters.active')} {activeFiltersCount}
+    </small>
+  )
+}
+
+export function Filters({ data }: { data: Filter[] }) {
+  const session = useSession()
+
+  const t = useTranslation()
+
+  const userId = useUserId()
+  const utils = api.useContext()
+
+  const { mutate: createFilter } = api.filters.create.useMutation({
     onMutate: async (input) => {
       await utils.filters.getByUserId.cancel({ userId })
 
@@ -58,6 +235,7 @@ export function useFilters() {
           ...old,
           {
             ...input,
+            userId,
             checked: true,
             id: input.id,
             createdAt: new Date(),
@@ -67,6 +245,18 @@ export function useFilters() {
       })
 
       return { previousFilters }
+    },
+
+    onSuccess: async () => {
+      await utils.filters.getByUserId.invalidate({ userId })
+    },
+
+    onError: (error, _, ctx) => {
+      const previousFilters = ctx?.previousFilters
+      if (previousFilters) {
+        utils.filters.getByUserId.setData({ userId }, previousFilters)
+      }
+      toast.error(error.message)
     }
   })
 
@@ -140,15 +330,6 @@ export function useFilters() {
 
   const [canDelete, setCanDelete] = useState(false)
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isDirty, isValid, errors }
-  } = useForm<CreateFilter>({
-    resolver: zodResolver(createFilterSchema(t))
-  })
-
   const handleToggleCanDelete = () => {
     setCanDelete((prev) => !prev)
   }
@@ -159,50 +340,15 @@ export function useFilters() {
 
   const handleRemoveFilter = (id: string) => {
     deleteFilter({ filterId: id })
+    if (data.length === 1) {
+      setCanDelete(false)
+    }
   }
 
-  const onSubmit = (data: CreateFilter) => {
-    setCanDelete(false)
-
+  const handleCreateFilter = (data: CreateFilter) => {
     const id = createId()
-
-    create({ name: data.name, userId, id })
-
-    reset()
+    createFilter({ name: data.name, id })
   }
-
-  return {
-    data,
-    canDelete,
-    isBtnDisabled: !isDirty || !isValid,
-    status,
-    errors,
-    handleCheck,
-    handleSubmit,
-    onSubmit,
-    register,
-    handleToggleCanDelete,
-    handleRemoveFilter
-  }
-}
-
-export type RecipeFiltersType = ReturnType<typeof useFilters>
-
-export function Filters({
-  handleSubmit,
-  onSubmit,
-  data,
-  register,
-  handleCheck,
-  errors,
-  canDelete,
-  status,
-  handleRemoveFilter,
-  handleToggleCanDelete
-}: RecipeFiltersType) {
-  const session = useSession()
-
-  const t = useTranslation()
 
   if (session.status !== 'authenticated') {
     return null
@@ -214,114 +360,24 @@ export function Filters({
     <div className='flex w-full flex-1 flex-col items-center justify-center gap-2'>
       <ValuePropsHeader icon={<FunnelIcon />} label={t('filters.title')} />
 
-      <List
-        canDelete={canDelete}
-        filters={data ?? []}
-        status={status}
-        handleCheck={handleCheck}
-        handleRemoveFilter={handleRemoveFilter}
-        handleToggleCanDelete={handleToggleCanDelete}
-      />
+      <div className='flex w-full flex-wrap gap-4'>
+        <FilterList
+          filters={data ?? []}
+          canDelete={canDelete}
+          onCheck={handleCheck}
+          onRemove={handleRemoveFilter}
+        />
+        <FilterControls
+          canDelete={canDelete}
+          onToggleCanDelete={handleToggleCanDelete}
+        />
+      </div>
 
       {data?.length ? (
-        <small className=''>
-          {t('filters.active')} {activeFilters?.length}
-        </small>
+        <ActiveFiltersSummary activeFiltersCount={activeFilters?.length ?? 0} />
       ) : null}
 
-      <form className='join' onSubmit={handleSubmit(onSubmit)}>
-        <input
-          {...register('name')}
-          className='input join-item input-bordered input-sm'
-          placeholder={t('filters.placeholder')}
-        />
-        <button
-          type='submit'
-          className='btn btn-outline join-item no-animation btn-sm'
-        >
-          <PlusCircleIcon />
-          <span>{t('filters.add')}</span>
-        </button>
-      </form>
-
-      {errors.name && (
-        <ErrorMessage name='name' errors={errors} align='center' />
-      )}
+      <CreateFilterForm onCreate={handleCreateFilter} />
     </div>
-  )
-}
-
-function List({
-  filters,
-  canDelete,
-  status,
-  handleRemoveFilter,
-  handleCheck,
-  handleToggleCanDelete
-}: {
-  filters: Filter[]
-  canDelete: boolean
-  status: QueryStatus
-  handleRemoveFilter: (id: string) => void
-  handleCheck: (id: string, checked: boolean) => void
-  handleToggleCanDelete: () => void
-}) {
-  const t = useTranslation()
-
-  if (status === 'error') {
-    return <div>{t('error.something-went-wrong')}</div>
-  }
-
-  if (status === 'success' && filters) {
-    const notEmpty = filters.length > 0
-
-    return (
-      <>
-        {notEmpty && (
-          <div className='flex w-full flex-wrap gap-4'>
-            {filters.map((filter) => {
-              const checked = filter.checked && !canDelete
-
-              return (
-                <button
-                  onClick={
-                    canDelete
-                      ? () => handleRemoveFilter(filter.id)
-                      : () => handleCheck(filter.id, !filter.checked)
-                  }
-                  key={filter.id}
-                  className={`badge flex h-fit items-center gap-1 py-0 ${
-                    canDelete
-                      ? 'badge-error badge-outline'
-                      : checked
-                      ? 'badge-primary badge-outline'
-                      : 'badge-ghost'
-                  }`}
-                >
-                  <span className='flex items-center'>
-                    {checked && <CheckIcon size={4} />}
-                    <span className=''>{filter.name}</span>
-                    {canDelete && <XCircleIcon size={5} />}
-                  </span>
-                </button>
-              )
-            })}
-
-            <button
-              onClick={handleToggleCanDelete}
-              className={`btn btn-circle badge-ghost ml-auto`}
-            >
-              <span>
-                {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
-              </span>
-            </button>
-          </div>
-        )}
-      </>
-    )
-  }
-
-  return (
-    <div className='flex w-full flex-wrap gap-4'>{t('loading.screen')}</div>
   )
 }

@@ -14,7 +14,7 @@ import {
   loadingToastOptions,
   successToastOptions
 } from '~/components/toast'
-import { useFilters } from '~/components/recipe-filters'
+// import { useFilters } from '~/components/recipe-filters'
 
 export type FormValues = {
   name: string
@@ -35,20 +35,20 @@ export const useChat = () => {
 
   const router = useRouter()
   const { status: authStatus } = useSession()
-  const filters = useFilters()
+  // const filters = useFilters()
 
   const isAuthenticated = authStatus === 'authenticated'
   const utils = api.useContext()
 
-  const filtersData = filters.data
+  // const filtersData = filters.data
 
   const filterStrings: string[] = []
 
-  if (filtersData) {
-    filtersData.forEach((filter) => {
-      if (filter.checked) filterStrings.push(filter.name)
-    })
-  }
+  // if (filtersData) {
+  //   filtersData.forEach((filter) => {
+  //     if (filter.checked) filterStrings.push(filter.name)
+  //   })
+  // }
 
   const { mutate: upsertChat } = api.chats.upsert.useMutation({
     async onSuccess(data) {
@@ -308,7 +308,7 @@ export const useChat = () => {
   )
 
   return {
-    filters,
+    // filters,
     chatId: sessionChatId,
     fetchStatus,
     status,
