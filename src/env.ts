@@ -6,8 +6,7 @@ const envVariables = z.object({
   DATABASE_URL_NON_POOLING: z.string(),
   NODE_ENV: z.string(),
   NEXTAUTH_SECRET: z.string(),
-  OPENAI_API_KEY: z.string(),
-  PORT: z.string()
+  OPENAI_API_KEY: z.string()
 })
 
 envVariables.parse(process.env)
