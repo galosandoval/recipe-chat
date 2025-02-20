@@ -14,6 +14,7 @@ import { MessagesDataAccess } from '~/server/api/data-access/messages'
 import { IngredientsDataAccess } from '~/server/api/data-access/ingredients'
 import { InstructionsDataAccess } from '~/server/api/data-access/instructions'
 import { editRecipe } from '../use-cases/recipes'
+import { type PrismaClient } from '@prisma/client'
 
 export const recipesRouter = createTRPCRouter({
   recentRecipes: protectedProcedure.query(async ({ ctx }) => {
@@ -214,19 +215,23 @@ export const recipesRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
-      const ingredientsDataAccess = new IngredientsDataAccess(ctx.prisma)
-      const instructionsDataAccess = new InstructionsDataAccess(ctx.prisma)
-
-      const deleteIngredients =
-        ingredientsDataAccess.deleteIngredientsByRecipeId(input.id)
-
-      const deleteInstructions =
-        instructionsDataAccess.deleteInstructionsByRecipeId(input.id)
-
-      const deleteRecipe = recipesDataAccess.deleteRecipeById(input.id)
-
       return await ctx.prisma.$transaction(async (prisma) => {
+        const recipesDataAccess = new RecipesDataAccess(prisma as PrismaClient)
+        const ingredientsDataAccess = new IngredientsDataAccess(
+          prisma as PrismaClient
+        )
+        const instructionsDataAccess = new InstructionsDataAccess(
+          prisma as PrismaClient
+        )
+
+        const deleteIngredients =
+          ingredientsDataAccess.deleteIngredientsByRecipeId(input.id)
+
+        const deleteInstructions =
+          instructionsDataAccess.deleteInstructionsByRecipeId(input.id)
+
+        const deleteRecipe = recipesDataAccess.deleteRecipeById(input.id)
+
         await deleteIngredients
         await deleteInstructions
         await deleteRecipe

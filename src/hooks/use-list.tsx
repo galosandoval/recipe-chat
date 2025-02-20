@@ -56,7 +56,6 @@ export function useListController(data: Ingredient[]) {
     register,
     handleSubmit,
     reset,
-    setFocus,
     formState: { isValid }
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema)

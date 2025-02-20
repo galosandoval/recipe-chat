@@ -1,9 +1,9 @@
 import { createId } from '@paralleldrive/cuid2'
-import { PrismaClient } from '@prisma/client'
+import { type PrismaClient } from '@prisma/client'
 import { hash } from 'bcryptjs'
 import {
-  CreateChatAndRecipeSchema,
-  SignUpSchema
+  type CreateChatAndRecipeSchema,
+  type SignUpSchema
 } from '~/server/api/schemas/users'
 
 export class UsersDataAccess {

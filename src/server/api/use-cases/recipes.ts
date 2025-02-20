@@ -1,6 +1,6 @@
 import { type Recipe, type PrismaClient } from '@prisma/client'
 import { RecipesDataAccess } from '../data-access/recipes'
-import { UpdateRecipe } from '../schemas/recipes'
+import { type UpdateRecipe } from '../schemas/recipes'
 
 export async function editRecipe(recipe: UpdateRecipe, prisma: PrismaClient) {
   const { id, ingredients, newIngredients, instructions, newInstructions } =

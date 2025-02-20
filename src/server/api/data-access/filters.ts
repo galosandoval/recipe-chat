@@ -1,8 +1,8 @@
 import { type PrismaClient } from '@prisma/client'
 import {
-  CreateFilterSchema,
-  CheckFilterSchema,
-  DeleteFilterSchema
+  type CreateFilterSchema,
+  type CheckFilterSchema,
+  type DeleteFilterSchema
 } from '~/server/api/schemas/filters'
 
 export class FiltersDataAccess {

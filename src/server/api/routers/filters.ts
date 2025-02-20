@@ -1,13 +1,11 @@
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import {
-  createFilter,
   deleteFilter,
   getAllFilters,
   updateFilterCheckStatus
 } from '~/server/api/use-cases/filters'
 import {
   checkFilterSchema,
-  createFilterSchema,
   deleteFilterSchema,
   getFiltersByUserIdSchema
 } from '~/server/api/schemas/filters'
