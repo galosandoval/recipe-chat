@@ -1,6 +1,6 @@
 import { type PrismaClient } from '@prisma/client'
-import { ListDataAccess } from '../data-access/lists'
-import { IngredientsDataAccess } from '../data-access/ingredients'
+import { ListDataAccess } from '~/server/api/data-access/lists'
+import { IngredientsDataAccess } from '~/server/api/data-access/ingredients'
 
 interface IngredientInput {
   id: string

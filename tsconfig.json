@@ -30,7 +30,7 @@
     "src/*.ts",
     "tailwind.config.cjs",
     ".next/types/**/*.ts",
-    "next-i18next.config.mjss",
+    "next-i18next.config.js",
     "postcss.config.cjs"
   ],
   "incremental": true,
