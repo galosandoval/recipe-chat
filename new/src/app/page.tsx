@@ -15,20 +15,13 @@ export default async function Home() {
   // }
 
   return (
-    <HydrateClient>
-      <main className='flex min-h-svh flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white'>
-        <div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto'>
-          <div className='flex-1 overflow-hidden'>
-            <ChatWindow />
-          </div>
-          <SubmitMessageForm
-          // input={input}
-          // isSendingMessage={isSendingMessage}
-          // handleSubmit={handleSubmit}
-          // handleInputChange={handleInputChange}
-          />
-        </div>
-      </main>
-    </HydrateClient>
+		<HydrateClient>
+			<div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto'>
+				<div className='flex-1 overflow-hidden'>
+					<ChatWindow />
+				</div>
+				<SubmitMessageForm />
+			</div>
+		</HydrateClient>
   )
 }

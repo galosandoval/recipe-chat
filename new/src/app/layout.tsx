@@ -3,11 +3,13 @@ import '~/styles/globals.css'
 import { GeistSans } from 'geist/font/sans'
 import { type Metadata } from 'next'
 
-import { TRPCReactProvider } from '~/trpc/react'
-import { SessionProvider } from 'next-auth/react'
-import { Toast } from '~/components/toast'
-import { Analytics } from '@vercel/analytics/next'
-import { auth } from '~/server/auth'
+// import { TRPCReactProvider } from '~/trpc/react'
+// import { SessionProvider } from 'next-auth/react'
+// import { Toast } from '~/components/toast'
+// import { Analytics } from '@vercel/analytics/next'
+// import { auth } from '~/server/auth'
+import { AppProvider } from '~/components/app-provider'
+import { PublicNavbar } from '~/components/nav'
 
 export const metadata: Metadata = {
     title: 'Create T3 App',
@@ -18,73 +20,23 @@ export const metadata: Metadata = {
 export default async function RootLayout({
     children
 }: Readonly<{ children: React.ReactNode }>) {
-    const session = await auth()
+	// const session = await auth()
 
-    return (
-        <html lang='en' className={`${GeistSans.variable}`}>
-            <body>
-                <TRPCReactProvider>
-                    <SessionProvider session={session}>
-                        {children}
-                        <Toast />
-                        <Analytics />
-                    </SessionProvider>
-                </TRPCReactProvider>
-            </body>
-        </html>
-    )
+	return (
+		<html lang='en' className={`${GeistSans.variable}`}>
+			<body className='font-roboto flex overflow-y-auto'>
+				<div className='relative max-w-full flex-1'>
+					<div className='fixed top-0 z-10 flex w-full justify-center border-b border-b-base-300 bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
+						<PublicNavbar />
+					</div>
+					<main className='transition-width relative flex h-[100svh] w-full flex-1 flex-col items-stretch'>
+						<AppProvider>{children}</AppProvider>
+					</main>
+				</div>
+			</body>
+		</html>
+	)
 }
-
-// const RootLayout = memo(function RootLayout({
-//   children,
-//   font,
-// }: {
-//   children: ReactNode;
-//   font: string;
-// }) {
-//   // const router = useRouter();
-//   // const { data } = useSession();
-
-//   // let navbar = <RoutesNavbar />;
-
-//   // if (!data) {
-//   //   navbar = <PublicNavbar />;
-//   // } else if (router.pathname === "/recipes/[id]") {
-//   //   navbar = <RecipeByIdNavbar />;
-//   // } else if (router.pathname === "/recipes/[id]/edit") {
-//   //   navbar = <EditRecipeNavbar />;
-//   // }
-
-//   return (
-//     <div className={`${font} font-roboto flex overflow-y-auto`}>
-//       <div className="relative max-w-full flex-1">
-//         <div className="border-b-base-300 from-base-100 to-base-100/70 text-base-content fixed top-0 z-10 flex w-full justify-center border-b bg-gradient-to-b bg-blend-saturation backdrop-blur transition-all duration-300">
-//           {navbar}
-//         </div>
-//         <main className="transition-width relative flex h-[100svh] w-full flex-1 flex-col items-stretch">
-//           {children}
-//         </main>
-//       </div>
-//     </div>
-//   );
-// });
-
-// function PublicNavbar() {
-//   const t = useTranslation();
-//   const { theme, updateTheme } = useTheme();
-
-//   return (
-//     <>
-//       <nav className="prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4">
-//         <div></div>
-//         <h1 className="mb-0 text-base">{t("nav.app-name")}</h1>
-//         <div className="justify-self-end">
-//           <ThemeToggle theme={theme} updateTheme={updateTheme} />
-//         </div>
-//       </nav>
-//     </>
-//   );
-// }
 
 // function RecipeByIdNavbar() {
 //   const router = useRouter();

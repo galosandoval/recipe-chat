@@ -1,5 +1,4 @@
 import { OpenAIStream, StreamingTextResponse } from 'ai'
-import { type NextRequest } from 'next/server'
 import {
     type ChatCompletionRequestMessage,
     Configuration,
@@ -28,7 +27,8 @@ const chatParams = z.object({
     filters: z.array(z.string())
 })
 
-export default async function handler(req: NextRequest) {
+export async function POST(req: Request) {
+    console.log('req', req)
     const request = await req.json()
 
     const input = chatParams.parse(request)
