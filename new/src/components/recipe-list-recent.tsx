@@ -10,7 +10,7 @@ export function RecentRecipes() {
 	const { data, status } = api.recipes.recentRecipes.useQuery()
 
 	if (status === 'error') {
-		return <div className=''>{t.error['something-went-wrong']}</div>
+		return <div className='px-4'>{t.error.somethingWentWrong}</div>
 	}
 
 	if (status === 'success') {

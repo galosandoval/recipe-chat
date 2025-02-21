@@ -24,8 +24,8 @@ const createFilterSchema = (t: Translations) =>
 	z.object({
 		name: z
 			.string()
-			.min(3, t.filters['min-chars-3'])
-			.max(50, t.filters['max-chars-50'])
+			.min(3, t.filters.minChars3)
+			.max(50, t.filters.maxChars50)
 	})
 
 type CreateFilter = z.infer<ReturnType<typeof createFilterSchema>>
@@ -45,7 +45,7 @@ export function FiltersByUser() {
 	const t = useTranslations()
 
 	if (status === 'error') {
-		return <div>{t.error['something-went-wrong']}</div>
+		return <div>{t.error.somethingWentWrong}</div>
 	}
 
 	if (status === 'pending') {
@@ -161,7 +161,7 @@ function FilterList({
 	const t = useTranslations()
 
 	if (filters.length === 0) {
-		return <div>{t.filters['no-filters']}</div>
+		return <div>{t.filters.noFilters}</div>
 	}
 
 	return (

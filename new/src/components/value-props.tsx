@@ -34,7 +34,7 @@ export function ValueProps({
 							/>
 						</svg>
 					}
-					label={t['value-props'].title}
+					label={t.valueProps.title}
 				/>
 
 				<div className='flex w-full flex-col items-center gap-4'>
@@ -43,9 +43,7 @@ export function ValueProps({
 						className='btn btn-outline w-full normal-case'
 						onClick={handleSendChatExample}
 					>
-						<span className='w-60'>
-							{t['value-props']['first-button']}
-						</span>
+						<span className='w-60'>{t.valueProps.firstButton}</span>
 						<span>
 							<ArrowUTurnLeftIcon />
 						</span>
@@ -56,7 +54,7 @@ export function ValueProps({
 						onClick={handleSendChatExample}
 					>
 						<span className='w-60'>
-							{t['value-props']['second-button']}
+							{t.valueProps.secondButton}
 						</span>
 						<span>
 							<ArrowUTurnLeftIcon />
@@ -67,9 +65,7 @@ export function ValueProps({
 						className='btn btn-outline w-full normal-case'
 						onClick={handleSendChatExample}
 					>
-						<span className='w-60'>
-							{t['value-props']['third-button']}
-						</span>
+						<span className='w-60'>{t.valueProps.thirdButton}</span>
 						<span>
 							<ArrowUTurnLeftIcon />
 						</span>
@@ -95,18 +91,18 @@ export function ValueProps({
 							/>
 						</svg>
 					}
-					label={t['capabilities'].title}
+					label={t.capabilities.title}
 				/>
 
 				<div className='flex w-full flex-col items-center gap-4'>
 					<div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
-						{t['capabilities']['first-description']}
+						{t.capabilities.firstDescription}
 					</div>
 					<div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
-						{t['capabilities']['second-description']}
+						{t.capabilities.secondDescription}
 					</div>
 					<div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
-						{t['capabilities']['third-description']}
+						{t.capabilities.thirdDescription}
 					</div>
 				</div>
 			</div>
@@ -169,7 +165,7 @@ function Auth() {
 							/>
 						</svg>
 					}
-					label={t['value-props']['save-recipes']}
+					label={t.valueProps.saveRecipes}
 				/>
 
 				<div className='flex w-full flex-col gap-2'>
@@ -177,13 +173,13 @@ function Auth() {
 						onClick={handleOpenSignUpModal}
 						className='btn btn-primary'
 					>
-						{t.nav.menu['sign-up']}
+						{t.nav.menu.signUp}
 					</button>
 					<button
 						onClick={handleOpenLoginModal}
 						className='btn btn-outline'
 					>
-						{t.nav.menu['login']}
+						{t.nav.menu.login}
 					</button>
 				</div>
 			</div>

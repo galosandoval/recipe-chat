@@ -52,7 +52,7 @@ export const useChat = () => {
 	//   })
 	// }
 
-	const { mutate: upsertChat } = api.chats.upsert.useMutation({
+	const { mutate: upsertChat } = api.chats.createOrAddMessages.useMutation({
 		async onSuccess(data) {
 			if (data.chatId) {
 				sessionStorage.setItem(
@@ -152,7 +152,7 @@ export const useChat = () => {
 
 				setMessages(messagesCopy)
 
-				toast.success(t['chat-window']['save-success'])
+				toast.success(t.chatWindow.saveSuccess)
 			},
 			onError: (error) => {
 				toast.error('Error: ' + error.message)
@@ -253,9 +253,9 @@ export const useChat = () => {
 		const user = await toast.promise(
 			newRecipePromise,
 			{
-				loading: t['loading']['logging-in'],
-				success: () => t['toast']['login-success'],
-				error: () => t['error']['something-went-wrong']
+				loading: t.loading.loggingIn,
+				success: () => t.toast.loginSuccess,
+				error: () => t.error.somethingWentWrong
 			},
 			{
 				loading: loadingToastOptions,
@@ -295,7 +295,7 @@ export const useChat = () => {
 			if (!isAuthenticated) {
 				handleOpenSignUpModal()
 
-				toast(t.toast['sign-up'], infoToastOptions)
+				toast(t.toast.signUp, infoToastOptions)
 				return
 			}
 

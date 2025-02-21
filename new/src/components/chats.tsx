@@ -40,7 +40,7 @@ export function ChatsSection({
 		<div className='flex w-full max-w-sm flex-col items-center justify-center'>
 			<ValuePropsHeader
 				icon={<ChatBubbleLeftIcon />}
-				label={t['chat-window'].chats}
+				label={t.chatWindow.chats}
 			/>
 
 			<div className='flex w-full flex-col items-center gap-4'>
@@ -81,12 +81,12 @@ function Chats({
 	)
 
 	if (status === 'error') {
-		return <div>{t.error['something-went-wrong']}</div>
+		return <div>{t.error.somethingWentWrong}</div>
 	}
 
 	if (status === 'success') {
 		if (data.length === 0) {
-			return <p className='px-4'>{t['chat-window']['no-chats']}</p>
+			return <p className='px-4'>{t.chatWindow.noChats}</p>
 		}
 
 		return (
@@ -203,7 +203,7 @@ function ChatList({
 	}
 
 	if (status === 'error') {
-		return <div>{t.error['something-went-wrong']}</div>
+		return <div>{t.error.somethingWentWrong}</div>
 	}
 
 	if (status === 'success') {
@@ -211,7 +211,7 @@ function ChatList({
 			<div className='flex h-full flex-col justify-end gap-2'>
 				{data.length > 0 && (
 					<div className='flex items-center justify-center gap-2'>
-						<h2 className='mb-0 mt-0'>{t['chat-window'].chats}</h2>
+						<h2 className='mb-0 mt-0'>{t.chatWindow.chats}</h2>
 						<ListBulletIcon />
 					</div>
 				)}

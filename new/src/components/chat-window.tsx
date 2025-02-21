@@ -479,7 +479,7 @@ const Message = function Message({
 									})
 								}
 							>
-								{t['chat-window']['to-recipe']}
+								{t.chatWindow.toRecipe}
 							</Button>
 						) : !isSendingMessage ? (
 							// Save
@@ -493,7 +493,7 @@ const Message = function Message({
 									})
 								}
 							>
-								{t['chat-window'].save}
+								{t.chatWindow.save}
 							</Button>
 						) : null}
 					</div>
@@ -535,7 +535,7 @@ function ActiveFilters() {
 	}
 
 	if (status === 'error' || !filters) {
-		return <div>{t.error['something-went-wrong']}</div>
+		return <div>{t.error.somethingWentWrong}</div>
 	}
 	const activeFilters = filters.filter((f) => f.checked)
 

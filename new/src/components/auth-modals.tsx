@@ -22,18 +22,18 @@ import { type TFunction } from 'i18next'
 export const signUpSchema = (t: Translations) =>
 	z
 		.object({
-			email: z.string().email(t.auth['email-required']),
+			email: z.string().email(t.auth.emailRequired),
 			password: z
 				.string()
-				.min(6, t.auth['min-chars-6'])
-				.max(20, t.auth['max-chars-20']),
+				.min(6, t.auth.minChars6)
+				.max(20, t.auth.maxChars20),
 			confirm: z
 				.string()
-				.min(6, t.auth['min-chars-6'])
-				.max(20, t.auth['max-chars-20'])
+				.min(6, t.auth.minChars6)
+				.max(20, t.auth.maxChars20)
 		})
 		.refine((data) => data.confirm === data.password, {
-			message: t.auth['passwords-dont-match'],
+			message: t.auth.passwordsDontMatch,
 			path: ['confirm']
 		})
 
@@ -65,9 +65,8 @@ export function useSignUp(successCallback?: () => Promise<void>) {
 			if (successCallback) {
 				await successCallback()
 			} else if (response?.ok) {
-				await router.push('/chat')
-
-				toast.success(t.auth['sign-up-success'])
+				router.push('/chat')
+				toast.success(t.auth.signUpSuccess)
 			}
 		},
 		onError: (error) => {
@@ -133,13 +132,13 @@ export function SignUpModal({
 	return (
 		<Modal isOpen={isOpen} closeModal={closeModal}>
 			<div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
-				<h1 className='px-5'>{t.auth['sign-up']}</h1>
+				<h1 className='px-5'>{t.auth.signUp}</h1>
 
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className='form-control'>
 						<label htmlFor='email' className='label pb-1 pt-0'>
 							<span className='label-text'>
-								{t.auth['email']}
+								{t.auth.email}
 								<span className='text-error'>*</span>
 							</span>
 						</label>
@@ -157,7 +156,7 @@ export function SignUpModal({
 					<div className='form-control'>
 						<label htmlFor='password' className='label pb-1 pt-0'>
 							<span className='label-text'>
-								{t.auth['password']}
+								{t.auth.password}
 								<span className='text-error'>*</span>
 							</span>
 						</label>
@@ -178,7 +177,7 @@ export function SignUpModal({
 							className='label pb-1 pt-0'
 						>
 							<span className='label-text'>
-								{t.auth['confirm-password']}
+								{t.auth.confirmPassword}
 								<span className='text-error'>*</span>
 							</span>
 						</label>
@@ -201,7 +200,7 @@ export function SignUpModal({
 							type='submit'
 							isLoading={isLoading}
 						>
-							{t.auth['sign-up']}
+							{t.auth.signUp}
 						</Button>
 					</div>
 				</form>
@@ -212,7 +211,7 @@ export function SignUpModal({
 
 export const loginSchema = (t: Translations) =>
 	z.object({
-		email: z.string().email(t.auth['email-required']),
+		email: z.string().email(t.auth.emailRequired),
 		password: z.string().min(1, t.required)
 	})
 type LoginSchemaType = z.infer<ReturnType<typeof loginSchema>>
@@ -247,10 +246,10 @@ export function useLogin() {
 		}
 
 		if (response?.status === 401) {
-			toast.error(t.auth['invalid-creds'])
+			toast.error(t.auth.invalidCreds)
 
-			setError('email', { message: t.auth['invalid-creds'] })
-			setError('password', { message: t.auth['invalid-creds'] })
+			setError('email', { message: t.auth.invalidCreds })
+			setError('password', { message: t.auth.invalidCreds })
 		}
 	}
 
@@ -296,13 +295,11 @@ export function LoginModal({
 	return (
 		<Modal isOpen={isOpen} closeModal={closeModal}>
 			<div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
-				<h1 className='text-center'>{t.auth['login']}</h1>
+				<h1 className='text-center'>{t.auth.login}</h1>
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className='form-control'>
 						<label htmlFor='email' className='label pb-1'>
-							<span className='label-text'>
-								{t.auth['email']}
-							</span>
+							<span className='label-text'>{t.auth.email}</span>
 						</label>
 
 						<input
