@@ -7,13 +7,13 @@ import {
   addMessages,
   upsertChat
 } from '~/server/api/use-cases/chats'
-import { messagesSchema } from '../schemas/messages'
+import { messagesSchema } from '../../../schemas/messages'
 
 export const chatsRouter = createTRPCRouter({
   getChats: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ ctx, input }) => {
-      return getChats(input.userId, ctx.prisma)
+      return getChats(input.userId, ctx.db)
     }),
 
   getMessagesById: protectedProcedure
@@ -23,7 +23,7 @@ export const chatsRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      return getMessagesById(input.chatId, ctx.prisma)
+      return getMessagesById(input.chatId, ctx.db)
     }),
 
   create: protectedProcedure
@@ -34,7 +34,7 @@ export const chatsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id
-      return createChat(userId, input.messages, ctx.prisma)
+      return createChat(userId, input.messages, ctx.db)
     }),
 
   addMessages: protectedProcedure
@@ -46,7 +46,7 @@ export const chatsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { chatId, messages } = input
-      return addMessages(chatId, messages, ctx.prisma)
+      return addMessages(chatId, messages, ctx.db)
     }),
 
   upsert: protectedProcedure
@@ -59,6 +59,6 @@ export const chatsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { chatId, messages } = input
       const userId = ctx.session.user.id
-      return upsertChat(chatId, messages, ctx.prisma, userId)
+      return upsertChat(chatId, messages, ctx.db, userId)
     })
 })
