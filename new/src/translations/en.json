@@ -1,0 +1,132 @@
+{
+	"nav": {
+		"app-name": "RecipeChat",
+
+		"menu": {
+			"sign-up": "Sign up",
+			"login": "Login",
+			"logout": "logout",
+			"theme": "theme"
+		}
+	},
+
+	"required": "Required",
+
+	"auth": {
+		"sign-up": "Sign up",
+		"login": "Login",
+		"email": "Email",
+		"password": "Password",
+		"confirm-password": "Confirm password",
+		"sign-up-success": "Sign up successful!",
+		"invalid-creds": "Invalid credentials",
+		"sign-up-info": "Please sign up to save recipes",
+		"min-chars-6": "Minimum 6 characters",
+		"max-chars-20": "Minimum 20 characters",
+		"passwords-dont-match": "Passwords don't match",
+		"email-required": "Invalid email"
+	},
+
+	"list": {
+		"by-recipe": "By recipe",
+		"no-items": "No items in your list",
+		"add-to-list": "Add to list"
+	},
+
+	"value-props": {
+		"title": "Examples",
+		"first-button": "What should I make for dinner tonight?",
+		"second-button": "What can I make with chicken?",
+		"third-button": "What's the best risotto recipe?",
+		"save-recipes": "Save recipes"
+	},
+
+	"capabilities": {
+		"title": "Capabilities",
+		"first-description": "Remembers previous messages in the same chat",
+		"second-description": "Provide follow-up corrections",
+		"third-description": "Save generated recipes to your account"
+	},
+
+	"chat-form-placeholder": "Ask about a recipe",
+
+	"filters": {
+		"title": "Filters",
+		"placeholder": "New filter",
+		"active": "Active filters:",
+		"min-chars-3": "Minimum 3 characters",
+		"max-chars-50": "Maximum 50 characters",
+		"add": "Add filter",
+		"no-filters": "No filters found. Add a filter to get started."
+	},
+
+	"chat-window": {
+		"to-recipe": "go to recipe",
+		"save": "save",
+		"save-success": "Recipe saved successfully!",
+		"chats": "Recent chats",
+		"no-chats": "No chats found. Start a new chat by asking about a recipe"
+	},
+
+	"recipes": {
+		"no-recipes": {
+			"message": "No recipes found. Save recipes from chats ",
+			"link": "here"
+		},
+
+		"recent": "Recent recipes",
+		"your": "Your recipes",
+		"search": "Search recipes",
+
+		"name": "Name",
+		"description": "Description",
+		"ingredients": "Ingredients",
+		"instructions": "Instructions",
+		"cook-time": "Cook time",
+		"prep-time": "Prep time",
+		"notes": "Notes",
+
+		"step": "Step",
+
+		"paste": "Paste a recipe from the web",
+		"url": "Recipe URL",
+		"upload": "Upload",
+		"cancel": "Cancel",
+		"save": "Save",
+		"delete": "Delete",
+
+		"by-id": {
+			"save-image": "Save image",
+			"go-to-list": "Go to list",
+			"add-to-list": "Add to list",
+			"deselect-all": "Deselect all",
+			"select-all": "Select all",
+			"placeholder": "Add notes here",
+			"edit": "Edit recipe",
+			"select-image": "Select image",
+			"update-image": "Update image",
+			"upload-image": "Upload image",
+			"uploading-image": "Uploading...",
+			"update-image-success": "Image updated successfully!",
+			"no-file": "No file selected",
+
+			"delete": {
+				"title": "Delete recipe",
+				"message": "Are you sure you want to delete this recipe? This action cannot be undone."
+			}
+		},
+
+		"enter-url": "Enter a valid url that contains a recipe."
+	},
+
+	"error": {
+		"something-went-wrong": "Something went wrong."
+	},
+
+	"loading": { "screen": "Loading...", "logging-in": "Logging in..." },
+
+	"toast": {
+		"sign-up": "Please sign up to save recipes.",
+		"login-success": "Welcome! Here's the recipe you saved:"
+	}
+}

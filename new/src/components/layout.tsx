@@ -9,131 +9,131 @@ import {
   PencilSquareIcon,
   XIcon
 } from './icons'
-import { useTranslation } from '~/hooks/use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 import { ThemeToggle, useTheme } from './theme-toggle'
 
 export default function Layout({
-  children,
-  font
+	children,
+	font
 }: {
-  children: ReactNode
-  font: string
+	children: ReactNode
+	font: string
 }) {
-  return <RootLayout font={font}>{children}</RootLayout>
+	return <RootLayout font={font}>{children}</RootLayout>
 }
 
 const RootLayout = memo(function RootLayout({
-  children,
-  font
+	children,
+	font
 }: {
-  children: ReactNode
-  font: string
+	children: ReactNode
+	font: string
 }) {
-  const router = useRouter()
-  const { data } = useSession()
+	const router = useRouter()
+	const { data } = useSession()
 
-  let navbar = <RoutesNavbar />
+	let navbar = <RoutesNavbar />
 
-  if (!data) {
-    navbar = <PublicNavbar />
-  } else if (router.pathname === '/recipes/[id]') {
-    navbar = <RecipeByIdNavbar />
-  } else if (router.pathname === '/recipes/[id]/edit') {
-    navbar = <EditRecipeNavbar />
-  }
+	if (!data) {
+		navbar = <PublicNavbar />
+	} else if (router.pathname === '/recipes/[id]') {
+		navbar = <RecipeByIdNavbar />
+	} else if (router.pathname === '/recipes/[id]/edit') {
+		navbar = <EditRecipeNavbar />
+	}
 
-  return (
-    <div className={`${font} flex overflow-y-auto font-roboto`}>
-      <div className='relative max-w-full flex-1'>
-        <div className='fixed top-0 z-10 flex w-full justify-center border-b border-b-base-300 bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
-          {navbar}
-        </div>
-        <main className='transition-width relative flex h-[100svh] w-full flex-1 flex-col items-stretch'>
-          {children}
-        </main>
-      </div>
-    </div>
-  )
+	return (
+		<div className={`${font} font-roboto flex overflow-y-auto`}>
+			<div className='relative max-w-full flex-1'>
+				<div className='fixed top-0 z-10 flex w-full justify-center border-b border-b-base-300 bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
+					{navbar}
+				</div>
+				<main className='transition-width relative flex h-[100svh] w-full flex-1 flex-col items-stretch'>
+					{children}
+				</main>
+			</div>
+		</div>
+	)
 })
 
 function PublicNavbar() {
-  const t = useTranslation()
-  const { theme, updateTheme } = useTheme()
+	const t = useTranslations()
+	const { theme, updateTheme } = useTheme()
 
-  return (
-    <>
-      <nav className='prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
-        <div></div>
-        <h1 className='mb-0 text-base'>{t('nav.app-name')}</h1>
-        <div className='justify-self-end'>
-          <ThemeToggle theme={theme} updateTheme={updateTheme} />
-        </div>
-      </nav>
-    </>
-  )
+	return (
+		<>
+			<nav className='prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
+				<div></div>
+				<h1 className='mb-0 text-base'>{t.nav['app-name']}</h1>
+				<div className='justify-self-end'>
+					<ThemeToggle theme={theme} updateTheme={updateTheme} />
+				</div>
+			</nav>
+		</>
+	)
 }
 
 function RecipeByIdNavbar() {
-  const router = useRouter()
-  return (
-    <nav className='prose navbar grid w-full grid-cols-6 bg-transparent px-4'>
-      <button
-        className='btn btn-circle btn-ghost'
-        onClick={() => router.push('/recipes')}
-      >
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          fill='none'
-          viewBox='0 0 24 24'
-          strokeWidth={1.5}
-          stroke='currentColor'
-          className='h-6 w-6'
-        >
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            d='M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3'
-          />
-        </svg>
-      </button>
-      <h1 className='col-span-4 mb-0 justify-self-center text-base'>
-        {router.query.name}
-      </h1>
-      <button
-        className='btn btn-circle btn-ghost justify-self-end'
-        onClick={() =>
-          router.push(
-            `/recipes/${router?.query?.id as string}/edit?name=${
-              router?.query?.name as string
-            }`
-          )
-        }
-      >
-        <span>
-          <PencilSquareIcon />
-        </span>
-      </button>
-    </nav>
-  )
+	const router = useRouter()
+	return (
+		<nav className='prose navbar grid w-full grid-cols-6 bg-transparent px-4'>
+			<button
+				className='btn btn-circle btn-ghost'
+				onClick={() => router.push('/recipes')}
+			>
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					fill='none'
+					viewBox='0 0 24 24'
+					strokeWidth={1.5}
+					stroke='currentColor'
+					className='h-6 w-6'
+				>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						d='M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3'
+					/>
+				</svg>
+			</button>
+			<h1 className='col-span-4 mb-0 justify-self-center text-base'>
+				{router.query.name}
+			</h1>
+			<button
+				className='btn btn-circle btn-ghost justify-self-end'
+				onClick={() =>
+					router.push(
+						`/recipes/${router?.query?.id as string}/edit?name=${
+							router?.query?.name as string
+						}`
+					)
+				}
+			>
+				<span>
+					<PencilSquareIcon />
+				</span>
+			</button>
+		</nav>
+	)
 }
 
 function EditRecipeNavbar() {
-  const t = useTranslation()
+	const t = useTranslations()
 
-  const router = useRouter()
-  return (
-    <nav className='prose navbar grid w-full grid-cols-3 gap-24 bg-transparent px-4 '>
-      <button
-        className='btn btn-circle btn-ghost'
-        onClick={() => router.back()}
-      >
-        <XIcon />
-      </button>
-      <h1 className='mb-0 justify-self-center whitespace-nowrap text-center text-base'>
-        {t('recipes.by-id.edit')}
-      </h1>
-    </nav>
-  )
+	const router = useRouter()
+	return (
+		<nav className='prose navbar grid w-full grid-cols-3 gap-24 bg-transparent px-4'>
+			<button
+				className='btn btn-circle btn-ghost'
+				onClick={() => router.back()}
+			>
+				<XIcon />
+			</button>
+			<h1 className='mb-0 justify-self-center whitespace-nowrap text-center text-base'>
+				{t['recipes']['by-id'].edit}
+			</h1>
+		</nav>
+	)
 }
 
 function RoutesNavbar() {
