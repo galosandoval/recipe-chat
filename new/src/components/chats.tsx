@@ -72,13 +72,17 @@ function Chats({
 }) {
 	const t = useTranslations()
 
-	const { data, status } = api.chats.getChats.useQuery(
+	const { data, status, fetchStatus } = api.chats.getChats.useQuery(
 		{ userId: session?.user.id || '' },
 		{
 			enabled: isAuthenticated
 			// keepPreviousData: true
 		}
 	)
+
+	if (fetchStatus === 'idle') {
+		return null
+	}
 
 	if (status === 'error') {
 		return <div>{t.error.somethingWentWrong}</div>

@@ -3,39 +3,71 @@
 import { useEffect, useRef } from 'react'
 import { Button } from './button'
 import { useTranslations } from '~/hooks/use-translations'
-import { useChat } from '~/hooks/use-chat'
+import { generate } from '~/app/[lang]/actions'
+import { useForm } from 'react-hook-form'
+import { readStreamableValue } from 'ai/rsc'
+import useChatStore from '~/hooks/use-chat-store'
 
-export function SubmitMessageForm() {
+type ChatFormValues = {
+	prompt: string
+}
+
+export function SubmitPromptForm() {
 	const t = useTranslations()
-	const { input, isSendingMessage, handleSubmit, handleInputChange } =
-		useChat()
+	const { register, handleSubmit, watch } = useForm<ChatFormValues>({
+		defaultValues: {
+			prompt: ''
+		}
+	})
+	const { setPrompt, isSendingMessage, setIsSendingMessage } = useChatStore(
+		(state) => state
+	)
+	console.log('isSendingMessage', isSendingMessage)
+	// const inputRef = useRef<HTMLInputElement>(null)
 
-	const textareaRef = useRef<HTMLTextAreaElement>(null)
+	// useEffect(() => {
+	// 	inputRef.current?.focus()
+	// }, [])
 
-	useEffect(() => {
-		textareaRef.current?.focus()
-	}, [])
+	const onSubmit = async (data: ChatFormValues) => {
+		console.log('datatatata', data)
+		setIsSendingMessage(true)
+		const { object } = await generate({
+			filters: [],
+			messages: [{ role: 'user', content: data.prompt }]
+		})
+		console.log('object', object)
+		for await (const partialObject of readStreamableValue(object)) {
+			console.log('partialObject', partialObject)
+			if (partialObject) {
+				console.log('partialObject', partialObject)
+				setPrompt(partialObject)
+			}
+		}
+
+		setIsSendingMessage(false)
+	}
+
+	const prompt = watch('prompt')
 
 	return (
 		<form
-			onSubmit={handleSubmit}
+			onSubmit={handleSubmit(onSubmit)}
 			className={`fixed bottom-0 left-0 flex w-full items-center md:rounded-md`}
 		>
 			<div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 sm:mb-2 sm:rounded-lg'>
 				<div className='flex w-full px-2 py-1'>
-					<textarea
-						value={input}
-						onChange={handleInputChange}
+					<input
+						{...register('prompt')}
 						placeholder={t.chatFormPlaceholder}
 						className='input input-bordered relative w-full resize-none bg-base-100/75 pt-2 focus:bg-base-100'
-						ref={textareaRef}
 					/>
 				</div>
 
 				<div className='pr-2'>
 					<Button
 						type='submit'
-						disabled={input.length < 5 && !isSendingMessage}
+						disabled={prompt.length < 5 && !isSendingMessage}
 						className={`btn ${isSendingMessage ? 'btn-error' : 'btn-accent'}`}
 					>
 						{isSendingMessage ? (

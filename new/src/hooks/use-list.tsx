@@ -22,6 +22,7 @@ export const useList = () => {
 
 export function useUserId() {
   const session = useSession()
+  console.log('session', session)
   const userId = session.data?.user?.id ?? ''
 
   return userId

@@ -1,10 +1,10 @@
 'use client'
 
-import ScrollToBottom, {
-	useScrollToBottom,
-	useScrollToTop,
-	useSticky
-} from 'react-scroll-to-bottom'
+// import ScrollToBottom, {
+// 	useScrollToBottom,
+// 	useScrollToTop,
+// 	useSticky
+// } from 'react-scroll-to-bottom'
 import { type Chat, type Message as PrismaMessage } from '@prisma/client'
 import {
 	transformContentToRecipe,
@@ -36,6 +36,7 @@ import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
+import useChatStore from '~/hooks/use-chat-store'
 
 type MessageContentProps = Omit<
 	ChatType,
@@ -43,78 +44,73 @@ type MessageContentProps = Omit<
 >
 
 export default function ChatWindow() {
-	const props = useChat()
 	const [scrollMode, setScrollMode] = useState<'bottom' | 'top'>('top')
 
 	return (
 		// NoSsr prevents ScrollToBottom from creating class name on server side
-		<ScrollToBottom
-			followButtonClassName='hidden'
-			initialScrollBehavior='auto'
-			className='h-full'
-			mode={scrollMode}
-		>
-			<Content setScrollMode={setScrollMode} {...props} />
-		</ScrollToBottom>
+		// <ScrollToBottom
+		// 	followButtonClassName='hidden'
+		// 	initialScrollBehavior='auto'
+		// 	className='h-full'
+		// 	mode={scrollMode}
+		// >
+		<Content setScrollMode={setScrollMode} />
+		// </ScrollToBottom>
 	)
 }
 
-const Content = memo(function Content(
-	props: MessageContentProps & {
-		setScrollMode: Dispatch<SetStateAction<'bottom' | 'top'>>
-	}
-) {
+const Content = memo(function Content(props: {
+	setScrollMode: Dispatch<SetStateAction<'bottom' | 'top'>>
+}) {
 	const {
 		chatId,
 		// filters,
 		handleFillMessage,
-		setScrollMode,
-		messages,
+		// messages,
 		isChatsModalOpen,
-		isSendingMessage,
+		// isSendingMessage,
 		isAuthenticated,
 		handleStartNewChat,
 		handleToggleChatsModal,
 		handleGoToRecipe,
 		handleSaveRecipe,
 		handleChangeChat,
-		createRecipeStatus,
-		handleCloseSignUpModal,
-		handleSubmitCreds,
-		isSigningUp,
-		isSignUpModalOpen,
-		onSubmitCreds,
-		registerCreds,
-		signUpErrors,
+		// createRecipeStatus,
+		// handleCloseSignUpModal,
+		// handleSubmitCreds,
+		// isSigningUp,
+		// isSignUpModalOpen,
+		// onSubmitCreds,
+		// registerCreds,
+		// signUpErrors,
 		fetchStatus: chatsFetchStatus,
 		status: chatsQueryStatus,
 		handleGetChatsOnSuccess
-	} = props
+	} = useChat()
 
+	const { setScrollMode } = props
 	// const { data } = filters
-	const scrollToBottom = useScrollToBottom()
-	const scrollToTop = useScrollToTop()
-	const [sticky] = useSticky()
+	// const scrollToBottom = useScrollToBottom()
+	// const scrollToTop = useScrollToTop()
+	// const [sticky] = useSticky()
 
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-	const currentChatId = JSON.parse(
-		sessionStorage.getItem('currentChatId') ?? 'null'
-	)
+	const currentChatId = JSON.parse('null')
 
 	const isSessionStorageAvailable =
 		typeof window !== 'undefined' && typeof currentChatId === 'string'
 
+	const { isSendingMessage } = useChatStore()
 	const isNewChat =
-		(currentChatId === '' || currentChatId === null) &&
-		!isSendingMessage &&
-		messages.length === 0
+		(currentChatId === '' || currentChatId === null) && !isSendingMessage
+	//  && messages.length === 0
 
 	const isMessagesSuccess =
 		chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
 
 	const shouldBeLoading =
 		isSessionStorageAvailable &&
-		(messages.length === 0 || !isMessagesSuccess) &&
+		// (messages.length === 0 || !isMessagesSuccess) &&
 		chatsFetchStatus === 'fetching'
 
 	// don't scroll to bottom when showing value props
@@ -128,7 +124,7 @@ const Content = memo(function Content(
 
 	useEffect(() => {
 		if (isMessagesSuccess) {
-			scrollToBottom({ behavior: 'auto' })
+			// scrollToBottom({ behavior: 'auto' })
 		}
 	}, [chatsFetchStatus, chatsQueryStatus])
 
@@ -155,10 +151,11 @@ const Content = memo(function Content(
 		<>
 			<div className='flex h-full flex-col gap-4'>
 				<ChatWindowContent
-					saveRecipeStatus={createRecipeStatus}
+					saveRecipeStatus={'idle'}
 					handleGoToRecipe={handleGoToRecipe}
 					handleSaveRecipe={handleSaveRecipe}
-					messages={messages as []}
+					// messages={messages as []}
+					messages={[]}
 					chatId={chatId}
 					messagesStatus={
 						'status' in props ? chatsQueryStatus : undefined
@@ -182,7 +179,7 @@ const Content = memo(function Content(
 				/>
 			</div>
 
-			<div
+			{/* <div
 				className={`absolute bottom-20 right-4 duration-300 transition-all${
 					!sticky
 						? 'translate-y-0 opacity-100'
@@ -209,9 +206,9 @@ const Content = memo(function Content(
 				>
 					<ArrowSmallUpIcon />
 				</button>
-			</div>
+			</div> */}
 
-			<SignUpModal
+			{/* <SignUpModal
 				closeModal={handleCloseSignUpModal}
 				errors={signUpErrors}
 				handleSubmit={handleSubmitCreds}
@@ -219,7 +216,7 @@ const Content = memo(function Content(
 				isOpen={isSignUpModalOpen}
 				onSubmit={onSubmitCreds}
 				register={registerCreds}
-			/>
+			/> */}
 		</>
 	)
 })
@@ -527,8 +524,12 @@ function removeBracketsAndQuotes(str: string) {
 }
 
 function ActiveFilters() {
-	const { data: filters, status } = useFiltersByUser()
+	const { data: filters, status, fetchStatus } = useFiltersByUser()
 	const t = useTranslations()
+
+	if (fetchStatus === 'idle') {
+		return null
+	}
 
 	if (status === 'pending') {
 		return <div>{t.loading.screen}</div>

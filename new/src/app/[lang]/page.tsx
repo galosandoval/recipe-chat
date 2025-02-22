@@ -1,10 +1,6 @@
-import Link from 'next/link'
-
-import { LatestPost } from '~/components/post'
-import { auth } from '~/server/auth'
-import { api, HydrateClient } from '~/trpc/server'
+import { HydrateClient } from '~/trpc/server'
 import ChatWindow from '../../components/chat-window'
-import { SubmitMessageForm } from '~/components/submit-message-form'
+import { SubmitPromptForm } from '~/components/submit-prompt-form'
 
 export default async function Home() {
 	// const hello = await api.post.hello({ text: "from tRPC" });
@@ -17,10 +13,10 @@ export default async function Home() {
 	return (
 		<HydrateClient>
 			<div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto'>
-				<div className='flex-1 overflow-hidden'>
+				<div className='flex-1 overflow-y-auto'>
 					<ChatWindow />
 				</div>
-				<SubmitMessageForm />
+				<SubmitPromptForm />
 			</div>
 		</HydrateClient>
 	)

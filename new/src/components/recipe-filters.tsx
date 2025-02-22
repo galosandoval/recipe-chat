@@ -32,17 +32,21 @@ type CreateFilter = z.infer<ReturnType<typeof createFilterSchema>>
 
 export const useFiltersByUser = () => {
 	const userId = useUserId()
-	const { data, status } = api.filters.getByUserId.useQuery(
+	const { data, status, fetchStatus } = api.filters.getByUserId.useQuery(
 		{ userId },
 		{ enabled: !!userId }
 	)
 
-	return { data, status }
+	return { data, status, fetchStatus }
 }
 
 export function FiltersByUser() {
-	const { data, status } = useFiltersByUser()
+	const { data, status, fetchStatus } = useFiltersByUser()
 	const t = useTranslations()
+
+	if (fetchStatus === 'idle') {
+		return null
+	}
 
 	if (status === 'error') {
 		return <div>{t.error.somethingWentWrong}</div>
