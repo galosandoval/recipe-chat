@@ -78,7 +78,7 @@ export const useChat = () => {
 	// 	handleInputChange,
 	// 	stop,
 	// 	handleSubmit: submitMessages,
-	// 	isLoading: isSendingMessage,
+	// 	isLoading: isStreaming,
 	// 	setMessages,
 	// 	append
 	// } = useAiChat({
@@ -203,18 +203,6 @@ export const useChat = () => {
 		[]
 	)
 
-	const handleFillMessage = (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-
-		// append({ content: e.currentTarget.innerText, role: 'user' })
-	}
-
-	const handleStartNewChat = useCallback(() => {
-		stop()
-		// setMessages([])
-		changeSessionChatId('')
-	}, [])
-
 	const handleToggleChatsModal = useCallback(() => {
 		setIsChatsModalOpen((state) => !state)
 	}, [])
@@ -223,14 +211,14 @@ export const useChat = () => {
 	// 	(event: FormEvent<HTMLFormElement>) => {
 	// 		setShouldFetchChat(false)
 
-	// 		if (isSendingMessage) {
+	// 		if (isStreaming) {
 	// 			stop()
 	// 		} else {
 	// 			submitMessages(event, { options: {} })
 	// 		}
 	// 	},
 
-	// 	[isSendingMessage, stop, submitMessages]
+	// 	[isStreaming, stop, submitMessages]
 	// )
 
 	// const {
@@ -327,7 +315,7 @@ export const useChat = () => {
 		isChatsModalOpen,
 		// input,
 		// messages,
-		// isSendingMessage,
+		// isStreaming,
 		isAuthenticated,
 		// createRecipeStatus,
 		// signUpErrors,
@@ -344,8 +332,6 @@ export const useChat = () => {
 		// handleInputChange: useCallback(handleInputChange, []),
 		handleToggleChatsModal,
 		handleChangeChat,
-		handleStartNewChat,
-		handleFillMessage,
 		registerPrompt,
 		handleSubmitPrompt
 	}

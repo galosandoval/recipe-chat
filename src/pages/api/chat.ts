@@ -35,7 +35,7 @@ export default async function handler(req: NextRequest) {
 
   const { filters, messages } = input
 
-  let systemMessage = `You are a helpful assistant that only responds with recipes. Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. Be sure to respond with a wide variety of cuisines and cultures.
+  let systemMessage = `You are a helpful assistant that only responds with recipes. Use your best judgement determine how many recipes to respond with. Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. Be sure to respond with a wide variety of cuisines and cultures.
     {
       "name": "name of recipe.",
       "description": "description of recipe.",

@@ -17,7 +17,7 @@ import toast from 'react-hot-toast'
 import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
-import { ValuePropsHeader } from './value-props'
+import { ValuePropsHeader } from '../app/[lang]/chat/value-props'
 import { ErrorMessage } from './error-message-content'
 
 const createFilterSchema = (t: Translations) =>

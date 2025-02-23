@@ -12,7 +12,7 @@ import { ScreenLoader } from './loaders/screen'
 import { useTranslations } from '~/hooks/use-translations'
 import { useRouter } from 'next/router'
 import { type Session } from 'next-auth'
-import { ValuePropsHeader } from './value-props'
+import { ValuePropsHeader } from '../app/[lang]/chat/value-props'
 import { transformContentToRecipe } from '~/hooks/use-chat'
 
 export function ChatsSection({

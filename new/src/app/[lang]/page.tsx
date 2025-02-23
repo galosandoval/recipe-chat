@@ -1,6 +1,6 @@
 import { HydrateClient } from '~/trpc/server'
-import ChatWindow from '../../components/chat-window'
-import { SubmitPromptForm } from '~/components/submit-prompt-form'
+import ChatWindow from './chat/chat-window'
+import { SubmitPromptForm } from '~/app/[lang]/chat/submit-prompt-form'
 
 export default async function Home() {
 	// const hello = await api.post.hello({ text: "from tRPC" });

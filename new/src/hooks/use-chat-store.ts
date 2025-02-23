@@ -1,23 +1,38 @@
 import { create } from 'zustand'
-import { type Message } from 'ai'
+import type { GeneratedRecipes, Message } from '~/schemas/chats'
 
 type ChatStore = {
-	prompt: string
-	isSendingMessage: boolean
+	stream: GeneratedRecipes
+	isStreaming: boolean
 	messages: Message[]
-	setPrompt: (prompt: string) => void
-	setIsSendingMessage: (isSendingMessage: boolean) => void
-	setMessages: (messages: Message[]) => void
+	startStreaming: (messages: Message[]) => void
+	endStreaming: (messages: Message[]) => void
+	streamReply: (stream: GeneratedRecipes) => void
+	setIsStreaming: (isStreaming: boolean) => void
+	startNewChat: () => void
+}
+
+const initialReply: GeneratedRecipes = {
+	message: '',
+	recipes: []
 }
 
 const useChatStore = create<ChatStore>((set) => ({
-	prompt: '',
-	isSendingMessage: false,
+	stream: initialReply,
+	isStreaming: false,
 	messages: [],
-	setPrompt: (prompt: string) => set({ prompt }),
-	setIsSendingMessage: (isSendingMessage: boolean) =>
-		set({ isSendingMessage }),
-	setMessages: (messages: Message[]) => set({ messages })
+	startStreaming: (messages: Message[]) =>
+		set({ isStreaming: true, messages }),
+	endStreaming: (messages: Message[]) =>
+		set({ isStreaming: false, messages, stream: initialReply }),
+	streamReply: (stream: GeneratedRecipes) => set({ stream }),
+	setIsStreaming: (isStreaming: boolean) => set({ isStreaming }),
+	startNewChat: () =>
+		set({
+			stream: initialReply,
+			isStreaming: false,
+			messages: []
+		})
 }))
 
 export default useChatStore
