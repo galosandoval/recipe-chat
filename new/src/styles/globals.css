@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .btn {
-	@apply flex-nowrap;
+	@apply flex-nowrap capitalize;	
 }
 
 .h3 {

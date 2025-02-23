@@ -62,6 +62,9 @@
 
 	"chatWindow": {
 		"toRecipe": "go to recipe",
+		"expand": "expand",
+		"collapse": "collapse",
+		"generate": "generate",
 		"save": "save",
 		"saveSuccess": "Recipe saved successfully!",
 		"chats": "Recent chats",
@@ -82,8 +85,8 @@
 		"description": "Description",
 		"ingredients": "Ingredients",
 		"instructions": "Instructions",
-		"cookTime": "Cook time",
-		"prepTime": "Prep time",
+		"cookTime": "Cook:",
+		"prepTime": "Prep:",
 		"notes": "Notes",
 
 		"step": "Step",

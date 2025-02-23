@@ -1,10 +1,10 @@
-import { UserCircleIcon } from '~/components/icons'
+import { LogoIcon } from '~/components/icons'
 
 export const ChatLoader = () => {
 	return (
-		<div className='bg-primary-content py-4 pb-4 pl-4'>
+		<div className='py-4 pb-4 pl-4'>
 			<div className='prose mx-auto flex justify-start gap-2'>
-				<UserCircleIcon />
+				<LogoIcon />
 				<div className='flex items-center justify-start space-x-1'>
 					<div
 						style={{

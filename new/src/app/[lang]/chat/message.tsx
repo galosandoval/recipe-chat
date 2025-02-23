@@ -1,7 +1,14 @@
 import type { MutationStatus } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Button } from '~/components/button'
-import { ChevronDownIcon, UserCircleIcon } from '~/components/icons'
+import {
+	BookmarkIcon,
+	ChevronDownIcon,
+	ClockIcon,
+	LogoIcon,
+	PlaneIcon,
+	UserCircleIcon
+} from '~/components/icons'
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { transformContentToRecipe } from '~/hooks/use-chat'
 import { useTranslations } from '~/hooks/use-translations'
@@ -56,13 +63,13 @@ function UserMessage({ message }: { message: MessageType }) {
 			<div className='prose mx-auto w-full'>
 				<div className='flex justify-end gap-2'>
 					<div className='flex flex-col items-end'>
-						<p className='mb-0 mt-0 whitespace-pre-line'>
+						<p className='card mb-0 mt-0 whitespace-pre-line bg-primary-content p-3'>
 							{message?.content || ''}
 						</p>
 					</div>
-					{/* <div> TODO: Add user avatar
-						<Avatar />
-					</div> */}
+					<div className='self-start rounded-full bg-base-200 p-2'>
+						<UserCircleIcon />
+					</div>
 				</div>
 				<ActiveFilters />
 			</div>
@@ -147,17 +154,17 @@ export function AssistantMessage({
 			<div className='mx-auto w-full'>
 				<div className='flex w-full justify-start gap-2'>
 					<div className='shrink-0'>
-						<UserCircleIcon />
+						<div className='rounded-full bg-base-200 p-2'>
+							<LogoIcon />
+						</div>
 					</div>
 
-					<div className='flex flex-col pb-4'>
-						<p className='mb-0 mt-0'>{message.content}</p>
-					</div>
-				</div>
-				<div className='grid w-full grid-flow-col place-items-end gap-2 self-center'>
-					<CollapseableRecipes recipes={message.recipes} />
-					<SingleRecipe recipes={message.recipes} />
-					{/* {message?.recipeId ? (
+					<div className='card flex flex-col bg-base-200 p-3'>
+						<p className='mb-2 mt-0'>{message.content}</p>
+						<div className='grid w-full grid-flow-col place-items-end gap-2 self-center'>
+							<SingleRecipe recipes={message.recipes} />
+							<CollapseableRecipes recipes={message.recipes} />
+							{/* {message?.recipeId ? (
 						// Go to recipe
 						<Button
 							className='btn btn-outline'
@@ -184,6 +191,8 @@ export function AssistantMessage({
 							{t.chatWindow.save}
 						</Button>
 					) : null} */}
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -199,49 +208,110 @@ function SingleRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 		return null
 	}
 	return (
-		<div className='prose relative col-span-1 w-full' key={recipe.name}>
-			<div onClick={() => setIsOpen(!isOpen)} className='btn w-full'>
+		<div
+			className='prose card relative col-span-1 w-full bg-base-100 p-3'
+			key={recipe.name}
+		>
+			{/* <div onClick={() => setIsOpen(!isOpen)} className='btn w-full'>
 				{recipe.name}
 				<span className='ml-auto'>
 					<ChevronDownIcon className={cn(isOpen && 'rotate-180')} />
 				</span>
+			</div> */}
+			<div>
+				<h3 className='card-title mb-0 text-lg'>{recipe.name}</h3>
+				<p className='text-sm'>{recipe.description}</p>
+				{isOpen && (
+					<>
+						<div className='flex items-center gap-2'>
+							<ClockIcon className='size-4' />
+							<div className='flex items-center gap-2'>
+								<h3 className='mb-0 text-sm'>
+									{t.recipes.prepTime}
+								</h3>
+								<p className='mb-0 text-sm'>
+									{recipe.prepTime}
+								</p>
+							</div>
+							<div className='flex items-center gap-2'>
+								<h3 className='mb-0 text-sm'>
+									{t.recipes.cookTime}
+								</h3>
+								<p className='mb-0 text-sm'>
+									{recipe.cookTime}
+								</p>
+							</div>
+						</div>
+						<ul className='my-2'>
+							<h3 className='mb-0 text-base'>
+								{t.recipes.ingredients}
+							</h3>
+							{recipe.ingredients?.map((i) => (
+								<li className='my-0' key={i}>
+									{i}
+								</li>
+							))}
+						</ul>
+						<ol>
+							<h3 className='mb-0 text-base'>
+								{t.recipes.instructions}
+							</h3>
+							{recipe.instructions?.map((i) => (
+								<li className='my-0' key={i}>
+									{i}
+								</li>
+							))}
+						</ol>
+					</>
+				)}
 			</div>
-			{isOpen && (
-				<div>
-					<p>{recipe.description}</p>
-					<div className='grid grid-cols-2 gap-2'>
-						<div>
-							<h3>{t.recipes.prepTime}</h3>
-							<p>{recipe.prepTime}</p>
-						</div>
-						<div>
-							<h3>{t.recipes.cookTime}</h3>
-							<p>{recipe.cookTime}</p>
-						</div>
-					</div>
-					<ul>
-						<h3>{t.recipes.ingredients}</h3>
-						{recipe.ingredients?.map((i) => <li key={i}>{i}</li>)}
-					</ul>
-					<ol>
-						<h3>{t.recipes.instructions}</h3>
-						{recipe.instructions?.map((i) => <li key={i}>{i}</li>)}
-					</ol>
-				</div>
-			)}
+			<div className='card-actions flex justify-between'>
+				<Button
+					className='btn btn-outline'
+					onClick={() => setIsOpen(!isOpen)}
+				>
+					<ChevronDownIcon
+						className={cn('h-5 w-5', isOpen && 'rotate-180')}
+					/>
+					{isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
+				</Button>
+				<Button className='btn btn-outline'>
+					<BookmarkIcon className='h-5 w-5' />
+					{t.chatWindow.save}
+				</Button>
+			</div>
 		</div>
 	)
 }
 
 function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
+	const t = useTranslations()
+
 	if (!recipes || recipes.length === 0 || recipes.length === 1) {
 		return null
 	}
 	return (
-		<div className='mx-auto grid grid-cols-2 gap-2'>
+		<div className='mx-auto grid grid-cols-1 gap-2'>
 			{recipes.map((r, i) => (
-				<div className='col-span-1' key={r.name + i}>
-					<Button className='btn btn-outline w-full'>{r.name}</Button>
+				<div
+					className='card border border-base-300 bg-base-100 p-3'
+					key={r.name + i}
+				>
+					<h3 className='card-title'>{r.name}</h3>
+					<p>{r.description}</p>
+
+					<div className='card-actions flex'>
+						{/* <Button className='btn btn-outline'>
+							{t.chatWindow.expand}
+						</Button>
+						<Button className='btn btn-outline'>
+							{t.chatWindow.save}
+						</Button> */}
+						<Button className='btn btn-outline w-full'>
+							{t.chatWindow.generate}
+							<PlaneIcon />
+						</Button>
+					</div>
 				</div>
 			))}
 		</div>

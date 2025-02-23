@@ -62,6 +62,9 @@
 
 	"chatWindow": {
 		"toRecipe": "ir a receta",
+		"expand": "expandir",
+		"collapse": "colapsar",
+		"generate": "generar",
 		"save": "guardar",
 		"saveSuccess": "¡Receta guardada!",
 		"chats": "Recientes chats",

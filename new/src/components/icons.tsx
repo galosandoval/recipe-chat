@@ -394,15 +394,34 @@ export const ArrowSmallUpIcon = () => {
 	)
 }
 
-export const UserCircleIcon = () => {
+export const LogoIcon = () => {
 	return (
 		<Image
 			src='/favicon.ico'
 			alt='User Circle'
-			className='mt-2'
+			className='m-0'
 			width={20}
 			height={20}
 		/>
+	)
+}
+
+export const UserCircleIcon = () => {
+	return (
+		<svg
+			xmlns='http://www.w3.org/2000/svg'
+			fill='none'
+			viewBox='0 0 24 24'
+			strokeWidth={1.5}
+			stroke='currentColor'
+			className='size-6'
+		>
+			<path
+				strokeLinecap='round'
+				strokeLinejoin='round'
+				d='M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'
+			/>
+		</svg>
 	)
 }
 
@@ -575,7 +594,7 @@ export const SparklesIcon = () => {
 	)
 }
 
-export const BookmarkIcon = () => {
+export const BookmarkIcon = ({ className }: { className?: string }) => {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
@@ -583,12 +602,31 @@ export const BookmarkIcon = () => {
 			viewBox='0 0 24 24'
 			strokeWidth={1.5}
 			stroke='currentColor'
-			className='h-6 w-6'
+			className={cn('h-6 w-6', className)}
 		>
 			<path
 				strokeLinecap='round'
 				strokeLinejoin='round'
 				d='M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z'
+			/>
+		</svg>
+	)
+}
+
+export const ClockIcon = ({ className }: { className?: string }) => {
+	return (
+		<svg
+			xmlns='http://www.w3.org/2000/svg'
+			fill='none'
+			viewBox='0 0 24 24'
+			strokeWidth={1.5}
+			stroke='currentColor'
+			className={cn('size-6', className)}
+		>
+			<path
+				strokeLinecap='round'
+				strokeLinejoin='round'
+				d='M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
 			/>
 		</svg>
 	)
