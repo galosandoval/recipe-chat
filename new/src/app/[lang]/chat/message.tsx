@@ -52,7 +52,7 @@ export const Message = function InnerMessage({
 
 function UserMessage({ message }: { message: MessageType }) {
 	return (
-		<div className='flex flex-col items-center self-center bg-base-200 p-4'>
+		<div className='flex flex-col items-center self-center p-4'>
 			<div className='prose mx-auto w-full'>
 				<div className='flex justify-end gap-2'>
 					<div className='flex flex-col items-end'>

@@ -253,7 +253,7 @@ function ChatWindowContent({
 
 	if (messages.length || isStreaming || !data?.user?.id) {
 		return (
-			<div className='h-full bg-primary-content py-16'>
+			<div className='h-full py-16'>
 				<Messages
 					saveRecipeStatus={saveRecipeStatus}
 					handleGoToRecipe={handleGoToRecipe}
@@ -332,7 +332,7 @@ const Messages = memo(function Messages({
 	const lastMessage = messages.at(-1)
 	return (
 		<>
-			<div className='bg-base-100 py-2'>
+			<div className='py-2'>
 				<div className='prose mx-auto grid grid-cols-3 px-2'>
 					{handleChangeChat &&
 					handleGetChatsOnSuccess &&
@@ -362,7 +362,7 @@ const Messages = memo(function Messages({
 				</div>
 			</div>
 
-			<div className='bg-primary-content pb-16'>
+			<div className='pb-16'>
 				{messages.map((m, i) => (
 					<Message
 						message={m}
