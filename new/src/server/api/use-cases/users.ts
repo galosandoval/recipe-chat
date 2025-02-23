@@ -41,7 +41,7 @@ export async function createChatAndRecipe(
 
 	const { ingredients, instructions, ...rest } = recipe
 
-	const onboardedUser = await ctx.prisma.user.update({
+	const onboardedUser = await ctx.db.user.update({
 		where: { id: userId },
 		data: {
 			chats: {

@@ -396,7 +396,7 @@ export const ArrowSmallUpIcon = () => {
 export const UserCircleIcon = () => {
 	return (
 		<Image
-			src='/favicon-32x32.png'
+			src='/apple-touch-icon.png'
 			alt='User Circle'
 			width={24}
 			height={24}
