@@ -374,7 +374,7 @@ const Messages = memo(function Messages({
 						// filters={filters}
 					/>
 				))}
-
+				{/* While streaming, show the assistant message, after streaming is done, messages gets updated */}
 				{reply.message && (
 					<AssistantMessage
 						handleGoToRecipe={handleGoToRecipe}

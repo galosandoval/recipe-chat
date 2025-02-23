@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { cn } from '~/utils/cn'
 
 export const PlusIcon = ({ size }: { size?: number }) => (
 	<svg
@@ -51,7 +52,7 @@ export const PlusCircleIcon = () => (
 	</svg>
 )
 
-export const ChevronDownIcon = () => {
+export const ChevronDownIcon = ({ className }: { className?: string }) => {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
@@ -59,7 +60,7 @@ export const ChevronDownIcon = () => {
 			viewBox='0 0 24 24'
 			strokeWidth={1.5}
 			stroke='currentColor'
-			className='h-6 w-6'
+			className={cn('h-6 w-6', className)}
 		>
 			<path
 				strokeLinecap='round'
@@ -396,10 +397,11 @@ export const ArrowSmallUpIcon = () => {
 export const UserCircleIcon = () => {
 	return (
 		<Image
-			src='/apple-touch-icon.png'
+			src='/favicon.ico'
 			alt='User Circle'
-			width={24}
-			height={24}
+			className='mt-2'
+			width={20}
+			height={20}
 		/>
 	)
 }

@@ -1,10 +1,12 @@
 import type { MutationStatus } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Button } from '~/components/button'
 import { ChevronDownIcon, UserCircleIcon } from '~/components/icons'
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { transformContentToRecipe } from '~/hooks/use-chat'
 import { useTranslations } from '~/hooks/use-translations'
 import type { Message as MessageType } from '~/schemas/chats'
+import { cn } from '~/utils/cn'
 
 export const Message = function InnerMessage({
 	message,
@@ -141,20 +143,18 @@ export function AssistantMessage({
 	}
 
 	return (
-		<div className='flex flex-col p-4'>
-			<div className='prose mx-auto w-full'>
-				<div className='flex w-full justify-start gap-2 self-center'>
-					<div>
+		<div className='prose mx-auto flex flex-col p-4'>
+			<div className='mx-auto w-full'>
+				<div className='flex w-full justify-start gap-2'>
+					<div className='shrink-0'>
 						<UserCircleIcon />
 					</div>
 
-					<div className='prose flex flex-col pb-4'>
-						<p className='mb-0 mt-0 whitespace-pre-line'>
-							{message.content}
-						</p>
+					<div className='flex flex-col pb-4'>
+						<p className='mb-0 mt-0'>{message.content}</p>
 					</div>
 				</div>
-				<div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
+				<div className='grid w-full grid-flow-col place-items-end gap-2 self-center'>
 					<CollapseableRecipes recipes={message.recipes} />
 					<SingleRecipe recipes={message.recipes} />
 					{/* {message?.recipeId ? (
@@ -192,47 +192,53 @@ export function AssistantMessage({
 
 function SingleRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 	const t = useTranslations()
+	const [isOpen, setIsOpen] = useState(true)
 
 	const recipe = recipes?.[0]
 	if (!recipe || recipes.length !== 1) {
 		return null
 	}
 	return (
-		<div className='prose relative col-span-1' key={recipe.name}>
-			<h3 className=''>{recipe.name}</h3>
-			<div className='absolute right-4 top-5'>
-				<ChevronDownIcon />
+		<div className='prose relative col-span-1 w-full' key={recipe.name}>
+			<div onClick={() => setIsOpen(!isOpen)} className='btn w-full'>
+				{recipe.name}
+				<span className='ml-auto'>
+					<ChevronDownIcon className={cn(isOpen && 'rotate-180')} />
+				</span>
 			</div>
-			<div>
-				<p>{recipe.description}</p>
-				<div className='grid grid-cols-2 gap-2'>
-					<div>
-						<h3>{t.recipes.prepTime}</h3>
-						<p>{recipe.prepTime}</p>
+			{isOpen && (
+				<div>
+					<p>{recipe.description}</p>
+					<div className='grid grid-cols-2 gap-2'>
+						<div>
+							<h3>{t.recipes.prepTime}</h3>
+							<p>{recipe.prepTime}</p>
+						</div>
+						<div>
+							<h3>{t.recipes.cookTime}</h3>
+							<p>{recipe.cookTime}</p>
+						</div>
 					</div>
-					<div>
-						<h3>{t.recipes.cookTime}</h3>
-						<p>{recipe.cookTime}</p>
-					</div>
+					<ul>
+						<h3>{t.recipes.ingredients}</h3>
+						{recipe.ingredients?.map((i) => <li key={i}>{i}</li>)}
+					</ul>
+					<ol>
+						<h3>{t.recipes.instructions}</h3>
+						{recipe.instructions?.map((i) => <li key={i}>{i}</li>)}
+					</ol>
 				</div>
-				<ul>
-					<h3>{t.recipes.ingredients}</h3>
-					{recipe.ingredients?.map((i) => <li key={i}>{i}</li>)}
-				</ul>
-				<ol>
-					<h3>{t.recipes.instructions}</h3>
-					{recipe.instructions?.map((i) => <li key={i}>{i}</li>)}
-				</ol>
-			</div>
+			)}
 		</div>
 	)
 }
+
 function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 	if (!recipes || recipes.length === 0 || recipes.length === 1) {
 		return null
 	}
 	return (
-		<div className='grid grid-cols-2 gap-2'>
+		<div className='mx-auto grid grid-cols-2 gap-2'>
 			{recipes.map((r, i) => (
 				<div className='col-span-1' key={r.name + i}>
 					<Button className='btn btn-outline w-full'>{r.name}</Button>
