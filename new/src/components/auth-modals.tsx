@@ -1,10 +1,10 @@
 'use client'
 
 import {
-    type FieldErrorsImpl,
-    type UseFormHandleSubmit,
-    type UseFormRegister,
-    useForm
+	type FieldErrorsImpl,
+	type UseFormHandleSubmit,
+	type UseFormRegister,
+	useForm
 } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'

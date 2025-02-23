@@ -8,14 +8,19 @@ import { useChatForm, type ChatFormValues } from './use-chat-form'
 
 export function SubmitPromptForm() {
 	const t = useTranslations()
-	const { onSubmit, isStreaming } = useChatForm()
-	const { register, handleSubmit, watch } = useForm<ChatFormValues>({
+	const { onSubmit: onChatFormSubmit, isStreaming } = useChatForm()
+	const { register, handleSubmit, watch, reset } = useForm<ChatFormValues>({
 		defaultValues: {
 			prompt: ''
 		}
 	})
 
 	const prompt = watch('prompt')
+
+	const onSubmit = async (data: ChatFormValues) => {
+		reset()
+		await onChatFormSubmit(data)
+	}
 
 	return (
 		<form

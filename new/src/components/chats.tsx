@@ -1,8 +1,8 @@
 import { type Chat, type Message } from '@prisma/client'
 import {
-  AdjustmentsHorizontalIcon,
-  ChatBubbleLeftIcon,
-  ListBulletIcon
+	AdjustmentsHorizontalIcon,
+	ChatBubbleLeftIcon,
+	ListBulletIcon
 } from './icons'
 import { Drawer } from './drawer'
 import { formatTimeAgo } from '~/utils/relative-time-format'
@@ -237,63 +237,63 @@ function ChatList({
 }
 
 function ChatOption({
-  chat,
-  chatId,
-  handleChangeChat
+	chat,
+	chatId,
+	handleChangeChat
 }: {
-  chat: Chat & {
-    messages: Message[]
-  }
-  chatId?: string
-  handleChangeChat: (
-    chat: Chat & {
-      messages: Message[]
-    }
-  ) => void
+	chat: Chat & {
+		messages: Message[]
+	}
+	chatId?: string
+	handleChangeChat: (
+		chat: Chat & {
+			messages: Message[]
+		}
+	) => void
 }) {
-  const router = useRouter()
+	const router = useRouter()
 
-  if (chat.messages.length === 0) {
-    return null
-  }
+	if (chat.messages.length === 0) {
+		return null
+	}
 
-  const firstMessage = chat.messages[0]
+	const firstMessage = chat.messages[0]
 
-  if (!firstMessage) {
-    return null
-  }
+	if (!firstMessage) {
+		return null
+	}
 
-  const { content, role } = firstMessage
+	const { content, role } = firstMessage
 
-  let message = content
+	let message = content
 
-  if (role === 'assistant') {
-    try {
-      const recipe = transformContentToRecipe({ content: content })
-      message = recipe.name
-    } catch (error) {
-      message = content
-    }
-  }
+	if (role === 'assistant') {
+		try {
+			const recipe = transformContentToRecipe({ content: content })
+			message = recipe.name
+		} catch (error) {
+			message = content
+		}
+	}
 
-  return (
-    <div
-      className={`hover:bg-primary-content flex select-none flex-col rounded px-2 py-2 ${
-        chatId === chat.id ? 'bg-primary-content' : ''
-      }`}
-    >
-      <p
-        onClick={() => handleChangeChat(chat)}
-        className={`mb-1 mt-1 truncate ${
-          chatId === chat.id ? 'text-primary' : ''
-        }`}
-      >
-        {message}
-      </p>
+	return (
+		<div
+			className={`flex select-none flex-col rounded px-2 py-2 hover:bg-primary-content ${
+				chatId === chat.id ? 'bg-primary-content' : ''
+			}`}
+		>
+			<p
+				onClick={() => handleChangeChat(chat)}
+				className={`mb-1 mt-1 truncate ${
+					chatId === chat.id ? 'text-primary' : ''
+				}`}
+			>
+				{message}
+			</p>
 
-      <span className='text-primary ml-auto text-xs'>
-        {formatTimeAgo(chat.updatedAt, router.locale)}
-      </span>
-    </div>
-  )
+			<span className='ml-auto text-xs text-primary'>
+				{formatTimeAgo(chat.updatedAt, router.locale)}
+			</span>
+		</div>
+	)
 }

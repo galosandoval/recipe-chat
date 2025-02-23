@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import {
-  CheckIcon,
-  FunnelIcon,
-  PencilSquareIcon,
-  PlusCircleIcon,
-  XCircleIcon,
-  XIcon
+	CheckIcon,
+	FunnelIcon,
+	PencilSquareIcon,
+	PlusCircleIcon,
+	XCircleIcon,
+	XIcon
 } from './icons'
 import { z } from 'zod'
 import { Controller, useForm } from 'react-hook-form'

@@ -22,14 +22,14 @@ export const generatedRecipesSchema = z.object({
 					.array(z.string())
 					.optional()
 					.describe('Array of recipe categories. Optional.'),
-				instructions: z
-					.array(z.string())
-					.optional()
-					.describe('Array of instructions. Optional.'),
 				ingredients: z
 					.array(z.string())
 					.optional()
-					.describe('Array of ingredients. Optional.')
+					.describe('Array of ingredients. Optional.'),
+				instructions: z
+					.array(z.string())
+					.optional()
+					.describe('Array of instructions. Optional.')
 			})
 		)
 		.describe('Array of recipes.')

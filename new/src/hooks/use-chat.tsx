@@ -338,29 +338,29 @@ export const useChat = () => {
 }
 
 function useSessionChatId() {
-    const [chatId, setChatId] = useState<string | undefined>(undefined)
+	const [chatId, setChatId] = useState<string | undefined>(undefined)
 
-    const changeChatId = (chatId: string | undefined) => {
-        sessionStorage.setItem('currentChatId', JSON.stringify(chatId))
-        setChatId(chatId)
-    }
+	const changeChatId = (chatId: string | undefined) => {
+		sessionStorage.setItem('currentChatId', JSON.stringify(chatId))
+		setChatId(chatId)
+	}
 
-    useEffect(() => {
-        if (
-            typeof window !== undefined &&
-            typeof sessionStorage?.getItem('currentChatId') === 'string'
-        ) {
-            const currentChatId = sessionStorage.getItem('currentChatId')
+	useEffect(() => {
+		if (
+			typeof window !== undefined &&
+			typeof sessionStorage?.getItem('currentChatId') === 'string'
+		) {
+			const currentChatId = sessionStorage.getItem('currentChatId')
 
-            setChatId(
-                currentChatId
-                    ? (JSON.parse(currentChatId) as string)
-                    : undefined
-            )
-        }
-    }, [])
+			setChatId(
+				currentChatId
+					? (JSON.parse(currentChatId) as string)
+					: undefined
+			)
+		}
+	}, [])
 
-    return [chatId, changeChatId] as const
+	return [chatId, changeChatId] as const
 }
 
 export const errorMessage = 'Please try rephrasing your question.'
@@ -369,13 +369,13 @@ const sendMessageFormSchema = z.object({ message: z.string().min(6) })
 export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
 export function transformContentToRecipe({ content }: { content: string }) {
-    return JSON.parse(content) as {
-        name: string
-        description: string
-        prepTime: string
-        cookTime: string
-        categories: string[]
-        instructions: string[]
-        ingredients: string[]
-    }
+	return JSON.parse(content) as {
+		name: string
+		description: string
+		prepTime: string
+		cookTime: string
+		categories: string[]
+		instructions: string[]
+		ingredients: string[]
+	}
 }
