@@ -349,8 +349,8 @@ const Messages = memo(function Messages({
 					)}
 
 					<div className='flex items-center justify-center gap-2'>
-						<h2 className='mb-2 mt-2'>Chat</h2>
-						<ChatBubbleLeftIcon />
+						<ChatBubbleLeftIcon size={6} />
+						<h2 className='mb-2 mt-2 text-lg'>Chat</h2>
 					</div>
 
 					<button

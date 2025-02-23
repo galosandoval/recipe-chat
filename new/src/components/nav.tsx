@@ -12,7 +12,7 @@ export function PublicNavbar() {
 			<nav className='prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
 				<div></div>
 				<h1 className='mb-0 text-base'>{t.nav.appName}</h1>
-				<div className='justify-self-end'>
+				<div>
 					<ThemeToggle theme={theme} updateTheme={updateTheme} />
 				</div>
 			</nav>

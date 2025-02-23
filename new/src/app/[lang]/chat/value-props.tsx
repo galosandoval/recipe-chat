@@ -182,7 +182,7 @@ export function ValuePropsHeader({
 	return (
 		<div className='divider'>
 			<div className='flex items-center gap-2'>
-				<h2 className='mb-2 mt-2'>{label}</h2>
+				<h2 className='mb-2 mt-2 text-lg'>{label}</h2>
 				{icon}
 			</div>
 		</div>

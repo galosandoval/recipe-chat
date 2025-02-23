@@ -21,12 +21,6 @@ export const useChatForm = () => {
 		endStreaming,
 		setIsStreaming
 	} = useChatStore((state) => state)
-	console.log('isStreaming', isStreaming)
-	// const inputRef = useRef<HTMLInputElement>(null)
-
-	// useEffect(() => {
-	// 	inputRef.current?.focus()
-	// }, [])
 
 	const onSubmit = async (data: ChatFormValues) => {
 		const newMessages = [
@@ -43,11 +37,9 @@ export const useChatForm = () => {
 				filters: [],
 				messages: newMessages
 			})
-			console.log('object', object)
 			let partialResponse
 			for await (const partialObject of readStreamableValue(object)) {
 				if (partialObject) {
-					console.log('partialObject', partialObject)
 					streamReply(partialObject)
 					partialResponse = partialObject
 				}

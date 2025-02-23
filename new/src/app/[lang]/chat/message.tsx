@@ -14,6 +14,7 @@ import { transformContentToRecipe } from '~/hooks/use-chat'
 import { useTranslations } from '~/hooks/use-translations'
 import type { Message as MessageType } from '~/schemas/chats'
 import { cn } from '~/utils/cn'
+import { useChatForm } from './use-chat-form'
 
 export const Message = function InnerMessage({
 	message,
@@ -160,7 +161,7 @@ export function AssistantMessage({
 					</div>
 
 					<div className='card flex flex-col bg-base-200 p-3'>
-						<p className='mb-2 mt-0'>{message.content}</p>
+						<p className='mb-0 mt-0'>{message.content}</p>
 						<div className='grid w-full grid-flow-col place-items-end gap-2 self-center'>
 							<SingleRecipe recipes={message.recipes} />
 							<CollapseableRecipes recipes={message.recipes} />
@@ -209,7 +210,7 @@ function SingleRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 	}
 	return (
 		<div
-			className='prose card relative col-span-1 w-full bg-base-100 p-3'
+			className='prose card relative col-span-1 mt-2 w-full bg-base-100 p-3'
 			key={recipe.name}
 		>
 			{/* <div onClick={() => setIsOpen(!isOpen)} className='btn w-full'>
@@ -220,48 +221,15 @@ function SingleRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 			</div> */}
 			<div>
 				<h3 className='card-title mb-0 text-lg'>{recipe.name}</h3>
-				<p className='text-sm'>{recipe.description}</p>
+				<p className='mb-2 text-sm'>{recipe.description}</p>
 				{isOpen && (
 					<>
-						<div className='flex items-center gap-2'>
-							<ClockIcon className='size-4' />
-							<div className='flex items-center gap-2'>
-								<h3 className='mb-0 text-sm'>
-									{t.recipes.prepTime}
-								</h3>
-								<p className='mb-0 text-sm'>
-									{recipe.prepTime}
-								</p>
-							</div>
-							<div className='flex items-center gap-2'>
-								<h3 className='mb-0 text-sm'>
-									{t.recipes.cookTime}
-								</h3>
-								<p className='mb-0 text-sm'>
-									{recipe.cookTime}
-								</p>
-							</div>
-						</div>
-						<ul className='my-2'>
-							<h3 className='mb-0 text-base'>
-								{t.recipes.ingredients}
-							</h3>
-							{recipe.ingredients?.map((i) => (
-								<li className='my-0' key={i}>
-									{i}
-								</li>
-							))}
-						</ul>
-						<ol>
-							<h3 className='mb-0 text-base'>
-								{t.recipes.instructions}
-							</h3>
-							{recipe.instructions?.map((i) => (
-								<li className='my-0' key={i}>
-									{i}
-								</li>
-							))}
-						</ol>
+						<Times
+							prepTime={recipe.prepTime}
+							cookTime={recipe.cookTime}
+						/>
+						<Ingredients ingredients={recipe.ingredients} />
+						<Instructions instructions={recipe.instructions} />
 					</>
 				)}
 			</div>
@@ -284,14 +252,93 @@ function SingleRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 	)
 }
 
+function Times({
+	prepTime,
+	cookTime
+}: {
+	prepTime?: string
+	cookTime?: string
+}) {
+	const t = useTranslations()
+	return (
+		<div className='mb-2 flex items-center gap-2'>
+			<ClockIcon className='size-4' />
+			<div className='flex items-center gap-2'>
+				<h3 className='mb-0 text-sm'>{t.recipes.prepTime}</h3>
+				<p className='mb-0 text-sm'>{prepTime}</p>
+			</div>
+			<div className='flex items-center gap-2'>
+				<h3 className='mb-0 text-sm'>{t.recipes.cookTime}</h3>
+				<p className='mb-0 text-sm'>{cookTime}</p>
+			</div>
+		</div>
+	)
+}
+
+function Ingredients({ ingredients }: { ingredients?: string[] }) {
+	const t = useTranslations()
+	return (
+		<>
+			{ingredients && (
+				<h3 className='mb-0 text-base'>{t.recipes.ingredients}</h3>
+			)}
+			<ul className='mb-2 pl-6'>
+				{ingredients?.map((i, index) => (
+					<li className='my-0' key={i + index}>
+						{i}
+					</li>
+				))}
+			</ul>
+		</>
+	)
+}
+
+function Instructions({ instructions }: { instructions?: string[] }) {
+	const t = useTranslations()
+	return (
+		<>
+			{instructions && (
+				<h3 className='mb-0 text-base'>{t.recipes.instructions}</h3>
+			)}
+			<ol className='mb-2 pl-6'>
+				{instructions?.map((i, index) => (
+					<li className='my-0' key={i + index}>
+						{i}
+					</li>
+				))}
+			</ol>
+		</>
+	)
+}
+
 function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 	const t = useTranslations()
+	const [generated, setGenerated] = useState<boolean[]>(
+		recipes?.map(() => false) || []
+	)
+	const { onSubmit: onChatFormSubmit, isStreaming } = useChatForm()
 
 	if (!recipes || recipes.length === 0 || recipes.length === 1) {
 		return null
 	}
+
+	const generateRecipe = async (
+		name: string,
+		description: string,
+		index: number
+	) => {
+		await onChatFormSubmit({
+			prompt: `Generate a recipe for ${name}: ${description}`
+		})
+		setGenerated((state) => {
+			const newState = [...state]
+			newState[index] = true
+			return newState
+		})
+	}
+
 	return (
-		<div className='mx-auto grid grid-cols-1 gap-2'>
+		<div className='mx-auto grid grid-cols-1 gap-2 pt-2'>
 			{recipes.map((r, i) => (
 				<div
 					className='card border border-base-300 bg-base-100 p-3'
@@ -301,16 +348,23 @@ function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 					<p>{r.description}</p>
 
 					<div className='card-actions flex'>
-						{/* <Button className='btn btn-outline'>
-							{t.chatWindow.expand}
-						</Button>
-						<Button className='btn btn-outline'>
-							{t.chatWindow.save}
-						</Button> */}
-						<Button className='btn btn-outline w-full'>
-							{t.chatWindow.generate}
-							<PlaneIcon />
-						</Button>
+						{generated[i] ? (
+							<Button className='btn btn-primary w-full'>
+								<BookmarkIcon />
+								{t.chatWindow.save}
+							</Button>
+						) : (
+							<Button
+								className={'btn btn-outline w-full'}
+								disabled={isStreaming}
+								onClick={() =>
+									generateRecipe(r.name, r.description, i)
+								}
+							>
+								<PlaneIcon />
+								{t.chatWindow.generate}
+							</Button>
+						)}
 					</div>
 				</div>
 			))}
