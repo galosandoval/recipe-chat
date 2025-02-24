@@ -15,6 +15,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import type { Message as MessageType } from '~/schemas/chats'
 import { cn } from '~/utils/cn'
 import { useChatForm } from './use-chat-form'
+import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
 
 export const Message = function InnerMessage({
 	message,
@@ -165,33 +166,6 @@ export function AssistantMessage({
 						<div className='grid w-full grid-flow-col place-items-end gap-2 self-center'>
 							<SingleRecipe recipes={message.recipes} />
 							<CollapseableRecipes recipes={message.recipes} />
-							{/* {message?.recipeId ? (
-						// Go to recipe
-						<Button
-							className='btn btn-outline'
-							onClick={() =>
-								goToRecipe({
-									recipeId: message.recipeId
-								})
-							}
-						>
-							{t.chatWindow.toRecipe}
-						</Button>
-					) : !isStreaming ? (
-						// Save
-						<Button
-							className='btn btn-outline'
-							isLoading={saveRecipeStatus === 'pending'}
-							onClick={() =>
-								handleSaveRecipe({
-									content: message.content || '',
-									messageId: message.id
-								})
-							}
-						>
-							{t.chatWindow.save}
-						</Button>
-					) : null} */}
 						</div>
 					</div>
 				</div>
@@ -318,6 +292,7 @@ function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 	)
 	const { onSubmit: onChatFormSubmit, isStreaming } = useChatForm()
 
+
 	if (!recipes || recipes.length === 0 || recipes.length === 1) {
 		return null
 	}
@@ -354,20 +329,47 @@ function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 								{t.chatWindow.save}
 							</Button>
 						) : (
-							<Button
-								className={'btn btn-outline w-full'}
+							<GenerateButton
 								disabled={isStreaming}
 								onClick={() =>
 									generateRecipe(r.name, r.description, i)
 								}
-							>
-								<PlaneIcon />
-								{t.chatWindow.generate}
-							</Button>
+							/>
 						)}
 					</div>
 				</div>
 			))}
 		</div>
+	)
+}
+
+function GenerateButton({
+	disabled,
+	onClick
+}: {
+	disabled: boolean
+	onClick: () => Promise<void>
+}) {
+	const t = useTranslations()
+	const bottomRef = useScrollRef()
+
+	const scrollToBottom = () => {
+		bottomRef?.current?.scrollIntoView({ behavior: 'smooth' })
+	}
+
+	const handleGenerate = async () => {
+		scrollToBottom()
+		await onClick()
+	}
+
+	return (
+		<Button
+			className='btn btn-outline w-full'
+			disabled={disabled}
+			onClick={handleGenerate}
+		>
+			<PlaneIcon />
+			{t.chatWindow.generate}
+		</Button>
 	)
 }

@@ -7,6 +7,7 @@ import {
 	type SetStateAction,
 	memo,
 	useEffect,
+	useRef,
 	useState
 } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
@@ -20,6 +21,9 @@ import { useSession } from 'next-auth/react'
 import useChatStore from '~/hooks/use-chat-store'
 import { createId } from '@paralleldrive/cuid2'
 import { AssistantMessage, Message } from './message'
+import { ScrollProvider, useScrollRef } from '~/hooks/use-scroll-to-bottom'
+import { useInView } from 'react-intersection-observer'
+import { useChatForm } from './use-chat-form'
 
 type MessageContentProps = Omit<
 	ChatType,
@@ -37,7 +41,9 @@ export default function ChatWindow() {
 		// 	className='h-full'
 		// 	mode={scrollMode}
 		// >
-		<Content setScrollMode={setScrollMode} />
+		<ScrollProvider>
+			<Content setScrollMode={setScrollMode} />
+		</ScrollProvider>
 		// </ScrollToBottom>
 	)
 }
@@ -96,19 +102,19 @@ const Content = memo(function Content(props: {
 	// 	chatsFetchStatus === 'fetching'
 
 	// don't scroll to bottom when showing value props
-	useEffect(() => {
-		if (isNewChat) {
-			setScrollMode('top')
-		} else {
-			setScrollMode('bottom')
-		}
-	}, [isNewChat])
+	// useEffect(() => {
+	// 	if (isNewChat) {
+	// 		setScrollMode('top')
+	// 	} else {
+	// 		setScrollMode('bottom')
+	// 	}
+	// }, [isNewChat])
 
-	useEffect(() => {
-		if (isMessagesSuccess) {
-			// scrollToBottom({ behavior: 'auto' })
-		}
-	}, [chatsFetchStatus, chatsQueryStatus])
+	// useEffect(() => {
+	// 	if (isMessagesSuccess) {
+	// 		// scrollToBottom({ behavior: 'auto' })
+	// 	}
+	// }, [chatsFetchStatus, chatsQueryStatus])
 
 	if (isNewChat) {
 		return (
@@ -330,6 +336,22 @@ const Messages = memo(function Messages({
 
 	const startNewChat = useChatStore((state) => state.startNewChat)
 	const lastMessage = messages.at(-1)
+	const { ref: inViewRef, inView } = useInView()
+	const bottomRef = useScrollRef()
+
+	useEffect(() => {
+		console.log('inView', inView)
+		if (inView) {
+			// const intervalId = setInterval(() => {
+			// 	if (inView) {
+			// 		bottomRef?.current?.scrollIntoView({ behavior: 'smooth' })
+			// 	}
+			// }, 100) // Adjust the interval (100ms here) as needed
+			// // Cleanup function to clear the interval when the component unmounts or inView changes to false
+			// return () => clearInterval(intervalId)
+		}
+	}, [inView])
+
 	return (
 		<>
 			<div className='py-2'>
@@ -393,6 +415,13 @@ const Messages = memo(function Messages({
 					lastMessage?.role === 'user' &&
 					!reply.message && <ChatLoader />}
 			</div>
+			<BottomRef />
+			<div ref={inViewRef} />
 		</>
 	)
 })
+
+function BottomRef() {
+	const bottomRef = useScrollRef()
+	return <div ref={bottomRef} />
+}

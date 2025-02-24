@@ -5,10 +5,10 @@ type ChatStore = {
 	stream: GeneratedRecipes
 	isStreaming: boolean
 	messages: Message[]
-	startStreaming: (messages: Message[]) => void
-	endStreaming: (messages: Message[]) => void
-	streamReply: (stream: GeneratedRecipes) => void
-	setIsStreaming: (isStreaming: boolean) => void
+	startedStreaming: (messages: Message[]) => void
+	endedStreaming: (messages: Message[]) => void
+	streaming: (stream: GeneratedRecipes) => void
+	streamingStopped: () => void
 	startNewChat: () => void
 }
 
@@ -21,12 +21,12 @@ const useChatStore = create<ChatStore>((set) => ({
 	stream: initialReply,
 	isStreaming: false,
 	messages: [],
-	startStreaming: (messages: Message[]) =>
+	startedStreaming: (messages: Message[]) =>
 		set({ isStreaming: true, messages }),
-	endStreaming: (messages: Message[]) =>
+	endedStreaming: (messages: Message[]) =>
 		set({ isStreaming: false, messages, stream: initialReply }),
-	streamReply: (stream: GeneratedRecipes) => set({ stream }),
-	setIsStreaming: (isStreaming: boolean) => set({ isStreaming }),
+	streaming: (stream: GeneratedRecipes) => set({ stream }),
+	streamingStopped: () => set({ isStreaming: false }),
 	startNewChat: () =>
 		set({
 			stream: initialReply,

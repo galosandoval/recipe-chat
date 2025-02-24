@@ -39,14 +39,28 @@ export function SubmitPromptForm() {
 				</div>
 
 				<div className='pr-2'>
-					<Button
-						type='submit'
-						// TODO:fix with react-hook-form
-						disabled={prompt.length < 5 && !isStreaming}
-						className={`btn ${isStreaming ? 'btn-error' : 'btn-accent'}`}
-					>
-						{isStreaming ? <StopIcon /> : <PlaneIcon />}
-					</Button>
+					{isStreaming ? (
+						<Button
+							onClick={() => {
+								reset()
+								setFocus('prompt')
+							}}
+							disabled={!isStreaming}
+							className='btn btn-error'
+						>
+							<StopIcon />
+						</Button>
+					) : (
+						<Button
+							type='submit'
+							disabled={prompt.length < 5 && !isStreaming}
+							className={`btn ${
+								isStreaming ? 'btn-error' : 'btn-accent'
+							}`}
+						>
+							<PlaneIcon />
+						</Button>
+					)}
 				</div>
 			</div>
 		</form>

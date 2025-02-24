@@ -2,10 +2,10 @@ import '~/styles/globals.css'
 
 import { GeistSans } from 'geist/font/sans'
 import { type Metadata } from 'next'
-import { Providers } from '~/components/providers'
 import { PublicNavbar } from '~/components/nav'
-import { auth } from '~/server/auth'
+import { Providers } from '~/components/providers'
 import type { Locale } from '~/i18n-config'
+import { auth } from '~/server/auth'
 import { getTranslations } from '~/utils/get-translations'
 
 export const metadata: Metadata = {

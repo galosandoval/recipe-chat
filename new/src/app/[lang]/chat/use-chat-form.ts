@@ -16,10 +16,10 @@ export const useChatForm = () => {
 	const {
 		isStreaming,
 		messages,
-		streamReply,
-		startStreaming,
-		endStreaming,
-		setIsStreaming
+		streaming,
+		startedStreaming,
+		streamingStopped,
+		endedStreaming
 	} = useChatStore((state) => state)
 
 	const onSubmit = async (data: ChatFormValues) => {
@@ -31,7 +31,7 @@ export const useChatForm = () => {
 				id: createSlug()
 			}
 		]
-		startStreaming(newMessages)
+		startedStreaming(newMessages)
 		try {
 			const { object } = await generate({
 				filters: [],
@@ -40,27 +40,26 @@ export const useChatForm = () => {
 			let partialResponse
 			for await (const partialObject of readStreamableValue(object)) {
 				if (partialObject) {
-					streamReply(partialObject)
+					streaming(partialObject)
 					partialResponse = partialObject
 				}
 			}
-			endStreaming([
+			endedStreaming([
 				...newMessages,
 				{
 					role: 'assistant',
-					content: partialResponse.message,
-					// length of openai message ids
+					content: partialResponse?.message ?? '',
 					id: createSlug(),
-					recipes: partialResponse.recipes
+					recipes: partialResponse?.recipes ?? []
 				}
 			])
 		} catch (error) {
 			console.error('error', error)
 			toast.error(t.error.somethingWentWrong)
 		} finally {
-			setIsStreaming(false)
+			streamingStopped()
 		}
 	}
 
-	return { onSubmit, isStreaming }
+	return { onSubmit, isStreaming, streamingStopped }
 }
