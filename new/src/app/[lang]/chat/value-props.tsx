@@ -74,16 +74,16 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
 					label={t.capabilities.title}
 				/>
 
-				<div className='flex w-full flex-col items-center gap-4'>
-					<div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
+				<div className='flex w-full flex-col items-center'>
+					<p className='my-0 grid h-12 w-full items-center rounded-lg px-5 py-0 text-center text-sm font-semibold normal-case text-base-content'>
 						{t.capabilities.firstDescription}
-					</div>
-					<div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
+					</p>
+					<p className='my-0 grid h-12 w-full items-center rounded-lg px-5 py-0 text-center text-sm font-semibold normal-case text-base-content'>
 						{t.capabilities.secondDescription}
-					</div>
-					<div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
+					</p>
+					<p className='my-0 grid h-12 w-full items-center rounded-lg px-5 py-0 text-center text-sm font-semibold normal-case text-base-content'>
 						{t.capabilities.thirdDescription}
-					</div>
+					</p>
 				</div>
 			</div>
 

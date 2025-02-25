@@ -1,11 +1,12 @@
 'use client'
 
+import { experimental_useObject as useObject } from '@ai-sdk/react'
 import useChatStore from '~/hooks/use-chat-store'
 import { useTranslations } from '~/hooks/use-translations'
-import { generate } from '../actions'
-import { readStreamableValue } from 'ai/rsc'
 import toast from 'react-hot-toast'
 import { createSlug } from '~/utils/create-id'
+import { generatedRecipesSchema, type GeneratedRecipes } from '~/schemas/chats'
+import { useEffect, useRef, useState } from 'react'
 
 export type ChatFormValues = {
 	prompt: string
@@ -13,6 +14,8 @@ export type ChatFormValues = {
 
 export const useChatForm = () => {
 	const t = useTranslations()
+	const [stayOnBottom, setStayOnBottom] = useState(false)
+	const bottomRef = useRef<HTMLDivElement>(null)
 	const {
 		isStreaming,
 		messages,
@@ -21,45 +24,62 @@ export const useChatForm = () => {
 		streamingStopped,
 		endedStreaming
 	} = useChatStore((state) => state)
-
-	const onSubmit = async (data: ChatFormValues) => {
-		const newMessages = [
-			...messages,
-			{
-				role: 'user' as const,
-				content: data.prompt,
-				id: createSlug()
-			}
-		]
-		startedStreaming(newMessages)
-		try {
-			const { object } = await generate({
-				filters: [],
-				messages: newMessages
-			})
-			let partialResponse
-			for await (const partialObject of readStreamableValue(object)) {
-				if (partialObject) {
-					streaming(partialObject)
-					partialResponse = partialObject
-				}
-			}
+	const { object, stop, submit } = useObject({
+		api: 'api/use-object',
+		schema: generatedRecipesSchema,
+		onFinish: (res) => {
 			endedStreaming([
-				...newMessages,
+				...messages,
 				{
 					role: 'assistant',
-					content: partialResponse?.message ?? '',
+					content: res?.object?.message ?? '',
 					id: createSlug(),
-					recipes: partialResponse?.recipes ?? []
+					recipes: res?.object?.recipes
 				}
 			])
-		} catch (error) {
+		},
+		onError: (error) => {
 			console.error('error', error)
 			toast.error(t.error.somethingWentWrong)
-		} finally {
 			streamingStopped()
 		}
+	})
+
+	useEffect(() => {
+		if (object) {
+			console.log('object', object)
+
+			streaming(object as GeneratedRecipes)
+
+			if (bottomRef.current) {
+				bottomRef.current.scrollIntoView({ behavior: 'smooth' })
+			}
+		}
+	}, [object, streaming])
+
+	const onSubmit = async (data: ChatFormValues) => {
+		const message = {
+			role: 'user' as const,
+			content: data.prompt,
+			id: createSlug()
+		}
+
+		startedStreaming([...messages, message])
+
+		// const newMessages = [
+		// 	...messages,
+		// 	{
+		// 		role: 'user' as const,
+		// 		content: data.prompt,
+		// 		id: createSlug()
+		// 	}
+		// ]
+		// startedStreaming(newMessages)
+		submit({
+			filters: [],
+			messages: [...messages, message]
+		})
 	}
 
-	return { onSubmit, isStreaming, streamingStopped }
+	return { onSubmit, isStreaming, streamingStopped, stop }
 }
