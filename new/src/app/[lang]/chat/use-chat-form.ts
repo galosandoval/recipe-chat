@@ -8,9 +8,12 @@ import { createSlug } from '~/utils/create-id'
 import { generatedRecipesSchema, type GeneratedRecipes } from '~/schemas/chats'
 import { useEffect, useRef, useState } from 'react'
 import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
-export type ChatFormValues = {
-	prompt: string
-}
+import { z } from 'zod'
+
+export const chatFormSchema = z.object({
+	prompt: z.string().min(1)
+})
+export type ChatFormValues = z.infer<typeof chatFormSchema>
 
 export const useChatForm = () => {
 	const t = useTranslations()

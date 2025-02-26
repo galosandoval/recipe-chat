@@ -4,7 +4,12 @@ import { Button } from '../../../components/button'
 import { useTranslations } from '~/hooks/use-translations'
 import { useForm, type UseFormRegister } from 'react-hook-form'
 import { PlaneIcon, StopIcon } from '~/components/icons'
-import { useChatForm, type ChatFormValues } from './use-chat-form'
+import {
+	useChatForm,
+	type ChatFormValues,
+	chatFormSchema
+} from './use-chat-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export function SubmitPromptForm() {
 	const t = useTranslations()
@@ -13,12 +18,14 @@ export function SubmitPromptForm() {
 		isStreaming,
 		onStopStreaming
 	} = useChatForm()
-	const { register, handleSubmit, watch, reset } = useForm<ChatFormValues>({
-		defaultValues: {
-			prompt: ''
-		}
-	})
-	const prompt = watch('prompt')
+	const { register, handleSubmit, formState, reset } =
+		useForm<ChatFormValues>({
+			defaultValues: {
+				prompt: ''
+			},
+			resolver: zodResolver(chatFormSchema)
+		})
+	const isSubmitDisabled = formState.isSubmitting || !formState.isDirty
 
 	const onSubmit = async (data: ChatFormValues) => {
 		reset()
@@ -38,7 +45,7 @@ export function SubmitPromptForm() {
 				<SubmitButtons
 					isStreaming={isStreaming}
 					onStopStreaming={onStopStreaming}
-					prompt={prompt}
+					isSubmitDisabled={isSubmitDisabled}
 				/>
 			</div>
 		</form>
@@ -66,11 +73,11 @@ function PromptInput({
 function SubmitButtons({
 	isStreaming,
 	onStopStreaming,
-	prompt
+	isSubmitDisabled
 }: {
 	isStreaming: boolean
 	onStopStreaming: () => void
-	prompt: string
+	isSubmitDisabled: boolean
 }) {
 	return (
 		<div className='pr-2'>
@@ -81,8 +88,8 @@ function SubmitButtons({
 			) : (
 				<Button
 					type='submit'
-					disabled={prompt.length < 5 && !isStreaming}
-					className={`btn ${isStreaming ? 'btn-error' : 'btn-accent'}`}
+					disabled={isSubmitDisabled}
+					className='btn btn-accent'
 				>
 					<PlaneIcon />
 				</Button>
