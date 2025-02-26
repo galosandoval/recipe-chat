@@ -76,6 +76,7 @@ const Content = memo(function Content(props: {
 		handleGetChatsOnSuccess
 	} = useChat()
 	const messages = useChatStore((state) => state.messages)
+	const { onSubmit } = useChatForm()
 	const { setScrollMode } = props
 	// const { data } = filters
 	// const scrollToBottom = useScrollToBottom()
@@ -121,7 +122,7 @@ const Content = memo(function Content(props: {
 		return (
 			<div className='flex flex-col gap-4'>
 				{/*  eslint-disable-next-line @typescript-eslint/no-unsafe-call */}
-				<ValueProps>
+				<ValueProps onSubmit={onSubmit}>
 					<ChatsSection
 						chatId={chatId}
 						handleChangeChat={handleChangeChat}
@@ -329,7 +330,7 @@ const Messages = memo(function Messages({
 		messageId?: string | undefined
 	}) => void
 }) {
-	const { stream: reply, messages } = useChatStore((state) => state)
+	const { stream, messages } = useChatStore((state) => state)
 
 	if (status === 'error') {
 		return <p>Error</p>
@@ -338,7 +339,6 @@ const Messages = memo(function Messages({
 	const startNewChat = useChatStore((state) => state.startNewChat)
 	const lastMessage = messages.at(-1)
 	const { ref: inViewRef, inView } = useInView()
-	const bottomRef = useScrollRef()
 
 	useEffect(() => {
 		console.log('inView', inView)
@@ -390,7 +390,6 @@ const Messages = memo(function Messages({
 					<Message
 						message={m}
 						key={m?.id || '' + i}
-						isStreaming={isStreaming}
 						handleGoToRecipe={handleGoToRecipe}
 						handleSaveRecipe={handleSaveRecipe}
 						saveRecipeStatus={saveRecipeStatus}
@@ -398,23 +397,22 @@ const Messages = memo(function Messages({
 					/>
 				))}
 				{/* While streaming, show the assistant message, after streaming is done, messages gets updated */}
-				{reply.message && (
+				{stream.message && (
 					<AssistantMessage
 						handleGoToRecipe={handleGoToRecipe}
 						handleSaveRecipe={handleSaveRecipe}
-						isStreaming={isStreaming}
 						saveRecipeStatus={saveRecipeStatus}
 						message={{
-							content: reply.message,
+							content: stream.message,
 							role: 'assistant',
 							id: createId().slice(0, 10),
-							recipes: reply.recipes
+							recipes: stream.recipes
 						}}
 					/>
 				)}
 				{isStreaming &&
 					lastMessage?.role === 'user' &&
-					!reply.message && <ChatLoader />}
+					!stream.message && <ChatLoader />}
 			</div>
 			<BottomRef />
 			<div ref={inViewRef} />

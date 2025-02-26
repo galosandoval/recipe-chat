@@ -20,7 +20,8 @@ export async function POST(req: Request) {
 		model: openai('gpt-4-turbo'),
 		schema: generatedRecipesSchema,
 		messages,
-		system
+		system,
+		presencePenalty: 0.5
 	})
 
 	return result.toTextStreamResponse()

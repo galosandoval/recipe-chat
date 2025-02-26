@@ -7,14 +7,12 @@ import { AssistantMessage } from './assistant-message'
 
 export const Message = function InnerMessage({
 	message,
-	isStreaming,
 	// filters,
 	handleGoToRecipe,
 	handleSaveRecipe,
 	saveRecipeStatus
 }: {
 	message: MessageType
-	isStreaming: boolean
 	saveRecipeStatus: MutationStatus
 	// filters: Filter[]
 	handleGoToRecipe: ({
@@ -38,7 +36,6 @@ export const Message = function InnerMessage({
 				message={message}
 				handleGoToRecipe={handleGoToRecipe}
 				handleSaveRecipe={handleSaveRecipe}
-				isStreaming={isStreaming}
 				saveRecipeStatus={saveRecipeStatus}
 			/>
 		)

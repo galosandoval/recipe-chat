@@ -14,11 +14,16 @@ import {
 	useSignUp
 } from '~/components/auth-modals'
 import { useSession } from 'next-auth/react'
-import { useChatForm } from './use-chat-form'
+import { useChatForm, type ChatFormValues } from './use-chat-form'
 
-export function ValueProps({ children }: { children: React.ReactNode }) {
+export function ValueProps({
+	children,
+	onSubmit
+}: {
+	children: React.ReactNode
+	onSubmit: (data: ChatFormValues) => void
+}) {
 	const t = useTranslations()
-	const { onSubmit } = useChatForm()
 	return (
 		<div className='prose mx-auto flex flex-col items-center justify-center gap-2 py-20'>
 			<div className='flex w-full flex-1 flex-col items-center justify-center'>

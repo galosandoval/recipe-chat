@@ -19,11 +19,9 @@ export function AssistantMessage({
 	message,
 	handleGoToRecipe,
 	handleSaveRecipe,
-	isStreaming,
 	saveRecipeStatus
 }: {
 	message: MessageType
-	isStreaming: boolean
 	saveRecipeStatus: MutationStatus
 	handleGoToRecipe: ({
 		recipeId,
@@ -40,19 +38,19 @@ export function AssistantMessage({
 		messageId?: string | undefined
 	}) => void
 }) {
-	const t = useTranslations()
+	// const t = useTranslations()
 
-	const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
-		const recipe = transformContentToRecipe({
-			content: message.content
-		})
-		const recipeName = recipe.name
+	// const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
+	// 	const recipe = transformContentToRecipe({
+	// 		content: message.content
+	// 	})
+	// 	const recipeName = recipe.name
 
-		handleGoToRecipe({
-			recipeId,
-			recipeName
-		})
-	}
+	// 	handleGoToRecipe({
+	// 		recipeId,
+	// 		recipeName
+	// 	})
+	// }
 
 	return (
 		<div className='prose mx-auto flex flex-col p-4'>
@@ -66,7 +64,7 @@ export function AssistantMessage({
 
 					<div className='card flex flex-col bg-base-200 p-3'>
 						<p className='mb-0 mt-0'>{message.content}</p>
-						<div className='grid w-full grid-flow-col place-items-end gap-2 self-center'>
+						<div className='w-full'>
 							<SingleRecipe recipes={message.recipes} />
 							<CollapseableRecipes recipes={message.recipes} />
 						</div>
@@ -215,7 +213,7 @@ function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 	}
 
 	return (
-		<div className='mx-auto grid grid-cols-1 gap-2 pt-2'>
+		<div className='mx-auto grid grid-cols-1 place-items-stretch gap-2 pt-2 md:grid-cols-2'>
 			{recipes.map((r, i) => (
 				<div
 					className='card border border-base-300 bg-base-100 p-3'
@@ -224,7 +222,7 @@ function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 					<h3 className='card-title'>{r.name}</h3>
 					<p>{r.description}</p>
 
-					<div className='card-actions flex'>
+					<div className='card-actions mt-auto flex'>
 						{generated[i] ? (
 							<Button className='btn btn-primary w-full'>
 								<BookmarkIcon />
@@ -260,7 +258,7 @@ function GenerateButton({
 	}
 
 	const handleGenerate = async () => {
-		scrollToBottom()
+		// scrollToBottom()
 		await onClick()
 	}
 
