@@ -17,7 +17,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Modal } from './modal'
 import { useState } from 'react'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
-import { type TFunction } from 'i18next'
 
 export const signUpSchema = (t: Translations) =>
 	z
@@ -75,7 +74,7 @@ export function useSignUp(successCallback?: () => Promise<void>) {
 					type: 'pattern',
 					message: error.message
 				})
-			} else if (error.message && error.message.includes('password')) {
+			} else if (error?.message?.includes('password')) {
 				setError('password', {
 					type: 'pattern',
 					message: error.message
@@ -233,16 +232,14 @@ export function useLogin() {
 	})
 
 	const onSubmit = async (data: LoginSchemaType) => {
-		const callback = decodeURIComponent(
-			searchParams.get('callbackUrl') as string
-		)
+		const callback = decodeURIComponent(searchParams.get('callbackUrl')!)
 
 		const response = await signIn('credentials', {
 			redirect: false,
 			...data
 		})
 		if (response?.ok) {
-			await router.push(callback)
+			router.push(callback)
 		}
 
 		if (response?.status === 401) {

@@ -5,8 +5,8 @@ import { MoonIcon, SunIcon } from './icons'
 import { themeChange } from 'theme-change'
 import { useTranslations } from '~/hooks/use-translations'
 
-export const darkTheme = 'dark' as const
-export const lightTheme = 'light' as const
+export const darkTheme = 'dark'
+export const lightTheme = 'light'
 export type Theme = typeof darkTheme | typeof lightTheme
 
 export function useTheme() {

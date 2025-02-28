@@ -1,7 +1,7 @@
 'use client'
 
 import { type Chat, type Message as PrismaMessage } from '@prisma/client'
-import { useChat, type ChatType } from '~/hooks/use-chat'
+import { useChat } from '~/hooks/use-chat'
 import { type Dispatch, type SetStateAction, memo, useState } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
@@ -18,13 +18,13 @@ import { AssistantMessage } from './assistant-message'
 import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
 import { useChatForm } from './use-chat-form'
 
-type MessageContentProps = Omit<
-	ChatType,
-	'input' | 'handleSubmit' | 'handleInputChange'
->
+// type MessageContentProps = Omit<
+// 	ChatType,
+// 	'input' | 'handleSubmit' | 'handleInputChange'
+// >
 
 export default function ChatWindow() {
-	const [scrollMode, setScrollMode] = useState<'bottom' | 'top'>('top')
+	const [, setScrollMode] = useState<'bottom' | 'top'>('top')
 
 	return <Content setScrollMode={setScrollMode} />
 }
@@ -40,7 +40,6 @@ const Content = memo(function Content(props: {
 		// isStreaming,
 		isAuthenticated,
 		handleToggleChatsModal,
-		handleGoToRecipe,
 		handleSaveRecipe,
 		handleChangeChat,
 		// createRecipeStatus,
@@ -51,20 +50,20 @@ const Content = memo(function Content(props: {
 		// onSubmitCreds,
 		// registerCreds,
 		// signUpErrors,
-		fetchStatus: chatsFetchStatus,
+		// fetchStatus: chatsFetchStatus,
 		status: chatsQueryStatus,
 		handleGetChatsOnSuccess
 	} = useChat()
 	const messages = useChatStore((state) => state.messages)
 	const { onSubmit } = useChatForm()
-	const { setScrollMode } = props
+	// const { setScrollMode } = props
 	// const { data } = filters
 	// const scrollToBottom = useScrollToBottom()
 	// const scrollToTop = useScrollToTop()
 	// const [sticky] = useSticky()
 
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-	const currentChatId = JSON.parse('null')
+	// const currentChatId = JSON.parse('null')
 
 	// const isSessionStorageAvailable =
 	// 	typeof window !== 'undefined' && typeof currentChatId === 'string'
@@ -75,8 +74,8 @@ const Content = memo(function Content(props: {
 	const isNewChat = messages.length === 0
 	//  && messages.length === 0
 
-	const isMessagesSuccess =
-		chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
+	// const isMessagesSuccess =
+	// 	chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
 
 	// const shouldBeLoading =
 	// 	isSessionStorageAvailable &&
@@ -122,7 +121,6 @@ const Content = memo(function Content(props: {
 			<div className='flex h-full flex-col gap-4'>
 				<ChatWindowContent
 					saveRecipeStatus={'idle'}
-					handleGoToRecipe={handleGoToRecipe}
 					handleSaveRecipe={handleSaveRecipe}
 					chatId={chatId}
 					messagesStatus={
@@ -194,7 +192,6 @@ function ChatWindowContent({
 	handleGetChatsOnSuccess,
 	handleChangeChat,
 	handleToggleChatsModal,
-	handleGoToRecipe,
 	handleSaveRecipe,
 	// filters,
 	isChatsModalOpen,
@@ -221,13 +218,6 @@ function ChatWindowContent({
 	isStreaming: boolean
 	chatId?: string
 	saveRecipeStatus: MutationStatus
-	handleGoToRecipe: ({
-		recipeId,
-		recipeName
-	}: {
-		recipeId: string | null
-		recipeName: string
-	}) => void
 	handleSaveRecipe: ({
 		content,
 		messageId
@@ -244,7 +234,6 @@ function ChatWindowContent({
 			<div className='h-full py-16'>
 				<Messages
 					saveRecipeStatus={saveRecipeStatus}
-					handleGoToRecipe={handleGoToRecipe}
 					handleSaveRecipe={handleSaveRecipe}
 					chatId={chatId}
 					status={messagesStatus}
@@ -269,13 +258,12 @@ const Messages = memo(function Messages({
 	isChatsModalOpen,
 	isAuthenticated,
 	isStreaming,
-	saveRecipeStatus,
+	// saveRecipeStatus,
 	// filters,
 	handleGetChatsOnSuccess,
 	handleChangeChat,
-	handleToggleChatsModal,
-	handleGoToRecipe,
-	handleSaveRecipe
+	handleToggleChatsModal
+	// handleSaveRecipe
 }: {
 	status?: QueryStatus
 	chatId?: string
@@ -295,13 +283,6 @@ const Messages = memo(function Messages({
 			messages: PrismaMessage[]
 		})[]
 	) => void
-	handleGoToRecipe: ({
-		recipeId,
-		recipeName
-	}: {
-		recipeId: string | null
-		recipeName: string
-	}) => void
 	handleSaveRecipe: ({
 		content,
 		messageId
@@ -311,12 +292,12 @@ const Messages = memo(function Messages({
 	}) => void
 }) {
 	const { stream, messages } = useChatStore((state) => state)
+	const startNewChat = useChatStore((state) => state.startNewChat)
 
 	if (status === 'error') {
 		return <p>Error</p>
 	}
 
-	const startNewChat = useChatStore((state) => state.startNewChat)
 	const lastMessage = messages.at(-1)
 
 	return (
@@ -356,18 +337,14 @@ const Messages = memo(function Messages({
 					<Message
 						message={m}
 						key={m?.id || '' + i}
-						handleGoToRecipe={handleGoToRecipe}
-						handleSaveRecipe={handleSaveRecipe}
-						saveRecipeStatus={saveRecipeStatus}
+						// handleSaveRecipe={handleSaveRecipe}
+						// saveRecipeStatus={saveRecipeStatus}
 						// filters={filters}
 					/>
 				))}
 				{/* While streaming, show the assistant message, after streaming is done, messages gets updated */}
 				{stream.message && (
 					<AssistantMessage
-						handleGoToRecipe={handleGoToRecipe}
-						handleSaveRecipe={handleSaveRecipe}
-						saveRecipeStatus={saveRecipeStatus}
 						message={{
 							content: stream.message,
 							role: 'assistant',

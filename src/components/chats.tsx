@@ -73,7 +73,7 @@ function Chats({
 	const t = useTranslations()
 
 	const { data, status, fetchStatus } = api.chats.getChats.useQuery(
-		{ userId: session?.user.id || '' },
+		{ userId: session?.user.id ?? '' },
 		{
 			enabled: isAuthenticated
 			// keepPreviousData: true
@@ -156,35 +156,35 @@ export function ChatsSideBarButton({
 	)
 }
 
-const useGetChats = (
-	onSuccess: (
-		data: (Chat & {
-			messages: Message[]
-		})[]
-	) => void
-) => {
-	const { status: authStatus, data } = useSession()
+const useGetChats = () =>
+	// onSuccess: (
+	// 	data: (Chat & {
+	// 		messages: Message[]
+	// 	})[]
+	// ) => void
+	{
+		const { status: authStatus, data } = useSession()
 
-	const isAuthenticated = authStatus === 'authenticated'
+		const isAuthenticated = authStatus === 'authenticated'
 
-	return {
-		...api.chats.getChats.useQuery(
-			{ userId: data?.user.id || '' },
+		return {
+			...api.chats.getChats.useQuery(
+				{ userId: data?.user.id ?? '' },
 
-			{
-				// onSuccess,
-				enabled: isAuthenticated
-				// keepPreviousData: true
-			}
-		),
-		isAuthenticated
+				{
+					// onSuccess,
+					enabled: isAuthenticated
+					// keepPreviousData: true
+				}
+			),
+			isAuthenticated
+		}
 	}
-}
 
 function ChatList({
 	chatId,
-	handleChangeChat,
-	onSuccess
+	handleChangeChat
+	// onSuccess
 }: {
 	chatId?: string
 	handleChangeChat: (
@@ -200,7 +200,7 @@ function ChatList({
 }) {
 	const t = useTranslations()
 
-	const { data, status, isAuthenticated } = useGetChats(onSuccess)
+	const { data, status, isAuthenticated } = useGetChats()
 
 	if (!isAuthenticated) {
 		return null
@@ -272,6 +272,7 @@ function ChatOption({
 			const recipe = transformContentToRecipe({ content: content })
 			message = recipe.name
 		} catch (error) {
+			console.error(error)
 			message = content
 		}
 	}

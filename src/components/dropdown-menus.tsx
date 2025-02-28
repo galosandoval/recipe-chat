@@ -51,8 +51,8 @@ export function ProtectedDropdownMenu() {
 	const router = useRouter()
 	const { theme, updateTheme } = useTheme()
 
-	const handleSignOut = () => {
-		signOut({ callbackUrl: router.pathname })
+	const handleSignOut = async () => {
+		await signOut({ callbackUrl: router.pathname })
 
 		sessionStorage.removeItem('currentChatId')
 	}

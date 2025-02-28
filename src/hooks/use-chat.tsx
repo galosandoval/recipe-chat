@@ -1,22 +1,15 @@
 'use client'
 
 import { type Chat, type Message } from '@prisma/client'
-import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { type FormEvent, useCallback, useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from '~/trpc/react'
 import { z } from 'zod'
 import { useTranslations } from '~/hooks/use-translations'
-import { useSignUp } from '~/components/auth-modals'
-import {
-	errorToastOptions,
-	infoToastOptions,
-	loadingToastOptions,
-	successToastOptions
-} from '~/components/toast'
+import { infoToastOptions } from '~/components/toast'
 import { useForm } from 'react-hook-form'
+import type { ChatFormValues } from '~/app/[lang]/chat/use-chat-form'
 // import { useFilters } from '~/components/recipe-filters'
 
 export type FormValues = {
@@ -36,16 +29,16 @@ export const useChat = () => {
 
 	const [sessionChatId, changeSessionChatId] = useSessionChatId()
 
-	const router = useRouter()
+	// const router = useRouter()
 	const { status: authStatus } = useSession()
 	// const filters = useFilters()
 
 	const isAuthenticated = authStatus === 'authenticated'
-	const utils = api.useUtils()
+	// const utils = api.useUtils()
 
 	// const filtersData = filters.data
 
-	const filterStrings: string[] = []
+	// const filterStrings: string[] = []
 
 	// if (filtersData) {
 	//   filtersData.forEach((filter) => {
@@ -53,24 +46,24 @@ export const useChat = () => {
 	//   })
 	// }
 
-	const {
-		mutate: createOrAddMessages,
-		isPending,
-		variables
-	} = api.chats.createOrAddMessages.useMutation({
-		async onSuccess(data) {
-			// if (data.chatId) {
-			// 	sessionStorage.setItem(
-			// 		'currentChatId',
-			// 		JSON.stringify(data.chatId)
-			// 	)
-			// }
-			// setMessages(data.messages)
-		}
-	})
+	// const {
+	// 	mutate: createOrAddMessages,
+	// 	isPending,
+	// 	variables
+	// } = api.chats.createOrAddMessages.useMutation({
+	// 	async onSuccess(data) {
+	// 		// if (data.chatId) {
+	// 		// 	sessionStorage.setItem(
+	// 		// 		'currentChatId',
+	// 		// 		JSON.stringify(data.chatId)
+	// 		// 	)
+	// 		// }
+	// 		// setMessages(data.messages)
+	// 	}
+	// })
 
 	const { register: registerPrompt, handleSubmit: handleSubmitPrompt } =
-		useForm<{ prompt: string }>()
+		useForm<ChatFormValues>({ defaultValues: { prompt: '' } })
 
 	// const {
 	// 	messages,
@@ -109,8 +102,8 @@ export const useChat = () => {
 	// 		}))
 	// 	})
 	// }
-
-	const messagesRef = useRef<AiMessage[]>([])
+	//
+	// const messagesRef = useRef<AiMessage[]>([])
 
 	// useEffect(() => {
 	// 	messagesRef.current = messages
@@ -167,12 +160,12 @@ export const useChat = () => {
 	// 		}
 	// 	})
 
-	const { mutateAsync: createChatAndRecipeAsync } =
-		api.users.createChatAndRecipe.useMutation({
-			onError: (error) => {
-				toast.error('Error: ' + error.message)
-			}
-		})
+	// const { mutateAsync: createChatAndRecipeAsync } =
+	// 	api.users.createChatAndRecipe.useMutation({
+	// 		onError: (error) => {
+	// 			toast.error('Error: ' + error.message)
+	// 		}
+	// 	})
 
 	const handleGetChatsOnSuccess = useCallback(
 		(
@@ -267,25 +260,25 @@ export const useChat = () => {
 	// 	)
 	// }
 
-	const handleGoToRecipe = useCallback(
-		async ({
-			recipeId,
-			recipeName
-		}: {
-			recipeId: string | null
-			recipeName?: string
-		}) => {
-			if (recipeId && recipeName) {
-				await router.push(
-					`recipes/${recipeId}?name=${encodeURIComponent(recipeName)}`
-				)
-			}
-		},
-		[]
-	)
+	// const handleGoToRecipe = useCallback(
+	// 	async ({
+	// 		recipeId,
+	// 		recipeName
+	// 	}: {
+	// 		recipeId: string | null
+	// 		recipeName?: string
+	// 	}) => {
+	// 		if (recipeId && recipeName) {
+	// 			await router.push(
+	// 				`recipes/${recipeId}?name=${encodeURIComponent(recipeName)}`
+	// 			)
+	// 		}
+	// 	},
+	// 	[]
+	// )
 
 	const handleSaveRecipe = useCallback(
-		({ content, messageId }: { content: string; messageId?: string }) => {
+		({ content }: { content: string; messageId?: string }) => {
 			if (!content) return
 
 			if (!isAuthenticated) {
@@ -295,9 +288,9 @@ export const useChat = () => {
 				return
 			}
 
-			const recipe = transformContentToRecipe({
-				content
-			})
+			// const recipe = transformContentToRecipe({
+			// 	content
+			// })
 
 			// createRecipe({
 			// 	...recipe,
@@ -322,7 +315,7 @@ export const useChat = () => {
 		// isSignUpModalOpen,
 		// isSigningUp,
 
-		handleGoToRecipe,
+		// handleGoToRecipe,
 		handleSaveRecipe,
 		// handleCloseSignUpModal,
 		// handleSubmitCreds,
@@ -365,7 +358,7 @@ function useSessionChatId() {
 
 export const errorMessage = 'Please try rephrasing your question.'
 
-const sendMessageFormSchema = z.object({ message: z.string().min(6) })
+export const sendMessageFormSchema = z.object({ message: z.string().min(6) })
 export type ChatRecipeParams = z.infer<typeof sendMessageFormSchema>
 
 export function transformContentToRecipe({ content }: { content: string }) {

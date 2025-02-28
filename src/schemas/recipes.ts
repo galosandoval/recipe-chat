@@ -1,6 +1,5 @@
 import { type RouterOutputs } from '~/trpc/react'
 import { z } from 'zod'
-import type { Translations } from '~/hooks/use-translations'
 
 export type LinkedData =
 	| ({
@@ -128,8 +127,8 @@ export const updateRecipeImgUrlSchema = z.object({
 })
 export type UpdateRecipeImgUrl = z.infer<typeof updateRecipeImgUrlSchema>
 
-const recipeUrlSchema = (t: Translations) =>
-	z.object({
-		url: z.string().url(t.recipes.byId.enterUrl)
-	})
-export type RecipeUrlSchemaType = z.infer<ReturnType<typeof recipeUrlSchema>>
+export const recipeUrlSchema = z.object({
+	url: z.string().url()
+})
+
+export type RecipeUrlSchemaType = z.infer<typeof recipeUrlSchema>

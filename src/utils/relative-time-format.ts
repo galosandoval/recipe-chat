@@ -16,9 +16,7 @@ const DIVISIONS: { amount: number; name: Intl.RelativeTimeFormatUnit }[] = [
 export function formatTimeAgo(date: Date, locale?: string) {
 	let duration = (Number(date) - Number(new Date())) / 1000
 
-	for (let i = 0; i < DIVISIONS.length; i++) {
-		const division = DIVISIONS[i]
-
+	for (const division of DIVISIONS) {
 		if (!division) {
 			throw new Error('Division is undefined')
 		}

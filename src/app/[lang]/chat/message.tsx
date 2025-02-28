@@ -1,4 +1,3 @@
-import type { MutationStatus } from '@tanstack/react-query'
 import { UserCircleIcon } from '~/components/icons'
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { useTranslations } from '~/hooks/use-translations'
@@ -6,37 +5,28 @@ import type { Message as MessageType } from '~/schemas/chats'
 import { AssistantMessage } from './assistant-message'
 
 export const Message = function InnerMessage({
-	message,
+	message
 	// filters,
-	handleGoToRecipe,
-	handleSaveRecipe,
-	saveRecipeStatus
+	// handleSaveRecipe,
+	// saveRecipeStatus
 }: {
 	message: MessageType
-	saveRecipeStatus: MutationStatus
+	// saveRecipeStatus: MutationStatus
 	// filters: Filter[]
-	handleGoToRecipe: ({
-		recipeId,
-		recipeName
-	}: {
-		recipeId: string | null
-		recipeName: string
-	}) => void
-	handleSaveRecipe: ({
-		content,
-		messageId
-	}: {
-		content: string
-		messageId?: string | undefined
-	}) => void
+	// handleSaveRecipe: ({
+	// 	content,
+	// 	messageId
+	// }: {
+	// 	content: string
+	// 	messageId?: string | undefined
+	// }) => void
 }) {
 	if (message.role === 'assistant') {
 		return (
 			<AssistantMessage
 				message={message}
-				handleGoToRecipe={handleGoToRecipe}
-				handleSaveRecipe={handleSaveRecipe}
-				saveRecipeStatus={saveRecipeStatus}
+				// handleSaveRecipe={handleSaveRecipe}
+				// saveRecipeStatus={saveRecipeStatus}
 			/>
 		)
 	}

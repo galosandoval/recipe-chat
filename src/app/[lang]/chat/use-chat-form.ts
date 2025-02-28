@@ -6,7 +6,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import toast from 'react-hot-toast'
 import { createSlug } from '~/utils/create-id'
 import { generatedRecipesSchema, type GeneratedRecipes } from '~/schemas/chats'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
 import { z } from 'zod'
 
@@ -124,9 +124,7 @@ export const useChatForm = () => {
 			if (typeof window === 'undefined') return
 
 			// Get chat window element
-			const chatWindow = document.querySelector(
-				'#chat-window'
-			) as HTMLElement | null
+			const chatWindow = document.querySelector('#chat-window')
 			if (!chatWindow) {
 				console.warn('Chat window element not found')
 				return

@@ -22,7 +22,7 @@ export async function generate(input: ChatParams) {
 	}
 	const stream = createStreamableValue()
 
-	;(async () => {
+	void (async () => {
 		const { partialObjectStream } = streamObject({
 			model: openai('gpt-4o'),
 			system,

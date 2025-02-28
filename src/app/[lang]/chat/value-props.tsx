@@ -1,4 +1,3 @@
-import { type MouseEvent } from 'react'
 import { Button } from '~/components/button'
 import {
 	ArrowUTurnLeftIcon,
@@ -14,7 +13,7 @@ import {
 	useSignUp
 } from '~/components/auth-modals'
 import { useSession } from 'next-auth/react'
-import { useChatForm, type ChatFormValues } from './use-chat-form'
+import { type ChatFormValues } from './use-chat-form'
 
 export function ValueProps({
 	children,

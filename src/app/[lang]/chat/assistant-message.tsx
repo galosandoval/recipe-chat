@@ -1,7 +1,6 @@
 import type { Message as MessageType } from '~/schemas/chats'
 import { useTranslations } from '~/hooks/use-translations'
 import { useChatForm } from './use-chat-form'
-import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
 import { Button } from '~/components/button'
 import {
 	BookmarkIcon,
@@ -10,33 +9,28 @@ import {
 	LogoIcon,
 	PlaneIcon
 } from '~/components/icons'
-import { transformContentToRecipe } from '~/hooks/use-chat'
-import type { MutationStatus } from '@tanstack/react-query'
 import { useState } from 'react'
 import { cn } from '~/utils/cn'
 
 export function AssistantMessage({
-	message,
-	handleGoToRecipe,
-	handleSaveRecipe,
-	saveRecipeStatus
+	message
 }: {
 	message: MessageType
-	saveRecipeStatus: MutationStatus
-	handleGoToRecipe: ({
-		recipeId,
-		recipeName
-	}: {
-		recipeId: string | null
-		recipeName: string
-	}) => void
-	handleSaveRecipe: ({
-		content,
-		messageId
-	}: {
-		content: string
-		messageId?: string | undefined
-	}) => void
+	// saveRecipeStatus: MutationStatus
+	// handleGoToRecipe: ({
+	// 	recipeId,
+	// 	recipeName
+	// }: {
+	// 	recipeId: string | null
+	// 	recipeName: string
+	// }) => void
+	// handleSaveRecipe: ({
+	// 	content,
+	// 	messageId
+	// }: {
+	// 	content: string
+	// 	messageId?: string | undefined
+	// }) => void
 }) {
 	// const t = useTranslations()
 
@@ -189,7 +183,7 @@ function Instructions({ instructions }: { instructions?: string[] }) {
 function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 	const t = useTranslations()
 	const [generated, setGenerated] = useState<boolean[]>(
-		recipes?.map(() => false) || []
+		recipes?.map(() => false) ?? []
 	)
 	const { onSubmit: onChatFormSubmit, isStreaming } = useChatForm()
 
