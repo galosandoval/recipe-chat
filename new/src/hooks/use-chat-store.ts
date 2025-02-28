@@ -12,7 +12,7 @@ type ChatStore = {
 	streamingStopped: () => void
 	startNewChat: () => void
 	scrolledUp: () => void
-	scrolledDown: () => void
+	scrolledEnd: () => void
 }
 
 const initialStream: GeneratedRecipes = {
@@ -42,7 +42,7 @@ const useChatStore = create<ChatStore>((set) => ({
 			stream: initialStream
 		}),
 	scrolledUp: () => set({ isScrollingToBottom: false }),
-	scrolledDown: () => set({ isScrollingToBottom: true })
+	scrolledEnd: () => set({ isScrollingToBottom: true })
 }))
 
 export default useChatStore

@@ -251,14 +251,8 @@ function GenerateButton({
 	onClick: () => Promise<void>
 }) {
 	const t = useTranslations()
-	const bottomRef = useScrollRef()
-
-	const scrollToBottom = () => {
-		bottomRef?.current?.scrollIntoView({ behavior: 'smooth' })
-	}
 
 	const handleGenerate = async () => {
-		// scrollToBottom()
 		await onClick()
 	}
 

@@ -2,14 +2,7 @@
 
 import { type Chat, type Message as PrismaMessage } from '@prisma/client'
 import { useChat, type ChatType } from '~/hooks/use-chat'
-import {
-	type Dispatch,
-	type SetStateAction,
-	memo,
-	useEffect,
-	useRef,
-	useState
-} from 'react'
+import { type Dispatch, type SetStateAction, memo, useState } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser } from '~/components/recipe-filters'
@@ -22,8 +15,7 @@ import useChatStore from '~/hooks/use-chat-store'
 import { createId } from '@paralleldrive/cuid2'
 import { Message } from './message'
 import { AssistantMessage } from './assistant-message'
-import { ScrollProvider, useScrollRef } from '~/hooks/use-scroll-to-bottom'
-import { useInView } from 'react-intersection-observer'
+import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
 import { useChatForm } from './use-chat-form'
 
 type MessageContentProps = Omit<
@@ -34,19 +26,7 @@ type MessageContentProps = Omit<
 export default function ChatWindow() {
 	const [scrollMode, setScrollMode] = useState<'bottom' | 'top'>('top')
 
-	return (
-		// NoSsr prevents ScrollToBottom from creating class name on server side
-		// <ScrollToBottom
-		// 	followButtonClassName='hidden'
-		// 	initialScrollBehavior='auto'
-		// 	className='h-full'
-		// 	mode={scrollMode}
-		// >
-		<ScrollProvider>
-			<Content setScrollMode={setScrollMode} />
-		</ScrollProvider>
-		// </ScrollToBottom>
-	)
+	return <Content setScrollMode={setScrollMode} />
 }
 
 const Content = memo(function Content(props: {
@@ -338,20 +318,6 @@ const Messages = memo(function Messages({
 
 	const startNewChat = useChatStore((state) => state.startNewChat)
 	const lastMessage = messages.at(-1)
-	const { ref: inViewRef, inView } = useInView()
-
-	useEffect(() => {
-		console.log('inView', inView)
-		if (inView) {
-			// const intervalId = setInterval(() => {
-			// 	if (inView) {
-			// 		bottomRef?.current?.scrollIntoView({ behavior: 'smooth' })
-			// 	}
-			// }, 100) // Adjust the interval (100ms here) as needed
-			// // Cleanup function to clear the interval when the component unmounts or inView changes to false
-			// return () => clearInterval(intervalId)
-		}
-	}, [inView])
 
 	return (
 		<>
@@ -415,7 +381,6 @@ const Messages = memo(function Messages({
 					!stream.message && <ChatLoader />}
 			</div>
 			<BottomRef />
-			<div ref={inViewRef} />
 		</>
 	)
 })

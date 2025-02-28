@@ -15,7 +15,7 @@ export default async function Home() {
 		<HydrateClient>
 			<ScrollProvider>
 				<div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto'>
-					<div className='flex-1 overflow-y-auto'>
+					<div id='chat-window' className='flex-1 overflow-y-auto'>
 						<ChatWindow />
 					</div>
 					<SubmitPromptForm />
