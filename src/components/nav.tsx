@@ -8,14 +8,14 @@ export function PublicNavbar() {
 	const { theme, updateTheme } = useTheme()
 
 	return (
-		<>
-			<nav className='prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
+		<div className='fixed top-0 z-10 flex w-full justify-center border-b border-b-base-300 bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
+			<nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent'>
 				<div></div>
-				<h1 className='mb-0 text-base'>{t.nav.appName}</h1>
+				<h1 className='mb-0 text-xl'>{t.nav.appName}</h1>
 				<div>
 					<ThemeToggle theme={theme} updateTheme={updateTheme} />
 				</div>
 			</nav>
-		</>
+		</div>
 	)
 }

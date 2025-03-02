@@ -10,13 +10,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '~/components/button'
 import { api } from '~/trpc/react'
-import { signIn } from 'next-auth/react'
 import { ErrorMessage } from '~/components/error-message-content'
 import { toast } from 'react-hot-toast'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Modal } from './modal'
 import { useState } from 'react'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
+import { handleSignIn } from '~/app/[lang]/actions'
 
 export const signUpSchema = (t: Translations) =>
 	z
@@ -55,10 +55,9 @@ export function useSignUp(successCallback?: () => Promise<void>) {
 
 	const { mutate, isPending } = api.users.signUp.useMutation({
 		onSuccess: async ({}, { email, password }) => {
-			const response = await signIn('credentials', {
-				email,
-				password,
-				redirect: false
+			const response = await handleSignIn({
+				provider: 'credentials',
+				params: { email, password, redirect: false }
 			})
 
 			if (successCallback) {
@@ -201,6 +200,13 @@ export function SignUpModal({
 						>
 							{t.auth.signUp}
 						</Button>
+						<Button
+							className='btn btn-primary w-3/4'
+							onClick={() => handleSignIn({ provider: 'google' })}
+							isLoading={isLoading}
+						>
+							{t.auth.signUpGoogle}
+						</Button>
 					</div>
 				</form>
 			</div>
@@ -234,20 +240,20 @@ export function useLogin() {
 	const onSubmit = async (data: LoginSchemaType) => {
 		const callback = decodeURIComponent(searchParams.get('callbackUrl')!)
 
-		const response = await signIn('credentials', {
-			redirect: false,
-			...data
-		})
-		if (response?.ok) {
-			router.push(callback)
-		}
+		// const response = (await signIn('credentials', {
+		// 	redirect: false,
+		// 	...data
+		// })) as Response
+		// if (response?.ok) {
+		// 	router.push(callback)
+		// }
 
-		if (response?.status === 401) {
-			toast.error(t.auth.invalidCreds)
+		// if (response?.status === 401) {
+		// 	toast.error(t.auth.invalidCreds)
 
-			setError('email', { message: t.auth.invalidCreds })
-			setError('password', { message: t.auth.invalidCreds })
-		}
+		// 	setError('email', { message: t.auth.invalidCreds })
+		// 	setError('password', { message: t.auth.invalidCreds })
+		// }
 	}
 
 	const handleClose = () => {

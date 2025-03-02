@@ -8,6 +8,8 @@ import {
 	generatedRecipesSchema,
 	type ChatParams
 } from '~/schemas/chats'
+import { signIn } from '~/server/auth'
+import { redirect } from 'next/navigation'
 
 export async function generate(input: ChatParams) {
 	const { filters, messages } = chatParams.parse(input)
@@ -39,4 +41,35 @@ export async function generate(input: ChatParams) {
 	})()
 
 	return { object: stream.value }
+}
+
+interface SignInParams<T = 'credentials' | 'google'> {
+	provider: T
+	params?: T extends 'google' ? undefined : CredentialsParams
+}
+
+interface CredentialsParams {
+	email: string
+	password: string
+	redirect: boolean
+}
+
+export async function handleSignIn({ provider, params }: SignInParams) {
+	if (provider === 'credentials' && params) {
+		const response = (await signIn('credentials', {
+			redirect: params.redirect,
+			email: params.email,
+			password: params.password
+		})) as Response
+
+		if (response.ok) {
+			redirect('/')
+		}
+
+		return response
+	}
+
+	if (provider === 'google') {
+		return await signIn('google')
+	}
 }

@@ -12,17 +12,26 @@ datasource db {
 }
 
 model User {
-    id        String   @id @default(cuid())
+    // auth fields
+    id            String    @id @default(cuid())
+    name          String?
+    email         String    @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+
     firstName String?
     lastName  String?
-    username  String   @unique
-    password  String
+    password  String?
     list      List?
     recipes   Recipe[]
     chats     Chat[]
     filter    Filter[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@map("users")
 }
 
 model Chat {
@@ -32,6 +41,8 @@ model Chat {
     messages  Message[]
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
+
+    @@map("chats")
 }
 
 model Filter {
@@ -42,6 +53,8 @@ model Filter {
     checked   Boolean  @default(true)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@map("filters")
 }
 
 model Message {
@@ -54,6 +67,8 @@ model Message {
     recipeId  String?  @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@map("messages")
 }
 
 enum Role {
@@ -84,6 +99,8 @@ model Recipe {
     lastViewedAt DateTime      @default(now())
     createdAt    DateTime      @default(now())
     updatedAt    DateTime      @updatedAt
+
+    @@map("recipes")
 }
 
 model Instruction {
@@ -91,6 +108,8 @@ model Instruction {
     description String
     recipe      Recipe @relation(fields: [recipeId], references: [id])
     recipeId    String
+
+    @@map("instructions")
 }
 
 model Ingredient {
@@ -101,6 +120,8 @@ model Ingredient {
     list     List?   @relation(fields: [listId], references: [id])
     listId   String?
     checked  Boolean @default(false)
+
+    @@map("ingredients")
 }
 
 model List {
@@ -110,4 +131,50 @@ model List {
     ingredients Ingredient[]
     createdAt   DateTime     @default(now())
     updatedAt   DateTime     @updatedAt
+
+    @@map("lists")
+}
+
+// auth tables
+model Account {
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@id([provider, providerAccountId])
+    @@map("accounts")
+}
+
+model Session {
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("sessions")
+}
+
+model VerificationToken {
+    identifier String
+    token      String
+    expires    DateTime
+
+    @@id([identifier, token])
+    @@map("verification_tokens")
 }

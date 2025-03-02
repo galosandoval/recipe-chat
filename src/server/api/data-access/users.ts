@@ -15,19 +15,18 @@ export class UsersDataAccess {
 		})
 	}
 
-	async getUserByUsername(username: string) {
+	async getUserByEmail(email: string) {
 		return await this.prisma.user.findUnique({
-			where: { username }
+			where: { email }
 		})
 	}
 
 	async createUser(input: SignUpSchema) {
 		const { email, password } = input
-		const username = email.toLowerCase()
 		const hashedPassword = await hash(password, 10)
 		return await this.prisma.user.create({
 			data: {
-				username,
+				email,
 				password: hashedPassword,
 				list: { create: {} }
 			}

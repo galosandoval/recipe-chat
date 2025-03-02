@@ -10,9 +10,8 @@ import type { PrismaClient } from '@prisma/client'
 
 export async function signUp(input: SignUpSchema, prisma: PrismaClient) {
 	const usersDataAccess = new UsersDataAccess(prisma)
-	const username = input.email.toLowerCase()
 
-	const duplicateUser = await usersDataAccess.getUserByUsername(username)
+	const duplicateUser = await usersDataAccess.getUserByEmail(input.email)
 
 	if (duplicateUser) {
 		throw new TRPCError({

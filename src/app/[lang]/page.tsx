@@ -13,14 +13,19 @@ export default async function Home() {
 
 	return (
 		<HydrateClient>
-			<ScrollProvider>
-				<div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto'>
-					<div id='chat-window' className='flex-1 overflow-y-auto'>
-						<ChatWindow />
+			<main className='transition-width relative flex h-[100svh] w-full flex-1 flex-col items-stretch'>
+				<ScrollProvider>
+					<div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto'>
+						<div
+							id='chat-window'
+							className='flex-1 overflow-y-auto'
+						>
+							<ChatWindow />
+						</div>
+						<SubmitPromptForm />
 					</div>
-					<SubmitPromptForm />
-				</div>
-			</ScrollProvider>
+				</ScrollProvider>
+			</main>
 		</HydrateClient>
 	)
 }

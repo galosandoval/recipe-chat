@@ -27,12 +27,8 @@ export default async function RootLayout({
 			<body className='font-roboto flex overflow-y-auto'>
 				<Providers translations={translations} session={session}>
 					<div className='relative max-w-full flex-1'>
-						<div className='fixed top-0 z-10 flex w-full justify-center border-b border-b-base-300 bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
-							<PublicNavbar />
-						</div>
-						<main className='transition-width relative flex h-[100svh] w-full flex-1 flex-col items-stretch'>
-							{children}
-						</main>
+						<PublicNavbar />
+						{children}
 					</div>
 				</Providers>
 			</body>
