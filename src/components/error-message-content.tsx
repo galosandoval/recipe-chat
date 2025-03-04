@@ -32,7 +32,7 @@ export function ErrorMessage<T extends Record<string, string>>({
 function ErrorMessageContent({ message }: { message: string }) {
 	const errorMessage = handleError({ message })
 	return (
-		<div className='absolute flex items-center justify-start gap-1 truncate text-error'>
+		<div className='absolute flex items-center justify-start gap-1 truncate text-destructive'>
 			<ExclamationCircle />
 			<p className='mb-0 mt-0 text-sm'>{errorMessage}</p>
 		</div>

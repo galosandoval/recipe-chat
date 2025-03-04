@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { api } from '~/trpc/react'
 import { Loader } from './loaders/recipe-list-recent'
 import { useTranslations } from '~/hooks/use-translations'
+import { H2 } from './ui/typography'
 
 export function RecentRecipes() {
 	const t = useTranslations()
@@ -62,7 +63,7 @@ export function RecentRecipes() {
 									</svg>
 								</div>
 							)}
-							<p className='prose self-center truncate whitespace-nowrap text-left text-xs'>
+							<p className='self-center truncate whitespace-nowrap text-left text-xs'>
 								{recipe.name}
 							</p>
 						</Link>
@@ -84,9 +85,7 @@ function Container({ children }: { children: React.ReactNode }) {
 
 	return (
 		<>
-			<h2 className='prose col-span-2 sm:col-span-4'>
-				{t.recipes.recent}
-			</h2>
+			<H2>{t.recipes.recent}</H2>
 
 			{children}
 		</>

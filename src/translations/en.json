@@ -62,11 +62,11 @@
 	},
 
 	"chatWindow": {
-		"toRecipe": "go to recipe",
-		"expand": "expand",
-		"collapse": "collapse",
-		"generate": "generate",
-		"save": "save",
+		"toRecipe": "Go to recipe",
+		"expand": "Expand",
+		"collapse": "Collapse",
+		"generate": "Generate",
+		"save": "Save",
 		"saveSuccess": "Recipe saved successfully!",
 		"chats": "Recent chats",
 		"noChats": "No chats found. Start a new chat by asking about a recipe"

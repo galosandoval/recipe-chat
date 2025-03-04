@@ -9,7 +9,6 @@ import {
 	type ChatParams
 } from '~/schemas/chats'
 import { signIn } from '~/server/auth'
-import { redirect } from 'next/navigation'
 
 export async function generate(input: ChatParams) {
 	const { filters, messages } = chatParams.parse(input)
@@ -61,10 +60,6 @@ export async function handleSignIn({ provider, params }: SignInParams) {
 			email: params.email,
 			password: params.password
 		})) as Response
-
-		if (response.ok) {
-			redirect('/')
-		}
 
 		return response
 	}

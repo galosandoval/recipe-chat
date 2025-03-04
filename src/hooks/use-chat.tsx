@@ -3,14 +3,13 @@
 import { type Chat, type Message } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useState } from 'react'
-import { toast } from 'react-hot-toast'
 import { api } from '~/trpc/react'
 import { z } from 'zod'
 import { useTranslations } from '~/hooks/use-translations'
 import { infoToastOptions } from '~/components/toast'
 import { useForm } from 'react-hook-form'
 import type { ChatFormValues } from '~/app/[lang]/chat/use-chat-form'
-// import { useFilters } from '~/components/recipe-filters'
+import { toast } from 'sonner'
 
 export type FormValues = {
 	name: string
@@ -26,96 +25,13 @@ export type ChatType = ReturnType<typeof useChat>
 
 export const useChat = () => {
 	const t = useTranslations()
-
+	const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 	const [sessionChatId, changeSessionChatId] = useSessionChatId()
-
-	// const router = useRouter()
 	const { status: authStatus } = useSession()
-	// const filters = useFilters()
-
 	const isAuthenticated = authStatus === 'authenticated'
-	// const utils = api.useUtils()
-
-	// const filtersData = filters.data
-
-	// const filterStrings: string[] = []
-
-	// if (filtersData) {
-	//   filtersData.forEach((filter) => {
-	//     if (filter.checked) filterStrings.push(filter.name)
-	//   })
-	// }
-
-	// const {
-	// 	mutate: createOrAddMessages,
-	// 	isPending,
-	// 	variables
-	// } = api.chats.createOrAddMessages.useMutation({
-	// 	async onSuccess(data) {
-	// 		// if (data.chatId) {
-	// 		// 	sessionStorage.setItem(
-	// 		// 		'currentChatId',
-	// 		// 		JSON.stringify(data.chatId)
-	// 		// 	)
-	// 		// }
-	// 		// setMessages(data.messages)
-	// 	}
-	// })
 
 	const { register: registerPrompt, handleSubmit: handleSubmitPrompt } =
 		useForm<ChatFormValues>({ defaultValues: { prompt: '' } })
-
-	// const {
-	// 	messages,
-	// 	input,
-	// 	handleInputChange,
-	// 	stop,
-	// 	handleSubmit: submitMessages,
-	// 	isLoading: isStreaming,
-	// 	setMessages,
-	// 	append
-	// } = useAiChat({
-	// 	onFinish(message) {
-	// 		onFinishMessage(message)
-	// 	},
-
-	// 	body: {
-	// 		filters: filterStrings
-	// 		// locale: router.locale
-	// 	}
-	// })
-	// const handleSubmitMessage = () => {
-	// 	let chatId = ''
-
-	// 	const currentChatId = sessionStorage.getItem('currentChatId')
-
-	// 	if (currentChatId && JSON.parse(currentChatId)) {
-	// 		chatId = JSON.parse(currentChatId)
-	// 	}
-
-	// 	createOrAddMessages({
-	// 		chatId,
-	// 		messages: messagesRef.current.map((message) => ({
-	// 			content: message.content,
-	// 			role: message.role
-	// 			// id: createId()
-	// 		}))
-	// 	})
-	// }
-	//
-	// const messagesRef = useRef<AiMessage[]>([])
-
-	// useEffect(() => {
-	// 	messagesRef.current = messages
-	// }, [messages])
-
-	// function onFinishMessage(_: AiMessage) {
-	// 	if (!messagesRef.current?.length) {
-	// 		throw new Error('No messages')
-	// 	}
-
-	// 	handleSubmitMessage()
-	// }
 
 	const [shouldFetchChat, setShouldFetchChat] = useState(true)
 
@@ -123,49 +39,8 @@ export const useChat = () => {
 
 	const { status, fetchStatus } = api.chats.getMessagesById.useQuery(
 		{ chatId: sessionChatId ?? '' },
-		{
-			enabled
-			// onSuccess: (data) => {
-			//     if (data) {
-			//         setMessages(data.messages)
-			//     }
-			// },
-			// keepPreviousData: true
-		}
+		{ enabled }
 	)
-
-	const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
-
-	// const { mutate: createRecipe, status: createRecipeStatus } =
-	// 	api.recipes.create.useMutation({
-	// 		async onSuccess(newRecipe, { messageId }) {
-	// 			await utils.recipes.invalidate()
-	// 			const messagesCopy = [...messages]
-
-	// 			if (messageId) {
-	// 				const messageToChange = messagesCopy.find(
-	// 					(message) => message.id === messageId
-	// 				) as Message
-	// 				if (messageToChange) {
-	// 					messageToChange.recipeId = newRecipe.id
-	// 				}
-	// 			}
-
-	// 			setMessages(messagesCopy)
-
-	// 			toast.success(t.chatWindow.saveSuccess)
-	// 		},
-	// 		onError: (error) => {
-	// 			toast.error('Error: ' + error.message)
-	// 		}
-	// 	})
-
-	// const { mutateAsync: createChatAndRecipeAsync } =
-	// 	api.users.createChatAndRecipe.useMutation({
-	// 		onError: (error) => {
-	// 			toast.error('Error: ' + error.message)
-	// 		}
-	// 	})
 
 	const handleGetChatsOnSuccess = useCallback(
 		(
@@ -200,83 +75,6 @@ export const useChat = () => {
 		setIsChatsModalOpen((state) => !state)
 	}, [])
 
-	// const handleSubmit = useCallback(
-	// 	(event: FormEvent<HTMLFormElement>) => {
-	// 		setShouldFetchChat(false)
-
-	// 		if (isStreaming) {
-	// 			stop()
-	// 		} else {
-	// 			submitMessages(event, { options: {} })
-	// 		}
-	// 	},
-
-	// 	[isStreaming, stop, submitMessages]
-	// )
-
-	// const {
-	// 	errors: signUpErrors,
-	// 	isLoading: isSigningUp,
-	// 	isOpen: isSignUpModalOpen,
-	// 	handleClose: handleCloseSignUpModal,
-	// 	handleOpen: handleOpenSignUpModal,
-	// 	handleSubmit: handleSubmitCreds,
-	// 	onSubmit: onSubmitCreds,
-	// 	register: registerCreds
-	// } = useSignUp(onSignUpSuccess)
-
-	// async function onSignUpSuccess() {
-	// 	// TODO - this is a hack to get the selected recipe to save
-	// 	const lastMessage = messages.at(-1)
-
-	// 	if (!lastMessage) throw new Error('No last message')
-
-	// 	const recipe = transformContentToRecipe({
-	// 		content: lastMessage.content
-	// 	})
-
-	// 	const newRecipePromise = createChatAndRecipeAsync({
-	// 		recipe,
-	// 		messages
-	// 	})
-	// 	const user = await toast.promise(
-	// 		newRecipePromise,
-	// 		{
-	// 			loading: t.loading.loggingIn,
-	// 			success: () => t.toast.loginSuccess,
-	// 			error: () => t.error.somethingWentWrong
-	// 		},
-	// 		{
-	// 			loading: loadingToastOptions,
-	// 			success: { ...successToastOptions, duration: 3000 },
-	// 			error: errorToastOptions
-	// 		}
-	// 	)
-
-	// 	await router.push(
-	// 		`recipes/${user.recipes[0].id}?name=${encodeURIComponent(
-	// 			user.recipes[0].name
-	// 		)}`
-	// 	)
-	// }
-
-	// const handleGoToRecipe = useCallback(
-	// 	async ({
-	// 		recipeId,
-	// 		recipeName
-	// 	}: {
-	// 		recipeId: string | null
-	// 		recipeName?: string
-	// 	}) => {
-	// 		if (recipeId && recipeName) {
-	// 			await router.push(
-	// 				`recipes/${recipeId}?name=${encodeURIComponent(recipeName)}`
-	// 			)
-	// 		}
-	// 	},
-	// 	[]
-	// )
-
 	const handleSaveRecipe = useCallback(
 		({ content }: { content: string; messageId?: string }) => {
 			if (!content) return
@@ -287,42 +85,18 @@ export const useChat = () => {
 				toast(t.toast.signUp, infoToastOptions)
 				return
 			}
-
-			// const recipe = transformContentToRecipe({
-			// 	content
-			// })
-
-			// createRecipe({
-			// 	...recipe,
-			// 	messageId
-			// })
 		},
 		[isAuthenticated]
 	)
 
 	return {
-		// filters,
 		chatId: sessionChatId,
 		fetchStatus,
 		status,
 		isChatsModalOpen,
-		// input,
-		// messages,
-		// isStreaming,
 		isAuthenticated,
-		// createRecipeStatus,
-		// signUpErrors,
-		// isSignUpModalOpen,
-		// isSigningUp,
-
-		// handleGoToRecipe,
 		handleSaveRecipe,
-		// handleCloseSignUpModal,
-		// handleSubmitCreds,
-		// onSubmitCreds,
-		// registerCreds,
 		handleGetChatsOnSuccess,
-		// handleInputChange: useCallback(handleInputChange, []),
 		handleToggleChatsModal,
 		handleChangeChat,
 		registerPrompt,

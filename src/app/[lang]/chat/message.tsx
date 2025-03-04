@@ -1,34 +1,20 @@
+'use client'
+
 import { UserCircleIcon } from '~/components/icons'
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { useTranslations } from '~/hooks/use-translations'
 import type { Message as MessageType } from '~/schemas/chats'
 import { AssistantMessage } from './assistant-message'
+import { useSession } from 'next-auth/react'
+import { Avatar, AvatarImage } from '~/components/ui/avatar'
 
 export const Message = function InnerMessage({
 	message
-	// filters,
-	// handleSaveRecipe,
-	// saveRecipeStatus
 }: {
 	message: MessageType
-	// saveRecipeStatus: MutationStatus
-	// filters: Filter[]
-	// handleSaveRecipe: ({
-	// 	content,
-	// 	messageId
-	// }: {
-	// 	content: string
-	// 	messageId?: string | undefined
-	// }) => void
 }) {
 	if (message.role === 'assistant') {
-		return (
-			<AssistantMessage
-				message={message}
-				// handleSaveRecipe={handleSaveRecipe}
-				// saveRecipeStatus={saveRecipeStatus}
-			/>
-		)
+		return <AssistantMessage message={message} />
 	}
 
 	return <UserMessage message={message} />
@@ -37,21 +23,32 @@ export const Message = function InnerMessage({
 function UserMessage({ message }: { message: MessageType }) {
 	return (
 		<div className='flex flex-col items-center self-center p-4'>
-			<div className='prose mx-auto w-full'>
+			<div className='mx-auto w-full'>
 				<div className='flex justify-end gap-2'>
 					<div className='flex flex-col items-end'>
-						<p className='card mb-0 mt-0 whitespace-pre-line bg-primary-content p-3'>
+						<p className='whitespace-pre-line rounded-lg bg-primary p-3 text-primary-foreground'>
 							{message?.content || ''}
 						</p>
 					</div>
-					<div className='self-start rounded-full bg-base-200 p-2'>
+					<Avatar>
+						<UserAvatar />
 						<UserCircleIcon />
-					</div>
+					</Avatar>
 				</div>
 				<ActiveFilters />
 			</div>
 		</div>
 	)
+}
+
+function UserAvatar() {
+	const { data } = useSession()
+
+	if (data?.user.image) {
+		return <AvatarImage src={data.user.image} className='rounded-full' />
+	}
+
+	return null
 }
 
 function ActiveFilters() {

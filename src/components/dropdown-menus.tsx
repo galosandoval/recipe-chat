@@ -5,11 +5,10 @@ import {
 	MenuItems,
 	Transition
 } from '@headlessui/react'
-import { ThemeToggle, useTheme } from './theme-toggle'
-import { ArrowLeftOnRectangleIcon } from './icons'
+import { ArrowLeftOnRectangleIcon, MoonIcon, SunIcon } from './icons'
 import { signOut } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
-import { useRouter } from 'next/router'
+import { useTheme } from 'next-themes'
 
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
 	return (
@@ -48,26 +47,25 @@ export function DropdownMenu({ children }: { children: React.ReactNode }) {
 
 export function ProtectedDropdownMenu() {
 	const t = useTranslations()
-	const router = useRouter()
-	const { theme, updateTheme } = useTheme()
+	const { theme, setTheme } = useTheme()
 
 	const handleSignOut = async () => {
-		await signOut({ callbackUrl: router.pathname })
+		await signOut()
 
 		sessionStorage.removeItem('currentChatId')
 	}
 
 	return (
 		<DropdownMenu>
-			<MenuItem>
-				<>
-					<ThemeToggle
-						showLabel
-						updateTheme={updateTheme}
-						theme={theme}
-					/>
-				</>
-			</MenuItem>
+			<div className='relative w-full'>
+				<button
+					onClick={() => setTheme('light')}
+					className='btn btn-ghost no-animation w-full'
+				>
+					{/* {showLabel ? t.nav.menu.theme : null} */}
+					{theme === 'light' ? <SunIcon /> : <MoonIcon />}
+				</button>
+			</div>
 			<MenuItem>
 				<button
 					onClick={handleSignOut}

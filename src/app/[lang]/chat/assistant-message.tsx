@@ -1,7 +1,6 @@
 import type { Message as MessageType } from '~/schemas/chats'
 import { useTranslations } from '~/hooks/use-translations'
 import { useChatForm } from './use-chat-form'
-import { Button } from '~/components/button'
 import {
 	BookmarkIcon,
 	ChevronDownIcon,
@@ -9,58 +8,42 @@ import {
 	LogoIcon,
 	PlaneIcon
 } from '~/components/icons'
-import { useState } from 'react'
-import { cn } from '~/utils/cn'
+import { Fragment, useState } from 'react'
+import { cn } from '~/lib/utils'
+import { useSession } from 'next-auth/react'
+import { SignUpModalTrigger } from '~/components/auth-triggers'
+import { Button } from '~/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle
+} from '~/components/ui/card'
+import { H4, P } from '~/components/ui/typography'
+import { Save, Send } from 'lucide-react'
 
-export function AssistantMessage({
-	message
-}: {
-	message: MessageType
-	// saveRecipeStatus: MutationStatus
-	// handleGoToRecipe: ({
-	// 	recipeId,
-	// 	recipeName
-	// }: {
-	// 	recipeId: string | null
-	// 	recipeName: string
-	// }) => void
-	// handleSaveRecipe: ({
-	// 	content,
-	// 	messageId
-	// }: {
-	// 	content: string
-	// 	messageId?: string | undefined
-	// }) => void
-}) {
-	// const t = useTranslations()
-
-	// const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
-	// 	const recipe = transformContentToRecipe({
-	// 		content: message.content
-	// 	})
-	// 	const recipeName = recipe.name
-
-	// 	handleGoToRecipe({
-	// 		recipeId,
-	// 		recipeName
-	// 	})
-	// }
-
+export function AssistantMessage({ message }: { message: MessageType }) {
 	return (
-		<div className='prose mx-auto flex flex-col p-4'>
+		<div className='mx-auto flex flex-col p-4'>
 			<div className='mx-auto w-full'>
 				<div className='flex w-full justify-start gap-2'>
 					<div className='shrink-0'>
-						<div className='rounded-full bg-base-200 p-2'>
-							<LogoIcon />
-						</div>
+						<Avatar>
+							<AvatarImage src='/images/favicon-16x16.png' />
+							<AvatarFallback>
+								<LogoIcon />
+							</AvatarFallback>
+						</Avatar>
 					</div>
 
-					<div className='card flex flex-col bg-base-200 p-3'>
-						<p className='mb-0 mt-0'>{message.content}</p>
+					<div className='flex flex-col rounded-lg bg-secondary p-3 text-secondary-foreground'>
+						<P>{message.content}</P>
 						<div className='w-full'>
-							<SingleRecipe recipes={message.recipes} />
-							<CollapseableRecipes recipes={message.recipes} />
+							<CollapseableRecipe recipes={message.recipes} />
+							<RecipesToGenerate recipes={message.recipes} />
 						</div>
 					</div>
 				</div>
@@ -69,40 +52,39 @@ export function AssistantMessage({
 	)
 }
 
-function SingleRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
+function CollapseableRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 	const t = useTranslations()
 	const [isOpen, setIsOpen] = useState(true)
+	const { status } = useSession()
+	const isAuthenticated = status === 'authenticated'
 
 	const recipe = recipes?.[0]
 	if (!recipe || recipes.length !== 1) {
 		return null
 	}
+
+	const handleSaveRecipe = () => {
+		// Add save recipe logic here when user is authenticated
+		console.log('Save recipe:', recipe)
+	}
+
 	return (
-		<div
-			className='prose card relative col-span-1 mt-2 w-full bg-base-100 p-3'
-			key={recipe.name}
-		>
-			{/* <div onClick={() => setIsOpen(!isOpen)} className='btn w-full'>
-				{recipe.name}
-				<span className='ml-auto'>
-					<ChevronDownIcon className={cn(isOpen && 'rotate-180')} />
-				</span>
-			</div> */}
-			<div>
-				<h3 className='card-title mb-0 text-lg'>{recipe.name}</h3>
-				<p className='mb-2 text-sm'>{recipe.description}</p>
+		<Card key={recipe.name} className='mt-2 bg-background'>
+			<CardHeader>
+				<CardTitle>{recipe.name}</CardTitle>
+				<CardDescription>{recipe.description}</CardDescription>
 				{isOpen && (
-					<>
+					<CardContent className='p-0'>
 						<Times
 							prepTime={recipe.prepTime}
 							cookTime={recipe.cookTime}
 						/>
 						<Ingredients ingredients={recipe.ingredients} />
 						<Instructions instructions={recipe.instructions} />
-					</>
+					</CardContent>
 				)}
-			</div>
-			<div className='card-actions flex justify-between'>
+			</CardHeader>
+			<CardFooter className='card-actions flex justify-between'>
 				<Button
 					className='btn btn-outline'
 					onClick={() => setIsOpen(!isOpen)}
@@ -112,12 +94,25 @@ function SingleRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 					/>
 					{isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
 				</Button>
-				<Button className='btn btn-outline'>
-					<BookmarkIcon className='h-5 w-5' />
-					{t.chatWindow.save}
-				</Button>
-			</div>
-		</div>
+
+				{isAuthenticated ? (
+					<Button
+						className='btn btn-outline'
+						onClick={handleSaveRecipe}
+					>
+						<BookmarkIcon className='h-5 w-5' />
+						{t.chatWindow.save}
+					</Button>
+				) : (
+					<SignUpModalTrigger>
+						<Button className='btn btn-outline'>
+							<BookmarkIcon className='h-5 w-5' />
+							{t.chatWindow.save}
+						</Button>
+					</SignUpModalTrigger>
+				)}
+			</CardFooter>
+		</Card>
 	)
 }
 
@@ -132,14 +127,18 @@ function Times({
 	return (
 		<div className='mb-2 flex items-center gap-2'>
 			<ClockIcon className='size-4' />
-			<div className='flex items-center gap-2'>
-				<h3 className='mb-0 text-sm'>{t.recipes.prepTime}</h3>
-				<p className='mb-0 text-sm'>{prepTime}</p>
-			</div>
-			<div className='flex items-center gap-2'>
-				<h3 className='mb-0 text-sm'>{t.recipes.cookTime}</h3>
-				<p className='mb-0 text-sm'>{cookTime}</p>
-			</div>
+			{prepTime !== undefined && (
+				<div className='flex items-center gap-2'>
+					<h3 className='text-sm'>{t.recipes.prepTime}</h3>
+					<p className='text-sm'>{prepTime}</p>
+				</div>
+			)}
+			{cookTime !== undefined && (
+				<div className='flex items-center gap-2'>
+					<h3 className='text-sm'>{t.recipes.cookTime}</h3>
+					<p className='text-sm'>{cookTime}</p>
+				</div>
+			)}
 		</div>
 	)
 }
@@ -149,14 +148,10 @@ function Ingredients({ ingredients }: { ingredients?: string[] }) {
 	return (
 		<>
 			{ingredients && (
-				<h3 className='mb-0 text-base'>{t.recipes.ingredients}</h3>
+				<H4 className='text-base'>{t.recipes.ingredients}</H4>
 			)}
-			<ul className='mb-2 pl-6'>
-				{ingredients?.map((i, index) => (
-					<li className='my-0' key={i + index}>
-						{i}
-					</li>
-				))}
+			<ul className='mb-2 list-inside list-disc'>
+				{ingredients?.map((i, index) => <li key={i + index}>{i}</li>)}
 			</ul>
 		</>
 	)
@@ -167,25 +162,23 @@ function Instructions({ instructions }: { instructions?: string[] }) {
 	return (
 		<>
 			{instructions && (
-				<h3 className='mb-0 text-base'>{t.recipes.instructions}</h3>
+				<H4 className='text-base'>{t.recipes.instructions}</H4>
 			)}
-			<ol className='mb-2 pl-6'>
-				{instructions?.map((i, index) => (
-					<li className='my-0' key={i + index}>
-						{i}
-					</li>
-				))}
+			<ol className='list-inside list-decimal'>
+				{instructions?.map((i, index) => <li key={i + index}>{i}</li>)}
 			</ol>
 		</>
 	)
 }
 
-function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
+function RecipesToGenerate({ recipes }: { recipes: MessageType['recipes'] }) {
 	const t = useTranslations()
 	const [generated, setGenerated] = useState<boolean[]>(
 		recipes?.map(() => false) ?? []
 	)
 	const { onSubmit: onChatFormSubmit, isStreaming } = useChatForm()
+	const { status } = useSession()
+	const isAuthenticated = status === 'authenticated'
 
 	if (!recipes || recipes.length === 0 || recipes.length === 1) {
 		return null
@@ -206,22 +199,40 @@ function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 		})
 	}
 
+	const handleSaveRecipe = (
+		recipe: NonNullable<MessageType['recipes']>[number]
+	) => {
+		// Add save recipe logic here when user is authenticated
+		console.log('Save recipe:', recipe)
+	}
+
 	return (
-		<div className='mx-auto grid grid-cols-1 place-items-stretch gap-2 pt-2 md:grid-cols-2'>
+		<div className='grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2'>
 			{recipes.map((r, i) => (
-				<div
-					className='card border border-base-300 bg-base-100 p-3'
-					key={r.name + i}
-				>
-					<h3 className='card-title'>{r.name}</h3>
-					<p>{r.description}</p>
+				<Card key={r.name + i} className='bg-background'>
+					<CardHeader className='p-3'>
+						<CardTitle>{r.name}</CardTitle>
+						<CardDescription>{r.description}</CardDescription>
+					</CardHeader>
 
 					<div className='card-actions mt-auto flex'>
 						{generated[i] ? (
-							<Button className='btn btn-primary w-full'>
-								<BookmarkIcon />
-								{t.chatWindow.save}
-							</Button>
+							isAuthenticated ? (
+								<Button
+									className='btn btn-primary w-full'
+									onClick={() => handleSaveRecipe(r)}
+								>
+									<Save />
+									{t.chatWindow.save}
+								</Button>
+							) : (
+								<SignUpModalTrigger>
+									<Button className='btn btn-primary w-full'>
+										<Save />
+										{t.chatWindow.save}
+									</Button>
+								</SignUpModalTrigger>
+							)
 						) : (
 							<GenerateButton
 								disabled={isStreaming}
@@ -231,7 +242,7 @@ function CollapseableRecipes({ recipes }: { recipes: MessageType['recipes'] }) {
 							/>
 						)}
 					</div>
-				</div>
+				</Card>
 			))}
 		</div>
 	)
@@ -256,7 +267,7 @@ function GenerateButton({
 			disabled={disabled}
 			onClick={handleGenerate}
 		>
-			<PlaneIcon />
+			<Send />
 			{t.chatWindow.generate}
 		</Button>
 	)

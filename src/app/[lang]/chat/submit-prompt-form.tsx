@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '../../../components/button'
 import { useTranslations } from '~/hooks/use-translations'
 import { useForm, type UseFormRegister } from 'react-hook-form'
 import { PlaneIcon, StopIcon } from '~/components/icons'
@@ -10,6 +9,8 @@ import {
 	chatFormSchema
 } from './use-chat-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Input } from '~/components/ui/input'
+import { Button } from '~/components/ui/button'
 
 export function SubmitPromptForm() {
 	const t = useTranslations()
@@ -37,7 +38,7 @@ export function SubmitPromptForm() {
 			onSubmit={handleSubmit(onSubmit)}
 			className='fixed bottom-0 left-0 flex w-full items-center md:rounded-md'
 		>
-			<div className='prose mx-auto flex w-full items-center bg-base-300/75 py-2 sm:mb-2 sm:rounded-lg'>
+			<div className='mx-auto flex w-full items-center bg-base-300/75 py-2 sm:mb-2 sm:rounded-lg'>
 				<PromptInput
 					register={register}
 					placeholder={t.chatFormPlaceholder}
@@ -61,11 +62,7 @@ function PromptInput({
 }) {
 	return (
 		<div className='flex w-full px-2'>
-			<input
-				{...register('prompt')}
-				placeholder={placeholder}
-				className='input input-bordered relative w-full resize-none bg-base-100/75 focus:bg-base-100'
-			/>
+			<Input {...register('prompt')} placeholder={placeholder} />
 		</div>
 	)
 }
@@ -86,11 +83,7 @@ function SubmitButtons({
 					<StopIcon />
 				</Button>
 			) : (
-				<Button
-					type='submit'
-					disabled={isSubmitDisabled}
-					className='btn btn-accent'
-				>
+				<Button type='submit' disabled={isSubmitDisabled}>
 					<PlaneIcon />
 				</Button>
 			)}

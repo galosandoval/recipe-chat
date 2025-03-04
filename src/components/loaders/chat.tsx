@@ -3,7 +3,7 @@ import { LogoIcon } from '~/components/icons'
 export const ChatLoader = () => {
 	return (
 		<div className='py-4 pb-4 pl-4'>
-			<div className='prose mx-auto flex justify-start gap-2'>
+			<div className='mx-auto flex justify-start gap-2'>
 				<LogoIcon />
 				<div className='flex items-center justify-start space-x-1'>
 					<div

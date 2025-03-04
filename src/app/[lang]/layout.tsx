@@ -2,11 +2,11 @@ import '~/styles/globals.css'
 
 import { GeistSans } from 'geist/font/sans'
 import { type Metadata } from 'next'
-import { PublicNavbar } from '~/components/nav'
+import { Nav } from '~/components/nav'
 import { Providers } from '~/components/providers'
 import type { Locale } from '~/i18n-config'
 import { auth } from '~/server/auth'
-import { getTranslations } from '~/utils/get-translations'
+import { getTranslations } from '~/lib/get-translations'
 
 export const metadata: Metadata = {
 	title: 'Create T3 App',
@@ -23,11 +23,15 @@ export default async function RootLayout({
 	const translations = await getTranslations(lang)
 
 	return (
-		<html lang='en' className={`${GeistSans.variable}`}>
+		<html
+			suppressHydrationWarning
+			lang='en'
+			className={`${GeistSans.variable}`}
+		>
 			<body className='font-roboto flex overflow-y-auto'>
 				<Providers translations={translations} session={session}>
 					<div className='relative max-w-full flex-1'>
-						<PublicNavbar />
+						<Nav />
 						{children}
 					</div>
 				</Providers>

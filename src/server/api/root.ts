@@ -3,6 +3,7 @@ import { filtersRouter } from './routers/filters'
 import { chatsRouter } from './routers/chats'
 import { listsRouter } from './routers/lists'
 import { recipesRouter } from './routers/recipes'
+import { authRouter } from './routers/auth'
 import { usersRouter } from './routers/users'
 
 /**
@@ -15,7 +16,8 @@ export const appRouter = createTRPCRouter({
 	filters: filtersRouter,
 	lists: listsRouter,
 	recipes: recipesRouter,
-	users: usersRouter
+	users: usersRouter,
+	auth: authRouter
 })
 
 // export type definition of API

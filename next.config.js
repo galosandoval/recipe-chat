@@ -5,6 +5,29 @@
 import './src/env.js'
 
 /** @type {import("next").NextConfig} */
-const config = {}
+const config = {
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'uploadthing.com',
+                port: '',
+                pathname: '/f/**'
+            },
+            {
+                protocol: 'https',
+                hostname: 'nvpvglkh9iqe2xny.public.blob.vercel-storage.com',
+                port: '',
+                pathname: '/**'
+            },
+            {
+                protocol: 'https',
+                hostname: 'lh3.googleusercontent.com',
+                port: '',
+                pathname: '/**'
+            }
+        ]
+    }
+}
 
 export default config

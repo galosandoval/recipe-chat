@@ -62,11 +62,11 @@
 	},
 
 	"chatWindow": {
-		"toRecipe": "ir a receta",
-		"expand": "expandir",
-		"collapse": "colapsar",
-		"generate": "generar",
-		"save": "guardar",
+		"toRecipe": "Ir a receta",
+		"expand": "Expandir",
+		"collapse": "Colapsar",
+		"generate": "Generar",
+		"save": "Guardar",
 		"saveSuccess": "¡Receta guardada!",
 		"chats": "Recientes chats",
 		"noChats": "No se encontraron chats. Iniciar un nuevo chat preguntando sobre una receta"

@@ -5,7 +5,7 @@ import {
 	ListBulletIcon
 } from './icons'
 import { Drawer } from './drawer'
-import { formatTimeAgo } from '~/utils/relative-time-format'
+import { formatTimeAgo } from '~/lib/relative-time-format'
 import { api } from '~/trpc/react'
 import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/screen'
@@ -14,6 +14,8 @@ import { useRouter } from 'next/router'
 import { type Session } from 'next-auth'
 import { ValuePropsHeader } from '../app/[lang]/chat/value-props'
 import { transformContentToRecipe } from '~/hooks/use-chat'
+import { H2 } from './ui/typography'
+import { MessagesSquare } from 'lucide-react'
 
 export function ChatsSection({
 	handleChangeChat,
@@ -215,8 +217,8 @@ function ChatList({
 			<div className='flex h-full flex-col justify-end gap-2'>
 				{data.length > 0 && (
 					<div className='flex items-center justify-center gap-2'>
-						<h2 className='mb-0 mt-0'>{t.chatWindow.chats}</h2>
-						<ListBulletIcon />
+						<H2>{t.chatWindow.chats}</H2>
+						<MessagesSquare />
 					</div>
 				)}
 				<div className=''>

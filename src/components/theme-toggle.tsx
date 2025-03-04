@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useState } from 'react'
 import { MoonIcon, SunIcon } from './icons'
-import { themeChange } from 'theme-change'
+// import { themeChange } from 'theme-change'
 import { useTranslations } from '~/hooks/use-translations'
 
 export const darkTheme = 'dark'
@@ -17,7 +17,7 @@ export function useTheme() {
 	}
 
 	useEffect(() => {
-		themeChange(false)
+		// themeChange(false)
 		// 👆 false parameter is required for react project
 	}, [])
 	useEffect(() => {

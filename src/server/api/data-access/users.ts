@@ -29,6 +29,11 @@ export class UsersDataAccess {
 				email,
 				password: hashedPassword,
 				list: { create: {} }
+			},
+			select: {
+				id: true,
+				email: true,
+				list: { select: { id: true } }
 			}
 		})
 	}

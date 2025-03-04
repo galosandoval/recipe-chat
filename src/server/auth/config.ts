@@ -1,10 +1,8 @@
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { type DefaultSession, type NextAuthConfig } from 'next-auth'
-import Credentials from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
 import { db } from '~/server/db'
-import { signUpSchema } from '~/schemas/users'
-import { compare } from 'bcryptjs'
+import { type User } from '@prisma/client'
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -14,17 +12,8 @@ import { compare } from 'bcryptjs'
  */
 declare module 'next-auth' {
 	interface Session extends DefaultSession {
-		user: {
-			id: string
-			// ...other properties
-			// role: UserRole;
-		} & DefaultSession['user']
+		user: User & DefaultSession['user']
 	}
-
-	// interface User {
-	//   // ...other properties
-	//   // role: UserRole;
-	// }
 }
 
 /**
@@ -35,7 +24,7 @@ declare module 'next-auth' {
 export const authConfig = {
 	debug: true,
 	providers: [
-		Google,
+		Google
 		/**
 		 * ...add more providers here.
 		 *
@@ -45,51 +34,6 @@ export const authConfig = {
 		 *
 		 * @see https://next-auth.js.org/providers/github
 		 */
-		Credentials({
-			credentials: {
-				email: {
-					label: 'email',
-					type: 'email'
-				},
-				password: { label: 'email', type: 'password' }
-			},
-			authorize: async (credentials) => {
-				const { email, password } = signUpSchema.parse(credentials)
-
-				console.log('getting user ------>')
-				const user = await db.user.findFirst({
-					where: { email },
-					select: {
-						list: { select: { id: true } },
-						password: true,
-						id: true
-					}
-				})
-
-				if (!user?.password) {
-					throw new Error('api.error.invalidCredentials')
-				}
-				const isValidPassword = await compare(password, user.password)
-
-				if (!isValidPassword) {
-					throw new Error('api.error.invalidCredentials')
-				}
-
-				return {
-					id: user.id,
-					listId: user.list?.id
-				}
-			}
-		})
 	],
-	adapter: PrismaAdapter(db),
-	callbacks: {
-		session: ({ session, user }) => ({
-			...session,
-			user: {
-				...session.user,
-				id: user.id
-			}
-		})
-	}
+	adapter: PrismaAdapter(db)
 } satisfies NextAuthConfig
