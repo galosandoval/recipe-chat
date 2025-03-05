@@ -86,8 +86,8 @@
 		"description": "Descripción",
 		"ingredients": "Ingredientes",
 		"instructions": "Instrucciones",
-		"cookTime": "Tiempo de cocción",
-		"prepTime": "Tiempo de preparación",
+		"cookTime": "Cocción:",
+		"prepTime": "Preparación:",
 		"notes": "Notas",
 
 		"step": "Paso",

@@ -1,12 +1,12 @@
 'use client'
 
-import { UserCircleIcon } from '~/components/icons'
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { useTranslations } from '~/hooks/use-translations'
 import type { Message as MessageType } from '~/schemas/chats'
 import { AssistantMessage } from './assistant-message'
 import { useSession } from 'next-auth/react'
 import { Avatar, AvatarImage } from '~/components/ui/avatar'
+import { User } from 'lucide-react'
 
 export const Message = function InnerMessage({
 	message
@@ -32,7 +32,7 @@ function UserMessage({ message }: { message: MessageType }) {
 					</div>
 					<Avatar>
 						<UserAvatar />
-						<UserCircleIcon />
+						<User />
 					</Avatar>
 				</div>
 				<ActiveFilters />

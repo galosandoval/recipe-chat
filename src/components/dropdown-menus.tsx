@@ -1,3 +1,5 @@
+'use client'
+
 import {
 	Menu,
 	MenuButton,
@@ -5,10 +7,10 @@ import {
 	MenuItems,
 	Transition
 } from '@headlessui/react'
-import { ArrowLeftOnRectangleIcon, MoonIcon, SunIcon } from './icons'
 import { signOut } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { useTheme } from 'next-themes'
+import { ArrowLeftSquare, Moon, Sun } from 'lucide-react'
 
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
 	return (
@@ -37,7 +39,7 @@ export function DropdownMenu({ children }: { children: React.ReactNode }) {
 				leaveFrom='transform scale-100 opacity-100'
 				leaveTo='transform scale-95 opacity-0'
 			>
-				<MenuItems className='absolute right-0 top-[0.5rem] z-20 flex flex-col gap-1 rounded-md bg-primary-content shadow'>
+				<MenuItems className='bg-primary-content absolute right-0 top-[0.5rem] z-20 flex flex-col gap-1 rounded-md shadow'>
 					{children}
 				</MenuItems>
 			</Transition>
@@ -52,7 +54,7 @@ export function ProtectedDropdownMenu() {
 	const handleSignOut = async () => {
 		await signOut()
 
-		sessionStorage.removeItem('currentChatId')
+		// sessionStorage.removeItem('currentChatId')
 	}
 
 	return (
@@ -63,7 +65,7 @@ export function ProtectedDropdownMenu() {
 					className='btn btn-ghost no-animation w-full'
 				>
 					{/* {showLabel ? t.nav.menu.theme : null} */}
-					{theme === 'light' ? <SunIcon /> : <MoonIcon />}
+					{theme === 'light' ? <Sun /> : <Moon />}
 				</button>
 			</div>
 			<MenuItem>
@@ -72,7 +74,7 @@ export function ProtectedDropdownMenu() {
 					className='btn btn-ghost no-animation w-[8rem]'
 				>
 					<span>{t.nav.menu.logout}</span>
-					<ArrowLeftOnRectangleIcon />
+					<ArrowLeftSquare />
 				</button>
 			</MenuItem>
 		</DropdownMenu>

@@ -1,9 +1,9 @@
 'use client'
 
 import { forwardRef, useEffect, useState } from 'react'
-import { MoonIcon, SunIcon } from './icons'
 // import { themeChange } from 'theme-change'
 import { useTranslations } from '~/hooks/use-translations'
+import { Moon, Sun } from 'lucide-react'
 
 export const darkTheme = 'dark'
 export const lightTheme = 'light'
@@ -77,7 +77,7 @@ export const ThemeToggle = forwardRef<HTMLDivElement, ThemeToggleProps>(
 					className='btn btn-ghost no-animation w-full'
 				>
 					{showLabel ? t.nav.menu.theme : null}
-					{theme === darkTheme ? <SunIcon /> : <MoonIcon />}
+					{theme === darkTheme ? <Sun /> : <Moon />}
 				</button>
 			</div>
 		)

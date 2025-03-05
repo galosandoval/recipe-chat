@@ -24,7 +24,9 @@ export const Providers = ({
 			<TRPCReactProvider>
 				<SessionProvider session={session}>
 					<TranslationsContext.Provider value={translations}>
-						{children}
+						<div className='relative max-w-full flex-1'>
+							{children}
+						</div>
 						<Toaster />
 						<Analytics />
 					</TranslationsContext.Provider>

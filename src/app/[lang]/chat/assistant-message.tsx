@@ -1,14 +1,10 @@
+'use client'
+
 import type { Message as MessageType } from '~/schemas/chats'
 import { useTranslations } from '~/hooks/use-translations'
 import { useChatForm } from './use-chat-form'
-import {
-	BookmarkIcon,
-	ChevronDownIcon,
-	ClockIcon,
-	LogoIcon,
-	PlaneIcon
-} from '~/components/icons'
-import { Fragment, useState } from 'react'
+import { LogoIcon } from '~/components/icons'
+import { useState } from 'react'
 import { cn } from '~/lib/utils'
 import { useSession } from 'next-auth/react'
 import { SignUpModalTrigger } from '~/components/auth-triggers'
@@ -23,8 +19,8 @@ import {
 	CardTitle
 } from '~/components/ui/card'
 import { H4, P } from '~/components/ui/typography'
-import { Save, Send } from 'lucide-react'
-
+import { ChevronDown, Clock, Save, Send } from 'lucide-react'
+import { SaveButton } from '~/components/save-button'
 export function AssistantMessage({ message }: { message: MessageType }) {
 	return (
 		<div className='mx-auto flex flex-col p-4'>
@@ -85,30 +81,21 @@ function CollapseableRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 				)}
 			</CardHeader>
 			<CardFooter className='card-actions flex justify-between'>
-				<Button
-					className='btn btn-outline'
-					onClick={() => setIsOpen(!isOpen)}
-				>
-					<ChevronDownIcon
+				<Button variant='secondary' onClick={() => setIsOpen(!isOpen)}>
+					<ChevronDown
 						className={cn('h-5 w-5', isOpen && 'rotate-180')}
 					/>
 					{isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
 				</Button>
 
 				{isAuthenticated ? (
-					<Button
-						className='btn btn-outline'
-						onClick={handleSaveRecipe}
-					>
-						<BookmarkIcon className='h-5 w-5' />
+					<SaveButton handleSaveRecipe={handleSaveRecipe}>
 						{t.chatWindow.save}
-					</Button>
+					</SaveButton>
 				) : (
 					<SignUpModalTrigger>
-						<Button className='btn btn-outline'>
-							<BookmarkIcon className='h-5 w-5' />
-							{t.chatWindow.save}
-						</Button>
+						<Save className='h-5 w-5' />
+						{t.chatWindow.save}
 					</SignUpModalTrigger>
 				)}
 			</CardFooter>
@@ -125,19 +112,17 @@ function Times({
 }) {
 	const t = useTranslations()
 	return (
-		<div className='mb-2 flex items-center gap-2'>
-			<ClockIcon className='size-4' />
+		<div className='mb-2 flex items-center gap-2 self-center text-sm text-muted-foreground'>
+			<Clock className='size-4' />
 			{prepTime !== undefined && (
-				<div className='flex items-center gap-2'>
-					<h3 className='text-sm'>{t.recipes.prepTime}</h3>
-					<p className='text-sm'>{prepTime}</p>
-				</div>
+				<span className='flex items-center gap-2'>
+					{t.recipes.prepTime} {prepTime}
+				</span>
 			)}
 			{cookTime !== undefined && (
-				<div className='flex items-center gap-2'>
-					<h3 className='text-sm'>{t.recipes.cookTime}</h3>
-					<p className='text-sm'>{cookTime}</p>
-				</div>
+				<span className='flex items-center gap-2'>
+					{t.recipes.cookTime} {cookTime}
+				</span>
 			)}
 		</div>
 	)
@@ -207,7 +192,7 @@ function RecipesToGenerate({ recipes }: { recipes: MessageType['recipes'] }) {
 	}
 
 	return (
-		<div className='grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2'>
+		<div className='grid grid-cols-1 items-stretch gap-2 pt-2 sm:grid-cols-2'>
 			{recipes.map((r, i) => (
 				<Card key={r.name + i} className='bg-background'>
 					<CardHeader className='p-3'>
@@ -215,11 +200,11 @@ function RecipesToGenerate({ recipes }: { recipes: MessageType['recipes'] }) {
 						<CardDescription>{r.description}</CardDescription>
 					</CardHeader>
 
-					<div className='card-actions mt-auto flex'>
+					<div className='flex'>
 						{generated[i] ? (
 							isAuthenticated ? (
 								<Button
-									className='btn btn-primary w-full'
+									className='w-full'
 									onClick={() => handleSaveRecipe(r)}
 								>
 									<Save />
@@ -227,10 +212,8 @@ function RecipesToGenerate({ recipes }: { recipes: MessageType['recipes'] }) {
 								</Button>
 							) : (
 								<SignUpModalTrigger>
-									<Button className='btn btn-primary w-full'>
-										<Save />
-										{t.chatWindow.save}
-									</Button>
+									<Save />
+									{t.chatWindow.save}
 								</SignUpModalTrigger>
 							)
 						) : (
@@ -262,11 +245,7 @@ function GenerateButton({
 	}
 
 	return (
-		<Button
-			className='btn btn-outline w-full'
-			disabled={disabled}
-			onClick={handleGenerate}
-		>
+		<Button className='w-full' disabled={disabled} onClick={handleGenerate}>
 			<Send />
 			{t.chatWindow.generate}
 		</Button>

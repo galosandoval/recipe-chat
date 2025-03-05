@@ -30,10 +30,8 @@ export default async function RootLayout({
 		>
 			<body className='font-roboto flex overflow-y-auto'>
 				<Providers translations={translations} session={session}>
-					<div className='relative max-w-full flex-1'>
-						<Nav />
-						{children}
-					</div>
+					<Nav />
+					{children}
 				</Providers>
 			</body>
 		</html>

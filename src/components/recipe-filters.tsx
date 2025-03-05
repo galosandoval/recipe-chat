@@ -1,12 +1,4 @@
 import { useState } from 'react'
-import {
-	CheckIcon,
-	FunnelIcon,
-	PencilSquareIcon,
-	PlusCircleIcon,
-	XCircleIcon,
-	XIcon
-} from './icons'
 import { z } from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,6 +11,14 @@ import { useSession } from 'next-auth/react'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { ValuePropsHeader } from '../app/[lang]/chat/value-props'
 import { ErrorMessage } from './error-message-content'
+import {
+	Check,
+	Filter as FilterIcon,
+	ListFilterPlus,
+	Pencil,
+	X,
+	XCircle
+} from 'lucide-react'
 
 const createFilterSchema = (t: Translations) =>
 	z.object({
@@ -102,7 +102,7 @@ function CreateFilterForm({
 					type='submit'
 					className='btn btn-outline join-item no-animation btn-sm'
 				>
-					<PlusCircleIcon />
+					<ListFilterPlus />
 					<span>{t.filters.add}</span>
 				</button>
 			</form>
@@ -143,9 +143,9 @@ function FilterItem({
 			}`}
 		>
 			<span className='flex items-center'>
-				{checked && <CheckIcon size={4} />}
+				{checked && <Check size={4} />}
 				<span className=''>{filter.name}</span>
-				{canDelete && <XCircleIcon size={5} />}
+				{canDelete && <XCircle size={5} />}
 			</span>
 		</button>
 	)
@@ -195,9 +195,7 @@ function FilterControls({
 			onClick={onToggleCanDelete}
 			className={`btn btn-circle badge-ghost ml-auto`}
 		>
-			<span>
-				{canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
-			</span>
+			<span>{canDelete ? <X size={5} /> : <Pencil size={5} />}</span>
 		</button>
 	)
 }
@@ -368,7 +366,7 @@ export function Filters({ data }: { data: Filter[] }) {
 
 	return (
 		<div className='flex w-full flex-1 flex-col items-center justify-center gap-2'>
-			<ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
+			<ValuePropsHeader icon={<FilterIcon />} label={t.filters.title} />
 
 			<div className='flex w-full flex-wrap gap-4'>
 				<FilterList

@@ -2,7 +2,6 @@
 
 import { useTranslations } from '~/hooks/use-translations'
 import { useForm, type UseFormRegister } from 'react-hook-form'
-import { PlaneIcon, StopIcon } from '~/components/icons'
 import {
 	useChatForm,
 	type ChatFormValues,
@@ -11,6 +10,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '~/components/ui/input'
 import { Button } from '~/components/ui/button'
+import { Octagon, Send } from 'lucide-react'
 
 export function SubmitPromptForm() {
 	const t = useTranslations()
@@ -38,7 +38,7 @@ export function SubmitPromptForm() {
 			onSubmit={handleSubmit(onSubmit)}
 			className='fixed bottom-0 left-0 flex w-full items-center md:rounded-md'
 		>
-			<div className='mx-auto flex w-full items-center bg-base-300/75 py-2 sm:mb-2 sm:rounded-lg'>
+			<div className='mx-auto flex w-full items-center bg-background/75 py-2 backdrop-blur-sm sm:mb-2 sm:rounded-xl'>
 				<PromptInput
 					register={register}
 					placeholder={t.chatFormPlaceholder}
@@ -79,12 +79,12 @@ function SubmitButtons({
 	return (
 		<div className='pr-2'>
 			{isStreaming ? (
-				<Button onClick={onStopStreaming} className='btn btn-error'>
-					<StopIcon />
+				<Button onClick={onStopStreaming} variant='destructive'>
+					<Octagon />
 				</Button>
 			) : (
 				<Button type='submit' disabled={isSubmitDisabled}>
-					<PlaneIcon />
+					<Send />
 				</Button>
 			)}
 		</div>

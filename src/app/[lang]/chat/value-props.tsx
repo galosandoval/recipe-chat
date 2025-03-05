@@ -1,15 +1,10 @@
-import {
-	ArrowUTurnLeftIcon,
-	BookmarkIcon,
-	ChatBubbleIcon,
-	SparklesIcon
-} from '~/components/icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { signIn, useSession } from 'next-auth/react'
 import { type ChatFormValues } from './use-chat-form'
 import { Button } from '~/components/ui/button'
 import { H3, P } from '~/components/ui/typography'
 import GoogleSignInButton from 'react-google-button'
+import { CornerDownLeft, MessagesSquare, Save, Sparkle } from 'lucide-react'
 
 export function ValueProps({
 	children,
@@ -23,7 +18,7 @@ export function ValueProps({
 		<div className='mx-auto flex flex-col items-center justify-center gap-2 py-20'>
 			<div className='flex w-full flex-1 flex-col items-center justify-center'>
 				<ValuePropsHeader
-					icon={<ChatBubbleIcon />}
+					icon={<MessagesSquare />}
 					label={t.valueProps.title}
 				/>
 
@@ -38,7 +33,7 @@ export function ValueProps({
 					>
 						<span>{t.valueProps.firstButton}</span>
 						<span>
-							<ArrowUTurnLeftIcon />
+							<CornerDownLeft />
 						</span>
 					</Button>
 					<Button
@@ -49,7 +44,7 @@ export function ValueProps({
 					>
 						<span>{t.valueProps.secondButton}</span>
 						<span>
-							<ArrowUTurnLeftIcon />
+							<CornerDownLeft />
 						</span>
 					</Button>
 					<Button
@@ -59,14 +54,14 @@ export function ValueProps({
 						}
 					>
 						<span>{t.valueProps.thirdButton}</span>
-						<ArrowUTurnLeftIcon />
+						<CornerDownLeft />
 					</Button>
 				</div>
 			</div>
 
 			<div className='flex flex-col items-center justify-center'>
 				<ValuePropsHeader
-					icon={<SparklesIcon />}
+					icon={<Sparkle />}
 					label={t.capabilities.title}
 				/>
 
@@ -97,7 +92,7 @@ function Auth() {
 		<>
 			<div className='flex w-full flex-col items-center justify-center'>
 				<ValuePropsHeader
-					icon={<BookmarkIcon />}
+					icon={<Save />}
 					label={t.valueProps.saveRecipes}
 				/>
 
@@ -121,8 +116,10 @@ export function ValuePropsHeader({
 	return (
 		<div className='divider'>
 			<div className='flex items-center gap-2'>
-				<H3 className='pb-2'>{label}</H3>
-				{icon}
+				<H3 className='flex items-center justify-center gap-2 pb-2'>
+					<span className='ml-2'>{icon}</span>
+					{label}
+				</H3>
 			</div>
 		</div>
 	)

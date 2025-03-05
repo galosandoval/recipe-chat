@@ -8,7 +8,6 @@ import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser } from '~/components/recipe-filters'
 import { ValueProps } from './value-props'
 import { ChatsSection, ChatsSideBarButton } from '~/components/chats'
-import { ChatBubbleLeftIcon } from '~/components/icons'
 import { ChatLoader } from '~/components/loaders/chat'
 import { useSession } from 'next-auth/react'
 import useChatStore from '~/hooks/use-chat-store'
@@ -18,11 +17,10 @@ import { AssistantMessage } from './assistant-message'
 import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
 import { useChatForm } from './use-chat-form'
 import { H2 } from '~/components/ui/typography'
-import { Plus } from 'lucide-react'
+import { MessagesSquare, Plus } from 'lucide-react'
 
 export default function ChatWindow() {
 	const [, setScrollMode] = useState<'bottom' | 'top'>('top')
-
 	return <Content setScrollMode={setScrollMode} />
 }
 
@@ -117,7 +115,7 @@ function ChatWindowContent({
 
 	if (messages.length || isStreaming || !data?.user?.id) {
 		return (
-			<div className='h-full py-16'>
+			<div className='h-full pb-16 pt-12'>
 				<Messages
 					saveRecipeStatus={saveRecipeStatus}
 					chatId={chatId}
@@ -193,7 +191,7 @@ const Messages = memo(function Messages({
 					)}
 
 					<div className='flex items-center justify-center gap-2'>
-						<ChatBubbleLeftIcon size={6} />
+						<MessagesSquare size={24} />
 						<H2 className='mb-0 border-b-0 pb-0'>Chat</H2>
 					</div>
 

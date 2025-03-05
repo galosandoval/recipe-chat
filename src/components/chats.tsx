@@ -1,9 +1,4 @@
 import { type Chat, type Message } from '@prisma/client'
-import {
-	AdjustmentsHorizontalIcon,
-	ChatBubbleLeftIcon,
-	ListBulletIcon
-} from './icons'
 import { Drawer } from './drawer'
 import { formatTimeAgo } from '~/lib/relative-time-format'
 import { api } from '~/trpc/react'
@@ -15,7 +10,7 @@ import { type Session } from 'next-auth'
 import { ValuePropsHeader } from '../app/[lang]/chat/value-props'
 import { transformContentToRecipe } from '~/hooks/use-chat'
 import { H2 } from './ui/typography'
-import { MessagesSquare } from 'lucide-react'
+import { MessagesSquare, PanelRight } from 'lucide-react'
 
 export function ChatsSection({
 	handleChangeChat,
@@ -41,7 +36,7 @@ export function ChatsSection({
 	return (
 		<div className='flex w-full max-w-sm flex-col items-center justify-center'>
 			<ValuePropsHeader
-				icon={<ChatBubbleLeftIcon />}
+				icon={<MessagesSquare />}
 				label={t.chatWindow.chats}
 			/>
 
@@ -139,7 +134,7 @@ export function ChatsSideBarButton({
 				onClick={handleToggleChatsModal}
 				className="justify-self-start' btn btn-circle btn-ghost"
 			>
-				<AdjustmentsHorizontalIcon />
+				<PanelRight />
 			</button>
 
 			<Drawer
