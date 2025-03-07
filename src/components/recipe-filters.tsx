@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
-import { ValuePropsHeader } from '../app/chat/value-props'
+import { ValuePropsHeader } from '../app/[lang]/chat/value-props'
 import { ErrorMessage } from './error-message-content'
 import {
 	Check,

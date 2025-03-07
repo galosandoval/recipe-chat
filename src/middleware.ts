@@ -3,7 +3,6 @@ import { i18n } from './i18n-config'
 
 import Negotiator from 'negotiator'
 import { match as matchLocale } from '@formatjs/intl-localematcher'
-export const middleware = auth
 
 function getLocale(request: Request): string | undefined {
 	// Negotiator expects plain object so we need to transform headers
@@ -23,40 +22,34 @@ function getLocale(request: Request): string | undefined {
 	return locale
 }
 
-// export function middleware(request: Request) {
-// 	const pathname = request.nextUrl.pathname
+export default auth((req) => {
+	console.log('req.nexturl', req.nextUrl)
+	console.log('process.env.NEXT_PUBLIC_URL', process.env.NEXTAUTH_URL)
+	console.log('process.env', process.env)
+	const pathname = req.nextUrl.pathname
+	// if (!req.auth && pathname !== '/') {
+	// 	const newUrl = new URL('/', req.nextUrl.origin)
+	// 	return Response.redirect(newUrl)
+	// }
+	const pathnameIsMissingLocale = i18n.locales.every(
+		(locale) =>
+			!pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+	)
+	const hasImages = req.nextUrl.href.includes(`${req.nextUrl.origin}/images/`)
+	// Redirect if there is no locale
+	if (pathnameIsMissingLocale && !hasImages) {
+		const locale = getLocale(req)
 
-// 	// // `/_next/` and `/api/` are ignored by the watcher, but we need to ignore files in `public` manually.
-// 	// // If you have one
-// 	// if (
-// 	//   [
-// 	//     '/manifest.json',
-// 	//     '/favicon.ico',
-// 	//     // Your other files in `public`
-// 	//   ].includes(pathname)
-// 	// )
-// 	//   return
-
-// 	// Check if there is any supported locale in the pathname
-// 	const pathnameIsMissingLocale = i18n.locales.every(
-// 		(locale) =>
-// 			!pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-// 	)
-
-// 	// Redirect if there is no locale
-// 	if (pathnameIsMissingLocale) {
-// 		const locale = getLocale(request)
-
-// 		// e.g. incoming request is /products
-// 		// The new URL is now /en-US/products
-// 		return NextResponse.redirect(
-// 			new URL(
-// 				`/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`,
-// 				request.url
-// 			)
-// 		)
-// 	}
-// }
+		// e.g. incoming request is /products
+		// The new URL is now /en-US/products
+		return Response.redirect(
+			new URL(
+				`/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`,
+				req.url
+			)
+		)
+	}
+})
 
 export const config = {
 	// Matcher ignoring `/_next/` and `/api/`

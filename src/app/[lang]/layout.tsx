@@ -25,7 +25,7 @@ export default async function RootLayout({
 	return (
 		<html
 			suppressHydrationWarning
-			lang='en'
+			lang={lang}
 			className={`${GeistSans.variable}`}
 		>
 			<body className='font-roboto flex overflow-y-auto'>

@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { useTranslations } from '~/hooks/use-translations'
 import { infoToastOptions } from '~/components/toast'
 import { useForm } from 'react-hook-form'
-import type { ChatFormValues } from '~/app/chat/use-chat-form'
+import type { ChatFormValues } from '~/app/[lang]/chat/use-chat-form'
 import { toast } from 'sonner'
 
 export type FormValues = {

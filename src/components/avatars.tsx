@@ -18,7 +18,6 @@ export function UserAvatar() {
 
 export function UserImage() {
 	const { data: session } = useSession()
-	console.log('session', session)
 	if (session?.user.image) {
 		return (
 			<AvatarImage
@@ -29,7 +28,6 @@ export function UserImage() {
 			/>
 		)
 	}
-
 	return null
 }
 

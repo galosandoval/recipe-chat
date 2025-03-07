@@ -1,7 +1,7 @@
 import { HydrateClient } from '~/trpc/server'
 import ChatWindow from './chat/chat-window'
-import { SubmitPromptForm } from '~/app/chat/submit-prompt-form'
 import { ScrollProvider } from '~/hooks/use-scroll-to-bottom'
+import { SubmitPromptForm } from './chat/submit-prompt-form'
 
 export default async function Home() {
 	// const hello = await api.post.hello({ text: "from tRPC" });
@@ -10,7 +10,7 @@ export default async function Home() {
 	// if (session?.user) {
 	//   void api.post.getLatest.prefetch();
 	// }
-
+	console.log('something', process.env.NEXT_PUBLIC_BASE_PATH)
 	return (
 		<HydrateClient>
 			<main className='transition-width relative flex h-[100svh] w-full flex-1 flex-col items-stretch'>
