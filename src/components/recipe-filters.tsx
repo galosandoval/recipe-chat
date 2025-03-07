@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
-import { ValuePropsHeader } from '../app/[lang]/chat/value-props'
+import { ValuePropsHeader } from '../app/chat/value-props'
 import { ErrorMessage } from './error-message-content'
 import {
 	Check,
@@ -219,7 +219,7 @@ export function Filters({ data }: { data: Filter[] }) {
 	const t = useTranslations()
 
 	const userId = useUserId()
-	const utils = api.useContext()
+	const utils = api.useUtils()
 
 	const { mutate: createFilter } = api.filters.create.useMutation({
 		onMutate: async (input) => {

@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { api } from '~/trpc/react'
-import { handleSignIn } from '~/app/[lang]/actions'
+import { handleSignIn } from '~/app/actions'
 import { useTranslations } from '~/hooks/use-translations'
 import {
 	type LoginSchemaType,

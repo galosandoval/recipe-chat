@@ -21,18 +21,15 @@ import {
 import { H4, P } from '~/components/ui/typography'
 import { ChevronDown, Clock, Save, Send } from 'lucide-react'
 import { SaveButton } from '~/components/save-button'
+import { AssistantAvatar } from '~/components/avatars'
+
 export function AssistantMessage({ message }: { message: MessageType }) {
 	return (
 		<div className='mx-auto flex flex-col p-4'>
 			<div className='mx-auto w-full'>
 				<div className='flex w-full justify-start gap-2'>
 					<div className='shrink-0'>
-						<Avatar>
-							<AvatarImage src='/images/favicon-16x16.png' />
-							<AvatarFallback>
-								<LogoIcon />
-							</AvatarFallback>
-						</Avatar>
+						<AssistantAvatar />
 					</div>
 
 					<div className='flex flex-col rounded-lg bg-secondary p-3 text-secondary-foreground'>
@@ -93,6 +90,7 @@ function CollapseableRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 						{t.chatWindow.save}
 					</SaveButton>
 				) : (
+					// fake save button to show the sign up modal
 					<SignUpModalTrigger>
 						<Save className='h-5 w-5' />
 						{t.chatWindow.save}

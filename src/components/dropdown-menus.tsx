@@ -11,6 +11,7 @@ import { signOut } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { useTheme } from 'next-themes'
 import { ArrowLeftSquare, Moon, Sun } from 'lucide-react'
+import { Button } from './ui/button'
 
 export function DropdownMenu({ children }: { children: React.ReactNode }) {
 	return (
@@ -60,22 +61,24 @@ export function ProtectedDropdownMenu() {
 	return (
 		<DropdownMenu>
 			<div className='relative w-full'>
-				<button
-					onClick={() => setTheme('light')}
+				<Button
+					onClick={() =>
+						setTheme(theme === 'light' ? 'dark' : 'light')
+					}
+					size='icon'
 					className='btn btn-ghost no-animation w-full'
 				>
-					{/* {showLabel ? t.nav.menu.theme : null} */}
 					{theme === 'light' ? <Sun /> : <Moon />}
-				</button>
+				</Button>
 			</div>
 			<MenuItem>
-				<button
+				<Button
 					onClick={handleSignOut}
 					className='btn btn-ghost no-animation w-[8rem]'
 				>
-					<span>{t.nav.menu.logout}</span>
 					<ArrowLeftSquare />
-				</button>
+					<span>{t.nav.menu.logout}</span>
+				</Button>
 			</MenuItem>
 		</DropdownMenu>
 	)

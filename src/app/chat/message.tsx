@@ -4,9 +4,7 @@ import { useFiltersByUser } from '~/components/recipe-filters'
 import { useTranslations } from '~/hooks/use-translations'
 import type { Message as MessageType } from '~/schemas/chats'
 import { AssistantMessage } from './assistant-message'
-import { useSession } from 'next-auth/react'
-import { Avatar, AvatarImage } from '~/components/ui/avatar'
-import { User } from 'lucide-react'
+import { UserAvatar } from '~/components/avatars'
 
 export const Message = function InnerMessage({
 	message
@@ -30,25 +28,12 @@ function UserMessage({ message }: { message: MessageType }) {
 							{message?.content || ''}
 						</p>
 					</div>
-					<Avatar>
-						<UserAvatar />
-						<User />
-					</Avatar>
+					<UserAvatar />
 				</div>
 				<ActiveFilters />
 			</div>
 		</div>
 	)
-}
-
-function UserAvatar() {
-	const { data } = useSession()
-
-	if (data?.user.image) {
-		return <AvatarImage src={data.user.image} className='rounded-full' />
-	}
-
-	return null
 }
 
 function ActiveFilters() {
@@ -58,7 +43,6 @@ function ActiveFilters() {
 	if (fetchStatus === 'idle') {
 		return null
 	}
-
 	if (status === 'pending') {
 		return <div>{t.loading.screen}</div>
 	}
@@ -67,7 +51,6 @@ function ActiveFilters() {
 		return <div>{t.error.somethingWentWrong}</div>
 	}
 	const activeFilters = filters.filter((f) => f.checked)
-
 	if (activeFilters.length === 0) {
 		return null
 	}

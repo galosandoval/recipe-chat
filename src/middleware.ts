@@ -3,31 +3,7 @@ import { i18n } from './i18n-config'
 
 import Negotiator from 'negotiator'
 import { match as matchLocale } from '@formatjs/intl-localematcher'
-
-export default auth((req) => {
-	const pathname = req.nextUrl.pathname
-	// if (!req.auth && pathname !== '/') {
-	// 	const newUrl = new URL('/', req.nextUrl.origin)
-	// 	return Response.redirect(newUrl)
-	// }
-	const pathnameIsMissingLocale = i18n.locales.every(
-		(locale) =>
-			!pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-	)
-	// Redirect if there is no locale
-	if (pathnameIsMissingLocale) {
-		const locale = getLocale(req)
-
-		// e.g. incoming request is /products
-		// The new URL is now /en-US/products
-		return Response.redirect(
-			new URL(
-				`/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`,
-				req.url
-			)
-		)
-	}
-})
+export const middleware = auth
 
 function getLocale(request: Request): string | undefined {
 	// Negotiator expects plain object so we need to transform headers

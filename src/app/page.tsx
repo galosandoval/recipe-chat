@@ -1,6 +1,6 @@
 import { HydrateClient } from '~/trpc/server'
 import ChatWindow from './chat/chat-window'
-import { SubmitPromptForm } from '~/app/[lang]/chat/submit-prompt-form'
+import { SubmitPromptForm } from '~/app/chat/submit-prompt-form'
 import { ScrollProvider } from '~/hooks/use-scroll-to-bottom'
 
 export default async function Home() {

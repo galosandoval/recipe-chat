@@ -5,8 +5,8 @@
 		"menu": {
 			"signUp": "Sign up",
 			"login": "Login",
-			"logout": "logout",
-			"theme": "theme"
+			"logout": "Logout",
+			"theme": "Theme"
 		}
 	},
 
@@ -132,5 +132,11 @@
 	"toast": {
 		"signUp": "Please sign up to save recipes.",
 		"loginSuccess": "Welcome! Here's the recipe you saved:"
+	},
+
+	"components": {
+		"avatars": {
+			"assistant": "AI"
+		}
 	}
 }

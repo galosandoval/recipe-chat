@@ -1,7 +1,7 @@
 import { streamObject } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { chatParams, generatedRecipesSchema } from '~/schemas/chats'
-import type { ChatFormValues } from '~/app/[lang]/chat/use-chat-form'
+import type { ChatFormValues } from '~/app/chat/use-chat-form'
 
 export async function POST(req: Request) {
 	const input = (await req.json()) as ChatFormValues

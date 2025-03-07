@@ -29,7 +29,9 @@ export function SignUpModalTrigger({ children, onSuccess }: ModalTriggerProps) {
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
-				<Button onClick={handleOpen}>{children}</Button>
+				<Button variant='secondary' onClick={handleOpen}>
+					{children}
+				</Button>
 			</DialogTrigger>
 			<SignUpModal
 				errors={errors}

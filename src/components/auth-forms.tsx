@@ -8,7 +8,7 @@ import {
 import { z } from 'zod'
 import { ErrorMessage } from '~/components/error-message-content'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
-import { handleSignIn } from '~/app/[lang]/actions'
+import { handleSignIn } from '~/app/actions'
 import {
 	DialogDescription,
 	DialogFooter,
@@ -58,6 +58,9 @@ export function SignUpForm({
 		<div className='mx-auto flex h-full flex-col items-center justify-center py-5'>
 			<DialogHeader>
 				<DialogTitle>{t.auth.signUp}</DialogTitle>
+				<DialogDescription>
+					{'t.auth.signUpDescription'}
+				</DialogDescription>
 			</DialogHeader>
 
 			<form onSubmit={handleSubmit(onSubmit)}>

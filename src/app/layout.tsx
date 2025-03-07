@@ -2,7 +2,7 @@ import '~/styles/globals.css'
 
 import { GeistSans } from 'geist/font/sans'
 import { type Metadata } from 'next'
-import { Nav } from '~/components/nav'
+import { NavContainer } from '~/components/nav'
 import { Providers } from '~/components/providers'
 import type { Locale } from '~/i18n-config'
 import { auth } from '~/server/auth'
@@ -30,7 +30,7 @@ export default async function RootLayout({
 		>
 			<body className='font-roboto flex overflow-y-auto'>
 				<Providers translations={translations} session={session}>
-					<Nav />
+					<NavContainer />
 					{children}
 				</Providers>
 			</body>

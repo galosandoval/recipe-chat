@@ -6,7 +6,7 @@
 			"signUp": "Registro",
 			"login": "Inicio",
 			"logout": "Cierra",
-			"theme": "tema"
+			"theme": "Tema"
 		}
 	},
 
@@ -132,5 +132,11 @@
 	"toast": {
 		"signUp": "Registrate y guarda tus recetas.",
 		"loginSuccess": "¡Bienvenido! Aquí tienes la receta que guardaste:"
+	},
+
+	"components": {
+		"avatars": {
+			"assistant": "IA"
+		}
 	}
 }

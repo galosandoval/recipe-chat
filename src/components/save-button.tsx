@@ -9,7 +9,7 @@ export function SaveButton({
 	children: React.ReactNode
 }) {
 	return (
-		<Button onClick={handleSaveRecipe}>
+		<Button variant='secondary' onClick={handleSaveRecipe}>
 			<Save className='h-5 w-5' />
 			{children}
 		</Button>
