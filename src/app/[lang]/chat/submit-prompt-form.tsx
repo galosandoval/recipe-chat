@@ -36,7 +36,7 @@ export function SubmitPromptForm() {
 	return (
 		<form
 			onSubmit={handleSubmit(onSubmit)}
-			className='fixed bottom-0 left-0 flex w-full items-center md:rounded-md'
+			className='flex w-full items-center md:rounded-md'
 		>
 			<div className='mx-auto flex w-full items-center bg-background/75 py-2 backdrop-blur-sm sm:mb-2 sm:rounded-xl'>
 				<PromptInput

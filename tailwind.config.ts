@@ -58,6 +58,6 @@ export default {
 			}
 		}
 	},
-	plugins: [require('tailwindcss-animate')]
-	// darkMode: 'class'
+	plugins: [require('tailwindcss-animate')],
+	darkMode: 'class'
 } satisfies Config

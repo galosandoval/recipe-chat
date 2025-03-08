@@ -1,31 +1,9 @@
 import { auth } from '~/server/auth'
 import { i18n } from './i18n-config'
-
 import Negotiator from 'negotiator'
 import { match as matchLocale } from '@formatjs/intl-localematcher'
 
-function getLocale(request: Request): string | undefined {
-	// Negotiator expects plain object so we need to transform headers
-	const negotiatorHeaders: Record<string, string> = {}
-	request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))
-
-	// @ts-expect-error locales are readonly
-	const locales: string[] = i18n.locales
-
-	// Use negotiator and intl-localematcher to get best locale
-	const languages = new Negotiator({ headers: negotiatorHeaders }).languages(
-		locales
-	)
-
-	const locale = matchLocale(languages, locales, i18n.defaultLocale)
-
-	return locale
-}
-
 export default auth((req) => {
-	console.log('req.nexturl', req.nextUrl)
-	console.log('process.env.NEXT_PUBLIC_URL', process.env.NEXTAUTH_URL)
-	console.log('process.env', process.env)
 	const pathname = req.nextUrl.pathname
 	// if (!req.auth && pathname !== '/') {
 	// 	const newUrl = new URL('/', req.nextUrl.origin)
@@ -50,6 +28,25 @@ export default auth((req) => {
 		)
 	}
 })
+
+function getLocale(request: Request): string | undefined {
+	// Negotiator expects plain object so we need to transform headers
+	const negotiatorHeaders: Record<string, string> = {}
+	request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))
+
+	// @ts-expect-error locales are readonly
+	const locales: string[] = i18n.locales
+
+	// Use negotiator and intl-localematcher to get best locale
+	const languages = new Negotiator({ headers: negotiatorHeaders }).languages(
+		locales
+	)
+
+	const locale = matchLocale(languages, locales, i18n.defaultLocale)
+
+	return locale
+}
+
 
 export const config = {
 	// Matcher ignoring `/_next/` and `/api/`

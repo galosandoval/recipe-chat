@@ -115,7 +115,7 @@ function ChatWindowContent({
 
 	if (messages.length || isStreaming || !data?.user?.id) {
 		return (
-			<div className='h-full pb-16 pt-12'>
+			<div className='h-full pb-16'>
 				<Messages
 					saveRecipeStatus={saveRecipeStatus}
 					chatId={chatId}
@@ -204,7 +204,7 @@ const Messages = memo(function Messages({
 				</div>
 			</div>
 
-			<div className='pb-16'>
+			<div className=''>
 				{messages.map((m, i) => (
 					<Message message={m} key={m?.id || '' + i} />
 				))}

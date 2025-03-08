@@ -10,12 +10,11 @@ export default async function Home() {
 	// if (session?.user) {
 	//   void api.post.getLatest.prefetch();
 	// }
-	console.log('something', process.env.NEXT_PUBLIC_BASE_PATH)
 	return (
 		<HydrateClient>
 			<main className='transition-width relative flex h-[100svh] w-full flex-1 flex-col items-stretch'>
 				<ScrollProvider>
-					<div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto'>
+					<div className='relative flex h-full flex-1 flex-col items-stretch overflow-auto pt-20'>
 						<div
 							id='chat-window'
 							className='flex-1 overflow-y-auto'

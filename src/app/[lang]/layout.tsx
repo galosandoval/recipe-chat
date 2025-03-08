@@ -28,7 +28,7 @@ export default async function RootLayout({
 			lang={lang}
 			className={`${GeistSans.variable}`}
 		>
-			<body className='font-roboto flex overflow-y-auto'>
+			<body className='flex overflow-hidden'>
 				<Providers translations={translations} session={session}>
 					<NavContainer />
 					{children}

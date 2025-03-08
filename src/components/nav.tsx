@@ -17,12 +17,12 @@ import {
 	NavigationMenuLink,
 	NavigationMenuList
 } from './ui/navigation-menu'
+import { useParams, usePathname } from 'next/navigation'
 import { cn } from '~/lib/utils'
 
 export function NavContainer() {
 	return (
-		<div className='text-base-content fixed top-0 z-10 flex w-full justify-center border-b border-b-background bg-gradient-to-b from-background to-background/70 py-2 bg-blend-saturation backdrop-blur transition-all duration-300'>
-			<h1 className='text-xl font-bold'>RecipeChat</h1>
+		<div className='fixed top-0 z-10 flex w-full flex-col items-center justify-center backdrop-blur'>
 			<Nav />
 		</div>
 	)
@@ -45,7 +45,6 @@ function Nav() {
 }
 
 function PublicNavbar() {
-	const t = useTranslations()
 	const { theme, setTheme } = useTheme()
 	console.log('theme', theme)
 
@@ -54,57 +53,66 @@ function PublicNavbar() {
 	}
 
 	return (
-		<nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent'>
-			<div></div>
-			<H2 className='my-0 border-b-0 pb-0'>{t.nav.appName}</H2>
-			<Button size='icon' onClick={handleTheme}>
-				{/* {showLabel ? t.nav.menu.theme : null} */}
-				{theme === 'light' ? <Sun /> : <Moon />}
-			</Button>
-		</nav>
+		<>
+			<AppName
+				rightSlot={
+					<Button size='icon' onClick={handleTheme}>
+						{/* {showLabel ? t.nav.menu.theme : null} */}
+						{theme === 'light' ? <Sun /> : <Moon />}
+					</Button>
+				}
+			/>
+		</>
 	)
 }
 
-const menuItems = [
-	{
-		href: '/',
-		icon: <MessagesSquare className='h-4 w-4' />,
-		label: 'Chat'
-	},
-	{
-		href: '/list',
-		icon: <ListCheck className='h-4 w-4' />,
-		label: 'List'
-	},
-	{
-		href: '/recipes',
-		icon: <BookOpen className='h-4 w-4' />,
-		label: 'Recipes'
-	}
-]
-
 function RoutesNavbar() {
+	const { lang } = useParams<{ lang: string }>()
+	const menuItems = [
+		{
+			href: `/${lang}`,
+			icon: <MessagesSquare className='h-4 w-4' />,
+			label: 'Chat'
+		},
+		{
+			href: `/${lang}/list`,
+			icon: <ListCheck className='h-4 w-4' />,
+			label: 'List'
+		},
+		{
+			href: `/${lang}/recipes`,
+			icon: <BookOpen className='h-4 w-4' />,
+			label: 'Recipes'
+		}
+	]
 	return (
-		<NavigationMenu className='w-full'>
-			<NavigationMenuList>
-				{menuItems.map((item) => (
-					<NavigationMenuItem key={item.label}>
-						<Link href={item.href} legacyBehavior passHref>
-							<NavigationMenuLink
-								className={cn(
-									'gap-1',
-									navigationMenuTriggerStyle()
-								)}
-							>
-								{item.icon}
-								{item.label}
-							</NavigationMenuLink>
-						</Link>
-					</NavigationMenuItem>
-				))}
-			</NavigationMenuList>
-			<ProtectedDropdownMenu />
-		</NavigationMenu>
+		<>
+			<AppName />
+			<div className='flex w-full flex-1 justify-center border-b bg-muted p-1 dark:border-b-muted'>
+				<NavigationMenu className='flex w-full max-w-screen-sm flex-1 justify-between px-4'>
+					<NavigationMenuList>
+						{menuItems.map((item) => (
+							<NavigationMenuItem key={item.label}>
+								<NavLink {...item} />
+							</NavigationMenuItem>
+						))}
+					</NavigationMenuList>
+					<ProtectedDropdownMenu />
+				</NavigationMenu>
+			</div>
+		</>
+	)
+}
+
+function AppName({ rightSlot }: { rightSlot?: React.ReactNode }) {
+	return (
+		<div className='grid w-full grid-cols-3 border-b dark:border-b-muted'>
+			<div></div>
+			<h1 className='justify-self-center py-1 text-xl font-bold'>
+				RecipeChat
+			</h1>
+			<div>{rightSlot}</div>
+		</div>
 	)
 }
 
@@ -117,12 +125,22 @@ function NavLink({
 	icon: React.ReactNode
 	label: string
 }) {
+	console.log('pathname', usePathname())
+	console.log('href', href)
+	const isActive = usePathname() === href
+
 	return (
-		<Link href={href}>
-			<Button variant='ghost' className='flex text-xs'>
+		<Link href={href} legacyBehavior passHref>
+			<NavigationMenuLink
+				className={cn(
+					navigationMenuTriggerStyle(),
+					'gap-1 bg-muted text-muted-foreground',
+					isActive && 'bg-background text-foreground'
+				)}
+			>
 				{icon}
 				{label}
-			</Button>
+			</NavigationMenuLink>
 		</Link>
 	)
 }
