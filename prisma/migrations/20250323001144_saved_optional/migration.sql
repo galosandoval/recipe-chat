@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "recipes" ALTER COLUMN "saved" DROP NOT NULL,
+ALTER COLUMN "saved" DROP DEFAULT;

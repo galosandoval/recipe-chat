@@ -50,7 +50,8 @@ export class ChatsDataAccess {
 					createMany: {
 						data: messages.map((message) => ({
 							content: message.content,
-							role: message.role
+							role: message.role,
+							id: message.id
 						}))
 					}
 				}
@@ -73,5 +74,12 @@ export class ChatsDataAccess {
 				})
 			)
 		)
+	}
+
+	async getChatById(id: string) {
+		return this.prisma.chat.findUnique({
+			where: { id },
+			include: { messages: true }
+		})
 	}
 }

@@ -1,7 +1,6 @@
 import { type PrismaClient } from '@prisma/client'
 import { ChatsDataAccess } from '~/server/api/data-access/chats'
-import { type z } from 'zod'
-import type { messagesSchema } from '~/schemas/messages'
+import type { MessagesSchema } from '~/schemas/messages'
 
 export async function getChats(userId: string, prisma: PrismaClient) {
 	const chatsDataAccess = new ChatsDataAccess(prisma)
@@ -15,7 +14,7 @@ export async function getMessagesById(chatId: string, prisma: PrismaClient) {
 
 export async function createChat(
 	userId: string,
-	messages: z.infer<typeof messagesSchema>,
+	messages: MessagesSchema,
 	prisma: PrismaClient
 ) {
 	const chatsDataAccess = new ChatsDataAccess(prisma)
@@ -24,7 +23,7 @@ export async function createChat(
 
 export async function addMessages(
 	chatId: string,
-	messages: z.infer<typeof messagesSchema>,
+	messages: MessagesSchema,
 	prisma: PrismaClient
 ) {
 	const chatsDataAccess = new ChatsDataAccess(prisma)
@@ -33,10 +32,11 @@ export async function addMessages(
 
 export async function createChatOrAddMessages(
 	chatId: string | undefined,
-	messages: z.infer<typeof messagesSchema>,
+	messages: MessagesSchema,
 	prisma: PrismaClient,
 	userId: string
 ) {
+	console.log('messages--->', messages)
 	const chatsDataAccess = new ChatsDataAccess(prisma)
 	if (chatId) {
 		const lastTwoMessages = messages.slice(-2)
@@ -53,18 +53,19 @@ export async function createChatOrAddMessages(
 		})
 
 		return {
-			success: true,
-			message: 'successfully added messages',
 			messages: allMessages
-		} as const
+		}
 	} else {
 		const newChat = await chatsDataAccess.createChat(userId, messages)
 
 		return {
-			success: true,
-			message: 'successfully created a chat',
 			chatId: newChat.id,
 			messages: newChat.messages
-		} as const
+		}
 	}
+}
+
+export async function getChat(id: string, prisma: PrismaClient) {
+	const chatsDataAccess = new ChatsDataAccess(prisma)
+	return await chatsDataAccess.getChatById(id)
 }

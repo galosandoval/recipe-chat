@@ -10,14 +10,12 @@ import { ValueProps } from './value-props'
 import { ChatsSection, ChatsSideBarButton } from '~/components/chats'
 import { ChatLoader } from '~/components/loaders/chat'
 import { useSession } from 'next-auth/react'
-import useChatStore from '~/hooks/use-chat-store'
+import chatStore from '~/lib/chat-store'
 import { createId } from '@paralleldrive/cuid2'
 import { Message } from './message'
 import { AssistantMessage } from './assistant-message'
 import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
 import { useChatForm } from './use-chat-form'
-import { H2 } from '~/components/ui/typography'
-import { MessagesSquare, Plus } from 'lucide-react'
 
 export default function ChatWindow() {
 	const [, setScrollMode] = useState<'bottom' | 'top'>('top')
@@ -36,9 +34,9 @@ const Content = memo(function Content(props: {
 		status: chatsQueryStatus,
 		handleGetChatsOnSuccess
 	} = useChat()
-	const messages = useChatStore((state) => state.messages)
+	const messages = chatStore((state) => state.messages)
 	const { onSubmit } = useChatForm()
-	const { isStreaming } = useChatStore()
+	const { isStreaming } = chatStore()
 	const isNewChat = messages.length === 0
 
 	if (isNewChat) {
@@ -111,7 +109,7 @@ function ChatWindowContent({
 	saveRecipeStatus: MutationStatus
 }) {
 	const { data } = useSession()
-	const messages = useChatStore((state) => state.messages)
+	const messages = chatStore((state) => state.messages)
 
 	if (messages.length || isStreaming || !data?.user?.id) {
 		return (
@@ -163,8 +161,7 @@ const Messages = memo(function Messages({
 		})[]
 	) => void
 }) {
-	const { stream, messages } = useChatStore((state) => state)
-	const startNewChat = useChatStore((state) => state.startNewChat)
+	const { stream, messages } = chatStore((state) => state)
 
 	if (status === 'error') {
 		return <p>Error</p>
@@ -189,22 +186,10 @@ const Messages = memo(function Messages({
 					) : (
 						<div></div>
 					)}
-
-					<div className='flex items-center justify-center gap-2'>
-						<MessagesSquare size={24} />
-						<H2 className='mb-0 border-b-0 pb-0'>Chat</H2>
-					</div>
-
-					<button
-						onClick={startNewChat}
-						className='btn btn-circle btn-ghost justify-self-end'
-					>
-						<Plus />
-					</button>
 				</div>
 			</div>
 
-			<div className=''>
+			<div>
 				{messages.map((m, i) => (
 					<Message message={m} key={m?.id || '' + i} />
 				))}

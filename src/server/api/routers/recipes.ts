@@ -145,21 +145,12 @@ export const recipesRouter = createTRPCRouter({
 	create: protectedProcedure
 		.input(createRecipeSchema)
 		.mutation(async ({ input, ctx }) => {
-			const { messageId, ...rest } = input
 			const recipesDataAccess = new RecipesDataAccess(ctx.db)
-			const messagesDataAccess = new MessagesDataAccess(ctx.db)
 
 			const newRecipe = await recipesDataAccess.createRecipe(
-				rest,
+				input,
 				ctx.session.user.id
 			)
-
-			if (messageId && messageId.length > 9 && newRecipe.id) {
-				await messagesDataAccess.updateMessage(messageId, {
-					recipeId: newRecipe.id
-				})
-			}
-
 			return newRecipe
 		}),
 

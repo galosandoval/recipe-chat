@@ -1,13 +1,9 @@
 'use client'
 
-import { useTranslations } from '~/hooks/use-translations'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { ProtectedDropdownMenu } from './dropdown-menus'
-import { H2 } from './ui/typography'
-import { useTheme } from 'next-themes'
-import { Button } from './ui/button'
-import { BookOpen, ListCheck, MessagesSquare, Moon, Sun } from 'lucide-react'
+import { NavDropdownMenu } from './dropdown-menus'
+import { BookOpen, ListCheck, MessagesSquare } from 'lucide-react'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import {
@@ -45,23 +41,9 @@ function Nav() {
 }
 
 function PublicNavbar() {
-	const { theme, setTheme } = useTheme()
-	console.log('theme', theme)
-
-	const handleTheme = () => {
-		setTheme(theme === 'light' ? 'dark' : 'light')
-	}
-
 	return (
 		<>
-			<AppName
-				rightSlot={
-					<Button size='icon' onClick={handleTheme}>
-						{/* {showLabel ? t.nav.menu.theme : null} */}
-						{theme === 'light' ? <Sun /> : <Moon />}
-					</Button>
-				}
-			/>
+			<AppName rightSlot={<NavDropdownMenu />} />
 		</>
 	)
 }
@@ -97,7 +79,7 @@ function RoutesNavbar() {
 							</NavigationMenuItem>
 						))}
 					</NavigationMenuList>
-					<ProtectedDropdownMenu />
+					<NavDropdownMenu />
 				</NavigationMenu>
 			</div>
 		</>
@@ -111,7 +93,7 @@ function AppName({ rightSlot }: { rightSlot?: React.ReactNode }) {
 			<h1 className='justify-self-center py-1 text-xl font-bold'>
 				RecipeChat
 			</h1>
-			<div>{rightSlot}</div>
+			<div className='justify-self-end'>{rightSlot}</div>
 		</div>
 	)
 }
@@ -125,10 +107,7 @@ function NavLink({
 	icon: React.ReactNode
 	label: string
 }) {
-	console.log('pathname', usePathname())
-	console.log('href', href)
 	const isActive = usePathname() === href
-
 	return (
 		<Link href={href} legacyBehavior passHref>
 			<NavigationMenuLink

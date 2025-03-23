@@ -3,14 +3,20 @@ import { Button } from './ui/button'
 
 export function SaveButton({
 	handleSaveRecipe,
-	children
+	children,
+	isLoading
 }: {
 	handleSaveRecipe: () => void
 	children: React.ReactNode
+	isLoading?: boolean
 }) {
 	return (
-		<Button variant='secondary' onClick={handleSaveRecipe}>
-			<Save className='h-5 w-5' />
+		<Button
+			isLoading={isLoading}
+			variant='secondary'
+			onClick={handleSaveRecipe}
+			icon={<Save className='h-5 w-5' />}
+		>
 			{children}
 		</Button>
 	)

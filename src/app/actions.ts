@@ -5,7 +5,7 @@ import { openai } from '@ai-sdk/openai'
 import { createStreamableValue } from 'ai/rsc'
 import {
 	chatParams,
-	generatedRecipesSchema,
+	generatedMessageSchema,
 	type ChatParams
 } from '~/schemas/chats'
 import { signIn } from '~/server/auth'
@@ -28,7 +28,7 @@ export async function generate(input: ChatParams) {
 			model: openai('gpt-4o'),
 			system,
 			messages,
-			schema: generatedRecipesSchema
+			schema: generatedMessageSchema
 		})
 
 		for await (const partialObject of partialObjectStream) {

@@ -30,7 +30,7 @@ export function SubmitPromptForm() {
 
 	const onSubmit = async (data: ChatFormValues) => {
 		reset()
-		await onChatFormSubmit(data)
+		onChatFormSubmit(data)
 	}
 
 	return (

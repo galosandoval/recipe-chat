@@ -1,30 +1,39 @@
 import { create } from 'zustand'
-import type { GeneratedRecipes, Message } from '~/schemas/chats'
+import type { GeneratedMessage, Message } from '~/schemas/chats'
 
 type ChatStore = {
-	stream: GeneratedRecipes
+	chatId?: string
+	stream: GeneratedMessage
 	isStreaming: boolean
 	messages: Message[]
 	isScrollingToBottom: boolean
+	setChatId: (chatId: string) => void
 	startedStreaming: (messages: Message[]) => void
 	endedStreaming: (newMessage: Message) => void
-	streaming: (stream: GeneratedRecipes) => void
+	streaming: (stream: GeneratedMessage) => void
 	streamingStopped: () => void
 	startNewChat: () => void
 	scrolledUp: () => void
 	scrolledEnd: () => void
 }
 
-const initialStream: GeneratedRecipes = {
+const initialStream: GeneratedMessage = {
 	message: '',
 	recipes: []
 }
 
-const useChatStore = create<ChatStore>((set) => ({
+const chatStore = create<ChatStore>((set) => ({
+	chatId: undefined,
 	stream: initialStream,
 	isStreaming: false,
 	messages: [],
 	isScrollingToBottom: false,
+	setChatId: (chatId: string) => {
+		if (typeof window !== 'undefined') {
+			window.sessionStorage.setItem('chatId', chatId)
+		}
+		return set({ chatId })
+	},
 	startedStreaming: (messages: Message[]) =>
 		set({ isStreaming: true, messages, isScrollingToBottom: true }),
 	endedStreaming: (newMessage: Message) =>
@@ -33,7 +42,7 @@ const useChatStore = create<ChatStore>((set) => ({
 			messages: [...state.messages, newMessage],
 			stream: initialStream
 		})),
-	streaming: (stream: GeneratedRecipes) => set({ stream }),
+	streaming: (stream: GeneratedMessage) => set({ stream }),
 	streamingStopped: () => set({ isStreaming: false }),
 	startNewChat: () =>
 		set({
@@ -45,4 +54,4 @@ const useChatStore = create<ChatStore>((set) => ({
 	scrolledEnd: () => set({ isScrollingToBottom: true })
 }))
 
-export default useChatStore
+export default chatStore

@@ -26,7 +26,7 @@ export type ChatType = ReturnType<typeof useChat>
 export const useChat = () => {
 	const t = useTranslations()
 	const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
-	const [sessionChatId, changeSessionChatId] = useSessionChatId()
+	const [sessionChatId, setSessionChatId] = useSessionChatId()
 	const { status: authStatus } = useSession()
 	const isAuthenticated = authStatus === 'authenticated'
 
@@ -52,10 +52,10 @@ export const useChat = () => {
 				typeof sessionStorage.getItem('currentChatId') !== 'string' &&
 				data[0]?.id
 			) {
-				changeSessionChatId(data[0].id)
+				setSessionChatId(data[0].id)
 			}
 		},
-		[changeSessionChatId]
+		[setSessionChatId]
 	)
 
 	const handleChangeChat = useCallback(
@@ -64,7 +64,7 @@ export const useChat = () => {
 				messages: Message[]
 			}
 		) => {
-			changeSessionChatId(chat.id)
+			setSessionChatId(chat.id)
 			setShouldFetchChat(true)
 			setIsChatsModalOpen(false)
 		},
@@ -107,7 +107,7 @@ export const useChat = () => {
 function useSessionChatId() {
 	const [chatId, setChatId] = useState<string | undefined>(undefined)
 
-	const changeChatId = (chatId: string | undefined) => {
+	const handleSetChatId = (chatId: string | undefined) => {
 		sessionStorage.setItem('currentChatId', JSON.stringify(chatId))
 		setChatId(chatId)
 	}
@@ -127,7 +127,7 @@ function useSessionChatId() {
 		}
 	}, [])
 
-	return [chatId, changeChatId] as const
+	return [chatId, handleSetChatId] as const
 }
 
 export const errorMessage = 'Please try rephrasing your question.'

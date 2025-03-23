@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { generatedRecipeSchema } from './chats'
 
 export const messagesSchema = z.array(
 	z.object({
@@ -11,6 +12,8 @@ export const messagesSchema = z.array(
 			'data',
 			'tool'
 		]),
-		id: z.string().optional()
+		id: z.string().optional(),
+		recipes: z.array(generatedRecipeSchema).optional()
 	})
 )
+export type MessagesSchema = z.infer<typeof messagesSchema>

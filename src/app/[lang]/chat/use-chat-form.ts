@@ -1,14 +1,17 @@
 'use client'
 
 import { experimental_useObject as useObject } from '@ai-sdk/react'
-import useChatStore from '~/hooks/use-chat-store'
+import chatStore from '~/lib/chat-store'
 import { useTranslations } from '~/hooks/use-translations'
 import { toast } from 'sonner'
 import { createSlug } from '~/lib/create-id'
-import { generatedRecipesSchema, type GeneratedRecipes } from '~/schemas/chats'
-import { useEffect, useRef } from 'react'
+import { generatedMessageSchema, type GeneratedMessage } from '~/schemas/chats'
+import { useCallback, useEffect, useRef, useMemo } from 'react'
 import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
 import { z } from 'zod'
+import { useSession } from 'next-auth/react'
+import { api } from '~/trpc/react'
+import { type RouterOutputs } from '~/trpc/react'
 
 /**
  * Form schema for chat input validation
@@ -20,7 +23,7 @@ export type ChatFormValues = z.infer<typeof chatFormSchema>
 
 /**
  * Custom hook to manage chat form state, streaming responses, and scroll behavior
- * 
+ *
  * Handles:
  * - Form submission and validation
  * - AI response streaming
@@ -29,6 +32,38 @@ export type ChatFormValues = z.infer<typeof chatFormSchema>
  */
 export const useChatForm = () => {
 	const t = useTranslations()
+	const { data: session } = useSession()
+
+	// State from global chat store
+	const {
+		isStreaming,
+		messages,
+		isScrollingToBottom,
+		chatId,
+		setChatId,
+		streaming,
+		startedStreaming,
+		streamingStopped,
+		endedStreaming,
+		scrolledEnd,
+		scrolledUp
+	} = chatStore((state) => state)
+	const onCreateOrAddMessagesSuccess = useCallback(
+		(response: RouterOutputs['chats']['createOrAddMessages']) => {
+			console.log('response', response)
+			if (response.chatId) {
+				console.log('onCreateOrAddMessagesSuccess', response.chatId)
+				setChatId(response.chatId)
+			}
+		},
+		[setChatId]
+	)
+	const { mutate: createOrAddMessages } =
+		api.chats.createOrAddMessages.useMutation({
+			onSuccess: (response) => {
+				onCreateOrAddMessagesSuccess(response)
+			}
+		})
 	const bottomRef = useScrollRef() // Reference to scroll to bottom
 
 	// Scroll tracking refs
@@ -37,30 +72,32 @@ export const useChatForm = () => {
 	const isManualScrollingRef = useRef(false) // Tracks active manual scrolling state
 	const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null) // For debouncing scroll events
 
-	// State from global chat store
-	const {
-		isStreaming,
-		messages,
-		isScrollingToBottom,
-		streaming,
-		startedStreaming,
-		streamingStopped,
-		endedStreaming,
-		scrolledEnd,
-		scrolledUp
-	} = useChatStore((state) => state)
+	useEffect(() => {
+		console.log('chatId', chatId)
+	}, [chatId])
 
 	/**
 	 * Handles the end of a streaming response
 	 * Creates a message from the response and adds it to the chat
 	 */
-	const onFinishStreaming = (res?: GeneratedRecipes) => {
-		endedStreaming({
-			role: 'assistant',
+	const onFinishStreaming = (res: GeneratedMessage) => {
+		const id = createSlug()
+		const message = {
+			role: 'assistant' as const,
 			content: res?.message ?? '',
-			id: createSlug(),
-			recipes: res?.recipes
+			recipes: res?.recipes,
+			id
+		}
+		endedStreaming(message)
+		// Get the latest chatId from the store
+		const currentChatId = chatStore.getState().chatId
+		createOrAddMessages({
+			messages: [message],
+			chatId: currentChatId
 		})
+		if (isScrollingToBottom) {
+			bottomRef?.current?.scrollIntoView({ behavior: 'smooth' })
+		}
 	}
 
 	// AI SDK object for streaming responses
@@ -70,13 +107,22 @@ export const useChatForm = () => {
 		submit: submitPrompt
 	} = useObject({
 		api: 'api/use-object',
-		schema: generatedRecipesSchema,
-		onFinish: (res) => onFinishStreaming(res?.object),
-		onError: (error) => {
-			console.error('error', error)
-			toast.error(t.error.somethingWentWrong)
-			streamingStopped()
-		}
+		schema: generatedMessageSchema,
+		onFinish: useCallback(
+			(event: {
+				object: GeneratedMessage | undefined
+				error: Error | undefined
+			}) => event?.object && onFinishStreaming(event?.object),
+			[onFinishStreaming]
+		),
+		onError: useCallback(
+			(error: Error) => {
+				console.error('error', error)
+				toast.error(t.error.somethingWentWrong)
+				streamingStopped()
+			},
+			[t.error.somethingWentWrong, streamingStopped]
+		)
 	})
 
 	/**
@@ -100,7 +146,7 @@ export const useChatForm = () => {
 	useEffect(
 		function handleStreaming() {
 			if (object && isStreaming) {
-				streaming(object as GeneratedRecipes)
+				streaming(object as GeneratedMessage)
 
 				if (
 					bottomRef?.current &&
@@ -231,22 +277,39 @@ export const useChatForm = () => {
 	 * - Resets scroll state to bottom
 	 * - Submits the prompt to the AI
 	 */
-	const onSubmit = async (data: ChatFormValues) => {
-		const message = {
-			role: 'user' as const,
-			content: data.prompt,
-			id: createSlug()
-		}
+	const onSubmit = useCallback(
+		(data: ChatFormValues) => {
+			const id = createSlug()
+			const message = {
+				role: 'user' as const,
+				content: data.prompt,
+				id
+			}
 
-		const newMessages = [...messages, message]
+			const newMessages = [...messages, message]
 
-		startedStreaming(newMessages)
-		userScrolledUpRef.current = false // Reset scroll state when submitting
-		submitPrompt({
-			filters: [],
-			messages: newMessages
-		})
-	}
+			if (session) {
+				createOrAddMessages({
+					messages: newMessages,
+					chatId
+				})
+			}
+			startedStreaming(newMessages)
+			userScrolledUpRef.current = false // Reset scroll state when submitting
+			submitPrompt({
+				filters: [],
+				messages: newMessages
+			})
+		},
+		[
+			messages,
+			session,
+			createOrAddMessages,
+			startedStreaming,
+			submitPrompt,
+			chatId
+		]
+	)
 
 	/**
 	 * Handles stopping an ongoing streaming response
@@ -254,18 +317,27 @@ export const useChatForm = () => {
 	 * - Updates streaming state
 	 * - Finalizes the response message
 	 */
-	const onStopStreaming = () => {
+	const onStopStreaming = useCallback(() => {
 		stop()
 		streamingStopped()
-		onFinishStreaming(object as GeneratedRecipes)
-	}
+		onFinishStreaming(object as GeneratedMessage)
+	}, [stop, streamingStopped, onFinishStreaming, object])
 
-	// Return only what's needed by consuming components
-	return {
-		onSubmit,
-		isStreaming,
-		streamingStopped,
-		onStopStreaming,
-		onFinishStreaming
-	}
+	// Return memoized values
+	return useMemo(
+		() => ({
+			onSubmit,
+			isStreaming,
+			streamingStopped,
+			onStopStreaming,
+			onFinishStreaming
+		}),
+		[
+			onSubmit,
+			isStreaming,
+			streamingStopped,
+			onStopStreaming,
+			onFinishStreaming
+		]
+	)
 }

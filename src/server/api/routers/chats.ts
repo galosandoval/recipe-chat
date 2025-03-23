@@ -5,15 +5,22 @@ import {
 	getMessagesById,
 	createChat,
 	addMessages,
-	createChatOrAddMessages
+	createChatOrAddMessages,
+	getChat
 } from '~/server/api/use-cases/chats'
 import { messagesSchema } from '../../../schemas/messages'
 
 export const chatsRouter = createTRPCRouter({
 	getChats: protectedProcedure
-		.input(z.object({ userId: z.string() }))
+		.input(z.object({ userId: z.string() })) // input userId for trpc cache invalidation
 		.query(async ({ ctx, input }) => {
-			return getChats(input.userId, ctx.db)
+			return await getChats(input.userId, ctx.db)
+		}),
+
+	getChat: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.query(async ({ ctx, input }) => {
+			return await getChat(input.id, ctx.db)
 		}),
 
 	getMessagesById: protectedProcedure
@@ -23,7 +30,7 @@ export const chatsRouter = createTRPCRouter({
 			})
 		)
 		.query(async ({ ctx, input }) => {
-			return getMessagesById(input.chatId, ctx.db)
+			return await getMessagesById(input.chatId, ctx.db)
 		}),
 
 	create: protectedProcedure
@@ -33,8 +40,7 @@ export const chatsRouter = createTRPCRouter({
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
-			const userId = ctx.session.user.id
-			return createChat(userId, input.messages, ctx.db)
+			return await createChat(ctx.session.user.id, input.messages, ctx.db)
 		}),
 
 	addMessages: protectedProcedure
@@ -46,7 +52,7 @@ export const chatsRouter = createTRPCRouter({
 		)
 		.mutation(async ({ ctx, input }) => {
 			const { chatId, messages } = input
-			return addMessages(chatId, messages, ctx.db)
+			return await addMessages(chatId, messages, ctx.db)
 		}),
 
 	createOrAddMessages: protectedProcedure
@@ -58,7 +64,11 @@ export const chatsRouter = createTRPCRouter({
 		)
 		.mutation(async ({ ctx, input }) => {
 			const { chatId, messages } = input
-			const userId = ctx.session.user.id
-			return createChatOrAddMessages(chatId, messages, ctx.db, userId)
+			return await createChatOrAddMessages(
+				chatId,
+				messages,
+				ctx.db,
+				ctx.session.user.id
+			)
 		})
 })

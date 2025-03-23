@@ -137,6 +137,17 @@
 	"components": {
 		"avatars": {
 			"assistant": "AI"
+		},
+
+		"dropdownMenus": {
+			"settings": "Settings",
+			"logOut": "Log out",
+			"system": "System",
+			"light": "Light",
+			"dark": "Dark",
+			"startNewChat": "New chat",
+			"signUp": "Sign up",
+			"login": "Login"
 		}
 	}
 }

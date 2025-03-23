@@ -1,6 +1,6 @@
 import { streamObject } from 'ai'
 import { openai } from '@ai-sdk/openai'
-import { chatParams, generatedRecipesSchema } from '~/schemas/chats'
+import { chatParams, generatedMessageSchema } from '~/schemas/chats'
 import type { ChatFormValues } from '~/app/[lang]/chat/use-chat-form'
 
 export async function POST(req: Request) {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
 	const result = streamObject({
 		model: openai('gpt-4-turbo'),
-		schema: generatedRecipesSchema,
+		schema: generatedMessageSchema,
 		messages,
 		system,
 		presencePenalty: 0.5

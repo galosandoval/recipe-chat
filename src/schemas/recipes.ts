@@ -57,7 +57,7 @@ export const createRecipeSchema = z.object({
 	url: z.string().optional(),
 	prepTime: z.string().optional(),
 	cookTime: z.string().optional(),
-	messageId: z.string().optional()
+	saved: z.boolean().optional()
 })
 export type CreateRecipe = z.infer<typeof createRecipeSchema>
 

@@ -63,8 +63,7 @@ model Message {
     chatId    String
     content   String
     role      Role
-    recipe    Recipe?  @relation(fields: [recipeId], references: [id])
-    recipeId  String?  @unique
+    recipes   Recipe[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -93,7 +92,11 @@ model Recipe {
     ingredients  Ingredient[]
     prepTime     String?
     cookTime     String?
-    message      Message?
+    message      Message?      @relation(fields: [messageId], references: [id])
+    messageId    String?
+    // if recipe is saved by user 
+    // unsaved recipes will not have ingredients and instructions
+    saved        Boolean?       
     categories   String[]      @default([])
     notes        String        @default("")
     lastViewedAt DateTime      @default(now())

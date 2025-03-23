@@ -3,13 +3,11 @@
 import type { Message as MessageType } from '~/schemas/chats'
 import { useTranslations } from '~/hooks/use-translations'
 import { useChatForm } from './use-chat-form'
-import { LogoIcon } from '~/components/icons'
 import { useState } from 'react'
 import { cn } from '~/lib/utils'
 import { useSession } from 'next-auth/react'
 import { SignUpModalTrigger } from '~/components/auth-triggers'
 import { Button } from '~/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import {
 	Card,
 	CardContent,
@@ -22,6 +20,8 @@ import { H4, P } from '~/components/ui/typography'
 import { ChevronDown, Clock, Save, Send } from 'lucide-react'
 import { SaveButton } from '~/components/save-button'
 import { AssistantAvatar } from '~/components/avatars'
+import { api } from '~/trpc/react'
+import { toast } from 'sonner'
 
 export function AssistantMessage({ message }: { message: MessageType }) {
 	return (
@@ -35,7 +35,10 @@ export function AssistantMessage({ message }: { message: MessageType }) {
 					<div className='flex flex-col rounded-lg bg-secondary p-3 text-secondary-foreground'>
 						<P>{message.content}</P>
 						<div className='w-full'>
-							<CollapseableRecipe recipes={message.recipes} />
+							<CollapseableRecipe
+								recipes={message.recipes}
+								messageId={message.id}
+							/>
 							<RecipesToGenerate recipes={message.recipes} />
 						</div>
 					</div>
@@ -45,20 +48,40 @@ export function AssistantMessage({ message }: { message: MessageType }) {
 	)
 }
 
-function CollapseableRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
+function CollapseableRecipe({
+	recipes,
+	messageId
+}: {
+	recipes: MessageType['recipes']
+	messageId: string
+}) {
 	const t = useTranslations()
 	const [isOpen, setIsOpen] = useState(true)
 	const { status } = useSession()
 	const isAuthenticated = status === 'authenticated'
-
+	const { mutate: saveRecipe, isPending } = api.recipes.create.useMutation({
+		onSuccess: () => {
+			toast.success(t.chatWindow.saveSuccess)
+		}
+	})
 	const recipe = recipes?.[0]
 	if (!recipe || recipes.length !== 1) {
 		return null
 	}
 
 	const handleSaveRecipe = () => {
-		// Add save recipe logic here when user is authenticated
-		console.log('Save recipe:', recipe)
+		if (!recipe.ingredients || !recipe.instructions) {
+			return
+		}
+		saveRecipe({
+			name: recipe.name,
+			description: recipe.description,
+			ingredients: recipe.ingredients,
+			instructions: recipe.instructions,
+			cookTime: recipe.cookTime,
+			prepTime: recipe.prepTime,
+			saved: true
+		})
 	}
 
 	return (
@@ -86,7 +109,10 @@ function CollapseableRecipe({ recipes }: { recipes: MessageType['recipes'] }) {
 				</Button>
 
 				{isAuthenticated ? (
-					<SaveButton handleSaveRecipe={handleSaveRecipe}>
+					<SaveButton
+						handleSaveRecipe={handleSaveRecipe}
+						isLoading={isPending}
+					>
 						{t.chatWindow.save}
 					</SaveButton>
 				) : (
@@ -172,7 +198,7 @@ function RecipesToGenerate({ recipes }: { recipes: MessageType['recipes'] }) {
 		description: string,
 		index: number
 	) => {
-		await onChatFormSubmit({
+		onChatFormSubmit({
 			prompt: `Generate a recipe for ${name}: ${description}`
 		})
 		setGenerated((state) => {
@@ -180,13 +206,6 @@ function RecipesToGenerate({ recipes }: { recipes: MessageType['recipes'] }) {
 			newState[index] = true
 			return newState
 		})
-	}
-
-	const handleSaveRecipe = (
-		recipe: NonNullable<MessageType['recipes']>[number]
-	) => {
-		// Add save recipe logic here when user is authenticated
-		console.log('Save recipe:', recipe)
 	}
 
 	return (
@@ -203,12 +222,13 @@ function RecipesToGenerate({ recipes }: { recipes: MessageType['recipes'] }) {
 							isAuthenticated ? (
 								<Button
 									className='w-full'
-									onClick={() => handleSaveRecipe(r)}
+									// onClick={() => handleSaveRecipe(r)}
 								>
 									<Save />
 									{t.chatWindow.save}
 								</Button>
 							) : (
+								// fake save button to show the sign up modal
 								<SignUpModalTrigger>
 									<Save />
 									{t.chatWindow.save}

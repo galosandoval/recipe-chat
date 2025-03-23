@@ -1,85 +1,152 @@
 'use client'
 
-import {
-	Menu,
-	MenuButton,
-	MenuItem,
-	MenuItems,
-	Transition
-} from '@headlessui/react'
-import { signOut } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { useTheme } from 'next-themes'
-import { ArrowLeftSquare, Moon, Sun } from 'lucide-react'
+import {
+	EllipsisVertical,
+	LogIn,
+	LogOut,
+	Moon,
+	Plus,
+	Sun,
+	UserPlus
+} from 'lucide-react'
 import { Button } from './ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
+} from './ui/dropdown-menu'
+import chatStore from '~/lib/chat-store'
+import { useParams, usePathname } from 'next/navigation'
 
-export function DropdownMenu({ children }: { children: React.ReactNode }) {
-	return (
-		<Menu as='div' className='relative'>
-			<MenuButton className='btn btn-circle btn-ghost'>
-				<svg
-					xmlns='http://www.w3.org/2000/svg'
-					fill='none'
-					viewBox='0 0 24 24'
-					strokeWidth={1.5}
-					stroke='currentColor'
-					className='h-6 w-6'
-				>
-					<path
-						strokeLinecap='round'
-						strokeLinejoin='round'
-						d='M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z'
-					/>
-				</svg>
-			</MenuButton>
-			<Transition
-				enter='transition duration-100 ease-out'
-				enterFrom='transform scale-95 opacity-0'
-				enterTo='transform scale-100 opacity-100'
-				leave='transition duration-75 ease-out'
-				leaveFrom='transform scale-100 opacity-100'
-				leaveTo='transform scale-95 opacity-0'
-			>
-				<MenuItems className='bg-primary-content absolute right-0 top-[0.5rem] z-20 flex flex-col gap-1 rounded-md shadow'>
-					{children}
-				</MenuItems>
-			</Transition>
-		</Menu>
-	)
-}
-
-export function ProtectedDropdownMenu() {
+export function NavDropdownMenu() {
 	const t = useTranslations()
-	const { theme, setTheme } = useTheme()
-
-	const handleSignOut = async () => {
-		await signOut()
-
-		// sessionStorage.removeItem('currentChatId')
-	}
 
 	return (
 		<DropdownMenu>
-			<div className='relative w-full'>
-				<Button
-					onClick={() =>
-						setTheme(theme === 'light' ? 'dark' : 'light')
-					}
-					size='icon'
-					className='btn btn-ghost no-animation w-full'
-				>
-					{theme === 'light' ? <Sun /> : <Moon />}
+			<DropdownMenuTrigger asChild>
+				<Button variant='ghost'>
+					<EllipsisVertical className='h-5 w-5' />
 				</Button>
-			</div>
-			<MenuItem>
-				<Button
-					onClick={handleSignOut}
-					className='btn btn-ghost no-animation w-[8rem]'
-				>
-					<ArrowLeftSquare />
-					<span>{t.nav.menu.logout}</span>
-				</Button>
-			</MenuItem>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent className='w-56'>
+				<DropdownMenuLabel>
+					{t.components.dropdownMenus.settings}
+				</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<ThemeMenuItem />
+				<StartNewChatMenuItem />
+
+				<DropdownMenuSeparator />
+				<AuthMenuItems />
+			</DropdownMenuContent>
 		</DropdownMenu>
+	)
+}
+
+function ThemeMenuItem() {
+	const t = useTranslations()
+	const { theme, setTheme, systemTheme } = useTheme()
+
+	let icon = <Sun />
+	let text = t.components.dropdownMenus.light
+
+	if (theme === 'system') {
+		text = t.components.dropdownMenus.system
+	} else if (theme === 'light') {
+		text = t.components.dropdownMenus.dark
+	} else if (theme === 'dark') {
+		text = t.components.dropdownMenus.light
+	}
+
+	if ((theme === 'system' && systemTheme === 'light') || theme === 'light') {
+		icon = <Moon />
+	} else if (
+		(theme === 'system' && systemTheme === 'dark') ||
+		theme === 'dark'
+	) {
+		icon = <Sun />
+	}
+
+	const handleTheme = () => {
+		if (theme === 'system' && systemTheme === 'light') {
+			setTheme('dark')
+		} else if (theme === 'system' && systemTheme === 'dark') {
+			setTheme('light')
+		} else {
+			setTheme(theme === 'light' ? 'dark' : 'light')
+		}
+	}
+
+	return (
+		<DropdownMenuItem onClick={handleTheme}>
+			{icon}
+			<span>{text}</span>
+		</DropdownMenuItem>
+	)
+}
+
+function AuthMenuItems() {
+	const { data: session } = useSession()
+
+	if (!session) {
+		return <SignUpAndLoginMenuItems />
+	}
+
+	return <LogoutMenuItem />
+}
+
+function SignUpAndLoginMenuItems() {
+	const t = useTranslations()
+
+	return (
+		<>
+			<DropdownMenuItem>
+				<UserPlus />
+				<span>{t.components.dropdownMenus.signUp}</span>
+			</DropdownMenuItem>
+			<DropdownMenuItem>
+				<LogIn />
+				<span>{t.components.dropdownMenus.login}</span>
+			</DropdownMenuItem>
+		</>
+	)
+}
+
+function LogoutMenuItem() {
+	const t = useTranslations()
+	const handleSignOut = async () => {
+		await signOut()
+	}
+	return (
+		<DropdownMenuItem onClick={handleSignOut}>
+			<LogOut />
+			<span>{t.components.dropdownMenus.logOut}</span>
+		</DropdownMenuItem>
+	)
+}
+
+function StartNewChatMenuItem() {
+	const { startNewChat: handleStartNewChat, messages } = chatStore(
+		(state) => state
+	)
+	const t = useTranslations()
+	const pathname = usePathname()
+	const { lang } = useParams()
+
+	if (pathname !== `/${lang as string}` || messages.length === 0) {
+		return null
+	}
+
+	return (
+		<DropdownMenuItem onClick={handleStartNewChat}>
+			<Plus />
+			<span>{t.components.dropdownMenus.startNewChat}</span>
+		</DropdownMenuItem>
 	)
 }
