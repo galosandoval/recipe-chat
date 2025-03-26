@@ -8,8 +8,12 @@ import { z } from 'zod'
 import { useTranslations } from '~/hooks/use-translations'
 import { infoToastOptions } from '~/components/toast'
 import { useForm } from 'react-hook-form'
-import type { ChatFormValues } from '~/app/[lang]/chat/use-chat-form'
+import {
+	useChatForm,
+	type ChatFormValues
+} from '~/app/[lang]/chat/use-chat-form'
 import { toast } from 'sonner'
+import chatStore from '~/lib/chat-store'
 
 export type FormValues = {
 	name: string
@@ -28,17 +32,21 @@ export const useChat = () => {
 	const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 	const [sessionChatId, setSessionChatId] = useSessionChatId()
 	const { status: authStatus } = useSession()
+	const { onSubmit } = useChatForm()
+
 	const isAuthenticated = authStatus === 'authenticated'
 
 	const { register: registerPrompt, handleSubmit: handleSubmitPrompt } =
-		useForm<ChatFormValues>({ defaultValues: { prompt: '' } })
+		useForm<ChatFormValues>({
+			defaultValues: { prompt: '' }
+		})
 
 	const [shouldFetchChat, setShouldFetchChat] = useState(true)
 
 	const enabled = isAuthenticated && !!sessionChatId && shouldFetchChat
-
-	const { status, fetchStatus } = api.chats.getMessagesById.useQuery(
-		{ chatId: sessionChatId ?? '' },
+	console.log('sessionChatId', sessionChatId)
+	const { status, fetchStatus } = api.chats.getChat.useQuery(
+		{ id: sessionChatId ?? '' },
 		{ enabled }
 	)
 
@@ -100,12 +108,13 @@ export const useChat = () => {
 		handleToggleChatsModal,
 		handleChangeChat,
 		registerPrompt,
-		handleSubmitPrompt
+		handleSubmitPrompt,
+		onSubmitPrompt: onSubmit
 	}
 }
 
-function useSessionChatId() {
-	const [chatId, setChatId] = useState<string | undefined>(undefined)
+export function useSessionChatId() {
+	const { chatId, setChatId } = chatStore((state) => state)
 
 	const handleSetChatId = (chatId: string | undefined) => {
 		sessionStorage.setItem('currentChatId', JSON.stringify(chatId))

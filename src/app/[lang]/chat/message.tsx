@@ -5,8 +5,9 @@ import { useTranslations } from '~/hooks/use-translations'
 import type { Message as MessageType } from '~/schemas/chats'
 import { AssistantMessage } from './assistant-message'
 import { UserAvatar } from '~/components/avatars'
+import { memo } from 'react'
 
-export const Message = function InnerMessage({
+export const Message = memo(function Message({
 	message
 }: {
 	message: MessageType
@@ -16,7 +17,7 @@ export const Message = function InnerMessage({
 	}
 
 	return <UserMessage message={message} />
-}
+})
 
 function UserMessage({ message }: { message: MessageType }) {
 	return (

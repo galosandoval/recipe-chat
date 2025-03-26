@@ -23,7 +23,7 @@ import {
 } from './ui/dropdown-menu'
 import chatStore from '~/lib/chat-store'
 import { useParams, usePathname } from 'next/navigation'
-
+import { useSessionChatId } from '~/hooks/use-chat'
 export function NavDropdownMenu() {
 	const t = useTranslations()
 
@@ -132,15 +132,19 @@ function LogoutMenuItem() {
 }
 
 function StartNewChatMenuItem() {
-	const { startNewChat: handleStartNewChat, messages } = chatStore(
-		(state) => state
-	)
+	const { startNewChat, messages } = chatStore((state) => state)
+	const [, setChatId] = useSessionChatId()
 	const t = useTranslations()
 	const pathname = usePathname()
 	const { lang } = useParams()
 
 	if (pathname !== `/${lang as string}` || messages.length === 0) {
 		return null
+	}
+
+	const handleStartNewChat = () => {
+		startNewChat()
+		setChatId('')
 	}
 
 	return (

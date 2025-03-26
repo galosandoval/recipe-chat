@@ -1,5 +1,6 @@
 import { type PrismaClient } from '@prisma/client'
 import { type z } from 'zod'
+import type { GeneratedRecipe, generatedRecipeSchema } from '~/schemas/chats'
 import type { messagesSchema } from '~/schemas/messages'
 
 export class ChatsDataAccess {
@@ -51,7 +52,15 @@ export class ChatsDataAccess {
 						data: messages.map((message) => ({
 							content: message.content,
 							role: message.role,
-							id: message.id
+							id: message.id,
+							recipes: {
+								createMany: {
+									data:
+										message.recipes?.map((r) => ({
+											...r
+										})) ?? []
+								}
+							}
 						}))
 					}
 				}
@@ -70,7 +79,19 @@ export class ChatsDataAccess {
 		return await this.prisma.$transaction(
 			messages.map((m) =>
 				this.prisma.message.create({
-					data: { content: m.content, role: m.role, chatId }
+					data: {
+						content: m.content,
+						role: m.role,
+						chatId,
+						recipes: {
+							createMany: {
+								data:
+									m.recipes?.map((r) => ({
+										...r
+									})) ?? []
+							}
+						}
+					}
 				})
 			)
 		)

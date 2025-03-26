@@ -12,6 +12,7 @@ import { z } from 'zod'
 import { useSession } from 'next-auth/react'
 import { api } from '~/trpc/react'
 import { type RouterOutputs } from '~/trpc/react'
+import { useSessionChatId } from '~/hooks/use-chat'
 
 /**
  * Form schema for chat input validation
@@ -33,6 +34,7 @@ export type ChatFormValues = z.infer<typeof chatFormSchema>
 export const useChatForm = () => {
 	const t = useTranslations()
 	const { data: session } = useSession()
+	const [, setChatId] = useSessionChatId()
 
 	// State from global chat store
 	const {
@@ -40,7 +42,6 @@ export const useChatForm = () => {
 		messages,
 		isScrollingToBottom,
 		chatId,
-		setChatId,
 		streaming,
 		startedStreaming,
 		streamingStopped,
@@ -50,9 +51,7 @@ export const useChatForm = () => {
 	} = chatStore((state) => state)
 	const onCreateOrAddMessagesSuccess = useCallback(
 		(response: RouterOutputs['chats']['createOrAddMessages']) => {
-			console.log('response', response)
 			if (response.chatId) {
-				console.log('onCreateOrAddMessagesSuccess', response.chatId)
 				setChatId(response.chatId)
 			}
 		},
@@ -71,10 +70,6 @@ export const useChatForm = () => {
 	const userScrolledUpRef = useRef(false) // Tracks if user has manually scrolled up
 	const isManualScrollingRef = useRef(false) // Tracks active manual scrolling state
 	const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null) // For debouncing scroll events
-
-	useEffect(() => {
-		console.log('chatId', chatId)
-	}, [chatId])
 
 	/**
 	 * Handles the end of a streaming response

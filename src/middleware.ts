@@ -2,8 +2,9 @@ import { auth } from '~/server/auth'
 import { i18n } from './i18n-config'
 import Negotiator from 'negotiator'
 import { match as matchLocale } from '@formatjs/intl-localematcher'
+import { cookies } from 'next/headers'
 
-export default auth((req) => {
+export default auth(async (req) => {
 	const pathname = req.nextUrl.pathname
 	// if (!req.auth && pathname !== '/') {
 	// 	const newUrl = new URL('/', req.nextUrl.origin)
@@ -15,6 +16,8 @@ export default auth((req) => {
 	)
 	const hasImages = req.nextUrl.href.includes(`${req.nextUrl.origin}/images/`)
 	// Redirect if there is no locale
+	await handleChatIdSession(req, pathname)
+
 	if (pathnameIsMissingLocale && !hasImages) {
 		const locale = getLocale(req)
 
@@ -28,6 +31,16 @@ export default auth((req) => {
 		)
 	}
 })
+async function handleChatIdSession(req: Request, pathname: string) {
+	const cookieStore = await cookies()
+	const currentChatId = cookieStore.get('currentChatId')
+	console.log(currentChatId, pathname)
+	if (currentChatId && pathname === '/') {
+		return Response.redirect(
+			new URL(`/chat/${currentChatId.value}`, req.url)
+		)
+	}
+}
 
 function getLocale(request: Request): string | undefined {
 	// Negotiator expects plain object so we need to transform headers

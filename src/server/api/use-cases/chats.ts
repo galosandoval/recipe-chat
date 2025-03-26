@@ -49,6 +49,9 @@ export async function createChatOrAddMessages(
 			},
 			orderBy: {
 				id: 'asc'
+			},
+			include: {
+				recipes: true
 			}
 		})
 

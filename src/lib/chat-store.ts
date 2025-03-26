@@ -7,7 +7,7 @@ type ChatStore = {
 	isStreaming: boolean
 	messages: Message[]
 	isScrollingToBottom: boolean
-	setChatId: (chatId: string) => void
+	setChatId: (chatId?: string) => void
 	startedStreaming: (messages: Message[]) => void
 	endedStreaming: (newMessage: Message) => void
 	streaming: (stream: GeneratedMessage) => void
@@ -15,6 +15,7 @@ type ChatStore = {
 	startNewChat: () => void
 	scrolledUp: () => void
 	scrolledEnd: () => void
+	// TODO: state to replace useSessionChatId()
 }
 
 const initialStream: GeneratedMessage = {
@@ -28,12 +29,7 @@ const chatStore = create<ChatStore>((set) => ({
 	isStreaming: false,
 	messages: [],
 	isScrollingToBottom: false,
-	setChatId: (chatId: string) => {
-		if (typeof window !== 'undefined') {
-			window.sessionStorage.setItem('chatId', chatId)
-		}
-		return set({ chatId })
-	},
+	setChatId: (chatId?: string) => set({ chatId }),
 	startedStreaming: (messages: Message[]) =>
 		set({ isStreaming: true, messages, isScrollingToBottom: true }),
 	endedStreaming: (newMessage: Message) =>

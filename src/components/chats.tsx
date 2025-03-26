@@ -1,3 +1,5 @@
+'use client'
+
 import { type Chat, type Message } from '@prisma/client'
 import { Drawer } from './drawer'
 import { formatTimeAgo } from '~/lib/relative-time-format'
@@ -276,7 +278,7 @@ function ChatOption({
 
 	return (
 		<div
-			className={`flex select-none flex-col rounded px-2 py-2 hover:bg-primary-content ${
+			className={`hover:bg-primary-content flex select-none flex-col rounded px-2 py-2 ${
 				chatId === chat.id ? 'bg-primary-content' : ''
 			}`}
 		>

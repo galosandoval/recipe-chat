@@ -11,11 +11,9 @@ import { ChatsSection, ChatsSideBarButton } from '~/components/chats'
 import { ChatLoader } from '~/components/loaders/chat'
 import { useSession } from 'next-auth/react'
 import chatStore from '~/lib/chat-store'
-import { createId } from '@paralleldrive/cuid2'
 import { Message } from './message'
 import { AssistantMessage } from './assistant-message'
 import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
-import { useChatForm } from './use-chat-form'
 
 export default function ChatWindow() {
 	const [, setScrollMode] = useState<'bottom' | 'top'>('top')
@@ -32,17 +30,17 @@ const Content = memo(function Content(props: {
 		handleToggleChatsModal,
 		handleChangeChat,
 		status: chatsQueryStatus,
-		handleGetChatsOnSuccess
+		handleGetChatsOnSuccess,
+		onSubmitPrompt
 	} = useChat()
 	const messages = chatStore((state) => state.messages)
-	const { onSubmit } = useChatForm()
-	const { isStreaming } = chatStore()
+	const isStreaming = chatStore((state) => state.isStreaming)
 	const isNewChat = messages.length === 0
 
 	if (isNewChat) {
 		return (
 			<div className='flex flex-col gap-4'>
-				<ValueProps onSubmit={onSubmit}>
+				<ValueProps onSubmit={onSubmitPrompt}>
 					<ChatsSection
 						chatId={chatId}
 						handleChangeChat={handleChangeChat}
@@ -199,7 +197,7 @@ const Messages = memo(function Messages({
 						message={{
 							content: stream.message,
 							role: 'assistant',
-							id: createId().slice(0, 10),
+							id: stream.message,
 							recipes: stream.recipes
 						}}
 					/>
