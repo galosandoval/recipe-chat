@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { messageRole } from './chats'
 
 export const createChatAndRecipeSchema = z.object({
 	recipe: z.object({
@@ -14,14 +15,7 @@ export const createChatAndRecipeSchema = z.object({
 	messages: z
 		.object({
 			content: z.string().min(1),
-			role: z.enum([
-				'system',
-				'user',
-				'assistant',
-				'function',
-				'data',
-				'tool'
-			])
+			role: z.enum(messageRole)
 		})
 		.array()
 })

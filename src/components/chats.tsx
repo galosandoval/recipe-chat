@@ -7,10 +7,9 @@ import { api } from '~/trpc/react'
 import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/screen'
 import { useTranslations } from '~/hooks/use-translations'
-import { useRouter } from 'next/router'
+import { useParams } from 'next/navigation'
 import { type Session } from 'next-auth'
 import { ValuePropsHeader } from '../app/[lang]/chat/value-props'
-import { transformContentToRecipe } from '~/hooks/use-chat'
 import { H2 } from './ui/typography'
 import { MessagesSquare, PanelRight } from 'lucide-react'
 
@@ -250,7 +249,7 @@ function ChatOption({
 		}
 	) => void
 }) {
-	const router = useRouter()
+	const { lang } = useParams()
 
 	if (chat.messages.length === 0) {
 		return null
@@ -262,19 +261,19 @@ function ChatOption({
 		return null
 	}
 
-	const { content, role } = firstMessage
+	const { content } = firstMessage
 
-	let message = content
+	// let message = content
 
-	if (role === 'assistant') {
-		try {
-			const recipe = transformContentToRecipe({ content: content })
-			message = recipe.name
-		} catch (error) {
-			console.error(error)
-			message = content
-		}
-	}
+	// if (role === 'assistant') {
+	// 	try {
+	// 		const recipe = transformContentToRecipe({ content: content })
+	// 		message = recipe.name
+	// 	} catch (error) {
+	// 		console.error(error)
+	// 		message = content
+	// 	}
+	// }
 
 	return (
 		<div
@@ -288,11 +287,11 @@ function ChatOption({
 					chatId === chat.id ? 'text-primary' : ''
 				}`}
 			>
-				{message}
+				{content}
 			</p>
 
 			<span className='ml-auto text-xs text-primary'>
-				{formatTimeAgo(chat.updatedAt, router.locale)}
+				{formatTimeAgo(chat.updatedAt, lang as string)}
 			</span>
 		</div>
 	)

@@ -51,13 +51,15 @@ export async function createChatAndRecipe(
 									return {
 										content: message.content,
 										role: message.role,
-										id: messageId
+										id: messageId,
+										sortOrder: i
 									}
 								}
 
 								return {
 									content: message.content,
-									role: message.role
+									role: message.role,
+									sortOrder: i
 								}
 							})
 						}

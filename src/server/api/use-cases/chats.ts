@@ -1,15 +1,13 @@
 import { type PrismaClient } from '@prisma/client'
 import { ChatsDataAccess } from '~/server/api/data-access/chats'
-import type { MessagesSchema } from '~/schemas/messages'
+import { MessagesDataAccess } from '~/server/api/data-access/messages'
+import type { MessagesSchema } from '~/schemas/chats'
+import type { CreateOrAddMessages } from '~/schemas/chats'
+// import type { RouterInputs } from '~/trpc/react'
 
 export async function getChats(userId: string, prisma: PrismaClient) {
 	const chatsDataAccess = new ChatsDataAccess(prisma)
 	return await chatsDataAccess.getChatsByUserId(userId)
-}
-
-export async function getMessagesById(chatId: string, prisma: PrismaClient) {
-	const chatsDataAccess = new ChatsDataAccess(prisma)
-	return await chatsDataAccess.getMessagesByChatId(chatId)
 }
 
 export async function createChat(
@@ -24,47 +22,55 @@ export async function createChat(
 export async function addMessages(
 	chatId: string,
 	messages: MessagesSchema,
-	prisma: PrismaClient
-) {
-	const chatsDataAccess = new ChatsDataAccess(prisma)
-	return await chatsDataAccess.addMessages(chatId, messages)
-}
-
-export async function createChatOrAddMessages(
-	chatId: string | undefined,
-	messages: MessagesSchema,
 	prisma: PrismaClient,
 	userId: string
 ) {
-	console.log('messages--->', messages)
+	const chatsDataAccess = new ChatsDataAccess(prisma)
+	return await chatsDataAccess.addMessages(chatId, messages, userId)
+}
+
+export async function createChatOrAddMessages(
+	input: CreateOrAddMessages,
+	prisma: PrismaClient,
+	userId: string
+) {
+	const { chatId, messages } = input
+	let chatIdToReturn = chatId
 	const chatsDataAccess = new ChatsDataAccess(prisma)
 	if (chatId) {
-		const lastTwoMessages = messages.slice(-2)
+		const lastTwoMessages = messages.slice(-1)
 
-		await chatsDataAccess.addMessages(chatId, lastTwoMessages)
+		const newMessages = await chatsDataAccess.addMessages(
+			chatId,
+			lastTwoMessages,
+			userId
+		)
 
-		const allMessages = await prisma.message.findMany({
-			where: {
-				chatId
-			},
-			orderBy: {
-				id: 'asc'
-			},
-			include: {
-				recipes: true
+		if (newMessages.length) {
+			const messagesDataAccess = new MessagesDataAccess(prisma)
+			const messages =
+				await messagesDataAccess.getMessagesByChatId(chatId)
+			return {
+				messages
 			}
-		})
-
-		return {
-			messages: allMessages
 		}
+		console.warn('Did not add new messages. newMessages:', newMessages)
 	} else {
 		const newChat = await chatsDataAccess.createChat(userId, messages)
+		chatIdToReturn = newChat.id
+	}
 
-		return {
-			chatId: newChat.id,
-			messages: newChat.messages
-		}
+	if (!chatIdToReturn) {
+		throw new Error('Chat ID is null')
+	}
+
+	const chat = await chatsDataAccess.getChatById(chatIdToReturn)
+	if (!chat) {
+		throw new Error('Chat is null')
+	}
+	return {
+		chatId: chat.id,
+		messages: chat.messages
 	}
 }
 

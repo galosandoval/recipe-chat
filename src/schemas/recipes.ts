@@ -46,20 +46,10 @@ const editRecipeSchema = z.object({
 	notes: z.string().optional()
 })
 
-export const createRecipeSchema = z.object({
-	description: z.string().optional(),
-	name: z.string(),
-	imgUrl: z.string().optional(),
-	author: z.string().optional(),
-	address: z.string().optional(),
-	ingredients: z.array(z.string()),
-	instructions: z.array(z.string()),
-	url: z.string().optional(),
-	prepTime: z.string().optional(),
-	cookTime: z.string().optional(),
-	saved: z.boolean().optional()
+export const saveRecipeSchema = z.object({
+	id: z.string()
 })
-export type CreateRecipe = z.infer<typeof createRecipeSchema>
+export type SaveRecipe = z.infer<typeof saveRecipeSchema>
 
 const ingredientsAndInstructionsSchema = z.object({
 	ingredients: z.array(

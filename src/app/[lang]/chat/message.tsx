@@ -2,15 +2,15 @@
 
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { useTranslations } from '~/hooks/use-translations'
-import type { Message as MessageType } from '~/schemas/chats'
 import { AssistantMessage } from './assistant-message'
 import { UserAvatar } from '~/components/avatars'
 import { memo } from 'react'
+import type { Message as PrismaMessage } from '@prisma/client'
 
 export const Message = memo(function Message({
 	message
 }: {
-	message: MessageType
+	message: PrismaMessage
 }) {
 	if (message.role === 'assistant') {
 		return <AssistantMessage message={message} />
@@ -19,7 +19,7 @@ export const Message = memo(function Message({
 	return <UserMessage message={message} />
 })
 
-function UserMessage({ message }: { message: MessageType }) {
+function UserMessage({ message }: { message: PrismaMessage }) {
 	return (
 		<div className='flex flex-col items-center self-center p-4'>
 			<div className='mx-auto w-full'>

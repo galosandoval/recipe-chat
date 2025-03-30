@@ -5,15 +5,14 @@ import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import {
 	type LinkedData,
 	updateRecipeSchema,
-	createRecipeSchema,
+	saveRecipeSchema,
 	updateRecipeImgUrlSchema
 } from '~/schemas/recipes'
 import { del } from '@vercel/blob'
 import { RecipesDataAccess } from '~/server/api/data-access/recipes'
-import { MessagesDataAccess } from '~/server/api/data-access/messages'
 import { IngredientsDataAccess } from '~/server/api/data-access/ingredients'
 import { InstructionsDataAccess } from '~/server/api/data-access/instructions'
-import { editRecipe } from '../use-cases/recipes'
+import { editRecipe, saveRecipe } from '../use-cases/recipes'
 import { type PrismaClient } from '@prisma/client'
 
 export const recipesRouter = createTRPCRouter({
@@ -142,16 +141,10 @@ export const recipesRouter = createTRPCRouter({
 			})
 		}),
 
-	create: protectedProcedure
-		.input(createRecipeSchema)
+	save: protectedProcedure
+		.input(saveRecipeSchema)
 		.mutation(async ({ input, ctx }) => {
-			const recipesDataAccess = new RecipesDataAccess(ctx.db)
-
-			const newRecipe = await recipesDataAccess.createRecipe(
-				input,
-				ctx.session.user.id
-			)
-			return newRecipe
+			return await saveRecipe(input, ctx.db)
 		}),
 
 	updateImgUrl: protectedProcedure

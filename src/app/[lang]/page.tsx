@@ -1,23 +1,13 @@
-import { api, HydrateClient } from '~/trpc/server'
-import ChatWindow from './chat/chat-window'
+import { HydrateClient } from '~/trpc/server'
+import ChatWindow from './chat/chat'
 import { ScrollProvider } from '~/hooks/use-scroll-to-bottom'
 import { SubmitPromptForm } from './chat/submit-prompt-form'
 import { auth } from '~/server/auth'
 import { cn } from '~/lib/utils'
-import { cookies } from 'next/headers'
 
 export default async function Home() {
 	// const hello = await api.post.hello({ text: "from tRPC" });
 	const session = await auth()
-	console.log('session', session)
-	if (session) {
-		const cookieStore = await cookies()
-		const currentChatId = cookieStore.get('currentChatId')
-		console.log('currentChatId', currentChatId)
-		if (currentChatId) {
-			void api.chats.getChat.prefetch({ id: currentChatId.value })
-		}
-	}
 	// if (session?.user) {
 	//   void api.post.getLatest.prefetch();
 	// }

@@ -4,7 +4,6 @@ import { experimental_useObject as useObject } from '@ai-sdk/react'
 import chatStore from '~/lib/chat-store'
 import { useTranslations } from '~/hooks/use-translations'
 import { toast } from 'sonner'
-import { createSlug } from '~/lib/create-id'
 import { generatedMessageSchema, type GeneratedMessage } from '~/schemas/chats'
 import { useCallback, useEffect, useRef, useMemo } from 'react'
 import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
@@ -12,7 +11,9 @@ import { z } from 'zod'
 import { useSession } from 'next-auth/react'
 import { api } from '~/trpc/react'
 import { type RouterOutputs } from '~/trpc/react'
-import { useSessionChatId } from '~/hooks/use-chat'
+import { useSessionChatId, useChatMessages } from '~/hooks/use-chat'
+import { type Message as PrismaMessage } from '@prisma/client'
+import { createId } from '@paralleldrive/cuid2'
 
 /**
  * Form schema for chat input validation
@@ -35,11 +36,11 @@ export const useChatForm = () => {
 	const t = useTranslations()
 	const { data: session } = useSession()
 	const [, setChatId] = useSessionChatId()
+	const utils = api.useUtils()
 
 	// State from global chat store
 	const {
 		isStreaming,
-		messages,
 		isScrollingToBottom,
 		chatId,
 		streaming,
@@ -49,6 +50,10 @@ export const useChatForm = () => {
 		scrolledEnd,
 		scrolledUp
 	} = chatStore((state) => state)
+	const messages = useChatMessages()
+	useEffect(() => {
+		console.log('messages', messages)
+	}, [messages])
 	const onCreateOrAddMessagesSuccess = useCallback(
 		(response: RouterOutputs['chats']['createOrAddMessages']) => {
 			if (response.chatId) {
@@ -57,13 +62,34 @@ export const useChatForm = () => {
 		},
 		[setChatId]
 	)
-	const { mutate: createOrAddMessages } =
+	const { mutate: createOrAddMessages, variables } =
 		api.chats.createOrAddMessages.useMutation({
-			onSuccess: (response) => {
-				onCreateOrAddMessagesSuccess(response)
-			}
+			onSuccess: (response) => onCreateOrAddMessagesSuccess(response),
+			onError: (error) => {
+				console.error('error', error)
+				toast.error(t.error.somethingWentWrong)
+				streamingStopped()
+			},
+			onMutate: ({ messages }) => {
+				console.log('onMutate', messages)
+				const chatId = chatStore.getState().chatId
+				if (!chatId) return
+
+				const old = utils.chats.get.getData({ id: chatId })
+				console.log('old', old)
+				utils.chats.get.setData({ id: chatId }, old)
+			},
+			onSettled: () => {
+				console.log('onSettled')
+				void utils.chats.get.invalidate()
+			},
+			mutationKey: ['chats.createOrAddMessages']
 		})
 	const bottomRef = useScrollRef() // Reference to scroll to bottom
+
+	useEffect(() => {
+		console.log('use-chat-form variables', variables)
+	}, [variables])
 
 	// Scroll tracking refs
 	const lastScrollYRef = useRef(0) // Tracks last scroll position for direction detection
@@ -76,19 +102,32 @@ export const useChatForm = () => {
 	 * Creates a message from the response and adds it to the chat
 	 */
 	const onFinishStreaming = (res: GeneratedMessage) => {
-		const id = createSlug()
 		const message = {
 			role: 'assistant' as const,
 			content: res?.message ?? '',
 			recipes: res?.recipes,
-			id
+			id: createId()
 		}
-		endedStreaming(message)
-		// Get the latest chatId from the store
-		const currentChatId = chatStore.getState().chatId
+		endedStreaming()
+		const old = utils.chats.get.getData({ id: chatId ?? '' })
+
+		if (old) {
+			const updatedChat = buildChatMessage({
+				old,
+				message,
+				chatId: chatId ?? '',
+				userId: old.userId
+			})
+
+			utils.chats.get.setData({ id: chatId ?? '' }, (prev) => ({
+				...prev,
+				...updatedChat
+			}))
+		}
+
 		createOrAddMessages({
 			messages: [message],
-			chatId: currentChatId
+			chatId: chatStore.getState().chatId
 		})
 		if (isScrollingToBottom) {
 			bottomRef?.current?.scrollIntoView({ behavior: 'smooth' })
@@ -274,12 +313,12 @@ export const useChatForm = () => {
 	 */
 	const onSubmit = useCallback(
 		(data: ChatFormValues) => {
-			const id = createSlug()
+			const chatId = chatStore.getState().chatId
 			const message = {
 				role: 'user' as const,
 				content: data.prompt,
-				id
-			}
+				id: createId()
+			} as PrismaMessage
 
 			const newMessages = [...messages, message]
 
@@ -289,7 +328,11 @@ export const useChatForm = () => {
 					chatId
 				})
 			}
-			startedStreaming(newMessages)
+			startedStreaming({
+				messages: newMessages,
+				chatId
+			})
+
 			userScrolledUpRef.current = false // Reset scroll state when submitting
 			submitPrompt({
 				filters: [],
@@ -325,14 +368,87 @@ export const useChatForm = () => {
 			isStreaming,
 			streamingStopped,
 			onStopStreaming,
-			onFinishStreaming
+			onFinishStreaming,
+			variables
 		}),
 		[
 			onSubmit,
 			isStreaming,
 			streamingStopped,
 			onStopStreaming,
-			onFinishStreaming
+			onFinishStreaming,
+			variables
 		]
 	)
+}
+
+
+type BuildChatMessageParams = {
+	old: NonNullable<RouterOutputs['chats']['get']>
+	message: {
+		role: 'assistant'
+		content: string
+		recipes?: GeneratedMessage['recipes']
+		id: string
+	}
+	chatId: string
+	userId: string
+}
+
+function buildChatMessage({
+	old,
+	message,
+	chatId,
+	userId
+}: BuildChatMessageParams) {
+	return {
+		...old,
+		messages: [
+			...old.messages,
+			{
+				...message,
+				chatId,
+				createdAt: new Date(),
+				sortOrder: old.messages.length,
+				updatedAt: new Date(),
+				recipes: message.recipes
+					? message.recipes.map((recipe) => ({
+							...recipe,
+							name: recipe.name ?? '',
+							description: recipe.description ?? null,
+							prepTime: recipe.prepTime ?? null,
+							cookTime: recipe.cookTime ?? null,
+							imgUrl: null,
+							author: null,
+							address: null,
+							messageId: message.id,
+							categories: recipe.categories ?? [],
+							saved: false,
+							notes: '',
+							id: createId(),
+							userId,
+							createdAt: new Date(),
+							updatedAt: new Date(),
+							lastViewedAt: new Date(),
+							ingredients: recipe.ingredients
+								? recipe.ingredients.map((ingredient) => ({
+										name: ingredient,
+										id: createId(),
+										checked: false,
+										recipeId: null,
+										listId: null
+									}))
+								: [],
+							instructions: recipe.instructions
+								? recipe.instructions.map((instruction) => ({
+										description: instruction,
+										id: createId(),
+										recipeId: createId()
+									}))
+								: []
+						}))
+					: []
+			}
+		]
+	}
 }

@@ -1,6 +1,5 @@
 'use client'
 
-import type { Message as MessageType } from '~/schemas/chats'
 import { useTranslations } from '~/hooks/use-translations'
 import { useChatForm } from './use-chat-form'
 import { useState } from 'react'
@@ -22,8 +21,30 @@ import { SaveButton } from '~/components/save-button'
 import { AssistantAvatar } from '~/components/avatars'
 import { api } from '~/trpc/react'
 import { toast } from 'sonner'
+import type {
+	MessageType,
+	GeneratedMessage,
+	GeneratedRecipe
+} from '~/schemas/chats'
 
-export function AssistantMessage({ message }: { message: MessageType }) {
+export function AssistantMessage({
+	message,
+	streamedMessage
+}: {
+	message?: MessageType
+	streamedMessage?: GeneratedMessage
+}) {
+	const content = message?.content ?? streamedMessage?.message
+	const recipes =
+		message?.recipes?.map((r) => ({
+			...r,
+			description: r.description ?? '',
+			ingredients: r.ingredients?.map((i) => i.name),
+			instructions: r.instructions?.map((i) => i.description)
+		})) ??
+		streamedMessage?.recipes ??
+		[]
+
 	return (
 		<div className='mx-auto flex flex-col p-4'>
 			<div className='mx-auto w-full'>
@@ -33,13 +54,15 @@ export function AssistantMessage({ message }: { message: MessageType }) {
 					</div>
 
 					<div className='flex flex-col rounded-lg bg-secondary p-3 text-secondary-foreground'>
-						<P>{message.content}</P>
+						<P>{content}</P>
 						<div className='w-full'>
 							<CollapseableRecipe
-								recipes={message.recipes}
-								messageId={message.id}
+								recipes={recipes}
+								messageId={message?.id ?? ''}
 							/>
-							<RecipesToGenerate recipes={message.recipes} />
+							<RecipesToGenerate
+								recipes={message?.recipes ?? []}
+							/>
 						</div>
 					</div>
 				</div>
@@ -52,14 +75,14 @@ function CollapseableRecipe({
 	recipes,
 	messageId
 }: {
-	recipes: MessageType['recipes']
+	recipes: GeneratedRecipe[]
 	messageId: string
 }) {
 	const t = useTranslations()
 	const [isOpen, setIsOpen] = useState(true)
 	const { status } = useSession()
 	const isAuthenticated = status === 'authenticated'
-	const { mutate: saveRecipe, isPending } = api.recipes.create.useMutation({
+	const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
 		onSuccess: () => {
 			toast.success(t.chatWindow.saveSuccess)
 		}
@@ -70,18 +93,12 @@ function CollapseableRecipe({
 	}
 
 	const handleSaveRecipe = () => {
-		if (!recipe.ingredients || !recipe.instructions) {
+		if (!recipe?.ingredients || !recipe?.instructions) {
 			return
 		}
-		saveRecipe({
-			name: recipe.name,
-			description: recipe.description,
-			ingredients: recipe.ingredients,
-			instructions: recipe.instructions,
-			cookTime: recipe.cookTime,
-			prepTime: recipe.prepTime,
-			saved: true
-		})
+		// saveRecipe({
+		// 	id: recipe.id
+		// })
 	}
 
 	return (
@@ -131,8 +148,8 @@ function Times({
 	prepTime,
 	cookTime
 }: {
-	prepTime?: string
-	cookTime?: string
+	prepTime?: string | null
+	cookTime?: string | null
 }) {
 	const t = useTranslations()
 	return (
@@ -160,7 +177,7 @@ function Ingredients({ ingredients }: { ingredients?: string[] }) {
 				<H4 className='text-base'>{t.recipes.ingredients}</H4>
 			)}
 			<ul className='mb-2 list-inside list-disc'>
-				{ingredients?.map((i, index) => <li key={i + index}>{i}</li>)}
+				{ingredients?.map((i) => <li key={i}>{i}</li>)}
 			</ul>
 		</>
 	)
@@ -174,7 +191,7 @@ function Instructions({ instructions }: { instructions?: string[] }) {
 				<H4 className='text-base'>{t.recipes.instructions}</H4>
 			)}
 			<ol className='list-inside list-decimal'>
-				{instructions?.map((i, index) => <li key={i + index}>{i}</li>)}
+				{instructions?.map((i) => <li key={i}>{i}</li>)}
 			</ol>
 		</>
 	)
@@ -238,7 +255,11 @@ function RecipesToGenerate({ recipes }: { recipes: MessageType['recipes'] }) {
 							<GenerateButton
 								disabled={isStreaming}
 								onClick={() =>
-									generateRecipe(r.name, r.description, i)
+									generateRecipe(
+										r.name,
+										r.description ?? '',
+										i
+									)
 								}
 							/>
 						)}

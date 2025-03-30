@@ -2,13 +2,12 @@ import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import { z } from 'zod'
 import {
 	getChats,
-	getMessagesById,
 	createChat,
 	addMessages,
 	createChatOrAddMessages,
 	getChat
 } from '~/server/api/use-cases/chats'
-import { messagesSchema } from '../../../schemas/messages'
+import { createOrAddMessages, messagesSchema } from '~/schemas/chats'
 
 export const chatsRouter = createTRPCRouter({
 	getChats: protectedProcedure
@@ -17,20 +16,10 @@ export const chatsRouter = createTRPCRouter({
 			return await getChats(input.userId, ctx.db)
 		}),
 
-	getChat: protectedProcedure
+	get: protectedProcedure
 		.input(z.object({ id: z.string() }))
 		.query(async ({ ctx, input }) => {
 			return await getChat(input.id, ctx.db)
-		}),
-
-	getMessagesById: protectedProcedure
-		.input(
-			z.object({
-				chatId: z.string()
-			})
-		)
-		.query(async ({ ctx, input }) => {
-			return await getMessagesById(input.chatId, ctx.db)
 		}),
 
 	create: protectedProcedure
@@ -52,21 +41,19 @@ export const chatsRouter = createTRPCRouter({
 		)
 		.mutation(async ({ ctx, input }) => {
 			const { chatId, messages } = input
-			return await addMessages(chatId, messages, ctx.db)
+			return await addMessages(
+				chatId,
+				messages,
+				ctx.db,
+				ctx.session.user.id
+			)
 		}),
 
 	createOrAddMessages: protectedProcedure
-		.input(
-			z.object({
-				chatId: z.string().optional(),
-				messages: messagesSchema
-			})
-		)
+		.input(createOrAddMessages)
 		.mutation(async ({ ctx, input }) => {
-			const { chatId, messages } = input
 			return await createChatOrAddMessages(
-				chatId,
-				messages,
+				input,
 				ctx.db,
 				ctx.session.user.id
 			)

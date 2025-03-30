@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import type { Message as AIMessage } from 'ai'
-
+import type { RouterOutputs } from '~/trpc/react'
 export type Message = AIMessage & { recipes?: GeneratedRecipe[] }
 
 export const generatedRecipeSchema = z.object({
@@ -9,8 +9,13 @@ export const generatedRecipeSchema = z.object({
 	prepTime: z
 		.string()
 		.optional()
+		.nullable()
 		.describe('Preparation time of recipe. Optional.'),
-	cookTime: z.string().optional().describe('Cook time of recipe. Optional.'),
+	cookTime: z
+		.string()
+		.optional()
+		.nullable()
+		.describe('Cook time of recipe. Optional.'),
 	categories: z
 		.array(z.string())
 		.optional()
@@ -44,4 +49,24 @@ export const chatParams = z.object({
 	filters: z.array(z.string())
 })
 
+export const messagesSchema = z.array(
+	z.object({
+		content: z.string().min(1),
+		role: z.enum(messageRole),
+		id: z.string().optional(),
+		recipes: z.array(generatedRecipeSchema).optional()
+	})
+)
+
+export type MessagesSchema = z.infer<typeof messagesSchema>
+
 export type ChatParams = z.infer<typeof chatParams>
+
+export const createOrAddMessages = z.object({
+	chatId: z.string().optional(),
+	messages: messagesSchema
+})
+
+export type CreateOrAddMessages = z.infer<typeof createOrAddMessages>
+export type GetChatOutput = RouterOutputs['chats']['get']
+export type MessageType = NonNullable<GetChatOutput>['messages'][number]

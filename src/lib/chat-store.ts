@@ -1,15 +1,15 @@
 import { create } from 'zustand'
-import type { GeneratedMessage, Message } from '~/schemas/chats'
+import type { CreateOrAddMessages, GeneratedMessage } from '~/schemas/chats'
 
 type ChatStore = {
 	chatId?: string
 	stream: GeneratedMessage
 	isStreaming: boolean
-	messages: Message[]
 	isScrollingToBottom: boolean
+	mutationVariables?: CreateOrAddMessages
 	setChatId: (chatId?: string) => void
-	startedStreaming: (messages: Message[]) => void
-	endedStreaming: (newMessage: Message) => void
+	startedStreaming: (chat: CreateOrAddMessages) => void
+	endedStreaming: () => void
 	streaming: (stream: GeneratedMessage) => void
 	streamingStopped: () => void
 	startNewChat: () => void
@@ -27,23 +27,26 @@ const chatStore = create<ChatStore>((set) => ({
 	chatId: undefined,
 	stream: initialStream,
 	isStreaming: false,
-	messages: [],
 	isScrollingToBottom: false,
+	mutationVariables: undefined,
 	setChatId: (chatId?: string) => set({ chatId }),
-	startedStreaming: (messages: Message[]) =>
-		set({ isStreaming: true, messages, isScrollingToBottom: true }),
-	endedStreaming: (newMessage: Message) =>
-		set((state) => ({
+	startedStreaming: (chat: CreateOrAddMessages) =>
+		set({
+			isStreaming: true,
+			isScrollingToBottom: true,
+			mutationVariables: chat
+		}),
+	endedStreaming: () =>
+		set(() => ({
 			isStreaming: false,
-			messages: [...state.messages, newMessage],
-			stream: initialStream
+			stream: initialStream,
+			mutationVariables: undefined
 		})),
 	streaming: (stream: GeneratedMessage) => set({ stream }),
 	streamingStopped: () => set({ isStreaming: false }),
 	startNewChat: () =>
 		set({
 			isStreaming: false,
-			messages: [],
 			stream: initialStream
 		}),
 	scrolledUp: () => set({ isScrollingToBottom: false }),

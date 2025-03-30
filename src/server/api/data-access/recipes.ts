@@ -1,6 +1,6 @@
-import { type CreateRecipe } from '../../../schemas/recipes'
+import { type SaveRecipe } from '../../../schemas/recipes'
 import { type Prisma, type PrismaClient, type Recipe } from '@prisma/client'
-
+import type { GeneratedRecipe } from '~/schemas/chats'
 export class RecipesDataAccess {
 	constructor(private readonly prisma: PrismaClient) {}
 
@@ -56,25 +56,9 @@ export class RecipesDataAccess {
 		}
 	}
 
-	async createRecipe(
-		recipe: Omit<CreateRecipe, 'messsageId'>,
-		userId: string
-	) {
-		return await this.prisma.recipe.create({
-			data: {
-				...recipe,
-				userId,
-				instructions: {
-					create: recipe.instructions.map((i) => ({ description: i }))
-				},
-				ingredients: {
-					create: recipe.ingredients.map((i) => ({ name: i }))
-				}
-			},
-			include: {
-				ingredients: true,
-				instructions: true
-			}
+	async createRecipes(recipes: GeneratedRecipe[]) {
+		return await this.prisma.recipe.createMany({
+			data: recipes
 		})
 	}
 

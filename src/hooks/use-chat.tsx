@@ -5,14 +5,11 @@ import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '~/trpc/react'
 import { z } from 'zod'
-import { useTranslations } from '~/hooks/use-translations'
-import { infoToastOptions } from '~/components/toast'
 import { useForm } from 'react-hook-form'
 import {
 	useChatForm,
 	type ChatFormValues
 } from '~/app/[lang]/chat/use-chat-form'
-import { toast } from 'sonner'
 import chatStore from '~/lib/chat-store'
 
 export type FormValues = {
@@ -28,7 +25,6 @@ export type FormValues = {
 export type ChatType = ReturnType<typeof useChat>
 
 export const useChat = () => {
-	const t = useTranslations()
 	const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 	const [sessionChatId, setSessionChatId] = useSessionChatId()
 	const { status: authStatus } = useSession()
@@ -44,8 +40,7 @@ export const useChat = () => {
 	const [shouldFetchChat, setShouldFetchChat] = useState(true)
 
 	const enabled = isAuthenticated && !!sessionChatId && shouldFetchChat
-	console.log('sessionChatId', sessionChatId)
-	const { status, fetchStatus } = api.chats.getChat.useQuery(
+	const { status, fetchStatus } = api.chats.get.useQuery(
 		{ id: sessionChatId ?? '' },
 		{ enabled }
 	)
@@ -83,19 +78,19 @@ export const useChat = () => {
 		setIsChatsModalOpen((state) => !state)
 	}, [])
 
-	const handleSaveRecipe = useCallback(
-		({ content }: { content: string; messageId?: string }) => {
-			if (!content) return
+	// const handleSaveRecipe = useCallback(
+	// 	({ content }: { content: string; messageId?: string }) => {
+	// 		if (!content) return
 
-			if (!isAuthenticated) {
-				// handleOpenSignUpModal()
+	// 		if (!isAuthenticated) {
+	// 			// handleOpenSignUpModal()
 
-				toast(t.toast.signUp, infoToastOptions)
-				return
-			}
-		},
-		[isAuthenticated]
-	)
+	// 			toast(t.toast.signUp, infoToastOptions)
+	// 			return
+	// 		}
+	// 	},
+	// 	[isAuthenticated]
+	// )
 
 	return {
 		chatId: sessionChatId,
@@ -103,7 +98,6 @@ export const useChat = () => {
 		status,
 		isChatsModalOpen,
 		isAuthenticated,
-		handleSaveRecipe,
 		handleGetChatsOnSuccess,
 		handleToggleChatsModal,
 		handleChangeChat,
@@ -154,4 +148,14 @@ export function transformContentToRecipe({ content }: { content: string }) {
 		instructions: string[]
 		ingredients: string[]
 	}
+}
+
+export function useChatMessages() {
+	const { chatId } = chatStore((state) => state)
+	const { data: messages } = api.chats.get.useQuery(
+		{ id: chatId ?? '' },
+		{ enabled: !!chatId, select: (data) => data?.messages ?? [] }
+	)
+
+	return messages ?? []
 }
