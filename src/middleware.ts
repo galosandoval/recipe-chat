@@ -31,10 +31,10 @@ export default auth(async (req) => {
 		)
 	}
 })
+
 async function handleChatIdSession(req: Request, pathname: string) {
 	const cookieStore = await cookies()
 	const currentChatId = cookieStore.get('currentChatId')
-	console.log(currentChatId, pathname)
 	if (currentChatId && pathname === '/') {
 		return Response.redirect(
 			new URL(`/chat/${currentChatId.value}`, req.url)
@@ -42,7 +42,7 @@ async function handleChatIdSession(req: Request, pathname: string) {
 	}
 }
 
-function getLocale(request: Request): string | undefined {
+function getLocale(request: Request) {
 	// Negotiator expects plain object so we need to transform headers
 	const negotiatorHeaders: Record<string, string> = {}
 	request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))

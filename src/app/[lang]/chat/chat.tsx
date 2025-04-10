@@ -1,6 +1,6 @@
 'use client'
 
-import { type Message as PrismaMessage } from '@prisma/client'
+import { type Message as GetChatMessageOutput } from '@prisma/client'
 import { useChat, useChatMessages } from '~/hooks/use-chat'
 import {
 	type Dispatch,
@@ -80,7 +80,7 @@ function ChatWindowContent({
 			[
 				...messages,
 				...(mutationVariables?.messages ?? [])
-			] as PrismaMessage[]
+			] as GetChatMessageOutput[]
 		).sort((a, b) => {
 			return a.sortOrder - b.sortOrder
 		})
@@ -98,7 +98,7 @@ function ChatWindowContent({
 					isStreaming={isStreaming}
 					data={
 						mutationVariables
-							? (mutationVariables.messages as PrismaMessage[])
+							? (mutationVariables.messages as GetChatMessageOutput[])
 							: messages
 					}
 					// filters={filters}
@@ -117,19 +117,19 @@ const Messages = memo(function Messages({
 }: {
 	status?: QueryStatus
 	isStreaming: boolean
-	data?: PrismaMessage[]
+	data?: GetChatMessageOutput[]
 }) {
 	const { stream } = chatStore((state) => state)
+	const lastMessage = data?.at(-1)
 
 	useEffect(() => {
 		console.log('stream', stream)
-	}, [stream])
+		console.log('data', data)
+	}, [stream, data])
 
 	if (status === 'error') {
 		return <p>Error</p>
 	}
-
-	const lastMessage = data?.at(-1)
 
 	return (
 		<>

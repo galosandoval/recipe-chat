@@ -95,7 +95,7 @@ model Recipe {
     messageId    String?
     // if recipe is saved by user 
     // unsaved recipes will not have ingredients and instructions
-    saved        Boolean?       
+    saved        Boolean?
     categories   String[]      @default([])
     notes        String        @default("")
     lastViewedAt DateTime      @default(now())

@@ -21,17 +21,14 @@ import { SaveButton } from '~/components/save-button'
 import { AssistantAvatar } from '~/components/avatars'
 import { api } from '~/trpc/react'
 import { toast } from 'sonner'
-import type {
-	MessageType,
-	GeneratedMessage,
-	GeneratedRecipe
-} from '~/schemas/chats'
+import type { GeneratedMessage, GeneratedRecipe } from '~/schemas/chats'
+import type { Message } from '@prisma/client'
 
 export function AssistantMessage({
 	message,
 	streamedMessage
 }: {
-	message?: MessageType
+	message?: Message
 	streamedMessage?: GeneratedMessage
 }) {
 	const content = message?.content ?? streamedMessage?.message
@@ -197,7 +194,7 @@ function Instructions({ instructions }: { instructions?: string[] }) {
 	)
 }
 
-function RecipesToGenerate({ recipes }: { recipes: MessageType['recipes'] }) {
+function RecipesToGenerate({ recipes }: { recipes: Message['recipes'] }) {
 	const t = useTranslations()
 	const [generated, setGenerated] = useState<boolean[]>(
 		recipes?.map(() => false) ?? []

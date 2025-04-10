@@ -72,18 +72,17 @@ export const useChatForm = () => {
 			},
 			onMutate: ({ messages }) => {
 				console.log('onMutate', messages)
-				const chatId = chatStore.getState().chatId
-				if (!chatId) return
+				// const chatId = chatStore.getState().chatId
+				// if (!chatId) return
 
-				const old = utils.chats.get.getData({ id: chatId })
-				console.log('old', old)
-				utils.chats.get.setData({ id: chatId }, old)
+				// const old = utils.chats.get.getData({ id: chatId })
+				// console.log('old', old)
+				// utils.chats.get.setData({ id: chatId }, old)
 			},
 			onSettled: () => {
 				console.log('onSettled')
 				void utils.chats.get.invalidate()
-			},
-			mutationKey: ['chats.createOrAddMessages']
+			}
 		})
 	const bottomRef = useScrollRef() // Reference to scroll to bottom
 
@@ -142,21 +141,15 @@ export const useChatForm = () => {
 	} = useObject({
 		api: 'api/use-object',
 		schema: generatedMessageSchema,
-		onFinish: useCallback(
-			(event: {
-				object: GeneratedMessage | undefined
-				error: Error | undefined
-			}) => event?.object && onFinishStreaming(event?.object),
-			[onFinishStreaming]
-		),
-		onError: useCallback(
-			(error: Error) => {
-				console.error('error', error)
-				toast.error(t.error.somethingWentWrong)
-				streamingStopped()
-			},
-			[t.error.somethingWentWrong, streamingStopped]
-		)
+		onFinish: (event: {
+			object: GeneratedMessage | undefined
+			error: Error | undefined
+		}) => event?.object && onFinishStreaming(event?.object),
+		onError: (error: Error) => {
+			console.error('error', error)
+			toast.error(t.error.somethingWentWrong)
+			streamingStopped()
+		}
 	})
 
 	/**
@@ -332,7 +325,7 @@ export const useChatForm = () => {
 				messages: newMessages,
 				chatId
 			})
-
+			console.log('newMessages', newMessages)
 			userScrolledUpRef.current = false // Reset scroll state when submitting
 			submitPrompt({
 				filters: [],

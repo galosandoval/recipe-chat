@@ -5,13 +5,9 @@ import { useTranslations } from '~/hooks/use-translations'
 import { AssistantMessage } from './assistant-message'
 import { UserAvatar } from '~/components/avatars'
 import { memo } from 'react'
-import type { Message as PrismaMessage } from '@prisma/client'
+import type { Message } from '@prisma/client'
 
-export const Message = memo(function Message({
-	message
-}: {
-	message: PrismaMessage
-}) {
+export const Message = memo(function Message({ message }: { message: Message }) {
 	if (message.role === 'assistant') {
 		return <AssistantMessage message={message} />
 	}
@@ -19,7 +15,7 @@ export const Message = memo(function Message({
 	return <UserMessage message={message} />
 })
 
-function UserMessage({ message }: { message: PrismaMessage }) {
+function UserMessage({ message }: { message: Message }) {
 	return (
 		<div className='flex flex-col items-center self-center p-4'>
 			<div className='mx-auto w-full'>

@@ -25,7 +25,7 @@ export async function generate(input: ChatParams) {
 
 	void (async () => {
 		const { partialObjectStream } = streamObject({
-			model: openai('gpt-4o'),
+			model: openai('gpt-4-turbo'),
 			system,
 			messages,
 			schema: generatedMessageSchema
@@ -35,6 +35,7 @@ export async function generate(input: ChatParams) {
 			console.log('partialObject', partialObject)
 			stream.update(partialObject)
 		}
+		console.log('stream.value', stream.value)
 
 		stream.done()
 	})()

@@ -69,4 +69,5 @@ export const createOrAddMessages = z.object({
 
 export type CreateOrAddMessages = z.infer<typeof createOrAddMessages>
 export type GetChatOutput = RouterOutputs['chats']['get']
-export type MessageType = NonNullable<GetChatOutput>['messages'][number]
+export type GetChatMessageOutput =
+	NonNullable<GetChatOutput>['messages'][number]
