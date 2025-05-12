@@ -138,12 +138,12 @@ const Messages = memo(function Messages({
 					<Message message={m} key={m?.id || '' + i} />
 				))}
 				{/* While streaming, show the assistant message, after streaming is done, messages gets updated */}
-				{stream.message && (
+				{stream.content && (
 					<AssistantMessage streamedMessage={stream} />
 				)}
 				{isStreaming &&
 					lastMessage?.role === 'user' &&
-					!stream.message && <ChatLoader />}
+					!stream.content && <ChatLoader />}
 			</div>
 			<BottomRef />
 		</>

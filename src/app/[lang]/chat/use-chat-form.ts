@@ -1,11 +1,11 @@
 'use client'
 
-import { experimental_useObject as useObject } from '@ai-sdk/react'
+import { readStreamableValue } from 'ai/rsc'
 import chatStore from '~/lib/chat-store'
 import { useTranslations } from '~/hooks/use-translations'
 import { toast } from 'sonner'
 import { generatedMessageSchema, type GeneratedMessage } from '~/schemas/chats'
-import { useCallback, useEffect, useRef, useMemo } from 'react'
+import { useCallback, useEffect, useRef, useMemo, useState } from 'react'
 import { useScrollRef } from '~/hooks/use-scroll-to-bottom'
 import { z } from 'zod'
 import { useSession } from 'next-auth/react'
@@ -14,6 +14,8 @@ import { type RouterOutputs } from '~/trpc/react'
 import { useSessionChatId, useChatMessages } from '~/hooks/use-chat'
 import { type Message as PrismaMessage } from '@prisma/client'
 import { createId } from '@paralleldrive/cuid2'
+import { generate } from '~/app/actions'
+import { experimental_useObject as useObject } from '@ai-sdk/react'
 
 /**
  * Form schema for chat input validation
@@ -103,7 +105,7 @@ export const useChatForm = () => {
 	const onFinishStreaming = (res: GeneratedMessage) => {
 		const message = {
 			role: 'assistant' as const,
-			content: res?.message ?? '',
+			content: res?.content ?? '',
 			recipes: res?.recipes,
 			id: createId()
 		}
@@ -304,43 +306,33 @@ export const useChatForm = () => {
 	 * - Resets scroll state to bottom
 	 * - Submits the prompt to the AI
 	 */
-	const onSubmit = useCallback(
-		(data: ChatFormValues) => {
-			const chatId = chatStore.getState().chatId
-			const message = {
-				role: 'user' as const,
-				content: data.prompt,
-				id: createId()
-			} as PrismaMessage
+	const onSubmit = async (data: ChatFormValues) => {
+		const chatId = chatStore.getState().chatId
+		const message = {
+			role: 'user' as const,
+			content: data.prompt,
+			id: createId()
+		} as PrismaMessage
 
-			const newMessages = [...messages, message]
+		const newMessages = [...messages, message]
 
-			if (session) {
-				createOrAddMessages({
-					messages: newMessages,
-					chatId
-				})
-			}
-			startedStreaming({
+		if (session) {
+			createOrAddMessages({
 				messages: newMessages,
 				chatId
 			})
-			console.log('newMessages', newMessages)
-			userScrolledUpRef.current = false // Reset scroll state when submitting
-			submitPrompt({
-				filters: [],
-				messages: newMessages
-			})
-		},
-		[
-			messages,
-			session,
-			createOrAddMessages,
-			startedStreaming,
-			submitPrompt,
+		}
+		startedStreaming({
+			messages: newMessages,
 			chatId
-		]
-	)
+		})
+		console.log('newMessages', newMessages)
+		userScrolledUpRef.current = false // Reset scroll state when submitting
+		submitPrompt({
+			filters: [],
+			messages: newMessages
+		})
+	}
 
 	/**
 	 * Handles stopping an ongoing streaming response
@@ -349,30 +341,20 @@ export const useChatForm = () => {
 	 * - Finalizes the response message
 	 */
 	const onStopStreaming = useCallback(() => {
-		stop()
+		// stop()
 		streamingStopped()
-		onFinishStreaming(object as GeneratedMessage)
-	}, [stop, streamingStopped, onFinishStreaming, object])
+		// onFinishStreaming(object as GeneratedMessage)
+	}, [streamingStopped, onFinishStreaming])
 
 	// Return memoized values
-	return useMemo(
-		() => ({
-			onSubmit,
-			isStreaming,
-			streamingStopped,
-			onStopStreaming,
-			onFinishStreaming,
-			variables
-		}),
-		[
-			onSubmit,
-			isStreaming,
-			streamingStopped,
-			onStopStreaming,
-			onFinishStreaming,
-			variables
-		]
-	)
+	return {
+		onSubmit,
+		isStreaming,
+		streamingStopped,
+		onStopStreaming,
+		onFinishStreaming,
+		variables
+	}
 }
 
 

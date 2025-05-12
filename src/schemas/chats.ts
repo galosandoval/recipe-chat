@@ -32,7 +32,7 @@ export const generatedRecipeSchema = z.object({
 export type GeneratedRecipe = z.infer<typeof generatedRecipeSchema>
 
 export const generatedMessageSchema = z.object({
-	message: z.string().describe('Helpful message.'),
+	content: z.string().describe('Helpful message.'),
 	recipes: z.array(generatedRecipeSchema).describe('Array of recipes.')
 })
 export type GeneratedMessage = z.infer<typeof generatedMessageSchema>

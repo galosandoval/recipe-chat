@@ -3,6 +3,9 @@ import { openai } from '@ai-sdk/openai'
 import { chatParams, generatedMessageSchema } from '~/schemas/chats'
 import type { ChatFormValues } from '~/app/[lang]/chat/use-chat-form'
 
+// Allow streaming responses up to 30 seconds
+export const maxDuration = 30;
+
 export async function POST(req: Request) {
 	const input = (await req.json()) as ChatFormValues
 
@@ -21,8 +24,7 @@ export async function POST(req: Request) {
 		model: openai('gpt-4-turbo'),
 		schema: generatedMessageSchema,
 		messages,
-		system,
-		presencePenalty: 0.5
+		system
 	})
 
 	return result.toTextStreamResponse()

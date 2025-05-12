@@ -5,6 +5,9 @@ import { SubmitPromptForm } from './chat/submit-prompt-form'
 import { auth } from '~/server/auth'
 import { cn } from '~/lib/utils'
 
+// Allow 30 seconds for the chat to stream
+export const maxDuration = 30
+
 export default async function Home() {
 	// const hello = await api.post.hello({ text: "from tRPC" });
 	const session = await auth()

@@ -19,7 +19,7 @@ type ChatStore = {
 }
 
 const initialStream: GeneratedMessage = {
-	message: '',
+	content: '',
 	recipes: []
 }
 

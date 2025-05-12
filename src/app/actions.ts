@@ -32,10 +32,10 @@ export async function generate(input: ChatParams) {
 		})
 
 		for await (const partialObject of partialObjectStream) {
+			console.clear()
 			console.log('partialObject', partialObject)
 			stream.update(partialObject)
 		}
-		console.log('stream.value', stream.value)
 
 		stream.done()
 	})()
