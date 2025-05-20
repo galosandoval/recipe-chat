@@ -29,16 +29,11 @@ export default async function RootLayout({
 			lang={lang}
 			className={`${GeistSans.variable}`}
 		>
-			<body className='flex'>
+			<body className='min-h-svh bg-background'>
 				<Providers translations={translations} session={session}>
 					<NavContainer />
 
-					<div
-						className={cn(
-							'relative flex h-full flex-1 flex-col items-stretch overflow-auto',
-							session ? 'mt-20' : 'mt-9'
-						)}
-					>
+					<div className={cn('relative flex h-full flex-1 flex-col')}>
 						{children}
 					</div>
 				</Providers>

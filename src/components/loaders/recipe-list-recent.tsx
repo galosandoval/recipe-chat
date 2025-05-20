@@ -7,9 +7,9 @@ export function Loader() {
 				{cardAmount.map((card, index) => (
 					<div
 						key={card}
-						className='flex h-10 gap-2 overflow-hidden rounded-md bg-base-300'
+						className='flex h-10 gap-2 overflow-hidden rounded-md'
 					>
-						<div className='self-center bg-primary-content'>
+						<div className='bg-primary-content self-center'>
 							<svg
 								xmlns='http://www.w3.org/2000/svg'
 								width='260'
@@ -34,7 +34,7 @@ export function Loader() {
 							</svg>
 						</div>
 						<div
-							className='m-5 h-2 w-72 animate-pulse self-center rounded bg-base-content'
+							className='m-5 h-2 w-72 animate-pulse self-center rounded'
 							style={{
 								animationDuration: '2s',
 								animationDelay: `${index * 0.55}`

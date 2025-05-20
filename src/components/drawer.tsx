@@ -23,7 +23,7 @@ export const Drawer = ({
 						leaveFrom='opacity-100'
 						leaveTo='opacity-0'
 					>
-						<div className='fixed inset-0 bg-base-300/70' />
+						<div className='fixed inset-0' />
 					</TransitionChild>
 
 					<div className='fixed inset-0 overflow-y-auto'>
@@ -37,7 +37,7 @@ export const Drawer = ({
 								leaveFrom='opacity-100 -translate-x-0'
 								leaveTo='opacity-0 -translate-x-4'
 							>
-								<Dialog.Panel className='my-auto h-full w-[80%] max-w-sm transform overflow-hidden bg-base-100 p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
+								<Dialog.Panel className='my-auto h-full w-[80%] max-w-sm transform overflow-hidden p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
 									{children}
 								</Dialog.Panel>
 							</TransitionChild>

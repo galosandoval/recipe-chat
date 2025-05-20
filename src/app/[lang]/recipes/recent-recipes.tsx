@@ -24,7 +24,7 @@ function RecentRecipe({ recipe }: { recipe: Recipe }) {
 				href={`/recipes/${recipe.id}?name=${encodeURIComponent(
 					recipe.name
 				)}`}
-				className='bg-base-300 flex h-10 gap-2 overflow-hidden rounded-md'
+				className='flex h-10 gap-2 overflow-hidden rounded-md'
 			>
 				{recipe.imgUrl ? (
 					<Image
@@ -36,10 +36,10 @@ function RecentRecipe({ recipe }: { recipe: Recipe }) {
 					/>
 				) : (
 					<div className='bg-primary-content self-center'>
-						<RecipeFallbackSVG />
+						<RecipeFallbackSVG className='h-10 w-10' />
 					</div>
 				)}
-				<p className='prose self-center truncate whitespace-nowrap text-left text-xs'>
+				<p className='self-center truncate whitespace-nowrap text-left text-xs'>
 					{recipe.name}
 				</p>
 			</Link>

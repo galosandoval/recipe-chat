@@ -19,7 +19,7 @@ export const Modal = ({
 		<Transition as={Fragment} show={isOpen}>
 			<Dialog
 				as='div'
-				className='fixed inset-0 z-30 grid h-full w-full place-items-center bg-base-300/70'
+				className='fixed inset-0 z-30 grid h-full w-full place-items-center'
 				onClose={closeModal}
 			>
 				<TransitionChild
@@ -30,7 +30,7 @@ export const Modal = ({
 					leaveFrom='opacity-100'
 					leaveTo='opacity-0'
 				>
-					<div className='absolute inset-0 bg-primary-content/65'></div>
+					<div className='bg-primary-content/65 absolute inset-0'></div>
 				</TransitionChild>
 				<TransitionChild
 					enter='ease-out duration-300'
@@ -39,7 +39,7 @@ export const Modal = ({
 					leaveFrom='opacity-100 translate-y-0'
 					leaveTo='opacity-0 translate-y-1'
 				>
-					<DialogPanel className='w-[95%] max-w-md transform overflow-hidden rounded-2xl bg-base-100 p-2 text-left align-middle shadow-xl transition-all'>
+					<DialogPanel className='w-[95%] max-w-md transform overflow-hidden rounded-2xl p-2 text-left align-middle shadow-xl transition-all'>
 						{children}
 					</DialogPanel>
 				</TransitionChild>

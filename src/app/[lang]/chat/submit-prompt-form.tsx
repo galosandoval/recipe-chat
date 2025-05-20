@@ -34,22 +34,24 @@ export function SubmitPromptForm() {
 	}
 
 	return (
-		<form
-			onSubmit={handleSubmit(onSubmit)}
-			className='flex w-full items-center md:rounded-md'
-		>
-			<div className='mx-auto flex w-full items-center bg-background/75 py-2 backdrop-blur-sm sm:mb-2 sm:rounded-xl'>
-				<PromptInput
-					register={register}
-					placeholder={t.chatFormPlaceholder}
-				/>
-				<SubmitButtons
-					isStreaming={isStreaming}
-					onStopStreaming={onStopStreaming}
-					isSubmitDisabled={isSubmitDisabled}
-				/>
-			</div>
-		</form>
+		<div className='fixed bottom-0 mx-auto w-full max-w-md'>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className='flex w-full items-center md:rounded-md'
+			>
+				<div className='mx-auto flex w-full items-center bg-background/75 py-2 backdrop-blur-sm sm:mb-2 sm:rounded-xl'>
+					<PromptInput
+						register={register}
+						placeholder={t.chatFormPlaceholder}
+					/>
+					<SubmitButtons
+						isStreaming={isStreaming}
+						onStopStreaming={onStopStreaming}
+						isSubmitDisabled={isSubmitDisabled}
+					/>
+				</div>
+			</form>
+		</div>
 	)
 }
 

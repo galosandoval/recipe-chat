@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { cn } from '~/lib/utils'
 
 export const LogoIcon = () => {
 	return (
@@ -12,13 +13,13 @@ export const LogoIcon = () => {
 	)
 }
 
-export const RecipeFallbackSVG = () => (
+export const RecipeFallbackSVG = ({ className }: { className?: string }) => (
 	<svg
 		xmlns='http://www.w3.org/2000/svg'
 		width='260'
 		height='260'
 		viewBox='0 0 260 260'
-		className='h-10 w-10 fill-current'
+		className={cn('h-52 w-full fill-current', className)}
 	>
 		<g fillRule='evenodd'>
 			<g id='i-like-food' fill='currentColor'>

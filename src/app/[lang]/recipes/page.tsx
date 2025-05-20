@@ -16,7 +16,7 @@ export default async function RecipesPage() {
 	// }
 	return (
 		<HydrateClient>
-			<main className='h-app-screen relative flex w-full flex-1 flex-col items-stretch'>
+			<main className='relative flex w-full flex-1 flex-col'>
 				<div className='px-4 pt-4'>
 					<RecentRecipes />
 					<Recipes />

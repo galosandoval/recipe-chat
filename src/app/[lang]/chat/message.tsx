@@ -40,14 +40,12 @@ function UserMessage({ message }: { message: PrismaMessage }) {
 function ActiveFilters() {
 	const { data: filters, status, fetchStatus } = useFiltersByUser()
 	const t = useTranslations()
-
 	if (fetchStatus === 'idle') {
 		return null
 	}
 	if (status === 'pending') {
 		return <div>{t.loading.screen}</div>
 	}
-
 	if (status === 'error' || !filters) {
 		return <div>{t.error.somethingWentWrong}</div>
 	}
@@ -55,7 +53,6 @@ function ActiveFilters() {
 	if (activeFilters.length === 0) {
 		return null
 	}
-
 	return (
 		<div className='flex gap-2 pt-2'>
 			<h3 className='mb-0 mt-0 text-sm'>{t.filters.title}:</h3>

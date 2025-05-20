@@ -18,7 +18,7 @@ import { cn } from '~/lib/utils'
 
 export function NavContainer() {
 	return (
-		<div className='fixed top-0 z-10 flex w-full flex-col items-center justify-center backdrop-blur'>
+		<div className='bg-background'>
 			<Nav />
 		</div>
 	)
@@ -41,11 +41,7 @@ function Nav() {
 }
 
 function PublicNavbar() {
-	return (
-		<>
-			<AppName rightSlot={<NavDropdownMenu />} />
-		</>
-	)
+	return <AppName rightSlot={<NavDropdownMenu />} />
 }
 
 function RoutesNavbar() {
@@ -70,7 +66,7 @@ function RoutesNavbar() {
 	return (
 		<>
 			<AppName />
-			<div className='flex w-full flex-1 justify-center border-b bg-muted p-1 dark:border-b-muted'>
+			<div className='flex w-full justify-center border-b bg-muted p-1 dark:border-b-muted'>
 				<NavigationMenu className='flex w-full max-w-screen-sm flex-1 justify-between px-4'>
 					<NavigationMenuList>
 						{menuItems.map((item) => (

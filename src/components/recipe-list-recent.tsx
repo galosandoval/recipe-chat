@@ -24,7 +24,7 @@ export function RecentRecipes() {
 								recipe.name
 							)}`}
 							key={recipe.id}
-							className='flex h-10 gap-2 overflow-hidden rounded-md bg-base-300'
+							className='flex h-10 gap-2 overflow-hidden rounded-md'
 						>
 							{recipe.imgUrl ? (
 								<Image
@@ -35,7 +35,7 @@ export function RecentRecipes() {
 									className='object-fill'
 								/>
 							) : (
-								<div className='self-center bg-primary-content'>
+								<div className='bg-primary-content self-center'>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
 										width='260'
