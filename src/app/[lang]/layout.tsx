@@ -7,6 +7,7 @@ import { Providers } from '~/components/providers'
 import type { Locale } from '~/i18n-config'
 import { auth } from '~/server/auth'
 import { getTranslations } from '~/lib/get-translations'
+import { cn } from '~/lib/utils'
 
 export const metadata: Metadata = {
 	title: 'Create T3 App',
@@ -28,10 +29,18 @@ export default async function RootLayout({
 			lang={lang}
 			className={`${GeistSans.variable}`}
 		>
-			<body className='flex overflow-hidden'>
+			<body className='flex'>
 				<Providers translations={translations} session={session}>
 					<NavContainer />
-					{children}
+
+					<div
+						className={cn(
+							'relative flex h-full flex-1 flex-col items-stretch overflow-auto',
+							session ? 'mt-20' : 'mt-9'
+						)}
+					>
+						{children}
+					</div>
 				</Providers>
 			</body>
 		</html>

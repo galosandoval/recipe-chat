@@ -2,6 +2,7 @@ import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
 import { signUp } from '~/server/api/use-cases/users'
 import { TRPCError } from '@trpc/server'
 import { signUpSchema } from '~/schemas/auth'
+
 export const authRouter = createTRPCRouter({
 	signUp: publicProcedure
 		.input(signUpSchema)

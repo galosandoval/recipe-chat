@@ -31,16 +31,16 @@ export function AssistantMessage({
 	message?: Message
 	streamedMessage?: GeneratedMessage
 }) {
-	const content = message?.content ?? streamedMessage?.message
-	const recipes =
-		message?.recipes?.map((r) => ({
-			...r,
-			description: r.description ?? '',
-			ingredients: r.ingredients?.map((i) => i.name),
-			instructions: r.instructions?.map((i) => i.description)
-		})) ??
-		streamedMessage?.recipes ??
-		[]
+	// const content = message?.content ?? streamedMessage?.message
+	// const recipes =
+	// 	message?.recipes?.map((r) => ({
+	// 		...r,
+	// 		description: r.description ?? '',
+	// 		ingredients: r.ingredients?.map((i) => i.name),
+	// 		instructions: r.instructions?.map((i) => i.description)
+	// 	})) ??
+	// 	streamedMessage?.recipes ??
+	// 	[]
 
 	return (
 		<div className='mx-auto flex flex-col p-4'>
@@ -51,7 +51,7 @@ export function AssistantMessage({
 					</div>
 
 					<div className='flex flex-col rounded-lg bg-secondary p-3 text-secondary-foreground'>
-						<P>{content}</P>
+						{/* <P>{content}</P>
 						<div className='w-full'>
 							<CollapseableRecipe
 								recipes={recipes}
@@ -60,7 +60,7 @@ export function AssistantMessage({
 							<RecipesToGenerate
 								recipes={message?.recipes ?? []}
 							/>
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</div>
@@ -194,37 +194,38 @@ function Instructions({ instructions }: { instructions?: string[] }) {
 	)
 }
 
-function RecipesToGenerate({ recipes }: { recipes: Message['recipes'] }) {
+// function RecipesToGenerate({ recipes }: { recipes: Message['recipes'] }) {
+function RecipesToGenerate() {
 	const t = useTranslations()
-	const [generated, setGenerated] = useState<boolean[]>(
-		recipes?.map(() => false) ?? []
-	)
+	// const [generated, setGenerated] = useState<boolean[]>(
+	// 	recipes?.map(() => false) ?? []
+	// )
 	const { onSubmit: onChatFormSubmit, isStreaming } = useChatForm()
 	const { status } = useSession()
 	const isAuthenticated = status === 'authenticated'
 
-	if (!recipes || recipes.length === 0 || recipes.length === 1) {
-		return null
-	}
+	// if (!recipes || recipes.length === 0 || recipes.length === 1) {
+	// 	return null
+	// }
 
 	const generateRecipe = async (
 		name: string,
 		description: string,
 		index: number
 	) => {
-		onChatFormSubmit({
-			prompt: `Generate a recipe for ${name}: ${description}`
-		})
-		setGenerated((state) => {
-			const newState = [...state]
-			newState[index] = true
-			return newState
-		})
+		// onChatFormSubmit({
+		// 	prompt: `Generate a recipe for ${name}: ${description}`
+		// })
+		// setGenerated((state) => {
+		// 	const newState = [...state]
+		// 	newState[index] = true
+		// 	return newState
+		// })
 	}
 
 	return (
 		<div className='grid grid-cols-1 items-stretch gap-2 pt-2 sm:grid-cols-2'>
-			{recipes.map((r, i) => (
+			{/* {recipes.map((r, i) => (
 				<Card key={r.name + i} className='bg-background'>
 					<CardHeader className='p-3'>
 						<CardTitle>{r.name}</CardTitle>
@@ -262,7 +263,7 @@ function RecipesToGenerate({ recipes }: { recipes: Message['recipes'] }) {
 						)}
 					</div>
 				</Card>
-			))}
+			))} */}
 		</div>
 	)
 }

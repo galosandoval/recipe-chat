@@ -75,16 +75,11 @@ function ChatWindowContent({
 }) {
 	const messages = useChatMessages()
 	const mutationVariables = chatStore((state) => state.mutationVariables)
-	const sortedMessages = useMemo(() => {
-		return (
-			[
-				...messages,
-				...(mutationVariables?.messages ?? [])
-			] as GetChatMessageOutput[]
-		).sort((a, b) => {
-			return a.sortOrder - b.sortOrder
-		})
-	}, [messages, mutationVariables])
+	const sortedMessages = messages.sort((a, b) => {
+		const aSortOrder = a?.sortOrder ?? 0
+		const bSortOrder = b?.sortOrder ?? 0
+		return aSortOrder - bSortOrder
+	})
 
 	useEffect(() => {
 		console.log('sortedMessages', sortedMessages)
@@ -120,12 +115,17 @@ const Messages = memo(function Messages({
 	data?: GetChatMessageOutput[]
 }) {
 	const { stream } = chatStore((state) => state)
-	const lastMessage = data?.at(-1)
 
 	useEffect(() => {
 		console.log('stream', stream)
 		console.log('data', data)
 	}, [stream, data])
+
+	if (!data) {
+		return <p>No data</p>
+	}
+
+	const lastMessage = data?.at(-1)
 
 	if (status === 'error') {
 		return <p>Error</p>

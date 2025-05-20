@@ -45,6 +45,7 @@ export class RecipesDataAccess {
 				name: 'asc'
 			}
 		})
+		console.log('items', items)
 		let nextCursor: typeof cursor | undefined = undefined
 		if (items.length > limit) {
 			const nextItem = items.pop()

@@ -93,7 +93,7 @@ model Recipe {
     cookTime     String?
     message      Message?      @relation(fields: [messageId], references: [id])
     messageId    String?
-    // if recipe is saved by user 
+    // if recipe is saved by user
     // unsaved recipes will not have ingredients and instructions
     saved        Boolean?
     categories   String[]      @default([])

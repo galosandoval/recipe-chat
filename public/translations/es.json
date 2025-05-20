@@ -98,6 +98,7 @@
 		"cancel": "Cancelar",
 		"save": "guardar",
 		"delete": "borrar",
+		"enterUrl": "Ingresa una URL válida que contenga una receta.",
 
 		"byId": {
 			"saveImage": "Guardar imagen",
@@ -117,9 +118,7 @@
 			"delete": {
 				"title": "Borrar receta",
 				"message": "¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer."
-			},
-
-			"enterUrl": "Ingresa una URL válida que contenga una receta."
+			}
 		}
 	},
 

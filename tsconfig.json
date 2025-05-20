@@ -8,6 +8,7 @@
 		"resolveJsonModule": true,
 		"moduleDetection": "force",
 		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
 
 		/* Strictness */
 		"strict": true,
@@ -30,7 +31,7 @@
 		}
 	},
 	"include": [
-		".eslintrc.cjs",
+		"eslint.config.js",
 		"next-env.d.ts",
 		"**/*.ts",
 		"**/*.tsx",

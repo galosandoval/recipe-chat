@@ -35,7 +35,7 @@ export const recipesRouter = createTRPCRouter({
 	infiniteRecipes: protectedProcedure
 		.input(
 			z.object({
-				limit: z.number().min(1).max(50),
+				limit: z.number().min(1).max(50).default(10),
 				cursor: z.string().nullish(),
 				search: z.string()
 			})

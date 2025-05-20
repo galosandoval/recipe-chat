@@ -62,9 +62,10 @@ const ScrollContext = createContext<React.RefObject<HTMLDivElement> | null>(
 // Provider Component
 export const ScrollProvider = ({ children }: { children: React.ReactNode }) => {
 	const bottomRef = useRef<HTMLDivElement>(null) // Ref for the target element
-
 	return (
-		<ScrollContext.Provider value={bottomRef}>
+		<ScrollContext.Provider
+			value={bottomRef as React.RefObject<HTMLDivElement>}
+		>
 			{children}
 		</ScrollContext.Provider>
 	)

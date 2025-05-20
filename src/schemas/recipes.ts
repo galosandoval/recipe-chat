@@ -122,3 +122,5 @@ export const recipeUrlSchema = z.object({
 })
 
 export type RecipeUrlSchemaType = z.infer<typeof recipeUrlSchema>
+
+export type InfiniteRecipes = RouterOutputs['recipes']['infiniteRecipes']

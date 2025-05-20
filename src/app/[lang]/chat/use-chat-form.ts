@@ -87,7 +87,7 @@ export const useChatForm = () => {
 			}
 		})
 	const bottomRef = useScrollRef() // Reference to scroll to bottom
-
+	console.log('buttonRef', bottomRef)
 	useEffect(() => {
 		console.log('use-chat-form variables', variables)
 	}, [variables])

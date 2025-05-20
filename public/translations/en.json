@@ -98,6 +98,7 @@
 		"cancel": "Cancel",
 		"save": "Save",
 		"delete": "Delete",
+		"enterUrl": "Enter a valid url that contains a recipe.",
 
 		"byId": {
 			"saveImage": "Save image",
@@ -117,9 +118,7 @@
 			"delete": {
 				"title": "Delete recipe",
 				"message": "Are you sure you want to delete this recipe? This action cannot be undone."
-			},
-
-			"enterUrl": "Enter a valid url that contains a recipe."
+			}
 		}
 	},
 
