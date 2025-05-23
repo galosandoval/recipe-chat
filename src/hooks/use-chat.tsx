@@ -14,6 +14,7 @@ import {
   loadingToastOptions,
   successToastOptions
 } from '~/components/toast'
+import { useFiltersByUser } from '~/components/recipe-filters'
 // import { useFilters } from '~/components/recipe-filters'
 
 export type FormValues = {
@@ -32,23 +33,22 @@ export const useChat = () => {
   const t = useTranslation()
 
   const [sessionChatId, changeSessionChatId] = useSessionChatId()
-
   const router = useRouter()
   const { status: authStatus } = useSession()
-  // const filters = useFilters()
+  const filters = useFiltersByUser()
 
   const isAuthenticated = authStatus === 'authenticated'
   const utils = api.useContext()
 
-  // const filtersData = filters.data
+  const filtersData = filters.data
 
   const filterStrings: string[] = []
 
-  // if (filtersData) {
-  //   filtersData.forEach((filter) => {
-  //     if (filter.checked) filterStrings.push(filter.name)
-  //   })
-  // }
+  if (filtersData) {
+    filtersData.forEach((filter) => {
+      if (filter.checked) filterStrings.push(filter.name)
+    })
+  }
 
   const { mutate: upsertChat } = api.chats.upsert.useMutation({
     async onSuccess(data) {
@@ -86,6 +86,10 @@ export const useChat = () => {
 
     if (currentChatId && JSON.parse(currentChatId)) {
       chatId = JSON.parse(currentChatId)
+    }
+
+    if (!isAuthenticated) {
+      return
     }
 
     upsertChat({
@@ -210,15 +214,14 @@ export const useChat = () => {
   const handleSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       setShouldFetchChat(false)
-
       if (isSendingMessage) {
         stop()
       } else {
-        submitMessages(event, { options: {} })
+        submitMessages(event, { options: { body: { filters: filterStrings } } })
       }
     },
 
-    [isSendingMessage, stop, submitMessages]
+    [isSendingMessage, stop, submitMessages, filterStrings]
   )
 
   const {

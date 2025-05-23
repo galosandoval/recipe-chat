@@ -50,7 +50,7 @@ export function FiltersByUser() {
   }
 
   if (status === 'loading') {
-    return <div>{t('loading.screen')}</div>
+    return null
   }
 
   return <Filters data={data ?? []} />

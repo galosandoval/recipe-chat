@@ -31,7 +31,8 @@
     "tailwind.config.cjs",
     ".next/types/**/*.ts",
     "next-i18next.config.js",
-    "postcss.config.cjs"
+    "postcss.config.cjs",
+    "next.config.mjs"
   ],
   "incremental": true,
   "noUncheckedIndexedAccess": true,

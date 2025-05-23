@@ -65,7 +65,7 @@ export default async function handler(req: NextRequest) {
   params.push(...messages)
 
   const response = await openai.createChatCompletion({
-    model: 'gpt-4o',
+    model: 'gpt-4.1',
     stream: true,
     messages: params
   })
