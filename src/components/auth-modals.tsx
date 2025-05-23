@@ -228,7 +228,8 @@ export function useLogin() {
   })
 
   const onSubmit = async (data: LoginSchemaType) => {
-    const callback = decodeURIComponent(router.query.callbackUrl as string)
+    const path = router.query.callbackUrl as string | undefined
+    const callback = path ? decodeURIComponent(path) : '/chat'
 
     const response = await signIn('credentials', { redirect: false, ...data })
     if (response?.ok) {
