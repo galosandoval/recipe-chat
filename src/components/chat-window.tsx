@@ -514,7 +514,7 @@ function ActiveFilters() {
   const t = useTranslation()
 
   if (status === 'loading') {
-    return <div>{t('loading.screen')}</div>
+    return null
   }
 
   if (status === 'error' || !filters) {
