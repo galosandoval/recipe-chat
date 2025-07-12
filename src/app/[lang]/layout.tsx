@@ -30,11 +30,11 @@ export default async function RootLayout({
 
   return (
     <html lang={lang} className={`${geist.variable}`}>
-      <body className='h-svh overflow-hidden'>
+      <body className='flex h-svh overflow-hidden'>
         <Providers session={session} translations={translations}>
           <NavContainer />
 
-          <div className='relative flex h-full flex-1 flex-col'>{children}</div>
+          <div className='flex h-full flex-1 flex-col'>{children}</div>
         </Providers>
       </body>
     </html>

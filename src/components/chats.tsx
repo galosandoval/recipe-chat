@@ -10,7 +10,7 @@ import { api } from '~/trpc/react'
 import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/screen'
 import { useTranslations } from '~/hooks/use-translations'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { type Session } from 'next-auth'
 import { ValuePropsHeader } from './value-props'
 import { transformContentToRecipe } from '~/hooks/use-chat'
@@ -206,7 +206,7 @@ function ChatList({
       <div className='flex h-full flex-col justify-end gap-2'>
         {data.length > 0 && (
           <div className='flex items-center justify-center gap-2'>
-            <h2 className='mb-0 mt-0'>{t.chatWindow.chats}</h2>
+            <h2 className='mt-0 mb-0'>{t.chatWindow.chats}</h2>
             <ListBulletIcon />
           </div>
         )}
@@ -242,7 +242,6 @@ function ChatOption({
     }
   ) => void
 }) {
-  const router = useRouter()
   const params = useParams()
 
   if (chat.messages.length === 0) {
@@ -264,20 +263,20 @@ function ChatOption({
 
   return (
     <div
-      className={`flex select-none flex-col rounded px-2 py-2 hover:bg-primary-content ${
+      className={`hover:bg-primary-content flex flex-col rounded px-2 py-2 select-none ${
         chatId === chat.id ? 'bg-primary-content' : ''
       }`}
     >
       <p
         onClick={() => handleChangeChat(chat)}
-        className={`mb-1 mt-1 truncate ${
+        className={`mt-1 mb-1 truncate ${
           chatId === chat.id ? 'text-primary' : ''
         }`}
       >
         {message}
       </p>
 
-      <span className='ml-auto text-xs text-primary'>
+      <span className='text-primary ml-auto text-xs'>
         {formatTimeAgo(chat.updatedAt, params.lang as string)}
       </span>
     </div>

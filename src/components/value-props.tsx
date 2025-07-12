@@ -15,7 +15,7 @@ export function ValueProps({
   const t = useTranslations()
 
   return (
-    <div className='prose mx-auto flex flex-col items-center justify-center gap-2 pt-20'>
+    <div className='prose mx-auto flex flex-col items-center justify-center gap-2 py-20'>
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <ValuePropsHeader
           icon={
@@ -93,13 +93,13 @@ export function ValueProps({
         />
 
         <div className='flex w-full flex-col items-center gap-4'>
-          <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
+          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
             {t.capabilities.firstDescription}
           </div>
-          <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
+          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
             {t.capabilities.secondDescription}
           </div>
-          <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold  normal-case text-base-content'>
+          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
             {t.capabilities.thirdDescription}
           </div>
         </div>

@@ -10,9 +10,15 @@ import Link from 'next/link'
 // 	NavigationMenuLink,
 // 	NavigationMenuList
 // } from './ui/navigation-menu'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams
+} from 'next/navigation'
 import { ProtectedDropdownMenu } from './dropdown-menus'
 import {
+  ArrowBackLeftIcon,
   ChatBubbleLeftRightIcon,
   ListBulletIcon,
   PencilSquareIcon,
@@ -20,6 +26,7 @@ import {
 } from './icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { ThemeToggle, useTheme } from './theme-toggle'
+import { api } from '~/trpc/react'
 // import { cn } from '~/lib/utils'
 
 export function NavContainer() {
@@ -35,18 +42,19 @@ const Nav = () => {
   console.log('data', data)
   const pathname = usePathname()
   console.log('pathname', pathname)
+  const { lang, id } = useParams()
   let navbar = <RoutesNavbar />
 
   if (!data) {
     navbar = <PublicNavbar />
-  } else if (pathname === '/recipes/[id]') {
-    navbar = <RecipeByIdNavbar />
-  } else if (pathname === '/recipes/[id]/edit') {
+  } else if (pathname === `/${lang}/recipes/${id}/edit`) {
     navbar = <EditRecipeNavbar />
+  } else if (pathname === `/${lang}/recipes/${id}`) {
+    navbar = <RecipeByIdNavbar />
   }
 
   return (
-    <div className='fixed top-0 z-10 flex w-full justify-center border-b border-b-base-300 bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
+    <div className='border-b-base-300 from-base-100 to-base-100/70 text-base-content fixed top-0 z-10 flex w-full justify-center border-b bg-gradient-to-b bg-blend-saturation backdrop-blur transition-all duration-300'>
       {navbar}
     </div>
   )
@@ -71,40 +79,23 @@ function PublicNavbar() {
 
 function RecipeByIdNavbar() {
   const router = useRouter()
-  const params = useSearchParams()
+  const { id } = useParams()
+  const { data } = api.recipes.byId.useQuery({ id: id as string })
+
   return (
     <nav className='prose navbar grid w-full grid-cols-6 bg-transparent px-4'>
       <button
         className='btn btn-circle btn-ghost'
         onClick={() => router.push('/recipes')}
       >
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          fill='none'
-          viewBox='0 0 24 24'
-          strokeWidth={1.5}
-          stroke='currentColor'
-          className='h-6 w-6'
-        >
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            d='M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3'
-          />
-        </svg>
+        <ArrowBackLeftIcon />
       </button>
       <h1 className='col-span-4 mb-0 justify-self-center text-base'>
-        {params.get('name')}
+        {data?.name}
       </h1>
       <button
         className='btn btn-circle btn-ghost justify-self-end'
-        onClick={() =>
-          router.push(
-            `/recipes/${params.get('id') as string}/edit?name=${
-              params.get('name') as string
-            }`
-          )
-        }
+        onClick={() => router.push(`/recipes/${id}/edit?name=${data?.name}`)}
       >
         <span>
           <PencilSquareIcon />
@@ -118,14 +109,14 @@ function EditRecipeNavbar() {
   const t = useTranslations()
   const router = useRouter()
   return (
-    <nav className='prose navbar grid w-full grid-cols-3 gap-24 bg-transparent px-4 '>
+    <nav className='prose navbar grid w-full grid-cols-3 gap-24 bg-transparent px-4'>
       <button
         className='btn btn-circle btn-ghost'
         onClick={() => router.back()}
       >
         <XIcon />
       </button>
-      <h1 className='mb-0 justify-self-center whitespace-nowrap text-center text-base'>
+      <h1 className='mb-0 justify-self-center text-center text-base whitespace-nowrap'>
         {t.recipes.byId.edit}
       </h1>
     </nav>
@@ -133,8 +124,8 @@ function EditRecipeNavbar() {
 }
 
 function RoutesNavbar() {
-  const router = useRouter()
   const pathname = usePathname()
+  console.log('pathname', pathname)
   const menuItems = [
     {
       value: '/chat',

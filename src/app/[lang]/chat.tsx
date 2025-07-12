@@ -3,12 +3,6 @@
 import ChatWindow from '~/components/chat-window'
 import { SubmitMessageForm } from '~/components/submit-message-form'
 import { useChat } from '~/hooks/use-chat'
-import { type Metadata } from 'next'
-
-// export const metadata: Metadata = {
-//   title: 'Chat',
-//   description: 'Chat'
-// }
 
 export default function Chat() {
   const {
@@ -22,7 +16,7 @@ export default function Chat() {
 
   return (
     <div className='relative flex h-full w-full flex-1 flex-col'>
-      <div className='flex-1 overflow-hidden'>
+      <div className='flex-1'>
         <ChatWindow isSendingMessage={isSendingMessage} {...rest} />
       </div>
       <SubmitMessageForm
