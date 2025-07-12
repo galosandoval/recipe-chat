@@ -28,7 +28,7 @@ import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import NoSsr from './no-ssr'
-import { useTranslation } from '~/hooks/use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
 
@@ -424,7 +424,7 @@ const Message = function Message({
     messageId?: string | undefined
   }) => void
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   if (message.role === 'assistant') {
     const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
@@ -462,13 +462,13 @@ const Message = function Message({
                   })
                 }
               >
-                {t('chat-window.to-recipe')}
+                {t.chatWindow.toRecipe}
               </Button>
             ) : !isSendingMessage ? (
               // Save
               <Button
                 className='btn btn-outline'
-                isLoading={saveRecipeStatus === 'loading'}
+                isLoading={saveRecipeStatus === 'pending'}
                 onClick={() =>
                   handleSaveRecipe({
                     content: message.content || '',
@@ -476,7 +476,7 @@ const Message = function Message({
                   })
                 }
               >
-                {t('chat-window.save')}
+                {t.chatWindow.save}
               </Button>
             ) : null}
           </div>
@@ -511,14 +511,14 @@ function removeBracketsAndQuotes(str: string) {
 
 function ActiveFilters() {
   const { data: filters, status } = useFiltersByUser()
-  const t = useTranslation()
+  const t = useTranslations()
 
-  if (status === 'loading') {
+  if (status === 'pending') {
     return null
   }
 
   if (status === 'error' || !filters) {
-    return <div>{t('error.something-went-wrong')}</div>
+    return <div>{t.error.somethingWentWrong}</div>
   }
   const activeFilters = filters.filter((f) => f.checked)
 
@@ -528,7 +528,7 @@ function ActiveFilters() {
 
   return (
     <div className='flex gap-2 pt-2'>
-      <h3 className='mb-0 mt-0 text-sm'>{t('filters.title')}:</h3>
+      <h3 className='mb-0 mt-0 text-sm'>{t.filters.title}:</h3>
       {activeFilters.map((f) => (
         <div className='badge badge-primary badge-outline' key={f.id}>
           {f.name}

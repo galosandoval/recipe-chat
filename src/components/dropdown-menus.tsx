@@ -1,14 +1,20 @@
-import { Menu, Transition } from '@headlessui/react'
+import {
+  Menu,
+  Transition,
+  MenuItem,
+  MenuButton,
+  MenuItems
+} from '@headlessui/react'
 import { ThemeToggle, useTheme } from './theme-toggle'
 import { ArrowLeftOnRectangleIcon } from './icons'
 import { signOut } from 'next-auth/react'
-import { useTranslation } from '~/hooks/use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 import { useRouter } from 'next/router'
 
-export function DropdownMenu({ children }: { children: React.ReactNode }) {
+function DropdownMenu({ children }: { children: React.ReactNode }) {
   return (
     <Menu as='div' className='relative'>
-      <Menu.Button className='btn btn-circle btn-ghost'>
+      <MenuButton className='btn btn-circle btn-ghost'>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
@@ -23,7 +29,7 @@ export function DropdownMenu({ children }: { children: React.ReactNode }) {
             d='M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z'
           />
         </svg>
-      </Menu.Button>
+      </MenuButton>
       <Transition
         enter='transition duration-100 ease-out'
         enterFrom='transform scale-95 opacity-0'
@@ -32,16 +38,16 @@ export function DropdownMenu({ children }: { children: React.ReactNode }) {
         leaveFrom='transform scale-100 opacity-100'
         leaveTo='transform scale-95 opacity-0'
       >
-        <Menu.Items className='absolute right-0 top-[0.5rem] z-20 flex flex-col gap-1 rounded-md bg-primary-content shadow'>
+        <MenuItems className='absolute right-0 top-[0.5rem] z-20 flex flex-col gap-1 rounded-md bg-primary-content shadow'>
           {children}
-        </Menu.Items>
+        </MenuItems>
       </Transition>
     </Menu>
   )
 }
 
 export function ProtectedDropdownMenu() {
-  const t = useTranslation()
+  const t = useTranslations()
   const router = useRouter()
   const { theme, updateTheme } = useTheme()
 
@@ -53,20 +59,20 @@ export function ProtectedDropdownMenu() {
 
   return (
     <DropdownMenu>
-      <Menu.Item>
+      <MenuItem>
         <>
           <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
         </>
-      </Menu.Item>
-      <Menu.Item>
+      </MenuItem>
+      <MenuItem>
         <button
           onClick={handleSignOut}
           className='btn btn-ghost no-animation w-[8rem]'
         >
-          <span>{t('nav.menu.logout')}</span>
+          <span>{t.nav.menu.logout}</span>
           <ArrowLeftOnRectangleIcon />
         </button>
-      </Menu.Item>
+      </MenuItem>
     </DropdownMenu>
   )
 }

@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
-import { api } from '~/utils/api'
+import { api } from '~/trpc/react'
 import { z } from 'zod'
 import { createId } from '@paralleldrive/cuid2'
 
@@ -14,7 +14,6 @@ export const useList = () => {
   return api.lists.byUserId.useQuery(
     { userId },
     {
-      keepPreviousData: true,
       enabled: !!userId
     }
   )

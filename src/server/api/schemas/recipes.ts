@@ -1,4 +1,4 @@
-import { type RouterOutputs } from '~/utils/api'
+import { type RouterOutputs } from '~/trpc/react'
 import { z } from 'zod'
 
 export type LinkedData =
@@ -135,4 +135,3 @@ export const updateRecipeImgUrlSchema = z.object({
   oldUrl: z.string().optional()
 })
 export type UpdateRecipeImgUrl = z.infer<typeof updateRecipeImgUrlSchema>
-

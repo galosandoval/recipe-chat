@@ -1,7 +1,16 @@
+'use client'
+
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
-import React, { type ReactNode, memo } from 'react'
+// import { NavDropdownMenu } from './dropdown-menus'
+// import {
+// 	NavigationMenu,
+// 	NavigationMenuItem,
+// 	navigationMenuTriggerStyle,
+// 	NavigationMenuLink,
+// 	NavigationMenuList
+// } from './ui/navigation-menu'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ProtectedDropdownMenu } from './dropdown-menus'
 import {
   ChatBubbleLeftRightIcon,
@@ -11,50 +20,87 @@ import {
 } from './icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { ThemeToggle, useTheme } from './theme-toggle'
+// import { cn } from '~/lib/utils'
 
-export default function Layout({
-  children,
-  font
-}: {
-  children: ReactNode
-  font: string
-}) {
-  return <RootLayout font={font}>{children}</RootLayout>
+export function NavContainer() {
+  return (
+    <div className='bg-background'>
+      <Nav />
+    </div>
+  )
 }
 
-const RootLayout = memo(function RootLayout({
-  children,
-  font
-}: {
-  children: ReactNode
-  font: string
-}) {
-  const router = useRouter()
-  const { data } = useSession()
+// function Nav() {
+//   const { data: session } = useSession()
+//   // this fixes the hydration error created by next-themes
+//   const [mounted, setMounted] = useState(false)
+//   useEffect(() => {
+//     setMounted(true)
+//   }, [])
+//   if (!mounted) {
+//     return null
+//   }
+//   if (session?.user) {
+//     return <RoutesNavbar />
+//   }
+//   return <PublicNavbar />
+// }
 
-  let navbar = <RoutesNavbar />
+// function PublicNavbar() {
+//   return <AppName rightSlot={<NavDropdownMenu />} />
+// }
 
-  if (!data) {
-    navbar = <PublicNavbar />
-  } else if (router.pathname === '/recipes/[id]') {
+function Nav() {
+  const { data: session } = useSession()
+  const pathname = usePathname()
+
+  //   const menuItems = [
+  //     {
+  //       href: `/${lang}`,
+  //       icon: <MessagesSquare className='h-4 w-4' />,
+  //       label: 'Chat'
+  //     },
+  //     {
+  //       href: `/${lang}/list`,
+  //       icon: <ListCheck className='h-4 w-4' />,
+  //       label: 'List'
+  //     },
+  //     {
+  //       href: `/${lang}/recipes`,
+  //       icon: <BookOpen className='h-4 w-4' />,
+  //       label: 'Recipes'
+  //     }
+  //   ]
+
+  let navbar: React.ReactNode = <RoutesNavbar />
+
+  if (!session) {
+    return <PublicNavbar />
+  } else if (pathname === '/recipes/[id]') {
     navbar = <RecipeByIdNavbar />
-  } else if (router.pathname === '/recipes/[id]/edit') {
+  } else if (pathname === '/recipes/[id]/edit') {
     navbar = <EditRecipeNavbar />
   }
 
   return (
-    <div className={`${font} flex overflow-y-auto font-roboto`}>
-      <div className='relative max-w-full flex-1'>
-        <div className='fixed top-0 z-10 flex w-full justify-center border-b border-b-base-300 bg-gradient-to-b from-base-100 to-base-100/70 text-base-content bg-blend-saturation backdrop-blur transition-all duration-300'>
-          {navbar}
-        </div>
-        <main className='transition-width relative flex h-[100svh] w-full flex-1 flex-col items-stretch'>
-          {children}
-        </main>
+    <>
+      <AppName />
+      <div className='bg-muted dark:border-b-muted flex w-full justify-center border-b p-1'>
+        {navbar}
+        {/* <NavigationMenu className='flex w-full max-w-screen-sm flex-1 justify-between px-4'>
+          <NavigationMenuList>
+            {menuItems.map((item) => (
+              <NavigationMenuItem key={item.label}>
+                <NavLink {...item} />
+              </NavigationMenuItem>
+            ))}
+          </NavigationMenuList>
+          <NavDropdownMenu />
+        </NavigationMenu> */}
       </div>
-    </div>
+    </>
   )
-})
+}
 
 function PublicNavbar() {
   const t = useTranslations()
@@ -75,6 +121,9 @@ function PublicNavbar() {
 
 function RecipeByIdNavbar() {
   const router = useRouter()
+  const query = useSearchParams()
+  const id = query.get('id')
+  const name = query.get('name')
   return (
     <nav className='prose navbar grid w-full grid-cols-6 bg-transparent px-4'>
       <button
@@ -96,17 +145,11 @@ function RecipeByIdNavbar() {
           />
         </svg>
       </button>
-      <h1 className='col-span-4 mb-0 justify-self-center text-base'>
-        {router.query.name}
-      </h1>
+      <h1 className='col-span-4 mb-0 justify-self-center text-base'>{name}</h1>
       <button
         className='btn btn-circle btn-ghost justify-self-end'
         onClick={() =>
-          router.push(
-            `/recipes/${router?.query?.id as string}/edit?name=${
-              router?.query?.name as string
-            }`
-          )
+          router.push(`/recipes/${id as string}/edit?name=${name as string}`)
         }
       >
         <span>
@@ -137,7 +180,7 @@ function EditRecipeNavbar() {
 }
 
 function RoutesNavbar() {
-  const router = useRouter()
+  const pathname = usePathname()
   const menuItems = [
     {
       value: '/chat',
@@ -172,7 +215,7 @@ function RoutesNavbar() {
     let styles =
       'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-base-content'
 
-    if (router.asPath === path) {
+    if (pathname === path) {
       styles =
         'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-primary'
     }
@@ -183,7 +226,7 @@ function RoutesNavbar() {
   const activeSpanStyles = (path: string) => {
     let styles = 'absolute top-10 h-1 w-full bg-transparent'
 
-    if (router.asPath === path) {
+    if (pathname === path) {
       styles = 'absolute top-10 h-1 w-full bg-primary'
     }
 
@@ -207,3 +250,39 @@ function RoutesNavbar() {
     </nav>
   )
 }
+
+function AppName({ rightSlot }: { rightSlot?: React.ReactNode }) {
+  return (
+    <div className='dark:border-b-muted grid w-full grid-cols-3 border-b'>
+      <div></div>
+      <h1 className='justify-self-center py-1 text-xl font-bold'>RecipeChat</h1>
+      <div className='justify-self-end'>{rightSlot}</div>
+    </div>
+  )
+}
+
+// function NavLink({
+// 	href,
+// 	icon,
+// 	label
+// }: {
+// 	href: string
+// 	icon: React.ReactNode
+// 	label: string
+// }) {
+// 	const isActive = usePathname() === href
+// 	return (
+// 		<Link href={href} legacyBehavior passHref>
+// 			<NavigationMenuLink
+// 				className={cn(
+// 					navigationMenuTriggerStyle(),
+// 					'gap-1 bg-muted text-muted-foreground',
+// 					isActive && 'bg-background text-foreground'
+// 				)}
+// 			>
+// 				{icon}
+// 				{label}
+// 			</NavigationMenuLink>
+// 		</Link>
+// 	)
+// }

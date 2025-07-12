@@ -6,11 +6,11 @@ import {
 } from './icons'
 import { Drawer } from './drawer'
 import { formatTimeAgo } from '~/utils/relative-time-format'
-import { api } from '~/utils/api'
+import { api } from '~/trpc/react'
 import { useSession } from 'next-auth/react'
 import { ScreenLoader } from './loaders/screen'
-import { useTranslation } from '~/hooks/use-translation'
-import { useRouter } from 'next/router'
+import { useTranslations } from '~/hooks/use-translations'
+import { useParams, useRouter } from 'next/navigation'
 import { type Session } from 'next-auth'
 import { ValuePropsHeader } from './value-props'
 import { transformContentToRecipe } from '~/hooks/use-chat'
@@ -26,7 +26,7 @@ export function ChatsSection({
   ) => void
   chatId?: string
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   const { status: authStatus, data: session } = useSession()
 
@@ -40,7 +40,7 @@ export function ChatsSection({
     <div className='flex w-full max-w-sm flex-col items-center justify-center'>
       <ValuePropsHeader
         icon={<ChatBubbleLeftIcon />}
-        label={t('chat-window.chats')}
+        label={t.chatWindow.chats}
       />
 
       <div className='flex w-full flex-col items-center gap-4'>
@@ -70,23 +70,22 @@ function Chats({
     }
   ) => void
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   const { data, status } = api.chats.getChats.useQuery(
     { userId: session?.user.id || '' },
     {
-      enabled: isAuthenticated,
-      keepPreviousData: true
+      enabled: isAuthenticated
     }
   )
 
   if (status === 'error') {
-    return <div>{t('error.something-went-wrong')}</div>
+    return <div>{t.error.somethingWentWrong}</div>
   }
 
   if (status === 'success') {
     if (data.length === 0) {
-      return <p className='px-4'>{t('chat-window.no-chats')}</p>
+      return <p className='px-4'>{t.chatWindow.noChats}</p>
     }
 
     return (
@@ -103,7 +102,7 @@ function Chats({
     )
   }
 
-  return <div className=''>{t('loading.screen')}</div>
+  return <div className=''>{t.loading.screen}</div>
 }
 
 export function ChatsSideBarButton({
@@ -165,9 +164,8 @@ const useGetChats = (
       { userId: data?.user.id || '' },
 
       {
-        onSuccess,
-        enabled: isAuthenticated,
-        keepPreviousData: true
+        // onSuccess,
+        enabled: isAuthenticated
       }
     ),
     isAuthenticated
@@ -191,7 +189,7 @@ function ChatList({
     })[]
   ) => void
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   const { data, status, isAuthenticated } = useGetChats(onSuccess)
 
@@ -200,7 +198,7 @@ function ChatList({
   }
 
   if (status === 'error') {
-    return <div>{t('error.something-went-wrong')}</div>
+    return <div>{t.error.somethingWentWrong}</div>
   }
 
   if (status === 'success') {
@@ -208,7 +206,7 @@ function ChatList({
       <div className='flex h-full flex-col justify-end gap-2'>
         {data.length > 0 && (
           <div className='flex items-center justify-center gap-2'>
-            <h2 className='mb-0 mt-0'>{t('chat-window.chats')}</h2>
+            <h2 className='mb-0 mt-0'>{t.chatWindow.chats}</h2>
             <ListBulletIcon />
           </div>
         )}
@@ -245,6 +243,7 @@ function ChatOption({
   ) => void
 }) {
   const router = useRouter()
+  const params = useParams()
 
   if (chat.messages.length === 0) {
     return null
@@ -279,7 +278,7 @@ function ChatOption({
       </p>
 
       <span className='ml-auto text-xs text-primary'>
-        {formatTimeAgo(chat.updatedAt, router.locale)}
+        {formatTimeAgo(chat.updatedAt, params.lang as string)}
       </span>
     </div>
   )

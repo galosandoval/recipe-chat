@@ -1,12 +1,12 @@
 import { type Chat, type Message } from '@prisma/client'
 import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { type FormEvent, useCallback, useEffect, useState, useRef } from 'react'
 import { toast } from 'react-hot-toast'
-import { api } from '~/utils/api'
+import { api } from '~/trpc/react'
 import { z } from 'zod'
-import { useTranslation } from './use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 import { useSignUp } from '~/components/auth-modals'
 import {
   errorToastOptions,
@@ -30,7 +30,7 @@ export type FormValues = {
 export type ChatType = ReturnType<typeof useChat>
 
 export const useChat = () => {
-  const t = useTranslation()
+  const t = useTranslations()
 
   const [sessionChatId, changeSessionChatId] = useSessionChatId()
   const router = useRouter()
@@ -74,8 +74,7 @@ export const useChat = () => {
     },
 
     body: {
-      filters: filterStrings,
-      locale: router.locale
+      filters: filterStrings
     }
   })
 
@@ -123,13 +122,13 @@ export const useChat = () => {
   const { status, fetchStatus } = api.chats.getMessagesById.useQuery(
     { chatId: sessionChatId ?? '' },
     {
-      enabled,
-      onSuccess: (data) => {
-        if (data) {
-          setMessages(data.messages)
-        }
-      },
-      keepPreviousData: true
+      enabled
+      // onSuccess: (data) => {
+      //   if (data) {
+      //     setMessages(data.messages)
+      //   }
+      // },
+      // keepPreviousData: true
     }
   )
 
@@ -152,7 +151,7 @@ export const useChat = () => {
 
         setMessages(messagesCopy)
 
-        toast.success(t('chat-window.save-success'))
+        toast.success(t.chatWindow.saveSuccess)
       },
       onError: (error) => {
         toast.error('Error: ' + error.message)
@@ -252,9 +251,9 @@ export const useChat = () => {
     const user = await toast.promise(
       newRecipePromise,
       {
-        loading: t('loading.logging-in'),
-        success: () => t('toast.login-success'),
-        error: () => t('error.some-thing-went-wrong')
+        loading: t.loading.loggingIn,
+        success: () => t.toast.loginSuccess,
+        error: () => t.error.somethingWentWrong
       },
       {
         loading: loadingToastOptions,
@@ -294,7 +293,7 @@ export const useChat = () => {
       if (!isAuthenticated) {
         handleOpenSignUpModal()
 
-        toast(t('toast.sign-up'), infoToastOptions)
+        toast(t.toast.signUp, infoToastOptions)
         return
       }
 

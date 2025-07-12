@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { api } from '../utils/api'
-import { type RecipeUrlSchemaType } from '~/pages/recipes'
+import { type RecipeUrlSchemaType } from '~/old-pages/recipes'
 import { useRouter } from 'next/router'
 import { toast } from 'react-hot-toast'
 import { type LinkedDataRecipeField } from '~/server/api/schemas/recipes'
 import { useForm } from 'react-hook-form'
+import { api } from '~/trpc/react'
 
 export default function useDebounce(value: string, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -82,7 +82,7 @@ export const useCreateRecipe = (data: LinkedDataRecipeField) => {
     cookTime,
     prepTime
   } = data
-  const { mutate, isLoading, isSuccess } = api.recipes.create.useMutation({
+  const { mutate, isPending, isSuccess } = api.recipes.create.useMutation({
     onSuccess: async (data) => {
       await router.push(
         `recipes/${data.id}?name=${encodeURIComponent(data.name)}`
@@ -109,7 +109,7 @@ export const useCreateRecipe = (data: LinkedDataRecipeField) => {
   }
 
   return {
-    isLoading,
+    isLoading: isPending,
     isSuccess,
     mutate,
     getValues,
