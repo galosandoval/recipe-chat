@@ -262,7 +262,7 @@ export const useChat = () => {
       }
     )
 
-    await router.push(
+    router.push(
       `recipes/${user.recipes[0].id}?name=${encodeURIComponent(
         user.recipes[0].name
       )}`

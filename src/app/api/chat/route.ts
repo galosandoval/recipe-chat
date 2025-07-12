@@ -1,5 +1,4 @@
 import { OpenAIStream, StreamingTextResponse } from 'ai'
-import { type NextRequest } from 'next/server'
 import {
   type ChatCompletionRequestMessage,
   Configuration,

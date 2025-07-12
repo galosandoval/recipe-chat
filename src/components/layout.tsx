@@ -1,6 +1,6 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { type ReactNode, memo } from 'react'
 import { ProtectedDropdownMenu } from './dropdown-menus'
 import {
@@ -29,16 +29,16 @@ const RootLayout = memo(function RootLayout({
   children: ReactNode
   font: string
 }) {
-  const router = useRouter()
   const { data } = useSession()
+  const pathname = usePathname()
 
   let navbar = <RoutesNavbar />
 
   if (!data) {
     navbar = <PublicNavbar />
-  } else if (router.pathname === '/recipes/[id]') {
+  } else if (pathname === '/recipes/[id]') {
     navbar = <RecipeByIdNavbar />
-  } else if (router.pathname === '/recipes/[id]/edit') {
+  } else if (pathname === '/recipes/[id]/edit') {
     navbar = <EditRecipeNavbar />
   }
 
@@ -75,6 +75,7 @@ function PublicNavbar() {
 
 function RecipeByIdNavbar() {
   const router = useRouter()
+  const params = useSearchParams()
   return (
     <nav className='prose navbar grid w-full grid-cols-6 bg-transparent px-4'>
       <button
@@ -97,14 +98,14 @@ function RecipeByIdNavbar() {
         </svg>
       </button>
       <h1 className='col-span-4 mb-0 justify-self-center text-base'>
-        {router.query.name}
+        {params.get('name')}
       </h1>
       <button
         className='btn btn-circle btn-ghost justify-self-end'
         onClick={() =>
           router.push(
-            `/recipes/${router?.query?.id as string}/edit?name=${
-              router?.query?.name as string
+            `/recipes/${params.get('id') as string}/edit?name=${
+              params.get('name') as string
             }`
           )
         }
@@ -119,7 +120,6 @@ function RecipeByIdNavbar() {
 
 function EditRecipeNavbar() {
   const t = useTranslations()
-
   const router = useRouter()
   return (
     <nav className='prose navbar grid w-full grid-cols-3 gap-24 bg-transparent px-4 '>
@@ -138,6 +138,7 @@ function EditRecipeNavbar() {
 
 function RoutesNavbar() {
   const router = useRouter()
+  const pathname = usePathname()
   const menuItems = [
     {
       value: '/chat',
@@ -172,7 +173,7 @@ function RoutesNavbar() {
     let styles =
       'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-base-content'
 
-    if (router.asPath === path) {
+    if (pathname === path) {
       styles =
         'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-primary'
     }
@@ -183,7 +184,7 @@ function RoutesNavbar() {
   const activeSpanStyles = (path: string) => {
     let styles = 'absolute top-10 h-1 w-full bg-transparent'
 
-    if (router.asPath === path) {
+    if (pathname === path) {
       styles = 'absolute top-10 h-1 w-full bg-primary'
     }
 

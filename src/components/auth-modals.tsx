@@ -56,7 +56,7 @@ export function useSignUp(successCallback?: () => Promise<void>) {
       if (successCallback) {
         await successCallback()
       } else if (response?.ok) {
-        await router.push('/chat')
+        router.push('/chat')
 
         toast.success(t.auth.signUpSuccess)
       }
@@ -225,13 +225,11 @@ export function useLogin() {
     const callback = path ? decodeURIComponent(path) : '/chat'
 
     const response = await signIn('credentials', { redirect: false, ...data })
-    if (response?.ok) {
-      await router.push(callback)
+    if (response?.ok && !response.error) {
+      router.push(callback)
     }
-
-    if (response?.status === 401) {
+    if (response?.status === 401 || response?.error) {
       toast.error(t.auth.invalidCreds)
-
       setError('email', { message: t.auth.invalidCreds })
       setError('password', { message: t.auth.invalidCreds })
     }

@@ -1,11 +1,10 @@
-import { useRouter } from 'next/router'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { type Ingredient, type Instruction } from '@prisma/client'
 import { type ChangeEvent, useEffect, useState } from 'react'
 import { Button } from '~/components/button'
 import { useAddToList, useRecipe } from '~/hooks/use-recipe'
 import { Checkbox } from '~/components/checkbox'
 import { MyHead } from '~/components/head'
-import NoSleep from 'nosleep.js'
 import { ListBulletIcon, PlusIcon } from '~/components/icons'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { type RouterInputs, type RouterOutputs, api } from '~/trpc/react'
@@ -16,24 +15,17 @@ import { useTranslations } from '~/hooks/use-translations'
 import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
+import { useNoSleep } from '~/hooks/use-no-sleep'
 
 export default function RecipeByIdView() {
-  const router = useRouter()
-  const { id, name } = router.query
-
-  useEffect(() => {
-    const noSleep = new NoSleep()
-    noSleep.enable()
-    return () => {
-      noSleep.disable()
-    }
-  }, [])
+  const params = useSearchParams()
+  useNoSleep()
 
   return (
     <>
-      <MyHead title={name as string} />
+      <MyHead title={params.get('name') as string} />
       <div className='overflow-y-auto pt-16'>
-        <RecipeById id={id as string} />
+        <RecipeById id={params.get('id') as string} />
       </div>
     </>
   )

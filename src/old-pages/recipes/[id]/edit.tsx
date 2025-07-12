@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { type Ingredient, type Instruction, type Recipe } from '@prisma/client'
 import { useDeleteRecipe, useRecipe } from '~/hooks/use-recipe'
 import { MyHead } from '~/components/head'
@@ -16,14 +16,13 @@ import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
 import toast from 'react-hot-toast'
 
 export default function EditByIdView() {
-  const router = useRouter()
-  const { id, name } = router.query
+  const params = useSearchParams()
 
   return (
     <>
-      <MyHead title={`Edit ${name}`} />
+      <MyHead title={`Edit ${params.get('name') as string}`} />
       <div className='overflow-y-auto pt-16 sm:flex sm:justify-center'>
-        <EditById id={id as string} />
+        <EditById id={params.get('id') as string} />
       </div>
     </>
   )

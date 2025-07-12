@@ -15,7 +15,7 @@ export default function Chat() {
   } = useChat()
 
   return (
-    <div className='relative flex h-full flex-1 flex-col items-stretch'>
+    <div className='relative flex h-full w-full flex-1 flex-col'>
       <div className='flex-1 overflow-hidden'>
         <ChatWindow isSendingMessage={isSendingMessage} {...rest} />
       </div>

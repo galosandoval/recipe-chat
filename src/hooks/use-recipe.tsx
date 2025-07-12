@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { type RecipeUrlSchemaType } from '~/old-pages/recipes'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import { type LinkedDataRecipeField } from '~/server/api/schemas/recipes'
 import { useForm } from 'react-hook-form'

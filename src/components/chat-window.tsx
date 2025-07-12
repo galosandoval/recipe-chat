@@ -269,7 +269,7 @@ function ChatWindowContent({
 
   if (messages.length || isSendingMessage || !data?.user?.id) {
     return (
-      <div className='h-full bg-primary-content py-16'>
+      <div className='h-full bg-primary-content'>
         <MessageList
           saveRecipeStatus={saveRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
