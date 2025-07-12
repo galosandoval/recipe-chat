@@ -130,7 +130,7 @@ export function ChatsSideBarButton({
     <>
       <button
         onClick={handleToggleChatsModal}
-        className="justify-self-start' btn btn-circle btn-ghost"
+        className='btn btn-circle btn-ghost justify-self-start'
       >
         <AdjustmentsHorizontalIcon />
       </button>

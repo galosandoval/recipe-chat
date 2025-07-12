@@ -22,6 +22,7 @@
     "@hookform/error-message": "^2.0.1",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^5.5.2",
+    "@tailwindcss/postcss": "^4.1.11",
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-query-devtools": "^5.81.5",
     "@trpc/client": "^11.4.3",
@@ -33,7 +34,6 @@
     "ai": "^2.2.37",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.12",
-    "daisyui": "^3.0.0",
     "negotiator": "^1.0.0",
     "next": "^15.3.5",
     "next-auth": "^5.0.0-beta.25",
@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",
-    "@tailwindcss/typography": "^0.5.9",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/bcryptjs": "^2.4.2",
     "@types/cheerio": "^0.22.33",
     "@types/negotiator": "^0.6.4",
@@ -63,12 +63,12 @@
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
     "autoprefixer": "^10.4.13",
+    "daisyui": "^5.0.46",
     "eslint": "8.28.0",
     "eslint-config-next": "^13.4.6",
-    "postcss": "^8.4.19",
     "prettier": "^3.0.3",
-    "prettier-plugin-tailwindcss": "^0.5.6",
-    "tailwindcss": "^3.3.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "tailwindcss": "^4.1.11",
     "typescript": "^5.1.6"
   }
 }

@@ -20,8 +20,8 @@ export function Toast() {
       <Toaster
         toastOptions={{
           success: successToastOptions,
-
-          error: errorToastOptions
+          error: errorToastOptions,
+          loading: loadingToastOptions
         }}
       >
         {(t) => (
@@ -32,42 +32,6 @@ export function Toast() {
       </Toaster>
     </button>
   )
-}
-
-export const successToastStyling: ToastOptions['style'] = {
-  // @ts-expect-error replicates the tailwind config
-  '--tw-bg-opacity': 1,
-  backgroundColor: 'hsl(var(--su) / var(--tw-bg-opacity))',
-  '--tw-text-opacity': 1,
-  color: 'hsl(var(--suc, var(--nc)) / var(--tw-text-opacity))',
-  transitionDuration: '150ms',
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  transitionProperty:
-    'color, background-color, border-color, text-decoration-color, fill, stroke'
-}
-
-export const loadingToastStyling: ToastOptions['style'] = {
-  // @ts-expect-error replicates the tailwind config
-  '--tw-bg-opacity': 1,
-  backgroundColor: 'hsl(var(--in))',
-  '--tw-text-opacity': 1,
-  color: 'hsl(var(--inc) / var(--tw-text-opacity))',
-  transitionDuration: '150ms',
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  transitionProperty:
-    'color, background-color, border-color, text-decoration-color, fill, stroke'
-}
-
-export const errorToastStyling: ToastOptions['style'] = {
-  // @ts-expect-error replicates the tailwind config
-  '--tw-bg-opacity': 1,
-  backgroundColor: 'hsl(var(--er) / var(--tw-bg-opacity))',
-  '--tw-text-opacity': 1,
-  color: 'hsl(var(--erc, var(--nc)) / var(--tw-text-opacity))',
-  transitionDuration: '150ms',
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  transitionProperty:
-    'color, background-color, border-color, text-decoration-color, fill, stroke'
 }
 
 export const loadingToastOptions: ToastOptions = {
@@ -88,22 +52,34 @@ export const loadingToastOptions: ToastOptions = {
       />
     </svg>
   ),
-  style: loadingToastStyling
+  style: {
+    backgroundColor: 'var(--color-info)',
+    color: 'var(--color-info-content)'
+  }
 }
 
 export const successToastOptions: ToastOptions = {
   icon: <CheckIcon />,
-  style: successToastStyling
+  style: {
+    backgroundColor: 'var(--color-success)',
+    color: 'var(--color-success-content)'
+  }
 }
 
 export const errorToastOptions: ToastOptions = {
   icon: <ExclamationCircle />,
-  style: errorToastStyling
+  style: {
+    backgroundColor: 'var(--color-error)',
+    color: 'var(--color-error-content)'
+  }
 }
 
 export const infoToastOptions: ToastOptions = {
   duration: 6000,
-  style: loadingToastStyling,
+  style: {
+    backgroundColor: 'var(--color-info)',
+    color: 'var(--color-info-content)'
+  },
   icon: (
     // i icon
     <svg

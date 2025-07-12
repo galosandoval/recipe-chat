@@ -240,11 +240,11 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
 
     onSuccess: async () => {
       await utils.recipes.byId.invalidate({ id })
-      setUploadImgButtonLabel('select-image')
+      setUploadImgButtonLabel('selectImage')
     },
 
     onError: (error, _, context) => {
-      setUploadImgButtonLabel('select-image')
+      setUploadImgButtonLabel('selectImage')
 
       const previousData = context?.previousData
 
@@ -262,7 +262,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
     const fileList = event.target.files
 
     if (fileList.length) {
-      setUploadImgButtonLabel('uploading-image')
+      setUploadImgButtonLabel('uploadingImage')
 
       try {
         if (!fileList?.length) {
@@ -280,7 +280,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
 
         updateImgUrl({ id, imgUrl: newBlob.url })
       } catch (error) {
-        setUploadImgButtonLabel('select-image')
+        setUploadImgButtonLabel('selectImage')
 
         // handle a recognized error
         if (error instanceof BlobAccessError || error instanceof Error) {
@@ -294,7 +294,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
       }
     }
 
-    setUploadImgButtonLabel('upload-image')
+    setUploadImgButtonLabel('uploadImage')
   }
 
   return (

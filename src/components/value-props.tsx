@@ -15,7 +15,7 @@ export function ValueProps({
   const t = useTranslations()
 
   return (
-    <div className='prose mx-auto flex flex-col items-center justify-center gap-2 py-16'>
+    <div className='prose mx-auto flex flex-col items-center justify-center gap-2 pt-20'>
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <ValuePropsHeader
           icon={

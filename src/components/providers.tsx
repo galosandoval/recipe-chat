@@ -11,10 +11,6 @@ import {
   TranslationsContext,
   type Translations
 } from '~/hooks/use-translations'
-// import { TranslationsContext } from '~/hooks/use-translationss'
-// import type { getTranslations } from '~/lib/get-translations'
-// import { Toaster } from '~/components/toast'
-// import { ThemeProvider as NextThemesProvider } from 'next-themes'
 
 export const Providers = ({
   children,
@@ -26,31 +22,15 @@ export const Providers = ({
   translations: Translations
 }) => {
   return (
-    // <ThemeProvider>
     <TRPCReactProvider>
       <SessionProvider session={session}>
         <TranslationsContext.Provider value={translations}>
           {children}
-          {/* <Toaster /> */}
           <Toast />
           <Analytics />
         </TranslationsContext.Provider>
         <ReactQueryDevtools initialIsOpen={false} />
       </SessionProvider>
     </TRPCReactProvider>
-    // </ThemeProvider>
   )
 }
-
-// export function ThemeProvider({ children }: { children: ReactNode }) {
-//   return (
-//     <NextThemesProvider
-//       attribute='class'
-//       defaultTheme='system'
-//       enableSystem
-//       disableTransitionOnChange
-//     >
-//       {children}
-//     </NextThemesProvider>
-//   )
-// }

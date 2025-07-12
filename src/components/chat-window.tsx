@@ -1,36 +1,25 @@
-import ScrollToBottom, {
-  useScrollToBottom,
-  useScrollToTop,
-  useSticky
-} from 'react-scroll-to-bottom'
+'use client'
+
 import { type Chat, type Message as PrismaMessage } from '@prisma/client'
 import { transformContentToRecipe, type ChatType } from '~/hooks/use-chat'
-import {
-  type Dispatch,
-  type SetStateAction,
-  memo,
-  useEffect,
-  useState
-} from 'react'
+import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { ChatsSection, ChatsSideBarButton } from './chats'
-import {
-  ArrowSmallDownIcon,
-  ArrowSmallUpIcon,
-  ChatBubbleLeftIcon,
-  PlusIcon,
-  UserCircleIcon
-} from './icons'
+import { ChatBubbleLeftIcon, PlusIcon, UserCircleIcon } from './icons'
 import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
-import NoSsr from './no-ssr'
 import { useTranslations } from '~/hooks/use-translations'
 import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
+import {
+  ScrollModeContext,
+  ScrollToBottomProvider,
+  ScrollToButtons
+} from './scroll-to-bottom'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -38,33 +27,18 @@ type MessageContentProps = Omit<
 >
 
 export default function ChatWindow(props: MessageContentProps) {
-  const [scrollMode, setScrollMode] = useState<'bottom' | 'top'>('top')
-
   return (
-    // NoSsr prevents ScrollToBottom from creating class name on server side
-    <NoSsr>
-      <ScrollToBottom
-        followButtonClassName='hidden'
-        initialScrollBehavior='auto'
-        className='h-full'
-        mode={scrollMode}
-      >
-        <Content setScrollMode={setScrollMode} {...props} />
-      </ScrollToBottom>
-    </NoSsr>
+    <ScrollToBottomProvider>
+      <Content {...props} />
+    </ScrollToBottomProvider>
   )
 }
 
-function Content(
-  props: MessageContentProps & {
-    setScrollMode: Dispatch<SetStateAction<'bottom' | 'top'>>
-  }
-) {
+function Content(props: MessageContentProps) {
   const {
     chatId,
     // filters,
     handleFillMessage,
-    setScrollMode,
     messages,
     isChatsModalOpen,
     isSendingMessage,
@@ -86,16 +60,13 @@ function Content(
     status: chatsQueryStatus,
     handleGetChatsOnSuccess
   } = props
-
+  const setScrollMode = useContext(ScrollModeContext).setScrollMode
   // const { data } = filters
-  const scrollToBottom = useScrollToBottom()
-  const scrollToTop = useScrollToTop()
-  const [sticky] = useSticky()
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const currentChatId = JSON.parse(
-    sessionStorage.getItem('currentChatId') ?? 'null'
-  )
+  const currentChatId =
+    typeof window !== 'undefined'
+      ? JSON.parse(sessionStorage.getItem('currentChatId') ?? 'null')
+      : null
 
   const isSessionStorageAvailable =
     typeof window !== 'undefined' && typeof currentChatId === 'string'
@@ -124,12 +95,6 @@ function Content(
     }
   }, [isNewChat])
 
-  useEffect(() => {
-    if (isMessagesSuccess) {
-      scrollToBottom({ behavior: 'auto' })
-    }
-  }, [chatsFetchStatus, chatsQueryStatus])
-
   if (isNewChat) {
     return (
       <div className='flex flex-col gap-4'>
@@ -142,7 +107,6 @@ function Content(
       </div>
     )
   }
-  console.log('isSendingMessage', isSendingMessage)
   if (shouldBeLoading && !isSendingMessage) {
     return <ScreenLoader />
   }
@@ -173,34 +137,7 @@ function Content(
         />
       </div>
 
-      <div
-        className={`absolute bottom-20 right-4 duration-300 transition-all${
-          !sticky
-            ? ' translate-y-0 opacity-100'
-            : ' invisible translate-y-4 opacity-0'
-        }`}
-      >
-        <button
-          className='btn btn-circle glass'
-          onClick={() => scrollToBottom({ behavior: 'smooth' })}
-        >
-          <ArrowSmallDownIcon />
-        </button>
-      </div>
-      <div
-        className={`absolute bottom-20 left-4 duration-300 transition-all${
-          sticky && !isSendingMessage
-            ? ' translate-y-0 opacity-100'
-            : ' invisible translate-y-4 opacity-0'
-        }`}
-      >
-        <button
-          className='btn btn-circle glass'
-          onClick={() => scrollToTop({ behavior: 'smooth' })}
-        >
-          <ArrowSmallUpIcon />
-        </button>
-      </div>
+      <ScrollToButtons enable={!isSendingMessage} />
 
       <SignUpModal
         closeModal={handleCloseSignUpModal}
@@ -274,7 +211,7 @@ function ChatWindowContent({
   console.log('!data?.user?.id', !data?.user?.id)
   if (messages.length || isSendingMessage || !data?.user?.id) {
     return (
-      <div className='h-full bg-primary-content'>
+      <div className='bg-primary-content h-full'>
         <MessageList
           saveRecipeStatus={saveRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
@@ -356,7 +293,7 @@ const MessageList = memo(function MessageList({
   return (
     <>
       <div className='bg-base-100 py-2'>
-        <div className='prose mx-auto grid grid-cols-3 px-2'>
+        <div className='prose mx-auto grid grid-cols-3 place-items-center px-2'>
           {handleChangeChat && handleGetChatsOnSuccess && isAuthenticated ? (
             <ChatsSideBarButton
               chatId={chatId}
@@ -370,7 +307,7 @@ const MessageList = memo(function MessageList({
           )}
 
           <div className='flex items-center justify-center gap-2'>
-            <h2 className='mb-2 mt-2'>Chat</h2>
+            <h2 className='mt-2 mb-2'>Chat</h2>
             <ChatBubbleLeftIcon />
           </div>
 
@@ -451,7 +388,7 @@ const Message = function Message({
             </div>
 
             <div className='prose flex flex-col pb-4'>
-              <p className='mb-0 mt-0 whitespace-pre-line'>
+              <p className='mt-0 mb-0 whitespace-pre-line'>
                 {removeBracketsAndQuotes(message.content) || ''}
               </p>
             </div>
@@ -491,11 +428,11 @@ const Message = function Message({
   }
 
   return (
-    <div className='flex flex-col items-center self-center bg-base-200 p-4'>
+    <div className='bg-base-200 flex flex-col items-center self-center p-4'>
       <div className='prose mx-auto w-full'>
         <div className='flex justify-end gap-2'>
           <div className='flex flex-col items-end'>
-            <p className='mb-0 mt-0 whitespace-pre-line'>
+            <p className='mt-0 mb-0 whitespace-pre-line'>
               {message?.content || ''}
             </p>
           </div>
@@ -533,7 +470,7 @@ function ActiveFilters() {
 
   return (
     <div className='flex gap-2 pt-2'>
-      <h3 className='mb-0 mt-0 text-sm'>{t.filters.title}:</h3>
+      <h3 className='mt-0 mb-0 text-sm'>{t.filters.title}:</h3>
       {activeFilters.map((f) => (
         <div className='badge badge-primary badge-outline' key={f.id}>
           {f.name}

@@ -30,7 +30,7 @@ export default async function RootLayout({
 
   return (
     <html lang={lang} className={`${geist.variable}`}>
-      <body>
+      <body className='h-svh overflow-hidden'>
         <Providers session={session} translations={translations}>
           <NavContainer />
 
