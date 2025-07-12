@@ -3,6 +3,12 @@
 import ChatWindow from '~/components/chat-window'
 import { SubmitMessageForm } from '~/components/submit-message-form'
 import { useChat } from '~/hooks/use-chat'
+import { type Metadata } from 'next'
+
+// export const metadata: Metadata = {
+//   title: 'Chat',
+//   description: 'Chat'
+// }
 
 export default function Chat() {
   const {

@@ -60,9 +60,7 @@ export function ProtectedDropdownMenu() {
   return (
     <DropdownMenu>
       <MenuItem>
-        <>
-          <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
-        </>
+        <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
       </MenuItem>
       <MenuItem>
         <button

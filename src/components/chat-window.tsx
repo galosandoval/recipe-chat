@@ -55,7 +55,7 @@ export default function ChatWindow(props: MessageContentProps) {
   )
 }
 
-const Content = memo(function Content(
+function Content(
   props: MessageContentProps & {
     setScrollMode: Dispatch<SetStateAction<'bottom' | 'top'>>
   }
@@ -113,6 +113,8 @@ const Content = memo(function Content(
     (messages.length === 0 || !isMessagesSuccess) &&
     chatsFetchStatus === 'fetching'
 
+  console.log('shouldBeLoading', shouldBeLoading)
+
   // don't scroll to bottom when showing value props
   useEffect(() => {
     if (isNewChat) {
@@ -140,13 +142,14 @@ const Content = memo(function Content(
       </div>
     )
   }
+  console.log('isSendingMessage', isSendingMessage)
   if (shouldBeLoading && !isSendingMessage) {
     return <ScreenLoader />
   }
 
   return (
     <>
-      <div className='flex h-full flex-col gap-4'>
+      <div className='flex h-full flex-col gap-4 pt-16'>
         <ChatWindowContent
           saveRecipeStatus={createRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
@@ -167,7 +170,6 @@ const Content = memo(function Content(
           }
           handleStartNewChat={handleStartNewChat}
           handleToggleChatsModal={handleToggleChatsModal}
-          // filters={data ?? []}
         />
       </div>
 
@@ -211,7 +213,7 @@ const Content = memo(function Content(
       />
     </>
   )
-})
+}
 
 function ChatWindowContent({
   messages,
@@ -266,7 +268,10 @@ function ChatWindowContent({
   }) => void
 }) {
   const { data } = useSession()
-
+  console.log('data', data)
+  console.log('messages.length', messages.length)
+  console.log('isSendingMessage', isSendingMessage)
+  console.log('!data?.user?.id', !data?.user?.id)
   if (messages.length || isSendingMessage || !data?.user?.id) {
     return (
       <div className='h-full bg-primary-content'>

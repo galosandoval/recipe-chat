@@ -119,7 +119,7 @@ export const useChat = () => {
 
   const enabled = isAuthenticated && !!sessionChatId && shouldFetchChat
 
-  const { status, fetchStatus } = api.chats.getMessagesById.useQuery(
+  const { status, fetchStatus, data } = api.chats.getMessagesById.useQuery(
     { chatId: sessionChatId ?? '' },
     {
       enabled
@@ -131,6 +131,12 @@ export const useChat = () => {
       // keepPreviousData: true
     }
   )
+
+  useEffect(() => {
+    if (status === 'success') {
+      setMessages(data?.messages ?? [])
+    }
+  }, [status, data])
 
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
