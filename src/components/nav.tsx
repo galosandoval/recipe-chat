@@ -25,9 +25,7 @@ export function NavContainer() {
 
 const Nav = () => {
   const { data } = useSession()
-  console.log('data', data)
   const pathname = usePathname()
-  console.log('pathname', pathname)
   const { lang, id } = useParams()
   let navbar = <RoutesNavbar />
 
@@ -111,7 +109,6 @@ function EditRecipeNavbar() {
 
 function RoutesNavbar() {
   const pathname = usePathname()
-  console.log('pathname', pathname)
   const menuItems = [
     {
       value: '/chat',
@@ -146,7 +143,7 @@ function RoutesNavbar() {
     let styles =
       'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-base-content'
 
-    if (pathname === path) {
+    if (pathname.includes(path)) {
       styles =
         'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-primary'
     }
@@ -157,7 +154,7 @@ function RoutesNavbar() {
   const activeSpanStyles = (path: string) => {
     let styles = 'absolute top-10 h-1 w-full bg-transparent'
 
-    if (pathname === path) {
+    if (pathname.includes(path)) {
       styles = 'absolute top-10 h-1 w-full bg-primary'
     }
 

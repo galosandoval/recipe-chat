@@ -84,8 +84,6 @@ function Content(props: MessageContentProps) {
     (messages.length === 0 || !isMessagesSuccess) &&
     chatsFetchStatus === 'fetching'
 
-  console.log('shouldBeLoading', shouldBeLoading)
-
   // don't scroll to bottom when showing value props
   useEffect(() => {
     if (isNewChat) {
