@@ -5,7 +5,7 @@ export function useUserId() {
   const userId = session.data?.user?.id
 
   if (!userId) {
-    throw new Error('User ID is required')
+    return ''
   }
 
   return userId
