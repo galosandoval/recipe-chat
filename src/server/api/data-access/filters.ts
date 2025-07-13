@@ -13,8 +13,6 @@ export class FiltersDataAccess {
   }
 
   async createFilter(input: CreateFilterSchema, userId: string) {
-    console.log(input)
-    console.log(userId)
     return await this.prisma.filter.create({
       data: { userId, name: input.name, checked: true, id: input.filterId }
     })
