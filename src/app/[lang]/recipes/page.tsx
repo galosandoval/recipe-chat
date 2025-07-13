@@ -4,7 +4,6 @@ import { type Recipe } from '@prisma/client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useDebounce, {
   useCreateRecipe,
@@ -35,12 +34,7 @@ import { type FetchStatus, type QueryStatus } from '@tanstack/react-query'
 import { RecentRecipes } from '~/components/recipe-list-recent'
 import { useTranslations } from '~/hooks/use-translations'
 import { ErrorMessage } from '~/components/error-message-content'
-import { type Metadata } from 'next'
-
-// export const metadata: Metadata = {
-//   title: 'Recipes',
-//   description: 'Recipes'
-// }
+import { recipeUrlSchema, type RecipeUrlSchemaType } from '~/schemas/recipes'
 
 export default function RecipesView() {
   return (
@@ -50,7 +44,7 @@ export default function RecipesView() {
   )
 }
 
-export function Recipes() {
+function Recipes() {
   const { ref: inViewRef, inView } = useInView()
 
   const [search, setSearch] = useState('')
@@ -119,7 +113,7 @@ function SearchBarWrapper({
   handleSearchButtonClick: () => void
 }) {
   return (
-    <div className='container relative mx-auto flex flex-col overflow-y-auto px-2 pt-16'>
+    <div className='relative container mx-auto flex flex-col overflow-y-auto px-2 pt-16'>
       <SearchBar
         handleChange={handleChange}
         handleSearchButtonClick={handleSearchButtonClick}
@@ -146,11 +140,11 @@ function SearchBar({
 
   return (
     <div className='fixed bottom-0 left-0 flex w-full items-center md:rounded-md'>
-      <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 sm:mb-2 sm:rounded-lg'>
+      <div className='prose bg-base-300/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <input
             type='text'
-            className='input input-bordered w-full bg-base-100/75 focus:bg-base-100'
+            className='input input-bordered bg-base-100/75 focus:bg-base-100 w-full'
             value={search}
             onChange={handleChange}
             placeholder={t.recipes.search}
@@ -192,7 +186,7 @@ function Pages({
   }
 
   return (
-    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-5 pb-20 pt-4 sm:grid-cols-4'>
+    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-5 pt-4 pb-20 sm:grid-cols-4'>
       {pages.length > 0 && pages[0].items.length > 0 ? (
         <>
           <RecentRecipes />
@@ -280,7 +274,7 @@ function Card({ data }: { data: Recipe }) {
     <Link
       href={`/recipes/${data.id}?name=${encodeURIComponent(data.name)}`}
       key={data.id}
-      className='col-span-1 overflow-hidden rounded-lg bg-base-200 shadow-xl'
+      className='bg-base-200 col-span-1 overflow-hidden rounded-lg shadow-xl'
       onClick={handleUpdateLastViewedAt}
     >
       <div className='w-full'>
@@ -372,14 +366,7 @@ function CreateRecipeButton() {
   )
 }
 
-const recipeUrlSchema = (t: any) =>
-  z.object({
-    url: z.string().url(t.recipes.enterUrl)
-  })
-
-export type RecipeUrlSchemaType = z.infer<ReturnType<typeof recipeUrlSchema>>
-
-export function UploadRecipeUrlForm({
+function UploadRecipeUrlForm({
   onSubmit
 }: {
   onSubmit(values: RecipeUrlSchemaType): void

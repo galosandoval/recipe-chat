@@ -2,20 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-// import { NavDropdownMenu } from './dropdown-menus'
-// import {
-// 	NavigationMenu,
-// 	NavigationMenuItem,
-// 	navigationMenuTriggerStyle,
-// 	NavigationMenuLink,
-// 	NavigationMenuList
-// } from './ui/navigation-menu'
-import {
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams
-} from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { ProtectedDropdownMenu } from './dropdown-menus'
 import {
   ArrowBackLeftIcon,
@@ -27,7 +14,6 @@ import {
 import { useTranslations } from '~/hooks/use-translations'
 import { ThemeToggle, useTheme } from './theme-toggle'
 import { api } from '~/trpc/react'
-// import { cn } from '~/lib/utils'
 
 export function NavContainer() {
   return (

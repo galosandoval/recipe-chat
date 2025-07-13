@@ -108,7 +108,6 @@ function Chats({
 export function ChatsSideBarButton({
   chatId,
   isChatsModalOpen,
-  onSuccess,
   handleToggleChatsModal,
   handleChangeChat
 }: {
@@ -120,11 +119,6 @@ export function ChatsSideBarButton({
     }
   ) => void
   handleToggleChatsModal: () => void
-  onSuccess: (
-    data: (Chat & {
-      messages: Message[]
-    })[]
-  ) => void
 }) {
   return (
     <>
@@ -137,24 +131,14 @@ export function ChatsSideBarButton({
 
       <Drawer closeModal={handleToggleChatsModal} isOpen={isChatsModalOpen}>
         <div className='flex h-full flex-col justify-between'>
-          <ChatList
-            onSuccess={onSuccess}
-            chatId={chatId}
-            handleChangeChat={handleChangeChat}
-          />
+          <ChatList chatId={chatId} handleChangeChat={handleChangeChat} />
         </div>
       </Drawer>
     </>
   )
 }
 
-const useGetChats = (
-  onSuccess: (
-    data: (Chat & {
-      messages: Message[]
-    })[]
-  ) => void
-) => {
+const useGetChats = () => {
   const { status: authStatus, data } = useSession()
 
   const isAuthenticated = authStatus === 'authenticated'
@@ -174,8 +158,7 @@ const useGetChats = (
 
 function ChatList({
   chatId,
-  handleChangeChat,
-  onSuccess
+  handleChangeChat
 }: {
   chatId?: string
   handleChangeChat: (
@@ -183,15 +166,10 @@ function ChatList({
       messages: Message[]
     }
   ) => void
-  onSuccess: (
-    data: (Chat & {
-      messages: Message[]
-    })[]
-  ) => void
 }) {
   const t = useTranslations()
 
-  const { data, status, isAuthenticated } = useGetChats(onSuccess)
+  const { data, status, isAuthenticated } = useGetChats()
 
   if (!isAuthenticated) {
     return null

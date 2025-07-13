@@ -296,7 +296,7 @@ const MessageList = memo(function MessageList({
               isChatsModalOpen={isChatsModalOpen}
               handleChangeChat={handleChangeChat}
               handleToggleChatsModal={handleToggleChatsModal}
-              onSuccess={handleGetChatsOnSuccess}
+              // onSuccess={handleGetChatsOnSuccess}
             />
           ) : (
             <div></div>

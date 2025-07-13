@@ -15,7 +15,7 @@ export const config = {
   runtime: 'edge'
 }
 
-export const messageRole = ['system', 'user', 'assistant', 'function'] as const
+const messageRole = ['system', 'user', 'assistant', 'function'] as const
 
 const chatParams = z.object({
   messages: z.array(

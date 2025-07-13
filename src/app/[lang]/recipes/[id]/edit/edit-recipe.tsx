@@ -187,44 +187,43 @@ function UpdateImage({
     'updateImage' | 'uploadImage' | 'uploadingImage'
   >('updateImage')
 
-  const { mutate: updateImgUrl, isPending } =
-    api.recipes.updateImgUrl.useMutation({
-      onMutate: async ({ id, imgUrl }) => {
-        await utils.recipes.byId.cancel({ id })
+  const { mutate: updateImgUrl } = api.recipes.updateImgUrl.useMutation({
+    onMutate: async ({ id, imgUrl }) => {
+      await utils.recipes.byId.cancel({ id })
 
-        const previousData = utils.recipes.byId.getData({ id })
+      const previousData = utils.recipes.byId.getData({ id })
 
-        if (!previousData) return previousData
+      if (!previousData) return previousData
 
-        utils.recipes.byId.setData({ id }, (old) => {
-          if (!old) return old
+      utils.recipes.byId.setData({ id }, (old) => {
+        if (!old) return old
 
-          return {
-            ...old,
-            imgUrl
-          }
-        })
-
-        return { previousData }
-      },
-
-      onSuccess: async () => {
-        await utils.recipes.byId.invalidate({ id })
-
-        toast.success(t.recipes.byId.updateImageSuccess)
-        router.push(`/recipes/${id}?name=${encodeURIComponent(name)}`)
-      },
-
-      onError: (error, _, context) => {
-        const previousData = context?.previousData
-
-        if (previousData && previousData) {
-          utils.recipes.byId.setData({ id }, previousData)
+        return {
+          ...old,
+          imgUrl
         }
+      })
 
-        toast.error(error.message)
+      return { previousData }
+    },
+
+    onSuccess: async () => {
+      await utils.recipes.byId.invalidate({ id })
+
+      toast.success(t.recipes.byId.updateImageSuccess)
+      router.push(`/recipes/${id}?name=${encodeURIComponent(name)}`)
+    },
+
+    onError: (error, _, context) => {
+      const previousData = context?.previousData
+
+      if (previousData && previousData) {
+        utils.recipes.byId.setData({ id }, previousData)
       }
-    })
+
+      toast.error(error.message)
+    }
+  })
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return
