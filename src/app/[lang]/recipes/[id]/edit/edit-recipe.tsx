@@ -1,8 +1,8 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { type Ingredient, type Instruction, type Recipe } from '@prisma/client'
-import { useDeleteRecipe, useRecipe } from '~/hooks/use-recipe'
+import { useDeleteRecipe } from '~/hooks/use-recipe'
 import { type UseFormHandleSubmit, useForm } from 'react-hook-form'
 import { Button } from '~/components/button'
 import { type UpdateRecipe } from '~/server/api/schemas/recipes'
@@ -154,7 +154,7 @@ function FoundRecipe({
   }
 
   return (
-    <div className='flex flex-col gap-4 overflow-y-auto'>
+    <div className='flex flex-col gap-4 overflow-y-auto pt-20'>
       <UpdateImage imgUrl={imgUrl} id={id} name={name} />
 
       <MutateRecipeIngredientsAndInstructions
@@ -184,8 +184,8 @@ function UpdateImage({
   const router = useRouter()
 
   const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
-    'update-image' | 'upload-image' | 'uploading-image'
-  >('update-image')
+    'updateImage' | 'uploadImage' | 'uploadingImage'
+  >('updateImage')
 
   const { mutate: updateImgUrl, isPending } =
     api.recipes.updateImgUrl.useMutation({
@@ -240,7 +240,7 @@ function UpdateImage({
         fileInput.click()
       }
     } else if (fileList.length) {
-      setUploadImgButtonLabel('uploading-image')
+      setUploadImgButtonLabel('uploadingImage')
 
       try {
         if (!fileList?.length) {
@@ -268,12 +268,12 @@ function UpdateImage({
           toast.error(t.error.somethingWentWrong)
         }
       }
-      setUploadImgButtonLabel('upload-image')
+      setUploadImgButtonLabel('uploadImage')
     }
   }
 
   return (
-    <div className=''>
+    <div>
       {imgUrl && (
         <div className='relative w-full' onSubmit={handleFileChange}>
           <Image
@@ -308,7 +308,6 @@ function UpdateImage({
                   }
                 }}
               >
-                {/* {t('recipes.by-id.update-image')} */}
                 {String(
                   t.recipes.byId[
                     uploadImgButtonLabel as keyof typeof t.recipes.byId
@@ -359,7 +358,7 @@ function MutateRecipeIngredientsAndInstructions({
     <>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className='prose mx-2 flex flex-col items-center gap-4 pt-14 pb-20 md:mx-auto'
+        className='prose mx-2 flex flex-col items-center gap-4 pb-20 md:mx-auto'
       >
         <div className='flex w-full flex-col'>
           <label htmlFor='name' className='label'>

@@ -1,12 +1,14 @@
+'use client'
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Ingredient, type Recipe } from '@prisma/client'
-import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { api } from '~/trpc/react'
 import { z } from 'zod'
 import { createId } from '@paralleldrive/cuid2'
+import { useUserId } from './use-user-id'
 
 export const useList = () => {
   const userId = useUserId()
@@ -19,13 +21,6 @@ export const useList = () => {
   )
 }
 
-export function useUserId() {
-  const session = useSession()
-  const userId = session.data?.user?.id ?? ''
-
-  return userId
-}
-
 const selectRecipeNames = (data: Recipe[]) => {
   const nameDictionary: Record<string, string> = {}
   data.forEach((r) => (nameDictionary[r.id] = r.name))
@@ -34,7 +29,8 @@ const selectRecipeNames = (data: Recipe[]) => {
 
 export function useRecipeNames(ids: string[]) {
   return api.recipes.byIds.useQuery(ids, {
-    select: selectRecipeNames
+    select: selectRecipeNames,
+    enabled: ids.length > 0
   })
 }
 
@@ -142,7 +138,7 @@ export function useListController(data: Ingredient[]) {
   })
 
   const [byRecipe, setByRecipe] = useState(() =>
-    typeof localStorage.byRecipe === 'string'
+    typeof window !== 'undefined' && typeof localStorage.byRecipe === 'string'
       ? (JSON.parse(localStorage.byRecipe) as boolean)
       : false
   )

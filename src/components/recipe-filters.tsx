@@ -11,7 +11,6 @@ import { z } from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '~/trpc/react'
-import { useUserId } from '~/hooks/use-list'
 import { type Filter } from '@prisma/client'
 import toast from 'react-hot-toast'
 import { createId } from '@paralleldrive/cuid2'
@@ -19,6 +18,7 @@ import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { ValuePropsHeader } from './value-props'
 import { ErrorMessage } from './error-message-content'
+import { useUserId } from '~/hooks/use-user-id'
 
 export const filterSchema = (t: any) =>
   z.object({
