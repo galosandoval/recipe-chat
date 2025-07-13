@@ -1,7 +1,7 @@
 import { type MouseEvent } from 'react'
 import { Button } from './button'
 import { ArrowUTurnLeftIcon } from './icons'
-import { useTranslation } from '~/hooks/use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 import { LoginModal, SignUpModal, useLogin, useSignUp } from './auth-modals'
 import { useSession } from 'next-auth/react'
 
@@ -12,7 +12,7 @@ export function ValueProps({
   children: React.ReactNode
   handleSendChatExample: (e: MouseEvent<HTMLButtonElement>) => void
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   return (
     <div className='prose mx-auto flex flex-col items-center justify-center gap-2 py-20'>
@@ -34,7 +34,7 @@ export function ValueProps({
               />
             </svg>
           }
-          label={t('value-props.title')}
+          label={t.valueProps.title}
         />
 
         <div className='flex w-full flex-col items-center gap-4'>
@@ -43,7 +43,7 @@ export function ValueProps({
             className='btn btn-outline w-full normal-case'
             onClick={handleSendChatExample}
           >
-            <span className='w-60'>{t('value-props.first-button')}</span>
+            <span className='w-60'>{t.valueProps.firstButton}</span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>
@@ -53,7 +53,7 @@ export function ValueProps({
             className='btn btn-outline w-full normal-case'
             onClick={handleSendChatExample}
           >
-            <span className='w-60'>{t('value-props.second-button')}</span>
+            <span className='w-60'>{t.valueProps.secondButton}</span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>
@@ -63,7 +63,7 @@ export function ValueProps({
             className='btn btn-outline w-full normal-case'
             onClick={handleSendChatExample}
           >
-            <span className='w-60'>{t('value-props.third-button')}</span>
+            <span className='w-60'>{t.valueProps.thirdButton}</span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>
@@ -89,18 +89,18 @@ export function ValueProps({
               />
             </svg>
           }
-          label={t('capabilities.title')}
+          label={t.capabilities.title}
         />
 
         <div className='flex w-full flex-col items-center gap-4'>
-          <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
-            {t('capabilities.first-description')}
+          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
+            {t.capabilities.firstDescription}
           </div>
-          <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case text-base-content'>
-            {t('capabilities.second-description')}
+          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
+            {t.capabilities.secondDescription}
           </div>
-          <div className='mb-0 mt-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold  normal-case text-base-content'>
-            {t('capabilities.third-description')}
+          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
+            {t.capabilities.thirdDescription}
           </div>
         </div>
       </div>
@@ -116,7 +116,7 @@ function Auth() {
   const session = useSession()
   const isAuthenticated = session.status === 'authenticated'
 
-  const t = useTranslation()
+  const t = useTranslations()
   const {
     handleOpen: handleOpenSignUpModal,
     handleClose: handleCloseSignUpModal,
@@ -163,15 +163,15 @@ function Auth() {
               />
             </svg>
           }
-          label={t('value-props.save-recipes')}
+          label={t.valueProps.saveRecipes}
         />
 
         <div className='flex w-full flex-col gap-2'>
           <button onClick={handleOpenSignUpModal} className='btn btn-primary'>
-            {t('nav.menu.sign-up')}
+            {t.nav.menu.signUp}
           </button>
           <button onClick={handleOpenLoginModal} className='btn btn-outline'>
-            {t('nav.menu.login')}
+            {t.nav.menu.login}
           </button>
         </div>
       </div>

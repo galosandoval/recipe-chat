@@ -7,38 +7,31 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '~/components/button'
-import { api } from '~/utils/api'
+import { api } from '~/trpc/react'
 import { signIn } from 'next-auth/react'
 import { ErrorMessage } from '~/components/error-message-content'
 import { toast } from 'react-hot-toast'
-import { useRouter } from 'next/router'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Modal } from './modal'
 import { useState } from 'react'
-import { useTranslation } from '~/hooks/use-translation'
-import { type TFunction } from 'i18next'
+import { useTranslations } from '~/hooks/use-translations'
 
-export const signUpSchema = (t: TFunction) =>
+export const signUpSchema = (t: any) =>
   z
     .object({
-      email: z.string().email(t('auth.email-required')),
-      password: z
-        .string()
-        .min(6, t('auth.min-chars-6'))
-        .max(20, t('auth.max-chars-20')),
-      confirm: z
-        .string()
-        .min(6, t('auth.min-chars-6'))
-        .max(20, t('auth.max-chars-20'))
+      email: z.string().email(t.auth.emailRequired),
+      password: z.string().min(6, t.auth.minChars6).max(20, t.auth.maxChars20),
+      confirm: z.string().min(6, t.auth.minChars6).max(20, t.auth.maxChars20)
     })
     .refine((data) => data.confirm === data.password, {
-      message: t('auth.passwords-dont-match'),
+      message: t.auth.passwordsDontMatch,
       path: ['confirm']
     })
 
 type SignUpSchemaType = z.infer<ReturnType<typeof signUpSchema>>
 
 export function useSignUp(successCallback?: () => Promise<void>) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   const {
     register,
@@ -52,7 +45,7 @@ export function useSignUp(successCallback?: () => Promise<void>) {
 
   const [isOpen, setIsOpen] = useState(false)
 
-  const { mutate, isLoading } = api.users.signUp.useMutation({
+  const { mutate, isPending } = api.users.signUp.useMutation({
     onSuccess: async ({}, { email, password }) => {
       const response = await signIn('credentials', {
         email,
@@ -63,9 +56,9 @@ export function useSignUp(successCallback?: () => Promise<void>) {
       if (successCallback) {
         await successCallback()
       } else if (response?.ok) {
-        await router.push('/chat')
+        router.push('/chat')
 
-        toast.success(t('auth.sign-up-success'))
+        toast.success(t.auth.signUpSuccess)
       }
     },
     onError: (error) => {
@@ -103,7 +96,7 @@ export function useSignUp(successCallback?: () => Promise<void>) {
     errors,
     isOpen,
     onSubmit,
-    isLoading,
+    isLoading: isPending,
     handleOpen,
     handleClose
   }
@@ -126,18 +119,18 @@ export function SignUpModal({
   register: UseFormRegister<SignUpSchemaType>
   handleSubmit: UseFormHandleSubmit<SignUpSchemaType>
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   return (
     <Modal isOpen={isOpen} closeModal={closeModal}>
       <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
-        <h1 className='px-5'>{t('auth.sign-up')}</h1>
+        <h1 className='px-5'>{t.auth.signUp}</h1>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-control'>
             <label htmlFor='email' className='label pb-1 pt-0'>
               <span className='label-text'>
-                {t('auth.email')}
+                {t.auth.email}
                 <span className='text-error'>*</span>
               </span>
             </label>
@@ -155,7 +148,7 @@ export function SignUpModal({
           <div className='form-control'>
             <label htmlFor='password' className='label pb-1 pt-0'>
               <span className='label-text'>
-                {t('auth.password')}
+                {t.auth.password}
                 <span className='text-error'>*</span>
               </span>
             </label>
@@ -173,7 +166,7 @@ export function SignUpModal({
           <div className='form-control'>
             <label htmlFor='confirmPassword' className='label pb-1 pt-0'>
               <span className='label-text'>
-                {t('auth.confirm-password')}
+                {t.auth.confirmPassword}
                 <span className='text-error'>*</span>
               </span>
             </label>
@@ -196,7 +189,7 @@ export function SignUpModal({
               type='submit'
               isLoading={isLoading}
             >
-              {t('auth.sign-up')}
+              {t.auth.signUp}
             </Button>
           </div>
         </form>
@@ -205,16 +198,16 @@ export function SignUpModal({
   )
 }
 
-export const loginSchema = (t: TFunction) =>
+export const loginSchema = (t: any) =>
   z.object({
-    email: z.string().email(t('auth.email-required')),
-    password: z.string().min(1, t('required'))
+    email: z.string().email(t.auth.emailRequired),
+    password: z.string().min(1, t.required)
   })
 type LoginSchemaType = z.infer<ReturnType<typeof loginSchema>>
 
 export function useLogin() {
-  const t = useTranslation()
-
+  const t = useTranslations()
+  const searchParams = useSearchParams()
   const router = useRouter()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -228,19 +221,17 @@ export function useLogin() {
   })
 
   const onSubmit = async (data: LoginSchemaType) => {
-    const path = router.query.callbackUrl as string | undefined
+    const path = searchParams.get('callbackUrl') as string | undefined
     const callback = path ? decodeURIComponent(path) : '/chat'
 
     const response = await signIn('credentials', { redirect: false, ...data })
-    if (response?.ok) {
-      await router.push(callback)
+    if (response?.ok && !response.error) {
+      router.push(callback)
     }
-
-    if (response?.status === 401) {
-      toast.error(t('auth.invalid-creds'))
-
-      setError('email', { message: t('auth.invalid-creds') })
-      setError('password', { message: t('auth.invalid-creds') })
+    if (response?.status === 401 || response?.error) {
+      toast.error(t.auth.invalidCreds)
+      setError('email', { message: t.auth.invalidCreds })
+      setError('password', { message: t.auth.invalidCreds })
     }
   }
 
@@ -281,16 +272,16 @@ export function LoginModal({
   register: UseFormRegister<LoginSchemaType>
   handleSubmit: UseFormHandleSubmit<LoginSchemaType>
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   return (
     <Modal isOpen={isOpen} closeModal={closeModal}>
       <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
-        <h1 className='text-center'>{t('auth.login')}</h1>
+        <h1 className='text-center'>{t.auth.login}</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-control'>
             <label htmlFor='email' className='label pb-1'>
-              <span className='label-text'>{t('auth.email')}</span>
+              <span className='label-text'>{t.auth.email}</span>
             </label>
 
             <input
@@ -306,7 +297,7 @@ export function LoginModal({
 
           <div className='form-control'>
             <label htmlFor='password' className='label pb-1'>
-              <span className='label-text'>{t('auth.password')}</span>
+              <span className='label-text'>{t.auth.password}</span>
             </label>
 
             <input
@@ -326,7 +317,7 @@ export function LoginModal({
               type='submit'
               className='btn btn-primary w-3/4'
             >
-              {t('auth.login')}
+              {t.auth.login}
             </Button>
           </div>
         </form>

@@ -1,16 +1,16 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { api } from '~/utils/api'
+import { api } from '~/trpc/react'
 import { Loader } from './loaders/recipe-list-recent'
-import { useTranslation } from '~/hooks/use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 
 export function RecentRecipes() {
-  const t = useTranslation()
+  const t = useTranslations()
 
   const { data, status } = api.recipes.recentRecipes.useQuery()
 
   if (status === 'error') {
-    return <div className=''>{t('error.something-went-wrong')}</div>
+    return <div className=''>{t.error.somethingWentWrong}</div>
   }
 
   if (status === 'success') {
@@ -77,11 +77,11 @@ export function RecentRecipes() {
 }
 
 function Container({ children }: { children: React.ReactNode }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   return (
     <>
-      <h2 className='prose col-span-2 sm:col-span-4'>{t('recipes.recent')}</h2>
+      <h2 className='prose col-span-2 sm:col-span-4'>{t.recipes.recent}</h2>
 
       {children}
     </>

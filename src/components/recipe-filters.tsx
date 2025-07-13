@@ -10,26 +10,22 @@ import {
 import { z } from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { api } from '~/utils/api'
-import { useUserId } from '~/hooks/use-list'
+import { api } from '~/trpc/react'
 import { type Filter } from '@prisma/client'
 import toast from 'react-hot-toast'
 import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
-import { useTranslation } from '~/hooks/use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 import { ValuePropsHeader } from './value-props'
 import { ErrorMessage } from './error-message-content'
-import { type TFunction } from 'i18next'
+import { useUserId } from '~/hooks/use-user-id'
 
-const createFilterSchema = (t: TFunction) =>
+export const filterSchema = (t: any) =>
   z.object({
-    name: z
-      .string()
-      .min(3, t('filters.min-chars-3'))
-      .max(50, t('filters.min-chars-50'))
+    name: z.string().min(3, t.filters.minChars3).max(50, t.filters.maxChars50)
   })
 
-type CreateFilter = z.infer<ReturnType<typeof createFilterSchema>>
+type CreateFilter = z.infer<ReturnType<typeof filterSchema>>
 
 export const useFiltersByUser = () => {
   const userId = useUserId()
@@ -43,13 +39,13 @@ export const useFiltersByUser = () => {
 
 export function FiltersByUser() {
   const { data, status } = useFiltersByUser()
-  const t = useTranslation()
+  const t = useTranslations()
 
   if (status === 'error') {
-    return <div>{t('error.something-went-wrong')}</div>
+    return <div>{t.error.somethingWentWrong}</div>
   }
 
-  if (status === 'loading') {
+  if (status === 'pending') {
     return null
   }
 
@@ -61,7 +57,7 @@ function CreateFilterForm({
 }: {
   onCreate: (data: CreateFilter) => void
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
   const {
     handleSubmit,
     resetField,
@@ -69,7 +65,7 @@ function CreateFilterForm({
     control,
     formState: { errors, isDirty, touchedFields }
   } = useForm<CreateFilter>({
-    resolver: zodResolver(createFilterSchema(t)),
+    resolver: zodResolver(filterSchema(t)),
     defaultValues: {
       name: ''
     }
@@ -91,7 +87,7 @@ function CreateFilterForm({
             <input
               {...field}
               className='input join-item input-bordered input-sm'
-              placeholder={t('filters.placeholder')}
+              placeholder={t.filters.placeholder}
             />
           )}
         />
@@ -100,7 +96,7 @@ function CreateFilterForm({
           className='btn btn-outline join-item no-animation btn-sm'
         >
           <PlusCircleIcon />
-          <span>{t('filters.add')}</span>
+          <span>{t.filters.add}</span>
         </button>
       </form>
       {errors.name && isDirty && touchedFields.name && (
@@ -159,10 +155,10 @@ function FilterList({
   onCheck: (id: string, checked: boolean) => void
   onRemove: (id: string) => void
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   if (filters.length === 0) {
-    return <div>{t('filters.no-filters')}</div>
+    return <div>{t.filters.noFilters}</div>
   }
 
   return (
@@ -204,10 +200,10 @@ function ActiveFiltersSummary({
 }: {
   activeFiltersCount: number
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
   return (
     <small className=''>
-      {t('filters.active')} {activeFiltersCount}
+      {t.filters.active} {activeFiltersCount}
     </small>
   )
 }
@@ -215,7 +211,7 @@ function ActiveFiltersSummary({
 export function Filters({ data }: { data: Filter[] }) {
   const session = useSession()
 
-  const t = useTranslation()
+  const t = useTranslations()
 
   const userId = useUserId()
   const utils = api.useContext()
@@ -358,7 +354,7 @@ export function Filters({ data }: { data: Filter[] }) {
 
   return (
     <div className='flex w-full flex-1 flex-col items-center justify-center gap-2'>
-      <ValuePropsHeader icon={<FunnelIcon />} label={t('filters.title')} />
+      <ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
 
       <div className='flex w-full flex-wrap gap-4'>
         <FilterList

@@ -3,7 +3,7 @@ import { filtersRouter } from './filters'
 import { listsRouter } from './lists'
 import { recipesRouter } from './recipes'
 import { userRouter } from './users'
-import { createTRPCRouter } from '../trpc'
+import { createCallerFactory, createTRPCRouter } from '../trpc'
 
 /**
  * This is the primary router for your server.
@@ -20,3 +20,5 @@ export const appRouter = createTRPCRouter({
 
 // export type definition of API
 export type AppRouter = typeof appRouter
+
+export const createCaller = createCallerFactory(appRouter)

@@ -1,0 +1,152 @@
+{
+	"nav": {
+		"appName": "RecipeChat",
+
+		"menu": {
+			"signUp": "Registro",
+			"login": "Inicio",
+			"logout": "Cierra",
+			"theme": "Tema"
+		}
+	},
+
+	"required": "Requerido",
+
+	"auth": {
+		"signUp": "Registro",
+		"signUpGoogle": "Registrarse con Google",
+		"login": "Iniciar Sesión",
+		"email": "Email",
+		"password": "Contraseña",
+		"confirmPassword": "Confirmar Contraseña",
+		"signUpSuccess": "¡Registro exitoso!",
+		"invalidCreds": "Credenciales inválidas",
+		"signUpInfo": "Favor de registrarse para guardar sus recetas",
+		"minChars6": "Mínimo 6 caracteres",
+		"maxChars20": "Mínimo 20 caracteres",
+		"passwordsDontMatch": "Las contraseñas no coinciden",
+		"emailRequired": "Correo electrónico no válido"
+	},
+
+	"list": {
+		"byRecipe": "Por receta",
+		"noItems": "No hay elementos en tu lista",
+		"addToList": "Agregar a tu lista"
+	},
+
+	"valueProps": {
+		"title": "Ejemplos",
+		"firstButton": "¿Que podria hacer para cenar esta noche?",
+		"secondButton": "¿Como se hace un risotto?",
+		"thirdButton": "¿Que puedo hacer con pollo?",
+		"saveRecipes": "Guarda tus recetas"
+	},
+
+	"capabilities": {
+		"title": "Funciones",
+		"firstDescription": "Recuerda que ecribiste en este chat",
+		"secondDescription": "Permite corregir tu receta",
+		"thirdDescription": "Guarda tus recetas"
+	},
+
+	"chatFormPlaceholder": "Pregunta sobre una receta",
+
+	"filters": {
+		"title": "Filtros",
+		"placeholder": "Nuevo filtro",
+		"active": "Filtros activos:",
+		"minChars3": "Mínimo 3 caracteres",
+		"maxChars50": "Máximo 50 caracteres",
+		"add": "Agregar filtro",
+		"noFilters": "No se encontraron filtros. Agrega un filtro para empezar."
+	},
+
+	"chatWindow": {
+		"toRecipe": "Ir a receta",
+		"expand": "Expandir",
+		"collapse": "Colapsar",
+		"generate": "Generar",
+		"save": "Guardar",
+		"saveSuccess": "¡Receta guardada!",
+		"chats": "Recientes chats",
+		"noChats": "No se encontraron chats. Iniciar un nuevo chat preguntando sobre una receta"
+	},
+
+	"recipes": {
+		"noRecipes": {
+			"message": "No tienes recetas guardada. Guarda recetas de chats ",
+			"link": "aqui"
+		},
+
+		"recent": "Recetas recientes",
+		"your": "Tus recetas",
+		"search": "Buscar recetas",
+
+		"name": "Nombre",
+		"description": "Descripción",
+		"ingredients": "Ingredientes",
+		"instructions": "Instrucciones",
+		"cookTime": "Cocción:",
+		"prepTime": "Preparación:",
+		"notes": "Notas",
+
+		"step": "Paso",
+
+		"paste": "Pegar una receta de la web",
+		"url": "Receta URL",
+		"upload": "Subir",
+		"cancel": "Cancelar",
+		"save": "guardar",
+		"delete": "borrar",
+		"enterUrl": "Ingresa una URL válida que contenga una receta.",
+
+		"byId": {
+			"saveImage": "Guardar imagen",
+			"goToList": "Ir a lista",
+			"addToList": "Agregar a tu lista",
+			"deselectAll": "Deseleccionar todo",
+			"selectAll": "Seleccionar todo",
+			"placeholder": "Agrega notas aqui",
+			"edit": "Editar receta",
+			"selectImage": "Seleccionar imagen",
+			"updateImage": "Actualizar imagen",
+			"uploadImage": "Subir imagen",
+			"uploadingImage": "Subiendo imagen...",
+			"updateImageSuccess": "¡Imagen actualizada!",
+			"noFile": "No hay archivo seleccionado",
+
+			"delete": {
+				"title": "Borrar receta",
+				"message": "¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer."
+			}
+		}
+	},
+
+	"error": {
+		"somethingWentWrong": "Algo salió mal."
+	},
+
+	"loading": { "screen": "Cargando...", "loggingIn": "Iniciando sesión..." },
+
+	"toast": {
+		"signUp": "Registrate y guarda tus recetas.",
+		"loginSuccess": "¡Bienvenido! Aquí tienes la receta que guardaste:"
+	},
+
+	"components": {
+		"avatars": {
+			"assistant": "IA"
+		},
+
+		"dropdownMenus": {
+			"settings": "Ajustes",
+			"logOut": "Cerrar sesión",
+			"system": "Sistema",
+			"light": "Claro",
+			"dark": "Oscuro",
+			"startNewChat": "Nuevo chat",
+			"signUp": "Registrarse",
+			"login": "Iniciar sesión"
+		}
+	}
+}

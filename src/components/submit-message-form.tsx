@@ -5,7 +5,7 @@ import {
   useRef
 } from 'react'
 import { Button } from './button'
-import { useTranslation } from '~/hooks/use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 
 export function SubmitMessageForm({
   handleInputChange,
@@ -18,7 +18,7 @@ export function SubmitMessageForm({
   input: string
   isSendingMessage: boolean
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -36,7 +36,7 @@ export function SubmitMessageForm({
           <textarea
             value={input}
             onChange={handleInputChange}
-            placeholder={t('chat-form-placeholder')}
+            placeholder={t.chatFormPlaceholder}
             className='input input-bordered relative w-full resize-none bg-base-100/75 pt-2 focus:bg-base-100'
             ref={textareaRef}
           />

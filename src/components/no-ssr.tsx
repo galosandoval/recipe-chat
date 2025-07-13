@@ -1,10 +1,22 @@
-import dynamic from 'next/dynamic'
-import { Fragment } from 'react'
+'use client'
 
-const NoSsr = (props: { children: React.ReactNode }) => (
-  <Fragment>{props.children}</Fragment>
-)
+import { useEffect, useState } from 'react'
 
-export default dynamic(() => Promise.resolve(NoSsr), {
-  ssr: false
-})
+interface NoSsrProps {
+  children: React.ReactNode
+  fallback?: React.ReactNode
+}
+
+export function NoSsr({ children, fallback = null }: NoSsrProps) {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  if (!isMounted) {
+    return <>{fallback}</>
+  }
+
+  return <>{children}</>
+}

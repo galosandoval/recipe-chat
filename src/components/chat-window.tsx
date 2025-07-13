@@ -1,36 +1,25 @@
-import ScrollToBottom, {
-  useScrollToBottom,
-  useScrollToTop,
-  useSticky
-} from 'react-scroll-to-bottom'
+'use client'
+
 import { type Chat, type Message as PrismaMessage } from '@prisma/client'
 import { transformContentToRecipe, type ChatType } from '~/hooks/use-chat'
-import {
-  type Dispatch,
-  type SetStateAction,
-  memo,
-  useEffect,
-  useState
-} from 'react'
+import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { ChatsSection, ChatsSideBarButton } from './chats'
-import {
-  ArrowSmallDownIcon,
-  ArrowSmallUpIcon,
-  ChatBubbleLeftIcon,
-  PlusIcon,
-  UserCircleIcon
-} from './icons'
+import { ChatBubbleLeftIcon, PlusIcon, UserCircleIcon } from './icons'
 import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
-import NoSsr from './no-ssr'
-import { useTranslation } from '~/hooks/use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
+import {
+  ScrollModeContext,
+  ScrollToBottomProvider,
+  ScrollToButtons
+} from './scroll-to-bottom'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -38,33 +27,18 @@ type MessageContentProps = Omit<
 >
 
 export default function ChatWindow(props: MessageContentProps) {
-  const [scrollMode, setScrollMode] = useState<'bottom' | 'top'>('top')
-
   return (
-    // NoSsr prevents ScrollToBottom from creating class name on server side
-    <NoSsr>
-      <ScrollToBottom
-        followButtonClassName='hidden'
-        initialScrollBehavior='auto'
-        className='h-full'
-        mode={scrollMode}
-      >
-        <Content setScrollMode={setScrollMode} {...props} />
-      </ScrollToBottom>
-    </NoSsr>
+    <ScrollToBottomProvider>
+      <Content {...props} />
+    </ScrollToBottomProvider>
   )
 }
 
-const Content = memo(function Content(
-  props: MessageContentProps & {
-    setScrollMode: Dispatch<SetStateAction<'bottom' | 'top'>>
-  }
-) {
+function Content(props: MessageContentProps) {
   const {
     chatId,
     // filters,
     handleFillMessage,
-    setScrollMode,
     messages,
     isChatsModalOpen,
     isSendingMessage,
@@ -86,16 +60,13 @@ const Content = memo(function Content(
     status: chatsQueryStatus,
     handleGetChatsOnSuccess
   } = props
-
+  const setScrollMode = useContext(ScrollModeContext).setScrollMode
   // const { data } = filters
-  const scrollToBottom = useScrollToBottom()
-  const scrollToTop = useScrollToTop()
-  const [sticky] = useSticky()
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const currentChatId = JSON.parse(
-    sessionStorage.getItem('currentChatId') ?? 'null'
-  )
+  const currentChatId =
+    typeof window !== 'undefined'
+      ? JSON.parse(sessionStorage.getItem('currentChatId') ?? 'null')
+      : null
 
   const isSessionStorageAvailable =
     typeof window !== 'undefined' && typeof currentChatId === 'string'
@@ -113,6 +84,8 @@ const Content = memo(function Content(
     (messages.length === 0 || !isMessagesSuccess) &&
     chatsFetchStatus === 'fetching'
 
+  console.log('shouldBeLoading', shouldBeLoading)
+
   // don't scroll to bottom when showing value props
   useEffect(() => {
     if (isNewChat) {
@@ -121,12 +94,6 @@ const Content = memo(function Content(
       setScrollMode('bottom')
     }
   }, [isNewChat])
-
-  useEffect(() => {
-    if (isMessagesSuccess) {
-      scrollToBottom({ behavior: 'auto' })
-    }
-  }, [chatsFetchStatus, chatsQueryStatus])
 
   if (isNewChat) {
     return (
@@ -146,7 +113,7 @@ const Content = memo(function Content(
 
   return (
     <>
-      <div className='flex h-full flex-col gap-4'>
+      <div className='flex h-full flex-col gap-4 pt-16'>
         <ChatWindowContent
           saveRecipeStatus={createRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
@@ -167,38 +134,10 @@ const Content = memo(function Content(
           }
           handleStartNewChat={handleStartNewChat}
           handleToggleChatsModal={handleToggleChatsModal}
-          // filters={data ?? []}
         />
       </div>
 
-      <div
-        className={`absolute bottom-20 right-4 duration-300 transition-all${
-          !sticky
-            ? ' translate-y-0 opacity-100'
-            : ' invisible translate-y-4 opacity-0'
-        }`}
-      >
-        <button
-          className='btn btn-circle glass'
-          onClick={() => scrollToBottom({ behavior: 'smooth' })}
-        >
-          <ArrowSmallDownIcon />
-        </button>
-      </div>
-      <div
-        className={`absolute bottom-20 left-4 duration-300 transition-all${
-          sticky && !isSendingMessage
-            ? ' translate-y-0 opacity-100'
-            : ' invisible translate-y-4 opacity-0'
-        }`}
-      >
-        <button
-          className='btn btn-circle glass'
-          onClick={() => scrollToTop({ behavior: 'smooth' })}
-        >
-          <ArrowSmallUpIcon />
-        </button>
-      </div>
+      <ScrollToButtons enable={!isSendingMessage} />
 
       <SignUpModal
         closeModal={handleCloseSignUpModal}
@@ -211,7 +150,7 @@ const Content = memo(function Content(
       />
     </>
   )
-})
+}
 
 function ChatWindowContent({
   messages,
@@ -266,10 +205,9 @@ function ChatWindowContent({
   }) => void
 }) {
   const { data } = useSession()
-
   if (messages.length || isSendingMessage || !data?.user?.id) {
     return (
-      <div className='h-full bg-primary-content py-16'>
+      <div className='bg-primary-content h-full'>
         <MessageList
           saveRecipeStatus={saveRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
@@ -351,21 +289,21 @@ const MessageList = memo(function MessageList({
   return (
     <>
       <div className='bg-base-100 py-2'>
-        <div className='prose mx-auto grid grid-cols-3 px-2'>
+        <div className='prose mx-auto grid grid-cols-3 place-items-center px-2'>
           {handleChangeChat && handleGetChatsOnSuccess && isAuthenticated ? (
             <ChatsSideBarButton
               chatId={chatId}
               isChatsModalOpen={isChatsModalOpen}
               handleChangeChat={handleChangeChat}
               handleToggleChatsModal={handleToggleChatsModal}
-              onSuccess={handleGetChatsOnSuccess}
+              // onSuccess={handleGetChatsOnSuccess}
             />
           ) : (
             <div></div>
           )}
 
           <div className='flex items-center justify-center gap-2'>
-            <h2 className='mb-2 mt-2'>Chat</h2>
+            <h2 className='mt-2 mb-2'>Chat</h2>
             <ChatBubbleLeftIcon />
           </div>
 
@@ -424,7 +362,7 @@ const Message = function Message({
     messageId?: string | undefined
   }) => void
 }) {
-  const t = useTranslation()
+  const t = useTranslations()
 
   if (message.role === 'assistant') {
     const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
@@ -446,7 +384,7 @@ const Message = function Message({
             </div>
 
             <div className='prose flex flex-col pb-4'>
-              <p className='mb-0 mt-0 whitespace-pre-line'>
+              <p className='mt-0 mb-0 whitespace-pre-line'>
                 {removeBracketsAndQuotes(message.content) || ''}
               </p>
             </div>
@@ -462,13 +400,13 @@ const Message = function Message({
                   })
                 }
               >
-                {t('chat-window.to-recipe')}
+                {t.chatWindow.toRecipe}
               </Button>
             ) : !isSendingMessage ? (
               // Save
               <Button
                 className='btn btn-outline'
-                isLoading={saveRecipeStatus === 'loading'}
+                isLoading={saveRecipeStatus === 'pending'}
                 onClick={() =>
                   handleSaveRecipe({
                     content: message.content || '',
@@ -476,7 +414,7 @@ const Message = function Message({
                   })
                 }
               >
-                {t('chat-window.save')}
+                {t.chatWindow.save}
               </Button>
             ) : null}
           </div>
@@ -486,11 +424,11 @@ const Message = function Message({
   }
 
   return (
-    <div className='flex flex-col items-center self-center bg-base-200 p-4'>
+    <div className='bg-base-200 flex flex-col items-center self-center p-4'>
       <div className='prose mx-auto w-full'>
         <div className='flex justify-end gap-2'>
           <div className='flex flex-col items-end'>
-            <p className='mb-0 mt-0 whitespace-pre-line'>
+            <p className='mt-0 mb-0 whitespace-pre-line'>
               {message?.content || ''}
             </p>
           </div>
@@ -511,14 +449,14 @@ function removeBracketsAndQuotes(str: string) {
 
 function ActiveFilters() {
   const { data: filters, status } = useFiltersByUser()
-  const t = useTranslation()
+  const t = useTranslations()
 
-  if (status === 'loading') {
+  if (status === 'pending') {
     return null
   }
 
   if (status === 'error' || !filters) {
-    return <div>{t('error.something-went-wrong')}</div>
+    return <div>{t.error.somethingWentWrong}</div>
   }
   const activeFilters = filters.filter((f) => f.checked)
 
@@ -528,7 +466,7 @@ function ActiveFilters() {
 
   return (
     <div className='flex gap-2 pt-2'>
-      <h3 className='mb-0 mt-0 text-sm'>{t('filters.title')}:</h3>
+      <h3 className='mt-0 mb-0 text-sm'>{t.filters.title}:</h3>
       {activeFilters.map((f) => (
         <div className='badge badge-primary badge-outline' key={f.id}>
           {f.name}

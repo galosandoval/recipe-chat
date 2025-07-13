@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useState } from 'react'
 import { MoonIcon, SunIcon } from './icons'
 import { themeChange } from 'theme-change'
-import { useTranslation } from '~/hooks/use-translation'
+import { useTranslations } from '~/hooks/use-translations'
 
 export const darkTheme = 'night'
 export const lightTheme = 'winter'
@@ -52,7 +52,7 @@ type ThemeToggleProps = {
 // eslint-disable-next-line react/display-name
 export const ThemeToggle = forwardRef<HTMLDivElement, ThemeToggleProps>(
   ({ theme, updateTheme, showLabel }: ThemeToggleProps, ref) => {
-    const t = useTranslation()
+    const t = useTranslations()
 
     const handleToggleTheme = () => {
       const { theme } = localStorage
@@ -74,7 +74,7 @@ export const ThemeToggle = forwardRef<HTMLDivElement, ThemeToggleProps>(
           onClick={handleToggleTheme}
           className='btn btn-ghost no-animation w-full'
         >
-          {showLabel ? t('nav.menu.theme') : null}
+          {showLabel ? t.nav.menu.theme : null}
           {theme === 'night' ? <SunIcon /> : <MoonIcon />}
         </button>
       </div>
