@@ -12,12 +12,7 @@ import { useUserId } from '~/hooks/use-user-id'
 
 export function ListByUserId() {
   const userId = useUserId()
-  const { data: list } = api.lists.byUserId.useQuery(
-    { userId },
-    {
-      suspense: true
-    }
-  )
+  const [list] = api.lists.byUserId.useSuspenseQuery({ userId })
 
   return <ListController data={list?.ingredients ?? []} />
 }
