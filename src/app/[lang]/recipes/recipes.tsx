@@ -35,7 +35,7 @@ import { RecentRecipes } from '~/components/recipe-list-recent'
 import { useTranslations } from '~/hooks/use-translations'
 import { ErrorMessage } from '~/components/error-message-content'
 import { recipeUrlSchema, type RecipeUrlSchemaType } from '~/schemas/recipes'
-import { RecipeFallbackIcon } from '~/components/icons'
+import { RecipeFallbackIconLg } from '~/components/icons'
 
 export default function Recipes() {
   const { ref: inViewRef, inView } = useInView()
@@ -281,8 +281,8 @@ function Card({ data }: { data: Recipe }) {
             </div>
           </div>
         ) : (
-          <div className='bg-primary-content'>
-            <RecipeFallbackIcon />
+          <div className='bg-primary/70'>
+            <RecipeFallbackIconLg />
           </div>
         )}
       </div>

@@ -10,7 +10,6 @@ export default async function ListView() {
   if (!session?.user.id) {
     return redirect('/')
   }
-  void api.lists.byUserId.prefetch({ userId: session.user.id })
 
   return (
     <HydrateClient>
