@@ -5,7 +5,7 @@ import { TRPCReactProvider } from '~/trpc/react'
 import { SessionProvider } from 'next-auth/react'
 import type { Session } from 'next-auth'
 import { Toast } from './toast'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import {
   TranslationsContext,
@@ -29,7 +29,7 @@ export const Providers = ({
           <Toast />
           <Analytics />
         </TranslationsContext.Provider>
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </SessionProvider>
     </TRPCReactProvider>
   )

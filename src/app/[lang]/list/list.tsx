@@ -10,11 +10,11 @@ import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 
-export function ListByUserId({ data }: { data: Ingredient[] }) {
+export function ListByUserId() {
   const userId = useUserId()
   const { data: list } = api.lists.byUserId.useQuery(
     { userId },
-    { enabled: !!userId, initialData: { ingredients: data } }
+    { enabled: !!userId, suspense: true }
   )
 
   return <ListController data={list?.ingredients ?? []} />
