@@ -3,23 +3,20 @@ import { ScreenLoader } from '~/components/loaders/screen'
 import { api, HydrateClient } from '~/trpc/server'
 import { ListByUserId } from './list'
 import { auth } from '~/server/auth'
+import { redirect } from 'next/navigation'
 
 export default async function ListView() {
   const session = await auth()
   if (!session?.user.id) {
-    return <div>Not logged in</div>
+    return redirect('/')
   }
-  const data = await api.lists.byUserId({ userId: session.user.id })
-
-  if (!data) {
-    return <div>No data</div>
-  }
+  await api.lists.byUserId.prefetch({ userId: session.user.id })
 
   return (
     <HydrateClient>
       <main className='prose mx-auto min-h-svh w-full py-16'>
         <Suspense fallback={<ScreenLoader />}>
-          <ListByUserId data={data.ingredients} />
+          <ListByUserId />
         </Suspense>
       </main>
     </HydrateClient>
