@@ -11,11 +11,6 @@ export default async function RecipesView() {
     return redirect('/')
   }
 
-  void api.recipes.infiniteRecipes.prefetchInfinite({
-    limit: 10,
-    search: ''
-  })
-
   return (
     <HydrateClient>
       <Suspense fallback={<ScreenLoader />}>

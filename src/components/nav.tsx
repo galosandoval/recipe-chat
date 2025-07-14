@@ -15,6 +15,56 @@ import { useTranslations } from '~/hooks/use-translations'
 import { ThemeToggle, useTheme } from './theme-toggle'
 import { api } from '~/trpc/react'
 
+// Custom link component that prefetches list data
+function ListLink({ children, className }: { children: React.ReactNode; className: string }) {
+  const { data: session } = useSession()
+  const utils = api.useUtils()
+
+  const handlePrefetch = () => {
+    if (session?.user.id) {
+      void utils.lists.byUserId.prefetch({ userId: session.user.id })
+    }
+  }
+
+  return (
+    <Link
+      className={className}
+      href='/list'
+      onMouseEnter={handlePrefetch}
+      onFocus={handlePrefetch}
+      onTouchStart={handlePrefetch} // Better for mobile
+    >
+      {children}
+    </Link>
+  )
+}
+// Custom link component that prefetches list data
+function RecipesLink({ children, className }: { children: React.ReactNode; className: string }) {
+  const { data: session } = useSession()
+  const utils = api.useUtils()
+
+  const handlePrefetch = () => {
+    if (session?.user.id) {
+      void utils.recipes.infiniteRecipes.prefetchInfinite({
+        limit: 10,
+        search: ''
+      })
+    }
+  }
+
+  return (
+    <Link
+      className={className}
+      href='/recipes'
+      onMouseEnter={handlePrefetch}
+      onFocus={handlePrefetch}
+      onTouchStart={handlePrefetch} // Better for mobile
+    >
+      {children}
+    </Link>
+  )
+}
+
 export function NavContainer() {
   return (
     <div>
@@ -163,16 +213,37 @@ function RoutesNavbar() {
 
   return (
     <nav className='navbar w-full max-w-xl justify-between px-5'>
-      {menuItems.map((item) => (
-        <Link
-          className={activeLinkStyles(item.value)}
-          href={item.value}
-          key={item.value}
-        >
-          <span className={activeSpanStyles(item.value)}></span>
-          {item.icon}
-        </Link>
-      ))}
+      {menuItems.map((item) => {
+        if (item.value === '/list') {
+          return (
+            <ListLink className={activeLinkStyles(item.value)} key={item.value}>
+              <span className={activeSpanStyles(item.value)}></span>
+              {item.icon}
+            </ListLink>
+          )
+        } else if (item.value === '/recipes') {
+          return (
+            <RecipesLink
+              className={activeLinkStyles(item.value)}
+              key={item.value}
+            >
+              <span className={activeSpanStyles(item.value)}></span>
+              {item.icon}
+            </RecipesLink>
+          )
+        }
+
+        return (
+          <Link
+            className={activeLinkStyles(item.value)}
+            href={item.value}
+            key={item.value}
+          >
+            <span className={activeSpanStyles(item.value)}></span>
+            {item.icon}
+          </Link>
+        )
+      })}
 
       <ProtectedDropdownMenu />
     </nav>
