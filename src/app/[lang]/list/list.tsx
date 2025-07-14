@@ -14,7 +14,9 @@ export function ListByUserId() {
   const userId = useUserId()
   const { data: list } = api.lists.byUserId.useQuery(
     { userId },
-    { enabled: !!userId, suspense: true }
+    {
+      suspense: true
+    }
   )
 
   return <ListController data={list?.ingredients ?? []} />
