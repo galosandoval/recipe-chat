@@ -111,7 +111,7 @@ function Content(props: MessageContentProps) {
 
   return (
     <>
-      <div className='flex h-full flex-col gap-4 pt-16'>
+      <div className='flex h-full flex-col gap-4'>
         <ChatWindowContent
           saveRecipeStatus={createRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
@@ -205,7 +205,7 @@ function ChatWindowContent({
   const { data } = useSession()
   if (messages.length || isSendingMessage || !data?.user?.id) {
     return (
-      <div className='bg-primary-content h-full'>
+      <div className='bg-base-100 h-full'>
         <MessageList
           saveRecipeStatus={saveRecipeStatus}
           handleGoToRecipe={handleGoToRecipe}
@@ -286,7 +286,7 @@ const MessageList = memo(function MessageList({
 
   return (
     <>
-      <div className='bg-base-100 py-2'>
+      <div className='bg-base-100 pb-2'>
         <div className='prose mx-auto grid grid-cols-3 place-items-center px-2'>
           {handleChangeChat && handleGetChatsOnSuccess && isAuthenticated ? (
             <ChatsSideBarButton
@@ -314,7 +314,7 @@ const MessageList = memo(function MessageList({
         </div>
       </div>
 
-      <div className='bg-primary-content pb-16'>
+      <div className='bg-base-100 pb-16'>
         {data.map((m, i) => (
           <Message
             message={m}

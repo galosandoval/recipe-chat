@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
-import { api, HydrateClient } from '~/trpc/server'
+import { HydrateClient } from '~/trpc/server'
 import { ListByUserId } from './list'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
@@ -13,7 +13,7 @@ export default async function ListView() {
 
   return (
     <HydrateClient>
-      <main className='prose mx-auto min-h-svh w-full py-16'>
+      <main className='prose mx-auto w-full overflow-y-auto pt-20 pb-16'>
         <Suspense fallback={<ScreenLoader />}>
           <ListByUserId />
         </Suspense>

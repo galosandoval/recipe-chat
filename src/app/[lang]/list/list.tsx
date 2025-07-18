@@ -46,7 +46,7 @@ function ListController({ data }: { data: Ingredient[] }) {
   }
 
   return (
-    <div className='mx-2 flex flex-col pt-2'>
+    <div className='mx-2 flex flex-col'>
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
           <label className='label flex cursor-pointer gap-2'>
@@ -101,7 +101,7 @@ function EmptyList({ children }: { children: ReactNode }) {
   return (
     <div className='text-primary my-auto grid h-full place-items-center'>
       <div
-        className='bg-primary-content rounded-lg'
+        className='bg-base-100 rounded-lg'
         style={{
           backgroundImage
         }}
@@ -240,7 +240,7 @@ function ListByRecipeId({
   const { data: nameDictionary, isSuccess } = useRecipeNames(ids)
 
   return (
-    <div className='pb-24'>
+    <div>
       {Object.values(recipeBuckets).map((b) => (
         <div key={b[0].recipeId} className='pr-4'>
           {!isSuccess ? (

@@ -301,11 +301,12 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
     <>
       {url ? (
         <Image
-          className='mx-auto rounded'
+          className='mx-auto h-auto w-auto rounded'
           src={url}
           alt='recipe'
           width={300}
           height={300}
+          priority={true}
         />
       ) : (
         <div className='gap flex flex-col justify-center px-4 py-5'>
