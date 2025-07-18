@@ -103,7 +103,7 @@ function SearchBarWrapper({
   handleSearchButtonClick: () => void
 }) {
   return (
-    <div className='relative container mx-auto flex flex-col overflow-y-auto px-2 pt-16'>
+    <div className='relative container mx-auto flex flex-col overflow-y-auto px-2'>
       <SearchBar
         handleChange={handleChange}
         handleSearchButtonClick={handleSearchButtonClick}
@@ -176,14 +176,14 @@ function Pages({
   }
 
   return (
-    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-5 pt-4 pb-20 sm:grid-cols-4'>
+    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-5 pb-20 sm:grid-cols-4'>
       {pages.length > 0 && pages[0].items.length > 0 ? (
         <>
           <RecentRecipes />
         </>
       ) : null}
       <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
-        <h2 className='prose'>{t.recipes.your}</h2>
+        <h2 className='prose mt-2 mb-0'>{t.recipes.your}</h2>
         {!search && <CreateRecipeButton />}
       </div>
 
@@ -262,7 +262,7 @@ function Card({ data }: { data: Recipe }) {
 
   return (
     <Link
-      href={`/recipes/${data.id}?name=${encodeURIComponent(data.name)}`}
+      href={`/recipes/${data.id}`}
       key={data.id}
       className='bg-base-200 col-span-1 overflow-hidden rounded-lg shadow-xl'
       onClick={handleUpdateLastViewedAt}
@@ -274,6 +274,7 @@ function Card({ data }: { data: Recipe }) {
               <Image
                 className='object-fill sm:object-contain'
                 src={data.imgUrl}
+                priority={false}
                 alt='recipe'
                 fill
                 sizes='(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 33vw'

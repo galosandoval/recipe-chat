@@ -3,12 +3,12 @@ import { MoonIcon, SunIcon } from './icons'
 import { themeChange } from 'theme-change'
 import { useTranslations } from '~/hooks/use-translations'
 
-export const darkTheme = 'night'
+export const darkTheme = 'dark'
 export const lightTheme = 'winter'
 export type Theme = typeof darkTheme | typeof lightTheme
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>('night')
+  const [theme, setTheme] = useState<Theme>('dark')
 
   const updateTheme = (theme: Theme) => {
     setTheme(theme)
@@ -75,7 +75,7 @@ export const ThemeToggle = forwardRef<HTMLDivElement, ThemeToggleProps>(
           className='btn btn-ghost no-animation w-full'
         >
           {showLabel ? t.nav.menu.theme : null}
-          {theme === 'night' ? <SunIcon /> : <MoonIcon />}
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
       </div>
     )

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <HydrateClient>
-      <main className='flex min-h-svh flex-col items-center justify-center'>
+      <main className='flex min-h-svh flex-col items-center justify-center pt-20'>
         <Chat />
       </main>
     </HydrateClient>

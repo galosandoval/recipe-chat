@@ -1,4 +1,4 @@
-import { api, HydrateClient } from '~/trpc/server'
+import { HydrateClient } from '~/trpc/server'
 import Recipes from './recipes'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
@@ -13,9 +13,11 @@ export default async function RecipesView() {
 
   return (
     <HydrateClient>
-      <Suspense fallback={<ScreenLoader />}>
-        <Recipes />
-      </Suspense>
+      <main className='prose w-full overflow-y-auto pt-20'>
+        <Suspense fallback={<ScreenLoader />}>
+          <Recipes />
+        </Suspense>
+      </main>
     </HydrateClient>
   )
 }

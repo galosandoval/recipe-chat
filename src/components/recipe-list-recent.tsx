@@ -33,6 +33,7 @@ export function RecentRecipes() {
                   height={40}
                   width={40}
                   className='object-fill'
+                  priority={true}
                 />
               ) : (
                 <div className='bg-primary/70 self-center'>
@@ -60,10 +61,10 @@ function Container({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
 
   return (
-    <>
-      <h2 className='prose col-span-2 sm:col-span-4'>{t.recipes.recent}</h2>
+    <div className='col-span-2 w-full sm:col-span-4'>
+      <h2 className='prose mt-2'>{t.recipes.recent}</h2>
 
       {children}
-    </>
+    </div>
   )
 }

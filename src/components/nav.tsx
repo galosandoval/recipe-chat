@@ -9,14 +9,22 @@ import {
   ChatBubbleLeftRightIcon,
   ListBulletIcon,
   PencilSquareIcon,
+  RecipesIcon,
   XIcon
 } from './icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { ThemeToggle, useTheme } from './theme-toggle'
 import { api } from '~/trpc/react'
+import { cn } from '~/utils/cn'
 
 // Custom link component that prefetches list data
-function ListLink({ children, className }: { children: React.ReactNode; className: string }) {
+function ListLink({
+  children,
+  className
+}: {
+  children: React.ReactNode
+  className: string
+}) {
   const { data: session } = useSession()
   const utils = api.useUtils()
 
@@ -39,7 +47,13 @@ function ListLink({ children, className }: { children: React.ReactNode; classNam
   )
 }
 // Custom link component that prefetches list data
-function RecipesLink({ children, className }: { children: React.ReactNode; className: string }) {
+function RecipesLink({
+  children,
+  className
+}: {
+  children: React.ReactNode
+  className: string
+}) {
   const { data: session } = useSession()
   const utils = api.useUtils()
 
@@ -157,95 +171,78 @@ function EditRecipeNavbar() {
   )
 }
 
+const MENU_ITEMS = [
+  {
+    value: '/chat',
+    icon: <ChatBubbleLeftRightIcon />,
+    label: 'chat'
+  },
+  {
+    value: '/list',
+    icon: <ListBulletIcon />,
+    label: 'list'
+  },
+  {
+    value: '/recipes',
+    icon: <RecipesIcon />,
+    label: 'recipes'
+  }
+] as const
+
 function RoutesNavbar() {
   const pathname = usePathname()
-  const menuItems = [
-    {
-      value: '/chat',
-      icon: <ChatBubbleLeftRightIcon />
-    },
-    {
-      value: '/list',
-      icon: <ListBulletIcon />
-    },
-    {
-      value: '/recipes',
-      icon: (
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          fill='none'
-          viewBox='0 0 24 24'
-          strokeWidth={1.5}
-          stroke='currentColor'
-          className='h-6 w-6'
-        >
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            d='M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z'
-          />
-        </svg>
-      )
-    }
-  ]
+  const t = useTranslations()
 
   const activeLinkStyles = (path: string) => {
-    let styles =
-      'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-base-content'
+    let className = ''
 
-    if (pathname.includes(path)) {
-      styles =
-        'relative flex w-20 flex-col items-center gap-1 text-xs font-semibold text-primary'
-    }
+    const isActive = pathname.includes(path)
 
-    return styles
-  }
-
-  const activeSpanStyles = (path: string) => {
-    let styles = 'absolute top-10 h-1 w-full bg-transparent'
-
-    if (pathname.includes(path)) {
-      styles = 'absolute top-10 h-1 w-full bg-primary'
-    }
-
-    return styles
+    return cn(className, isActive && 'dock-active')
   }
 
   return (
-    <nav className='navbar w-full max-w-xl justify-between px-5'>
-      {menuItems.map((item) => {
-        if (item.value === '/list') {
+    <div className='bg-base-100/90 fixed top-0 mx-auto flex w-full flex-col items-center rounded backdrop-blur-md'>
+      <span className='text-base-content text-sm font-bold'>RecipeChat</span>
+      <nav className='dock dock-sm border-b-base-content/5 bg-base-100/90 top-5 w-full max-w-xl justify-between overflow-hidden rounded-b border-t-0 border-b-[0.5px] px-5 backdrop-blur-md'>
+        {MENU_ITEMS.map((item) => {
+          if (item.value === '/list') {
+            return (
+              <ListLink
+                className={activeLinkStyles(item.value)}
+                key={item.value}
+              >
+                {item.icon}
+                <span className='dock-label'>{t.nav[item.label]}</span>
+              </ListLink>
+            )
+          } else if (item.value === '/recipes') {
+            return (
+              <RecipesLink
+                className={activeLinkStyles(item.value)}
+                key={item.value}
+              >
+                {item.icon}
+                <span className='dock-label'>{t.nav[item.label]}</span>
+              </RecipesLink>
+            )
+          }
+
           return (
-            <ListLink className={activeLinkStyles(item.value)} key={item.value}>
-              <span className={activeSpanStyles(item.value)}></span>
-              {item.icon}
-            </ListLink>
-          )
-        } else if (item.value === '/recipes') {
-          return (
-            <RecipesLink
+            <Link
               className={activeLinkStyles(item.value)}
+              href={item.value}
               key={item.value}
             >
-              <span className={activeSpanStyles(item.value)}></span>
               {item.icon}
-            </RecipesLink>
+              <span className='dock-label'>{t.nav[item.label]}</span>
+            </Link>
           )
-        }
-
-        return (
-          <Link
-            className={activeLinkStyles(item.value)}
-            href={item.value}
-            key={item.value}
-          >
-            <span className={activeSpanStyles(item.value)}></span>
-            {item.icon}
-          </Link>
-        )
-      })}
-
-      <ProtectedDropdownMenu />
-    </nav>
+        })}
+        <div className='flex w-10 flex-1/2'>
+          <ProtectedDropdownMenu />
+        </div>
+      </nav>
+    </div>
   )
 }
