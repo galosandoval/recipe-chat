@@ -240,7 +240,7 @@ function ListByRecipeId({
   const { data: nameDictionary, isSuccess } = useRecipeNames(ids)
 
   return (
-    <div className='pb-24'>
+    <div>
       {Object.values(recipeBuckets).map((b) => (
         <div key={b[0].recipeId} className='pr-4'>
           {!isSuccess ? (

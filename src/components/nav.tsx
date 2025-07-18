@@ -99,6 +99,8 @@ const Nav = () => {
     navbar = <EditRecipeNavbar />
   } else if (pathname === `/${lang}/recipes/${id}`) {
     navbar = <RecipeByIdNavbar />
+  } else {
+    return navbar
   }
 
   return (
@@ -113,15 +115,13 @@ function PublicNavbar() {
   const { theme, updateTheme } = useTheme()
 
   return (
-    <>
-      <nav className='prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
-        <div></div>
-        <h1 className='mb-0 text-base'>{t.nav.appName}</h1>
-        <div className='justify-self-end'>
-          <ThemeToggle theme={theme} updateTheme={updateTheme} />
-        </div>
-      </nav>
-    </>
+    <nav className='prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
+      <div></div>
+      <h1 className='mb-0 text-base'>{t.nav.appName}</h1>
+      <div className='justify-self-end'>
+        <ThemeToggle theme={theme} updateTheme={updateTheme} />
+      </div>
+    </nav>
   )
 }
 
@@ -194,17 +194,18 @@ function RoutesNavbar() {
   const t = useTranslations()
 
   const activeLinkStyles = (path: string) => {
-    let className = ''
-
     const isActive = pathname.includes(path)
 
-    return cn(className, isActive && 'dock-active')
+    return cn(
+      'active:translate-y-px transition-all duration-75',
+      isActive && 'dock-active'
+    )
   }
 
   return (
-    <div className='bg-base-100/90 fixed top-0 mx-auto flex w-full flex-col items-center rounded backdrop-blur-md'>
+    <div className='border-b-base-300 from-base-100 to-base-100/70 fixed top-0 z-10 mx-auto flex w-full flex-col items-center rounded bg-transparent bg-gradient-to-b pb-[3.5rem] bg-blend-saturation backdrop-blur-xs'>
       <span className='text-base-content text-sm font-bold'>RecipeChat</span>
-      <nav className='dock dock-sm border-b-base-content/5 bg-base-100/90 top-5 w-full max-w-xl justify-between overflow-hidden rounded-b border-t-0 border-b-[0.5px] px-5 backdrop-blur-md'>
+      <nav className='dock dock-sm border-b-base-content/5 top-5 w-full max-w-xl justify-between overflow-hidden rounded-b border-t-0 border-b-[0.5px] bg-transparent px-5'>
         {MENU_ITEMS.map((item) => {
           if (item.value === '/list') {
             return (

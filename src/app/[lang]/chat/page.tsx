@@ -16,8 +16,8 @@ export default function ChatView() {
 
   return (
     <>
-      <div className='relative flex h-full flex-1 flex-col items-stretch pt-20'>
-        <div className='flex-1 overflow-hidden'>
+      <div className='relative flex h-full flex-1 flex-col items-stretch overflow-y-auto pt-20'>
+        <div className='flex-1'>
           <ChatWindow isSendingMessage={isSendingMessage} {...rest} />
         </div>
         <SubmitMessageForm

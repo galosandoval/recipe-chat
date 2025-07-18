@@ -13,7 +13,7 @@ export default async function ListView() {
 
   return (
     <HydrateClient>
-      <main className='prose mx-auto min-h-svh w-full pt-20 pb-16'>
+      <main className='prose mx-auto w-full overflow-y-auto pt-20 pb-16'>
         <Suspense fallback={<ScreenLoader />}>
           <ListByUserId />
         </Suspense>
