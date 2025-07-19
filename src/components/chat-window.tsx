@@ -15,11 +15,7 @@ import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
-import {
-  ScrollModeContext,
-  ScrollToBottomProvider,
-  ScrollToButtons
-} from './scroll-to-bottom'
+import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -27,14 +23,6 @@ type MessageContentProps = Omit<
 >
 
 export default function ChatWindow(props: MessageContentProps) {
-  return (
-    <ScrollToBottomProvider>
-      <Content {...props} />
-    </ScrollToBottomProvider>
-  )
-}
-
-function Content(props: MessageContentProps) {
   const {
     chatId,
     // filters,
@@ -61,20 +49,11 @@ function Content(props: MessageContentProps) {
     handleGetChatsOnSuccess
   } = props
   const setScrollMode = useContext(ScrollModeContext).setScrollMode
-  // const { data } = filters
-
-  const currentChatId =
-    typeof window !== 'undefined'
-      ? JSON.parse(sessionStorage.getItem('currentChatId') ?? 'null')
-      : null
 
   const isSessionStorageAvailable =
-    typeof window !== 'undefined' && typeof currentChatId === 'string'
+    typeof window !== 'undefined' && typeof chatId === 'string'
 
-  const isNewChat =
-    (currentChatId === '' || currentChatId === null) &&
-    !isSendingMessage &&
-    messages.length === 0
+  const isNewChat = !chatId && !isSendingMessage && messages.length === 0
 
   const isMessagesSuccess =
     chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
@@ -203,7 +182,8 @@ function ChatWindowContent({
   }) => void
 }) {
   const { data } = useSession()
-  if (messages.length || isSendingMessage || !data?.user?.id) {
+
+  if (messages.length || !data?.user?.id) {
     return (
       <div className='bg-base-100 h-full'>
         <MessageList

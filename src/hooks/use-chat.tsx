@@ -15,6 +15,7 @@ import {
   successToastOptions
 } from '~/components/toast'
 import { useFiltersByUser } from '~/components/recipe-filters'
+import { CURRENT_CHAT_ID, useSessionChatId } from './use-session-chat-id'
 // import { useFilters } from '~/components/recipe-filters'
 
 export type FormValues = {
@@ -32,7 +33,8 @@ export type ChatType = ReturnType<typeof useChat>
 export const useChat = () => {
   const t = useTranslations()
 
-  const [sessionChatId, changeSessionChatId] = useSessionChatId()
+  const [sessionChatId, setSessionChatId] = useSessionChatId()
+  console.log('sessionChatId use-chat', sessionChatId)
   const router = useRouter()
   const { status: authStatus } = useSession()
   const filters = useFiltersByUser()
@@ -53,7 +55,7 @@ export const useChat = () => {
   const { mutate: upsertChat } = api.chats.upsert.useMutation({
     async onSuccess(data) {
       if (data.chatId) {
-        sessionStorage.setItem('currentChatId', JSON.stringify(data.chatId))
+        setSessionChatId(data.chatId)
       }
       setMessages(data.messages)
     }
@@ -72,20 +74,13 @@ export const useChat = () => {
     onFinish(message) {
       onFinishMessage(message)
     },
-
     body: {
       filters: filterStrings
     }
   })
 
   const handleSubmitMessage = () => {
-    let chatId = ''
-
-    const currentChatId = sessionStorage.getItem('currentChatId')
-
-    if (currentChatId && JSON.parse(currentChatId)) {
-      chatId = JSON.parse(currentChatId)
-    }
+    let chatId = sessionChatId ?? ''
 
     if (!isAuthenticated) {
       return
@@ -115,19 +110,12 @@ export const useChat = () => {
     handleSubmitMessage()
   }
 
-  const [shouldFetchChat, setShouldFetchChat] = useState(true)
-
-  const enabled = isAuthenticated && !!sessionChatId && shouldFetchChat
+  const enabled = isAuthenticated && !!sessionChatId && !messages.length
 
   const { status, fetchStatus, data } = api.chats.getMessagesById.useQuery(
     { chatId: sessionChatId ?? '' },
     {
       enabled
-      // onSuccess: (data) => {
-      //   if (data) {
-      //     setMessages(data.messages)
-      //   }
-      // },
       // keepPreviousData: true
     }
   )
@@ -178,13 +166,13 @@ export const useChat = () => {
       })[]
     ) => {
       if (
-        typeof sessionStorage.getItem('currentChatId') !== 'string' &&
+        typeof sessionStorage.getItem(CURRENT_CHAT_ID) !== 'string' &&
         data[0]?.id
       ) {
-        changeSessionChatId(data[0].id)
+        setSessionChatId(data[0].id)
       }
     },
-    [changeSessionChatId]
+    [setSessionChatId]
   )
 
   const handleChangeChat = useCallback(
@@ -193,8 +181,7 @@ export const useChat = () => {
         messages: Message[]
       }
     ) => {
-      changeSessionChatId(chat.id)
-      setShouldFetchChat(true)
+      setSessionChatId(chat.id)
       setIsChatsModalOpen(false)
     },
     []
@@ -209,7 +196,7 @@ export const useChat = () => {
   const handleStartNewChat = useCallback(() => {
     stop()
     setMessages([])
-    changeSessionChatId('')
+    setSessionChatId('')
   }, [])
 
   const handleToggleChatsModal = useCallback(() => {
@@ -218,7 +205,6 @@ export const useChat = () => {
 
   const handleSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
-      setShouldFetchChat(false)
       if (isSendingMessage) {
         stop()
       } else {
@@ -344,30 +330,6 @@ export const useChat = () => {
     handleFillMessage,
     handleSubmit
   }
-}
-
-function useSessionChatId() {
-  const [chatId, setChatId] = useState<string | undefined>(undefined)
-
-  const changeChatId = (chatId: string | undefined) => {
-    sessionStorage.setItem('currentChatId', JSON.stringify(chatId))
-    setChatId(chatId)
-  }
-
-  useEffect(() => {
-    if (
-      typeof window !== undefined &&
-      typeof sessionStorage?.getItem('currentChatId') === 'string'
-    ) {
-      const currentChatId = sessionStorage.getItem('currentChatId')
-
-      setChatId(
-        currentChatId ? (JSON.parse(currentChatId) as string) : undefined
-      )
-    }
-  }, [])
-
-  return [chatId, changeChatId] as const
 }
 
 export const errorMessage = 'Please try rephrasing your question.'

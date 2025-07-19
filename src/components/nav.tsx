@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import { ProtectedDropdownMenu } from './dropdown-menus'
+import { NavDropdownMenu } from './nav-dropdown-menus'
 import {
   ArrowBackLeftIcon,
   ChatBubbleLeftRightIcon,
@@ -241,7 +241,7 @@ function RoutesNavbar() {
           )
         })}
         <div className='flex w-10 flex-1/2'>
-          <ProtectedDropdownMenu />
+          <NavDropdownMenu />
         </div>
       </nav>
     </div>
