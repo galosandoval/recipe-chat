@@ -8,7 +8,7 @@ import {
 import { signOut } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
-import { useSessionChatId } from '~/hooks/use-session-chat-id'
+import { useChatId } from '~/hooks/use-session-chat-id'
 
 export function NavDropdownMenu() {
   const { theme, updateTheme } = useTheme()
@@ -25,14 +25,14 @@ export function NavDropdownMenu() {
 }
 
 function Logout() {
-  const [, setChatId] = useSessionChatId()
+  const [, setChatId] = useChatId()
   const t = useTranslations()
   const pathname = usePathname()
 
   const handleSignOut = () => {
     signOut({ callbackUrl: pathname })
 
-    setChatId(undefined)
+    setChatId('')
   }
 
   return (
@@ -67,14 +67,14 @@ function DropdownMenu({ children }: { children: React.ReactNode }) {
 
 function StartNewChat() {
   const t = useTranslations()
-  const [chatId, setChatId] = useSessionChatId()
+  const [chatId, setChatId] = useChatId()
 
   const handleStartNewChat = () => {
-    setChatId(undefined)
+    setChatId('')
   }
 
   // Only show if there's an actual chat ID (not empty string or undefined)
-  if (!chatId || chatId === '') return null
+  if (!chatId) return null
 
   return (
     <MenuItem>

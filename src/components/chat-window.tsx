@@ -16,6 +16,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
 import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
+import { useChatId } from '~/hooks/use-session-chat-id'
 
 type MessageContentProps = Omit<
   ChatType,
@@ -24,14 +25,12 @@ type MessageContentProps = Omit<
 
 export default function ChatWindow(props: MessageContentProps) {
   const {
-    chatId,
     // filters,
     handleFillMessage,
     messages,
     isChatsModalOpen,
     isSendingMessage,
     isAuthenticated,
-    handleStartNewChat,
     handleToggleChatsModal,
     handleGoToRecipe,
     handleSaveRecipe,
@@ -48,8 +47,8 @@ export default function ChatWindow(props: MessageContentProps) {
     status: chatsQueryStatus,
     handleGetChatsOnSuccess
   } = props
-  const setScrollMode = useContext(ScrollModeContext).setScrollMode
-
+  const { setScrollMode } = useContext(ScrollModeContext)
+  const [chatId] = useChatId()
   const isSessionStorageAvailable =
     typeof window !== 'undefined' && typeof chatId === 'string'
 
@@ -109,7 +108,6 @@ export default function ChatWindow(props: MessageContentProps) {
           handleChangeChat={
             'handleChangeChat' in props ? handleChangeChat : undefined
           }
-          handleStartNewChat={handleStartNewChat}
           handleToggleChatsModal={handleToggleChatsModal}
         />
       </div>
@@ -135,7 +133,6 @@ function ChatWindowContent({
   isAuthenticated,
   handleGetChatsOnSuccess,
   handleChangeChat,
-  handleStartNewChat,
   handleToggleChatsModal,
   handleGoToRecipe,
   handleSaveRecipe,
@@ -158,7 +155,6 @@ function ChatWindowContent({
     }
   ) => void
 
-  handleStartNewChat: () => void
   handleToggleChatsModal: () => void
   // filters: Filter[]
   isChatsModalOpen: boolean
@@ -199,7 +195,6 @@ function ChatWindowContent({
           // filters={filters}
           handleGetChatsOnSuccess={handleGetChatsOnSuccess}
           handleChangeChat={handleChangeChat}
-          handleStartNewChat={handleStartNewChat}
           handleToggleChatsModal={handleToggleChatsModal}
         />
       </div>
@@ -220,7 +215,6 @@ const MessageList = memo(function MessageList({
   // filters,
   handleGetChatsOnSuccess,
   handleChangeChat,
-  handleStartNewChat,
   handleToggleChatsModal,
   handleGoToRecipe,
   handleSaveRecipe
@@ -238,7 +232,6 @@ const MessageList = memo(function MessageList({
       messages: PrismaMessage[]
     }
   ) => void
-  handleStartNewChat: () => void
   handleToggleChatsModal: () => void
   handleGetChatsOnSuccess?: (
     data: (Chat & {
@@ -286,7 +279,7 @@ const MessageList = memo(function MessageList({
           </div>
 
           <button
-            onClick={handleStartNewChat}
+            // onClick={handleStartNewChat}
             className='btn btn-circle btn-ghost justify-self-end'
           >
             <PlusIcon />

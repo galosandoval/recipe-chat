@@ -1,14 +1,14 @@
 'use client'
 
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useEffect, useState, useContext } from 'react'
 
 export const CURRENT_CHAT_ID = 'currentChatId'
 
 export const ChatIdContext = createContext<{
-  chatId: string | undefined
-  changeChatId: (chatId: string | undefined) => void
+  chatId: string
+  changeChatId: (chatId: string) => void
 }>({
-  chatId: undefined,
+  chatId: '',
   changeChatId: () => {}
 })
 
@@ -16,12 +16,13 @@ export function ChatIdProvider({ children }: { children: React.ReactNode }) {
   const hasSession =
     typeof window != 'undefined' &&
     typeof sessionStorage?.getItem(CURRENT_CHAT_ID) === 'string'
-  const [chatId, setChatId] = useState<string | undefined>(
+  const [chatId, setChatId] = useState<string>(() =>
     hasSession
       ? JSON.parse(sessionStorage.getItem(CURRENT_CHAT_ID) as string)
-      : undefined
+      : ''
   )
-  const changeChatId = (chatId: string | undefined) => {
+
+  const changeChatId = (chatId: string) => {
     setChatId(chatId)
     sessionStorage.setItem(CURRENT_CHAT_ID, JSON.stringify(chatId))
   }
@@ -32,38 +33,11 @@ export function ChatIdProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function useSessionChatId() {
-  const hasSession =
-    typeof window != 'undefined' &&
-    typeof sessionStorage?.getItem(CURRENT_CHAT_ID) === 'string'
-  console.log('hasSession', hasSession)
-  const [chatId, setChatId] = useState<string | undefined>(
-    hasSession
-      ? JSON.parse(sessionStorage.getItem(CURRENT_CHAT_ID) as string)
-      : undefined
-  )
-
-  const changeChatId = (chatId: string | undefined) => {
-    setChatId(chatId)
-    sessionStorage.setItem(CURRENT_CHAT_ID, JSON.stringify(chatId))
+// Custom hook to use the ChatIdContext
+export function useChatId() {
+  const context = useContext(ChatIdContext)
+  if (!context) {
+    throw new Error('useSessionChatId must be used within a ChatIdProvider')
   }
-
-  useEffect(() => {
-    if (hasSession) {
-      const currentChatId = sessionStorage.getItem(CURRENT_CHAT_ID)
-      const handleStorageChange = () => {
-        setChatId(
-          currentChatId ? (JSON.parse(currentChatId) as string) : undefined
-        )
-      }
-
-      window.addEventListener('storage', handleStorageChange)
-
-      return () => {
-        window.removeEventListener('storage', handleStorageChange)
-      }
-    }
-  }, [])
-  console.log('chatId', chatId)
-  return [chatId, changeChatId] as const
+  return [context.chatId, context.changeChatId] as const
 }

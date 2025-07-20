@@ -2,7 +2,14 @@ import { type Chat, type Message } from '@prisma/client'
 import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { type FormEvent, useCallback, useEffect, useState, useRef } from 'react'
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  useContext
+} from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from '~/trpc/react'
 import { z } from 'zod'
@@ -15,7 +22,8 @@ import {
   successToastOptions
 } from '~/components/toast'
 import { useFiltersByUser } from '~/components/recipe-filters'
-import { CURRENT_CHAT_ID, useSessionChatId } from './use-session-chat-id'
+import { CURRENT_CHAT_ID, useChatId } from './use-session-chat-id'
+import { ScrollModeContext } from '~/components/scroll-to-bottom'
 // import { useFilters } from '~/components/recipe-filters'
 
 export type FormValues = {
@@ -33,11 +41,11 @@ export type ChatType = ReturnType<typeof useChat>
 export const useChat = () => {
   const t = useTranslations()
 
-  const [sessionChatId, setSessionChatId] = useSessionChatId()
-  console.log('sessionChatId use-chat', sessionChatId)
+  const [sessionChatId, changeChatId] = useChatId()
   const router = useRouter()
   const { status: authStatus } = useSession()
   const filters = useFiltersByUser()
+  const { setScrollMode } = useContext(ScrollModeContext)
 
   const isAuthenticated = authStatus === 'authenticated'
   const utils = api.useContext()
@@ -55,7 +63,7 @@ export const useChat = () => {
   const { mutate: upsertChat } = api.chats.upsert.useMutation({
     async onSuccess(data) {
       if (data.chatId) {
-        setSessionChatId(data.chatId)
+        changeChatId(data.chatId)
       }
       setMessages(data.messages)
     }
@@ -169,10 +177,10 @@ export const useChat = () => {
         typeof sessionStorage.getItem(CURRENT_CHAT_ID) !== 'string' &&
         data[0]?.id
       ) {
-        setSessionChatId(data[0].id)
+        changeChatId(data[0].id)
       }
     },
-    [setSessionChatId]
+    [changeChatId]
   )
 
   const handleChangeChat = useCallback(
@@ -181,7 +189,7 @@ export const useChat = () => {
         messages: Message[]
       }
     ) => {
-      setSessionChatId(chat.id)
+      changeChatId(chat.id)
       setIsChatsModalOpen(false)
     },
     []
@@ -193,11 +201,14 @@ export const useChat = () => {
     append({ content: e.currentTarget.innerText, role: 'user' })
   }
 
-  const handleStartNewChat = useCallback(() => {
-    stop()
-    setMessages([])
-    setSessionChatId('')
-  }, [])
+  useEffect(() => {
+    console.log('sessionChatId use-chat', sessionChatId)
+    if (!sessionChatId) {
+      setMessages([])
+      stop()
+      setScrollMode('top')
+    }
+  }, [sessionChatId])
 
   const handleToggleChatsModal = useCallback(() => {
     setIsChatsModalOpen((state) => !state)
@@ -303,7 +314,6 @@ export const useChat = () => {
 
   return {
     // filters,
-    chatId: sessionChatId,
     fetchStatus,
     status,
     isChatsModalOpen,
@@ -326,7 +336,6 @@ export const useChat = () => {
     handleInputChange: useCallback(handleInputChange, []),
     handleToggleChatsModal,
     handleChangeChat,
-    handleStartNewChat,
     handleFillMessage,
     handleSubmit
   }
