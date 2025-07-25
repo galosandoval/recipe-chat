@@ -5,7 +5,8 @@ import {
   useEffect,
   useRef,
   type ChangeEvent,
-  type FormEvent
+  type FormEvent,
+  type RefObject
 } from 'react'
 import {
   useChat as useAiChat,
@@ -29,6 +30,7 @@ type RecipeChatContextType = {
   chatsFetchStatus: FetchStatus
   chatsQueryStatus: QueryStatus
   append: (message: CreateMessage) => Promise<string | null | undefined>
+  isNewChatRef: RefObject<boolean>
 }
 
 const RecipeChatContext = createContext<RecipeChatContextType>({
@@ -41,7 +43,8 @@ const RecipeChatContext = createContext<RecipeChatContextType>({
   stop: () => {},
   handleSubmit: () => {},
   setMessages: () => {},
-  append: () => Promise.resolve(null)
+  append: () => Promise.resolve(null),
+  isNewChatRef: { current: false }
 })
 
 export const RecipeChatProvider = ({
@@ -72,13 +75,16 @@ export const RecipeChatProvider = ({
     }
   })
 
-  const handleSubmitMessage = () => {
+  const handleUpsertMessage = () => {
     let chatId = sessionChatId ?? ''
 
     if (!isAuthenticated) {
       return
     }
 
+    if (messages.length === 0) {
+      isNewChatRef.current = true
+    }
     upsertChat({
       chatId,
       messages: messagesRef.current.map((message) => ({
@@ -108,6 +114,7 @@ export const RecipeChatProvider = ({
   })
 
   const messagesRef = useRef<AiMessage[]>([])
+  const isNewChatRef = useRef(false)
 
   useEffect(() => {
     messagesRef.current = messages
@@ -117,10 +124,13 @@ export const RecipeChatProvider = ({
     if (!messagesRef.current?.length) {
       throw new Error('No messages')
     }
-    handleSubmitMessage()
+    handleUpsertMessage()
   }
 
-  const enabled = isAuthenticated && !!sessionChatId && !messages.length
+  useEffect(() => {
+    console.log('sessionChatId', sessionChatId)
+  }, [sessionChatId])
+  const enabled = isAuthenticated && !!sessionChatId && !isNewChatRef.current
 
   const {
     status: chatsQueryStatus,
@@ -163,7 +173,8 @@ export const RecipeChatProvider = ({
         stop,
         handleSubmit,
         setMessages,
-        append
+        append,
+        isNewChatRef
       }}
     >
       {children}

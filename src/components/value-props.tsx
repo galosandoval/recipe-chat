@@ -4,16 +4,16 @@ import { ArrowUTurnLeftIcon } from './icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { LoginModal, SignUpModal, useAuthModal } from './auth-modals'
 import { useSession } from 'next-auth/react'
+import { useRecipeChat } from '~/hooks/use-recipe-chat'
 
-export function ValueProps({
-  children,
-  handleSendChatExample
-}: {
-  children: React.ReactNode
-  handleSendChatExample: (e: MouseEvent<HTMLButtonElement>) => void
-}) {
+export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
+  const { append } = useRecipeChat()
+  const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
 
+    append({ content: e.currentTarget.innerText, role: 'user' })
+  }
   return (
     <div className='prose mx-auto flex flex-col items-center justify-center gap-2 pb-20'>
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
@@ -41,7 +41,7 @@ export function ValueProps({
           <Button
             type='submit'
             className='btn btn-outline w-full normal-case'
-            onClick={handleSendChatExample}
+            onClick={handleFillMessage}
           >
             <span className='w-60'>{t.valueProps.firstButton}</span>
             <span>
@@ -51,7 +51,7 @@ export function ValueProps({
           <Button
             type='submit'
             className='btn btn-outline w-full normal-case'
-            onClick={handleSendChatExample}
+            onClick={handleFillMessage}
           >
             <span className='w-60'>{t.valueProps.secondButton}</span>
             <span>
@@ -61,7 +61,7 @@ export function ValueProps({
           <Button
             type='submit'
             className='btn btn-outline w-full normal-case'
-            onClick={handleSendChatExample}
+            onClick={handleFillMessage}
           >
             <span className='w-60'>{t.valueProps.thirdButton}</span>
             <span>
@@ -173,7 +173,7 @@ export function ValuePropsHeader({
   return (
     <div className='divider'>
       <div className='flex items-center gap-2'>
-        <h2 className='mb-2 mt-2'>{label}</h2>
+        <h2 className='mt-2 mb-2'>{label}</h2>
         {icon}
       </div>
     </div>

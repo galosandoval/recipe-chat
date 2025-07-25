@@ -47,8 +47,6 @@ export const useChat = () => {
 
   const { setMessages, append, messages } = useRecipeChat()
 
-  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
-
   const { mutate: createRecipe, status: createRecipeStatus } =
     api.recipes.create.useMutation({
       async onSuccess(newRecipe, { messageId }) {
@@ -88,28 +86,6 @@ export const useChat = () => {
     },
     [changeChatId]
   )
-
-  const handleChangeChat = useCallback(
-    (
-      chat: Chat & {
-        messages: Message[]
-      }
-    ) => {
-      changeChatId(chat.id)
-      setIsChatsModalOpen(false)
-    },
-    []
-  )
-
-  const handleFillMessage = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    append({ content: e.currentTarget.innerText, role: 'user' })
-  }
-
-  const handleToggleChatsModal = useCallback(() => {
-    setIsChatsModalOpen((state) => !state)
-  }, [])
 
   const handleGoToRecipe = useCallback(
     async ({
@@ -153,16 +129,12 @@ export const useChat = () => {
   )
 
   return {
-    isChatsModalOpen,
     isAuthenticated,
     createRecipeStatus,
 
     handleGoToRecipe,
     handleSaveRecipe,
-    handleGetChatsOnSuccess,
-    handleToggleChatsModal,
-    handleChangeChat,
-    handleFillMessage
+    handleGetChatsOnSuccess
   }
 }
 

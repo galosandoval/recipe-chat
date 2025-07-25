@@ -1,6 +1,6 @@
 'use client'
 
-import { type Chat, type Message as PrismaMessage } from '@prisma/client'
+import { type Message as PrismaMessage } from '@prisma/client'
 import { transformContentToRecipe, useChat } from '~/hooks/use-chat'
 import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
@@ -22,17 +22,10 @@ import { useScrollToTop } from 'react-scroll-to-bottom'
 
 export default function ChatWindow() {
   const {
-    // filters,
-    handleFillMessage,
-    isChatsModalOpen,
     isAuthenticated,
-    handleToggleChatsModal,
     handleGoToRecipe,
     handleSaveRecipe,
-    handleChangeChat,
-    createRecipeStatus,
-    // status: chatsQueryStatus,
-    handleGetChatsOnSuccess
+    createRecipeStatus
   } = useChat()
 
   const { setScrollMode } = useContext(ScrollModeContext)
@@ -80,9 +73,8 @@ export default function ChatWindow() {
   if (isNewChat) {
     return (
       <div className='flex flex-col gap-4'>
-        {/*  eslint-disable-next-line @typescript-eslint/no-unsafe-call */}
-        <ValueProps handleSendChatExample={handleFillMessage as any}>
-          <ChatsSection chatId={chatId} handleChangeChat={handleChangeChat} />
+        <ValueProps>
+          <ChatsSection />
 
           <FiltersByUser />
         </ValueProps>
@@ -101,14 +93,9 @@ export default function ChatWindow() {
           handleGoToRecipe={handleGoToRecipe}
           handleSaveRecipe={handleSaveRecipe}
           messages={messages as []}
-          chatId={chatId}
           messagesStatus={chatsQueryStatus}
-          isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
           isAuthenticated={isAuthenticated}
-          handleGetChatsOnSuccess={handleGetChatsOnSuccess}
-          handleChangeChat={handleChangeChat}
-          handleToggleChatsModal={handleToggleChatsModal}
         />
       </div>
 
@@ -123,35 +110,14 @@ function ChatWindowContent({
   messages,
   messagesStatus,
   isAuthenticated,
-  handleGetChatsOnSuccess,
-  handleChangeChat,
-  handleToggleChatsModal,
   handleGoToRecipe,
   handleSaveRecipe,
-  // filters,
-  isChatsModalOpen,
   saveRecipeStatus,
-  isSendingMessage,
-  chatId
+  isSendingMessage
 }: {
   messagesStatus?: QueryStatus
   isAuthenticated: boolean
-  handleGetChatsOnSuccess?: (
-    data: (Chat & {
-      messages: PrismaMessage[]
-    })[]
-  ) => void
-  handleChangeChat?: (
-    chat: Chat & {
-      messages: PrismaMessage[]
-    }
-  ) => void
-
-  handleToggleChatsModal: () => void
-  // filters: Filter[]
-  isChatsModalOpen: boolean
   isSendingMessage: boolean
-  chatId?: string
   messages: Message[]
   saveRecipeStatus: MutationStatus
   handleGoToRecipe: ({
@@ -179,15 +145,10 @@ function ChatWindowContent({
           handleGoToRecipe={handleGoToRecipe}
           handleSaveRecipe={handleSaveRecipe}
           data={messages as []}
-          chatId={chatId}
           status={messagesStatus}
-          isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
           isAuthenticated={isAuthenticated}
           // filters={filters}
-          handleGetChatsOnSuccess={handleGetChatsOnSuccess}
-          handleChangeChat={handleChangeChat}
-          handleToggleChatsModal={handleToggleChatsModal}
         />
       </div>
     )
@@ -199,37 +160,17 @@ function ChatWindowContent({
 const MessageList = memo(function MessageList({
   data,
   status,
-  chatId,
-  isChatsModalOpen,
   isAuthenticated,
   isSendingMessage,
   saveRecipeStatus,
-  // filters,
-  handleGetChatsOnSuccess,
-  handleChangeChat,
-  handleToggleChatsModal,
   handleGoToRecipe,
   handleSaveRecipe
 }: {
   data: PrismaMessage[]
   status?: QueryStatus
-  chatId?: string
-  isChatsModalOpen: boolean
   isSendingMessage: boolean
   isAuthenticated: boolean
   saveRecipeStatus: MutationStatus
-  // filters: Filter[]
-  handleChangeChat?: (
-    chat: Chat & {
-      messages: PrismaMessage[]
-    }
-  ) => void
-  handleToggleChatsModal: () => void
-  handleGetChatsOnSuccess?: (
-    data: (Chat & {
-      messages: PrismaMessage[]
-    })[]
-  ) => void
   handleGoToRecipe: ({
     recipeId,
     recipeName
@@ -251,31 +192,16 @@ const MessageList = memo(function MessageList({
 
   return (
     <>
-      <div className='bg-base-100 pb-2'>
+      <div className='bg-base-100 py-2'>
         <div className='prose mx-auto grid grid-cols-3 place-items-center px-2'>
-          {handleChangeChat && handleGetChatsOnSuccess && isAuthenticated ? (
-            <ChatsSideBarButton
-              chatId={chatId}
-              isChatsModalOpen={isChatsModalOpen}
-              handleChangeChat={handleChangeChat}
-              handleToggleChatsModal={handleToggleChatsModal}
-              // onSuccess={handleGetChatsOnSuccess}
-            />
-          ) : (
-            <div></div>
-          )}
+          {isAuthenticated ? <ChatsSideBarButton /> : <div></div>}
 
           <div className='flex items-center justify-center gap-2'>
             <h2 className='mt-2 mb-2'>Chat</h2>
             <ChatBubbleLeftIcon />
           </div>
 
-          <button
-            // onClick={handleStartNewChat}
-            className='btn btn-circle btn-ghost justify-self-end'
-          >
-            <PlusIcon />
-          </button>
+          <div></div>
         </div>
       </div>
 
@@ -288,7 +214,6 @@ const MessageList = memo(function MessageList({
             handleGoToRecipe={handleGoToRecipe}
             handleSaveRecipe={handleSaveRecipe}
             saveRecipeStatus={saveRecipeStatus}
-            // filters={filters}
           />
         ))}
 
@@ -301,7 +226,6 @@ const MessageList = memo(function MessageList({
 const Message = function Message({
   message,
   isSendingMessage,
-  // filters,
   handleGoToRecipe,
   handleSaveRecipe,
   saveRecipeStatus
@@ -309,7 +233,6 @@ const Message = function Message({
   message: PrismaMessage
   isSendingMessage: boolean
   saveRecipeStatus: MutationStatus
-  // filters: Filter[]
   handleGoToRecipe: ({
     recipeId,
     recipeName

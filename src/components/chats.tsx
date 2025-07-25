@@ -14,20 +14,12 @@ import { useParams } from 'next/navigation'
 import { type Session } from 'next-auth'
 import { ValuePropsHeader } from './value-props'
 import { transformContentToRecipe } from '~/hooks/use-chat'
+import { useState } from 'react'
+import { useSessionChatId } from '~/hooks/use-session-chat-id'
+import { useRecipeChat } from '~/hooks/use-recipe-chat'
 
-export function ChatsSection({
-  handleChangeChat,
-  chatId
-}: {
-  handleChangeChat: (
-    chat: Chat & {
-      messages: Message[]
-    }
-  ) => void
-  chatId?: string
-}) {
+export function ChatsSection() {
   const t = useTranslations()
-
   const { status: authStatus, data: session } = useSession()
 
   const isAuthenticated = authStatus === 'authenticated'
@@ -44,33 +36,22 @@ export function ChatsSection({
       />
 
       <div className='flex w-full flex-col items-center gap-4'>
-        <Chats
-          isAuthenticated={isAuthenticated}
-          chatId={chatId}
-          session={session}
-          handleChangeChat={handleChangeChat}
-        />
+        <Chats isAuthenticated={isAuthenticated} session={session} />
       </div>
     </div>
   )
 }
 
 function Chats({
-  chatId,
   isAuthenticated,
-  session,
-  handleChangeChat
+  session
 }: {
-  chatId?: string
   isAuthenticated: boolean
   session: Session | null
-  handleChangeChat: (
-    chat: Chat & {
-      messages: Message[]
-    }
-  ) => void
 }) {
   const t = useTranslations()
+  const [chatId, changeChatId] = useSessionChatId()
+  const { isNewChatRef } = useRecipeChat()
 
   const { data, status } = api.chats.getChats.useQuery(
     { userId: session?.user.id || '' },
@@ -81,6 +62,15 @@ function Chats({
 
   if (status === 'error') {
     return <div>{t.error.somethingWentWrong}</div>
+  }
+
+  const handleChangeChat = (
+    chat: Chat & {
+      messages: Message[]
+    }
+  ) => {
+    changeChatId(chat.id)
+    isNewChatRef.current = false
   }
 
   if (status === 'success') {
@@ -95,7 +85,7 @@ function Chats({
             key={chat.id}
             chat={chat}
             chatId={chatId}
-            handleChangeChat={handleChangeChat}
+            onClick={() => handleChangeChat(chat)}
           />
         ))}
       </div>
@@ -105,21 +95,13 @@ function Chats({
   return <div className=''>{t.loading.screen}</div>
 }
 
-export function ChatsSideBarButton({
-  chatId,
-  isChatsModalOpen,
-  handleToggleChatsModal,
-  handleChangeChat
-}: {
-  chatId?: string
-  isChatsModalOpen: boolean
-  handleChangeChat: (
-    chat: Chat & {
-      messages: Message[]
-    }
-  ) => void
-  handleToggleChatsModal: () => void
-}) {
+export function ChatsSideBarButton() {
+  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
+
+  const handleToggleChatsModal = () => {
+    setIsChatsModalOpen((state) => !state)
+  }
+
   return (
     <>
       <button
@@ -131,7 +113,7 @@ export function ChatsSideBarButton({
 
       <Drawer closeModal={handleToggleChatsModal} isOpen={isChatsModalOpen}>
         <div className='flex h-full flex-col justify-between'>
-          <ChatList chatId={chatId} handleChangeChat={handleChangeChat} />
+          <ChatList handleToggleChatsModal={handleToggleChatsModal} />
         </div>
       </Drawer>
     </>
@@ -157,18 +139,13 @@ const useGetChats = () => {
 }
 
 function ChatList({
-  chatId,
-  handleChangeChat
+  handleToggleChatsModal
 }: {
-  chatId?: string
-  handleChangeChat: (
-    chat: Chat & {
-      messages: Message[]
-    }
-  ) => void
+  handleToggleChatsModal: () => void
 }) {
   const t = useTranslations()
-
+  const [chatId, changeChatId] = useSessionChatId()
+  const { isNewChatRef } = useRecipeChat()
   const { data, status, isAuthenticated } = useGetChats()
 
   if (!isAuthenticated) {
@@ -177,6 +154,16 @@ function ChatList({
 
   if (status === 'error') {
     return <div>{t.error.somethingWentWrong}</div>
+  }
+
+  const handleChangeChat = (
+    chat: Chat & {
+      messages: Message[]
+    }
+  ) => {
+    changeChatId(chat.id)
+    isNewChatRef.current = false
+    handleToggleChatsModal()
   }
 
   if (status === 'success') {
@@ -194,7 +181,7 @@ function ChatList({
               key={chat.id}
               chat={chat}
               chatId={chatId}
-              handleChangeChat={handleChangeChat}
+              onClick={() => handleChangeChat(chat)}
             />
           ))}
         </div>
@@ -206,19 +193,15 @@ function ChatList({
 }
 
 function ChatOption({
-  chat,
   chatId,
-  handleChangeChat
+  chat,
+  onClick
 }: {
+  chatId?: string
   chat: Chat & {
     messages: Message[]
   }
-  chatId?: string
-  handleChangeChat: (
-    chat: Chat & {
-      messages: Message[]
-    }
-  ) => void
+  onClick: () => void
 }) {
   const params = useParams()
 
@@ -244,9 +227,10 @@ function ChatOption({
       className={`hover:bg-primary-content flex flex-col rounded px-2 py-2 select-none ${
         chatId === chat.id ? 'bg-primary-content' : ''
       }`}
+      onClick={onClick}
     >
       <p
-        onClick={() => handleChangeChat(chat)}
+        // onClick={() => handleChangeChat(chat)}
         className={`mt-1 mb-1 truncate ${
           chatId === chat.id ? 'text-primary' : ''
         }`}
