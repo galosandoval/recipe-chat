@@ -2,6 +2,7 @@ import { Menu, MenuItem, MenuButton, MenuItems } from '@headlessui/react'
 import { ThemeToggle, useTheme } from './theme-toggle'
 import {
   ArrowLeftOnRectangleIcon,
+  ListBulletIcon,
   PlusIcon,
   VerticalEllipsisIcon
 } from './icons'
@@ -9,6 +10,7 @@ import { signOut } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
+import { useChatsDrawer } from './chats-drawer'
 
 export function NavDropdownMenu() {
   const { theme, updateTheme } = useTheme()
@@ -20,6 +22,7 @@ export function NavDropdownMenu() {
       </MenuItem>
       <Logout />
       <StartNewChat />
+      <ChatsSideBarButton />
     </DropdownMenu>
   )
 }
@@ -39,7 +42,7 @@ function Logout() {
     <MenuItem>
       <button
         onClick={handleSignOut}
-        className='btn btn-ghost no-animation w-[8rem]'
+        className='btn btn-ghost w-[8rem] justify-between'
       >
         <span>{t.nav.menu.logout}</span>
         <ArrowLeftOnRectangleIcon />
@@ -68,19 +71,20 @@ function DropdownMenu({ children }: { children: React.ReactNode }) {
 function StartNewChat() {
   const t = useTranslations()
   const [chatId, setChatId] = useSessionChatId()
-  console.log('chatId', chatId)
+  const pathname = usePathname()
+
   const handleStartNewChat = () => {
     setChatId('')
   }
 
   // Only show if there's an actual chat ID (not empty string or undefined)
-  if (!chatId) return null
+  if (!chatId && !pathname.includes('chat')) return null
 
   return (
     <MenuItem>
       <button
         onClick={handleStartNewChat}
-        className='btn btn-ghost no-animation w-[8rem]'
+        className='btn btn-ghost w-[8rem] justify-between'
       >
         <span>{t.nav.menu.startNewChat}</span>
         <PlusIcon />
@@ -88,3 +92,26 @@ function StartNewChat() {
     </MenuItem>
   )
 }
+
+function ChatsSideBarButton() {
+  const t = useTranslations()
+  const [chatId] = useSessionChatId()
+  const pathname = usePathname()
+  const { handleToggleDrawer } = useChatsDrawer()
+
+  // Only show if there's an actual chat ID (not empty string or undefined)
+  if (!chatId && !pathname.includes('chat')) return null
+
+  return (
+    <MenuItem>
+      <button
+        onClick={handleToggleDrawer}
+        className='btn btn-ghost w-[8rem] justify-between'
+      >
+        <span>{t.nav.menu.chats}</span>
+        <ListBulletIcon />
+      </button>
+    </MenuItem>
+  )
+}
+

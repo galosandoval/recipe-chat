@@ -7,7 +7,8 @@
       "login": "Login",
       "logout": "Logout",
       "theme": "Theme",
-      "startNewChat": "New chat"
+      "startNewChat": "New chat",
+      "chats": "Chats"
     },
     "chat": "Chat",
     "list": "List",

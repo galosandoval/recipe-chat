@@ -1,122 +1,50 @@
-import { type Chat, type Message } from '@prisma/client'
-import {
-  AdjustmentsHorizontalIcon,
-  ChatBubbleLeftIcon,
-  ListBulletIcon
-} from './icons'
-import { Drawer } from './drawer'
-import { formatTimeAgo } from '~/utils/relative-time-format'
-import { api } from '~/trpc/react'
-import { useSession } from 'next-auth/react'
-import { ScreenLoader } from './loaders/screen'
+import { createContext, useContext, useState } from 'react'
+import { useParams, usePathname } from 'next/navigation'
 import { useTranslations } from '~/hooks/use-translations'
-import { useParams } from 'next/navigation'
-import { type Session } from 'next-auth'
-import { ValuePropsHeader } from './value-props'
-import { useState } from 'react'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
+import { useSession } from 'next-auth/react'
 import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import type { Chat, Message } from '@prisma/client'
+import { ListBulletIcon } from './icons'
+import { formatTimeAgo } from '~/utils/relative-time-format'
+import { ScreenLoader } from './loaders/screen'
+import { api } from '~/trpc/react'
+import { Drawer } from './drawer'
 
-export function ChatsSection() {
-  const t = useTranslations()
-  const { status: authStatus, data: session } = useSession()
+export const ChatsDrawerContext = createContext<{
+  isOpen: boolean
+  handleToggleDrawer: () => void
+}>({
+  isOpen: false,
+  handleToggleDrawer: () => {}
+})
 
-  const isAuthenticated = authStatus === 'authenticated'
-
-  if (!isAuthenticated) {
-    return null
-  }
-
-  return (
-    <div className='flex w-full max-w-sm flex-col items-center justify-center'>
-      <ValuePropsHeader
-        icon={<ChatBubbleLeftIcon />}
-        label={t.chatWindow.chats}
-      />
-
-      <div className='flex w-full flex-col items-center gap-4'>
-        <Chats isAuthenticated={isAuthenticated} session={session} />
-      </div>
-    </div>
-  )
-}
-
-function Chats({
-  isAuthenticated,
-  session
+export const ChatsDrawerProvider = ({
+  children
 }: {
-  isAuthenticated: boolean
-  session: Session | null
-}) {
-  const t = useTranslations()
-  const [chatId, changeChatId] = useSessionChatId()
-  const { isNewChatRef } = useRecipeChat()
+  children: React.ReactNode
+}) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
 
-  const { data, status } = api.chats.getChats.useQuery(
-    { userId: session?.user.id || '' },
-    {
-      enabled: isAuthenticated
-    }
-  )
-
-  if (status === 'error') {
-    return <div>{t.error.somethingWentWrong}</div>
+  const handleToggleDrawer = () => {
+    setIsOpen((state) => !state)
   }
 
-  const handleChangeChat = (
-    chat: Chat & {
-      messages: Message[]
-    }
-  ) => {
-    changeChatId(chat.id)
-    isNewChatRef.current = false
-  }
-
-  if (status === 'success') {
-    if (data.length === 0) {
-      return <p className='px-4'>{t.chatWindow.noChats}</p>
-    }
-
-    return (
-      <div className='flex h-full w-full flex-col justify-end gap-2'>
-        {data.map((chat) => (
-          <ChatOption
-            key={chat.id}
-            chat={chat}
-            chatId={chatId}
-            onClick={() => handleChangeChat(chat)}
-          />
-        ))}
-      </div>
-    )
-  }
-
-  return <div className=''>{t.loading.screen}</div>
-}
-
-export function ChatsSideBarButton() {
-  const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
-
-  const handleToggleChatsModal = () => {
-    setIsChatsModalOpen((state) => !state)
+  if (!pathname.includes('chat')) {
+    return <>{children}</>
   }
 
   return (
-    <>
-      <button
-        onClick={handleToggleChatsModal}
-        className='btn btn-circle btn-ghost justify-self-start'
-      >
-        <AdjustmentsHorizontalIcon />
-      </button>
-
-      <Drawer closeModal={handleToggleChatsModal} isOpen={isChatsModalOpen}>
-        <div className='flex h-full flex-col justify-between'>
-          <ChatList handleToggleChatsModal={handleToggleChatsModal} />
-        </div>
-      </Drawer>
-    </>
+    <ChatsDrawerContext.Provider value={{ isOpen, handleToggleDrawer }}>
+      {children}
+    </ChatsDrawerContext.Provider>
   )
+}
+
+export function useChatsDrawer() {
+  const { isOpen, handleToggleDrawer } = useContext(ChatsDrawerContext)
+  return { isOpen, handleToggleDrawer }
 }
 
 const useGetChats = () => {
@@ -241,6 +169,18 @@ function ChatOption({
         {formatTimeAgo(chat.updatedAt, params.lang as string)}
       </span>
     </div>
+  )
+}
+
+export function ChatsDrawer() {
+  const { isOpen, handleToggleDrawer } = useChatsDrawer()
+
+  return (
+    <Drawer closeModal={handleToggleDrawer} isOpen={isOpen}>
+      <div className='flex h-full flex-col justify-between'>
+        <ChatList handleToggleChatsModal={handleToggleDrawer} />
+      </div>
+    </Drawer>
   )
 }
 

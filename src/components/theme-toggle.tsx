@@ -72,7 +72,7 @@ export const ThemeToggle = forwardRef<HTMLDivElement, ThemeToggleProps>(
       <div className='relative w-full' ref={ref}>
         <button
           onClick={handleToggleTheme}
-          className='btn btn-ghost no-animation w-full'
+          className='btn btn-ghost w-full justify-between'
         >
           {showLabel ? t.nav.menu.theme : null}
           {theme === 'dark' ? <SunIcon /> : <MoonIcon />}

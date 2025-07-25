@@ -6,8 +6,7 @@ import { ScreenLoader } from './loaders/screen'
 import { type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
-import { ChatsSection, ChatsSideBarButton } from './chats'
-import { ChatBubbleLeftIcon, UserCircleIcon } from './icons'
+import { UserCircleIcon } from './icons'
 import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
@@ -26,6 +25,7 @@ import { useRouter } from 'next/navigation'
 import { infoToastOptions } from './toast'
 import toast from 'react-hot-toast'
 import { api } from '~/trpc/react'
+import { ChatsDrawer } from './chats-drawer'
 
 export default function ChatWindow() {
   const { setScrollMode } = useContext(ScrollModeContext)
@@ -72,12 +72,11 @@ export default function ChatWindow() {
 
   if (isNewChat) {
     return (
-      <div className='flex flex-col gap-4'>
+      <div className='flex flex-col gap-4 pt-2'>
         <ValueProps>
-          <ChatsSection />
-
           <FiltersByUser />
         </ValueProps>
+        <ChatsDrawer />
       </div>
     )
   }
@@ -98,6 +97,7 @@ export default function ChatWindow() {
       <ScrollToButtons enable={!isSendingMessage} />
 
       <SignUpModal />
+      <ChatsDrawer />
     </>
   )
 }
@@ -120,7 +120,6 @@ function ChatWindowContent({
           data={messages as []}
           status={messagesStatus}
           isSendingMessage={isSendingMessage}
-          // filters={filters}
         />
       </div>
     )
@@ -138,40 +137,22 @@ const MessageList = memo(function MessageList({
   status?: QueryStatus
   isSendingMessage: boolean
 }) {
-  const { status: authStatus } = useSession()
-  const isAuthenticated = authStatus === 'authenticated'
-
   if (status === 'error') {
     return <p>Error</p>
   }
 
   return (
-    <>
-      <div className='bg-base-100 py-2'>
-        <div className='prose mx-auto grid grid-cols-3 place-items-center px-2'>
-          {isAuthenticated ? <ChatsSideBarButton /> : <div></div>}
+    <div className='bg-base-100 pt-2 pb-16'>
+      {data.map((m, i) => (
+        <Message
+          message={m}
+          key={m?.id || '' + i}
+          isSendingMessage={isSendingMessage}
+        />
+      ))}
 
-          <div className='flex items-center justify-center gap-2'>
-            <h2 className='mt-2 mb-2'>Chat</h2>
-            <ChatBubbleLeftIcon />
-          </div>
-
-          <div></div>
-        </div>
-      </div>
-
-      <div className='bg-base-100 pb-16'>
-        {data.map((m, i) => (
-          <Message
-            message={m}
-            key={m?.id || '' + i}
-            isSendingMessage={isSendingMessage}
-          />
-        ))}
-
-        {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
-      </div>
-    </>
+      {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
+    </div>
   )
 })
 
