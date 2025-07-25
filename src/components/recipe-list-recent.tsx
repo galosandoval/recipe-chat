@@ -24,7 +24,7 @@ export function RecentRecipes() {
                 recipe.name
               )}`}
               key={recipe.id}
-              className='bg-base-300 flex h-10 gap-2 overflow-hidden rounded-md'
+              className='bg-base-300 flex h-10 gap-2 overflow-hidden rounded-md transition-transform duration-100 active:translate-y-px'
             >
               {recipe.imgUrl ? (
                 <Image

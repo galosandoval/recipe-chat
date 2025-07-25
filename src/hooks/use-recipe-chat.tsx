@@ -137,7 +137,7 @@ export const RecipeChatProvider = ({
     { chatId: sessionChatId ?? '' },
     {
       enabled,
-      gcTime: Infinity
+      staleTime: Infinity
     }
   )
 

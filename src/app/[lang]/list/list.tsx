@@ -9,6 +9,7 @@ import { type UseFormHandleSubmit, type UseFormRegister } from 'react-hook-form'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
+import { AddCircleIcon } from '~/components/icons'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -98,7 +99,7 @@ function EmptyList({ children }: { children: ReactNode }) {
   const t = useTranslations()
 
   return (
-    <div className='text-primary my-auto grid h-full place-items-center'>
+    <div className='text-primary my-auto grid h-96 place-items-center'>
       <div className='bg-base-100 rounded-lg'>
         <h1 className='text-primary my-auto px-5 text-center'>
           {t.list.noItems}
@@ -144,20 +145,7 @@ function AddIngredientForm({
         </div>
         <div className='pr-2'>
           <button disabled={isDisabled} className='btn btn-square btn-success'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-6 w-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
-              />
-            </svg>
+            <AddCircleIcon />
           </button>
         </div>
       </div>
