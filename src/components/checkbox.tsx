@@ -12,7 +12,7 @@ export const Checkbox = ({
   label: string
 }) => {
   return (
-    <div className='form-control'>
+    <div className='form-control py-2'>
       <label
         className='label flex cursor-pointer flex-row-reverse gap-2'
         htmlFor={id}

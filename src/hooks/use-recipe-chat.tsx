@@ -23,7 +23,7 @@ type RecipeChatContextType = {
   input: string
   messages: AiMessage[]
   isSendingMessage: boolean
-  handleInputChange: (e: ChangeEvent<HTMLTextAreaElement>) => void
+  handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void
   stop: () => void
   handleSubmit: (event: FormEvent<HTMLFormElement>) => void
   setMessages: (messages: AiMessage[]) => void
@@ -127,9 +127,6 @@ export const RecipeChatProvider = ({
     handleUpsertMessage()
   }
 
-  useEffect(() => {
-    console.log('sessionChatId', sessionChatId)
-  }, [sessionChatId])
   const enabled = isAuthenticated && !!sessionChatId && !isNewChatRef.current
 
   const {
@@ -139,8 +136,8 @@ export const RecipeChatProvider = ({
   } = api.chats.getMessagesById.useQuery(
     { chatId: sessionChatId ?? '' },
     {
-      enabled
-      // keepPreviousData: true
+      enabled,
+      gcTime: Infinity
     }
   )
 

@@ -8,12 +8,6 @@ export function SubmitMessageForm() {
     useRecipeChat()
   const t = useTranslations()
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-
-  useEffect(() => {
-    textareaRef.current?.focus()
-  }, [])
-
   return (
     <form
       onSubmit={handleSubmit}
@@ -21,12 +15,11 @@ export function SubmitMessageForm() {
     >
       <div className='prose bg-base-300/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
-          <textarea
+          <input
             value={input}
             onChange={handleInputChange}
             placeholder={t.chatFormPlaceholder}
             className='input input-bordered bg-base-100/75 focus:bg-base-100 relative w-full resize-none pt-2'
-            ref={textareaRef}
           />
         </div>
 
