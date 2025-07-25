@@ -13,7 +13,6 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useParams } from 'next/navigation'
 import { type Session } from 'next-auth'
 import { ValuePropsHeader } from './value-props'
-import { transformContentToRecipe } from '~/hooks/use-chat'
 import { useState } from 'react'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { useRecipeChat } from '~/hooks/use-recipe-chat'
@@ -243,4 +242,16 @@ function ChatOption({
       </span>
     </div>
   )
+}
+
+function transformContentToRecipe({ content }: { content: string }) {
+  return JSON.parse(content) as {
+    name: string
+    description: string
+    prepTime: string
+    cookTime: string
+    categories: string[]
+    instructions: string[]
+    ingredients: string[]
+  }
 }

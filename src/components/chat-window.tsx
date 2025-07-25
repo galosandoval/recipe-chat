@@ -1,33 +1,33 @@
 'use client'
 
 import { type Message as PrismaMessage } from '@prisma/client'
-import { transformContentToRecipe, useChat } from '~/hooks/use-chat'
 import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
-import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
+import { type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { ChatsSection, ChatsSideBarButton } from './chats'
-import { ChatBubbleLeftIcon, PlusIcon, UserCircleIcon } from './icons'
+import { ChatBubbleLeftIcon, UserCircleIcon } from './icons'
 import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
-import { SignUpModal } from './auth-modals'
+import {
+  SignUpModal,
+  transformContentToRecipe,
+  useAuthModal
+} from './auth-modals'
 import { type Message } from 'ai'
 import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { useRecipeChat } from '~/hooks/use-recipe-chat'
 import { useScrollToTop } from 'react-scroll-to-bottom'
+import { useRouter } from 'next/navigation'
+import { infoToastOptions } from './toast'
+import toast from 'react-hot-toast'
+import { api } from '~/trpc/react'
 
 export default function ChatWindow() {
-  const {
-    isAuthenticated,
-    handleGoToRecipe,
-    handleSaveRecipe,
-    createRecipeStatus
-  } = useChat()
-
   const { setScrollMode } = useContext(ScrollModeContext)
   const scrollToTop = useScrollToTop()
   const [chatId] = useSessionChatId()
@@ -89,13 +89,9 @@ export default function ChatWindow() {
     <>
       <div className='flex h-full flex-col gap-4'>
         <ChatWindowContent
-          saveRecipeStatus={createRecipeStatus}
-          handleGoToRecipe={handleGoToRecipe}
-          handleSaveRecipe={handleSaveRecipe}
           messages={messages as []}
           messagesStatus={chatsQueryStatus}
           isSendingMessage={isSendingMessage}
-          isAuthenticated={isAuthenticated}
         />
       </div>
 
@@ -109,31 +105,11 @@ export default function ChatWindow() {
 function ChatWindowContent({
   messages,
   messagesStatus,
-  isAuthenticated,
-  handleGoToRecipe,
-  handleSaveRecipe,
-  saveRecipeStatus,
   isSendingMessage
 }: {
   messagesStatus?: QueryStatus
-  isAuthenticated: boolean
   isSendingMessage: boolean
   messages: Message[]
-  saveRecipeStatus: MutationStatus
-  handleGoToRecipe: ({
-    recipeId,
-    recipeName
-  }: {
-    recipeId: string | null
-    recipeName: string
-  }) => void
-  handleSaveRecipe: ({
-    content,
-    messageId
-  }: {
-    content: string
-    messageId?: string | undefined
-  }) => void
 }) {
   const { data } = useSession()
 
@@ -141,13 +117,9 @@ function ChatWindowContent({
     return (
       <div className='bg-base-100 h-full'>
         <MessageList
-          saveRecipeStatus={saveRecipeStatus}
-          handleGoToRecipe={handleGoToRecipe}
-          handleSaveRecipe={handleSaveRecipe}
           data={messages as []}
           status={messagesStatus}
           isSendingMessage={isSendingMessage}
-          isAuthenticated={isAuthenticated}
           // filters={filters}
         />
       </div>
@@ -160,32 +132,15 @@ function ChatWindowContent({
 const MessageList = memo(function MessageList({
   data,
   status,
-  isAuthenticated,
-  isSendingMessage,
-  saveRecipeStatus,
-  handleGoToRecipe,
-  handleSaveRecipe
+  isSendingMessage
 }: {
   data: PrismaMessage[]
   status?: QueryStatus
   isSendingMessage: boolean
-  isAuthenticated: boolean
-  saveRecipeStatus: MutationStatus
-  handleGoToRecipe: ({
-    recipeId,
-    recipeName
-  }: {
-    recipeId: string | null
-    recipeName: string
-  }) => void
-  handleSaveRecipe: ({
-    content,
-    messageId
-  }: {
-    content: string
-    messageId?: string | undefined
-  }) => void
 }) {
+  const { status: authStatus } = useSession()
+  const isAuthenticated = authStatus === 'authenticated'
+
   if (status === 'error') {
     return <p>Error</p>
   }
@@ -211,9 +166,6 @@ const MessageList = memo(function MessageList({
             message={m}
             key={m?.id || '' + i}
             isSendingMessage={isSendingMessage}
-            handleGoToRecipe={handleGoToRecipe}
-            handleSaveRecipe={handleSaveRecipe}
-            saveRecipeStatus={saveRecipeStatus}
           />
         ))}
 
@@ -225,87 +177,18 @@ const MessageList = memo(function MessageList({
 
 const Message = function Message({
   message,
-  isSendingMessage,
-  handleGoToRecipe,
-  handleSaveRecipe,
-  saveRecipeStatus
+  isSendingMessage
 }: {
   message: PrismaMessage
   isSendingMessage: boolean
-  saveRecipeStatus: MutationStatus
-  handleGoToRecipe: ({
-    recipeId,
-    recipeName
-  }: {
-    recipeId: string | null
-    recipeName: string
-  }) => void
-  handleSaveRecipe: ({
-    content,
-    messageId
-  }: {
-    content: string
-    messageId?: string | undefined
-  }) => void
 }) {
-  const t = useTranslations()
-
   if (message.role === 'assistant') {
-    const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
-      const recipe = transformContentToRecipe({ content: message.content })
-      const recipeName = recipe.name
-
-      handleGoToRecipe({
-        recipeId,
-        recipeName
-      })
-    }
-
     return (
-      <div className='flex flex-col p-4'>
-        <div className='prose mx-auto w-full'>
-          <div className='flex w-full justify-start gap-2 self-center'>
-            <div>
-              <UserCircleIcon />
-            </div>
-
-            <div className='prose flex flex-col pb-4'>
-              <p className='mt-0 mb-0 whitespace-pre-line'>
-                {removeBracketsAndQuotes(message.content) || ''}
-              </p>
-            </div>
-          </div>
-          <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
-            {message?.recipeId ? (
-              // Go to recipe
-              <Button
-                className='btn btn-outline'
-                onClick={() =>
-                  goToRecipe({
-                    recipeId: message.recipeId
-                  })
-                }
-              >
-                {t.chatWindow.toRecipe}
-              </Button>
-            ) : !isSendingMessage ? (
-              // Save
-              <Button
-                className='btn btn-outline'
-                isLoading={saveRecipeStatus === 'pending'}
-                onClick={() =>
-                  handleSaveRecipe({
-                    content: message.content || '',
-                    messageId: message.id
-                  })
-                }
-              >
-                {t.chatWindow.save}
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </div>
+      <AssistantMessage
+        message={message}
+        // handleSaveRecipe={handleSaveRecipe}
+        isSendingMessage={isSendingMessage}
+      />
     )
   }
 
@@ -323,6 +206,123 @@ const Message = function Message({
           </div>
         </div>
         <ActiveFilters />
+      </div>
+    </div>
+  )
+}
+
+function AssistantMessage({
+  message,
+  isSendingMessage
+}: {
+  message: PrismaMessage
+  isSendingMessage: boolean
+}) {
+  const t = useTranslations()
+  const router = useRouter()
+  const { handleOpenSignUp } = useAuthModal()
+  const { status: authStatus } = useSession()
+  const isAuthenticated = authStatus === 'authenticated'
+  const utils = api.useUtils()
+  const { messages, setMessages } = useRecipeChat()
+  const { mutate: createRecipe, status: saveRecipeStatus } =
+    api.recipes.create.useMutation({
+      async onSuccess(newRecipe, { messageId }) {
+        await utils.recipes.invalidate()
+        const messagesCopy = [...messages]
+
+        if (messageId) {
+          const messageToChange = messagesCopy.find(
+            (message) => message.id === messageId
+          ) as PrismaMessage
+          if (messageToChange) {
+            messageToChange.recipeId = newRecipe.id
+          }
+        }
+
+        setMessages(messagesCopy)
+
+        toast.success(t.chatWindow.saveSuccess)
+      },
+      onError: (error) => {
+        toast.error('Error: ' + error.message)
+      }
+    })
+
+  const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
+    if (recipeId) {
+      router.push(`recipes/${recipeId}`)
+    }
+  }
+  const handleSaveRecipe = ({
+    content,
+    messageId
+  }: {
+    content: string
+    messageId?: string
+  }) => {
+    if (!content) return
+
+    if (!isAuthenticated) {
+      handleOpenSignUp()
+
+      toast(t.toast.signUp, infoToastOptions)
+      return
+    }
+
+    const recipe = transformContentToRecipe({
+      content
+    })
+
+    createRecipe({
+      ...recipe,
+      messageId
+    })
+  }
+
+  return (
+    <div className='flex flex-col p-4'>
+      <div className='prose mx-auto w-full'>
+        <div className='flex w-full justify-start gap-2 self-center'>
+          <div>
+            <UserCircleIcon />
+          </div>
+
+          <div className='prose flex flex-col pb-4'>
+            <p className='mt-0 mb-0 whitespace-pre-line'>
+              {removeBracketsAndQuotes(message.content) || ''}
+            </p>
+          </div>
+        </div>
+        <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
+          {message?.recipeId ? (
+            // Go to recipe
+            <Button
+              className='btn btn-outline'
+              onClick={() =>
+                goToRecipe({
+                  recipeId: message.recipeId
+                })
+              }
+            >
+              {t.chatWindow.toRecipe}
+            </Button>
+          ) : !isSendingMessage ? (
+            // Save
+            <Button
+              className='btn btn-outline'
+              isLoading={saveRecipeStatus === 'pending'}
+              onClick={() =>
+                handleSaveRecipe({
+                  content: message.content || '',
+                  messageId: message.id
+                })
+              }
+            >
+              {t.chatWindow.save}
+            </Button>
+          ) : null}
+        </div>
       </div>
     </div>
   )
