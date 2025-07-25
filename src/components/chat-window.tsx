@@ -1,80 +1,47 @@
 'use client'
 
-import { type Chat, type Message as PrismaMessage } from '@prisma/client'
-import { transformContentToRecipe, type ChatType } from '~/hooks/use-chat'
+import { type Message as PrismaMessage } from '@prisma/client'
 import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
-import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
+import { type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
-import { ChatsSection, ChatsSideBarButton } from './chats'
-import { ChatBubbleLeftIcon, PlusIcon, UserCircleIcon } from './icons'
+import { UserCircleIcon } from './icons'
 import { ChatLoader } from './loaders/chat'
 import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
-import { SignUpModal } from './auth-modals'
-import { type Message } from 'ai'
 import {
-  ScrollModeContext,
-  ScrollToBottomProvider,
-  ScrollToButtons
-} from './scroll-to-bottom'
+  SignUpModal,
+  transformContentToRecipe,
+  useAuthModal
+} from './auth-modals'
+import { type Message } from 'ai'
+import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
+import { useSessionChatId } from '~/hooks/use-session-chat-id'
+import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import { useScrollToTop } from 'react-scroll-to-bottom'
+import { useRouter } from 'next/navigation'
+import { infoToastOptions } from './toast'
+import toast from 'react-hot-toast'
+import { api } from '~/trpc/react'
+import { ChatsDrawer } from './chats-drawer'
 
-type MessageContentProps = Omit<
-  ChatType,
-  'input' | 'handleSubmit' | 'handleInputChange'
->
-
-export default function ChatWindow(props: MessageContentProps) {
-  return (
-    <ScrollToBottomProvider>
-      <Content {...props} />
-    </ScrollToBottomProvider>
-  )
-}
-
-function Content(props: MessageContentProps) {
-  const {
-    chatId,
-    // filters,
-    handleFillMessage,
-    messages,
-    isChatsModalOpen,
-    isSendingMessage,
-    isAuthenticated,
-    handleStartNewChat,
-    handleToggleChatsModal,
-    handleGoToRecipe,
-    handleSaveRecipe,
-    handleChangeChat,
-    createRecipeStatus,
-    handleCloseSignUpModal,
-    handleSubmitCreds,
-    isSigningUp,
-    isSignUpModalOpen,
-    onSubmitCreds,
-    registerCreds,
-    signUpErrors,
-    fetchStatus: chatsFetchStatus,
-    status: chatsQueryStatus,
-    handleGetChatsOnSuccess
-  } = props
-  const setScrollMode = useContext(ScrollModeContext).setScrollMode
-  // const { data } = filters
-
-  const currentChatId =
-    typeof window !== 'undefined'
-      ? JSON.parse(sessionStorage.getItem('currentChatId') ?? 'null')
-      : null
-
+export default function ChatWindow() {
+  const { setScrollMode } = useContext(ScrollModeContext)
+  const scrollToTop = useScrollToTop()
+  const [chatId] = useSessionChatId()
   const isSessionStorageAvailable =
-    typeof window !== 'undefined' && typeof currentChatId === 'string'
+    typeof window !== 'undefined' && typeof chatId === 'string'
 
-  const isNewChat =
-    (currentChatId === '' || currentChatId === null) &&
-    !isSendingMessage &&
-    messages.length === 0
+  const {
+    messages,
+    isSendingMessage,
+    chatsFetchStatus,
+    chatsQueryStatus,
+    setMessages
+  } = useRecipeChat()
+  const isNewChat = !chatId && !isSendingMessage && messages.length === 0
 
   const isMessagesSuccess =
     chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
@@ -93,15 +60,23 @@ function Content(props: MessageContentProps) {
     }
   }, [isNewChat])
 
+  useEffect(() => {
+    if (!chatId) {
+      setMessages([])
+      stop()
+      scrollToTop({
+        behavior: 'auto'
+      })
+    }
+  }, [chatId])
+
   if (isNewChat) {
     return (
-      <div className='flex flex-col gap-4'>
-        {/*  eslint-disable-next-line @typescript-eslint/no-unsafe-call */}
-        <ValueProps handleSendChatExample={handleFillMessage as any}>
-          <ChatsSection chatId={chatId} handleChangeChat={handleChangeChat} />
-
+      <div className='flex flex-col gap-4 pt-2'>
+        <ValueProps>
           <FiltersByUser />
         </ValueProps>
+        <ChatsDrawer />
       </div>
     )
   }
@@ -113,39 +88,16 @@ function Content(props: MessageContentProps) {
     <>
       <div className='flex h-full flex-col gap-4'>
         <ChatWindowContent
-          saveRecipeStatus={createRecipeStatus}
-          handleGoToRecipe={handleGoToRecipe}
-          handleSaveRecipe={handleSaveRecipe}
           messages={messages as []}
-          chatId={chatId}
-          messagesStatus={'status' in props ? chatsQueryStatus : undefined}
-          isChatsModalOpen={isChatsModalOpen}
+          messagesStatus={chatsQueryStatus}
           isSendingMessage={isSendingMessage}
-          isAuthenticated={isAuthenticated}
-          handleGetChatsOnSuccess={
-            'handleGetChatsOnSuccess' in props
-              ? handleGetChatsOnSuccess
-              : undefined
-          }
-          handleChangeChat={
-            'handleChangeChat' in props ? handleChangeChat : undefined
-          }
-          handleStartNewChat={handleStartNewChat}
-          handleToggleChatsModal={handleToggleChatsModal}
         />
       </div>
 
       <ScrollToButtons enable={!isSendingMessage} />
 
-      <SignUpModal
-        closeModal={handleCloseSignUpModal}
-        errors={signUpErrors}
-        handleSubmit={handleSubmitCreds}
-        isLoading={isSigningUp}
-        isOpen={isSignUpModalOpen}
-        onSubmit={onSubmitCreds}
-        register={registerCreds}
-      />
+      <SignUpModal />
+      <ChatsDrawer />
     </>
   )
 }
@@ -153,74 +105,21 @@ function Content(props: MessageContentProps) {
 function ChatWindowContent({
   messages,
   messagesStatus,
-  isAuthenticated,
-  handleGetChatsOnSuccess,
-  handleChangeChat,
-  handleStartNewChat,
-  handleToggleChatsModal,
-  handleGoToRecipe,
-  handleSaveRecipe,
-  // filters,
-  isChatsModalOpen,
-  saveRecipeStatus,
-  isSendingMessage,
-  chatId
+  isSendingMessage
 }: {
   messagesStatus?: QueryStatus
-  isAuthenticated: boolean
-  handleGetChatsOnSuccess?: (
-    data: (Chat & {
-      messages: PrismaMessage[]
-    })[]
-  ) => void
-  handleChangeChat?: (
-    chat: Chat & {
-      messages: PrismaMessage[]
-    }
-  ) => void
-
-  handleStartNewChat: () => void
-  handleToggleChatsModal: () => void
-  // filters: Filter[]
-  isChatsModalOpen: boolean
   isSendingMessage: boolean
-  chatId?: string
   messages: Message[]
-  saveRecipeStatus: MutationStatus
-  handleGoToRecipe: ({
-    recipeId,
-    recipeName
-  }: {
-    recipeId: string | null
-    recipeName: string
-  }) => void
-  handleSaveRecipe: ({
-    content,
-    messageId
-  }: {
-    content: string
-    messageId?: string | undefined
-  }) => void
 }) {
   const { data } = useSession()
-  if (messages.length || isSendingMessage || !data?.user?.id) {
+
+  if (messages.length || !data?.user?.id) {
     return (
       <div className='bg-base-100 h-full'>
         <MessageList
-          saveRecipeStatus={saveRecipeStatus}
-          handleGoToRecipe={handleGoToRecipe}
-          handleSaveRecipe={handleSaveRecipe}
           data={messages as []}
-          chatId={chatId}
           status={messagesStatus}
-          isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
-          isAuthenticated={isAuthenticated}
-          // filters={filters}
-          handleGetChatsOnSuccess={handleGetChatsOnSuccess}
-          handleChangeChat={handleChangeChat}
-          handleStartNewChat={handleStartNewChat}
-          handleToggleChatsModal={handleToggleChatsModal}
         />
       </div>
     )
@@ -232,192 +131,45 @@ function ChatWindowContent({
 const MessageList = memo(function MessageList({
   data,
   status,
-  chatId,
-  isChatsModalOpen,
-  isAuthenticated,
-  isSendingMessage,
-  saveRecipeStatus,
-  // filters,
-  handleGetChatsOnSuccess,
-  handleChangeChat,
-  handleStartNewChat,
-  handleToggleChatsModal,
-  handleGoToRecipe,
-  handleSaveRecipe
+  isSendingMessage
 }: {
   data: PrismaMessage[]
   status?: QueryStatus
-  chatId?: string
-  isChatsModalOpen: boolean
   isSendingMessage: boolean
-  isAuthenticated: boolean
-  saveRecipeStatus: MutationStatus
-  // filters: Filter[]
-  handleChangeChat?: (
-    chat: Chat & {
-      messages: PrismaMessage[]
-    }
-  ) => void
-  handleStartNewChat: () => void
-  handleToggleChatsModal: () => void
-  handleGetChatsOnSuccess?: (
-    data: (Chat & {
-      messages: PrismaMessage[]
-    })[]
-  ) => void
-  handleGoToRecipe: ({
-    recipeId,
-    recipeName
-  }: {
-    recipeId: string | null
-    recipeName: string
-  }) => void
-  handleSaveRecipe: ({
-    content,
-    messageId
-  }: {
-    content: string
-    messageId?: string | undefined
-  }) => void
 }) {
   if (status === 'error') {
     return <p>Error</p>
   }
 
   return (
-    <>
-      <div className='bg-base-100 pb-2'>
-        <div className='prose mx-auto grid grid-cols-3 place-items-center px-2'>
-          {handleChangeChat && handleGetChatsOnSuccess && isAuthenticated ? (
-            <ChatsSideBarButton
-              chatId={chatId}
-              isChatsModalOpen={isChatsModalOpen}
-              handleChangeChat={handleChangeChat}
-              handleToggleChatsModal={handleToggleChatsModal}
-              // onSuccess={handleGetChatsOnSuccess}
-            />
-          ) : (
-            <div></div>
-          )}
+    <div className='bg-base-100 pt-2 pb-16'>
+      {data.map((m, i) => (
+        <Message
+          message={m}
+          key={m?.id || '' + i}
+          isSendingMessage={isSendingMessage}
+        />
+      ))}
 
-          <div className='flex items-center justify-center gap-2'>
-            <h2 className='mt-2 mb-2'>Chat</h2>
-            <ChatBubbleLeftIcon />
-          </div>
-
-          <button
-            onClick={handleStartNewChat}
-            className='btn btn-circle btn-ghost justify-self-end'
-          >
-            <PlusIcon />
-          </button>
-        </div>
-      </div>
-
-      <div className='bg-base-100 pb-16'>
-        {data.map((m, i) => (
-          <Message
-            message={m}
-            key={m?.id || '' + i}
-            isSendingMessage={isSendingMessage}
-            handleGoToRecipe={handleGoToRecipe}
-            handleSaveRecipe={handleSaveRecipe}
-            saveRecipeStatus={saveRecipeStatus}
-            // filters={filters}
-          />
-        ))}
-
-        {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
-      </div>
-    </>
+      {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
+    </div>
   )
 })
 
 const Message = function Message({
   message,
-  isSendingMessage,
-  // filters,
-  handleGoToRecipe,
-  handleSaveRecipe,
-  saveRecipeStatus
+  isSendingMessage
 }: {
   message: PrismaMessage
   isSendingMessage: boolean
-  saveRecipeStatus: MutationStatus
-  // filters: Filter[]
-  handleGoToRecipe: ({
-    recipeId,
-    recipeName
-  }: {
-    recipeId: string | null
-    recipeName: string
-  }) => void
-  handleSaveRecipe: ({
-    content,
-    messageId
-  }: {
-    content: string
-    messageId?: string | undefined
-  }) => void
 }) {
-  const t = useTranslations()
-
   if (message.role === 'assistant') {
-    const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
-      const recipe = transformContentToRecipe({ content: message.content })
-      const recipeName = recipe.name
-
-      handleGoToRecipe({
-        recipeId,
-        recipeName
-      })
-    }
-
     return (
-      <div className='flex flex-col p-4'>
-        <div className='prose mx-auto w-full'>
-          <div className='flex w-full justify-start gap-2 self-center'>
-            <div>
-              <UserCircleIcon />
-            </div>
-
-            <div className='prose flex flex-col pb-4'>
-              <p className='mt-0 mb-0 whitespace-pre-line'>
-                {removeBracketsAndQuotes(message.content) || ''}
-              </p>
-            </div>
-          </div>
-          <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
-            {message?.recipeId ? (
-              // Go to recipe
-              <Button
-                className='btn btn-outline'
-                onClick={() =>
-                  goToRecipe({
-                    recipeId: message.recipeId
-                  })
-                }
-              >
-                {t.chatWindow.toRecipe}
-              </Button>
-            ) : !isSendingMessage ? (
-              // Save
-              <Button
-                className='btn btn-outline'
-                isLoading={saveRecipeStatus === 'pending'}
-                onClick={() =>
-                  handleSaveRecipe({
-                    content: message.content || '',
-                    messageId: message.id
-                  })
-                }
-              >
-                {t.chatWindow.save}
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </div>
+      <AssistantMessage
+        message={message}
+        // handleSaveRecipe={handleSaveRecipe}
+        isSendingMessage={isSendingMessage}
+      />
     )
   }
 
@@ -435,6 +187,123 @@ const Message = function Message({
           </div>
         </div>
         <ActiveFilters />
+      </div>
+    </div>
+  )
+}
+
+function AssistantMessage({
+  message,
+  isSendingMessage
+}: {
+  message: PrismaMessage
+  isSendingMessage: boolean
+}) {
+  const t = useTranslations()
+  const router = useRouter()
+  const { handleOpenSignUp } = useAuthModal()
+  const { status: authStatus } = useSession()
+  const isAuthenticated = authStatus === 'authenticated'
+  const utils = api.useUtils()
+  const { messages, setMessages } = useRecipeChat()
+  const { mutate: createRecipe, status: saveRecipeStatus } =
+    api.recipes.create.useMutation({
+      async onSuccess(newRecipe, { messageId }) {
+        await utils.recipes.invalidate()
+        const messagesCopy = [...messages]
+
+        if (messageId) {
+          const messageToChange = messagesCopy.find(
+            (message) => message.id === messageId
+          ) as PrismaMessage
+          if (messageToChange) {
+            messageToChange.recipeId = newRecipe.id
+          }
+        }
+
+        setMessages(messagesCopy)
+
+        toast.success(t.chatWindow.saveSuccess)
+      },
+      onError: (error) => {
+        toast.error('Error: ' + error.message)
+      }
+    })
+
+  const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
+    if (recipeId) {
+      router.push(`recipes/${recipeId}`)
+    }
+  }
+  const handleSaveRecipe = ({
+    content,
+    messageId
+  }: {
+    content: string
+    messageId?: string
+  }) => {
+    if (!content) return
+
+    if (!isAuthenticated) {
+      handleOpenSignUp()
+
+      toast(t.toast.signUp, infoToastOptions)
+      return
+    }
+
+    const recipe = transformContentToRecipe({
+      content
+    })
+
+    createRecipe({
+      ...recipe,
+      messageId
+    })
+  }
+
+  return (
+    <div className='flex flex-col p-4'>
+      <div className='prose mx-auto w-full'>
+        <div className='flex w-full justify-start gap-2 self-center'>
+          <div>
+            <UserCircleIcon />
+          </div>
+
+          <div className='prose flex flex-col pb-4'>
+            <p className='mt-0 mb-0 whitespace-pre-line'>
+              {removeBracketsAndQuotes(message.content) || ''}
+            </p>
+          </div>
+        </div>
+        <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
+          {message?.recipeId ? (
+            // Go to recipe
+            <Button
+              className='btn btn-outline'
+              onClick={() =>
+                goToRecipe({
+                  recipeId: message.recipeId
+                })
+              }
+            >
+              {t.chatWindow.toRecipe}
+            </Button>
+          ) : !isSendingMessage ? (
+            // Save
+            <Button
+              className='btn btn-outline'
+              isLoading={saveRecipeStatus === 'pending'}
+              onClick={() =>
+                handleSaveRecipe({
+                  content: message.content || '',
+                  messageId: message.id
+                })
+              }
+            >
+              {t.chatWindow.save}
+            </Button>
+          ) : null}
+        </div>
       </div>
     </div>
   )

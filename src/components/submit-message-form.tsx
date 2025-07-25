@@ -1,23 +1,11 @@
-import {
-  type ChangeEventHandler,
-  type FormEvent,
-  useEffect,
-  useRef
-} from 'react'
+import { useEffect, useRef } from 'react'
 import { Button } from './button'
 import { useTranslations } from '~/hooks/use-translations'
+import { useRecipeChat } from '~/hooks/use-recipe-chat'
 
-export function SubmitMessageForm({
-  handleInputChange,
-  handleSubmit,
-  isSendingMessage,
-  input
-}: {
-  handleSubmit: (event: FormEvent<HTMLFormElement>) => void
-  handleInputChange: ChangeEventHandler<HTMLTextAreaElement>
-  input: string
-  isSendingMessage: boolean
-}) {
+export function SubmitMessageForm() {
+  const { handleSubmit, input, handleInputChange, isSendingMessage } =
+    useRecipeChat()
   const t = useTranslations()
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -31,13 +19,13 @@ export function SubmitMessageForm({
       onSubmit={handleSubmit}
       className={`fixed bottom-0 left-0 flex w-full items-center md:rounded-md`}
     >
-      <div className='prose mx-auto flex w-full items-center bg-base-300/75 py-1 sm:mb-2 sm:rounded-lg'>
+      <div className='prose bg-base-300/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <textarea
             value={input}
             onChange={handleInputChange}
             placeholder={t.chatFormPlaceholder}
-            className='input input-bordered relative w-full resize-none bg-base-100/75 pt-2 focus:bg-base-100'
+            className='input input-bordered bg-base-100/75 focus:bg-base-100 relative w-full resize-none pt-2'
             ref={textareaRef}
           />
         </div>
@@ -46,7 +34,7 @@ export function SubmitMessageForm({
           <Button
             type='submit'
             disabled={input.length < 5 && !isSendingMessage}
-            className={` btn ${isSendingMessage ? 'btn-error' : 'btn-accent'}`}
+            className={`btn ${isSendingMessage ? 'btn-error' : 'btn-accent'}`}
           >
             {isSendingMessage ? (
               // stop icon

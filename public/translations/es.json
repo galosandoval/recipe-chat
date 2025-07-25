@@ -6,7 +6,9 @@
       "signUp": "Registro",
       "login": "Inicio",
       "logout": "Cierra",
-      "theme": "Tema"
+      "theme": "Tema",
+      "startNewChat": "Nuevo chat",
+      "chats": "Chats"
     },
     "chat": "Chat",
     "list": "Lista",

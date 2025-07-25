@@ -1,32 +1,25 @@
-'use client'
+import { HydrateClient } from '~/trpc/server'
+import { type Metadata } from 'next'
+import { auth } from '~/server/auth'
+import { redirect } from 'next/navigation'
+import Chat from '../chat'
 
-import ChatWindow from '~/components/chat-window'
-import { SubmitMessageForm } from '~/components/submit-message-form'
-import { useChat } from '~/hooks/use-chat'
+export const metadata: Metadata = {
+  title: 'RecipeChat - Chat',
+  description: 'RecipeChat'
+}
 
-export default function ChatView() {
-  const {
-    input,
-    isSendingMessage,
-
-    handleInputChange,
-    handleSubmit,
-    ...rest
-  } = useChat()
+export default async function ChatPage() {
+  const session = await auth()
+  if (!session) {
+    redirect('/')
+  }
 
   return (
-    <>
-      <div className='relative flex h-full flex-1 flex-col items-stretch overflow-y-auto pt-20'>
-        <div className='flex-1'>
-          <ChatWindow isSendingMessage={isSendingMessage} {...rest} />
-        </div>
-        <SubmitMessageForm
-          input={input}
-          isSendingMessage={isSendingMessage}
-          handleSubmit={handleSubmit}
-          handleInputChange={handleInputChange}
-        />
-      </div>
-    </>
+    <HydrateClient>
+      <main className='flex min-h-svh flex-col items-center justify-center overflow-y-auto'>
+        <Chat />
+      </main>
+    </HydrateClient>
   )
 }

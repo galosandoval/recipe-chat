@@ -1,9 +1,4 @@
-import {
-  type FieldErrorsImpl,
-  type UseFormHandleSubmit,
-  type UseFormRegister,
-  useForm
-} from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '~/components/button'
@@ -13,8 +8,14 @@ import { ErrorMessage } from '~/components/error-message-content'
 import { toast } from 'react-hot-toast'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Modal } from './modal'
-import { useState } from 'react'
+import { createContext, useContext, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
+import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import {
+  errorToastOptions,
+  loadingToastOptions,
+  successToastOptions
+} from './toast'
 
 export const signUpSchema = (t: any) =>
   z
@@ -42,8 +43,6 @@ export function useSignUp(successCallback?: () => Promise<void>) {
     resolver: zodResolver(signUpSchema(t))
   })
   const router = useRouter()
-
-  const [isOpen, setIsOpen] = useState(false)
 
   const { mutate, isPending } = api.users.signUp.useMutation({
     onSuccess: async ({}, { email, password }) => {
@@ -82,53 +81,67 @@ export function useSignUp(successCallback?: () => Promise<void>) {
     mutate(values)
   }
 
-  const handleOpen = () => {
-    setIsOpen(true)
-  }
-
-  const handleClose = () => {
-    setIsOpen(false)
-  }
-
   return {
     register,
     handleSubmit,
     errors,
-    isOpen,
     onSubmit,
-    isLoading: isPending,
-    handleOpen,
-    handleClose
+    isLoading: isPending
   }
 }
 
-export function SignUpModal({
-  isOpen,
-  closeModal,
-  onSubmit,
-  isLoading,
-  errors,
-  register,
-  handleSubmit
-}: {
-  isOpen: boolean
-  closeModal: () => void
-  onSubmit: (data: SignUpSchemaType) => void
-  isLoading: boolean
-  errors: Partial<FieldErrorsImpl<SignUpSchemaType>>
-  register: UseFormRegister<SignUpSchemaType>
-  handleSubmit: UseFormHandleSubmit<SignUpSchemaType>
-}) {
+export function SignUpModal() {
   const t = useTranslations()
+  const router = useRouter()
+  const { isSignUpOpen, handleCloseSignUp } = useAuthModal()
+  const { errors, isLoading, handleSubmit, onSubmit, register } =
+    useSignUp(onSignUpSuccess)
+  const { messages } = useRecipeChat()
+  const { mutateAsync: createChatAndRecipeAsync } =
+    api.users.createChatAndRecipe.useMutation({
+      onError: (error) => {
+        toast.error('Error: ' + error.message)
+      }
+    })
 
+  async function onSignUpSuccess() {
+    // TODO - this is a hack to get the selected recipe to save
+    const lastMessage = messages.at(-1)
+    if (!lastMessage) throw new Error('No last message')
+    const recipe = transformContentToRecipe({
+      content: lastMessage.content
+    })
+    const newRecipePromise = createChatAndRecipeAsync({
+      recipe,
+      messages
+    })
+    const user = await toast.promise(
+      newRecipePromise,
+      {
+        loading: t.loading.loggingIn,
+        success: () => t.toast.loginSuccess,
+        error: () => t.error.somethingWentWrong
+      },
+      {
+        loading: loadingToastOptions,
+        success: { ...successToastOptions, duration: 3000 },
+        error: errorToastOptions
+      }
+    )
+    router.push(
+      `recipes/${user.recipes[0].id}?name=${encodeURIComponent(
+        user.recipes[0].name
+      )}`
+    )
+  }
   return (
-    <Modal isOpen={isOpen} closeModal={closeModal}>
+    <Modal isOpen={isSignUpOpen} closeModal={handleCloseSignUp}>
       <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
         <h1 className='px-5'>{t.auth.signUp}</h1>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-control'>
-            <label htmlFor='email' className='label pb-1 pt-0'>
+            <label htmlFor='email' className='label pt-0 pb-1'>
               <span className='label-text'>
                 {t.auth.email}
                 <span className='text-error'>*</span>
@@ -146,7 +159,7 @@ export function SignUpModal({
             <ErrorMessage errors={errors} name='email' />
           </div>
           <div className='form-control'>
-            <label htmlFor='password' className='label pb-1 pt-0'>
+            <label htmlFor='password' className='label pt-0 pb-1'>
               <span className='label-text'>
                 {t.auth.password}
                 <span className='text-error'>*</span>
@@ -164,7 +177,7 @@ export function SignUpModal({
             <ErrorMessage errors={errors} name='password' />
           </div>
           <div className='form-control'>
-            <label htmlFor='confirmPassword' className='label pb-1 pt-0'>
+            <label htmlFor='confirmPassword' className='label pt-0 pb-1'>
               <span className='label-text'>
                 {t.auth.confirmPassword}
                 <span className='text-error'>*</span>
@@ -210,7 +223,6 @@ export function useLogin() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const [isOpen, setIsOpen] = useState(false)
   const {
     register,
     handleSubmit,
@@ -234,48 +246,22 @@ export function useLogin() {
       setError('password', { message: t.auth.invalidCreds })
     }
   }
-
-  const handleClose = () => {
-    setIsOpen(false)
-  }
-
-  const handleOpen = () => {
-    setIsOpen(true)
-  }
-
   return {
     register,
     handleSubmit,
     errors,
-    isOpen,
     onSubmit,
-    isSubmitting,
-    handleClose,
-    handleOpen
+    isSubmitting
   }
 }
 
-export function LoginModal({
-  isOpen,
-  closeModal,
-  onSubmit,
-  isSubmitting,
-  errors,
-  register,
-  handleSubmit
-}: {
-  isOpen: boolean
-  closeModal: () => void
-  onSubmit: (data: LoginSchemaType) => void
-  isSubmitting: boolean
-  errors: Partial<FieldErrorsImpl<LoginSchemaType>>
-  register: UseFormRegister<LoginSchemaType>
-  handleSubmit: UseFormHandleSubmit<LoginSchemaType>
-}) {
+export function LoginModal() {
   const t = useTranslations()
+  const { isLoginOpen, handleCloseLogin } = useAuthModal()
+  const { handleSubmit, errors, register, isSubmitting, onSubmit } = useLogin()
 
   return (
-    <Modal isOpen={isOpen} closeModal={closeModal}>
+    <Modal isOpen={isLoginOpen} closeModal={handleCloseLogin}>
       <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
         <h1 className='text-center'>{t.auth.login}</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -324,4 +310,70 @@ export function LoginModal({
       </div>
     </Modal>
   )
+}
+export function transformContentToRecipe({ content }: { content: string }) {
+  return JSON.parse(content) as {
+    name: string
+    description: string
+    prepTime: string
+    cookTime: string
+    categories: string[]
+    instructions: string[]
+    ingredients: string[]
+  }
+}
+
+export const AuthModalContext = createContext<{
+  isSignUpOpen: boolean
+  isLoginOpen: boolean
+  handleCloseSignUp: () => void
+  handleOpenSignUp: () => void
+  handleCloseLogin: () => void
+  handleOpenLogin: () => void
+}>({
+  isSignUpOpen: false,
+  isLoginOpen: false,
+  handleCloseSignUp: () => {},
+  handleOpenSignUp: () => {},
+  handleCloseLogin: () => {},
+  handleOpenLogin: () => {}
+})
+
+export function AuthModalProvider({ children }: { children: React.ReactNode }) {
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false)
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
+
+  const handleCloseSignUp = () => {
+    setIsSignUpOpen(false)
+  }
+
+  const handleOpenSignUp = () => {
+    setIsSignUpOpen(true)
+  }
+
+  const handleCloseLogin = () => {
+    setIsLoginOpen(false)
+  }
+
+  const handleOpenLogin = () => {
+    setIsLoginOpen(true)
+  }
+  return (
+    <AuthModalContext.Provider
+      value={{
+        isSignUpOpen,
+        handleCloseSignUp,
+        handleOpenSignUp,
+        isLoginOpen,
+        handleCloseLogin,
+        handleOpenLogin
+      }}
+    >
+      {children}
+    </AuthModalContext.Provider>
+  )
+}
+
+export const useAuthModal = () => {
+  return useContext(AuthModalContext)
 }

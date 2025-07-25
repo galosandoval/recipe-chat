@@ -6,7 +6,9 @@
       "signUp": "Sign up",
       "login": "Login",
       "logout": "Logout",
-      "theme": "Theme"
+      "theme": "Theme",
+      "startNewChat": "New chat",
+      "chats": "Chats"
     },
     "chat": "Chat",
     "list": "List",

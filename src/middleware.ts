@@ -2,7 +2,6 @@ import { type NextRequest } from 'next/server'
 import { i18n } from './i18n-config'
 import Negotiator from 'negotiator'
 import { match as matchLocale } from '@formatjs/intl-localematcher'
-import { cookies } from 'next/headers'
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname
@@ -15,7 +14,6 @@ export async function middleware(req: NextRequest) {
   )
   const hasImages = req.nextUrl.href.includes(`${req.nextUrl.origin}/images/`)
   // Redirect if there is no locale
-  await handleChatIdSession(req, pathname)
 
   if (pathnameIsMissingLocale && !hasImages) {
     const locale = getLocale(req)
@@ -28,14 +26,6 @@ export async function middleware(req: NextRequest) {
         req.url
       )
     )
-  }
-}
-
-async function handleChatIdSession(req: Request, pathname: string) {
-  const cookieStore = await cookies()
-  const currentChatId = cookieStore.get('currentChatId')
-  if (currentChatId && pathname === '/') {
-    return Response.redirect(new URL(`/chat/${currentChatId.value}`, req.url))
   }
 }
 
