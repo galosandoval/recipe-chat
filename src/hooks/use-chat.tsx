@@ -14,7 +14,7 @@ import {
   successToastOptions
 } from '~/components/toast'
 import { useFiltersByUser } from '~/components/recipe-filters'
-import { CURRENT_CHAT_ID, useChatId } from './use-session-chat-id'
+import { CURRENT_CHAT_ID, useSessionChatId } from './use-session-chat-id'
 import { ScrollModeContext } from '~/components/scroll-to-bottom'
 import { useRecipeChat } from './use-recipe-chat'
 
@@ -33,7 +33,7 @@ export type ChatType = ReturnType<typeof useChat>
 export const useChat = () => {
   const t = useTranslations()
 
-  const [sessionChatId, changeChatId] = useChatId()
+  const [sessionChatId, changeChatId] = useSessionChatId()
   const router = useRouter()
   const { status: authStatus } = useSession()
   const filters = useFiltersByUser()

@@ -11,7 +11,7 @@ import {
   TranslationsContext,
   type Translations
 } from '~/hooks/use-translations'
-import { ChatIdProvider } from '~/hooks/use-session-chat-id'
+import { SessionChatIdProvider } from '~/hooks/use-session-chat-id'
 
 export const Providers = ({
   children,
@@ -25,13 +25,13 @@ export const Providers = ({
   return (
     <TRPCReactProvider>
       <SessionProvider session={session}>
-        <TranslationsContext.Provider value={translations}>
-          <ChatIdProvider>
+        <SessionChatIdProvider>
+          <TranslationsContext.Provider value={translations}>
             {children}
             <Toast />
             <Analytics />
-          </ChatIdProvider>
-        </TranslationsContext.Provider>
+          </TranslationsContext.Provider>
+        </SessionChatIdProvider>
         {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </SessionProvider>
     </TRPCReactProvider>

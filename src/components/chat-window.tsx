@@ -16,7 +16,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
 import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
-import { useChatId } from '~/hooks/use-session-chat-id'
+import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { useRecipeChat } from '~/hooks/use-recipe-chat'
 import { useScrollToTop } from 'react-scroll-to-bottom'
 
@@ -44,7 +44,7 @@ export default function ChatWindow() {
 
   const { setScrollMode } = useContext(ScrollModeContext)
   const scrollToTop = useScrollToTop()
-  const [chatId] = useChatId()
+  const [chatId] = useSessionChatId()
   const isSessionStorageAvailable =
     typeof window !== 'undefined' && typeof chatId === 'string'
 
@@ -78,7 +78,9 @@ export default function ChatWindow() {
     if (!chatId) {
       setMessages([])
       stop()
-      scrollToTop()
+      scrollToTop({
+        behavior: 'smooth'
+      })
     }
   }, [chatId])
 

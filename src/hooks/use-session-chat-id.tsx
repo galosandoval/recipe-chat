@@ -1,5 +1,6 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
 import { createContext, useEffect, useState, useContext } from 'react'
 
 export const CURRENT_CHAT_ID = 'currentChatId'
@@ -12,11 +13,17 @@ export const ChatIdContext = createContext<{
   changeChatId: () => {}
 })
 
-export function ChatIdProvider({ children }: { children: React.ReactNode }) {
+export function SessionChatIdProvider({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
   const hasSession =
     typeof window != 'undefined' &&
     typeof sessionStorage?.getItem(CURRENT_CHAT_ID) === 'string'
-  const [chatId, setChatId] = useState<string>(() =>
+
+  const [chatId, setChatId] = useState<string>(
     hasSession
       ? JSON.parse(sessionStorage.getItem(CURRENT_CHAT_ID) as string)
       : ''
@@ -26,6 +33,18 @@ export function ChatIdProvider({ children }: { children: React.ReactNode }) {
     setChatId(chatId)
     sessionStorage.setItem(CURRENT_CHAT_ID, JSON.stringify(chatId))
   }
+
+  useEffect(() => {
+    if (hasSession) {
+      console.log('hasSession', hasSession)
+      setChatId(JSON.parse(sessionStorage.getItem(CURRENT_CHAT_ID) as string))
+    }
+  }, [hasSession])
+
+  if (!pathname.includes('chat')) {
+    return children
+  }
+
   return (
     <ChatIdContext.Provider value={{ chatId, changeChatId }}>
       {children}
@@ -34,7 +53,7 @@ export function ChatIdProvider({ children }: { children: React.ReactNode }) {
 }
 
 // Custom hook to use the ChatIdContext
-export function useChatId() {
+export function useSessionChatId() {
   const context = useContext(ChatIdContext)
   if (!context) {
     throw new Error('useSessionChatId must be used within a ChatIdProvider')

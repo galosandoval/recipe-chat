@@ -12,7 +12,7 @@ import {
   type Message as AiMessage,
   type CreateMessage
 } from 'ai/react'
-import { useChatId } from './use-session-chat-id'
+import { useSessionChatId } from './use-session-chat-id'
 import { useSession } from 'next-auth/react'
 import { api } from '~/trpc/react'
 import { useFiltersByUser } from '~/components/recipe-filters'
@@ -49,7 +49,7 @@ export const RecipeChatProvider = ({
 }: {
   children: React.ReactNode
 }) => {
-  const [sessionChatId, changeChatId] = useChatId()
+  const [sessionChatId, changeChatId] = useSessionChatId()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   const filters = useFiltersByUser()
@@ -62,7 +62,6 @@ export const RecipeChatProvider = ({
       if (filter.checked) filterStrings.push(filter.name)
     })
   }
-  const messagesRef = useRef<AiMessage[]>([])
 
   const { mutate: upsertChat } = api.chats.upsert.useMutation({
     async onSuccess(data) {
@@ -89,13 +88,7 @@ export const RecipeChatProvider = ({
       }))
     })
   }
-  function onFinishMessage(_: AiMessage) {
-    if (!messagesRef.current?.length) {
-      throw new Error('No messages')
-    }
 
-    handleSubmitMessage()
-  }
   const {
     messages,
     input,
@@ -113,6 +106,21 @@ export const RecipeChatProvider = ({
       filters: filterStrings
     }
   })
+
+  const messagesRef = useRef<AiMessage[]>([])
+
+  useEffect(() => {
+    messagesRef.current = messages
+  }, [messages])
+
+  function onFinishMessage(message: AiMessage) {
+    if (!messagesRef.current?.length) {
+      throw new Error('No messages')
+    }
+    console.log('message', message)
+    handleSubmitMessage()
+  }
+
   const enabled = isAuthenticated && !!sessionChatId && !messages.length
 
   const {
