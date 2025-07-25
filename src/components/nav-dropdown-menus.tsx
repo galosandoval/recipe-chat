@@ -68,7 +68,7 @@ function DropdownMenu({ children }: { children: React.ReactNode }) {
 function StartNewChat() {
   const t = useTranslations()
   const [chatId, setChatId] = useChatId()
-
+  console.log('chatId', chatId)
   const handleStartNewChat = () => {
     setChatId('')
   }

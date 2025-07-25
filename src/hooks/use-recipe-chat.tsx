@@ -1,14 +1,42 @@
-import { createContext, useRef } from 'react'
-import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  type ChangeEvent,
+  type FormEvent
+} from 'react'
+import {
+  useChat as useAiChat,
+  type Message as AiMessage,
+  type CreateMessage
+} from 'ai/react'
 import { useChatId } from './use-session-chat-id'
 import { useSession } from 'next-auth/react'
 import { api } from '~/trpc/react'
 import { useFiltersByUser } from '~/components/recipe-filters'
+import type { FetchStatus, QueryStatus } from '@tanstack/react-query'
 
-const RecipeChatContext = createContext<Partial<ReturnType<typeof useAiChat>>>({
+type RecipeChatContextType = {
+  input: string
+  messages: AiMessage[]
+  isSendingMessage: boolean
+  handleInputChange: (e: ChangeEvent<HTMLTextAreaElement>) => void
+  stop: () => void
+  handleSubmit: (event: FormEvent<HTMLFormElement>) => void
+  setMessages: (messages: AiMessage[]) => void
+  chatsFetchStatus: FetchStatus
+  chatsQueryStatus: QueryStatus
+  append: (message: CreateMessage) => Promise<string | null | undefined>
+}
+
+const RecipeChatContext = createContext<RecipeChatContextType>({
   input: '',
   messages: [],
-  isLoading: false,
+  isSendingMessage: false,
+  chatsFetchStatus: 'idle',
+  chatsQueryStatus: 'pending',
   handleInputChange: () => {},
   stop: () => {},
   handleSubmit: () => {},
@@ -24,7 +52,6 @@ export const RecipeChatProvider = ({
   const [sessionChatId, changeChatId] = useChatId()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
-  //   const utils = api.useContext()
   const filters = useFiltersByUser()
   const filtersData = filters.data
 
@@ -74,8 +101,8 @@ export const RecipeChatProvider = ({
     input,
     handleInputChange,
     stop,
-    handleSubmit,
-    isLoading,
+    handleSubmit: submitMessages,
+    isLoading: isSendingMessage,
     setMessages,
     append
   } = useAiChat({
@@ -86,19 +113,45 @@ export const RecipeChatProvider = ({
       filters: filterStrings
     }
   })
+  const enabled = isAuthenticated && !!sessionChatId && !messages.length
 
+  const {
+    status: chatsQueryStatus,
+    fetchStatus: chatsFetchStatus,
+    data
+  } = api.chats.getMessagesById.useQuery(
+    { chatId: sessionChatId ?? '' },
+    {
+      enabled
+      // keepPreviousData: true
+    }
+  )
+
+  const handleSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      if (isSendingMessage) {
+        stop()
+      } else {
+        submitMessages(event, { options: { body: { filters: filterStrings } } })
+      }
+    },
+
+    [isSendingMessage, stop, submitMessages, filterStrings]
+  )
   useEffect(() => {
-    if (status === 'success') {
+    if (chatsQueryStatus === 'success') {
       setMessages(data?.messages ?? [])
     }
-  }, [status, data])
+  }, [chatsQueryStatus, data])
 
   return (
     <RecipeChatContext.Provider
       value={{
         input,
         messages,
-        isLoading,
+        isSendingMessage,
+        chatsFetchStatus,
+        chatsQueryStatus,
         handleInputChange,
         stop,
         handleSubmit,
@@ -109,4 +162,12 @@ export const RecipeChatProvider = ({
       {children}
     </RecipeChatContext.Provider>
   )
+}
+
+export const useRecipeChat = () => {
+  const context = useContext(RecipeChatContext)
+  if (!context) {
+    throw new Error('useRecipeChat must be used within a RecipeChatProvider')
+  }
+  return context
 }

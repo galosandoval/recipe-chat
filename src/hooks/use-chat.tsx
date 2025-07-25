@@ -1,15 +1,7 @@
 import { type Chat, type Message } from '@prisma/client'
-import { useChat as useAiChat, type Message as AiMessage } from 'ai/react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import {
-  type FormEvent,
-  useCallback,
-  useEffect,
-  useState,
-  useRef,
-  useContext
-} from 'react'
+import { type FormEvent, useCallback, useState, useContext } from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from '~/trpc/react'
 import { z } from 'zod'
@@ -24,7 +16,7 @@ import {
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { CURRENT_CHAT_ID, useChatId } from './use-session-chat-id'
 import { ScrollModeContext } from '~/components/scroll-to-bottom'
-// import { useFilters } from '~/components/recipe-filters'
+import { useRecipeChat } from './use-recipe-chat'
 
 export type FormValues = {
   name: string
@@ -60,79 +52,7 @@ export const useChat = () => {
     })
   }
 
-  const { mutate: upsertChat } = api.chats.upsert.useMutation({
-    async onSuccess(data) {
-      if (data.chatId) {
-        changeChatId(data.chatId)
-      }
-      setMessages(data.messages)
-    }
-  })
-
-  const {
-    messages,
-    input,
-    handleInputChange,
-    stop,
-    handleSubmit: submitMessages,
-    isLoading: isSendingMessage,
-    setMessages,
-    append
-  } = useAiChat({
-    onFinish(message) {
-      onFinishMessage(message)
-    },
-    body: {
-      filters: filterStrings
-    }
-  })
-
-  const handleSubmitMessage = () => {
-    let chatId = sessionChatId ?? ''
-
-    if (!isAuthenticated) {
-      return
-    }
-
-    upsertChat({
-      chatId,
-      messages: messagesRef.current.map((message) => ({
-        content: message.content,
-        role: message.role
-        // id: createId()
-      }))
-    })
-  }
-
-  const messagesRef = useRef<AiMessage[]>([])
-
-  useEffect(() => {
-    messagesRef.current = messages
-  }, [messages])
-
-  function onFinishMessage(_: AiMessage) {
-    if (!messagesRef.current?.length) {
-      throw new Error('No messages')
-    }
-
-    handleSubmitMessage()
-  }
-
-  const enabled = isAuthenticated && !!sessionChatId && !messages.length
-
-  const { status, fetchStatus, data } = api.chats.getMessagesById.useQuery(
-    { chatId: sessionChatId ?? '' },
-    {
-      enabled
-      // keepPreviousData: true
-    }
-  )
-
-  useEffect(() => {
-    if (status === 'success') {
-      setMessages(data?.messages ?? [])
-    }
-  }, [status, data])
+  const { setMessages, append, stop, messages } = useRecipeChat()
 
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
@@ -201,30 +121,9 @@ export const useChat = () => {
     append({ content: e.currentTarget.innerText, role: 'user' })
   }
 
-  useEffect(() => {
-    console.log('sessionChatId use-chat', sessionChatId)
-    if (!sessionChatId) {
-      setMessages([])
-      stop()
-      setScrollMode('top')
-    }
-  }, [sessionChatId])
-
   const handleToggleChatsModal = useCallback(() => {
     setIsChatsModalOpen((state) => !state)
   }, [])
-
-  const handleSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
-      if (isSendingMessage) {
-        stop()
-      } else {
-        submitMessages(event, { options: { body: { filters: filterStrings } } })
-      }
-    },
-
-    [isSendingMessage, stop, submitMessages, filterStrings]
-  )
 
   const {
     errors: signUpErrors,
@@ -240,13 +139,10 @@ export const useChat = () => {
   async function onSignUpSuccess() {
     // TODO - this is a hack to get the selected recipe to save
     const lastMessage = messages.at(-1)
-
     if (!lastMessage) throw new Error('No last message')
-
     const recipe = transformContentToRecipe({
       content: lastMessage.content
     })
-
     const newRecipePromise = createChatAndRecipeAsync({
       recipe,
       messages
@@ -264,7 +160,6 @@ export const useChat = () => {
         error: errorToastOptions
       }
     )
-
     router.push(
       `recipes/${user.recipes[0].id}?name=${encodeURIComponent(
         user.recipes[0].name
@@ -313,13 +208,7 @@ export const useChat = () => {
   )
 
   return {
-    // filters,
-    fetchStatus,
-    status,
     isChatsModalOpen,
-    input,
-    messages,
-    isSendingMessage,
     isAuthenticated,
     createRecipeStatus,
     signUpErrors,
@@ -333,11 +222,9 @@ export const useChat = () => {
     onSubmitCreds,
     registerCreds,
     handleGetChatsOnSuccess,
-    handleInputChange: useCallback(handleInputChange, []),
     handleToggleChatsModal,
     handleChangeChat,
-    handleFillMessage,
-    handleSubmit
+    handleFillMessage
   }
 }
 

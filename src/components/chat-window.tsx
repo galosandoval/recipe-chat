@@ -1,7 +1,7 @@
 'use client'
 
 import { type Chat, type Message as PrismaMessage } from '@prisma/client'
-import { transformContentToRecipe, type ChatType } from '~/hooks/use-chat'
+import { transformContentToRecipe, useChat } from '~/hooks/use-chat'
 import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { type MutationStatus, type QueryStatus } from '@tanstack/react-query'
@@ -17,19 +17,14 @@ import { SignUpModal } from './auth-modals'
 import { type Message } from 'ai'
 import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
 import { useChatId } from '~/hooks/use-session-chat-id'
+import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import { useScrollToTop } from 'react-scroll-to-bottom'
 
-type MessageContentProps = Omit<
-  ChatType,
-  'input' | 'handleSubmit' | 'handleInputChange'
->
-
-export default function ChatWindow(props: MessageContentProps) {
+export default function ChatWindow() {
   const {
     // filters,
     handleFillMessage,
-    messages,
     isChatsModalOpen,
-    isSendingMessage,
     isAuthenticated,
     handleToggleChatsModal,
     handleGoToRecipe,
@@ -43,15 +38,23 @@ export default function ChatWindow(props: MessageContentProps) {
     onSubmitCreds,
     registerCreds,
     signUpErrors,
-    fetchStatus: chatsFetchStatus,
-    status: chatsQueryStatus,
+    // status: chatsQueryStatus,
     handleGetChatsOnSuccess
-  } = props
+  } = useChat()
+
   const { setScrollMode } = useContext(ScrollModeContext)
+  const scrollToTop = useScrollToTop()
   const [chatId] = useChatId()
   const isSessionStorageAvailable =
     typeof window !== 'undefined' && typeof chatId === 'string'
 
+  const {
+    messages,
+    isSendingMessage,
+    chatsFetchStatus,
+    chatsQueryStatus,
+    setMessages
+  } = useRecipeChat()
   const isNewChat = !chatId && !isSendingMessage && messages.length === 0
 
   const isMessagesSuccess =
@@ -70,6 +73,14 @@ export default function ChatWindow(props: MessageContentProps) {
       setScrollMode('bottom')
     }
   }, [isNewChat])
+
+  useEffect(() => {
+    if (!chatId) {
+      setMessages([])
+      stop()
+      scrollToTop()
+    }
+  }, [chatId])
 
   if (isNewChat) {
     return (
@@ -96,18 +107,12 @@ export default function ChatWindow(props: MessageContentProps) {
           handleSaveRecipe={handleSaveRecipe}
           messages={messages as []}
           chatId={chatId}
-          messagesStatus={'status' in props ? chatsQueryStatus : undefined}
+          messagesStatus={chatsQueryStatus}
           isChatsModalOpen={isChatsModalOpen}
           isSendingMessage={isSendingMessage}
           isAuthenticated={isAuthenticated}
-          handleGetChatsOnSuccess={
-            'handleGetChatsOnSuccess' in props
-              ? handleGetChatsOnSuccess
-              : undefined
-          }
-          handleChangeChat={
-            'handleChangeChat' in props ? handleChangeChat : undefined
-          }
+          handleGetChatsOnSuccess={handleGetChatsOnSuccess}
+          handleChangeChat={handleChangeChat}
           handleToggleChatsModal={handleToggleChatsModal}
         />
       </div>
