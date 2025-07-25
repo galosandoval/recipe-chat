@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { createContext, useEffect, useState, useContext } from 'react'
+import { createContext, useState, useContext } from 'react'
 
 export const CURRENT_CHAT_ID = 'currentChatId'
 
@@ -33,13 +33,6 @@ export function SessionChatIdProvider({
     setChatId(chatId)
     sessionStorage.setItem(CURRENT_CHAT_ID, JSON.stringify(chatId))
   }
-
-  useEffect(() => {
-    if (hasSession) {
-      console.log('hasSession', hasSession)
-      setChatId(JSON.parse(sessionStorage.getItem(CURRENT_CHAT_ID) as string))
-    }
-  }, [hasSession])
 
   if (!pathname.includes('chat')) {
     return children

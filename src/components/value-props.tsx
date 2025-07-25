@@ -2,7 +2,7 @@ import { type MouseEvent } from 'react'
 import { Button } from './button'
 import { ArrowUTurnLeftIcon } from './icons'
 import { useTranslations } from '~/hooks/use-translations'
-import { LoginModal, SignUpModal, useLogin, useSignUp } from './auth-modals'
+import { LoginModal, SignUpModal, useAuthModal } from './auth-modals'
 import { useSession } from 'next-auth/react'
 
 export function ValueProps({
@@ -117,27 +117,7 @@ function Auth() {
   const isAuthenticated = session.status === 'authenticated'
 
   const t = useTranslations()
-  const {
-    handleOpen: handleOpenSignUpModal,
-    handleClose: handleCloseSignUpModal,
-    isOpen,
-    errors: signUpErrors,
-    handleSubmit: handleSignUpSubmit,
-    isLoading: isSubmittingSignUp,
-    onSubmit: onSubmitSignUp,
-    register: registerSignUp
-  } = useSignUp()
-
-  const {
-    errors: loginErrors,
-    handleClose: handleCloseLoginModal,
-    handleOpen: handleOpenLoginModal,
-    handleSubmit: handleSubmitLogin,
-    isOpen: isLoginOpen,
-    isSubmitting: isLoggingIn,
-    onSubmit: onSubmitLogin,
-    register: registerLogin
-  } = useLogin()
+  const { handleOpenSignUp, handleOpenLogin } = useAuthModal()
 
   if (isAuthenticated) {
     return null
@@ -167,34 +147,18 @@ function Auth() {
         />
 
         <div className='flex w-full flex-col gap-2'>
-          <button onClick={handleOpenSignUpModal} className='btn btn-primary'>
+          <button onClick={handleOpenSignUp} className='btn btn-primary'>
             {t.nav.menu.signUp}
           </button>
-          <button onClick={handleOpenLoginModal} className='btn btn-outline'>
+          <button onClick={handleOpenLogin} className='btn btn-outline'>
             {t.nav.menu.login}
           </button>
         </div>
       </div>
 
-      <SignUpModal
-        closeModal={handleCloseSignUpModal}
-        errors={signUpErrors}
-        handleSubmit={handleSignUpSubmit}
-        isLoading={isSubmittingSignUp}
-        isOpen={isOpen}
-        onSubmit={onSubmitSignUp}
-        register={registerSignUp}
-      />
+      <SignUpModal />
 
-      <LoginModal
-        closeModal={handleCloseLoginModal}
-        errors={loginErrors}
-        handleSubmit={handleSubmitLogin}
-        isOpen={isLoginOpen}
-        isSubmitting={isLoggingIn}
-        onSubmit={onSubmitLogin}
-        register={registerLogin}
-      />
+      <LoginModal />
     </>
   )
 }

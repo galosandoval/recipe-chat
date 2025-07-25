@@ -31,13 +31,6 @@ export default function ChatWindow() {
     handleSaveRecipe,
     handleChangeChat,
     createRecipeStatus,
-    handleCloseSignUpModal,
-    handleSubmitCreds,
-    isSigningUp,
-    isSignUpModalOpen,
-    onSubmitCreds,
-    registerCreds,
-    signUpErrors,
     // status: chatsQueryStatus,
     handleGetChatsOnSuccess
   } = useChat()
@@ -79,7 +72,7 @@ export default function ChatWindow() {
       setMessages([])
       stop()
       scrollToTop({
-        behavior: 'smooth'
+        behavior: 'auto'
       })
     }
   }, [chatId])
@@ -121,15 +114,7 @@ export default function ChatWindow() {
 
       <ScrollToButtons enable={!isSendingMessage} />
 
-      <SignUpModal
-        closeModal={handleCloseSignUpModal}
-        errors={signUpErrors}
-        handleSubmit={handleSubmitCreds}
-        isLoading={isSigningUp}
-        isOpen={isSignUpModalOpen}
-        onSubmit={onSubmitCreds}
-        register={registerCreds}
-      />
+      <SignUpModal />
     </>
   )
 }

@@ -12,6 +12,7 @@ import {
   type Translations
 } from '~/hooks/use-translations'
 import { SessionChatIdProvider } from '~/hooks/use-session-chat-id'
+import { AuthModalProvider } from './auth-modals'
 
 export const Providers = ({
   children,
@@ -26,11 +27,13 @@ export const Providers = ({
     <TRPCReactProvider>
       <SessionProvider session={session}>
         <SessionChatIdProvider>
-          <TranslationsContext.Provider value={translations}>
-            {children}
-            <Toast />
-            <Analytics />
-          </TranslationsContext.Provider>
+          <AuthModalProvider>
+            <TranslationsContext.Provider value={translations}>
+              {children}
+              <Toast />
+              <Analytics />
+            </TranslationsContext.Provider>
+          </AuthModalProvider>
         </SessionChatIdProvider>
         {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </SessionProvider>

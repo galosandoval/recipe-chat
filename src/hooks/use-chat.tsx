@@ -1,21 +1,15 @@
 import { type Chat, type Message } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { type FormEvent, useCallback, useState, useContext } from 'react'
+import { type FormEvent, useCallback, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { api } from '~/trpc/react'
 import { z } from 'zod'
 import { useTranslations } from '~/hooks/use-translations'
-import { useSignUp } from '~/components/auth-modals'
-import {
-  errorToastOptions,
-  infoToastOptions,
-  loadingToastOptions,
-  successToastOptions
-} from '~/components/toast'
+import { useAuthModal } from '~/components/auth-modals'
+import { infoToastOptions } from '~/components/toast'
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { CURRENT_CHAT_ID, useSessionChatId } from './use-session-chat-id'
-import { ScrollModeContext } from '~/components/scroll-to-bottom'
 import { useRecipeChat } from './use-recipe-chat'
 
 export type FormValues = {
@@ -33,11 +27,10 @@ export type ChatType = ReturnType<typeof useChat>
 export const useChat = () => {
   const t = useTranslations()
 
-  const [sessionChatId, changeChatId] = useSessionChatId()
+  const [, changeChatId] = useSessionChatId()
   const router = useRouter()
   const { status: authStatus } = useSession()
   const filters = useFiltersByUser()
-  const { setScrollMode } = useContext(ScrollModeContext)
 
   const isAuthenticated = authStatus === 'authenticated'
   const utils = api.useContext()
@@ -52,7 +45,7 @@ export const useChat = () => {
     })
   }
 
-  const { setMessages, append, stop, messages } = useRecipeChat()
+  const { setMessages, append, messages } = useRecipeChat()
 
   const [isChatsModalOpen, setIsChatsModalOpen] = useState(false)
 
@@ -75,13 +68,6 @@ export const useChat = () => {
 
         toast.success(t.chatWindow.saveSuccess)
       },
-      onError: (error) => {
-        toast.error('Error: ' + error.message)
-      }
-    })
-
-  const { mutateAsync: createChatAndRecipeAsync } =
-    api.users.createChatAndRecipe.useMutation({
       onError: (error) => {
         toast.error('Error: ' + error.message)
       }
@@ -125,48 +111,6 @@ export const useChat = () => {
     setIsChatsModalOpen((state) => !state)
   }, [])
 
-  const {
-    errors: signUpErrors,
-    isLoading: isSigningUp,
-    isOpen: isSignUpModalOpen,
-    handleClose: handleCloseSignUpModal,
-    handleOpen: handleOpenSignUpModal,
-    handleSubmit: handleSubmitCreds,
-    onSubmit: onSubmitCreds,
-    register: registerCreds
-  } = useSignUp(onSignUpSuccess)
-
-  async function onSignUpSuccess() {
-    // TODO - this is a hack to get the selected recipe to save
-    const lastMessage = messages.at(-1)
-    if (!lastMessage) throw new Error('No last message')
-    const recipe = transformContentToRecipe({
-      content: lastMessage.content
-    })
-    const newRecipePromise = createChatAndRecipeAsync({
-      recipe,
-      messages
-    })
-    const user = await toast.promise(
-      newRecipePromise,
-      {
-        loading: t.loading.loggingIn,
-        success: () => t.toast.loginSuccess,
-        error: () => t.error.somethingWentWrong
-      },
-      {
-        loading: loadingToastOptions,
-        success: { ...successToastOptions, duration: 3000 },
-        error: errorToastOptions
-      }
-    )
-    router.push(
-      `recipes/${user.recipes[0].id}?name=${encodeURIComponent(
-        user.recipes[0].name
-      )}`
-    )
-  }
-
   const handleGoToRecipe = useCallback(
     async ({
       recipeId,
@@ -176,7 +120,7 @@ export const useChat = () => {
       recipeName?: string
     }) => {
       if (recipeId && recipeName) {
-        await router.push(
+        router.push(
           `recipes/${recipeId}?name=${encodeURIComponent(recipeName)}`
         )
       }
@@ -184,12 +128,13 @@ export const useChat = () => {
     []
   )
 
+  const { handleOpenSignUp } = useAuthModal()
   const handleSaveRecipe = useCallback(
     ({ content, messageId }: { content: string; messageId?: string }) => {
       if (!content) return
 
       if (!isAuthenticated) {
-        handleOpenSignUpModal()
+        handleOpenSignUp()
 
         toast(t.toast.signUp, infoToastOptions)
         return
@@ -211,16 +156,9 @@ export const useChat = () => {
     isChatsModalOpen,
     isAuthenticated,
     createRecipeStatus,
-    signUpErrors,
-    isSignUpModalOpen,
-    isSigningUp,
 
     handleGoToRecipe,
     handleSaveRecipe,
-    handleCloseSignUpModal,
-    handleSubmitCreds,
-    onSubmitCreds,
-    registerCreds,
     handleGetChatsOnSuccess,
     handleToggleChatsModal,
     handleChangeChat,

@@ -113,11 +113,10 @@ export const RecipeChatProvider = ({
     messagesRef.current = messages
   }, [messages])
 
-  function onFinishMessage(message: AiMessage) {
+  function onFinishMessage(_: AiMessage) {
     if (!messagesRef.current?.length) {
       throw new Error('No messages')
     }
-    console.log('message', message)
     handleSubmitMessage()
   }
 

@@ -57,7 +57,7 @@ function DropdownMenu({ children }: { children: React.ReactNode }) {
       <MenuItems
         anchor='bottom'
         transition
-        className='bg-base-100 z-50 origin-top rounded-md transition duration-200 ease-out data-closed:scale-95 data-closed:opacity-0'
+        className='bg-base-100 z-50 flex origin-top flex-col rounded-md transition duration-200 ease-out data-closed:scale-95 data-closed:opacity-0'
       >
         {children}
       </MenuItems>
