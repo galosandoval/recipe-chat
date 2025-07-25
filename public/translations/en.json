@@ -104,6 +104,7 @@
     "save": "Save",
     "delete": "Delete",
     "enterUrl": "Enter a valid url that contains a recipe.",
+    "generate": "Generate",
 
     "byId": {
       "saveImage": "Save image",

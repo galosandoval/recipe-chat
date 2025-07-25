@@ -104,6 +104,7 @@
     "save": "guardar",
     "delete": "borrar",
     "enterUrl": "Ingresa una URL válida que contenga una receta.",
+    "generate": "Generar",
 
     "byId": {
       "saveImage": "Guardar imagen",

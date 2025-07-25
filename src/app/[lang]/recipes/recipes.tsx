@@ -352,12 +352,12 @@ function UploadRecipeUrlForm({
   })
 
   return (
-    <>
+    <div className='prose min-w-sm'>
       <DialogTitle as='h3' className='mt-0'>
         {t.recipes.url}
       </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)} className=''>
-        <div className='prose mt-2 flex flex-col gap-1'>
+        <div className='mt-2 flex flex-col gap-1'>
           <label htmlFor='url' className='label'>
             <span className='label-text'>{t.recipes.paste}</span>
           </label>
@@ -370,11 +370,11 @@ function UploadRecipeUrlForm({
         </div>
         <div className='mt-4'>
           <Button className='btn btn-primary w-full' type='submit'>
-            {t.recipes.name}
+            {t.recipes.generate}
           </Button>
         </div>
       </form>
-    </>
+    </div>
   )
 }
 
