@@ -3,7 +3,7 @@ import { useParams, usePathname } from 'next/navigation'
 import { useTranslations } from '~/hooks/use-translations'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { useSession } from 'next-auth/react'
-import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import { chatStore } from '~/stores/chat'
 import type { Chat, Message } from '@prisma/client'
 import { ListBulletIcon } from './icons'
 import { formatTimeAgo } from '~/utils/relative-time-format'
@@ -72,7 +72,6 @@ function ChatList({
 }) {
   const t = useTranslations()
   const [chatId, changeChatId] = useSessionChatId()
-  const { isNewChatRef } = useRecipeChat()
   const { data, status, isAuthenticated } = useGetChats()
 
   if (!isAuthenticated) {
@@ -89,7 +88,6 @@ function ChatList({
     }
   ) => {
     changeChatId(chat.id)
-    isNewChatRef.current = false
     handleToggleChatsModal()
   }
 

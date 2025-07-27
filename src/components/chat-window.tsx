@@ -19,37 +19,34 @@ import {
 import { type Message } from 'ai'
 import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
-import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import { chatStore } from '~/stores/chat'
 import { useScrollToTop } from 'react-scroll-to-bottom'
 import { useRouter } from 'next/navigation'
 import { infoToastOptions } from './toast'
 import toast from 'react-hot-toast'
 import { api } from '~/trpc/react'
 import { ChatsDrawer } from './chats-drawer'
+import type { GeneratedMessage } from '~/schemas/chats'
 
-export default function ChatWindow() {
+export default function ChatWindow({
+  aiSubmit,
+  aiStop,
+  aiIsLoading
+}: {
+  aiSubmit?: (input: string) => void
+  aiStop?: () => void
+  aiIsLoading?: boolean
+}) {
   const { setScrollMode } = useContext(ScrollModeContext)
   const scrollToTop = useScrollToTop()
   const [chatId] = useSessionChatId()
   const isSessionStorageAvailable =
     typeof window !== 'undefined' && typeof chatId === 'string'
 
-  const {
-    messages,
-    isSendingMessage,
-    chatsFetchStatus,
-    chatsQueryStatus,
-    setMessages
-  } = useRecipeChat()
-  const isNewChat = !chatId && !isSendingMessage && messages.length === 0
+  const { messages, isSendingMessage, reset } = chatStore()
 
-  const isMessagesSuccess =
-    chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
-
-  const shouldBeLoading =
-    isSessionStorageAvailable &&
-    (messages.length === 0 || !isMessagesSuccess) &&
-    chatsFetchStatus === 'fetching'
+  const isNewChat =
+    !chatId && !isSendingMessage && !aiIsLoading && messages.length === 0
 
   // don't scroll to bottom when showing value props
   useEffect(() => {
@@ -62,26 +59,22 @@ export default function ChatWindow() {
 
   useEffect(() => {
     if (!chatId) {
-      setMessages([])
-      stop()
+      reset()
       scrollToTop({
         behavior: 'auto'
       })
     }
-  }, [chatId])
+  }, [chatId, reset])
 
   if (isNewChat) {
     return (
-      <div className='flex flex-col gap-4 pt-2'>
-        <ValueProps>
+      <div className='flex flex-col gap-4'>
+        <ValueProps aiSubmit={aiSubmit}>
           <FiltersByUser />
         </ValueProps>
         <ChatsDrawer />
       </div>
     )
-  }
-  if (shouldBeLoading && !isSendingMessage) {
-    return <ScreenLoader />
   }
 
   return (
@@ -89,12 +82,12 @@ export default function ChatWindow() {
       <div className='flex h-full flex-col gap-4'>
         <ChatWindowContent
           messages={messages as []}
-          messagesStatus={chatsQueryStatus}
-          isSendingMessage={isSendingMessage}
+          messagesStatus={'success' as QueryStatus}
+          isSendingMessage={isSendingMessage || (aiIsLoading ?? false)}
         />
       </div>
 
-      <ScrollToButtons enable={!isSendingMessage} />
+      <ScrollToButtons enable={!isSendingMessage && !(aiIsLoading ?? false)} />
 
       <SignUpModal />
       <ChatsDrawer />
@@ -137,9 +130,17 @@ const MessageList = memo(function MessageList({
   status?: QueryStatus
   isSendingMessage: boolean
 }) {
+  const { stream } = chatStore()
+
+  useEffect(() => {
+    console.log('stream', stream)
+  }, [stream])
+
   if (status === 'error') {
     return <p>Error</p>
   }
+
+  const streamHasContent = stream.content || stream.recipes.length > 0
 
   return (
     <div className='bg-base-100 pt-2 pb-16'>
@@ -151,10 +152,36 @@ const MessageList = memo(function MessageList({
         />
       ))}
 
-      {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
+      {isSendingMessage &&
+        !streamHasContent &&
+        data.at(-1)?.role === 'user' && <ChatLoader />}
+      <Stream stream={stream} />
     </div>
   )
 })
+
+function Stream({ stream }: { stream: GeneratedMessage }) {
+  if (!stream.content && stream.recipes.length === 0) {
+    return null
+  }
+
+  return (
+    <div className='flex flex-col p-4'>
+      <div className='prose mx-auto w-full'>
+        <div className='flex w-full justify-start gap-2 self-center'>
+          <div>
+            <UserCircleIcon />
+          </div>
+
+          <div className='prose flex flex-col pb-4'>
+            <p className='mt-0 mb-0 whitespace-pre-line'>{stream.content}</p>
+          </div>
+        </div>
+        <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'></div>
+      </div>
+    </div>
+  )
+}
 
 const Message = function Message({
   message,
@@ -205,23 +232,13 @@ function AssistantMessage({
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   const utils = api.useUtils()
-  const { messages, setMessages } = useRecipeChat()
   const { mutate: createRecipe, status: saveRecipeStatus } =
     api.recipes.create.useMutation({
-      async onSuccess(newRecipe, { messageId }) {
+      async onSuccess(_newRecipe, _messageId) {
         await utils.recipes.invalidate()
-        const messagesCopy = [...messages]
-
-        if (messageId) {
-          const messageToChange = messagesCopy.find(
-            (message) => message.id === messageId
-          ) as PrismaMessage
-          if (messageToChange) {
-            messageToChange.recipeId = newRecipe.id
-          }
-        }
-
-        setMessages(messagesCopy)
+        // Since the relationship is Recipe -> Message (via messageId),
+        // we don't need to update the message object
+        // The recipe will be linked to the message via the messageId field
 
         toast.success(t.chatWindow.saveSuccess)
       },
@@ -230,11 +247,6 @@ function AssistantMessage({
       }
     })
 
-  const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
-    if (recipeId) {
-      router.push(`recipes/${recipeId}`)
-    }
-  }
   const handleSaveRecipe = ({
     content,
     messageId
@@ -276,19 +288,7 @@ function AssistantMessage({
           </div>
         </div>
         <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
-          {message?.recipeId ? (
-            // Go to recipe
-            <Button
-              className='btn btn-outline'
-              onClick={() =>
-                goToRecipe({
-                  recipeId: message.recipeId
-                })
-              }
-            >
-              {t.chatWindow.toRecipe}
-            </Button>
-          ) : !isSendingMessage ? (
+          {!isSendingMessage ? (
             // Save
             <Button
               className='btn btn-outline'

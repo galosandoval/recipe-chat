@@ -4,16 +4,37 @@ import { ArrowUTurnLeftIcon } from './icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { LoginModal, SignUpModal, useAuthModal } from './auth-modals'
 import { useSession } from 'next-auth/react'
-import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import { chatStore } from '~/stores/chat'
 
-export function ValueProps({ children }: { children: React.ReactNode }) {
+export function ValueProps({
+  children,
+  aiSubmit
+}: {
+  children: React.ReactNode
+  aiSubmit?: (input: string) => void
+}) {
   const t = useTranslations()
-  const { append } = useRecipeChat()
-  const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
+  const { messages, isSendingMessage, reset } = chatStore()
 
-    append({ content: e.currentTarget.innerText, role: 'user' })
+  const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
+    const messageContent = e.currentTarget.innerText
+
+    // Don't allow new messages if already sending
+    if (isSendingMessage) {
+      return
+    }
+
+    // Reset store for new chat if needed
+    if (messages.length === 0) {
+      reset()
+    }
+
+    // Trigger the AI response with the message content
+    if (aiSubmit) {
+      aiSubmit(messageContent)
+    }
   }
+
   return (
     <div className='prose mx-auto flex flex-col items-center justify-center gap-2 pb-20'>
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
@@ -42,6 +63,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             type='submit'
             className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
+            disabled={isSendingMessage}
           >
             <span className='w-60'>{t.valueProps.firstButton}</span>
             <span>
@@ -52,6 +74,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             type='submit'
             className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
+            disabled={isSendingMessage}
           >
             <span className='w-60'>{t.valueProps.secondButton}</span>
             <span>
@@ -62,6 +85,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             type='submit'
             className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
+            disabled={isSendingMessage}
           >
             <span className='w-60'>{t.valueProps.thirdButton}</span>
             <span>

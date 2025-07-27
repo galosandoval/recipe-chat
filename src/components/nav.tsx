@@ -17,67 +17,7 @@ import { ThemeToggle, useTheme } from './theme-toggle'
 import { api } from '~/trpc/react'
 import { cn } from '~/utils/cn'
 
-// Custom link component that prefetches list data
-function ListLink({
-  children,
-  className
-}: {
-  children: React.ReactNode
-  className: string
-}) {
-  const { data: session } = useSession()
-  const utils = api.useUtils()
 
-  const handlePrefetch = () => {
-    if (session?.user.id) {
-      void utils.lists.byUserId.prefetch({ userId: session.user.id })
-    }
-  }
-
-  return (
-    <Link
-      className={className}
-      href='/list'
-      onMouseEnter={handlePrefetch}
-      onFocus={handlePrefetch}
-      onTouchStart={handlePrefetch} // Better for mobile
-    >
-      {children}
-    </Link>
-  )
-}
-// Custom link component that prefetches list data
-function RecipesLink({
-  children,
-  className
-}: {
-  children: React.ReactNode
-  className: string
-}) {
-  const { data: session } = useSession()
-  const utils = api.useUtils()
-
-  const handlePrefetch = () => {
-    if (session?.user.id) {
-      void utils.recipes.infiniteRecipes.prefetchInfinite({
-        limit: 10,
-        search: ''
-      })
-    }
-  }
-
-  return (
-    <Link
-      className={className}
-      href='/recipes'
-      onMouseEnter={handlePrefetch}
-      onFocus={handlePrefetch}
-      onTouchStart={handlePrefetch} // Better for mobile
-    >
-      {children}
-    </Link>
-  )
-}
 
 export function NavContainer() {
   return (
@@ -174,17 +114,17 @@ function EditRecipeNavbar() {
 const MENU_ITEMS = [
   {
     value: '/chat',
-    icon: <ChatBubbleLeftRightIcon />,
+    icon: <ChatBubbleLeftRightIcon size={4} />,
     label: 'chat'
   },
   {
     value: '/list',
-    icon: <ListBulletIcon />,
+    icon: <ListBulletIcon size={4} />,
     label: 'list'
   },
   {
     value: '/recipes',
-    icon: <RecipesIcon />,
+    icon: <RecipesIcon size={4} />,
     label: 'recipes'
   }
 ] as const
@@ -192,55 +132,27 @@ const MENU_ITEMS = [
 function RoutesNavbar() {
   const pathname = usePathname()
   const t = useTranslations()
-
-  const activeLinkStyles = (path: string) => {
-    const isActive = pathname.includes(path)
-
-    return cn(
-      'active:translate-y-px transition-all duration-75',
-      isActive && 'dock-active'
-    )
-  }
-
+  const isActive = (path: string) => pathname.includes(path)
   return (
-    <div className='border-b-base-300 from-base-100 to-base-100/70 fixed top-0 z-10 mx-auto flex w-full flex-col items-center rounded bg-transparent bg-gradient-to-b pb-[3.5rem] bg-blend-saturation backdrop-blur-xs'>
-      <span className='text-base-content text-sm font-bold'>RecipeChat</span>
-      <nav className='dock dock-sm border-b-base-content/5 top-5 w-full max-w-xl justify-between overflow-hidden rounded-b border-t-0 border-b-[0.5px] bg-transparent px-5'>
-        {MENU_ITEMS.map((item) => {
-          if (item.value === '/list') {
-            return (
-              <ListLink
-                className={activeLinkStyles(item.value)}
-                key={item.value}
-              >
-                {item.icon}
-                <span className='dock-label'>{t.nav[item.label]}</span>
-              </ListLink>
-            )
-          } else if (item.value === '/recipes') {
-            return (
-              <RecipesLink
-                className={activeLinkStyles(item.value)}
-                key={item.value}
-              >
-                {item.icon}
-                <span className='dock-label'>{t.nav[item.label]}</span>
-              </RecipesLink>
-            )
-          }
-
-          return (
-            <Link
-              className={activeLinkStyles(item.value)}
-              href={item.value}
-              key={item.value}
-            >
-              {item.icon}
-              <span className='dock-label'>{t.nav[item.label]}</span>
-            </Link>
-          )
-        })}
-        <div className='flex w-10 flex-1/2'>
+    <div className='from-base-100 to-base-100/70 fixed top-0 z-10 mx-auto flex w-full flex-col items-center bg-transparent bg-gradient-to-b bg-blend-saturation backdrop-blur-xs'>
+      <div className='text-base-content bg-base-100 my-2 text-sm font-bold'>
+        RecipeChat
+      </div>
+      <nav className='bg-base-300/60 top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden px-5 py-1'>
+        {MENU_ITEMS.map((item) => (
+          <Link
+            className={cn(
+              'text-base-content/75 active:bg-base-100 hover:bg-base-100 flex flex-1 items-center justify-center gap-1 transition-all duration-75 active:translate-y-px',
+              isActive(item.value) && 'bg-base-100 text-base-content rounded'
+            )}
+            href={item.value}
+            key={item.value}
+          >
+            {item.icon}
+            <span className='text-sm'>{t.nav[item.label]}</span>
+          </Link>
+        ))}
+        <div className=''>
           <NavDropdownMenu />
         </div>
       </nav>

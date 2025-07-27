@@ -1,3 +1,5 @@
+import { cn } from "~/utils/cn"
+
 export const PlusIcon = ({ size }: { size?: number }) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
@@ -595,7 +597,7 @@ export const RecipeFallbackIconSm = () => {
   )
 }
 
-export const RecipesIcon = () => {
+export const RecipesIcon = ({ size = 24 }: { size?: number }) => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -603,7 +605,7 @@ export const RecipesIcon = () => {
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      className='h-6 w-6'
+      className={cn('h-6 w-6', size && `h-${size} w-${size}`)}
     >
       <path
         strokeLinecap='round'

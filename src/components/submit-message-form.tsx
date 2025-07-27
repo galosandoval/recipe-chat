@@ -1,16 +1,35 @@
 import { Button } from './button'
 import { useTranslations } from '~/hooks/use-translations'
-import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import { chatStore } from '~/stores/chat'
 import { PaperPlaneIcon, StopIcon } from './icons'
 
-export function SubmitMessageForm() {
-  const { handleSubmit, input, handleInputChange, isSendingMessage } =
-    useRecipeChat()
+export function SubmitMessageForm({
+  aiSubmit,
+  aiStop
+}: {
+  aiSubmit?: (input: string) => void
+  aiStop?: () => void
+}) {
+  const { input, handleInputChange, isSendingMessage, setInput } = chatStore()
   const t = useTranslations()
+
+  const enhancedHandleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (isSendingMessage) {
+      if (aiStop) {
+        aiStop()
+      }
+    } else if (input.trim()) {
+      if (aiSubmit) {
+        aiSubmit(input)
+      }
+    }
+  }
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={enhancedHandleSubmit}
       className={`fixed bottom-0 left-0 flex w-full items-center md:rounded-md`}
     >
       <div className='prose bg-base-300/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>

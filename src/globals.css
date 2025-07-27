@@ -27,3 +27,14 @@
 .btn {
   @apply flex-nowrap;
 }
+
+/*
+  This prevents zooming in on Safari when focusing on input fields.
+*/
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  select,
+  textarea,
+  input {
+    font-size: 16px;
+  }
+}

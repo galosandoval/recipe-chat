@@ -158,7 +158,7 @@ function FilterList({
   const t = useTranslations()
 
   if (filters.length === 0) {
-    return <div>{t.filters.noFilters}</div>
+    return <div className='mx-auto'>{t.filters.noFilters}</div>
   }
 
   return (
@@ -363,10 +363,12 @@ export function Filters({ data }: { data: Filter[] }) {
           onCheck={handleCheck}
           onRemove={handleRemoveFilter}
         />
-        <FilterControls
-          canDelete={canDelete}
-          onToggleCanDelete={handleToggleCanDelete}
-        />
+        {data.length > 0 && (
+          <FilterControls
+            canDelete={canDelete}
+            onToggleCanDelete={handleToggleCanDelete}
+          />
+        )}
       </div>
 
       {data?.length ? (

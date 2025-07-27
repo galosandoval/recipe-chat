@@ -1,6 +1,3 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { Button } from '~/components/button'
 import { api } from '~/trpc/react'
 import { signIn } from 'next-auth/react'
@@ -10,7 +7,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Modal } from './modal'
 import { createContext, useContext, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
-import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import { chatStore } from '~/stores/chat'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import {
   errorToastOptions,
   loadingToastOptions,
@@ -96,7 +96,7 @@ export function SignUpModal() {
   const { isSignUpOpen, handleCloseSignUp } = useAuthModal()
   const { errors, isLoading, handleSubmit, onSubmit, register } =
     useSignUp(onSignUpSuccess)
-  const { messages } = useRecipeChat()
+  const { messages } = chatStore()
   const { mutateAsync: createChatAndRecipeAsync } =
     api.users.createChatAndRecipe.useMutation({
       onError: (error) => {
@@ -107,7 +107,10 @@ export function SignUpModal() {
   async function onSignUpSuccess() {
     // TODO - this is a hack to get the selected recipe to save
     const lastMessage = messages.at(-1)
-    if (!lastMessage) throw new Error('No last message')
+    if (!lastMessage) {
+      console.warn('No last message')
+      return
+    }
     const recipe = transformContentToRecipe({
       content: lastMessage.content
     })

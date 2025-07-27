@@ -35,6 +35,9 @@ export class ChatsDataAccess {
         messages: {
           orderBy: {
             id: 'asc'
+          },
+          include: {
+            recipes: true
           }
         }
       }

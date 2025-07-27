@@ -149,18 +149,14 @@ export const recipesRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { messageId, ...rest } = input
       const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
-      const messagesDataAccess = new MessagesDataAccess(ctx.prisma)
 
       const newRecipe = await recipesDataAccess.createRecipe(
         rest,
         ctx.session.user.id
       )
 
-      if (messageId && messageId.length > 9 && newRecipe.id) {
-        await messagesDataAccess.updateMessage(messageId, {
-          recipeId: newRecipe.id
-        })
-      }
+      // The recipe is already linked to the message via the messageId field
+      // No need to update the message object
 
       return newRecipe
     }),
