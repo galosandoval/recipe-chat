@@ -1,6 +1,6 @@
 'use client'
 
-import { type Message as PrismaMessage } from '@prisma/client'
+import { type Message as MessageWithRecipes } from '@prisma/client'
 import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { type QueryStatus } from '@tanstack/react-query'
@@ -21,32 +21,26 @@ import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { chatStore } from '~/stores/chat'
 import { useScrollToTop } from 'react-scroll-to-bottom'
-import { useRouter } from 'next/navigation'
 import { infoToastOptions } from './toast'
 import toast from 'react-hot-toast'
 import { api } from '~/trpc/react'
 import { ChatsDrawer } from './chats-drawer'
-import type { GeneratedMessage } from '~/schemas/chats'
+import { Stream } from './stream'
 
-export default function ChatWindow({
-  aiSubmit,
-  aiStop,
-  aiIsLoading
-}: {
-  aiSubmit?: (input: string) => void
-  aiStop?: () => void
-  aiIsLoading?: boolean
-}) {
+export default function ChatWindow() {
   const { setScrollMode } = useContext(ScrollModeContext)
   const scrollToTop = useScrollToTop()
   const [chatId] = useSessionChatId()
   const isSessionStorageAvailable =
     typeof window !== 'undefined' && typeof chatId === 'string'
 
-  const { messages, isSendingMessage, reset } = chatStore()
+  const { messages, isStreaming, reset } = chatStore()
 
-  const isNewChat =
-    !chatId && !isSendingMessage && !aiIsLoading && messages.length === 0
+  const isNewChat = !chatId && !isStreaming && messages.length === 0
+
+  useEffect(() => {
+    console.log('messages', messages)
+  }, [messages])
 
   // don't scroll to bottom when showing value props
   useEffect(() => {
@@ -69,7 +63,7 @@ export default function ChatWindow({
   if (isNewChat) {
     return (
       <div className='flex flex-col gap-4'>
-        <ValueProps aiSubmit={aiSubmit}>
+        <ValueProps>
           <FiltersByUser />
         </ValueProps>
         <ChatsDrawer />
@@ -81,13 +75,13 @@ export default function ChatWindow({
     <>
       <div className='flex h-full flex-col gap-4'>
         <ChatWindowContent
-          messages={messages as []}
+          messages={messages}
           messagesStatus={'success' as QueryStatus}
-          isSendingMessage={isSendingMessage || (aiIsLoading ?? false)}
+          isStreaming={isStreaming}
         />
       </div>
 
-      <ScrollToButtons enable={!isSendingMessage && !(aiIsLoading ?? false)} />
+      <ScrollToButtons enable={!isStreaming} />
 
       <SignUpModal />
       <ChatsDrawer />
@@ -98,21 +92,21 @@ export default function ChatWindow({
 function ChatWindowContent({
   messages,
   messagesStatus,
-  isSendingMessage
+  isStreaming
 }: {
   messagesStatus?: QueryStatus
-  isSendingMessage: boolean
-  messages: Message[]
+  isStreaming: boolean
+  messages: MessageWithRecipes[]
 }) {
   const { data } = useSession()
 
   if (messages.length || !data?.user?.id) {
     return (
       <div className='bg-base-100 h-full'>
-        <MessageList
+        <Messages
           data={messages as []}
           status={messagesStatus}
-          isSendingMessage={isSendingMessage}
+          isStreaming={isStreaming}
         />
       </div>
     )
@@ -121,20 +115,16 @@ function ChatWindowContent({
   return <ScreenLoader />
 }
 
-const MessageList = memo(function MessageList({
+const Messages = memo(function Messages({
   data,
   status,
-  isSendingMessage
+  isStreaming
 }: {
-  data: PrismaMessage[]
+  data: MessageWithRecipes[]
   status?: QueryStatus
-  isSendingMessage: boolean
+  isStreaming: boolean
 }) {
   const { stream } = chatStore()
-
-  useEffect(() => {
-    console.log('stream', stream)
-  }, [stream])
 
   if (status === 'error') {
     return <p>Error</p>
@@ -143,59 +133,32 @@ const MessageList = memo(function MessageList({
   const streamHasContent = stream.content || stream.recipes.length > 0
 
   return (
-    <div className='bg-base-100 pt-2 pb-16'>
+    <div className='bg-base-100 pb-16'>
       {data.map((m, i) => (
-        <Message
-          message={m}
-          key={m?.id || '' + i}
-          isSendingMessage={isSendingMessage}
-        />
+        <Message message={m} key={m?.id || '' + i} isStreaming={isStreaming} />
       ))}
 
-      {isSendingMessage &&
-        !streamHasContent &&
-        data.at(-1)?.role === 'user' && <ChatLoader />}
-      <Stream stream={stream} />
+      {isStreaming && !streamHasContent && data.at(-1)?.role === 'user' && (
+        <ChatLoader />
+      )}
+      <Stream stream={stream} isStreaming={isStreaming} />
     </div>
   )
 })
 
-function Stream({ stream }: { stream: GeneratedMessage }) {
-  if (!stream.content && stream.recipes.length === 0) {
-    return null
-  }
-
-  return (
-    <div className='flex flex-col p-4'>
-      <div className='prose mx-auto w-full'>
-        <div className='flex w-full justify-start gap-2 self-center'>
-          <div>
-            <UserCircleIcon />
-          </div>
-
-          <div className='prose flex flex-col pb-4'>
-            <p className='mt-0 mb-0 whitespace-pre-line'>{stream.content}</p>
-          </div>
-        </div>
-        <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'></div>
-      </div>
-    </div>
-  )
-}
-
 const Message = function Message({
   message,
-  isSendingMessage
+  isStreaming
 }: {
-  message: PrismaMessage
-  isSendingMessage: boolean
+  message: MessageWithRecipes
+  isStreaming: boolean
 }) {
   if (message.role === 'assistant') {
     return (
       <AssistantMessage
         message={message}
         // handleSaveRecipe={handleSaveRecipe}
-        isSendingMessage={isSendingMessage}
+        isStreaming={isStreaming}
       />
     )
   }
@@ -221,13 +184,12 @@ const Message = function Message({
 
 function AssistantMessage({
   message,
-  isSendingMessage
+  isStreaming
 }: {
-  message: PrismaMessage
-  isSendingMessage: boolean
+  message: MessageWithRecipes
+  isStreaming: boolean
 }) {
   const t = useTranslations()
-  const router = useRouter()
   const { handleOpenSignUp } = useAuthModal()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
@@ -288,7 +250,7 @@ function AssistantMessage({
           </div>
         </div>
         <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
-          {!isSendingMessage ? (
+          {!isStreaming ? (
             // Save
             <Button
               className='btn btn-outline'

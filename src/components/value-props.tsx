@@ -6,21 +6,15 @@ import { LoginModal, SignUpModal, useAuthModal } from './auth-modals'
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat'
 
-export function ValueProps({
-  children,
-  aiSubmit
-}: {
-  children: React.ReactNode
-  aiSubmit?: (input: string) => void
-}) {
+export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
-  const { messages, isSendingMessage, reset } = chatStore()
+  const { messages, isStreaming, reset, triggerAISubmission } = chatStore()
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     const messageContent = e.currentTarget.innerText
 
     // Don't allow new messages if already sending
-    if (isSendingMessage) {
+    if (isStreaming) {
       return
     }
 
@@ -29,10 +23,8 @@ export function ValueProps({
       reset()
     }
 
-    // Trigger the AI response with the message content
-    if (aiSubmit) {
-      aiSubmit(messageContent)
-    }
+    // Trigger AI submission
+    triggerAISubmission(messageContent)
   }
 
   return (
@@ -63,7 +55,7 @@ export function ValueProps({
             type='submit'
             className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
-            disabled={isSendingMessage}
+            disabled={isStreaming}
           >
             <span className='w-60'>{t.valueProps.firstButton}</span>
             <span>
@@ -74,7 +66,7 @@ export function ValueProps({
             type='submit'
             className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
-            disabled={isSendingMessage}
+            disabled={isStreaming}
           >
             <span className='w-60'>{t.valueProps.secondButton}</span>
             <span>
@@ -85,7 +77,7 @@ export function ValueProps({
             type='submit'
             className='btn btn-outline w-full normal-case'
             onClick={handleFillMessage}
-            disabled={isSendingMessage}
+            disabled={isStreaming}
           >
             <span className='w-60'>{t.valueProps.thirdButton}</span>
             <span>

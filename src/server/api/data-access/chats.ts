@@ -34,10 +34,15 @@ export class ChatsDataAccess {
       include: {
         messages: {
           orderBy: {
-            id: 'asc'
+            createdAt: 'asc'
           },
           include: {
-            recipes: true
+            recipes: {
+              include: {
+                ingredients: true,
+                instructions: true
+              }
+            }
           }
         }
       }
@@ -60,7 +65,19 @@ export class ChatsDataAccess {
       },
 
       include: {
-        messages: true
+        messages: {
+          include: {
+            recipes: {
+              include: {
+                ingredients: true,
+                instructions: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'asc'
+          }
+        }
       }
     })
   }

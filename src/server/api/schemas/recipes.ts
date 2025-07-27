@@ -1,4 +1,3 @@
-import { type RouterOutputs } from '~/trpc/react'
 import { z } from 'zod'
 
 export type LinkedData =
@@ -119,8 +118,6 @@ const messageSchema = z.object({
   content: z.string(),
   role: z.enum(['user', 'assistant', 'system'])
 })
-
-export type Message = RouterOutputs['chats']['addMessages']
 
 export const generateSchema = z.object({
   content: z.string(),

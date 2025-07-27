@@ -1,7 +1,6 @@
 import { z } from 'zod'
-import type { Message as AIMessage } from 'ai'
+import type { Message, Recipe } from '@prisma/client'
 import type { RouterOutputs } from '~/trpc/react'
-export type Message = AIMessage & { recipes?: GeneratedRecipe[] }
 
 export const generatedRecipeSchema = z.object({
   name: z.string().describe('Name of recipe.'),
@@ -70,3 +69,9 @@ export const createOrAddMessages = z.object({
 export type CreateOrAddMessages = z.infer<typeof createOrAddMessages>
 // export type GetChatOutput = RouterOutputs['chats']['getChat']
 // export type GetChatMessageOutput = NonNullable<GetChatOutput>[number]
+
+export type MessageWithRecipes = Message & { recipes?: GeneratedRecipe[] }
+
+export type MessagesDTO = NonNullable<
+  RouterOutputs['chats']['getMessagesById']
+>['messages']

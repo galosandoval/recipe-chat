@@ -22,15 +22,6 @@ export async function createChat(
   return await chatsDataAccess.createChat(userId, messages)
 }
 
-export async function addMessages(
-  chatId: string,
-  messages: z.infer<typeof messagesSchema>,
-  prisma: PrismaClient
-) {
-  const chatsDataAccess = new ChatsDataAccess(prisma)
-  return await chatsDataAccess.addMessages(chatId, messages)
-}
-
 export async function upsertChat(
   chatId: string | undefined,
   messages: z.infer<typeof messagesSchema>,
@@ -43,19 +34,9 @@ export async function upsertChat(
 
     await chatsDataAccess.addMessages(chatId, lastTwoMessages)
 
-    const allMessages = await prisma.message.findMany({
-      where: {
-        chatId
-      },
-      orderBy: {
-        id: 'asc'
-      }
-    })
-
     return {
       success: true,
-      message: 'successfully added messages',
-      messages: allMessages
+      message: 'successfully added messages'
     } as const
   } else {
     const newChat = await chatsDataAccess.createChat(userId, messages)
@@ -63,8 +44,7 @@ export async function upsertChat(
     return {
       success: true,
       message: 'successfully created a chat',
-      chatId: newChat.id,
-      messages: newChat.messages
+      chatId: newChat.id
     } as const
   }
 }

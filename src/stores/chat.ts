@@ -1,25 +1,26 @@
 import { create } from 'zustand'
-import { subscribeWithSelector } from 'zustand/middleware'
-import type { GeneratedMessage } from '~/schemas/chats'
-import type { Message } from '@prisma/client'
+import type { GeneratedMessage, MessageWithRecipes } from '~/schemas/chats'
 
 type ChatStore = {
   // UI State
-  messages: Message[]
+  messages: MessageWithRecipes[]
   input: string
-  isSendingMessage: boolean
+  isStreaming: boolean
   stream: GeneratedMessage
 
   // Actions
   setInput: (input: string) => void
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  addMessage: (message: Message) => void
-  setMessages: (messages: Message[]) => void
+  addMessage: (message: MessageWithRecipes) => void
+  setMessages: (messages: MessageWithRecipes[]) => void
   clearMessages: () => void
 
   // Streaming
   setStream: (stream: GeneratedMessage) => void
-  setIsSendingMessage: (isSending: boolean) => void
+  setIsStreaming: (isSending: boolean) => void
+
+  // AI Submission
+  triggerAISubmission: (input: string) => void
 
   // Utilities
   reset: () => void
@@ -30,45 +31,48 @@ const initialStream: GeneratedMessage = {
   recipes: []
 }
 
-const initialMessages: Message[] = []
+const initialMessages: MessageWithRecipes[] = []
 
-export const chatStore = create<ChatStore>()(
-  subscribeWithSelector((set, get) => ({
-    // Initial state
-    messages: initialMessages,
-    input: '',
-    isSendingMessage: false,
-    stream: initialStream,
+export const chatStore = create<ChatStore>((set, get) => ({
+  // Initial state
+  messages: initialMessages,
+  input: '',
+  isStreaming: false,
+  stream: initialStream,
 
-    // Actions
-    setInput: (input: string) => set({ input }),
+  // Actions
+  setInput: (input: string) => set({ input }),
 
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-      set({ input: e.target.value })
-    },
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+    set({ input: e.target.value })
+  },
 
-    addMessage: (message: Message) => {
-      const { messages } = get()
-      set({ messages: [...messages, message] })
-    },
+  addMessage: (message: MessageWithRecipes) => {
+    const { messages } = get()
+    set({ messages: [...messages, message] })
+  },
 
-    setMessages: (messages: Message[]) => set({ messages }),
+  setMessages: (messages: MessageWithRecipes[]) => set({ messages }),
 
-    clearMessages: () => set({ messages: initialMessages }),
+  clearMessages: () => set({ messages: initialMessages }),
 
-    // Streaming
-    setStream: (stream: GeneratedMessage) => set({ stream }),
+  // Streaming
+  setStream: (stream: GeneratedMessage) => set({ stream }),
 
-    setIsSendingMessage: (isSendingMessage: boolean) =>
-      set({ isSendingMessage }),
+  setIsStreaming: (isStreaming: boolean) => set({ isStreaming }),
 
-    // Utilities
-    reset: () =>
-      set({
-        messages: initialMessages,
-        input: '',
-        isSendingMessage: false,
-        stream: initialStream
-      })
-  }))
-)
+  // AI Submission - this will be set by SubmitMessageForm
+  triggerAISubmission: () => {
+    // This will be set by SubmitMessageForm when it mounts
+    console.warn('triggerAISubmission called but not set up yet')
+  },
+
+  // Utilities
+  reset: () =>
+    set({
+      messages: initialMessages,
+      input: '',
+      isStreaming: false,
+      stream: initialStream
+    })
+}))

@@ -2,28 +2,77 @@ import { Button } from './button'
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat'
 import { PaperPlaneIcon, StopIcon } from './icons'
+import { experimental_useObject as useObject } from '@ai-sdk/react'
+import { generatedMessageSchema } from '~/schemas/chats'
+import { useChatAI } from '~/hooks/use-chat-ai'
+import { useEffect } from 'react'
 
-export function SubmitMessageForm({
-  aiSubmit,
-  aiStop
-}: {
-  aiSubmit?: (input: string) => void
-  aiStop?: () => void
-}) {
-  const { input, handleInputChange, isSendingMessage, setInput } = chatStore()
+export function SubmitMessageForm() {
+  const {
+    input,
+    handleInputChange,
+    isStreaming,
+    setInput,
+    setStream,
+    setIsStreaming
+  } = chatStore()
   const t = useTranslations()
+  const { onFinishMessage, createUserMessage, handleAIResponse } = useChatAI()
+
+  // AI Integration moved here to avoid re-rendering ChatWindow
+  const {
+    object,
+    stop: aiStop,
+    submit: aiSubmit
+  } = useObject({
+    api: '/api/chat',
+    schema: generatedMessageSchema,
+    onFinish(message) {
+      // Handle the final message when streaming is complete
+      handleAIResponse(message)
+      setIsStreaming(false)
+      setStream({ content: '', recipes: [] })
+      onFinishMessage()
+    }
+  })
+
+  // Handle streaming updates (just update the display)
+  useEffect(() => {
+    if (object && (object as any).content) {
+      setStream({
+        content: (object as any).content || '',
+        recipes: ((object as any).recipes || []).filter(Boolean) as any[]
+      })
+    }
+  }, [object, setStream])
+
+  // Enhanced AI submit function
+  const handleAISubmit = (input: string) => {
+    // Create user message
+    createUserMessage(input)
+
+    // Clear input
+    setInput('')
+
+    // Set loading states
+    setIsStreaming(true)
+
+    // Submit to AI
+    aiSubmit(input)
+  }
+
+  // Set up the triggerAISubmission method in the store
+  useEffect(() => {
+    chatStore.setState({ triggerAISubmission: handleAISubmit })
+  }, [])
 
   const enhancedHandleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    if (isSendingMessage) {
-      if (aiStop) {
-        aiStop()
-      }
+    if (isStreaming) {
+      aiStop()
     } else if (input.trim()) {
-      if (aiSubmit) {
-        aiSubmit(input)
-      }
+      handleAISubmit(input)
     }
   }
 
@@ -45,10 +94,10 @@ export function SubmitMessageForm({
         <div className='pr-2'>
           <Button
             type='submit'
-            disabled={input.length < 5 && !isSendingMessage}
-            className={`btn ${isSendingMessage ? 'btn-error' : 'btn-accent'}`}
+            disabled={input.length < 5 && !isStreaming}
+            className={`btn ${isStreaming ? 'btn-error' : 'btn-accent'}`}
           >
-            {isSendingMessage ? <StopIcon /> : <PaperPlaneIcon />}
+            {isStreaming ? <StopIcon /> : <PaperPlaneIcon />}
           </Button>
         </div>
       </div>
