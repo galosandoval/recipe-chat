@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { roleSchema } from '~/schemas/messages'
 
 export type LinkedData =
   | ({
@@ -116,7 +117,7 @@ export type UpdateRecipe = z.infer<typeof updateRecipeSchema>
 
 const messageSchema = z.object({
   content: z.string(),
-  role: z.enum(['user', 'assistant', 'system'])
+  role: roleSchema
 })
 
 export const generateSchema = z.object({

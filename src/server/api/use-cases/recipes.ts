@@ -129,3 +129,10 @@ async function handleInstructions(
     await recipesDataAccess.updateInstructions(instructionsToUpdate)
   }
 }
+
+export async function saveRecipe(
+  id: string,
+  recipesDataAccess: RecipesDataAccess
+) {
+  await recipesDataAccess.saveRecipe(id)
+}

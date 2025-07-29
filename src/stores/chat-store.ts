@@ -20,7 +20,7 @@ type ChatStore = {
   setIsStreaming: (isSending: boolean) => void
 
   // AI Submission
-  triggerAISubmission: (input: string) => void
+  triggerAISubmission: (messages: MessageWithRecipes[]) => void
 
   // Utilities
   reset: () => void

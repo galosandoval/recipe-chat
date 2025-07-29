@@ -3,23 +3,30 @@ import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
 import { PaperPlaneIcon, StopIcon } from './icons'
 import { experimental_useObject as useObject } from '@ai-sdk/react'
-import { generatedMessageSchema } from '~/schemas/chats'
+import {
+  generatedMessageSchema,
+  type MessageWithRecipes
+} from '~/schemas/chats'
 import { useChatAI } from '~/hooks/use-chat-ai'
 import { useEffect } from 'react'
+import { useSessionChatId } from '~/hooks/use-session-chat-id'
+import { userMessageDTO } from '~/utils/use-message-dto'
+import { useFiltersByUser } from './recipe-filters'
 
 export function SubmitMessageForm() {
   const {
     input,
     handleInputChange,
+    messages,
     isStreaming,
     setInput,
     setStream,
     setIsStreaming
   } = chatStore()
+  const [sessionChatId] = useSessionChatId()
   const t = useTranslations()
   const { onFinishMessage, createUserMessage, handleAIResponse } = useChatAI()
-
-  // AI Integration moved here to avoid re-rendering ChatWindow
+  const { data: filters, status } = useFiltersByUser()
   const {
     object,
     stop: aiStop,
@@ -46,18 +53,17 @@ export function SubmitMessageForm() {
   }, [object, setStream])
 
   // Enhanced AI submit function
-  const handleAISubmit = (input: string) => {
-    // Create user message
-    createUserMessage(input)
-
-    // Clear input
+  const handleAISubmit = (messages: MessageWithRecipes[]) => {
+    const lastMessage = messages.at(-1)
+    if (lastMessage) {
+      createUserMessage(lastMessage)
+    }
     setInput('')
-
-    // Set loading states
     setIsStreaming(true)
-
-    // Submit to AI
-    aiSubmit(input)
+    aiSubmit({
+      messages,
+      filters: filters?.filter((f) => f.checked).map((f) => f.name) ?? []
+    })
   }
 
   // Set up the triggerAISubmission method in the store
@@ -68,11 +74,15 @@ export function SubmitMessageForm() {
   const enhancedHandleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
+    const userMessage = userMessageDTO(input, sessionChatId)
+
+    const messagesToSubmit: MessageWithRecipes[] = [...messages, userMessage]
+
     if (isStreaming) {
       aiStop()
       setIsStreaming(false)
     } else if (input.trim()) {
-      handleAISubmit(input)
+      handleAISubmit(messagesToSubmit)
     }
   }
 
@@ -94,7 +104,9 @@ export function SubmitMessageForm() {
         <div className='pr-2'>
           <Button
             type='submit'
-            disabled={input.length < 5 && !isStreaming}
+            disabled={
+              (input.length < 5 && !isStreaming) || status === 'pending'
+            }
             className={`btn ${isStreaming ? 'btn-error' : 'btn-accent'}`}
           >
             {isStreaming ? <StopIcon /> : <PaperPlaneIcon />}

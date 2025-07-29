@@ -59,9 +59,7 @@ enum Role {
   system
   user
   assistant
-  function
   data
-  tool
 }
 
 model Recipe {

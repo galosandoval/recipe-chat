@@ -111,11 +111,21 @@ export function SignUpModal() {
       console.warn('No last message')
       return
     }
-    const recipe = transformContentToRecipe({
-      content: lastMessage.content
-    })
+    const recipe = lastMessage.recipes?.[0]
+    if (!recipe) {
+      console.warn('No recipe')
+      return
+    }
     const newRecipePromise = createChatAndRecipeAsync({
-      recipe,
+      recipe: {
+        name: recipe.name,
+        description: recipe.description,
+        ingredients: recipe.ingredients ?? [],
+        instructions: recipe.instructions ?? [],
+        prepTime: recipe.prepTime ?? '',
+        cookTime: recipe.cookTime ?? ''
+        // categories: recipe.categories ?? []
+      },
       messages
     })
     const user = await toast.promise(
@@ -131,11 +141,7 @@ export function SignUpModal() {
         error: errorToastOptions
       }
     )
-    router.push(
-      `recipes/${user.recipes[0].id}?name=${encodeURIComponent(
-        user.recipes[0].name
-      )}`
-    )
+    router.push(`recipes/${user.id}}`)
   }
   return (
     <Modal isOpen={isSignUpOpen} closeModal={handleCloseSignUp}>

@@ -5,6 +5,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { LoginModal, SignUpModal, useAuthModal } from './auth-modals'
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
+import { userMessageDTO } from '~/utils/use-message-dto'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
@@ -24,7 +25,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
     }
 
     // Trigger AI submission
-    triggerAISubmission(messageContent)
+    triggerAISubmission([userMessageDTO(messageContent)])
   }
 
   return (

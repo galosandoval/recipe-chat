@@ -3,13 +3,13 @@ import { useParams, usePathname } from 'next/navigation'
 import { useTranslations } from '~/hooks/use-translations'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { useSession } from 'next-auth/react'
-import { chatStore } from '~/stores/chat-store'
 import type { Chat, Message } from '@prisma/client'
 import { ListBulletIcon } from './icons'
 import { formatTimeAgo } from '~/utils/relative-time-format'
 import { ScreenLoader } from './loaders/screen'
 import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
+import { cn } from '~/utils/cn'
 
 export const ChatsDrawerContext = createContext<{
   isOpen: boolean
@@ -149,19 +149,13 @@ function ChatOption({
 
   return (
     <div
-      className={`hover:bg-primary-content flex flex-col rounded px-2 py-2 select-none ${
-        chatId === chat.id ? 'bg-primary-content' : ''
-      }`}
+      className={cn(
+        'hover:bg-base-200 flex flex-col rounded px-2 py-2 select-none',
+        chatId === chat.id ? 'bg-base-300' : ''
+      )}
       onClick={onClick}
     >
-      <p
-        // onClick={() => handleChangeChat(chat)}
-        className={`mt-1 mb-1 truncate ${
-          chatId === chat.id ? 'text-primary' : ''
-        }`}
-      >
-        {message}
-      </p>
+      <p className='mt-1 mb-1 truncate'>{message}</p>
 
       <span className='text-primary ml-auto text-xs'>
         {formatTimeAgo(chat.updatedAt, params.lang as string)}

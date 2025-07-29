@@ -39,7 +39,8 @@ export class RecipesDataAccess {
       take: limit + 1, // get an extra item at the end which we'll use as next cursor
       where: {
         userId: { equals: userId },
-        name: { contains: search, mode: 'insensitive' }
+        name: { contains: search, mode: 'insensitive' },
+        saved: true
       },
       cursor: cursor ? { id: cursor } : undefined,
       orderBy: {
@@ -55,6 +56,13 @@ export class RecipesDataAccess {
       items,
       nextCursor
     }
+  }
+
+  async saveRecipe(id: string) {
+    return await this.prisma.recipe.update({
+      where: { id },
+      data: { saved: true }
+    })
   }
 
   async createRecipe(recipe: Omit<CreateRecipe, 'messsageId'>, userId: string) {

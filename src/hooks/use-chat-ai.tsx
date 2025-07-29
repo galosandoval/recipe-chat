@@ -7,9 +7,9 @@ import { createId } from '@paralleldrive/cuid2'
 import { useCallback, useEffect } from 'react'
 import type {
   generatedMessageSchema,
-  MessageWithRecipes,
-  GeneratedRecipe
+  MessageWithRecipes
 } from '~/schemas/chats'
+import type { GeneratedRecipe } from '~/schemas/messages'
 import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/react'
 
 type Object = UseObjectHelpers<typeof generatedMessageSchema, string>['object']
@@ -127,18 +127,8 @@ export const useChatAI = () => {
   )
 
   // Create user message and add to store
-  const createUserMessage = (content: string) => {
-    const userMessage: MessageWithRecipes = {
-      id: createId(),
-      content,
-      role: 'user',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      chatId: sessionChatId ?? '',
-      recipes: []
-    }
-
-    addMessage(userMessage)
+  const createUserMessage = (message: MessageWithRecipes) => {
+    addMessage(message)
   }
 
   // Handle AI response completion

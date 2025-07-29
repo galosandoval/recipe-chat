@@ -7,22 +7,13 @@ import { FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { UserCircleIcon } from './icons'
 import { ChatLoader } from './loaders/chat'
-import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
-import {
-  SignUpModal,
-  transformContentToRecipe,
-  useAuthModal
-} from './auth-modals'
-import { type Message } from 'ai'
+import { SignUpModal } from './auth-modals'
 import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { chatStore } from '~/stores/chat-store'
 import { useScrollToTop } from 'react-scroll-to-bottom'
-import { infoToastOptions } from './toast'
-import toast from 'react-hot-toast'
-import { api } from '~/trpc/react'
 import { ChatsDrawer } from './chats-drawer'
 import { Stream } from './stream'
 import { CollaplableRecipe } from './collapsable-recipe'
@@ -33,8 +24,6 @@ export default function ChatWindow() {
   const { setScrollMode } = useContext(ScrollModeContext)
   const scrollToTop = useScrollToTop()
   const [chatId] = useSessionChatId()
-  const isSessionStorageAvailable =
-    typeof window !== 'undefined' && typeof chatId === 'string'
 
   const { messages, isStreaming, reset } = chatStore()
 
@@ -233,11 +222,6 @@ function AssistantMessage({
       </div>
     </div>
   )
-}
-
-function removeBracketsAndQuotes(str: string) {
-  // removes {} and [] and "" and , from string
-  return str.replace(/[{}[\]""]/g, '').replace(/,/g, ' ')
 }
 
 function ActiveFilters() {
