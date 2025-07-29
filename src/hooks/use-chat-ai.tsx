@@ -81,11 +81,10 @@ export const useChatAI = () => {
   }
 
   const { mutate: upsertChat } = api.chats.upsert.useMutation({
-    async onSuccess(data, { messages }) {
+    async onSuccess(data) {
       if (data.chatId) {
         changeChatId(data.chatId)
       }
-      // setMessages(transformMessagesToChatStore(data))
     }
   })
 

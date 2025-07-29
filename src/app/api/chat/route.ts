@@ -89,7 +89,7 @@ export async function POST(req: Request) {
 
   // const { filters, messages } = input
 
-  let system = `You are an assistant that responds with a helpful message and 0 to 5 recipes. If you do respond with more than 1 recipe only include name and description for each recipe. Ask clarifying questions before responding with recipes if needed. Respond with a wide variety of cuisines and cultures. Don't repeat recipes in the same conversation unless the user asks for changes`
+  let system = `You are an assistant that responds with a helpful message and 0 to 5 recipes. If you do respond with more than 1 recipe only include name and description for each recipe. If you only respond with 1 recipe, include the name, description, prep time, cook time, ingredients, and instructions. Ask clarifying questions before responding with recipes if needed. Respond with a wide variety of cuisines and cultures. Don't repeat recipes in the same conversation unless the user asks for changes`
   // if (filters.length) {
   //   const filtersMessage = ` The following filters should be applied to the recipe: ${filters.join(
   //     ', '

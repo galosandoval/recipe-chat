@@ -1,6 +1,5 @@
 'use client'
 
-import { type Message as MessageWithRecipes } from '@prisma/client'
 import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { type QueryStatus } from '@tanstack/react-query'
@@ -26,6 +25,9 @@ import toast from 'react-hot-toast'
 import { api } from '~/trpc/react'
 import { ChatsDrawer } from './chats-drawer'
 import { Stream } from './stream'
+import { CollaplableRecipe } from './collapsable-recipe'
+import type { MessageWithRecipes } from '~/schemas/chats'
+import { RecipesToGenerate } from './recipes-to-generate'
 
 export default function ChatWindow() {
   const { setScrollMode } = useContext(ScrollModeContext)
@@ -133,7 +135,7 @@ const Messages = memo(function Messages({
   const streamHasContent = stream.content || stream.recipes.length > 0
 
   return (
-    <div className='bg-base-100 pb-16'>
+    <div className='bg-base-100 flex flex-col gap-4 px-3 pt-4 pb-16'>
       {data.map((m, i) => (
         <Message message={m} key={m?.id || '' + i} isStreaming={isStreaming} />
       ))}
@@ -164,11 +166,11 @@ const Message = function Message({
   }
 
   return (
-    <div className='bg-base-200 flex flex-col items-center self-center p-4'>
-      <div className='prose mx-auto w-full'>
+    <div className='flex flex-col items-center self-end'>
+      <div className='mx-auto w-full'>
         <div className='flex justify-end gap-2'>
           <div className='flex flex-col items-end'>
-            <p className='mt-0 mb-0 whitespace-pre-line'>
+            <p className='bg-primary text-primary-content rounded p-3 text-sm whitespace-pre-line'>
               {message?.content || ''}
             </p>
           </div>
@@ -236,20 +238,26 @@ function AssistantMessage({
   }
 
   return (
-    <div className='flex flex-col p-4'>
-      <div className='prose mx-auto w-full'>
+    <div className='flex flex-col'>
+      <div className='mx-auto w-full'>
         <div className='flex w-full justify-start gap-2 self-center'>
           <div>
             <UserCircleIcon />
           </div>
 
-          <div className='prose flex flex-col pb-4'>
-            <p className='mt-0 mb-0 whitespace-pre-line'>
-              {removeBracketsAndQuotes(message.content) || ''}
+          <div className='bg-base-300 flex flex-col rounded p-3 pb-4'>
+            <p className='text-sm whitespace-pre-line'>
+              {message.content || ''}
             </p>
+            {message.recipes?.length === 1 && (
+              <CollaplableRecipe recipe={message.recipes[0]} />
+            )}
+            {message.recipes && message.recipes?.length > 1 && (
+              <RecipesToGenerate recipes={message.recipes} />
+            )}
           </div>
         </div>
-        <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
+        {/* <div className='grid w-full grid-flow-col place-items-end gap-2 self-center'>
           {!isStreaming ? (
             // Save
             <Button
@@ -265,7 +273,7 @@ function AssistantMessage({
               {t.chatWindow.save}
             </Button>
           ) : null}
-        </div>
+        </div> */}
       </div>
     </div>
   )

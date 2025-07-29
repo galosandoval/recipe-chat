@@ -4,7 +4,7 @@ import type { RouterOutputs } from '~/trpc/react'
 
 export const generatedRecipeSchema = z.object({
   name: z.string().describe('Name of recipe.'),
-  description: z.string().describe('Description of recipe.'),
+  description: z.string().describe('Description of recipe. 1 to 2 sentences.'),
   prepTime: z
     .string()
     .optional()
