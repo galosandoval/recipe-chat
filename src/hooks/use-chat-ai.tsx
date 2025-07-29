@@ -2,7 +2,7 @@ import { useSession } from 'next-auth/react'
 import { useSessionChatId } from './use-session-chat-id'
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { api } from '~/trpc/react'
-import { chatStore } from '~/stores/chat'
+import { chatStore } from '~/stores/chat-store'
 import { createId } from '@paralleldrive/cuid2'
 import { useCallback, useEffect } from 'react'
 import type {
@@ -71,7 +71,7 @@ export const useChatAI = () => {
   const filters = useFiltersByUser()
   const filtersData = filters.data
 
-  const { messages, addMessage, setMessages } = chatStore()
+  const { addMessage, setMessages } = chatStore()
 
   const filterStrings: string[] = []
   if (filtersData) {
@@ -88,29 +88,33 @@ export const useChatAI = () => {
     }
   })
 
-  const handleUpsertMessage = useCallback(() => {
-    let chatId = sessionChatId ?? ''
-    const messages = chatStore.getState().messages
-
+  const handleUpsertMessage = () => {
+    const messages = chatStore.getState().messages?.slice(-2) ?? []
+    console.log('handleUpsertMessage', messages)
     if (!isAuthenticated) {
       return
     }
 
     upsertChat({
-      chatId,
+      chatId: sessionChatId,
       messages: messages.map((message) => ({
+        id: message.id,
         content: message.content,
-        role: message.role
+        role: message.role,
+        recipes: message.recipes ?? [],
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt
       }))
     })
-  }, [sessionChatId, isAuthenticated, messages, upsertChat])
+  }
 
-  const onFinishMessage = useCallback(() => {
+  const onFinishMessage = () => {
+    const messages = chatStore.getState().messages
     if (!messages?.length) {
       throw new Error('No messages')
     }
     handleUpsertMessage()
-  }, [messages?.length, handleUpsertMessage])
+  }
 
   const enabled = isAuthenticated && !!sessionChatId
 
@@ -123,22 +127,19 @@ export const useChatAI = () => {
   )
 
   // Create user message and add to store
-  const createUserMessage = useCallback(
-    (content: string) => {
-      const userMessage: MessageWithRecipes = {
-        id: createId(),
-        content,
-        role: 'user',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        chatId: sessionChatId ?? ''
-      }
+  const createUserMessage = (content: string) => {
+    const userMessage: MessageWithRecipes = {
+      id: createId(),
+      content,
+      role: 'user',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      chatId: sessionChatId ?? '',
+      recipes: []
+    }
 
-      addMessage(userMessage)
-      return userMessage
-    },
-    [sessionChatId, addMessage]
-  )
+    addMessage(userMessage)
+  }
 
   // Handle AI response completion
   const handleAIResponse = useCallback(
@@ -168,7 +169,6 @@ export const useChatAI = () => {
               typeof recipe?.name === 'string'
           )
         }
-
         addMessage(assistantMessage)
       }
     },

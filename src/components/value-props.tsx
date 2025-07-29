@@ -4,7 +4,7 @@ import { ArrowUTurnLeftIcon } from './icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { LoginModal, SignUpModal, useAuthModal } from './auth-modals'
 import { useSession } from 'next-auth/react'
-import { chatStore } from '~/stores/chat'
+import { chatStore } from '~/stores/chat-store'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()

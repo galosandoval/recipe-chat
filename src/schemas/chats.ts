@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Message, Recipe } from '@prisma/client'
+import type { Message } from '@prisma/client'
 import type { RouterOutputs } from '~/trpc/react'
 
 export const generatedRecipeSchema = z.object({
@@ -54,7 +54,7 @@ export const messagesSchema = z.array(
   z.object({
     content: z.string().min(1),
     role: z.enum(messageRole),
-    id: z.string().optional(),
+    id: z.string(),
     recipes: z.array(generatedRecipeSchema).optional()
   })
 )

@@ -12,9 +12,7 @@ export function Stream({
   stream: GeneratedMessage
   isStreaming: boolean
 }) {
-  if (!isStreaming || !stream.content) {
-    return null
-  }
+  if (!isStreaming || !stream.content) return null
 
   return (
     <div className='flex flex-col'>
@@ -33,7 +31,10 @@ export function Stream({
               />
             )}
             {stream.recipes && stream.recipes?.length > 1 && (
-              <RecipesToGenerate recipes={stream.recipes} />
+              <RecipesToGenerate
+                recipes={stream.recipes}
+                isStreaming={isStreaming}
+              />
             )}
           </div>
         </div>

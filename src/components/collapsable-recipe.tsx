@@ -9,23 +9,36 @@ import { api } from '~/trpc/react'
 import { Button } from './button'
 import { ChevronDownIcon, ClockIcon, SaveIcon } from './icons'
 import { cn } from '~/utils/cn'
+import { useAuthModal } from './auth-modals'
+import { infoToastOptions } from './toast'
 
 export function CollaplableRecipe({
   recipe,
   messageId,
-  isStreaming = false
+  isStreaming
 }: {
   recipe: GeneratedRecipe
   messageId?: string
-  isStreaming?: boolean
+  isStreaming: boolean
 }) {
   const t = useTranslations()
   const [isOpen, setIsOpen] = useState(true)
+  const { handleOpenSignUp } = useAuthModal()
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
+  const utils = api.useUtils()
+
   const { mutate: saveRecipe, isPending } = api.recipes.create.useMutation({
-    onSuccess: () => {
+    async onSuccess(_newRecipe, _messageId) {
+      await utils.recipes.invalidate()
+      // Since the relationship is Recipe -> Message (via messageId),
+      // we don't need to update the message object
+      // The recipe will be linked to the message via the messageId field
+
       toast.success(t.chatWindow.saveSuccess)
+    },
+    onError: (error) => {
+      toast.error('Error: ' + error.message)
     }
   })
 
@@ -34,9 +47,17 @@ export function CollaplableRecipe({
   }
 
   const handleSaveRecipe = () => {
+    if (!isAuthenticated) {
+      handleOpenSignUp()
+
+      toast(t.toast.signUp, infoToastOptions)
+      return
+    }
+
     if (!recipe?.ingredients || !recipe?.instructions) {
       return
     }
+
     saveRecipe({
       ingredients: recipe.ingredients,
       instructions: recipe.instructions,
@@ -66,21 +87,18 @@ export function CollaplableRecipe({
         )}
       </div>
       <div className='flex justify-between'>
-        {!isStreaming && (
-          <Button
-            className='btn btn-sm mt-2'
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <ChevronDownIcon
-              className={cn('h-4 w-4', isOpen && 'rotate-180')}
-            />
-            {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
-          </Button>
-        )}
-
+        <Button
+          className='btn btn-sm mt-2'
+          disabled={isStreaming}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <ChevronDownIcon className={cn('h-4 w-4', isOpen && 'rotate-180')} />
+          {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
+        </Button>
         {isAuthenticated ? (
           <Button
             className='btn btn-sm mt-2'
+            disabled={isStreaming}
             isLoading={isPending}
             onClick={handleSaveRecipe}
           >
@@ -128,8 +146,8 @@ function Ingredients({ ingredients }: { ingredients?: string[] }) {
         <h3 className='text-sm font-semibold'>{t.recipes.ingredients}</h3>
       )}
       <ul className='mb-2 list-inside list-disc'>
-        {ingredients?.map((i) => (
-          <li key={i} className='text-xs'>
+        {ingredients?.map((i, idx) => (
+          <li key={idx + i} className='text-xs'>
             {i}
           </li>
         ))}

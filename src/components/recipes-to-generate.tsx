@@ -1,16 +1,22 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { useSession } from 'next-auth/react'
-import { chatStore } from '~/stores/chat'
+import { chatStore } from '~/stores/chat-store'
 import type { GeneratedRecipe } from '~/schemas/chats'
 import { Button } from './button'
 import { PaperPlaneIcon } from './icons'
 
-export function RecipesToGenerate({ recipes }: { recipes: GeneratedRecipe[] }) {
+export function RecipesToGenerate({
+  recipes,
+  isStreaming
+}: {
+  recipes: GeneratedRecipe[]
+  isStreaming: boolean
+}) {
   const t = useTranslations()
   // const [generated, setGenerated] = useState<boolean[]>(
   // 	recipes?.map(() => false) ?? []
   // )
-  const { triggerAISubmission, isStreaming } = chatStore()
+  const { triggerAISubmission } = chatStore()
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
 

@@ -11,7 +11,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { useChatsDrawer } from './chats-drawer'
-import { chatStore } from '~/stores/chat'
+import { chatStore } from '~/stores/chat-store'
 
 export function NavDropdownMenu() {
   const { theme, updateTheme } = useTheme()

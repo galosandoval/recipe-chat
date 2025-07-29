@@ -18,7 +18,7 @@ import {
 import { type Message } from 'ai'
 import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
-import { chatStore } from '~/stores/chat'
+import { chatStore } from '~/stores/chat-store'
 import { useScrollToTop } from 'react-scroll-to-bottom'
 import { infoToastOptions } from './toast'
 import toast from 'react-hot-toast'
@@ -39,10 +39,6 @@ export default function ChatWindow() {
   const { messages, isStreaming, reset } = chatStore()
 
   const isNewChat = !chatId && !isStreaming && messages.length === 0
-
-  useEffect(() => {
-    console.log('messages', messages)
-  }, [messages])
 
   // don't scroll to bottom when showing value props
   useEffect(() => {
@@ -191,52 +187,6 @@ function AssistantMessage({
   message: MessageWithRecipes
   isStreaming: boolean
 }) {
-  const t = useTranslations()
-  const { handleOpenSignUp } = useAuthModal()
-  const { status: authStatus } = useSession()
-  const isAuthenticated = authStatus === 'authenticated'
-  const utils = api.useUtils()
-  const { mutate: createRecipe, status: saveRecipeStatus } =
-    api.recipes.create.useMutation({
-      async onSuccess(_newRecipe, _messageId) {
-        await utils.recipes.invalidate()
-        // Since the relationship is Recipe -> Message (via messageId),
-        // we don't need to update the message object
-        // The recipe will be linked to the message via the messageId field
-
-        toast.success(t.chatWindow.saveSuccess)
-      },
-      onError: (error) => {
-        toast.error('Error: ' + error.message)
-      }
-    })
-
-  const handleSaveRecipe = ({
-    content,
-    messageId
-  }: {
-    content: string
-    messageId?: string
-  }) => {
-    if (!content) return
-
-    if (!isAuthenticated) {
-      handleOpenSignUp()
-
-      toast(t.toast.signUp, infoToastOptions)
-      return
-    }
-
-    const recipe = transformContentToRecipe({
-      content
-    })
-
-    createRecipe({
-      ...recipe,
-      messageId
-    })
-  }
-
   return (
     <div className='flex flex-col'>
       <div className='mx-auto w-full'>
@@ -250,10 +200,16 @@ function AssistantMessage({
               {message.content || ''}
             </p>
             {message.recipes?.length === 1 && (
-              <CollaplableRecipe recipe={message.recipes[0]} />
+              <CollaplableRecipe
+                isStreaming={isStreaming}
+                recipe={message.recipes[0]}
+              />
             )}
             {message.recipes && message.recipes?.length > 1 && (
-              <RecipesToGenerate recipes={message.recipes} />
+              <RecipesToGenerate
+                isStreaming={isStreaming}
+                recipes={message.recipes}
+              />
             )}
           </div>
         </div>

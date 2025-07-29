@@ -5,14 +5,7 @@ import {
   getMessagesById,
   upsertChat
 } from '~/server/api/use-cases/chats'
-
-export const messagesSchema = z.array(
-  z.object({
-    content: z.string().min(1),
-    role: z.enum(['system', 'user', 'assistant', 'function', 'data', 'tool']),
-    id: z.string().optional()
-  })
-)
+import { messagesSchema } from '~/schemas/messages'
 
 export const chatsRouter = createTRPCRouter({
   getChats: protectedProcedure

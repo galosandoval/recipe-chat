@@ -1,6 +1,6 @@
 import { Button } from './button'
 import { useTranslations } from '~/hooks/use-translations'
-import { chatStore } from '~/stores/chat'
+import { chatStore } from '~/stores/chat-store'
 import { PaperPlaneIcon, StopIcon } from './icons'
 import { experimental_useObject as useObject } from '@ai-sdk/react'
 import { generatedMessageSchema } from '~/schemas/chats'
@@ -28,7 +28,6 @@ export function SubmitMessageForm() {
     api: '/api/chat',
     schema: generatedMessageSchema,
     onFinish(message) {
-      // Handle the final message when streaming is complete
       handleAIResponse(message)
       setIsStreaming(false)
       setStream({ content: '', recipes: [] })
@@ -71,6 +70,7 @@ export function SubmitMessageForm() {
 
     if (isStreaming) {
       aiStop()
+      setIsStreaming(false)
     } else if (input.trim()) {
       handleAISubmit(input)
     }
