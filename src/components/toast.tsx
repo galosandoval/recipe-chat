@@ -16,7 +16,7 @@ export function Toast() {
   }
 
   return (
-    <button onClick={handleClickToaster}>
+    <button>
       <Toaster
         toastOptions={{
           success: successToastOptions,
@@ -25,7 +25,7 @@ export function Toast() {
         }}
       >
         {(t) => (
-          <div onClick={() => toast.dismiss(t.id)}>
+          <div>
             <ToastBar toast={t} />
           </div>
         )}
@@ -70,8 +70,10 @@ export const errorToastOptions: ToastOptions = {
   icon: <ExclamationCircle />,
   style: {
     backgroundColor: 'var(--color-error)',
-    color: 'var(--color-error-content)'
-  }
+    color: 'var(--color-error-content)',
+    fontSize: '12px'
+  },
+  duration: Infinity
 }
 
 export const infoToastOptions: ToastOptions = {
@@ -97,4 +99,34 @@ export const infoToastOptions: ToastOptions = {
       />
     </svg>
   )
+}
+
+export const myToast = {
+  success: (message: string) => toast.success(message),
+  error: (message: string) =>
+    toast.custom(
+      (t) => (
+        <div
+          className={`${
+            t.visible ? 'animate-enter' : 'animate-leave'
+          } bg-base-300 border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl`}
+        >
+          <div className='flex-1 text-left text-sm whitespace-break-spaces'>
+            {message}
+          </div>
+          <div className='flex'>
+            <div>
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className='btn btn-ghost flex w-full'
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ),
+      errorToastOptions
+    ),
+  loading: toast.loading
 }

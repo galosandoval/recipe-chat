@@ -9,6 +9,7 @@ import { api } from '~/trpc/react'
 import { z } from 'zod'
 import { createId } from '@paralleldrive/cuid2'
 import { useUserId } from './use-user-id'
+// import { myToast } from '~/components/toast'
 
 export const useList = () => {
   const userId = useUserId()
@@ -200,6 +201,10 @@ export function useListController(data: Ingredient[]) {
     },
 
     onError: (error, _, ctx) => {
+      const stack = error.data?.stack
+      if (stack) {
+        // myToast.error(stack)
+      }
       const prevList = ctx?.prevList
       if (prevList) {
         utils.lists.byUserId.setData({ userId }, prevList)

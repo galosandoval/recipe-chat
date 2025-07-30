@@ -9,8 +9,10 @@ import type {
   generatedMessageSchema,
   MessageWithRecipes
 } from '~/schemas/chats'
-import type { GeneratedRecipe, GeneratedRecipeWithId } from '~/schemas/messages'
+import type { GeneratedRecipeWithId } from '~/schemas/messages'
 import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/react'
+import toast from 'react-hot-toast'
+import { myToast } from '~/components/toast'
 
 type Object = UseObjectHelpers<typeof generatedMessageSchema, string>['object']
 type Error = UseObjectHelpers<typeof generatedMessageSchema, string>['error']
@@ -85,6 +87,14 @@ export const useChatAI = () => {
     async onSuccess(data) {
       if (data.chatId) {
         changeChatId(data.chatId)
+      }
+    },
+    onError: (error) => {
+      const stack = error.data?.stack
+      if (stack) {
+        myToast.error(stack)
+      } else {
+        myToast.error(error.message)
       }
     }
   })
