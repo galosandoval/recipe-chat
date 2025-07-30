@@ -14,7 +14,8 @@
     "deploy:prod": "dotenv -e .env.production --  npx prisma migrate deploy",
     "gen": "npx prisma generate",
     "migrate-reset": "npx prisma migrate reset",
-    "data-migration:add-saved-column": "tsx ./prisma/migrations/20250730012052_add_saved_column/data-migration.ts"
+    "data-migration:add-saved-column": "tsx ./prisma/migrations/20250730012052_add_saved_column/data-migration.ts",
+    "data-migration:create-many-recipes-to-many-messages-table": "tsx ./prisma/migrations/20250730020516_create_many_recipes_to_many_messages_table/data-migration.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.1.5",
