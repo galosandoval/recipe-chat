@@ -39,7 +39,8 @@ export class RecipesDataAccess {
       take: limit + 1, // get an extra item at the end which we'll use as next cursor
       where: {
         userId: { equals: userId },
-        name: { contains: search, mode: 'insensitive' }
+        name: { contains: search, mode: 'insensitive' },
+        saved: true
       },
       cursor: cursor ? { id: cursor } : undefined,
       orderBy: {
@@ -55,6 +56,56 @@ export class RecipesDataAccess {
       items,
       nextCursor
     }
+  }
+
+  async saveRecipe({
+    id,
+    categories,
+    ingredients,
+    instructions,
+    prepTime,
+    cookTime
+  }: {
+    id: string
+    categories: string[]
+    ingredients: string[]
+    instructions: string[]
+    prepTime?: string
+    cookTime?: string
+  }) {
+    const existingRecipe = await this.prisma.recipe.findUnique({
+      where: { id }
+    })
+
+    if (!existingRecipe) {
+      throw new Error('Recipe not found')
+    }
+
+    return await this.prisma.recipe.upsert({
+      where: { id },
+      update: {
+        saved: true,
+        categories,
+        prepTime,
+        cookTime,
+        ingredients: {
+          create: ingredients.map((i) => ({ name: i }))
+        },
+        instructions: {
+          create: instructions.map((i) => ({ description: i }))
+        }
+      },
+      create: {
+        id,
+        name: existingRecipe.name,
+
+        categories,
+        prepTime,
+        cookTime,
+        ingredients: { create: ingredients.map((i) => ({ name: i })) },
+        instructions: { create: instructions.map((i) => ({ description: i })) }
+      }
+    })
   }
 
   async createRecipe(recipe: Omit<CreateRecipe, 'messsageId'>, userId: string) {

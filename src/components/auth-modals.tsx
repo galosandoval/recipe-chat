@@ -1,6 +1,3 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { Button } from '~/components/button'
 import { api } from '~/trpc/react'
 import { signIn } from 'next-auth/react'
@@ -10,7 +7,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Modal } from './modal'
 import { createContext, useContext, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
-import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import { chatStore } from '~/stores/chat-store'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import {
   errorToastOptions,
   loadingToastOptions,
@@ -96,7 +96,7 @@ export function SignUpModal() {
   const { isSignUpOpen, handleCloseSignUp } = useAuthModal()
   const { errors, isLoading, handleSubmit, onSubmit, register } =
     useSignUp(onSignUpSuccess)
-  const { messages } = useRecipeChat()
+  const { messages } = chatStore()
   const { mutateAsync: createChatAndRecipeAsync } =
     api.users.createChatAndRecipe.useMutation({
       onError: (error) => {
@@ -107,12 +107,25 @@ export function SignUpModal() {
   async function onSignUpSuccess() {
     // TODO - this is a hack to get the selected recipe to save
     const lastMessage = messages.at(-1)
-    if (!lastMessage) throw new Error('No last message')
-    const recipe = transformContentToRecipe({
-      content: lastMessage.content
-    })
+    if (!lastMessage) {
+      console.warn('No last message')
+      return
+    }
+    const recipe = lastMessage.recipes?.[0]
+    if (!recipe) {
+      console.warn('No recipe')
+      return
+    }
     const newRecipePromise = createChatAndRecipeAsync({
-      recipe,
+      recipe: {
+        name: recipe.name,
+        description: recipe.description,
+        ingredients: recipe.ingredients ?? [],
+        instructions: recipe.instructions ?? [],
+        prepTime: recipe.prepTime ?? '',
+        cookTime: recipe.cookTime ?? ''
+        // categories: recipe.categories ?? []
+      },
       messages
     })
     const user = await toast.promise(
@@ -128,11 +141,7 @@ export function SignUpModal() {
         error: errorToastOptions
       }
     )
-    router.push(
-      `recipes/${user.recipes[0].id}?name=${encodeURIComponent(
-        user.recipes[0].name
-      )}`
-    )
+    router.push(`recipes/${user.id}}`)
   }
   return (
     <Modal isOpen={isSignUpOpen} closeModal={handleCloseSignUp}>

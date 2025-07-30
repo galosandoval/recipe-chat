@@ -11,6 +11,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { useChatsDrawer } from './chats-drawer'
+import { chatStore } from '~/stores/chat-store'
 
 export function NavDropdownMenu() {
   const { theme, updateTheme } = useTheme()
@@ -72,9 +73,13 @@ function StartNewChat() {
   const t = useTranslations()
   const [chatId, setChatId] = useSessionChatId()
   const pathname = usePathname()
+  const { setStream, setIsStreaming, setMessages } = chatStore()
 
   const handleStartNewChat = () => {
     setChatId('')
+    setStream({ content: '', recipes: [] })
+    setIsStreaming(false)
+    setMessages([])
   }
 
   // Only show if there's an actual chat ID (not empty string or undefined)

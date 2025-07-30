@@ -31,7 +31,7 @@ export default function Recipe({
   if (!recipe) return null
 
   return (
-    <div className='prose flex h-full flex-1 flex-col overflow-y-auto pt-12'>
+    <div className='prose flex h-full flex-1 flex-col overflow-y-auto px-0 pt-12'>
       <FoundRecipe data={recipe} />
     </div>
   )

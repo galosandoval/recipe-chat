@@ -76,7 +76,11 @@ export class UsersDataAccess {
               }))
             },
             ...rest,
-            message: { connect: { id: messageId } }
+            messages: {
+              create: {
+                messageId
+              }
+            }
           }
         }
       },

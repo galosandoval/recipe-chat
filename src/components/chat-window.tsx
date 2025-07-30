@@ -1,6 +1,5 @@
 'use client'
 
-import { type Message as PrismaMessage } from '@prisma/client'
 import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { type QueryStatus } from '@tanstack/react-query'
@@ -8,48 +7,27 @@ import { FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
 import { UserCircleIcon } from './icons'
 import { ChatLoader } from './loaders/chat'
-import { Button } from './button'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
-import {
-  SignUpModal,
-  transformContentToRecipe,
-  useAuthModal
-} from './auth-modals'
-import { type Message } from 'ai'
+import { SignUpModal } from './auth-modals'
 import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
 import { useSessionChatId } from '~/hooks/use-session-chat-id'
-import { useRecipeChat } from '~/hooks/use-recipe-chat'
+import { chatStore } from '~/stores/chat-store'
 import { useScrollToTop } from 'react-scroll-to-bottom'
-import { useRouter } from 'next/navigation'
-import { infoToastOptions } from './toast'
-import toast from 'react-hot-toast'
-import { api } from '~/trpc/react'
 import { ChatsDrawer } from './chats-drawer'
+import { Stream } from './stream'
+import { CollaplableRecipe } from './collapsable-recipe'
+import type { MessageWithRecipes } from '~/schemas/chats'
+import { RecipesToGenerate } from './recipes-to-generate'
 
 export default function ChatWindow() {
   const { setScrollMode } = useContext(ScrollModeContext)
   const scrollToTop = useScrollToTop()
   const [chatId] = useSessionChatId()
-  const isSessionStorageAvailable =
-    typeof window !== 'undefined' && typeof chatId === 'string'
 
-  const {
-    messages,
-    isSendingMessage,
-    chatsFetchStatus,
-    chatsQueryStatus,
-    setMessages
-  } = useRecipeChat()
-  const isNewChat = !chatId && !isSendingMessage && messages.length === 0
+  const { messages, isStreaming, reset } = chatStore()
 
-  const isMessagesSuccess =
-    chatsFetchStatus === 'idle' && chatsQueryStatus === 'success'
-
-  const shouldBeLoading =
-    isSessionStorageAvailable &&
-    (messages.length === 0 || !isMessagesSuccess) &&
-    chatsFetchStatus === 'fetching'
+  const isNewChat = !chatId && !isStreaming && messages.length === 0
 
   // don't scroll to bottom when showing value props
   useEffect(() => {
@@ -62,17 +40,16 @@ export default function ChatWindow() {
 
   useEffect(() => {
     if (!chatId) {
-      setMessages([])
-      stop()
+      reset()
       scrollToTop({
         behavior: 'auto'
       })
     }
-  }, [chatId])
+  }, [chatId, reset])
 
   if (isNewChat) {
     return (
-      <div className='flex flex-col gap-4 pt-2'>
+      <div className='flex flex-col gap-4'>
         <ValueProps>
           <FiltersByUser />
         </ValueProps>
@@ -80,21 +57,18 @@ export default function ChatWindow() {
       </div>
     )
   }
-  if (shouldBeLoading && !isSendingMessage) {
-    return <ScreenLoader />
-  }
 
   return (
     <>
       <div className='flex h-full flex-col gap-4'>
         <ChatWindowContent
-          messages={messages as []}
-          messagesStatus={chatsQueryStatus}
-          isSendingMessage={isSendingMessage}
+          messages={messages}
+          messagesStatus={'success' as QueryStatus}
+          isStreaming={isStreaming}
         />
       </div>
 
-      <ScrollToButtons enable={!isSendingMessage} />
+      <ScrollToButtons enable={!isStreaming} />
 
       <SignUpModal />
       <ChatsDrawer />
@@ -105,21 +79,21 @@ export default function ChatWindow() {
 function ChatWindowContent({
   messages,
   messagesStatus,
-  isSendingMessage
+  isStreaming
 }: {
   messagesStatus?: QueryStatus
-  isSendingMessage: boolean
-  messages: Message[]
+  isStreaming: boolean
+  messages: MessageWithRecipes[]
 }) {
   const { data } = useSession()
 
   if (messages.length || !data?.user?.id) {
     return (
       <div className='bg-base-100 h-full'>
-        <MessageList
+        <Messages
           data={messages as []}
           status={messagesStatus}
-          isSendingMessage={isSendingMessage}
+          isStreaming={isStreaming}
         />
       </div>
     )
@@ -128,57 +102,60 @@ function ChatWindowContent({
   return <ScreenLoader />
 }
 
-const MessageList = memo(function MessageList({
+const Messages = memo(function Messages({
   data,
   status,
-  isSendingMessage
+  isStreaming
 }: {
-  data: PrismaMessage[]
+  data: MessageWithRecipes[]
   status?: QueryStatus
-  isSendingMessage: boolean
+  isStreaming: boolean
 }) {
+  const { stream } = chatStore()
+
   if (status === 'error') {
     return <p>Error</p>
   }
 
+  const streamHasContent = stream.content || stream.recipes.length > 0
+
   return (
-    <div className='bg-base-100 pt-2 pb-16'>
+    <div className='bg-base-100 flex flex-col gap-4 px-3 pt-4 pb-16'>
       {data.map((m, i) => (
-        <Message
-          message={m}
-          key={m?.id || '' + i}
-          isSendingMessage={isSendingMessage}
-        />
+        <Message message={m} key={m?.id || '' + i} isStreaming={isStreaming} />
       ))}
 
-      {isSendingMessage && data.at(-1)?.role === 'user' && <ChatLoader />}
+      {isStreaming && !streamHasContent && data.at(-1)?.role === 'user' && (
+        <ChatLoader />
+      )}
+      <Stream stream={stream} isStreaming={isStreaming} />
     </div>
   )
 })
 
 const Message = function Message({
   message,
-  isSendingMessage
+  isStreaming
 }: {
-  message: PrismaMessage
-  isSendingMessage: boolean
+  message: MessageWithRecipes
+  isStreaming: boolean
 }) {
   if (message.role === 'assistant') {
     return (
       <AssistantMessage
         message={message}
         // handleSaveRecipe={handleSaveRecipe}
-        isSendingMessage={isSendingMessage}
+        isStreaming={isStreaming}
       />
     )
   }
 
   return (
-    <div className='bg-base-200 flex flex-col items-center self-center p-4'>
-      <div className='prose mx-auto w-full'>
+    <div className='flex flex-col items-center self-end'>
+      <div className='mx-auto w-full'>
         <div className='flex justify-end gap-2'>
           <div className='flex flex-col items-end'>
-            <p className='mt-0 mb-0 whitespace-pre-line'>
+            <p className='bg-primary text-primary-content rounded p-3 text-sm whitespace-pre-line'>
               {message?.content || ''}
             </p>
           </div>
@@ -194,101 +171,39 @@ const Message = function Message({
 
 function AssistantMessage({
   message,
-  isSendingMessage
+  isStreaming
 }: {
-  message: PrismaMessage
-  isSendingMessage: boolean
+  message: MessageWithRecipes
+  isStreaming: boolean
 }) {
-  const t = useTranslations()
-  const router = useRouter()
-  const { handleOpenSignUp } = useAuthModal()
-  const { status: authStatus } = useSession()
-  const isAuthenticated = authStatus === 'authenticated'
-  const utils = api.useUtils()
-  const { messages, setMessages } = useRecipeChat()
-  const { mutate: createRecipe, status: saveRecipeStatus } =
-    api.recipes.create.useMutation({
-      async onSuccess(newRecipe, { messageId }) {
-        await utils.recipes.invalidate()
-        const messagesCopy = [...messages]
-
-        if (messageId) {
-          const messageToChange = messagesCopy.find(
-            (message) => message.id === messageId
-          ) as PrismaMessage
-          if (messageToChange) {
-            messageToChange.recipeId = newRecipe.id
-          }
-        }
-
-        setMessages(messagesCopy)
-
-        toast.success(t.chatWindow.saveSuccess)
-      },
-      onError: (error) => {
-        toast.error('Error: ' + error.message)
-      }
-    })
-
-  const goToRecipe = ({ recipeId }: { recipeId: string | null }) => {
-    if (recipeId) {
-      router.push(`recipes/${recipeId}`)
-    }
-  }
-  const handleSaveRecipe = ({
-    content,
-    messageId
-  }: {
-    content: string
-    messageId?: string
-  }) => {
-    if (!content) return
-
-    if (!isAuthenticated) {
-      handleOpenSignUp()
-
-      toast(t.toast.signUp, infoToastOptions)
-      return
-    }
-
-    const recipe = transformContentToRecipe({
-      content
-    })
-
-    createRecipe({
-      ...recipe,
-      messageId
-    })
-  }
-
   return (
-    <div className='flex flex-col p-4'>
-      <div className='prose mx-auto w-full'>
+    <div className='flex flex-col'>
+      <div className='mx-auto w-full'>
         <div className='flex w-full justify-start gap-2 self-center'>
           <div>
             <UserCircleIcon />
           </div>
 
-          <div className='prose flex flex-col pb-4'>
-            <p className='mt-0 mb-0 whitespace-pre-line'>
-              {removeBracketsAndQuotes(message.content) || ''}
+          <div className='bg-base-300 flex flex-col rounded p-3 pb-4'>
+            <p className='text-sm whitespace-pre-line'>
+              {message.content || ''}
             </p>
+            {message.recipes?.length === 1 && (
+              <CollaplableRecipe
+                isStreaming={isStreaming}
+                recipe={message.recipes[0]}
+              />
+            )}
+            {message.recipes && message.recipes?.length > 1 && (
+              <RecipesToGenerate
+                isStreaming={isStreaming}
+                recipes={message.recipes}
+              />
+            )}
           </div>
         </div>
-        <div className='prose grid w-full grid-flow-col place-items-end gap-2 self-center'>
-          {message?.recipeId ? (
-            // Go to recipe
-            <Button
-              className='btn btn-outline'
-              onClick={() =>
-                goToRecipe({
-                  recipeId: message.recipeId
-                })
-              }
-            >
-              {t.chatWindow.toRecipe}
-            </Button>
-          ) : !isSendingMessage ? (
+        {/* <div className='grid w-full grid-flow-col place-items-end gap-2 self-center'>
+          {!isStreaming ? (
             // Save
             <Button
               className='btn btn-outline'
@@ -303,15 +218,10 @@ function AssistantMessage({
               {t.chatWindow.save}
             </Button>
           ) : null}
-        </div>
+        </div> */}
       </div>
     </div>
   )
-}
-
-function removeBracketsAndQuotes(str: string) {
-  // removes {} and [] and "" and , from string
-  return str.replace(/[{}[\]""]/g, '').replace(/,/g, ' ')
 }
 
 function ActiveFilters() {

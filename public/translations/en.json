@@ -74,7 +74,8 @@
     "save": "Save",
     "saveSuccess": "Recipe saved successfully!",
     "chats": "Recent chats",
-    "noChats": "No chats found. Start a new chat by asking about a recipe"
+    "noChats": "No chats found. Start a new chat by asking about a recipe",
+    "generateRecipe": "Generate a recipe for "
   },
 
   "recipes": {

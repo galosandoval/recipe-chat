@@ -17,7 +17,9 @@ export const Checkbox = ({
         className='label flex cursor-pointer flex-row-reverse gap-2'
         htmlFor={id}
       >
-        <span className='label-text mr-auto whitespace-normal'>{label}</span>
+        <span className='label-text text-base-content mr-auto whitespace-normal'>
+          {label}
+        </span>
         <input
           className='checkbox-primary checkbox'
           type='checkbox'

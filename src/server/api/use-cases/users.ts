@@ -77,7 +77,7 @@ export async function createChatAndRecipe(
             }))
           },
           ...rest,
-          message: { connect: { id: messageId } }
+          messages: { create: { messageId } }
         }
       }
     },

@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client'
 import { ChatsDataAccess } from '~/server/api/data-access/chats'
 import { type z } from 'zod'
-import type { messagesSchema } from '~/server/api/schemas/messages'
+import { messagesWithRecipesSchema } from '~/schemas/chats'
 
 export async function getChats(userId: string, prisma: PrismaClient) {
   const chatsDataAccess = new ChatsDataAccess(prisma)
@@ -13,58 +13,36 @@ export async function getMessagesById(chatId: string, prisma: PrismaClient) {
   return await chatsDataAccess.getMessagesByChatId(chatId)
 }
 
-export async function createChat(
-  userId: string,
-  messages: z.infer<typeof messagesSchema>,
-  prisma: PrismaClient
-) {
-  const chatsDataAccess = new ChatsDataAccess(prisma)
-  return await chatsDataAccess.createChat(userId, messages)
-}
-
-export async function addMessages(
-  chatId: string,
-  messages: z.infer<typeof messagesSchema>,
-  prisma: PrismaClient
-) {
-  const chatsDataAccess = new ChatsDataAccess(prisma)
-  return await chatsDataAccess.addMessages(chatId, messages)
-}
-
+/**
+ * Upserts a chat by either adding messages to an existing chat or creating a new one
+ */
 export async function upsertChat(
   chatId: string | undefined,
-  messages: z.infer<typeof messagesSchema>,
+  messages: z.infer<typeof messagesWithRecipesSchema>,
   prisma: PrismaClient,
   userId: string
 ) {
   const chatsDataAccess = new ChatsDataAccess(prisma)
+
   if (chatId) {
-    const lastTwoMessages = messages.slice(-2)
-
-    await chatsDataAccess.addMessages(chatId, lastTwoMessages)
-
-    const allMessages = await prisma.message.findMany({
-      where: {
-        chatId
-      },
-      orderBy: {
-        id: 'asc'
-      }
-    })
+    // Add messages to existing chat
+    await chatsDataAccess.addMessages(chatId, messages, userId)
 
     return {
       success: true,
-      message: 'successfully added messages',
-      messages: allMessages
+      message: 'successfully added messages'
     } as const
   } else {
-    const newChat = await chatsDataAccess.createChat(userId, messages)
+    // Create new chat with all messages
+    const newChat = await chatsDataAccess.createChatWithMessages(
+      userId,
+      messages
+    )
 
     return {
       success: true,
       message: 'successfully created a chat',
-      chatId: newChat.id,
-      messages: newChat.messages
+      chatId: newChat.id
     } as const
   }
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { roleSchema } from '~/schemas/messages'
 
 export const signUpSchema = z.object({
   email: z.string().email(),
@@ -20,7 +21,7 @@ export const createChatAndRecipeSchema = z.object({
   messages: z
     .object({
       content: z.string().min(1),
-      role: z.enum(['system', 'user', 'assistant', 'function', 'data', 'tool'])
+      role: roleSchema
     })
     .array()
 })
