@@ -52,6 +52,7 @@ model Message {
   role      Role
   recipe    Recipe?  @relation(fields: [recipeId], references: [id])
   recipeId  String?  @unique
+  recipes   RecipesOnMessages[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -79,12 +80,24 @@ model Recipe {
   prepTime     String?
   cookTime     String?
   message      Message?
+  messages     RecipesOnMessages[]
   saved        Boolean       @default(false)
   categories   String[]      @default([])
   notes        String        @default("")
   lastViewedAt DateTime      @default(now())
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+}
+
+model RecipesOnMessages {
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId  String
+  message   Message  @relation(fields: [messageId], references: [id])
+  messageId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([recipeId, messageId])
 }
 
 model Instruction {
