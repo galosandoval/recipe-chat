@@ -38,7 +38,7 @@ model Filter {
   id        String   @id @default(cuid())
   name      String
   user      User     @relation(fields: [userId], references: [id])
-  userId    String   
+  userId    String
   checked   Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -79,6 +79,7 @@ model Recipe {
   prepTime     String?
   cookTime     String?
   message      Message?
+  saved        Boolean       @default(false)
   categories   String[]      @default([])
   notes        String        @default("")
   lastViewedAt DateTime      @default(now())
