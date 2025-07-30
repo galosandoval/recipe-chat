@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client'
 import { ChatsDataAccess } from '~/server/api/data-access/chats'
 import { type z } from 'zod'
-import type { messagesSchema } from '~/schemas/messages'
+import { messagesWithRecipesSchema } from '~/schemas/chats'
 
 export async function getChats(userId: string, prisma: PrismaClient) {
   const chatsDataAccess = new ChatsDataAccess(prisma)
@@ -18,7 +18,7 @@ export async function getMessagesById(chatId: string, prisma: PrismaClient) {
  */
 export async function upsertChat(
   chatId: string | undefined,
-  messages: z.infer<typeof messagesSchema>,
+  messages: z.infer<typeof messagesWithRecipesSchema>,
   prisma: PrismaClient,
   userId: string
 ) {

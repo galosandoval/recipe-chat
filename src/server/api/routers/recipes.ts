@@ -12,7 +12,7 @@ import { del } from '@vercel/blob'
 import { RecipesDataAccess } from '~/server/api/data-access/recipes'
 import { IngredientsDataAccess } from '~/server/api/data-access/ingredients'
 import { InstructionsDataAccess } from '~/server/api/data-access/instructions'
-import { editRecipe } from '../use-cases/recipes'
+import { editRecipe, saveRecipe } from '../use-cases/recipes'
 import { type PrismaClient } from '@prisma/client'
 
 export const recipesRouter = createTRPCRouter({
@@ -146,11 +146,10 @@ export const recipesRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createRecipeSchema)
     .mutation(async ({ input, ctx }) => {
-      const { messageId, ...rest } = input
       const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
 
       const newRecipe = await recipesDataAccess.createRecipe(
-        rest,
+        input,
         ctx.session.user.id
       )
 
@@ -158,6 +157,22 @@ export const recipesRouter = createTRPCRouter({
       // No need to update the message object
 
       return newRecipe
+    }),
+
+  save: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        categories: z.array(z.string()),
+        ingredients: z.array(z.string()),
+        instructions: z.array(z.string()),
+        prepTime: z.string().optional(),
+        cookTime: z.string().optional()
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      return await saveRecipe(input, recipesDataAccess)
     }),
 
   updateImgUrl: protectedProcedure

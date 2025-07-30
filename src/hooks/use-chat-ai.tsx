@@ -9,7 +9,7 @@ import type {
   generatedMessageSchema,
   MessageWithRecipes
 } from '~/schemas/chats'
-import type { GeneratedRecipe } from '~/schemas/messages'
+import type { GeneratedRecipe, GeneratedRecipeWithId } from '~/schemas/messages'
 import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/react'
 
 type Object = UseObjectHelpers<typeof generatedMessageSchema, string>['object']
@@ -47,7 +47,8 @@ const transformMessagesToChatStore = (data: any): MessageWithRecipes[] => {
     updatedAt: message.updatedAt,
     recipes:
       message.recipes?.map(
-        (recipe: any): GeneratedRecipe => ({
+        (recipe: any): GeneratedRecipeWithId => ({
+          id: recipe.id,
           name: recipe.name,
           description: recipe.description || '',
           prepTime: recipe.prepTime,
@@ -142,21 +143,18 @@ export const useChatAI = () => {
           createdAt: new Date(),
           updatedAt: new Date(),
           chatId: sessionChatId ?? '',
-          recipes: (aiResponse.object?.recipes ?? []).filter(
-            (
-              recipe
-            ): recipe is {
-              description: string
-              name: string
-              ingredients?: string[]
-              instructions?: string[]
-              prepTime?: string | null
-              cookTime?: string | null
-              categories?: string[]
-            } =>
-              !!recipe &&
-              typeof recipe?.description === 'string' &&
-              typeof recipe?.name === 'string'
+          recipes: (aiResponse.object?.recipes ?? []).map(
+            (recipe) =>
+              ({
+                id: createId(),
+                name: recipe?.name ?? '',
+                description: recipe?.description ?? '',
+                ingredients: recipe?.ingredients ?? [],
+                instructions: recipe?.instructions ?? [],
+                prepTime: recipe?.prepTime ?? '',
+                cookTime: recipe?.cookTime ?? '',
+                categories: recipe?.categories ?? []
+              }) as GeneratedRecipeWithId
           )
         }
         addMessage(assistantMessage)

@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslations } from '~/hooks/use-translations'
-import type { GeneratedRecipe } from '~/schemas/messages'
+import type { GeneratedRecipeWithId } from '~/schemas/messages'
 import { api } from '~/trpc/react'
 import { Button } from './button'
 import { ChevronDownIcon, ClockIcon, SaveIcon } from './icons'
@@ -14,11 +14,9 @@ import { infoToastOptions } from './toast'
 
 export function CollaplableRecipe({
   recipe,
-  messageId,
   isStreaming
 }: {
-  recipe: GeneratedRecipe
-  messageId?: string
+  recipe: GeneratedRecipeWithId
   isStreaming: boolean
 }) {
   const t = useTranslations()
@@ -28,7 +26,7 @@ export function CollaplableRecipe({
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
 
-  const { mutate: saveRecipe, isPending } = api.recipes.create.useMutation({
+  const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
     async onSuccess(_newRecipe, _messageId) {
       await utils.recipes.invalidate()
       // Since the relationship is Recipe -> Message (via messageId),
@@ -59,13 +57,12 @@ export function CollaplableRecipe({
     }
 
     saveRecipe({
+      id: recipe.id,
+      categories: recipe.categories ?? [],
       ingredients: recipe.ingredients,
       instructions: recipe.instructions,
-      name: recipe.name,
-      description: recipe.description,
       prepTime: recipe.prepTime ?? undefined,
-      cookTime: recipe.cookTime ?? undefined,
-      messageId: messageId
+      cookTime: recipe.cookTime ?? undefined
     })
   }
 

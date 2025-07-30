@@ -6,6 +6,7 @@ import {
   upsertChat
 } from '~/server/api/use-cases/chats'
 import { messagesSchema } from '~/schemas/messages'
+import { upsertChatSchema } from '~/schemas/chats'
 
 export const chatsRouter = createTRPCRouter({
   getChats: protectedProcedure
@@ -25,12 +26,7 @@ export const chatsRouter = createTRPCRouter({
     }),
 
   upsert: protectedProcedure
-    .input(
-      z.object({
-        chatId: z.string().optional(),
-        messages: messagesSchema
-      })
-    )
+    .input(upsertChatSchema)
     .mutation(async ({ ctx, input }) => {
       const { chatId, messages } = input
       const userId = ctx.session.user.id

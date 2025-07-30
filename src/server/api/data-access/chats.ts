@@ -1,5 +1,6 @@
 import { type PrismaClient } from '@prisma/client'
 import { type z } from 'zod'
+import type { messagesWithRecipesSchema } from '~/schemas/chats'
 import type { messagesSchema } from '~/schemas/messages'
 
 export class ChatsDataAccess {
@@ -54,7 +55,7 @@ export class ChatsDataAccess {
    */
   async createChatWithMessages(
     userId: string,
-    messages: z.infer<typeof messagesSchema>
+    messages: z.infer<typeof messagesWithRecipesSchema>
   ) {
     return this.prisma.$transaction(async (tx) => {
       // Create the chat
@@ -95,7 +96,7 @@ export class ChatsDataAccess {
    */
   async addMessages(
     chatId: string,
-    messages: z.infer<typeof messagesSchema>,
+    messages: z.infer<typeof messagesWithRecipesSchema>,
     userId: string
   ) {
     await this.prisma.$transaction(async (tx) => {

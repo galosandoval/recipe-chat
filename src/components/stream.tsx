@@ -26,7 +26,7 @@ export function Stream({
             <p className='text-sm whitespace-pre-line'>{stream.content}</p>
             {stream.recipes?.length === 1 && (
               <CollaplableRecipe
-                recipe={stream.recipes[0]}
+                recipe={{ ...stream.recipes[0], id: '' }}
                 isStreaming={isStreaming}
               />
             )}

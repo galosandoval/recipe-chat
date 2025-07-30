@@ -51,7 +51,9 @@ function ListController({ data }: { data: Ingredient[] }) {
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
           <label className='label flex cursor-pointer gap-2'>
-            <span className='label-text'>{t.list.byRecipe}</span>
+            <span className='label-text text-base-content'>
+              {t.list.byRecipe}
+            </span>
             <input
               onChange={handleToggleByRecipe}
               type='checkbox'
@@ -196,8 +198,6 @@ function ListByRecipeId({
     ingredientId: string
   ) => void
 }) {
-  const t = useTranslations()
-
   const ids: string[] = []
 
   const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
@@ -225,9 +225,7 @@ function ListByRecipeId({
     <div>
       {Object.values(recipeBuckets).map((b) => (
         <div key={b[0].recipeId} className='pr-4'>
-          {!isSuccess ? (
-            <p>{t.loading.screen}</p>
-          ) : (
+          {isSuccess && (
             <h3 className='mt-2 mb-0'>
               {b[0].recipeId ? nameDictionary[b[0].recipeId] : 'Other'}
             </h3>

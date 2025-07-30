@@ -5,7 +5,9 @@ import {
   messageSchema,
   generatedRecipeSchema,
   messagesSchema,
-  type GeneratedRecipe
+  type GeneratedRecipe,
+  type GeneratedRecipeWithId,
+  generatedRecipeWithIdSchema
 } from '~/schemas/messages'
 
 export const chatParams = z.object({
@@ -26,8 +28,27 @@ export const generatedMessageSchema = z.object({
 })
 export type GeneratedMessage = z.infer<typeof generatedMessageSchema>
 
-export type MessageWithRecipes = Message & { recipes?: GeneratedRecipe[] }
+export type MessageWithGenRecipes = Message & { recipes?: GeneratedRecipe[] }
+
+export type MessageWithRecipes = Message & {
+  recipes?: GeneratedRecipeWithId[]
+}
 
 export type MessagesDTO = NonNullable<
   RouterOutputs['chats']['getMessagesById']
 >['messages']
+
+export const messagesWithRecipesSchema = z.array(
+  messageSchema.merge(
+    z.object({
+      recipes: generatedRecipeWithIdSchema.array()
+    })
+  )
+)
+
+export const upsertChatSchema = z.object({
+  chatId: z.string().optional(),
+  messages: messagesWithRecipesSchema
+})
+export type UpsertChatSchema = z.infer<typeof upsertChatSchema>
+type Something = UpsertChatSchema['messages'][number]['recipes'][number]

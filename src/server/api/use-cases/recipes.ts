@@ -131,8 +131,15 @@ async function handleInstructions(
 }
 
 export async function saveRecipe(
-  id: string,
+  data: {
+    id: string
+    categories: string[]
+    ingredients: string[]
+    instructions: string[]
+    prepTime?: string
+    cookTime?: string
+  },
   recipesDataAccess: RecipesDataAccess
 ) {
-  await recipesDataAccess.saveRecipe(id)
+  await recipesDataAccess.saveRecipe(data)
 }
