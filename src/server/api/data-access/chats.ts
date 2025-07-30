@@ -40,8 +40,12 @@ export class ChatsDataAccess {
           include: {
             recipes: {
               include: {
-                ingredients: true,
-                instructions: true
+                recipe: {
+                  include: {
+                    ingredients: true,
+                    instructions: true
+                  }
+                }
               }
             }
           }
