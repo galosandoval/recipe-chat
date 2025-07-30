@@ -45,14 +45,16 @@ model Filter {
 }
 
 model Message {
-  id        String   @id @default(cuid())
-  chat      Chat     @relation(fields: [chatId], references: [id])
+  id        String              @id @default(cuid())
+  chat      Chat                @relation(fields: [chatId], references: [id])
   chatId    String
   content   String
   role      Role
-  recipes   Recipe[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  recipe    Recipe?             @relation(fields: [recipeId], references: [id])
+  recipeId  String?             @unique
+  recipes   RecipesOnMessages[]
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
 }
 
 enum Role {
@@ -63,8 +65,8 @@ enum Role {
 }
 
 model Recipe {
-  id           String        @id @default(cuid())
-  user         User?         @relation(fields: [userId], references: [id])
+  id           String              @id @default(cuid())
+  user         User?               @relation(fields: [userId], references: [id])
   userId       String?
   description  String?
   name         String
@@ -75,14 +77,25 @@ model Recipe {
   ingredients  Ingredient[]
   prepTime     String?
   cookTime     String?
-  message      Message?      @relation(fields: [messageId], references: [id])
-  messageId    String?
-  saved        Boolean?
-  categories   String[]      @default([])
-  notes        String        @default("")
-  lastViewedAt DateTime      @default(now())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  message      Message?
+  messages     RecipesOnMessages[]
+  saved        Boolean             @default(false)
+  categories   String[]            @default([])
+  notes        String              @default("")
+  lastViewedAt DateTime            @default(now())
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+}
+
+model RecipesOnMessages {
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId  String
+  message   Message  @relation(fields: [messageId], references: [id])
+  messageId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([recipeId, messageId])
 }
 
 model Instruction {
