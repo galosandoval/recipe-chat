@@ -23,7 +23,7 @@ export class RecipesDataAccess {
 
   async getRecentRecipes(userId: string) {
     return await this.prisma.recipe.findMany({
-      where: { userId: { equals: userId } },
+      where: { userId: { equals: userId }, saved: { equals: true } },
       orderBy: { lastViewedAt: 'desc' },
       take: 4
     })
@@ -40,7 +40,7 @@ export class RecipesDataAccess {
       where: {
         userId: { equals: userId },
         name: { contains: search, mode: 'insensitive' },
-        saved: true
+        saved: { equals: true }
       },
       cursor: cursor ? { id: cursor } : undefined,
       orderBy: {

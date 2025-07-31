@@ -31,7 +31,7 @@ export default function Recipe({
   if (!recipe) return null
 
   return (
-    <div className='prose flex h-full flex-1 flex-col overflow-y-auto px-0 pt-12'>
+    <div className='flex h-full max-w-md flex-1 flex-col overflow-y-auto px-3 pt-12 pr-4'>
       <FoundRecipe data={recipe} />
     </div>
   )
@@ -139,7 +139,7 @@ function FoundRecipe({
         </div>
       </div>
 
-      <div className='flex flex-col px-4'>
+      <div className='flex flex-col'>
         <p className='mb-2'>{description}</p>
 
         {prepTime && cookTime && (
@@ -309,7 +309,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
           priority={true}
         />
       ) : (
-        <div className='gap flex flex-col justify-center px-4 py-5'>
+        <div className='gap flex flex-col items-center justify-center py-5'>
           <input
             id='file-input'
             type='file'
@@ -328,7 +328,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
                 fileInput.click()
               }
             }}
-            className='btn btn-primary'
+            className='btn btn-primary w-3/4'
           >
             {/* camera icon */}
             <svg
@@ -407,11 +407,11 @@ function Instructions({ instructions }: { instructions: Instruction[] }) {
   return (
     <>
       <h2 className='divider'>{t.recipes.instructions}</h2>
-      <ol className='flex list-none flex-col gap-4 pl-0'>
-        {instructions.map((i, index, array) => (
-          <li key={i.id} className='bg-base-300 mt-0 mb-0 px-7 pb-2'>
-            <h3>
-              {t.recipes.step} {index + 1}/{array.length}
+      <ol className='flex list-none flex-col gap-3 pl-0'>
+        {instructions.map((i, index) => (
+          <li key={i.id} className='bg-base-300 mt-0 mb-0 rounded p-3 px-7'>
+            <h3 className='text-base-content mb-1 text-sm font-bold'>
+              {t.recipes.step} {index + 1}
             </h3>
             <p>{i.description}</p>
           </li>

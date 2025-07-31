@@ -58,7 +58,9 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             onClick={handleFillMessage}
             disabled={isStreaming}
           >
-            <span className='w-60'>{t.valueProps.firstButton}</span>
+            <span className='whitespace-nowrap'>
+              {t.valueProps.firstButton}
+            </span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>
@@ -69,7 +71,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             onClick={handleFillMessage}
             disabled={isStreaming}
           >
-            <span className='w-60'>{t.valueProps.secondButton}</span>
+            <span>{t.valueProps.secondButton}</span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>
@@ -80,7 +82,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             onClick={handleFillMessage}
             disabled={isStreaming}
           >
-            <span className='w-60'>{t.valueProps.thirdButton}</span>
+            <span>{t.valueProps.thirdButton}</span>
             <span>
               <ArrowUTurnLeftIcon />
             </span>

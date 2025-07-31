@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client'
 import { ChatsDataAccess } from '~/server/api/data-access/chats'
 import { type z } from 'zod'
-import { messagesWithRecipesSchema } from '~/schemas/chats'
+import { type messagesWithRecipesSchema } from '~/schemas/chats'
 
 export async function getChats(userId: string, prisma: PrismaClient) {
   const chatsDataAccess = new ChatsDataAccess(prisma)
