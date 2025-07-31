@@ -9,7 +9,6 @@ import {
 import { signOut } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
-import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { useChatsDrawer } from './chats-drawer'
 import { chatStore } from '~/stores/chat-store'
 
@@ -29,7 +28,7 @@ export function NavDropdownMenu() {
 }
 
 function Logout() {
-  const [, setChatId] = useSessionChatId()
+  const { setChatId } = chatStore()
   const t = useTranslations()
   const pathname = usePathname()
 
@@ -71,7 +70,7 @@ function DropdownMenu({ children }: { children: React.ReactNode }) {
 
 function StartNewChat() {
   const t = useTranslations()
-  const [chatId, setChatId] = useSessionChatId()
+  const { chatId, setChatId } = chatStore()
   const pathname = usePathname()
   const { setStream, setIsStreaming, setMessages } = chatStore()
 
@@ -100,7 +99,7 @@ function StartNewChat() {
 
 function ChatsSideBarButton() {
   const t = useTranslations()
-  const [chatId] = useSessionChatId()
+  const { chatId } = chatStore()
   const pathname = usePathname()
   const { handleToggleDrawer } = useChatsDrawer()
 

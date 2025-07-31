@@ -26,13 +26,29 @@ export function Stream({
             <p className='text-sm whitespace-pre-line'>{stream.content}</p>
             {stream.recipes?.length === 1 && (
               <CollaplableRecipe
-                recipe={{ ...stream.recipes[0], id: '' }}
+                recipe={{
+                  ...stream.recipes[0],
+                  id: '',
+                  saved: false,
+                  prepTime: stream.recipes[0].prepTime ?? null,
+                  cookTime: stream.recipes[0].cookTime ?? null,
+                  ingredients: stream.recipes[0].ingredients ?? [],
+                  instructions: stream.recipes[0].instructions ?? []
+                }}
                 isStreaming={isStreaming}
               />
             )}
             {stream.recipes && stream.recipes?.length > 1 && (
               <RecipesToGenerate
-                recipes={stream.recipes}
+                recipes={stream.recipes.map((r) => ({
+                  ...r,
+                  id: '',
+                  saved: false,
+                  prepTime: r.prepTime ?? null,
+                  cookTime: r.cookTime ?? null,
+                  ingredients: r.ingredients ?? [],
+                  instructions: r.instructions ?? []
+                }))}
                 isStreaming={isStreaming}
               />
             )}

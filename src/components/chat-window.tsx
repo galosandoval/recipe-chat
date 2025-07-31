@@ -11,7 +11,6 @@ import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { SignUpModal } from './auth-modals'
 import { ScrollModeContext, ScrollToButtons } from './scroll-to-bottom'
-import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { chatStore } from '~/stores/chat-store'
 import { useScrollToTop } from 'react-scroll-to-bottom'
 import { ChatsDrawer } from './chats-drawer'
@@ -23,9 +22,8 @@ import { RecipesToGenerate } from './recipes-to-generate'
 export default function ChatWindow() {
   const { setScrollMode } = useContext(ScrollModeContext)
   const scrollToTop = useScrollToTop()
-  const [chatId] = useSessionChatId()
 
-  const { messages, isStreaming, reset } = chatStore()
+  const { messages, isStreaming, reset, chatId } = chatStore()
 
   const isNewChat = !chatId && !isStreaming && messages.length === 0
 
@@ -33,8 +31,6 @@ export default function ChatWindow() {
   useEffect(() => {
     if (isNewChat) {
       setScrollMode('top')
-    } else {
-      setScrollMode('bottom')
     }
   }, [isNewChat])
 
@@ -112,6 +108,10 @@ const Messages = memo(function Messages({
   isStreaming: boolean
 }) {
   const { stream } = chatStore()
+
+  useEffect(() => {
+    console.log('data', data)
+  }, [data])
 
   if (status === 'error') {
     return <p>Error</p>

@@ -1,7 +1,6 @@
 import { type PrismaClient } from '@prisma/client'
-import { type z } from 'zod'
-import type { messagesWithRecipesSchema } from '~/schemas/chats'
-import type { messagesSchema } from '~/schemas/messages'
+import type { ITXClientDenyList } from '@prisma/client/runtime/library'
+import type { MessagesWithRecipes } from '~/schemas/chats'
 
 export class ChatsDataAccess {
   constructor(private readonly prisma: PrismaClient) {}
@@ -57,10 +56,7 @@ export class ChatsDataAccess {
   /**
    * Creates a new chat with messages and their associated recipes
    */
-  async createChatWithMessages(
-    userId: string,
-    messages: z.infer<typeof messagesWithRecipesSchema>
-  ) {
+  async createChatWithMessages(userId: string, messages: MessagesWithRecipes) {
     return this.prisma.$transaction(async (tx) => {
       // Create the chat
       const newChat = await tx.chat.create({
@@ -100,7 +96,7 @@ export class ChatsDataAccess {
    */
   async addMessages(
     chatId: string,
-    messages: z.infer<typeof messagesWithRecipesSchema>,
+    messages: MessagesWithRecipes,
     userId: string
   ) {
     await this.prisma.$transaction(async (tx) => {
@@ -131,33 +127,78 @@ export class ChatsDataAccess {
    * Creates recipes for a specific message
    */
   private async createRecipesForMessage(
-    tx: any,
+    tx: Omit<PrismaClient, ITXClientDenyList>,
     messageId: string,
     userId: string,
-    recipes: any[]
+    recipes: MessagesWithRecipes[number]['recipes']
   ) {
     for (const recipe of recipes) {
-      await tx.recipe.create({
-        data: {
-          name: recipe.name,
-          description: recipe.description,
-          prepTime: recipe.prepTime,
-          cookTime: recipe.cookTime,
-          categories: recipe.categories,
-          userId,
-          messageId,
-          ingredients: {
-            create: recipe.ingredients?.map((i: string) => ({
-              name: i
-            }))
-          },
-          instructions: {
-            create: recipe.instructions?.map((i: string) => ({
-              description: i
-            }))
-          }
+      const existingRecipe = await tx.recipe.findUnique({
+        where: {
+          id: recipe.id
         }
       })
+      if (existingRecipe) {
+        await tx.recipe.update({
+          where: {
+            id: recipe.id
+          },
+          data: {
+            ...recipe,
+
+            ingredients: {
+              create: recipe.ingredients?.map((i: string) => ({
+                name: i
+              }))
+            },
+            instructions: {
+              create: recipe.instructions?.map((i: string) => ({
+                description: i
+              }))
+            }
+          }
+        })
+        await tx.recipesOnMessages.create({
+          data: {
+            recipeId: recipe.id,
+            messageId
+          }
+        })
+      } else {
+        const createdRecipe = await tx.recipe.create({
+          data: {
+            id: recipe.id,
+            name: recipe.name,
+            description: recipe.description,
+            prepTime: recipe.prepTime,
+            cookTime: recipe.cookTime,
+            categories: recipe.categories,
+            user: {
+              connect: {
+                id: userId
+              }
+            },
+            ingredients: {
+              create: recipe.ingredients?.map((i: string) => ({
+                name: i
+              }))
+            },
+            instructions: {
+              create: recipe.instructions?.map((i: string) => ({
+                description: i
+              }))
+            }
+          }
+        })
+        console.log('cratedRecipe', createdRecipe)
+        // Create the many-to-many relationship between recipe and message
+        await tx.recipesOnMessages.create({
+          data: {
+            recipeId: createdRecipe.id,
+            messageId
+          }
+        })
+      }
     }
   }
 }

@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslations } from '~/hooks/use-translations'
 import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
-import toast from 'react-hot-toast'
+import { toast } from '~/components/toast'
 import Image from 'next/image'
 import { useNoSleep } from '~/hooks/use-no-sleep'
 

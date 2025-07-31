@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { type Ingredient, type Recipe } from '@prisma/client'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-hot-toast'
+import { toast } from '~/components/toast'
 import { api } from '~/trpc/react'
 import { z } from 'zod'
 import { createId } from '@paralleldrive/cuid2'
@@ -200,6 +200,10 @@ export function useListController(data: Ingredient[]) {
     },
 
     onError: (error, _, ctx) => {
+      const stack = error.data?.stack
+      if (stack) {
+        // myToast.error(stack)
+      }
       const prevList = ctx?.prevList
       if (prevList) {
         utils.lists.byUserId.setData({ userId }, prevList)

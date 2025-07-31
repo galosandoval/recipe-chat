@@ -2,7 +2,7 @@ import { Button } from '~/components/button'
 import { api } from '~/trpc/react'
 import { signIn } from 'next-auth/react'
 import { ErrorMessage } from '~/components/error-message-content'
-import { toast } from 'react-hot-toast'
+import { toast } from '~/components/toast'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Modal } from './modal'
 import { createContext, useContext, useState } from 'react'
@@ -11,11 +11,6 @@ import { chatStore } from '~/stores/chat-store'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import {
-  errorToastOptions,
-  loadingToastOptions,
-  successToastOptions
-} from './toast'
 
 export const signUpSchema = (t: any) =>
   z
@@ -119,7 +114,7 @@ export function SignUpModal() {
     const newRecipePromise = createChatAndRecipeAsync({
       recipe: {
         name: recipe.name,
-        description: recipe.description,
+        description: recipe.description ?? '',
         ingredients: recipe.ingredients ?? [],
         instructions: recipe.instructions ?? [],
         prepTime: recipe.prepTime ?? '',
@@ -128,19 +123,11 @@ export function SignUpModal() {
       },
       messages
     })
-    const user = await toast.promise(
-      newRecipePromise,
-      {
-        loading: t.loading.loggingIn,
-        success: () => t.toast.loginSuccess,
-        error: () => t.error.somethingWentWrong
-      },
-      {
-        loading: loadingToastOptions,
-        success: { ...successToastOptions, duration: 3000 },
-        error: errorToastOptions
-      }
-    )
+    const user = await toast.promise(newRecipePromise, {
+      loading: t.loading.loggingIn,
+      success: () => t.toast.loginSuccess,
+      error: () => t.error.somethingWentWrong
+    })
     router.push(`recipes/${user.id}}`)
   }
   return (

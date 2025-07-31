@@ -130,7 +130,9 @@
   },
 
   "error": {
-    "somethingWentWrong": "Something went wrong."
+    "error": "Error: ",
+    "somethingWentWrong": "Something went wrong.",
+    "saveRecipe": "Error saving recipe."
   },
 
   "loading": { "screen": "Loading...", "loggingIn": "Logging in..." },

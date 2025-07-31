@@ -58,52 +58,11 @@ export class RecipesDataAccess {
     }
   }
 
-  async saveRecipe({
-    id,
-    categories,
-    ingredients,
-    instructions,
-    prepTime,
-    cookTime
-  }: {
-    id: string
-    categories: string[]
-    ingredients: string[]
-    instructions: string[]
-    prepTime?: string
-    cookTime?: string
-  }) {
-    const existingRecipe = await this.prisma.recipe.findUnique({
-      where: { id }
-    })
-
-    if (!existingRecipe) {
-      throw new Error('Recipe not found')
-    }
-
-    return await this.prisma.recipe.upsert({
+  async saveRecipe({ id }: { id: string }) {
+    return await this.prisma.recipe.update({
       where: { id },
-      update: {
-        saved: true,
-        categories,
-        prepTime,
-        cookTime,
-        ingredients: {
-          create: ingredients.map((i) => ({ name: i }))
-        },
-        instructions: {
-          create: instructions.map((i) => ({ description: i }))
-        }
-      },
-      create: {
-        id,
-        name: existingRecipe.name,
-
-        categories,
-        prepTime,
-        cookTime,
-        ingredients: { create: ingredients.map((i) => ({ name: i })) },
-        instructions: { create: instructions.map((i) => ({ description: i })) }
+      data: {
+        saved: { set: true }
       }
     })
   }
@@ -112,7 +71,7 @@ export class RecipesDataAccess {
     return await prisma.recipe.create({
       data: {
         ...recipe,
-        userId,
+        user: { connect: { id: userId } },
         instructions: {
           create: recipe.instructions.map((i) => ({ description: i }))
         },

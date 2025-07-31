@@ -1,7 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 import { useParams, usePathname } from 'next/navigation'
 import { useTranslations } from '~/hooks/use-translations'
-import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { useSession } from 'next-auth/react'
 import type { Chat, Message } from '@prisma/client'
 import { ListBulletIcon } from './icons'
@@ -10,6 +9,7 @@ import { ScreenLoader } from './loaders/screen'
 import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
 import { cn } from '~/utils/cn'
+import { chatStore } from '~/stores/chat-store'
 
 export const ChatsDrawerContext = createContext<{
   isOpen: boolean
@@ -71,7 +71,7 @@ function ChatList({
   handleToggleChatsModal: () => void
 }) {
   const t = useTranslations()
-  const [chatId, changeChatId] = useSessionChatId()
+  const { chatId, setChatId } = chatStore()
   const { data, status, isAuthenticated } = useGetChats()
 
   if (!isAuthenticated) {
@@ -87,7 +87,7 @@ function ChatList({
       messages: Message[]
     }
   ) => {
-    changeChatId(chat.id)
+    setChatId(chat.id)
     handleToggleChatsModal()
   }
 

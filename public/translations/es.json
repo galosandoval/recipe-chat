@@ -130,7 +130,9 @@
   },
 
   "error": {
-    "somethingWentWrong": "Algo salió mal."
+    "error": "Error: ",
+    "somethingWentWrong": "Algo salió mal.",
+    "saveRecipe": "Error al guardar la receta."
   },
 
   "loading": { "screen": "Cargando...", "loggingIn": "Iniciando sesión..." },

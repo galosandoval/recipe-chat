@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import ScrollToBottom, {
   useScrollToBottom,
   useScrollToTop,
@@ -13,25 +13,21 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
   const scrollToBottom = useScrollToBottom()
   const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
+  const { setScrollMode } = useContext(ScrollModeContext)
+
+  useEffect(() => {
+    // if at the bottom and not streaming, scroll to bottom
+    if (sticky && !enable) {
+      setScrollMode('bottom')
+      scrollToBottom({ behavior: 'smooth' })
+    }
+  }, [sticky, enable])
+
   return (
     <>
       <div
-        className={`absolute right-4 bottom-20 duration-300 transition-all${
-          !sticky
-            ? 'translate-y-0 opacity-100'
-            : 'invisible translate-y-4 opacity-0'
-        }`}
-      >
-        <button
-          className='btn btn-circle glass'
-          onClick={() => scrollToBottom({ behavior: 'smooth' })}
-        >
-          <ArrowSmallDownIcon />
-        </button>
-      </div>
-      <div
         className={`absolute bottom-20 left-4 duration-300 transition-all${
-          sticky && enable
+          !sticky
             ? 'translate-y-0 opacity-100'
             : 'invisible translate-y-4 opacity-0'
         }`}
@@ -43,6 +39,20 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
           <ArrowSmallUpIcon />
         </button>
       </div>
+      <div
+        className={`absolute right-4 bottom-20 duration-300 transition-all${
+          sticky && enable
+            ? 'translate-y-0 opacity-100'
+            : 'invisible translate-y-4 opacity-0'
+        }`}
+      >
+        <button
+          className='btn btn-circle glass'
+          onClick={() => scrollToBottom({ behavior: 'smooth' })}
+        >
+          <ArrowSmallDownIcon />
+        </button>
+      </div>
     </>
   )
 }
@@ -51,7 +61,7 @@ export const ScrollModeContext = createContext<{
   scrollMode: 'bottom' | 'top'
   setScrollMode: (mode: 'bottom' | 'top') => void
 }>({
-  scrollMode: 'top',
+  scrollMode: 'bottom',
   setScrollMode: () => {}
 })
 

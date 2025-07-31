@@ -133,11 +133,6 @@ async function handleInstructions(
 export async function saveRecipe(
   data: {
     id: string
-    categories: string[]
-    ingredients: string[]
-    instructions: string[]
-    prepTime?: string
-    cookTime?: string
   },
   recipesDataAccess: RecipesDataAccess
 ) {
