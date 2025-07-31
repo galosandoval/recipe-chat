@@ -11,6 +11,7 @@ export function userMessageDTO(
     id: createId(),
     chatId: chatId ?? '',
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
+    recipes: []
   }
 }

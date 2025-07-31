@@ -1,6 +1,6 @@
 export function ScreenLoader() {
   return (
-    <div className='grid h-[calc(100svh-64px)] place-items-center'>
+    <div className='bg-base-300 grid h-[calc(100svh-64px)] place-items-center'>
       <LoadingSpinner />
     </div>
   )

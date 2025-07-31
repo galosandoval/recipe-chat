@@ -26,22 +26,8 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
   return (
     <>
       <div
-        className={`absolute right-4 bottom-20 duration-300 transition-all${
-          !sticky
-            ? 'translate-y-0 opacity-100'
-            : 'invisible translate-y-4 opacity-0'
-        }`}
-      >
-        <button
-          className='btn btn-circle glass'
-          onClick={() => scrollToBottom({ behavior: 'smooth' })}
-        >
-          <ArrowSmallDownIcon />
-        </button>
-      </div>
-      <div
         className={`absolute bottom-20 left-4 duration-300 transition-all${
-          sticky && enable
+          !sticky
             ? 'translate-y-0 opacity-100'
             : 'invisible translate-y-4 opacity-0'
         }`}
@@ -51,6 +37,20 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
           onClick={() => scrollToTop({ behavior: 'smooth' })}
         >
           <ArrowSmallUpIcon />
+        </button>
+      </div>
+      <div
+        className={`absolute right-4 bottom-20 duration-300 transition-all${
+          sticky && enable
+            ? 'translate-y-0 opacity-100'
+            : 'invisible translate-y-4 opacity-0'
+        }`}
+      >
+        <button
+          className='btn btn-circle glass'
+          onClick={() => scrollToBottom({ behavior: 'smooth' })}
+        >
+          <ArrowSmallDownIcon />
         </button>
       </div>
     </>

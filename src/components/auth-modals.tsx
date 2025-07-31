@@ -114,7 +114,7 @@ export function SignUpModal() {
     const newRecipePromise = createChatAndRecipeAsync({
       recipe: {
         name: recipe.name,
-        description: recipe.description,
+        description: recipe.description ?? '',
         ingredients: recipe.ingredients ?? [],
         instructions: recipe.instructions ?? [],
         prepTime: recipe.prepTime ?? '',

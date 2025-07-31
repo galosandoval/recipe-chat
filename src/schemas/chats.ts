@@ -1,12 +1,11 @@
 import { z } from 'zod'
-import type { Message } from '@prisma/client'
+import type { Message, Recipe } from '@prisma/client'
 import type { RouterOutputs } from '~/trpc/react'
 import {
   messageSchema,
   generatedRecipeSchema,
   messagesSchema,
   type GeneratedRecipe,
-  type GeneratedRecipeWithId,
   generatedRecipeWithIdSchema
 } from '~/schemas/messages'
 
@@ -30,8 +29,16 @@ export type GeneratedMessage = z.infer<typeof generatedMessageSchema>
 
 export type MessageWithGenRecipes = Message & { recipes?: GeneratedRecipe[] }
 
+export type RecipeDTO = Pick<
+  Recipe,
+  'id' | 'name' | 'description' | 'prepTime' | 'cookTime' | 'saved'
+> & {
+  ingredients: string[]
+  instructions: string[]
+}
+
 export type MessageWithRecipes = Message & {
-  recipes?: GeneratedRecipeWithId[]
+  recipes: RecipeDTO[]
 }
 
 export type MessageWithRecipesDTO = NonNullable<
@@ -45,6 +52,7 @@ export const messagesWithRecipesSchema = z.array(
     })
   )
 )
+export type MessagesWithRecipes = z.infer<typeof messagesWithRecipesSchema>
 
 export const upsertChatSchema = z.object({
   chatId: z.string().optional(),
