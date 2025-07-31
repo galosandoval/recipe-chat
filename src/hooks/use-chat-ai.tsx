@@ -1,5 +1,4 @@
 import { useSession } from 'next-auth/react'
-import { useSessionChatId } from './use-session-chat-id'
 import { useFiltersByUser } from '~/components/recipe-filters'
 import { api } from '~/trpc/react'
 import { chatStore } from '~/stores/chat-store'
@@ -7,12 +6,12 @@ import { createId } from '@paralleldrive/cuid2'
 import { useCallback, useEffect } from 'react'
 import type {
   generatedMessageSchema,
-  MessageWithRecipes
+  MessageWithRecipes,
+  MessageWithRecipesDTO
 } from '~/schemas/chats'
 import type { GeneratedRecipeWithId } from '~/schemas/messages'
 import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/react'
-import toast from 'react-hot-toast'
-import { myToast } from '~/components/toast'
+import { toast } from '~/components/toast'
 
 type Object = UseObjectHelpers<typeof generatedMessageSchema, string>['object']
 type Error = UseObjectHelpers<typeof generatedMessageSchema, string>['error']
@@ -21,26 +20,10 @@ type OnFinish = { object: Object; error: Error }
 /**
  * Transforms database message data to the format expected by chatStore
  */
-const transformMessagesToChatStore = (data: any): MessageWithRecipes[] => {
-  // Handle different response structures from upsertChat
-  let messages: any[] = []
-
-  if (data?.messages) {
-    // If data.messages is an array, use it directly
-    if (Array.isArray(data.messages)) {
-      messages = data.messages
-    } else if (
-      data.messages.messages &&
-      Array.isArray(data.messages.messages)
-    ) {
-      // If data.messages is an object with a messages property (from getMessagesById)
-      messages = data.messages.messages
-    }
-  }
-
-  if (!messages.length) return []
-
-  return messages.map((message) => ({
+const transformMessagesToChatStore = (
+  data: MessageWithRecipesDTO[]
+): MessageWithRecipes[] => {
+  return data.map((message) => ({
     id: message.id,
     content: message.content,
     role: message.role,
@@ -49,18 +32,18 @@ const transformMessagesToChatStore = (data: any): MessageWithRecipes[] => {
     updatedAt: message.updatedAt,
     recipes:
       message.recipes?.map(
-        (recipe: any): GeneratedRecipeWithId => ({
-          id: recipe.id,
-          name: recipe.name,
-          description: recipe.description || '',
-          prepTime: recipe.prepTime,
-          cookTime: recipe.cookTime,
-          categories: recipe.categories || [],
+        (r): GeneratedRecipeWithId => ({
+          id: r.recipe.id,
+          name: r.recipe.name,
+          description: r.recipe.description || '',
+          prepTime: r.recipe.prepTime,
+          cookTime: r.recipe.cookTime,
+          categories: r.recipe.categories || [],
           ingredients:
-            recipe.ingredients?.map((ingredient: any) => ingredient.name) || [],
+            r.recipe.ingredients?.map((ingredient) => ingredient.name) || [],
           instructions:
-            recipe.instructions?.map(
-              (instruction: any) => instruction.description
+            r.recipe.instructions?.map(
+              (instruction) => instruction.description
             ) || []
         })
       ) || []
@@ -68,11 +51,12 @@ const transformMessagesToChatStore = (data: any): MessageWithRecipes[] => {
 }
 
 export const useChatAI = () => {
-  const [sessionChatId, changeChatId] = useSessionChatId()
+  const { chatId, setChatId } = chatStore()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   const filters = useFiltersByUser()
   const filtersData = filters.data
+  const utils = api.useUtils()
 
   const { addMessage, setMessages } = chatStore()
 
@@ -86,15 +70,18 @@ export const useChatAI = () => {
   const { mutate: upsertChat } = api.chats.upsert.useMutation({
     async onSuccess(data) {
       if (data.chatId) {
-        changeChatId(data.chatId)
+        setChatId(data.chatId)
+      } else {
+        const chatId = chatStore.getState().chatId
+        utils.chats.getMessagesById.invalidate({ chatId })
       }
     },
     onError: (error) => {
       const stack = error.data?.stack
       if (stack) {
-        myToast.error(stack)
+        toast.error(stack)
       } else {
-        myToast.error(error.message)
+        toast.error(error.message)
       }
     }
   })
@@ -107,7 +94,7 @@ export const useChatAI = () => {
     }
 
     upsertChat({
-      chatId: sessionChatId,
+      chatId: chatStore.getState().chatId,
       messages: messages.map((message) => ({
         id: message.id,
         content: message.content,
@@ -127,10 +114,10 @@ export const useChatAI = () => {
     handleUpsertMessage()
   }
 
-  const enabled = isAuthenticated && !!sessionChatId
+  const enabled = isAuthenticated && !!chatId
 
   const { status: queryStatus, data } = api.chats.getMessagesById.useQuery(
-    { chatId: sessionChatId ?? '' },
+    { chatId: chatId ?? '' },
     {
       enabled,
       staleTime: Infinity
@@ -152,7 +139,7 @@ export const useChatAI = () => {
           role: 'assistant',
           createdAt: new Date(),
           updatedAt: new Date(),
-          chatId: sessionChatId ?? '',
+          chatId: chatId ?? '',
           recipes: (aiResponse.object?.recipes ?? []).map(
             (recipe) =>
               ({
@@ -170,12 +157,12 @@ export const useChatAI = () => {
         addMessage(assistantMessage)
       }
     },
-    [sessionChatId, addMessage, createId]
+    [chatId, addMessage, createId]
   )
 
   useEffect(() => {
     if (queryStatus === 'success' && data) {
-      setMessages(transformMessagesToChatStore(data))
+      setMessages(transformMessagesToChatStore(data.messages))
     }
   }, [queryStatus, data])
 

@@ -5,7 +5,6 @@ import type { GeneratedRecipe } from '~/schemas/messages'
 import { Button } from './button'
 import { PaperPlaneIcon } from './icons'
 import { userMessageDTO } from '~/utils/use-message-dto'
-import { useSessionChatId } from '~/hooks/use-session-chat-id'
 
 export function RecipesToGenerate({
   recipes,
@@ -15,7 +14,6 @@ export function RecipesToGenerate({
   isStreaming: boolean
 }) {
   const t = useTranslations()
-  const [sessionChatId] = useSessionChatId()
   // const [generated, setGenerated] = useState<boolean[]>(
   // 	recipes?.map(() => false) ?? []
   // )
@@ -44,7 +42,7 @@ export function RecipesToGenerate({
       ...messages,
       userMessageDTO(
         t.chatWindow.generateRecipe + name + ': ' + description,
-        sessionChatId
+        chatStore.getState().chatId
       )
     ])
   }

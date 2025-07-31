@@ -4,12 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { type Ingredient, type Recipe } from '@prisma/client'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-hot-toast'
+import { toast } from '~/components/toast'
 import { api } from '~/trpc/react'
 import { z } from 'zod'
 import { createId } from '@paralleldrive/cuid2'
 import { useUserId } from './use-user-id'
-// import { myToast } from '~/components/toast'
 
 export const useList = () => {
   const userId = useUserId()

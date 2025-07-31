@@ -1,36 +1,22 @@
-import toast, {
-  type ToastOptions,
-  Toaster,
-  useToasterStore,
-  ToastBar
-} from 'react-hot-toast'
+import _toast, { type ToastOptions, Toaster, ToastBar } from 'react-hot-toast'
 import { CheckIcon, ExclamationCircle } from './icons'
+import { cn } from '~/utils/cn'
 
 export function Toast() {
-  const { toasts } = useToasterStore()
-
-  const lastToastId = toasts.at(-1)?.id
-
-  const handleClickToaster = () => {
-    toast.dismiss(lastToastId)
-  }
-
   return (
-    <button>
-      <Toaster
-        toastOptions={{
-          success: successToastOptions,
-          error: errorToastOptions,
-          loading: loadingToastOptions
-        }}
-      >
-        {(t) => (
-          <div>
-            <ToastBar toast={t} />
-          </div>
-        )}
-      </Toaster>
-    </button>
+    <Toaster
+      toastOptions={{
+        success: successToastOptions,
+        error: errorToastOptions,
+        loading: loadingToastOptions
+      }}
+    >
+      {(t) => (
+        <div>
+          <ToastBar toast={t} />
+        </div>
+      )}
+    </Toaster>
   )
 }
 
@@ -101,23 +87,24 @@ export const infoToastOptions: ToastOptions = {
   )
 }
 
-export const myToast = {
-  success: (message: string) => toast.success(message),
+export const toast = {
+  success: (message: string) => _toast.success(message),
   error: (message: string) =>
-    toast.custom(
+    _toast.custom(
       (t) => (
         <div
-          className={`${
-            t.visible ? 'animate-enter' : 'animate-leave'
-          } bg-base-300 border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl`}
+          className={cn(
+            t.visible ? 'animate-enter' : 'animate-leave',
+            'bg-base-300 border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl'
+          )}
         >
-          <div className='flex-1 text-left text-sm whitespace-break-spaces'>
+          <div className='flex-1 cursor-auto text-left text-sm whitespace-break-spaces select-text'>
             {message}
           </div>
           <div className='flex'>
             <div>
               <button
-                onClick={() => toast.dismiss(t.id)}
+                onClick={() => _toast.dismiss(t.id)}
                 className='btn btn-ghost flex w-full'
               >
                 Close
@@ -128,5 +115,19 @@ export const myToast = {
       ),
       errorToastOptions
     ),
-  loading: toast.loading
+  loading: _toast.loading,
+  info: (message: string) => _toast(message, infoToastOptions),
+  promise: async (
+    promise: Promise<any>,
+    msgs: {
+      loading: string
+      success: () => string
+      error: () => string
+    }
+  ) =>
+    await _toast.promise(promise, msgs, {
+      loading: loadingToastOptions,
+      success: { ...successToastOptions, duration: 3000 },
+      error: errorToastOptions
+    })
 }

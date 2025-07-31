@@ -1,12 +1,15 @@
 import { create } from 'zustand'
 import type { GeneratedMessage, MessageWithRecipes } from '~/schemas/chats'
 
+const CURRENT_CHAT_ID = 'currentChatId'
+
 type ChatStore = {
   // UI State
   messages: MessageWithRecipes[]
   input: string
   isStreaming: boolean
   stream: GeneratedMessage
+  chatId: string
 
   // Actions
   setInput: (input: string) => void
@@ -14,6 +17,7 @@ type ChatStore = {
   addMessage: (message: MessageWithRecipes) => void
   setMessages: (messages: MessageWithRecipes[]) => void
   clearMessages: () => void
+  setChatId: (chatId: string) => void
 
   // Streaming
   setStream: (stream: GeneratedMessage) => void
@@ -33,12 +37,25 @@ const initialStream: GeneratedMessage = {
 
 const initialMessages: MessageWithRecipes[] = []
 
+// Helper function to get initial chat ID from session storage
+const getInitialChatId = (): string => {
+  if (typeof window === 'undefined') return ''
+
+  try {
+    const stored = sessionStorage.getItem(CURRENT_CHAT_ID)
+    return stored ? JSON.parse(stored) : ''
+  } catch {
+    return ''
+  }
+}
+
 export const chatStore = create<ChatStore>((set, get) => ({
   // Initial state
   messages: initialMessages,
   input: '',
   isStreaming: false,
   stream: initialStream,
+  chatId: getInitialChatId(),
 
   // Actions
   setInput: (input: string) => set({ input }),
@@ -57,6 +74,13 @@ export const chatStore = create<ChatStore>((set, get) => ({
 
   clearMessages: () => set({ messages: initialMessages }),
 
+  setChatId: (chatId: string) => {
+    set({ chatId })
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(CURRENT_CHAT_ID, JSON.stringify(chatId))
+    }
+  },
+
   // Streaming
   setStream: (stream: GeneratedMessage) => set({ stream }),
 
@@ -74,6 +98,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
       messages: initialMessages,
       input: '',
       isStreaming: false,
-      stream: initialStream
+      stream: initialStream,
+      chatId: ''
     })
 }))

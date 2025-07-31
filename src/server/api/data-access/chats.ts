@@ -1,7 +1,6 @@
 import { type PrismaClient } from '@prisma/client'
 import { type z } from 'zod'
 import type { messagesWithRecipesSchema } from '~/schemas/chats'
-import type { messagesSchema } from '~/schemas/messages'
 
 export class ChatsDataAccess {
   constructor(private readonly prisma: PrismaClient) {}
@@ -137,15 +136,18 @@ export class ChatsDataAccess {
     recipes: any[]
   ) {
     for (const recipe of recipes) {
-      await tx.recipe.create({
+      const createdRecipe = await tx.recipe.create({
         data: {
           name: recipe.name,
           description: recipe.description,
           prepTime: recipe.prepTime,
           cookTime: recipe.cookTime,
           categories: recipe.categories,
-          userId,
-          messageId,
+          user: {
+            connect: {
+              id: userId
+            }
+          },
           ingredients: {
             create: recipe.ingredients?.map((i: string) => ({
               name: i
@@ -156,6 +158,14 @@ export class ChatsDataAccess {
               description: i
             }))
           }
+        }
+      })
+
+      // Create the many-to-many relationship between recipe and message
+      await tx.recipesOnMessages.create({
+        data: {
+          recipeId: createdRecipe.id,
+          messageId
         }
       })
     }

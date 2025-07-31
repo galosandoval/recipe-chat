@@ -103,7 +103,7 @@ function SearchBarWrapper({
   handleSearchButtonClick: () => void
 }) {
   return (
-    <div className='relative container mx-auto flex flex-col overflow-y-auto px-2'>
+    <div className='relative container flex flex-col overflow-y-auto px-2'>
       <SearchBar
         handleChange={handleChange}
         handleSearchButtonClick={handleSearchButtonClick}
@@ -176,7 +176,7 @@ function Pages({
   }
 
   return (
-    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-5 pb-20 sm:grid-cols-4'>
+    <div className='grid max-w-4xl grid-cols-2 gap-5 pb-20 sm:grid-cols-4'>
       {pages.length > 0 && pages[0].items.length > 0 ? (
         <>
           <RecentRecipes />

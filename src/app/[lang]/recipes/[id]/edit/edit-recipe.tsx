@@ -13,7 +13,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import Image from 'next/image'
 import { api, type RouterOutputs } from '~/trpc/react'
 import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
-import toast from 'react-hot-toast'
+import { toast } from '~/components/toast'
 
 type FormValues = {
   name: string

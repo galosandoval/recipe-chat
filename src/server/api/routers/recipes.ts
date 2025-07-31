@@ -162,12 +162,7 @@ export const recipesRouter = createTRPCRouter({
   save: protectedProcedure
     .input(
       z.object({
-        id: z.string(),
-        categories: z.array(z.string()),
-        ingredients: z.array(z.string()),
-        instructions: z.array(z.string()),
-        prepTime: z.string().optional(),
-        cookTime: z.string().optional()
+        id: z.string()
       })
     )
     .mutation(async ({ input, ctx }) => {

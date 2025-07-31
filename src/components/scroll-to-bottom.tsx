@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import ScrollToBottom, {
   useScrollToBottom,
   useScrollToTop,
@@ -13,6 +13,16 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
   const scrollToBottom = useScrollToBottom()
   const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
+  const { setScrollMode } = useContext(ScrollModeContext)
+
+  useEffect(() => {
+    // if at the bottom and not streaming, scroll to bottom
+    if (sticky && !enable) {
+      setScrollMode('bottom')
+      scrollToBottom({ behavior: 'smooth' })
+    }
+  }, [sticky, enable])
+
   return (
     <>
       <div
@@ -51,7 +61,7 @@ export const ScrollModeContext = createContext<{
   scrollMode: 'bottom' | 'top'
   setScrollMode: (mode: 'bottom' | 'top') => void
 }>({
-  scrollMode: 'top',
+  scrollMode: 'bottom',
   setScrollMode: () => {}
 })
 

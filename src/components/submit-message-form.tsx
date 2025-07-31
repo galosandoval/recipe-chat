@@ -9,7 +9,6 @@ import {
 } from '~/schemas/chats'
 import { useChatAI } from '~/hooks/use-chat-ai'
 import { useEffect } from 'react'
-import { useSessionChatId } from '~/hooks/use-session-chat-id'
 import { userMessageDTO } from '~/utils/use-message-dto'
 import { useFiltersByUser } from './recipe-filters'
 
@@ -23,7 +22,7 @@ export function SubmitMessageForm() {
     setStream,
     setIsStreaming
   } = chatStore()
-  const [sessionChatId] = useSessionChatId()
+  const chatId = chatStore((state) => state.chatId)
   const t = useTranslations()
   const { onFinishMessage, createUserMessage, handleAIResponse } = useChatAI()
   const { data: filters, status } = useFiltersByUser()
@@ -74,7 +73,7 @@ export function SubmitMessageForm() {
   const enhancedHandleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const userMessage = userMessageDTO(input, sessionChatId)
+    const userMessage = userMessageDTO(input, chatId)
 
     const messagesToSubmit: MessageWithRecipes[] = [...messages, userMessage]
 

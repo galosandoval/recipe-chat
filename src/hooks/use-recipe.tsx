@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { toast } from 'react-hot-toast'
+import { toast } from '~/components/toast'
 import { type LinkedDataRecipeField } from '~/server/api/schemas/recipes'
 import { useForm } from 'react-hook-form'
 import { api } from '~/trpc/react'

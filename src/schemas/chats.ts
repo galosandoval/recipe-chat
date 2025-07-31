@@ -34,9 +34,9 @@ export type MessageWithRecipes = Message & {
   recipes?: GeneratedRecipeWithId[]
 }
 
-export type MessagesDTO = NonNullable<
+export type MessageWithRecipesDTO = NonNullable<
   RouterOutputs['chats']['getMessagesById']
->['messages']
+>['messages'][number]
 
 export const messagesWithRecipesSchema = z.array(
   messageSchema.merge(
@@ -51,4 +51,3 @@ export const upsertChatSchema = z.object({
   messages: messagesWithRecipesSchema
 })
 export type UpsertChatSchema = z.infer<typeof upsertChatSchema>
-type Something = UpsertChatSchema['messages'][number]['recipes'][number]

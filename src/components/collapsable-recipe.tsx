@@ -1,8 +1,8 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
+import { useEffect, useState } from 'react'
+import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import type { GeneratedRecipeWithId } from '~/schemas/messages'
 import { api } from '~/trpc/react'
@@ -10,7 +10,6 @@ import { Button } from './button'
 import { ChevronDownIcon, ClockIcon, SaveIcon } from './icons'
 import { cn } from '~/utils/cn'
 import { useAuthModal } from './auth-modals'
-import { infoToastOptions } from './toast'
 
 export function CollaplableRecipe({
   recipe,
@@ -25,7 +24,7 @@ export function CollaplableRecipe({
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
-
+  const isUpsertingMessages = utils.chats.upsert.isMutating()
   const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
     async onSuccess(_newRecipe, _messageId) {
       await utils.recipes.invalidate()
@@ -36,9 +35,19 @@ export function CollaplableRecipe({
       toast.success(t.chatWindow.saveSuccess)
     },
     onError: (error) => {
-      toast.error('Error: ' + error.message)
+      if (error.message in t.error) {
+        toast.error(
+          t.error.error + t.error[error.message as keyof typeof t.error]
+        )
+      } else {
+        toast.error(error.data?.stack ?? error.message)
+      }
     }
   })
+
+  useEffect(() => {
+    console.log('isUpsertingMessages', isUpsertingMessages)
+  }, [isUpsertingMessages])
 
   if (!recipe) {
     return null
@@ -48,7 +57,7 @@ export function CollaplableRecipe({
     if (!isAuthenticated) {
       handleOpenSignUp()
 
-      toast(t.toast.signUp, infoToastOptions)
+      toast.info(t.toast.signUp)
       return
     }
 
@@ -57,12 +66,7 @@ export function CollaplableRecipe({
     }
 
     saveRecipe({
-      id: recipe.id,
-      categories: recipe.categories ?? [],
-      ingredients: recipe.ingredients,
-      instructions: recipe.instructions,
-      prepTime: recipe.prepTime ?? undefined,
-      cookTime: recipe.cookTime ?? undefined
+      id: recipe.id
     })
   }
 
@@ -95,7 +99,7 @@ export function CollaplableRecipe({
         {isAuthenticated ? (
           <Button
             className='btn btn-sm mt-2'
-            disabled={isStreaming}
+            disabled={isStreaming || isUpsertingMessages > 0}
             isLoading={isPending}
             onClick={handleSaveRecipe}
           >
@@ -161,8 +165,8 @@ function Instructions({ instructions }: { instructions?: string[] }) {
         <h3 className='text-sm font-semibold'>{t.recipes.instructions}</h3>
       )}
       <ol className='list-inside list-decimal'>
-        {instructions?.map((i) => (
-          <li key={i} className='text-xs'>
+        {instructions?.map((i, idx) => (
+          <li key={idx + i} className='text-xs'>
             {i}
           </li>
         ))}
