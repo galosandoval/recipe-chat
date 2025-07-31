@@ -5,7 +5,6 @@ import {
   getMessagesById,
   upsertChat
 } from '~/server/api/use-cases/chats'
-import { messagesSchema } from '~/schemas/messages'
 import { upsertChatSchema } from '~/schemas/chats'
 
 export const chatsRouter = createTRPCRouter({
