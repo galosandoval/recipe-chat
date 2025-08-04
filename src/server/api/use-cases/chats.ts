@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client'
 import { ChatsDataAccess } from '~/server/api/data-access/chats'
 import { type z } from 'zod'
-import { type messagesWithRecipesSchema } from '~/schemas/chats'
+import { type Generated, type messagesWithRecipesSchema } from '~/schemas/chats'
 
 export async function getChats(userId: string, prisma: PrismaClient) {
   const chatsDataAccess = new ChatsDataAccess(prisma)
@@ -45,4 +45,46 @@ export async function upsertChat(
       chatId: newChat.id
     } as const
   }
+}
+
+export async function generated(prisma: PrismaClient, data: Generated) {
+  const chatsDataAccess = new ChatsDataAccess(prisma)
+  const { id, ingredients, content, instructions, messageId, chatId, ...rest } =
+    data
+  const updated = await prisma.recipe.update({
+    where: {
+      id: data.id
+    },
+    data: {
+      ...rest,
+      ingredients: {
+        create: ingredients.map((ingredient) => ({
+          name: ingredient
+        }))
+      },
+      instructions: {
+        create: instructions.map((instruction) => ({
+          description: instruction
+        }))
+      }
+    }
+  })
+
+  await prisma.message.create({
+    data: {
+      content,
+      id: messageId,
+      role: 'assistant',
+      chatId
+    }
+  })
+
+  await prisma.recipesOnMessages.create({
+    data: {
+      recipeId: id,
+      messageId
+    }
+  })
+
+  return updated
 }

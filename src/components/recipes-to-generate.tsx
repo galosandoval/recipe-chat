@@ -28,10 +28,11 @@ function Recipe({
   recipe: RecipeDTO
   isStreaming: boolean
 }) {
-  const { triggerAISubmission, messages } = chatStore()
+  const { triggerAISubmission, messages, setStreamingStatus } = chatStore()
   const t = useTranslations()
 
   const generateRecipe = async (name: string, description: string) => {
+    setStreamingStatus('generating')
     triggerAISubmission([
       ...messages,
       userMessageDTO(

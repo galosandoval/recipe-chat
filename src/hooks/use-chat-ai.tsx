@@ -5,6 +5,7 @@ import { chatStore } from '~/stores/chat-store'
 import { createId } from '@paralleldrive/cuid2'
 import { useCallback, useEffect } from 'react'
 import type {
+  Generated,
   generatedMessageSchema,
   MessageWithRecipes,
   MessageWithRecipesDTO,
@@ -62,7 +63,7 @@ export const useChatAI = () => {
   const filtersData = filters.data
   const utils = api.useUtils()
 
-  const { addMessage, setMessages } = chatStore()
+  const { addMessage, setMessages, setStreamingStatus, setStream } = chatStore()
 
   const filterStrings: string[] = []
   if (filtersData) {
@@ -121,14 +122,6 @@ export const useChatAI = () => {
     })
   }
 
-  const onFinishMessage = () => {
-    const messages = chatStore.getState().messages
-    if (!messages?.length) {
-      throw new Error('No messages')
-    }
-    handleUpsertMessage()
-  }
-
   const enabled = isAuthenticated && !!chatId
 
   const { status: queryStatus, data } = api.chats.getMessagesById.useQuery(
@@ -152,9 +145,9 @@ export const useChatAI = () => {
         const messages = chatStore
           .getState()
           .messages?.flatMap((m) => m.recipes)
-        const nameToId = new Map<string, string>()
+        const recipeNameToId = new Map<string, string>()
         for (const recipe of messages) {
-          nameToId.set(recipe.name, recipe.id)
+          recipeNameToId.set(recipe.name, recipe.id)
         }
         const assistantMessage: MessageWithRecipes = {
           id: createId(),
@@ -164,7 +157,7 @@ export const useChatAI = () => {
           updatedAt: new Date(),
           chatId: chatId ?? '',
           recipes: (aiResponse.object?.recipes ?? []).map((recipe) => ({
-            id: nameToId.get(recipe?.name ?? '') ?? createId(),
+            id: recipeNameToId.get(recipe?.name ?? '') ?? createId(),
             name: recipe?.name ?? '',
             description: recipe?.description ?? '',
             ingredients: recipe?.ingredients?.map((i) => i ?? '') ?? [],
@@ -181,6 +174,52 @@ export const useChatAI = () => {
     [chatId, addMessage, createId]
   )
 
+  const { mutate: generated } = api.chats.generated.useMutation({
+    onError: (error) => {
+      const stack = error.data?.stack
+      if (stack) {
+        toast.error(stack)
+      } else {
+        toast.error(error.message)
+      }
+    }
+  })
+
+  // when user clicks recipe to generate, don't create a new recipe, just update the existing one
+  const handleGenerated = () => {
+    const lastMessage = chatStore.getState().messages?.at(-1)
+    const chatId = chatStore.getState().chatId
+    if (!lastMessage || !chatId) {
+      return
+    }
+    console.log('lastMessage', lastMessage)
+    console.log('chatId', chatId)
+    const { id, ingredients, instructions, ...rest } = lastMessage.recipes[0]
+    const data: Generated = {
+      id,
+      ingredients,
+      instructions,
+      prepTime: rest.prepTime ?? '',
+      cookTime: rest.cookTime ?? '',
+      messageId: lastMessage.id,
+      content: lastMessage.content,
+      chatId
+    }
+    generated(data)
+  }
+
+  const onFinishMessage = (aiResponse: OnFinish) => {
+    const streamingStatus = chatStore.getState().streamingStatus
+    handleAIResponse(aiResponse)
+    if (streamingStatus === 'generating') {
+      handleGenerated()
+    } else if (streamingStatus === 'streaming') {
+      handleUpsertMessage()
+    }
+    setStreamingStatus('idle')
+    setStream({ content: '', recipes: [] })
+  }
+
   useEffect(() => {
     if (queryStatus === 'success' && data) {
       setMessages(transformMessagesToChatStore(data.messages))
@@ -190,7 +229,6 @@ export const useChatAI = () => {
   return {
     // Actions
     createUserMessage,
-    handleAIResponse,
     onFinishMessage
   }
 }

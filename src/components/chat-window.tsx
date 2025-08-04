@@ -23,7 +23,8 @@ export default function ChatWindow() {
   const { setScrollMode } = useContext(ScrollModeContext)
   const scrollToTop = useScrollToTop()
 
-  const { messages, isStreaming, reset, chatId } = chatStore()
+  const { messages, reset, chatId, streamingStatus } = chatStore()
+  const isStreaming = streamingStatus !== 'idle'
 
   const isNewChat = !chatId && !isStreaming && messages.length === 0
 

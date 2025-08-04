@@ -1,11 +1,12 @@
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import { z } from 'zod'
 import {
+  generated,
   getChats,
   getMessagesById,
   upsertChat
 } from '~/server/api/use-cases/chats'
-import { upsertChatSchema } from '~/schemas/chats'
+import { generatedSchema, upsertChatSchema } from '~/schemas/chats'
 
 export const chatsRouter = createTRPCRouter({
   getChats: protectedProcedure
@@ -30,5 +31,11 @@ export const chatsRouter = createTRPCRouter({
       const { chatId, messages } = input
       const userId = ctx.session.user.id
       return upsertChat(chatId, messages, ctx.prisma, userId)
+    }),
+
+  generated: protectedProcedure
+    .input(generatedSchema)
+    .mutation(async ({ ctx, input }) => {
+      return generated(ctx.prisma, input)
     })
 })
