@@ -1,13 +1,11 @@
-import { type PrismaClient } from '@prisma/client'
 import {
   type CreateFilterSchema,
   type CheckFilterSchema,
   type DeleteFilterSchema
 } from '~/server/api/schemas/filters'
+import { DataAccess } from './data-access'
 
-export class FiltersDataAccess {
-  constructor(private readonly prisma: PrismaClient) {}
-
+export class FiltersAccess extends DataAccess {
   async getByUserId(userId: string) {
     return await this.prisma.filter.findMany({ where: { userId } })
   }

@@ -8,11 +8,11 @@ import {
   createChatAndRecipeSchema,
   signUpSchema
 } from '~/server/api/schemas/users'
-import { UsersDataAccess } from '~/server/api/data-access/users'
+import { UsersAccess } from '~/server/api/data-access/users-access'
 
 export const userRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx }) => {
-    const usersDataAccess = new UsersDataAccess(ctx.prisma)
+    const usersDataAccess = new UsersAccess(ctx.prisma)
     return usersDataAccess.getUserById(ctx.session.user.id)
   }),
 

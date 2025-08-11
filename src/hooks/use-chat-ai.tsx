@@ -22,11 +22,6 @@ type OnFinish = { object: Object; error: Error }
  * Transforms database message data to the format expected by chatStore
  */
 const transformMessagesToChatStore = (
-  /**
-   * Transforms an array of MessageWithRecipesDTO objects into MessageWithRecipes objects
-   * suitable for use in the chatStore. Ensures all required fields are present and
-   * fills in missing properties with null or default values as needed.
-   */
   data: MessageWithRecipesDTO[]
 ): MessageWithRecipes[] => {
   return data.map((message) => ({
@@ -124,7 +119,11 @@ export const useChatAI = () => {
 
   const enabled = isAuthenticated && !!chatId
 
-  const { status: queryStatus, data } = api.chats.getMessagesById.useQuery(
+  const {
+    status: queryStatus,
+    data,
+    error
+  } = api.chats.getMessagesById.useQuery(
     { chatId: chatId ?? '' },
     {
       enabled,
@@ -142,11 +141,10 @@ export const useChatAI = () => {
     (aiResponse: OnFinish) => {
       if (aiResponse?.object?.content) {
         // Don't create a new generated recipe if the recipe already exists
-        const messages = chatStore
-          .getState()
-          .messages?.flatMap((m) => m.recipes)
+        const { messages, chatId } = chatStore.getState()
+        const messagesWithRecipes = messages?.flatMap((m) => m.recipes)
         const recipeNameToId = new Map<string, string>()
-        for (const recipe of messages) {
+        for (const recipe of messagesWithRecipes) {
           recipeNameToId.set(recipe.name, recipe.id)
         }
         const assistantMessage: MessageWithRecipes = {
@@ -182,28 +180,45 @@ export const useChatAI = () => {
       } else {
         toast.error(error.message)
       }
+    },
+    onSuccess: () => {
+      utils.chats.getMessagesById.invalidate({ chatId: chatId ?? '' })
     }
   })
 
   // when user clicks recipe to generate, don't create a new recipe, just update the existing one
   const handleGenerated = () => {
-    const lastMessage = chatStore.getState().messages?.at(-1)
+    const messagesToAdd = chatStore.getState().messages
+    const promptMessage = messagesToAdd?.at(-2)
+    const generatedMessage = messagesToAdd?.at(-1)
     const chatId = chatStore.getState().chatId
-    if (!lastMessage || !chatId) {
+    if (!generatedMessage || !chatId || !promptMessage) {
       return
     }
-    console.log('lastMessage', lastMessage)
+    console.log('promptMessage', promptMessage)
+    console.log('generatedMessage', generatedMessage)
     console.log('chatId', chatId)
-    const { id, ingredients, instructions, ...rest } = lastMessage.recipes[0]
+    const { id, ingredients, instructions, ...rest } =
+      generatedMessage.recipes[0]
+
     const data: Generated = {
-      id,
-      ingredients,
-      instructions,
-      prepTime: rest.prepTime ?? '',
-      cookTime: rest.cookTime ?? '',
-      messageId: lastMessage.id,
-      content: lastMessage.content,
-      chatId
+      generated: {
+        id,
+        ingredients,
+        instructions,
+        prepTime: rest.prepTime ?? '',
+        cookTime: rest.cookTime ?? '',
+        messageId: generatedMessage.id,
+        content: generatedMessage.content,
+        chatId
+      },
+      prompt: {
+        content: promptMessage.content,
+        id: promptMessage.id,
+        createdAt: promptMessage.createdAt,
+        updatedAt: promptMessage.updatedAt,
+        role: promptMessage.role
+      }
     }
     generated(data)
   }
@@ -225,6 +240,17 @@ export const useChatAI = () => {
       setMessages(transformMessagesToChatStore(data.messages))
     }
   }, [queryStatus, data])
+
+  useEffect(() => {
+    if (error && queryStatus === 'error') {
+      const stack = error.data?.stack
+      if (stack) {
+        toast.error(stack)
+      } else {
+        toast.error(error.message)
+      }
+    }
+  }, [queryStatus, error])
 
   return {
     // Actions

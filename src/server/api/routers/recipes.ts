@@ -9,15 +9,15 @@ import {
   updateRecipeImgUrlSchema
 } from '~/server/api/schemas/recipes'
 import { del } from '@vercel/blob'
-import { RecipesDataAccess } from '~/server/api/data-access/recipes'
-import { IngredientsDataAccess } from '~/server/api/data-access/ingredients'
-import { InstructionsDataAccess } from '~/server/api/data-access/instructions'
+import { RecipesAccess } from '~/server/api/data-access/recipes-access'
+import { IngredientsAccess } from '~/server/api/data-access/ingredients-access'
+import { InstructionsAccess } from '~/server/api/data-access/instructions-access'
 import { editRecipe, saveRecipe } from '../use-cases/recipes'
 import { type PrismaClient } from '@prisma/client'
 
 export const recipesRouter = createTRPCRouter({
   recentRecipes: protectedProcedure.query(async ({ ctx }) => {
-    const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+    const recipesDataAccess = new RecipesAccess(ctx.prisma)
     const userId = ctx.session.user.id
 
     return recipesDataAccess.getRecentRecipes(userId)
@@ -26,7 +26,7 @@ export const recipesRouter = createTRPCRouter({
   updateLastViewedAt: protectedProcedure
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
-      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const recipesDataAccess = new RecipesAccess(ctx.prisma)
       return recipesDataAccess.updateRecipe(input, {
         lastViewedAt: new Date()
       })
@@ -44,7 +44,7 @@ export const recipesRouter = createTRPCRouter({
       const limit = input.limit
       const cursor = input.cursor
       const userId = ctx?.session?.user.id
-      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const recipesDataAccess = new RecipesAccess(ctx.prisma)
       return recipesDataAccess.getInfiniteRecipes(
         userId,
         limit,
@@ -56,14 +56,14 @@ export const recipesRouter = createTRPCRouter({
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
-      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const recipesDataAccess = new RecipesAccess(ctx.prisma)
       return recipesDataAccess.getRecipeById(input.id)
     }),
 
   byIds: protectedProcedure
     .input(z.array(z.string()))
     .query(async ({ input, ctx }) => {
-      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const recipesDataAccess = new RecipesAccess(ctx.prisma)
       return recipesDataAccess.getRecipesByIds(input)
     }),
 
@@ -146,7 +146,7 @@ export const recipesRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createRecipeSchema)
     .mutation(async ({ input, ctx }) => {
-      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const recipesDataAccess = new RecipesAccess(ctx.prisma)
 
       const newRecipe = await recipesDataAccess.createRecipe(
         input,
@@ -166,14 +166,14 @@ export const recipesRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const recipesDataAccess = new RecipesAccess(ctx.prisma)
       return await saveRecipe(input, recipesDataAccess)
     }),
 
   updateImgUrl: protectedProcedure
     .input(updateRecipeImgUrlSchema)
     .mutation(async ({ input, ctx }) => {
-      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const recipesDataAccess = new RecipesAccess(ctx.prisma)
 
       if (input.oldUrl) {
         await del(input.oldUrl)
@@ -202,7 +202,7 @@ export const recipesRouter = createTRPCRouter({
   addNotes: protectedProcedure
     .input(z.object({ notes: z.string().nonempty(), id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const recipesDataAccess = new RecipesDataAccess(ctx.prisma)
+      const recipesDataAccess = new RecipesAccess(ctx.prisma)
       const updatedRecipe = await recipesDataAccess.updateRecipe(input.id, {
         notes: input.notes
       })
@@ -221,11 +221,11 @@ export const recipesRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       return await ctx.prisma.$transaction(async (prisma) => {
-        const recipesDataAccess = new RecipesDataAccess(prisma as PrismaClient)
-        const ingredientsDataAccess = new IngredientsDataAccess(
+        const recipesDataAccess = new RecipesAccess(prisma as PrismaClient)
+        const ingredientsDataAccess = new IngredientsAccess(
           prisma as PrismaClient
         )
-        const instructionsDataAccess = new InstructionsDataAccess(
+        const instructionsDataAccess = new InstructionsAccess(
           prisma as PrismaClient
         )
 

@@ -1,14 +1,12 @@
 import { createId } from '@paralleldrive/cuid2'
-import { type PrismaClient } from '@prisma/client'
 import { hash } from 'bcryptjs'
 import {
   type CreateChatAndRecipeSchema,
   type SignUpSchema
 } from '~/server/api/schemas/users'
+import { DataAccess } from './data-access'
 
-export class UsersDataAccess {
-  constructor(private readonly prisma: PrismaClient) {}
-
+export class UsersAccess extends DataAccess {
   async getUserById(id: string) {
     return await this.prisma.user.findUnique({
       where: { id }
@@ -90,4 +88,3 @@ export class UsersDataAccess {
     })
   }
 }
-

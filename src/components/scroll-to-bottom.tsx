@@ -27,9 +27,7 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
     <>
       <div
         className={`absolute bottom-20 left-4 duration-300 transition-all${
-          !sticky
-            ? 'translate-y-0 opacity-100'
-            : 'invisible translate-y-4 opacity-0'
+          !sticky ? 'translate-y-0 opacity-100' : 'invisible opacity-0'
         }`}
       >
         <button
@@ -40,10 +38,8 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
         </button>
       </div>
       <div
-        className={`absolute right-4 bottom-20 duration-300 transition-all${
-          sticky && enable
-            ? 'translate-y-0 opacity-100'
-            : 'invisible translate-y-4 opacity-0'
+        className={`absolute bottom-20 left-4 duration-300 transition-all${
+          sticky && enable ? 'translate-y-0 opacity-100' : 'invisible opacity-0'
         }`}
       >
         <button

@@ -110,10 +110,6 @@ const Messages = memo(function Messages({
 }) {
   const { stream } = chatStore()
 
-  useEffect(() => {
-    console.log('data', data)
-  }, [data])
-
   if (status === 'error') {
     return <p>Error</p>
   }

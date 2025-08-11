@@ -1,10 +1,9 @@
 import { prisma } from '~/server/db'
 import { type CreateRecipe } from '../schemas/recipes'
-import { type Prisma, type PrismaClient, type Recipe } from '@prisma/client'
+import { type Prisma, type Recipe } from '@prisma/client'
+import { DataAccess } from './data-access'
 
-export class RecipesDataAccess {
-  constructor(private readonly prisma: PrismaClient) {}
-
+export class RecipesAccess extends DataAccess {
   async getRecipeById(id: string) {
     return await this.prisma.recipe.findFirst({
       where: { id: { equals: id } },
@@ -99,6 +98,39 @@ export class RecipesDataAccess {
     })
   }
 
+  /**
+   * Updates a recipe with new ingredients and instructions, creating them in the process
+   * @param id - The recipe ID to update
+   * @param data - The recipe data including ingredients and instructions arrays
+   * @param tx - Optional transaction client for database operations
+   */
+  async updateRecipeWithIngredientsAndInstructions(
+    id: string,
+    data: {
+      ingredients: string[]
+      instructions: string[]
+      prepTime: string
+      cookTime: string
+    }
+  ) {
+    return await this.prisma.recipe.update({
+      where: { id },
+      data: {
+        ...data,
+        ingredients: {
+          create: data.ingredients.map((ingredient) => ({
+            name: ingredient
+          }))
+        },
+        instructions: {
+          create: data.instructions.map((instruction) => ({
+            description: instruction
+          }))
+        }
+      }
+    })
+  }
+
   async deleteIngredientsByIds(ids: string[], tx?: Prisma.TransactionClient) {
     const client = tx ?? this.prisma
     return await client.ingredient.deleteMany({
@@ -159,5 +191,3 @@ export class RecipesDataAccess {
     )
   }
 }
-
-

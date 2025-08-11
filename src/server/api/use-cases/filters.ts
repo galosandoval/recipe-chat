@@ -1,5 +1,5 @@
 import { type PrismaClient } from '@prisma/client'
-import { FiltersDataAccess } from '~/server/api/data-access/filters'
+import { FiltersAccess } from '~/server/api/data-access/filters-access'
 import {
   type CreateFilterSchema,
   type CheckFilterSchema,
@@ -7,7 +7,7 @@ import {
 } from '~/server/api/schemas/filters'
 
 export async function getAllFilters(userId: string, prisma: PrismaClient) {
-  const filtersDataAccess = new FiltersDataAccess(prisma)
+  const filtersDataAccess = new FiltersAccess(prisma)
   return await filtersDataAccess.getByUserId(userId)
 }
 
@@ -16,7 +16,7 @@ export async function createFilter(
   userId: string,
   prisma: PrismaClient
 ) {
-  const filtersDataAccess = new FiltersDataAccess(prisma)
+  const filtersDataAccess = new FiltersAccess(prisma)
   return await filtersDataAccess.createFilter(input, userId)
 }
 
@@ -24,7 +24,7 @@ export async function deleteFilter(
   input: DeleteFilterSchema,
   prisma: PrismaClient
 ) {
-  const filtersDataAccess = new FiltersDataAccess(prisma)
+  const filtersDataAccess = new FiltersAccess(prisma)
   return await filtersDataAccess.deleteFilter(input)
 }
 
@@ -32,6 +32,6 @@ export async function updateFilterCheckStatus(
   input: CheckFilterSchema,
   prisma: PrismaClient
 ) {
-  const filtersDataAccess = new FiltersDataAccess(prisma)
+  const filtersDataAccess = new FiltersAccess(prisma)
   return await filtersDataAccess.updateFilterCheckStatus(input)
 }

@@ -62,14 +62,17 @@ export type UpsertChatSchema = z.infer<typeof upsertChatSchema>
 
 // Api to use when user clicks on a recipe to generate
 export const generatedSchema = z.object({
-  id: z.string(),
-  ingredients: z.array(z.string()),
-  instructions: z.array(z.string()),
-  prepTime: z.string(),
-  cookTime: z.string(),
-  messageId: z.string(),
-  content: z.string(),
-  chatId: z.string()
+  prompt: messageSchema,
+  generated: z.object({
+    content: z.string(),
+    id: z.string(),
+    ingredients: z.array(z.string()),
+    instructions: z.array(z.string()),
+    prepTime: z.string(),
+    cookTime: z.string(),
+    messageId: z.string(),
+    chatId: z.string()
+  })
   // categories: z.array(z.string())
 })
 export type Generated = z.infer<typeof generatedSchema>

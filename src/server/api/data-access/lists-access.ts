@@ -1,8 +1,7 @@
-import { type PrismaClient, type List } from '@prisma/client'
+import { type List } from '@prisma/client'
+import { DataAccess } from './data-access'
 
-export class ListDataAccess {
-  constructor(private readonly prisma: PrismaClient) {}
-
+export class ListsAccess extends DataAccess {
   async upsertList(userId: string, ingredientIds: string[]): Promise<List> {
     return this.prisma.list.upsert({
       where: { userId },

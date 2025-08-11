@@ -1,10 +1,9 @@
 import { type PrismaClient } from '@prisma/client'
 import type { ITXClientDenyList } from '@prisma/client/runtime/library'
 import type { MessagesWithRecipes } from '~/schemas/chats'
+import { DataAccess } from './data-access'
 
-export class ChatsDataAccess {
-  constructor(private readonly prisma: PrismaClient) {}
-
+export class ChatsAccess extends DataAccess {
   async getChatsByUserId(userId: string) {
     return this.prisma.chat.findMany({
       where: {
@@ -57,7 +56,7 @@ export class ChatsDataAccess {
    * Creates a new chat with messages and their associated recipes
    */
   async createChatWithMessages(userId: string, messages: MessagesWithRecipes) {
-    return this.prisma.$transaction(async (tx) => {
+    return this.transaction(async (tx) => {
       // Create the chat
       const newChat = await tx.chat.create({
         data: {
@@ -99,7 +98,7 @@ export class ChatsDataAccess {
     messages: MessagesWithRecipes,
     userId: string
   ) {
-    await this.prisma.$transaction(async (tx) => {
+    await this.transaction(async (tx) => {
       for (const message of messages) {
         const newMessage = await tx.message.create({
           data: {

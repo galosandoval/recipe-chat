@@ -1,6 +1,6 @@
 import { type PrismaClient } from '@prisma/client'
-import { ListDataAccess } from '~/server/api/data-access/lists'
-import { IngredientsDataAccess } from '~/server/api/data-access/ingredients'
+import { ListsAccess } from '~/server/api/data-access/lists-access'
+import { IngredientsAccess } from '~/server/api/data-access/ingredients-access'
 
 interface IngredientInput {
   id: string
@@ -12,12 +12,12 @@ export async function upsertList(
   ingredientIds: string[],
   prisma: PrismaClient
 ) {
-  const listDataAccess = new ListDataAccess(prisma)
+  const listDataAccess = new ListsAccess(prisma)
   return listDataAccess.upsertList(userId, ingredientIds)
 }
 
 export async function getListByUserId(userId: string, prisma: PrismaClient) {
-  const listDataAccess = new ListDataAccess(prisma)
+  const listDataAccess = new ListsAccess(prisma)
   return listDataAccess.getListByUserId(userId)
 }
 
@@ -28,8 +28,8 @@ export async function addIngredientToList(
   prisma: PrismaClient
 ) {
   return prisma.$transaction(async (tx) => {
-    const ingredientsDataAccess = new IngredientsDataAccess(tx as PrismaClient)
-    const listDataAccess = new ListDataAccess(tx as PrismaClient)
+    const ingredientsDataAccess = new IngredientsAccess(tx as PrismaClient)
+    const listDataAccess = new ListsAccess(tx as PrismaClient)
 
     const newIngredient = await ingredientsDataAccess.createIngredient({
       name: newIngredientName,
@@ -76,7 +76,7 @@ export async function clearCheckedIngredientsFromList(
   prisma: PrismaClient
 ) {
   return prisma.$transaction(async (tx) => {
-    const listDataAccess = new ListDataAccess(tx as PrismaClient)
+    const listDataAccess = new ListsAccess(tx as PrismaClient)
 
     const toDisconnect: IngredientInput[] = []
     const toDelete: IngredientInput[] = []
