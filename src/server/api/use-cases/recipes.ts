@@ -1,12 +1,12 @@
 import { type Recipe, type PrismaClient } from '@prisma/client'
-import { RecipesDataAccess } from '../data-access/recipes'
+import { RecipesAccess } from '../data-access/recipes-access'
 import { type UpdateRecipe } from '../schemas/recipes'
 
 export async function editRecipe(recipe: UpdateRecipe, prisma: PrismaClient) {
   const { id, ingredients, newIngredients, instructions, newInstructions } =
     recipe
   return prisma.$transaction(async (tx) => {
-    const recipesDataAccess = new RecipesDataAccess(tx as PrismaClient)
+    const recipesDataAccess = new RecipesAccess(tx as PrismaClient)
     await updateRecipeFields(id, recipe, recipesDataAccess)
     await handleIngredients(id, ingredients, newIngredients, recipesDataAccess)
     await handleInstructions(
@@ -23,7 +23,7 @@ export async function editRecipe(recipe: UpdateRecipe, prisma: PrismaClient) {
 async function updateRecipeFields(
   id: string,
   recipe: UpdateRecipe,
-  recipesDataAccess: RecipesDataAccess
+  recipesDataAccess: RecipesAccess
 ) {
   const data = {} as Partial<Recipe>
   const {
@@ -64,7 +64,7 @@ async function handleIngredients(
   id: string,
   ingredients: UpdateRecipe['ingredients'],
   newIngredients: UpdateRecipe['newIngredients'],
-  recipesDataAccess: RecipesDataAccess
+  recipesDataAccess: RecipesAccess
 ) {
   const ingredientsToDelete = ingredients.filter(
     (old) => !newIngredients.some((n) => n.id === old.id)
@@ -95,7 +95,7 @@ async function handleInstructions(
   id: string,
   instructions: UpdateRecipe['instructions'],
   newInstructions: UpdateRecipe['newInstructions'],
-  recipesDataAccess: RecipesDataAccess
+  recipesDataAccess: RecipesAccess
 ) {
   // Delete instructions that no longer exist
   const instructionsToDelete = instructions.filter(
@@ -134,7 +134,7 @@ export async function saveRecipe(
   data: {
     id: string
   },
-  recipesDataAccess: RecipesDataAccess
+  recipesDataAccess: RecipesAccess
 ) {
   await recipesDataAccess.saveRecipe(data)
 }

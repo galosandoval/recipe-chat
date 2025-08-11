@@ -72,12 +72,12 @@ function StartNewChat() {
   const t = useTranslations()
   const { chatId, setChatId } = chatStore()
   const pathname = usePathname()
-  const { setStream, setIsStreaming, setMessages } = chatStore()
+  const { setStream, setStreamingStatus, setMessages } = chatStore()
 
   const handleStartNewChat = () => {
     setChatId('')
     setStream({ content: '', recipes: [] })
-    setIsStreaming(false)
+    setStreamingStatus('idle')
     setMessages([])
   }
 

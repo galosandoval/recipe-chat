@@ -3,11 +3,13 @@ import type { GeneratedMessage, MessageWithRecipes } from '~/schemas/chats'
 
 const CURRENT_CHAT_ID = 'currentChatId'
 
+export type StreamingStatus = 'idle' | 'streaming' | 'finished' | 'generating'
+
 type ChatStore = {
   // UI State
   messages: MessageWithRecipes[]
   input: string
-  isStreaming: boolean
+  streamingStatus: StreamingStatus
   stream: GeneratedMessage
   chatId: string
 
@@ -21,7 +23,7 @@ type ChatStore = {
 
   // Streaming
   setStream: (stream: GeneratedMessage) => void
-  setIsStreaming: (isSending: boolean) => void
+  setStreamingStatus: (streamingStatus: StreamingStatus) => void
 
   // AI Submission
   triggerAISubmission: (messages: MessageWithRecipes[]) => void
@@ -53,7 +55,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
   // Initial state
   messages: initialMessages,
   input: '',
-  isStreaming: false,
+  streamingStatus: 'idle',
   stream: initialStream,
   chatId: getInitialChatId(),
 
@@ -84,7 +86,8 @@ export const chatStore = create<ChatStore>((set, get) => ({
   // Streaming
   setStream: (stream: GeneratedMessage) => set({ stream }),
 
-  setIsStreaming: (isStreaming: boolean) => set({ isStreaming }),
+  setStreamingStatus: (streamingStatus: StreamingStatus) =>
+    set({ streamingStatus }),
 
   // AI Submission - this will be set by SubmitMessageForm
   triggerAISubmission: () => {
@@ -97,7 +100,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
     set({
       messages: initialMessages,
       input: '',
-      isStreaming: false,
+      streamingStatus: 'idle',
       stream: initialStream,
       chatId: ''
     })

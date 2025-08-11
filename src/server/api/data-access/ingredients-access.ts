@@ -1,8 +1,7 @@
-import { type Ingredient, type PrismaClient } from '@prisma/client'
+import { type Ingredient } from '@prisma/client'
+import { DataAccess } from './data-access'
 
-export class IngredientsDataAccess {
-  constructor(private readonly prisma: PrismaClient) {}
-
+export class IngredientsAccess extends DataAccess {
   async createIngredient(input: Ingredient) {
     return await this.prisma.ingredient.create({ data: input })
   }

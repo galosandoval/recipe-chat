@@ -9,7 +9,14 @@ import { userMessageDTO } from '~/utils/use-message-dto'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
-  const { messages, isStreaming, reset, triggerAISubmission } = chatStore()
+  const {
+    messages,
+    streamingStatus,
+    reset,
+    triggerAISubmission,
+    setStreamingStatus
+  } = chatStore()
+  const isStreaming = streamingStatus !== 'idle'
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     const messageContent = e.currentTarget.innerText
@@ -24,6 +31,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
       reset()
     }
 
+    setStreamingStatus('streaming')
     // Trigger AI submission
     triggerAISubmission([userMessageDTO(messageContent)])
   }

@@ -1,4 +1,4 @@
-import { chatsRouter } from './chats'
+import { chatsRouter } from './chats-router'
 import { filtersRouter } from './filters'
 import { listsRouter } from './lists'
 import { recipesRouter } from './recipes'

@@ -11,20 +11,22 @@ import { useChatAI } from '~/hooks/use-chat-ai'
 import { useEffect } from 'react'
 import { userMessageDTO } from '~/utils/use-message-dto'
 import { useFiltersByUser } from './recipe-filters'
+import type { GeneratedRecipe } from '~/schemas/messages'
 
 export function SubmitMessageForm() {
   const {
     input,
     handleInputChange,
     messages,
-    isStreaming,
+    streamingStatus,
     setInput,
     setStream,
-    setIsStreaming
+    setStreamingStatus
   } = chatStore()
+  const isStreaming = streamingStatus !== 'idle'
   const chatId = chatStore((state) => state.chatId)
   const t = useTranslations()
-  const { onFinishMessage, createUserMessage, handleAIResponse } = useChatAI()
+  const { onFinishMessage, createUserMessage } = useChatAI()
   const { data: filters, status } = useFiltersByUser()
   const {
     object,
@@ -33,20 +35,15 @@ export function SubmitMessageForm() {
   } = useObject({
     api: '/api/chat',
     schema: generatedMessageSchema,
-    onFinish(message) {
-      handleAIResponse(message)
-      setIsStreaming(false)
-      setStream({ content: '', recipes: [] })
-      onFinishMessage()
-    }
+    onFinish: onFinishMessage
   })
 
   // Handle streaming updates (just update the display)
   useEffect(() => {
-    if (object && (object as any).content) {
+    if (object && object.content) {
       setStream({
-        content: (object as any).content || '',
-        recipes: ((object as any).recipes || []).filter(Boolean) as any[]
+        content: object.content ?? '',
+        recipes: (object.recipes ?? []).filter(Boolean) as GeneratedRecipe[]
       })
     }
   }, [object, setStream])
@@ -58,7 +55,7 @@ export function SubmitMessageForm() {
       createUserMessage(lastMessage)
     }
     setInput('')
-    setIsStreaming(true)
+    // setStreamingStatus('streaming')
     aiSubmit({
       messages,
       filters: filters?.filter((f) => f.checked).map((f) => f.name) ?? []
@@ -79,8 +76,9 @@ export function SubmitMessageForm() {
 
     if (isStreaming) {
       aiStop()
-      setIsStreaming(false)
+      setStreamingStatus('idle')
     } else if (input.trim()) {
+      setStreamingStatus('streaming')
       handleAISubmit(messagesToSubmit)
     }
   }

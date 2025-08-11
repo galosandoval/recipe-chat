@@ -179,6 +179,8 @@ function Times({
 
 function Ingredients({ ingredients }: { ingredients?: string[] }) {
   const t = useTranslations()
+
+  if (!ingredients || ingredients.length === 0) return null
   return (
     <>
       {ingredients && (
@@ -197,6 +199,8 @@ function Ingredients({ ingredients }: { ingredients?: string[] }) {
 
 function Instructions({ instructions }: { instructions?: string[] }) {
   const t = useTranslations()
+
+  if (!instructions || instructions.length === 0) return null
   return (
     <>
       {instructions && (
