@@ -172,7 +172,7 @@ function Lists({
   }
 
   return (
-    <div className='divide-neutral-content flex flex-col divide-y'>
+    <div className='flex flex-col gap-2'>
       {data.map((i, id) => (
         <Checkbox
           key={i.id ?? id}
@@ -231,7 +231,7 @@ function ListByRecipeId({
             </h3>
           )}
 
-          <div className='divide-neutral-content flex flex-col divide-y'>
+          <div className='flex flex-col gap-2'>
             {b.map((i) => (
               <Checkbox
                 key={i.id}

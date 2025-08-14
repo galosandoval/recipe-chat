@@ -3,7 +3,7 @@ import { chatStore } from '~/stores/chat-store'
 import type { RecipeDTO } from '~/schemas/chats'
 import { Button } from './button'
 import { PaperPlaneIcon } from './icons'
-import { userMessageDTO } from '~/utils/use-message-dto'
+import { userMessageDTO } from '~/utils/user-message-dto'
 
 export function RecipesToGenerate({
   recipes,

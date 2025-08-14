@@ -264,7 +264,7 @@ function Card({ data }: { data: Recipe }) {
     <Link
       href={`/recipes/${data.id}`}
       key={data.id}
-      className='bg-base-200 col-span-1 overflow-hidden rounded-lg shadow-xl transition-all duration-75 active:translate-y-px'
+      className='bg-base-200 col-span-1 overflow-hidden rounded-lg shadow-xl active:scale-[99%]'
       onClick={handleUpdateLastViewedAt}
     >
       <div className='w-full'>
@@ -272,7 +272,7 @@ function Card({ data }: { data: Recipe }) {
           <div className='w-full'>
             <div className='relative h-36'>
               <Image
-                className='mt-0 mb-0 object-fill sm:object-contain'
+                className='mt-0 mb-0 object-center'
                 src={data.imgUrl}
                 priority={false}
                 alt='recipe'

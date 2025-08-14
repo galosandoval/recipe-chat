@@ -9,7 +9,7 @@ import {
 } from '~/schemas/chats'
 import { useChatAI } from '~/hooks/use-chat-ai'
 import { useEffect } from 'react'
-import { userMessageDTO } from '~/utils/use-message-dto'
+import { userMessageDTO } from '~/utils/user-message-dto'
 import { useFiltersByUser } from './recipe-filters'
 import type { GeneratedRecipe } from '~/schemas/messages'
 

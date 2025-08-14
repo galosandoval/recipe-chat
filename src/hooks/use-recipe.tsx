@@ -135,7 +135,7 @@ export const useEditRecipe = () => {
   return api.recipes.edit.useMutation({
     onSuccess: async (data, { newName }) => {
       await util.recipes.byId.invalidate({ id: data })
-      await router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
+      router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
     }
   })
 }
@@ -147,8 +147,15 @@ export const useDeleteRecipe = () => {
   return api.recipes.delete.useMutation({
     onSuccess: async () => {
       await utils.recipes.invalidate()
-      await router.push('/recipes')
+      router.push('/recipes')
       toast.success('Recipe deleted')
+    },
+    onError: (error) => {
+      if (error.shape?.data.stack) {
+        toast.error(error.shape.data.stack)
+      } else {
+        toast.error('An unknown error occurred')
+      }
     }
   })
 }

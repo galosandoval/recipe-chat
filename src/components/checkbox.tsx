@@ -1,4 +1,5 @@
 import { type ChangeEvent } from 'react'
+import { cn } from '~/utils/cn'
 
 export const Checkbox = ({
   checked,
@@ -12,16 +13,24 @@ export const Checkbox = ({
   label: string
 }) => {
   return (
-    <div className='form-control py-2'>
+    <div>
       <label
-        className='label flex cursor-pointer flex-row-reverse gap-2'
+        className={cn(
+          'label bg-base-200 flex cursor-pointer flex-row-reverse gap-2 rounded p-3 transition-all duration-200 ease-in-out active:scale-95',
+          checked && 'bg-base-300'
+        )}
         htmlFor={id}
       >
-        <span className='label-text text-base-content mr-auto whitespace-normal'>
+        <span
+          className={cn(
+            'label-text text-base-content mr-auto whitespace-normal transition-all duration-75',
+            checked && 'text-base-content/40'
+          )}
+        >
           {label}
         </span>
         <input
-          className='checkbox-primary checkbox'
+          className='hidden'
           type='checkbox'
           name={id}
           id={id}

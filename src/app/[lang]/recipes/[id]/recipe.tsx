@@ -1,13 +1,17 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { type Ingredient, type Instruction } from '@prisma/client'
-import { type ChangeEvent, useEffect, useState } from 'react'
+import {
+  type ChangeEvent,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback
+} from 'react'
+import { type Instruction } from '@prisma/client'
 import { Button } from '~/components/button'
-import { useAddToList } from '~/hooks/use-recipe'
-import { Checkbox } from '~/components/checkbox'
-import { ListBulletIcon, PlusIcon } from '~/components/icons'
-import { type RouterInputs, type RouterOutputs, api } from '~/trpc/react'
+import { CameraIcon } from '~/components/icons'
+import { type RouterOutputs, api } from '~/trpc/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -16,6 +20,10 @@ import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
 import { toast } from '~/components/toast'
 import Image from 'next/image'
 import { useNoSleep } from '~/hooks/use-no-sleep'
+import { IngredientsCheckList } from './ingredients-check-list'
+import { cn } from '~/utils/cn'
+import { useObervationObserver } from '~/hooks/use-observation-observer'
+import { useParams } from 'next/navigation'
 
 export default function Recipe({
   data
@@ -31,161 +39,125 @@ export default function Recipe({
   if (!recipe) return null
 
   return (
-    <div className='flex h-full max-w-md flex-1 flex-col overflow-y-auto px-3 pt-12 pr-4'>
+    <div className='relative flex h-full max-w-md flex-1 flex-col overflow-y-auto'>
       <FoundRecipe data={recipe} />
     </div>
   )
 }
 
-type Checked = Record<string, boolean>
+const observerOptions: IntersectionObserverInit = {
+  root: null,
+  rootMargin: '0px',
+  threshold: Array.from({ length: 100 }, (_, i) => i / 100)
+}
 
 function FoundRecipe({
   data
 }: {
   data: NonNullable<RouterOutputs['recipes']['byId']>
 }) {
-  const t = useTranslations()
+  const { ingredients, instructions, notes, id, name } = data
 
-  const { mutate, isPending } = useAddToList()
+  const [imageRef, imageObservation] = useObervationObserver(observerOptions)
+  const [endRef, endObservation] = useObervationObserver(observerOptions)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  const {
-    ingredients,
-    address,
-    author,
-    description,
-    instructions,
-    prepTime,
-    cookTime,
-    notes,
-    imgUrl,
-    id
-  } = data
+  // Memoize the intersection ratio calculation to prevent unnecessary re-renders
+  const intersectionRatio = useMemo(
+    () => imageObservation?.intersectionRatio ?? 0,
+    [imageObservation?.intersectionRatio]
+  )
 
-  const initialChecked: Checked = {}
-  ingredients.forEach((i) => {
-    if (i.name.endsWith(':')) return
-    initialChecked[i.id] = true
-  })
+  // Memoize the translateY calculation
+  const translateY = useMemo(
+    () => `${intersectionRatio * 20}%`,
+    [intersectionRatio]
+  )
 
-  const [checked, setChecked] = useState<Checked>(() => initialChecked)
-  const [addedToList, setAddedToList] = useState(false)
-  const router = useRouter()
+  // Memoize the end intersection check
+  const isIntersectingEnd = useMemo(
+    () => endObservation?.isIntersecting,
+    [endObservation?.isIntersecting]
+  )
+  const isPastEnd = isIntersectingEnd
 
-  const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
-    setChecked((state) => ({
-      ...state,
-      [event.target.id]: event.target.checked
-    }))
-  }
-
-  const allChecked = Object.values(checked).every(Boolean)
-  const noneChecked = Object.values(checked).every((i) => !i)
-  const handleCheckAll = () => {
-    for (const id in checked) {
-      if (allChecked) {
-        setChecked((state) => ({ ...state, [id]: false }))
-      } else {
-        setChecked((state) => ({ ...state, [id]: true }))
-      }
+  // Memoize the container height to prevent unnecessary re-renders
+  const containerHeight = useMemo(() => {
+    if (!isPastEnd && containerRef.current) {
+      return containerRef.current.clientHeight
     }
-  }
-
-  let goToListTimer: ReturnType<typeof setTimeout> | undefined = undefined
-  const handleAddToList = () => {
-    const checkedIngredients = ingredients.filter((i) => checked[i.id])
-    const newList: RouterInputs['lists']['upsert'] = checkedIngredients
-    mutate(newList)
-    setAddedToList(true)
-
-    goToListTimer = setTimeout(() => {
-      setAddedToList(false)
-    }, 6000)
-  }
-
-  let renderAddress: React.ReactNode = null
-  if (address) {
-    renderAddress = (
-      <a href={address} className=''>
-        {address}
-      </a>
-    )
-  }
-
-  let renderAuthor: React.ReactNode = null
-  if (author) {
-    renderAuthor = (
-      <a href={author} className=''>
-        {author}
-      </a>
-    )
-  }
-
-  const handleGoToList = () => {
-    router.push('/list')
-  }
-
-  useEffect(() => {
-    return () => clearTimeout(goToListTimer)
-  }, [goToListTimer])
+    return 0
+  }, [isPastEnd])
 
   return (
-    <div className='mx-auto flex h-full flex-col items-center pb-4'>
-      <div className='flex flex-col'>
-        <ImageUpload id={id} url={imgUrl} />
-
-        <div className='px-4'>
-          {renderAddress}
-          {renderAuthor}
-        </div>
+    <>
+      <div
+        ref={containerRef}
+        className='absolute top-0 right-0 bottom-0 left-0 -z-50'
+      >
+        <div className='h-svh'></div>
+        <div className='h-svh' ref={imageRef}></div>
+        <div className='h-svh' ref={endRef}></div>
       </div>
+      <ImageWithTitleAndDescription
+        data={data}
+        translateY={translateY}
+        imgHeight={containerHeight}
+        isPastEnd={isPastEnd ?? false}
+      />
 
-      <div className='flex flex-col'>
-        <p className='mb-2'>{description}</p>
-
-        {prepTime && cookTime && (
-          <RecipeTime prepTime={prepTime} cookTime={cookTime} />
-        )}
-        <div className='mb-4'>
-          <Button
-            className={`${
-              addedToList ? 'btn-accent' : 'btn-primary'
-            } btn w-full gap-2`}
-            disabled={noneChecked}
-            onClick={addedToList ? handleGoToList : handleAddToList}
-            isLoading={isPending}
+      <div className='bg-base-100 relative'>
+        <div className='to-base-100/90 sticky top-0 flex items-center justify-center bg-transparent bg-gradient-to-t from-transparent py-5 backdrop-blur-sm'>
+          <div
+            className={cn(
+              'text-base-content/90 bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
+              isPastEnd && containerHeight == 0 && 'opacity-100'
+            )}
           >
-            {addedToList ? <ListBulletIcon /> : <PlusIcon />}
-            {addedToList ? t.recipes.byId.goToList : t.recipes.byId.addToList}
-          </Button>
-        </div>
-        <div className=''>
-          <div>
-            <Checkbox
-              id='check-all'
-              label={
-                allChecked
-                  ? t.recipes.byId.deselectAll
-                  : t.recipes.byId.selectAll
-              }
-              checked={allChecked}
-              onChange={handleCheckAll}
-            />
+            {name}
           </div>
+        </div>
+        <div className='mx-auto flex flex-col items-center px-4 pb-4'>
+          <div className='bg-base-100 flex flex-col'>
+            {/* <p className='mb-2'>{description}</p> */}
 
-          <Ingredients
-            checked={checked}
-            handleCheck={handleCheck}
-            ingredients={ingredients}
-          />
+            <IngredientsCheckList ingredients={ingredients} />
+            <div className='pt-4'>
+              <Instructions instructions={instructions} />
+            </div>
+            <Notes notes={notes} id={id} />
+          </div>
         </div>
-        <div className='pt-4'>
-          <Instructions instructions={instructions} />
-        </div>
-        <Notes notes={notes} id={id} />
       </div>
-    </div>
+    </>
   )
 }
+
+// function ParallaxHero({
+//   data
+// }: {
+//   data: NonNullable<RouterOutputs['recipes']['byId']>
+// }) {
+
+//   return (
+//     <>
+//       <div
+//         ref={containerRef}
+//         className='absolute top-0 right-0 bottom-0 left-0 -z-50'
+//       >
+//         <div className='h-svh w-full'></div>
+//         <div className='h-svh w-full' ref={imageRef}></div>
+//         <div className='h-svh w-full' ref={endRef}></div>
+//       </div>
+//       <ImageWithTitleAndDescription
+//         data={data}
+//         translateY={translateY}
+//         imgHeight={containerHeight}
+//         isPastEnd={isPastEnd ?? false}
+//       />
+//     </>
+//   )
+// }
 
 function RecipeTime({
   prepTime,
@@ -210,7 +182,17 @@ function RecipeTime({
   )
 }
 
-function ImageUpload({ id, url }: { id: string; url: string | null }) {
+function ImageWithTitleAndDescription({
+  data,
+  translateY,
+  imgHeight,
+  isPastEnd
+}: {
+  data: NonNullable<RouterOutputs['recipes']['byId']>
+  translateY: string
+  imgHeight: number | undefined
+  isPastEnd: boolean
+}) {
   const utils = api.useContext()
   const t = useTranslations()
 
@@ -239,7 +221,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
     },
 
     onSuccess: async () => {
-      await utils.recipes.byId.invalidate({ id })
+      await utils.recipes.byId.invalidate({ id: data.id })
       setUploadImgButtonLabel('selectImage')
     },
 
@@ -249,7 +231,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
       const previousData = context?.previousData
 
       if (previousData && previousData) {
-        utils.recipes.byId.setData({ id }, previousData)
+        utils.recipes.byId.setData({ id: data.id }, previousData)
       }
 
       toast.error(error.message)
@@ -278,7 +260,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
 
         const newBlob = (await response.json()) as PutBlobResult
 
-        updateImgUrl({ id, imgUrl: newBlob.url })
+        updateImgUrl({ id: data.id, imgUrl: newBlob.url })
       } catch (error) {
         setUploadImgButtonLabel('selectImage')
 
@@ -299,14 +281,16 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
 
   return (
     <>
-      {url ? (
-        <Image
-          className='mx-auto h-auto w-auto rounded'
-          src={url}
-          alt='recipe'
-          width={300}
-          height={300}
-          priority={true}
+      {data.imgUrl ? (
+        <RecipeMetaDataWithImage
+          title={data.name}
+          url={data.imgUrl}
+          description={data.description}
+          translateY={translateY}
+          imgHeight={imgHeight}
+          isPastEnd={isPastEnd}
+          prepTime={data.prepTime ?? ''}
+          cookTime={data.cookTime ?? ''}
         />
       ) : (
         <div className='gap flex flex-col items-center justify-center py-5'>
@@ -317,7 +301,6 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
             className='invisible'
             onChange={handleFileChange}
           />
-
           <Button
             onClick={() => {
               const fileInput = document.querySelector(
@@ -330,26 +313,7 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
             }}
             className='btn btn-primary w-3/4'
           >
-            {/* camera icon */}
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-6 w-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z'
-              />
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z'
-              />
-            </svg>
+            <CameraIcon />
             {String(
               t.recipes.byId[
                 uploadImgButtonLabel as keyof typeof t.recipes.byId
@@ -362,42 +326,67 @@ function ImageUpload({ id, url }: { id: string; url: string | null }) {
   )
 }
 
-function Ingredients({
-  ingredients,
-  checked,
-  handleCheck
+function RecipeMetaDataWithImage({
+  title,
+  url,
+  description,
+  translateY,
+  imgHeight,
+  isPastEnd,
+  prepTime,
+  cookTime
 }: {
-  ingredients: Ingredient[]
-  checked: Checked
-  handleCheck: (event: ChangeEvent<HTMLInputElement>) => void
+  title: string
+  url: string
+  description: string | null
+  translateY: string
+  imgHeight: number | undefined
+  isPastEnd: boolean
+  prepTime: string
+  cookTime: string
 }) {
-  const t = useTranslations()
+  if (!imgHeight && imgHeight !== 0) return null
+  return (
+    <div className=''>
+      <Image
+        className={cn(
+          'fixed -z-10 h-full w-auto object-cover',
+          isPastEnd && 'hidden'
+        )}
+        src={url}
+        alt='recipe'
+        width={imgHeight * 0.75}
+        height={imgHeight}
+        priority
+        style={{
+          transform: `translateY(-${translateY})`
+        }}
+      />
+      <RecipeMetaData />
+    </div>
+  )
+}
+
+function RecipeMetaData() {
+  const utils = api.useUtils()
+  const { id } = useParams()
+  const data = utils.recipes.byId.getData({ id: id as string })
+
+  if (!data) return null
+
+  const { name, prepTime, cookTime, description } = data
 
   return (
-    <>
-      <h2 className='divider'>{t.recipes.ingredients}</h2>
-      <div>
-        {ingredients.map((i) => {
-          if (i.name.endsWith(':')) {
-            return (
-              <h3 className='divider text-sm' key={i.id}>
-                {i.name.slice(0, -1)}
-              </h3>
-            )
-          }
+    <div className='flex h-svh w-full flex-col justify-end'>
+      <div className='to-base-100 sticky top-0 h-1/2 bg-transparent bg-gradient-to-b from-transparent backdrop-blur-sm'>
+        <h2 className='text-base-content/90 text-2xl font-bold'>{name}</h2>
 
-          return (
-            <Checkbox
-              id={i.id.toString()}
-              checked={checked[i.id]}
-              onChange={handleCheck}
-              label={i.name}
-              key={i.id}
-            />
-          )
-        })}
+        {prepTime && cookTime && (
+          <RecipeTime prepTime={prepTime} cookTime={cookTime} />
+        )}
+        {description && <p className='text-base-content/90'>{description}</p>}
       </div>
-    </>
+    </div>
   )
 }
 
@@ -409,7 +398,7 @@ function Instructions({ instructions }: { instructions: Instruction[] }) {
       <h2 className='divider'>{t.recipes.instructions}</h2>
       <ol className='flex list-none flex-col gap-3 pl-0'>
         {instructions.map((i, index) => (
-          <li key={i.id} className='bg-base-300 mt-0 mb-0 rounded p-3 px-7'>
+          <li key={i.id} className='bg-base-300 mt-0 mb-0 rounded p-4'>
             <h3 className='text-base-content mb-1 text-sm font-bold'>
               {t.recipes.step} {index + 1}
             </h3>

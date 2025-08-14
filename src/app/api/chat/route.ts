@@ -1,4 +1,4 @@
-import { streamObject } from 'ai'
+import { streamObject, UserContent } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { chatParams, generatedMessageSchema } from '~/schemas/chats'
 
@@ -18,6 +18,7 @@ export async function POST(req: Request) {
 
     system += filtersMessage
   }
+  const newFile = new File([], 'test.txt', { type: 'text/plain' })
 
   const result = streamObject({
     /**
@@ -27,10 +28,19 @@ export async function POST(req: Request) {
      */
     model: openai('gpt-4-turbo'),
     schema: generatedMessageSchema,
-    messages: messages.map(({ content, role }) => ({
-      role,
-      content
-    })),
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'file',
+            data: new URL(newFile.toString()),
+            mediaType: 'text/plain',
+            mimeType: 'text/plain'
+          }
+        ]
+      }
+    ],
     system
   })
   return result.toTextStreamResponse()
