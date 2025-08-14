@@ -347,12 +347,9 @@ function RecipeMetaDataWithImage({
 }) {
   if (!imgHeight && imgHeight !== 0) return null
   return (
-    <div className=''>
+    <div>
       <Image
-        className={cn(
-          'fixed -z-10 h-full w-auto object-cover',
-          isPastEnd && 'hidden'
-        )}
+        className={cn('fixed -z-10 h-full object-cover', isPastEnd && 'hidden')}
         src={url}
         alt='recipe'
         width={imgHeight * 0.75}
