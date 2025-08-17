@@ -1,35 +1,25 @@
 'use client'
 
-import {
-  type ChangeEvent,
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-  useCallback
-} from 'react'
+import { useRef, useMemo } from 'react'
 import { type Instruction } from '@prisma/client'
 import { Button } from '~/components/button'
-import { CameraIcon } from '~/components/icons'
 import { type RouterOutputs, api } from '~/trpc/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslations } from '~/hooks/use-translations'
-import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
-import { toast } from '~/components/toast'
 import Image from 'next/image'
 import { useNoSleep } from '~/hooks/use-no-sleep'
 import { IngredientsCheckList } from './ingredients-check-list'
 import { cn } from '~/utils/cn'
 import { useObervationObserver } from '~/hooks/use-observation-observer'
 import { useParams } from 'next/navigation'
+import { UploadImageButton } from '~/components/upload-image-button'
+import { ParallaxContainer } from '~/components/parallax-container'
 
-export default function Recipe({
-  data
-}: {
-  data: NonNullable<RouterOutputs['recipes']['byId']>
-}) {
+type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
+
+export default function RecipeById({ data }: { data: RecipeByIdData }) {
   useNoSleep()
   const { data: recipe } = api.recipes.byId.useQuery(
     { id: data.id },
@@ -39,7 +29,7 @@ export default function Recipe({
   if (!recipe) return null
 
   return (
-    <div className='relative flex h-full max-w-md flex-1 flex-col overflow-y-auto'>
+    <div className='relative flex h-full max-w-md flex-col overflow-y-auto'>
       <FoundRecipe data={recipe} />
     </div>
   )
@@ -51,13 +41,8 @@ const observerOptions: IntersectionObserverInit = {
   threshold: Array.from({ length: 100 }, (_, i) => i / 100)
 }
 
-function FoundRecipe({
-  data
-}: {
-  data: NonNullable<RouterOutputs['recipes']['byId']>
-}) {
+function FoundRecipe({ data }: { data: RecipeByIdData }) {
   const { ingredients, instructions, notes, id, name } = data
-
   const [imageRef, imageObservation] = useObervationObserver(observerOptions)
   const [endRef, endObservation] = useObervationObserver(observerOptions)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -91,14 +76,11 @@ function FoundRecipe({
 
   return (
     <>
-      <div
-        ref={containerRef}
-        className='absolute top-0 right-0 bottom-0 left-0 -z-50'
-      >
-        <div className='h-svh'></div>
-        <div className='h-svh' ref={imageRef}></div>
-        <div className='h-svh' ref={endRef}></div>
-      </div>
+      <ParallaxContainer
+        imageRef={imageRef}
+        endRef={endRef}
+        containerRef={containerRef}
+      />
       <ImageWithTitleAndDescription
         data={data}
         translateY={translateY}
@@ -106,21 +88,14 @@ function FoundRecipe({
         isPastEnd={isPastEnd ?? false}
       />
 
-      <div className='bg-base-100 relative'>
-        <div className='to-base-100/90 sticky top-0 flex items-center justify-center bg-transparent bg-gradient-to-t from-transparent py-5 backdrop-blur-sm'>
-          <div
-            className={cn(
-              'text-base-content/90 bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
-              isPastEnd && containerHeight == 0 && 'opacity-100'
-            )}
-          >
-            {name}
-          </div>
-        </div>
+      <div className='bg-base-100 relative z-10'>
+        <StickyHeader
+          name={name}
+          isPastEnd={isPastEnd ?? false}
+          containerHeight={containerHeight}
+        />
         <div className='mx-auto flex flex-col items-center px-4 pb-4'>
           <div className='bg-base-100 flex flex-col'>
-            {/* <p className='mb-2'>{description}</p> */}
-
             <IngredientsCheckList ingredients={ingredients} />
             <div className='pt-4'>
               <Instructions instructions={instructions} />
@@ -133,31 +108,28 @@ function FoundRecipe({
   )
 }
 
-// function ParallaxHero({
-//   data
-// }: {
-//   data: NonNullable<RouterOutputs['recipes']['byId']>
-// }) {
-
-//   return (
-//     <>
-//       <div
-//         ref={containerRef}
-//         className='absolute top-0 right-0 bottom-0 left-0 -z-50'
-//       >
-//         <div className='h-svh w-full'></div>
-//         <div className='h-svh w-full' ref={imageRef}></div>
-//         <div className='h-svh w-full' ref={endRef}></div>
-//       </div>
-//       <ImageWithTitleAndDescription
-//         data={data}
-//         translateY={translateY}
-//         imgHeight={containerHeight}
-//         isPastEnd={isPastEnd ?? false}
-//       />
-//     </>
-//   )
-// }
+function StickyHeader({
+  name,
+  isPastEnd,
+  containerHeight
+}: {
+  name: string
+  isPastEnd: boolean
+  containerHeight: number
+}) {
+  return (
+    <div className='to-base-100/90 sticky top-0 flex items-center justify-center bg-transparent bg-gradient-to-t from-transparent py-5 backdrop-blur-sm'>
+      <div
+        className={cn(
+          'text-base-content/90 bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
+          isPastEnd && containerHeight == 0 && 'opacity-100'
+        )}
+      >
+        {name}
+      </div>
+    </div>
+  )
+}
 
 function RecipeTime({
   prepTime,
@@ -168,7 +140,7 @@ function RecipeTime({
 }) {
   const t = useTranslations()
   return (
-    <div className='stats mb-2 max-w-sm shadow'>
+    <div className='stats mb-2 max-w-sm items-center shadow'>
       <div className='stat place-items-center'>
         <div className='stat-title'>{t.recipes.prepTime}</div>
         <div className='stat-value text-base whitespace-normal'>{prepTime}</div>
@@ -188,168 +160,44 @@ function ImageWithTitleAndDescription({
   imgHeight,
   isPastEnd
 }: {
-  data: NonNullable<RouterOutputs['recipes']['byId']>
+  data: RecipeByIdData
   translateY: string
   imgHeight: number | undefined
   isPastEnd: boolean
 }) {
-  const utils = api.useContext()
-  const t = useTranslations()
-
-  const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
-    'selectImage' | 'uploadImage' | 'uploadingImage'
-  >('selectImage')
-
-  const { mutate: updateImgUrl } = api.recipes.updateImgUrl.useMutation({
-    onMutate: async ({ id, imgUrl }) => {
-      await utils.recipes.byId.cancel({ id })
-
-      const previousData = utils.recipes.byId.getData({ id })
-
-      if (!previousData) return previousData
-
-      utils.recipes.byId.setData({ id }, (old) => {
-        if (!old) return old
-
-        return {
-          ...old,
-          imgUrl
-        }
-      })
-
-      return { previousData }
-    },
-
-    onSuccess: async () => {
-      await utils.recipes.byId.invalidate({ id: data.id })
-      setUploadImgButtonLabel('selectImage')
-    },
-
-    onError: (error, _, context) => {
-      setUploadImgButtonLabel('selectImage')
-
-      const previousData = context?.previousData
-
-      if (previousData && previousData) {
-        utils.recipes.byId.setData({ id: data.id }, previousData)
-      }
-
-      toast.error(error.message)
-    }
-  })
-
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files) return
-
-    const fileList = event.target.files
-
-    if (fileList.length) {
-      setUploadImgButtonLabel('uploadingImage')
-
-      try {
-        if (!fileList?.length) {
-          throw Error(t.recipes.byId.noFile)
-        }
-
-        const file = fileList[0]
-
-        const response = await fetch(`/api/upload?filename=${file.name}`, {
-          method: 'POST',
-          body: file
-        })
-
-        const newBlob = (await response.json()) as PutBlobResult
-
-        updateImgUrl({ id: data.id, imgUrl: newBlob.url })
-      } catch (error) {
-        setUploadImgButtonLabel('selectImage')
-
-        // handle a recognized error
-        if (error instanceof BlobAccessError || error instanceof Error) {
-          toast.error(error.message)
-        } else if (error instanceof Error) {
-          toast.error(error.message)
-        } else {
-          // handle an unrecognized error
-          toast.error(t.error.somethingWentWrong)
-        }
-      }
-    }
-
-    setUploadImgButtonLabel('uploadImage')
-  }
-
   return (
     <>
       {data.imgUrl ? (
         <RecipeMetaDataWithImage
-          title={data.name}
           url={data.imgUrl}
-          description={data.description}
           translateY={translateY}
           imgHeight={imgHeight}
           isPastEnd={isPastEnd}
-          prepTime={data.prepTime ?? ''}
-          cookTime={data.cookTime ?? ''}
         />
       ) : (
-        <div className='gap flex flex-col items-center justify-center py-5'>
-          <input
-            id='file-input'
-            type='file'
-            name='file'
-            className='invisible'
-            onChange={handleFileChange}
-          />
-          <Button
-            onClick={() => {
-              const fileInput = document.querySelector(
-                '#file-input'
-              ) as HTMLInputElement | null
-
-              if (fileInput) {
-                fileInput.click()
-              }
-            }}
-            className='btn btn-primary w-3/4'
-          >
-            <CameraIcon />
-            {String(
-              t.recipes.byId[
-                uploadImgButtonLabel as keyof typeof t.recipes.byId
-              ]
-            )}
-          </Button>
-        </div>
+        <UploadImageButton />
       )}
     </>
   )
 }
 
 function RecipeMetaDataWithImage({
-  title,
   url,
-  description,
   translateY,
   imgHeight,
-  isPastEnd,
-  prepTime,
-  cookTime
+  isPastEnd
 }: {
-  title: string
   url: string
-  description: string | null
   translateY: string
   imgHeight: number | undefined
   isPastEnd: boolean
-  prepTime: string
-  cookTime: string
 }) {
+  console.log(imgHeight)
   if (!imgHeight && imgHeight !== 0) return null
   return (
     <div>
       <Image
-        className={cn('fixed -z-10 h-full object-cover', isPastEnd && 'hidden')}
+        className={cn('absolute -z-10 h-full', isPastEnd && 'hidden')}
         src={url}
         alt='recipe'
         width={imgHeight * 0.75}
@@ -359,12 +207,12 @@ function RecipeMetaDataWithImage({
           transform: `translateY(-${translateY})`
         }}
       />
-      <RecipeMetaData />
+      <RecipeMetaData translateY={translateY} />
     </div>
   )
 }
 
-function RecipeMetaData() {
+function RecipeMetaData({ translateY }: { translateY: string }) {
   const utils = api.useUtils()
   const { id } = useParams()
   const data = utils.recipes.byId.getData({ id: id as string })
@@ -374,14 +222,26 @@ function RecipeMetaData() {
   const { name, prepTime, cookTime, description } = data
 
   return (
-    <div className='flex h-svh w-full flex-col justify-end'>
-      <div className='to-base-100 sticky top-0 h-1/2 bg-transparent bg-gradient-to-b from-transparent backdrop-blur-sm'>
-        <h2 className='text-base-content/90 text-2xl font-bold'>{name}</h2>
+    <div className='relative z-0 flex h-svh w-full flex-col justify-end'>
+      <div className='flex-1'></div>
+      <div
+        className='sticky top-0 h-full flex-1 bg-gradient-to-b from-slate-900/15 to-slate-900'
+        style={{
+          transform: `translateY(-${translateY})`
+        }}
+      >
+        <div className='glass-element h-full bg-transparent px-5 py-4'>
+          <h2 className='text-2xl font-bold text-white/90'>{name}</h2>
 
-        {prepTime && cookTime && (
-          <RecipeTime prepTime={prepTime} cookTime={cookTime} />
-        )}
-        {description && <p className='text-base-content/90'>{description}</p>}
+          {prepTime && cookTime && (
+            <div className='flex justify-center'>
+              <RecipeTime prepTime={prepTime} cookTime={cookTime} />
+            </div>
+          )}
+          {description && (
+            <p className='bg-transparent text-white'>{description}</p>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -3,7 +3,14 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { useAddToList } from '~/hooks/use-recipe'
 import { type RouterInputs } from '~/trpc/react'
-import { useEffect, useState, type ChangeEvent } from 'react'
+import {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  type ChangeEvent
+} from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '~/components/button'
 import { Checkbox } from '~/components/checkbox'
@@ -20,54 +27,68 @@ export function IngredientsCheckList({
   const t = useTranslations()
   const { mutate, isPending } = useAddToList()
 
-  const initialChecked: Checked = {}
-  ingredients.forEach((i) => {
-    if (i.name.endsWith(':')) return
-    initialChecked[i.id] = i.checked
-  })
+  const initialChecked: Checked = ingredients.reduce((acc, i) => {
+    if (!i.name.endsWith(':')) {
+      acc[i.id] = i.checked
+    }
+    return acc
+  }, {} as Checked)
 
   const [checked, setChecked] = useState<Checked>(() => initialChecked)
   const [addedToList, setAddedToList] = useState(false)
   const router = useRouter()
 
-  const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleCheck = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setChecked((state) => ({
       ...state,
       [event.target.id]: event.target.checked
     }))
-  }
+  }, [])
 
-  const allChecked = Object.values(checked).every(Boolean)
-  const someNotChecked = Object.values(checked).some((i) => !i)
-  const handleCheckAll = () => {
-    for (const id in checked) {
-      if (allChecked) {
-        setChecked((state) => ({ ...state, [id]: false }))
-      } else {
-        setChecked((state) => ({ ...state, [id]: true }))
+  const allChecked = useMemo(
+    () => Object.values(checked).every(Boolean),
+    [checked]
+  )
+  const someNotChecked = useMemo(
+    () => Object.values(checked).some((i) => !i),
+    [checked]
+  )
+  const handleCheckAll = useCallback(() => {
+    setChecked((state) => {
+      const newState = { ...state }
+      for (const id in newState) {
+        newState[id] = !allChecked
       }
-    }
-  }
+      return newState
+    })
+  }, [allChecked])
 
-  let goToListTimer: ReturnType<typeof setTimeout> | undefined = undefined
-  const handleAddToList = () => {
-    const checkedIngredients = ingredients.filter((i) => !checked[i.id])
-    const newList: RouterInputs['lists']['upsert'] = checkedIngredients
+  const goToListTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  )
+
+  const handleAddToList = useCallback(() => {
+    const uncheckedIngredients = ingredients.filter((i) => !checked[i.id])
+    const newList: RouterInputs['lists']['upsert'] = uncheckedIngredients
     mutate(newList)
     setAddedToList(true)
 
-    goToListTimer = setTimeout(() => {
+    goToListTimerRef.current = setTimeout(() => {
       setAddedToList(false)
     }, 6000)
-  }
+  }, [ingredients, checked, mutate])
 
-  const handleGoToList = () => {
+  const handleGoToList = useCallback(() => {
     router.push('/list')
-  }
+  }, [router])
 
   useEffect(() => {
-    return () => clearTimeout(goToListTimer)
-  }, [goToListTimer])
+    return () => {
+      if (goToListTimerRef.current) {
+        clearTimeout(goToListTimerRef.current)
+      }
+    }
+  }, [])
 
   return (
     <>

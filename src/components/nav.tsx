@@ -71,7 +71,7 @@ function RecipeByIdNavbar() {
   const { data } = api.recipes.byId.useQuery({ id: id as string })
 
   return (
-    <nav className='fixed z-10 flex w-full justify-between bg-transparent p-4'>
+    <nav className='fixed z-20 flex w-full justify-between bg-transparent p-4'>
       <button
         className='btn btn-circle btn-ghost glass'
         onClick={() => router.push('/recipes')}

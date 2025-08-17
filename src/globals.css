@@ -38,3 +38,7 @@
     font-size: 16px;
   }
 }
+.glass-element {
+  background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
+  backdrop-filter: blur(10px); /* Adjust blur strength as needed */
+}

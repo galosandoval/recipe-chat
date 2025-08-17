@@ -291,7 +291,7 @@ function UpdateImage({
             width={300}
             height={300}
           />
-          <span className='bg-primary-content/70 absolute inset-0 flex flex-col items-center justify-center gap-4 rounded backdrop-blur-sm'>
+          <span className='absolute inset-0 flex flex-col items-center justify-center gap-4 rounded backdrop-blur-sm'>
             <div className='px-5'>
               <input
                 id='file-input'
