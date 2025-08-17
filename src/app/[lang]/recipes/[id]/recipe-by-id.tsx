@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { type Instruction } from '@prisma/client'
 import { Button } from '~/components/button'
 import { type RouterOutputs, api } from '~/trpc/react'
@@ -16,6 +16,7 @@ import { useObervationObserver } from '~/hooks/use-observation-observer'
 import { useParams } from 'next/navigation'
 import { UploadImageButton } from '~/components/upload-image-button'
 import { ParallaxContainer } from '~/components/parallax-container'
+import { useState } from 'react'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
 
@@ -84,7 +85,7 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
       <ImageWithTitleAndDescription
         data={data}
         translateY={translateY}
-        imgHeight={containerHeight}
+        containerHeight={containerHeight}
         isPastEnd={isPastEnd ?? false}
       />
 
@@ -140,15 +141,15 @@ function RecipeTime({
 }) {
   const t = useTranslations()
   return (
-    <div className='stats mb-2 max-w-sm items-center shadow'>
+    <div className='stats glass-element my-2 rounded'>
       <div className='stat place-items-center'>
-        <div className='stat-title'>{t.recipes.prepTime}</div>
-        <div className='stat-value text-base whitespace-normal'>{prepTime}</div>
+        <div className=''>{t.recipes.prepTime}</div>
+        <div className='whitespace-normal'>{prepTime}</div>
       </div>
 
       <div className='stat place-items-center'>
-        <div className='stat-title'>{t.recipes.cookTime}</div>
-        <div className='stat-value text-base whitespace-normal'>{cookTime}</div>
+        <div className=''>{t.recipes.cookTime}</div>
+        <div className='whitespace-normal'>{cookTime}</div>
       </div>
     </div>
   )
@@ -157,12 +158,12 @@ function RecipeTime({
 function ImageWithTitleAndDescription({
   data,
   translateY,
-  imgHeight,
+  containerHeight,
   isPastEnd
 }: {
   data: RecipeByIdData
   translateY: string
-  imgHeight: number | undefined
+  containerHeight: number | undefined
   isPastEnd: boolean
 }) {
   return (
@@ -171,7 +172,7 @@ function ImageWithTitleAndDescription({
         <RecipeMetaDataWithImage
           url={data.imgUrl}
           translateY={translateY}
-          imgHeight={imgHeight}
+          containerHeight={containerHeight}
           isPastEnd={isPastEnd}
         />
       ) : (
@@ -180,39 +181,97 @@ function ImageWithTitleAndDescription({
     </>
   )
 }
-
 function RecipeMetaDataWithImage({
   url,
   translateY,
-  imgHeight,
+  containerHeight,
   isPastEnd
 }: {
   url: string
   translateY: string
-  imgHeight: number | undefined
+  containerHeight: number | undefined
   isPastEnd: boolean
 }) {
-  console.log(imgHeight)
-  if (!imgHeight && imgHeight !== 0) return null
+  if (!containerHeight && containerHeight !== 0) return null
+
   return (
     <div>
-      <Image
-        className={cn('absolute -z-10 h-full', isPastEnd && 'hidden')}
-        src={url}
-        alt='recipe'
-        width={imgHeight * 0.75}
-        height={imgHeight}
-        priority
-        style={{
-          transform: `translateY(-${translateY})`
-        }}
+      <ImageWithAspectRatio
+        containerHeight={containerHeight}
+        isPastEnd={isPastEnd}
+        url={url}
+        translateY={translateY}
       />
-      <RecipeMetaData translateY={translateY} />
+      <RecipeMetaData />
     </div>
   )
 }
 
-function RecipeMetaData({ translateY }: { translateY: string }) {
+const IMG_HEIGHT_OFFSET = 0.66
+const IMG_HEIGHT_OFFSET_BOTTOM = 1 - IMG_HEIGHT_OFFSET
+
+function ImageWithAspectRatio({
+  containerHeight,
+  isPastEnd,
+  url,
+  translateY
+}: {
+  containerHeight: number
+  isPastEnd: boolean
+  url: string
+  translateY: string
+}) {
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null)
+  const imgHeight = containerHeight * IMG_HEIGHT_OFFSET
+
+  if (!containerHeight && containerHeight !== 0) return null
+
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = event.currentTarget
+    const ratio = img.naturalWidth / img.naturalHeight
+
+    setAspectRatio(ratio)
+  }
+
+  return (
+    <div className='absolute inset-0 h-svh overflow-hidden'>
+      <Image
+        className={cn(
+          'absolute top-0 -z-10 object-cover object-center',
+          isPastEnd && 'hidden'
+        )}
+        src={url}
+        alt='recipe'
+        width={aspectRatio ? imgHeight * aspectRatio : imgHeight * 0.75}
+        height={imgHeight}
+        priority
+        onLoad={handleImageLoad}
+        style={{
+          transform: `translateY(${translateY})`,
+          height: containerHeight * IMG_HEIGHT_OFFSET
+        }}
+      />
+      <Image
+        className={cn(
+          'absolute bottom-0 -z-10 h-full rotate-180 object-cover object-center',
+          isPastEnd && 'hidden'
+        )}
+        src={url}
+        alt='recipe'
+        width={aspectRatio ? imgHeight * aspectRatio : imgHeight * 0.75}
+        height={imgHeight}
+        priority
+        onLoad={handleImageLoad}
+        style={{
+          transform: `translateY(${translateY})`,
+          height: containerHeight * IMG_HEIGHT_OFFSET_BOTTOM
+        }}
+      />
+    </div>
+  )
+}
+
+function RecipeMetaData() {
   const utils = api.useUtils()
   const { id } = useParams()
   const data = utils.recipes.byId.getData({ id: id as string })
@@ -222,16 +281,11 @@ function RecipeMetaData({ translateY }: { translateY: string }) {
   const { name, prepTime, cookTime, description } = data
 
   return (
-    <div className='relative z-0 flex h-svh w-full flex-col justify-end'>
-      <div className='flex-1'></div>
-      <div
-        className='sticky top-0 h-full flex-1 bg-gradient-to-b from-slate-900/15 to-slate-900'
-        style={{
-          transform: `translateY(-${translateY})`
-        }}
-      >
-        <div className='glass-element h-full bg-transparent px-5 py-4'>
-          <h2 className='text-2xl font-bold text-white/90'>{name}</h2>
+    <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
+      <div className='h-full flex-1'></div>
+      <div className='sticky top-0 h-full flex-1 bg-gradient-to-b from-slate-900/15 to-slate-900'>
+        <GlassElement className='h-full bg-transparent px-5 py-4'>
+          <h2 className='text-glass text-2xl font-bold'>{name}</h2>
 
           {prepTime && cookTime && (
             <div className='flex justify-center'>
@@ -239,12 +293,22 @@ function RecipeMetaData({ translateY }: { translateY: string }) {
             </div>
           )}
           {description && (
-            <p className='bg-transparent text-white'>{description}</p>
+            <p className='text-glass bg-transparent'>{description}</p>
           )}
-        </div>
+        </GlassElement>
       </div>
     </div>
   )
+}
+
+function GlassElement({
+  children,
+  className
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return <div className={cn('glass-element', className)}>{children}</div>
 }
 
 function Instructions({ instructions }: { instructions: Instruction[] }) {

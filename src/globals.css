@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @plugin "daisyui" {
-  themes: winter --default, dark --prefersdark;
+  themes:
+    winter --default,
+    dark --prefersdark;
 }
 @plugin "@tailwindcss/typography";
 
@@ -31,14 +33,18 @@
 /*
   This prevents zooming in on Safari when focusing on input fields.
 */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
   select,
   textarea,
   input {
     font-size: 16px;
   }
 }
-.glass-element {
+@utility glass-element {
   background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
-  backdrop-filter: blur(10px); /* Adjust blur strength as needed */
+  backdrop-filter: blur(20px); /* Adjust blur strength as needed */
+}
+
+@utility text-glass {
+  color:var(--color-white);
 }

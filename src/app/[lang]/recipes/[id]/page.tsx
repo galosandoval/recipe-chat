@@ -20,7 +20,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function RecipePage({
+export default async function RecipeByIdPage({
   params
 }: {
   params: Promise<{ id: string }>
