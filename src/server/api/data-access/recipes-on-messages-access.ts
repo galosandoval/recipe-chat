@@ -6,4 +6,10 @@ export class RecipesOnMessagesAccess extends DataAccess {
       data: { recipeId, messageId }
     })
   }
+
+  async deleteByRecipeId(recipeId: string) {
+    await this.prisma.recipesOnMessages.deleteMany({
+      where: { recipeId }
+    })
+  }
 }

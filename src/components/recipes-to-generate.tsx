@@ -3,7 +3,7 @@ import { chatStore } from '~/stores/chat-store'
 import type { RecipeDTO } from '~/schemas/chats'
 import { Button } from './button'
 import { PaperPlaneIcon } from './icons'
-import { userMessageDTO } from '~/utils/use-message-dto'
+import { userMessageDTO } from '~/utils/user-message-dto'
 
 export function RecipesToGenerate({
   recipes,
@@ -28,8 +28,37 @@ function Recipe({
   recipe: RecipeDTO
   isStreaming: boolean
 }) {
-  const { triggerAISubmission, messages, setStreamingStatus } = chatStore()
+  const shouldShowGenerateButton =
+    recipe.ingredients?.length === 0 && recipe.instructions?.length === 0
+
+  return (
+    <div className='bg-base-100 rounded p-2'>
+      <h3 className='font-semibold'>{recipe.name}</h3>
+      <p className='text-xs'>{recipe.description}</p>
+      <div className='flex justify-end pt-2'>
+        {shouldShowGenerateButton && (
+          <GenerateButton
+            disabled={isStreaming}
+            recipeName={recipe.name}
+            recipeDescription={recipe.description ?? ''}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+function GenerateButton({
+  disabled,
+  recipeName,
+  recipeDescription
+}: {
+  disabled: boolean
+  recipeName: string
+  recipeDescription: string
+}) {
   const t = useTranslations()
+  const { triggerAISubmission, messages, setStreamingStatus } = chatStore()
 
   const generateRecipe = async (name: string, description: string) => {
     setStreamingStatus('generating')
@@ -41,41 +70,9 @@ function Recipe({
       )
     ])
   }
-  const shouldShowGenerateButton =
-    recipe.ingredients?.length === 0 && recipe.instructions?.length === 0
-
-  return (
-    <div className='bg-base-100 rounded p-2'>
-      <h3 className='font-semibold'>{recipe.name}</h3>
-      <p className='text-xs'>{recipe.description}</p>
-
-      <div className='flex justify-end pt-2'>
-        {shouldShowGenerateButton && (
-          <GenerateButton
-            disabled={isStreaming}
-            onClick={() =>
-              generateRecipe(recipe.name, recipe.description ?? '')
-            }
-          />
-        )}
-      </div>
-    </div>
-  )
-}
-
-function GenerateButton({
-  disabled,
-  onClick
-}: {
-  disabled: boolean
-  onClick: () => Promise<void>
-}) {
-  const t = useTranslations()
-
   const handleGenerate = async () => {
-    await onClick()
+    await generateRecipe(recipeName, recipeDescription)
   }
-
   return (
     <Button className='btn-sm btn' disabled={disabled} onClick={handleGenerate}>
       <PaperPlaneIcon className='size-4' />

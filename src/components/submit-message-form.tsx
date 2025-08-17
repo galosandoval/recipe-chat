@@ -9,25 +9,13 @@ import {
 } from '~/schemas/chats'
 import { useChatAI } from '~/hooks/use-chat-ai'
 import { useEffect } from 'react'
-import { userMessageDTO } from '~/utils/use-message-dto'
+import { userMessageDTO } from '~/utils/user-message-dto'
 import { useFiltersByUser } from './recipe-filters'
 import type { GeneratedRecipe } from '~/schemas/messages'
 
-export function SubmitMessageForm() {
-  const {
-    input,
-    handleInputChange,
-    messages,
-    streamingStatus,
-    setInput,
-    setStream,
-    setStreamingStatus
-  } = chatStore()
-  const isStreaming = streamingStatus !== 'idle'
-  const chatId = chatStore((state) => state.chatId)
-  const t = useTranslations()
+function useRecipeChat() {
+  const { setInput, setStream } = chatStore()
   const { onFinishMessage, createUserMessage } = useChatAI()
-  const { data: filters, status } = useFiltersByUser()
   const {
     object,
     stop: aiStop,
@@ -37,16 +25,7 @@ export function SubmitMessageForm() {
     schema: generatedMessageSchema,
     onFinish: onFinishMessage
   })
-
-  // Handle streaming updates (just update the display)
-  useEffect(() => {
-    if (object && object.content) {
-      setStream({
-        content: object.content ?? '',
-        recipes: (object.recipes ?? []).filter(Boolean) as GeneratedRecipe[]
-      })
-    }
-  }, [object, setStream])
+  const { data: filters, status } = useFiltersByUser()
 
   // Enhanced AI submit function
   const handleAISubmit = (messages: MessageWithRecipes[]) => {
@@ -61,6 +40,36 @@ export function SubmitMessageForm() {
       filters: filters?.filter((f) => f.checked).map((f) => f.name) ?? []
     })
   }
+
+  // Handle streaming updates (just update the display)
+  useEffect(() => {
+    if (object && object.content) {
+      setStream({
+        content: object.content ?? '',
+        recipes: (object.recipes ?? []).filter(Boolean) as GeneratedRecipe[]
+      })
+    }
+  }, [object, setStream])
+
+  return {
+    handleAISubmit,
+    stop: aiStop,
+    status
+  }
+}
+
+export function SubmitMessageForm() {
+  const {
+    input,
+    handleInputChange,
+    messages,
+    streamingStatus,
+    setStreamingStatus
+  } = chatStore()
+  const isStreaming = streamingStatus !== 'idle'
+  const chatId = chatStore((state) => state.chatId)
+  const { handleAISubmit, stop: aiStop, status } = useRecipeChat()
+  const t = useTranslations()
 
   // Set up the triggerAISubmission method in the store
   useEffect(() => {

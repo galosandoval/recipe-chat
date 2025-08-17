@@ -38,7 +38,7 @@ const Nav = () => {
   } else if (pathname === `/${lang}/recipes/${id}/edit`) {
     navbar = <EditRecipeNavbar />
   } else if (pathname === `/${lang}/recipes/${id}`) {
-    navbar = <RecipeByIdNavbar />
+    return <RecipeByIdNavbar />
   } else {
     return navbar
   }
@@ -71,18 +71,18 @@ function RecipeByIdNavbar() {
   const { data } = api.recipes.byId.useQuery({ id: id as string })
 
   return (
-    <nav className='prose navbar grid w-full grid-cols-6 bg-transparent px-4'>
+    <nav className='fixed z-20 flex w-full justify-between bg-transparent p-4'>
       <button
-        className='btn btn-circle btn-ghost'
+        className='btn btn-circle btn-ghost glass'
         onClick={() => router.push('/recipes')}
       >
         <ArrowBackLeftIcon />
       </button>
-      <h1 className='col-span-4 mb-0 justify-self-center text-base'>
+      {/* <h1 className='col-span-4 mb-0 justify-self-center text-base'>
         {data?.name}
-      </h1>
+      </h1> */}
       <button
-        className='btn btn-circle btn-ghost justify-self-end'
+        className='btn btn-circle btn-ghost glass justify-self-end'
         onClick={() => router.push(`/recipes/${id}/edit?name=${data?.name}`)}
       >
         <span>
@@ -142,7 +142,7 @@ function RoutesNavbar() {
         {MENU_ITEMS.map((item) => (
           <Link
             className={cn(
-              'text-base-content/75 active:bg-base-100 hover:bg-base-100 flex flex-1 items-center justify-center gap-1 transition-all duration-75 active:translate-y-px',
+              'text-base-content/75 active:bg-base-100 hover:bg-base-100 flex flex-1 items-center justify-center gap-1 transition-colors duration-75 active:scale-[99%]',
               isActive(item.value) && 'bg-base-100 text-base-content rounded'
             )}
             href={item.value}

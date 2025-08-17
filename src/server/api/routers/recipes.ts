@@ -14,6 +14,7 @@ import { IngredientsAccess } from '~/server/api/data-access/ingredients-access'
 import { InstructionsAccess } from '~/server/api/data-access/instructions-access'
 import { editRecipe, saveRecipe } from '../use-cases/recipes'
 import { type PrismaClient } from '@prisma/client'
+import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
 
 export const recipesRouter = createTRPCRouter({
   recentRecipes: protectedProcedure.query(async ({ ctx }) => {
@@ -228,17 +229,23 @@ export const recipesRouter = createTRPCRouter({
         const instructionsDataAccess = new InstructionsAccess(
           prisma as PrismaClient
         )
-
+        const recipesOnMessagesDataAccess = new RecipesOnMessagesAccess(
+          prisma as PrismaClient
+        )
         const deleteIngredients =
           ingredientsDataAccess.deleteIngredientsByRecipeId(input.id)
 
         const deleteInstructions =
           instructionsDataAccess.deleteInstructionsByRecipeId(input.id)
 
+        const deleteRecipesOnMessages =
+          recipesOnMessagesDataAccess.deleteByRecipeId(input.id)
+
         const deleteRecipe = recipesDataAccess.deleteRecipeById(input.id)
 
         await deleteIngredients
         await deleteInstructions
+        await deleteRecipesOnMessages
         await deleteRecipe
         return true
       })
