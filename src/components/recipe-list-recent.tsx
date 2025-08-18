@@ -15,6 +15,10 @@ export function RecentRecipes() {
   }
 
   if (status === 'success') {
+    if (data.length === 0) {
+      return null
+    }
+
     return (
       <Container>
         <div className='grid-2 col-span-2 grid grid-cols-2 gap-4 sm:col-span-4 sm:grid-cols-4'>
@@ -24,7 +28,7 @@ export function RecentRecipes() {
                 recipe.name
               )}`}
               key={recipe.id}
-              className='bg-base-300 flex h-10 gap-2 overflow-hidden rounded-md active:scale-[99%]'
+              className='bg-base-300 flex h-10 gap-2 overflow-hidden rounded active:scale-[99%]'
             >
               {recipe.imgUrl ? (
                 <Image
@@ -62,7 +66,9 @@ function Container({ children }: { children: React.ReactNode }) {
 
   return (
     <div className='col-span-2 w-full sm:col-span-4'>
-      <h2 className='prose mt-2'>{t.recipes.recent}</h2>
+      <h2 className='text-base-content text-sm font-bold'>
+        {t.recipes.recent}
+      </h2>
 
       {children}
     </div>

@@ -81,7 +81,8 @@
   "recipes": {
     "noRecipes": {
       "message": "No tienes recetas guardada. Guarda recetas de chats ",
-      "link": "aqui"
+      "link": "aqui",
+      "noneFound": "No se encontraron recetas."
     },
 
     "recent": "Recetas recientes",

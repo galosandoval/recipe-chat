@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo, useEffect } from 'react'
+import { useRef, useMemo } from 'react'
 import { type Instruction } from '@prisma/client'
 import { Button } from '~/components/button'
 import { type RouterOutputs, api } from '~/trpc/react'
@@ -17,6 +17,7 @@ import { useParams } from 'next/navigation'
 import { UploadImageButton } from '~/components/upload-image-button'
 import { ParallaxContainer } from '~/components/parallax-container'
 import { useState } from 'react'
+import { GlassElement } from '~/components/glass-element'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
 
@@ -44,57 +45,44 @@ const observerOptions: IntersectionObserverInit = {
 
 function FoundRecipe({ data }: { data: RecipeByIdData }) {
   const { ingredients, instructions, notes, id, name } = data
-  const [imageRef, imageObservation] = useObervationObserver(observerOptions)
-  const [endRef, endObservation] = useObervationObserver(observerOptions)
   const containerRef = useRef<HTMLDivElement>(null)
-
+  const [startRef, startObservation] = useObervationObserver(observerOptions)
+  const [endRef, endObservation] = useObervationObserver(observerOptions)
   // Memoize the intersection ratio calculation to prevent unnecessary re-renders
   const intersectionRatio = useMemo(
-    () => imageObservation?.intersectionRatio ?? 0,
-    [imageObservation?.intersectionRatio]
+    () => endObservation?.intersectionRatio ?? 0,
+    [endObservation?.intersectionRatio]
   )
 
   // Memoize the translateY calculation
   const translateY = useMemo(
-    () => `${intersectionRatio * 20}%`,
+    () => `${intersectionRatio * 30}%`,
     [intersectionRatio]
   )
-
-  // Memoize the end intersection check
-  const isIntersectingEnd = useMemo(
-    () => endObservation?.isIntersecting,
-    [endObservation?.isIntersecting]
-  )
-  const isPastEnd = isIntersectingEnd
-
   // Memoize the container height to prevent unnecessary re-renders
   const containerHeight = useMemo(() => {
-    if (!isPastEnd && containerRef.current) {
+    if (containerRef.current) {
       return containerRef.current.clientHeight
     }
     return 0
-  }, [isPastEnd])
+  }, [containerRef.current])
+
+  const isPastHero = useMemo(() => {
+    return (
+      Math.abs(startObservation?.boundingClientRect?.y ?? 0) >= containerHeight
+    )
+  }, [startObservation?.boundingClientRect, containerHeight])
 
   return (
     <>
-      <ParallaxContainer
-        imageRef={imageRef}
-        endRef={endRef}
-        containerRef={containerRef}
-      />
       <ImageWithTitleAndDescription
         data={data}
         translateY={translateY}
         containerHeight={containerHeight}
-        isPastEnd={isPastEnd ?? false}
       />
 
       <div className='bg-base-100 relative z-10'>
-        <StickyHeader
-          name={name}
-          isPastEnd={isPastEnd ?? false}
-          containerHeight={containerHeight}
-        />
+        <StickyHeader visible={isPastHero} name={name} />
         <div className='mx-auto flex flex-col items-center px-4 pb-4'>
           <div className='bg-base-100 flex flex-col'>
             <IngredientsCheckList ingredients={ingredients} />
@@ -105,25 +93,29 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
           </div>
         </div>
       </div>
+      {data?.imgUrl ? (
+        <ParallaxContainer
+          startRef={startRef}
+          endRef={endRef}
+          containerRef={containerRef}
+        />
+      ) : null}
     </>
   )
 }
 
-function StickyHeader({
-  name,
-  isPastEnd,
-  containerHeight
-}: {
-  name: string
-  isPastEnd: boolean
-  containerHeight: number
-}) {
+function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
   return (
-    <div className='to-base-100/90 sticky top-0 flex items-center justify-center bg-transparent bg-gradient-to-t from-transparent py-5 backdrop-blur-sm'>
+    <div
+      className={cn(
+        'glass-element sticky top-0 -mt-14 flex items-center justify-center py-5 opacity-0 transition-opacity duration-300',
+        visible && 'opacity-100'
+      )}
+    >
       <div
         className={cn(
-          'text-base-content/90 bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
-          isPastEnd && containerHeight == 0 && 'opacity-100'
+          'text-glass bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
+          visible && 'opacity-100'
         )}
       >
         {name}
@@ -143,13 +135,13 @@ function RecipeTime({
   return (
     <div className='stats glass-element my-2 rounded'>
       <div className='stat place-items-center'>
-        <div className=''>{t.recipes.prepTime}</div>
-        <div className='whitespace-normal'>{prepTime}</div>
+        <div className='text-glass'>{t.recipes.prepTime}</div>
+        <div className='text-glass whitespace-normal'>{prepTime}</div>
       </div>
 
       <div className='stat place-items-center'>
-        <div className=''>{t.recipes.cookTime}</div>
-        <div className='whitespace-normal'>{cookTime}</div>
+        <div className='text-glass'>{t.recipes.cookTime}</div>
+        <div className='text-glass whitespace-normal'>{cookTime}</div>
       </div>
     </div>
   )
@@ -158,13 +150,11 @@ function RecipeTime({
 function ImageWithTitleAndDescription({
   data,
   translateY,
-  containerHeight,
-  isPastEnd
+  containerHeight
 }: {
   data: RecipeByIdData
   translateY: string
   containerHeight: number | undefined
-  isPastEnd: boolean
 }) {
   return (
     <>
@@ -173,24 +163,31 @@ function ImageWithTitleAndDescription({
           url={data.imgUrl}
           translateY={translateY}
           containerHeight={containerHeight}
-          isPastEnd={isPastEnd}
         />
       ) : (
-        <UploadImageButton />
+        <RecipeImgButtonAndMetaData />
       )}
     </>
   )
 }
+
+function RecipeImgButtonAndMetaData() {
+  return (
+    <div>
+      <RecipeMetaData />
+      <UploadImageButton />
+    </div>
+  )
+}
+
 function RecipeMetaDataWithImage({
   url,
   translateY,
-  containerHeight,
-  isPastEnd
+  containerHeight
 }: {
   url: string
   translateY: string
   containerHeight: number | undefined
-  isPastEnd: boolean
 }) {
   if (!containerHeight && containerHeight !== 0) return null
 
@@ -198,11 +195,10 @@ function RecipeMetaDataWithImage({
     <div>
       <ImageWithAspectRatio
         containerHeight={containerHeight}
-        isPastEnd={isPastEnd}
         url={url}
         translateY={translateY}
       />
-      <RecipeMetaData />
+      <GlassMetadata />
     </div>
   )
 }
@@ -212,12 +208,10 @@ const IMG_HEIGHT_OFFSET_BOTTOM = 1 - IMG_HEIGHT_OFFSET
 
 function ImageWithAspectRatio({
   containerHeight,
-  isPastEnd,
   url,
   translateY
 }: {
   containerHeight: number
-  isPastEnd: boolean
   url: string
   translateY: string
 }) {
@@ -236,10 +230,7 @@ function ImageWithAspectRatio({
   return (
     <div className='absolute inset-0 h-svh overflow-hidden'>
       <Image
-        className={cn(
-          'absolute top-0 -z-10 object-cover object-center',
-          isPastEnd && 'hidden'
-        )}
+        className={cn('absolute top-0 -z-10 object-cover object-center')}
         src={url}
         alt='recipe'
         width={aspectRatio ? imgHeight * aspectRatio : imgHeight * 0.75}
@@ -253,8 +244,7 @@ function ImageWithAspectRatio({
       />
       <Image
         className={cn(
-          'absolute bottom-0 -z-10 h-full rotate-180 object-cover object-center',
-          isPastEnd && 'hidden'
+          'absolute bottom-0 -z-10 h-full rotate-180 object-cover object-center'
         )}
         src={url}
         alt='recipe'
@@ -271,6 +261,19 @@ function ImageWithAspectRatio({
   )
 }
 
+function GlassMetadata() {
+  return (
+    <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
+      <div className='h-full flex-1'></div>
+      <div className='sticky top-0 h-full flex-1 bg-gradient-to-b from-slate-900/15 to-slate-900'>
+        <GlassElement className='h-full bg-transparent px-5 py-4'>
+          <RecipeMetaData />
+        </GlassElement>
+      </div>
+    </div>
+  )
+}
+
 function RecipeMetaData() {
   const utils = api.useUtils()
   const { id } = useParams()
@@ -281,34 +284,19 @@ function RecipeMetaData() {
   const { name, prepTime, cookTime, description } = data
 
   return (
-    <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
-      <div className='h-full flex-1'></div>
-      <div className='sticky top-0 h-full flex-1 bg-gradient-to-b from-slate-900/15 to-slate-900'>
-        <GlassElement className='h-full bg-transparent px-5 py-4'>
-          <h2 className='text-glass text-2xl font-bold'>{name}</h2>
+    <>
+      <h2 className='text-glass text-2xl font-bold'>{name}</h2>
 
-          {prepTime && cookTime && (
-            <div className='flex justify-center'>
-              <RecipeTime prepTime={prepTime} cookTime={cookTime} />
-            </div>
-          )}
-          {description && (
-            <p className='text-glass bg-transparent'>{description}</p>
-          )}
-        </GlassElement>
-      </div>
-    </div>
+      {prepTime && cookTime && (
+        <div className='flex justify-center'>
+          <RecipeTime prepTime={prepTime} cookTime={cookTime} />
+        </div>
+      )}
+      {description && (
+        <p className='text-glass bg-transparent'>{description}</p>
+      )}
+    </>
   )
-}
-
-function GlassElement({
-  children,
-  className
-}: {
-  children: React.ReactNode
-  className?: string
-}) {
-  return <div className={cn('glass-element', className)}>{children}</div>
 }
 
 function Instructions({ instructions }: { instructions: Instruction[] }) {
@@ -316,11 +304,13 @@ function Instructions({ instructions }: { instructions: Instruction[] }) {
 
   return (
     <>
-      <h2 className='divider'>{t.recipes.instructions}</h2>
+      <h2 className='text-base-content/90 mb-2 text-lg font-bold'>
+        {t.recipes.instructions}
+      </h2>
       <ol className='flex list-none flex-col gap-3 pl-0'>
         {instructions.map((i, index) => (
           <li key={i.id} className='bg-base-300 mt-0 mb-0 rounded p-4'>
-            <h3 className='text-base-content mb-1 text-sm font-bold'>
+            <h3 className='text-base-content mb-1 text-sm font-bold uppercase'>
               {t.recipes.step} {index + 1}
             </h3>
             <p>{i.description}</p>

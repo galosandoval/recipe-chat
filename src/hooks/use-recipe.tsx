@@ -4,7 +4,6 @@ import { toast } from '~/components/toast'
 import { type LinkedDataRecipeField } from '~/server/api/schemas/recipes'
 import { useForm } from 'react-hook-form'
 import { api } from '~/trpc/react'
-import type { RecipeUrlSchemaType } from '~/schemas/recipes'
 
 export default function useDebounce(value: string, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -27,36 +26,6 @@ export const useRecipe = (id: string) =>
   api.recipes.byId.useQuery({
     id
   })
-
-export function useParseRecipe() {
-  const [isOpen, setIsOpen] = useState(false)
-  const { mutate, status, data, reset } =
-    api.recipes.parseRecipeUrl.useMutation()
-
-  function closeModal() {
-    setIsOpen(false)
-    setTimeout(() => {
-      reset()
-    }, 200)
-  }
-
-  function openModal() {
-    setIsOpen(true)
-  }
-
-  function onSubmitUrl(values: RecipeUrlSchemaType) {
-    mutate(values.url)
-  }
-
-  return {
-    isOpen,
-    status,
-    data,
-    openModal,
-    closeModal,
-    onSubmitUrl
-  }
-}
 
 export const useAddToList = () => {
   const utils = api.useContext()
