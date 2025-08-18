@@ -73,16 +73,13 @@ function RecipeByIdNavbar() {
   return (
     <nav className='fixed z-20 flex w-full justify-between bg-transparent p-4'>
       <button
-        className='btn btn-circle btn-ghost glass'
+        className='btn btn-circle glass-element text-glass bg-slate-500/40'
         onClick={() => router.push('/recipes')}
       >
         <ArrowBackLeftIcon />
       </button>
-      {/* <h1 className='col-span-4 mb-0 justify-self-center text-base'>
-        {data?.name}
-      </h1> */}
       <button
-        className='btn btn-circle btn-ghost glass justify-self-end'
+        className='btn btn-circle glass-element text-glass justify-self-end'
         onClick={() => router.push(`/recipes/${id}/edit?name=${data?.name}`)}
       >
         <span>

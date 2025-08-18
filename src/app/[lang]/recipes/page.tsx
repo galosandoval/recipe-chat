@@ -13,7 +13,7 @@ export default async function RecipesView() {
 
   return (
     <HydrateClient>
-      <main className='prose mx-auto w-full overflow-y-auto pt-24'>
+      <main className='mx-auto w-full overflow-y-auto pt-24'>
         <Suspense fallback={<ScreenLoader />}>
           <Recipes />
         </Suspense>

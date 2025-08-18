@@ -81,7 +81,8 @@
   "recipes": {
     "noRecipes": {
       "message": "No recipes found. Save recipes from chats ",
-      "link": "here"
+      "link": "here",
+      "noneFound": "No recipes found."
     },
 
     "recent": "Recent recipes",
