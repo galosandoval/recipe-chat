@@ -81,8 +81,8 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
         containerHeight={containerHeight}
       />
 
-      <div className='bg-base-100 relative z-10'>
-        <StickyHeader visible={isPastHero} name={name} />
+      <div className='relative'>
+        {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
         <div className='mx-auto flex flex-col items-center px-4 pb-4'>
           <div className='bg-base-100 flex flex-col'>
             <IngredientsCheckList ingredients={ingredients} />
@@ -108,7 +108,7 @@ function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
   return (
     <div
       className={cn(
-        'glass-element sticky top-0 -mt-14 flex items-center justify-center py-5 opacity-0 transition-opacity duration-300',
+        'glass-element sticky top-0 z-10 -mt-14 flex items-center justify-center py-5 opacity-0 transition-opacity duration-300',
         visible && 'opacity-100'
       )}
     >
@@ -172,11 +172,18 @@ function ImageWithTitleAndDescription({
 }
 
 function RecipeImgButtonAndMetaData() {
+  const { id } = useParams()
+  const { data } = api.recipes.byId.useQuery({ id: id as string })
+
+  if (!data) return null
   return (
-    <div>
-      <RecipeMetaData />
-      <UploadImageButton />
-    </div>
+    <>
+      <StickyHeader name={data.name} visible={true} />
+      <div className='pt-10'>
+        <UploadImageButton />
+        <RecipeMetaData textColor='text-base-content' />
+      </div>
+    </>
   )
 }
 
@@ -267,14 +274,14 @@ function GlassMetadata() {
       <div className='h-full flex-1'></div>
       <div className='sticky top-0 h-full flex-1 bg-gradient-to-b from-slate-900/15 to-slate-900'>
         <GlassElement className='h-full bg-transparent px-5 py-4'>
-          <RecipeMetaData />
+          <RecipeMetaData textColor='text-glass' />
         </GlassElement>
       </div>
     </div>
   )
 }
 
-function RecipeMetaData() {
+function RecipeMetaData({ textColor }: { textColor: string }) {
   const utils = api.useUtils()
   const { id } = useParams()
   const data = utils.recipes.byId.getData({ id: id as string })
@@ -285,15 +292,15 @@ function RecipeMetaData() {
 
   return (
     <>
-      <h2 className='text-glass text-2xl font-bold'>{name}</h2>
+      <h2 className={cn('px-4 text-2xl font-bold', textColor)}>{name}</h2>
 
       {prepTime && cookTime && (
-        <div className='flex justify-center'>
+        <div className='flex justify-center px-4'>
           <RecipeTime prepTime={prepTime} cookTime={cookTime} />
         </div>
       )}
       {description && (
-        <p className='text-glass bg-transparent'>{description}</p>
+        <p className={cn('bg-transparent px-4', textColor)}>{description}</p>
       )}
     </>
   )
