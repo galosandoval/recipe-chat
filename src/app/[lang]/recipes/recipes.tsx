@@ -91,7 +91,7 @@ const SearchBarWrapper = React.memo(function SearchBarWrapper({
   handleSearchButtonClick: () => void
 }) {
   return (
-    <div className='relative container flex flex-col overflow-y-auto px-2 pt-12'>
+    <div className='relative container flex flex-col overflow-y-auto px-2 pt-14'>
       <SearchBar
         handleChange={handleChange}
         handleSearchButtonClick={handleSearchButtonClick}
@@ -117,7 +117,7 @@ const SearchBar = React.memo(function SearchBar({
   const t = useTranslations()
 
   return (
-    <div className='fixed top-20 right-0 left-0 z-10 flex w-full items-center md:rounded-md'>
+    <div className='fixed top-[5.3rem] right-0 left-0 z-10 flex w-full items-center md:rounded-md'>
       <div className='glass-element mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <input
