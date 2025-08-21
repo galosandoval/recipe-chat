@@ -11,7 +11,8 @@ import {
 
 export const chatParams = z.object({
   messages: z.array(messageSchema.omit({ createdAt: true, updatedAt: true })),
-  filters: z.array(z.string())
+  filters: z.array(z.string()),
+  userId: z.string().optional()
 })
 
 export const createOrAddMessages = z.object({

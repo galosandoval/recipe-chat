@@ -134,12 +134,12 @@ function RecipeTime({
   const t = useTranslations()
   return (
     <div className='stats glass-element my-2 rounded'>
-      <div className='stat place-items-center'>
+      <div className='stat place-items-center px-3 py-3'>
         <div className='text-glass'>{t.recipes.prepTime}</div>
         <div className='text-glass whitespace-normal'>{prepTime}</div>
       </div>
 
-      <div className='stat place-items-center'>
+      <div className='stat place-items-center px-3 py-3'>
         <div className='text-glass'>{t.recipes.cookTime}</div>
         <div className='text-glass whitespace-normal'>{cookTime}</div>
       </div>
@@ -273,7 +273,7 @@ function GlassMetadata() {
     <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
       <div className='h-full flex-1'></div>
       <div className='sticky top-0 h-full flex-1 bg-gradient-to-b from-slate-900/15 to-slate-900'>
-        <GlassElement className='h-full bg-transparent px-5 py-4'>
+        <GlassElement className='h-full bg-transparent py-4'>
           <RecipeMetaData textColor='text-glass' />
         </GlassElement>
       </div>
@@ -292,15 +292,15 @@ function RecipeMetaData({ textColor }: { textColor: string }) {
 
   return (
     <>
-      <h2 className={cn('px-4 text-2xl font-bold', textColor)}>{name}</h2>
+      <h2 className={cn('px-5 text-2xl font-bold', textColor)}>{name}</h2>
 
       {prepTime && cookTime && (
-        <div className='flex justify-center px-4'>
+        <div className='flex justify-center px-5'>
           <RecipeTime prepTime={prepTime} cookTime={cookTime} />
         </div>
       )}
       {description && (
-        <p className={cn('bg-transparent px-4', textColor)}>{description}</p>
+        <p className={cn('bg-transparent px-5', textColor)}>{description}</p>
       )}
     </>
   )
