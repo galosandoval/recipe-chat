@@ -1,4 +1,4 @@
-export const chatSystemPrompt = ({
+export const buildSystemPrompt = ({
   filters,
   savedRecipes
 }: {

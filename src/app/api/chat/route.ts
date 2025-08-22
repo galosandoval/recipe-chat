@@ -1,7 +1,7 @@
 import { streamObject } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { chatParams, generatedMessageSchema } from '~/schemas/chats'
-import { chatSystemPrompt } from '~/app/constants/chat'
+import { buildSystemPrompt } from '~/app/constants/chat'
 import { prisma } from '~/server/db'
 
 // Allow streaming responses up to 30 seconds
@@ -12,16 +12,16 @@ export async function POST(req: Request) {
   const input = chatParams.parse(request)
   const { filters, messages, userId } = input
 
-  const system = chatSystemPrompt({ filters, savedRecipes: [] })
-  const savedRecipes = await prisma.recipe.findMany({
-    where: {
-      userId: userId
-    },
-    orderBy: {
-      createdAt: 'desc'
-    },
-    take: 50
-  })
+  const system = buildSystemPrompt({ filters, savedRecipes: [] })
+  // const savedRecipes = await prisma.recipe.findMany({
+  //   where: {
+  //     userId: userId
+  //   },
+  //   orderBy: {
+  //     createdAt: 'desc'
+  //   },
+  //   take: 50
+  // })
 
   const result = streamObject({
     /**
@@ -32,8 +32,8 @@ export async function POST(req: Request) {
     model: openai('gpt-4-turbo'),
     schema: generatedMessageSchema,
     messages: messages.map(({ content, role }) => ({
-      role,
-      content
+      content,
+      role
     })),
     system
   })
