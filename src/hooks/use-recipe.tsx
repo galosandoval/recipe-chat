@@ -48,14 +48,12 @@ export const useCreateRecipe = (data: LinkedDataRecipeField) => {
     recipeIngredient,
     recipeInstructions,
     name,
-    cookTime,
-    prepTime
+    cookMinutes,
+    prepMinutes
   } = data
   const { mutate, isPending, isSuccess } = api.recipes.create.useMutation({
     onSuccess: async (data) => {
-      await router.push(
-        `recipes/${data.id}?name=${encodeURIComponent(data.name)}`
-      )
+      router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
       await utils.recipes.invalidate()
     }
   })
@@ -66,8 +64,8 @@ export const useCreateRecipe = (data: LinkedDataRecipeField) => {
       ingredients: recipeIngredient?.join('\n'),
       instructions: recipeInstructions?.map((i) => i.text)?.join('\n'),
       name,
-      cookTime,
-      prepTime
+      cookMinutes,
+      prepMinutes
     }
   })
 
@@ -93,8 +91,8 @@ export type FormValues = {
   ingredients: string
   instructions: string
   description: string
-  prepTime: string
-  cookTime: string
+  prepMinutes: number
+  cookMinutes: number
 }
 
 export const useEditRecipe = () => {

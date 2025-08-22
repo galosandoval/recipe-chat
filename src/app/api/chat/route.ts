@@ -12,16 +12,16 @@ export async function POST(req: Request) {
   const input = chatParams.parse(request)
   const { filters, messages, userId } = input
 
+  const generatedRecipes = await prisma.recipe.findMany({
+    where: {
+      userId: userId
+    },
+    orderBy: {
+      createdAt: 'desc'
+    },
+    take: 50
+  })
   const system = buildSystemPrompt({ filters, savedRecipes: [] })
-  // const savedRecipes = await prisma.recipe.findMany({
-  //   where: {
-  //     userId: userId
-  //   },
-  //   orderBy: {
-  //     createdAt: 'desc'
-  //   },
-  //   take: 50
-  // })
 
   const result = streamObject({
     /**

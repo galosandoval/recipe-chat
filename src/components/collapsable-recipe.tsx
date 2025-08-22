@@ -16,6 +16,7 @@ import { cn } from '~/utils/cn'
 import { useAuthModal } from './auth-modals'
 import type { RecipeDTO } from '~/schemas/chats'
 import { useRouter } from 'next/navigation'
+import { formatTimeFromMinutes } from '~/utils/format-time'
 
 export function CollaplableRecipe({
   recipe,
@@ -42,7 +43,10 @@ export function CollaplableRecipe({
         <p className='text-xs'>{recipe.description}</p>
         {isOpen && (
           <div className='pt-2'>
-            <Times prepTime={recipe.prepTime} cookTime={recipe.cookTime} />
+            <Times
+              prepMinutes={recipe.prepMinutes}
+              cookMinutes={recipe.cookMinutes}
+            />
             <Ingredients ingredients={recipe.ingredients} />
             <Instructions instructions={recipe.instructions} />
           </div>
@@ -149,28 +153,32 @@ function ActionButton({
   }
 }
 
-
-
 function Times({
-  prepTime,
-  cookTime
+  prepMinutes,
+  cookMinutes
 }: {
-  prepTime?: string | null
-  cookTime?: string | null
+  prepMinutes?: number | null
+  cookMinutes?: number | null
 }) {
   const t = useTranslations()
-  if (!prepTime && !cookTime) return null
+  if (!prepMinutes && !cookMinutes) return null
+  const formattedPrepMinutes = prepMinutes
+    ? formatTimeFromMinutes(prepMinutes, t)
+    : null
+  const formattedCookMinutes = cookMinutes
+    ? formatTimeFromMinutes(cookMinutes, t)
+    : null
   return (
     <div className='text-muted-foreground mb-2 flex items-center gap-2 self-center text-sm'>
       <ClockIcon className='size-4' />
-      {prepTime !== undefined && (
+      {prepMinutes && (
         <span className='flex items-center gap-2 text-xs'>
-          {t.recipes.prepTime} {prepTime}
+          {t.recipes.prepTime} {formattedPrepMinutes}
         </span>
       )}
-      {cookTime !== undefined && (
+      {cookMinutes && (
         <span className='flex items-center gap-2 text-xs'>
-          {t.recipes.cookTime} {cookTime}
+          {t.recipes.cookTime} {formattedCookMinutes}
         </span>
       )}
     </div>

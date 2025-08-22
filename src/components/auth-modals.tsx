@@ -117,9 +117,8 @@ export function SignUpModal() {
         description: recipe.description ?? '',
         ingredients: recipe.ingredients ?? [],
         instructions: recipe.instructions ?? [],
-        prepTime: recipe.prepTime ?? '',
-        cookTime: recipe.cookTime ?? ''
-        // categories: recipe.categories ?? []
+        prepMinutes: recipe.prepMinutes ?? undefined,
+        cookMinutes: recipe.cookMinutes ?? undefined
       },
       messages
     })
@@ -306,17 +305,6 @@ export function LoginModal() {
       </div>
     </Modal>
   )
-}
-export function transformContentToRecipe({ content }: { content: string }) {
-  return JSON.parse(content) as {
-    name: string
-    description: string
-    prepTime: string
-    cookTime: string
-    categories: string[]
-    instructions: string[]
-    ingredients: string[]
-  }
 }
 
 export const AuthModalContext = createContext<{

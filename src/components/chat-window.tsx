@@ -199,23 +199,6 @@ function AssistantMessage({
             )}
           </div>
         </div>
-        {/* <div className='grid w-full grid-flow-col place-items-end gap-2 self-center'>
-          {!isStreaming ? (
-            // Save
-            <Button
-              className='btn btn-outline'
-              isLoading={saveRecipeStatus === 'pending'}
-              onClick={() =>
-                handleSaveRecipe({
-                  content: message.content || '',
-                  messageId: message.id
-                })
-              }
-            >
-              {t.chatWindow.save}
-            </Button>
-          ) : null}
-        </div> */}
       </div>
     </div>
   )

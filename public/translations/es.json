@@ -143,6 +143,13 @@
     "loginSuccess": "¡Bienvenido! Aquí tienes la receta que guardaste:"
   },
 
+  "time": {
+    "hour": "hora",
+    "hours": "horas",
+    "minute": "minuto",
+    "minutes": "minutos"
+  },
+
   "components": {
     "avatars": {
       "assistant": "IA"

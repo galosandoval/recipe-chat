@@ -30,10 +30,16 @@ export function Stream({
                   ...stream.recipes[0],
                   id: '',
                   saved: false,
-                  prepTime: stream.recipes[0].prepTime ?? null,
-                  cookTime: stream.recipes[0].cookTime ?? null,
+                  prepMinutes: stream.recipes[0].prepMinutes ?? null,
+                  cookMinutes: stream.recipes[0].cookMinutes ?? null,
                   ingredients: stream.recipes[0].ingredients ?? [],
-                  instructions: stream.recipes[0].instructions ?? []
+                  instructions: stream.recipes[0].instructions ?? [],
+                  cuisine: stream.recipes[0].cuisine ?? null,
+                  course: stream.recipes[0].course ?? null,
+                  dietTags: stream.recipes[0].dietTags ?? [],
+                  flavorTags: stream.recipes[0].flavorTags ?? [],
+                  mainIngredients: stream.recipes[0].mainIngredients ?? [],
+                  techniques: stream.recipes[0].techniques ?? []
                 }}
                 isStreaming={isStreaming}
               />
@@ -44,10 +50,16 @@ export function Stream({
                   ...r,
                   id: '',
                   saved: false,
-                  prepTime: r.prepTime ?? null,
-                  cookTime: r.cookTime ?? null,
+                  prepMinutes: r.prepMinutes ?? null,
+                  cookMinutes: r.cookMinutes ?? null,
                   ingredients: r.ingredients ?? [],
-                  instructions: r.instructions ?? []
+                  instructions: r.instructions ?? [],
+                  cuisine: r.cuisine ?? null,
+                  course: r.course ?? null,
+                  dietTags: r.dietTags ?? [],
+                  flavorTags: r.flavorTags ?? [],
+                  mainIngredients: r.mainIngredients ?? [],
+                  techniques: r.techniques ?? []
                 }))}
                 isStreaming={isStreaming}
               />

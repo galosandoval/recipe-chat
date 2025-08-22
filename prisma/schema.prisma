@@ -6,9 +6,10 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_PRISMA_URL") // uses connection pooling
-  directUrl = env("DATABASE_URL_NON_POOLING") // uses a direct connection
+  provider          = "postgresql"
+  url               = env("DATABASE_PRISMA_URL") // uses connection pooling
+  directUrl         = env("DATABASE_URL_NON_POOLING") // uses a direct connection
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model User {
@@ -63,25 +64,66 @@ enum Role {
 }
 
 model Recipe {
-  id           String              @id @default(cuid())
-  user         User?               @relation(fields: [userId], references: [id])
-  userId       String?
-  description  String?
-  name         String
-  imgUrl       String?
-  author       String?
-  address      String?
+  id          String  @id @default(cuid())
+  user        User?   @relation(fields: [userId], references: [id])
+  userId      String?
+  name        String
+  description String?
+  imgUrl      String?
+  author      String?
+  address     String?
+
+  // NEW: normalized name for dedupe/search (optional)
+  nameNorm        String?  @db.Text
+  // NEW: lightweight classification to power filters & embeddings
+  cuisine         String? // e.g. "mexican", "thai"
+  course          String? // e.g. "main", "side", "dessert"
+  dietTags        String[] @default([]) // e.g. ["vegan", "gluten-free"]
+  flavorTags      String[] @default([]) // e.g. ["spicy","umami"]
+  mainIngredients String[] @default([]) // e.g. ["chicken","tomato"]
+  techniques      String[] @default([]) // e.g. ["grill","braise"]
+
+  // existing step/ingredient relations
   instructions Instruction[]
   ingredients  Ingredient[]
-  prepTime     String?
-  cookTime     String?
+
+  // existing string times (kept for backward compatibility)
+  prepTime    String?
+  cookTime    String?
+  // NEW: numeric times for better filtering/sorting (optional)
+  prepMinutes Int?
+  cookMinutes Int?
+
+  // existing
   messages     RecipesOnMessages[]
   saved        Boolean             @default(false)
-  categories   String[]            @default([])
   notes        String              @default("")
   lastViewedAt DateTime            @default(now())
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
+
+  // NEW: 1–1 vector row (optional)
+  vector RecipeVector?
+
+  @@index([userId, nameNorm])
+  @@index([userId, cuisine])
+  @@index([userId, course])
+}
+
+model RecipeVector {
+  // 1–1 with Recipe
+  recipeId String @id
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  userId    String // duplicate for fast multitenant filters
+  signature String // compact text you embed (title/tags/desc)
+
+  // Prisma doesn’t have a native vector type yet; use Unsupported
+  embedding Unsupported("vector") // e.g. vector(1536)
+
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model RecipesOnMessages {

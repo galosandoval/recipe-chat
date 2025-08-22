@@ -32,7 +32,18 @@ export type MessageWithGenRecipes = Message & { recipes?: GeneratedRecipe[] }
 
 export type RecipeDTO = Pick<
   Recipe,
-  'id' | 'name' | 'description' | 'prepTime' | 'cookTime' | 'saved'
+  | 'id'
+  | 'name'
+  | 'description'
+  | 'cuisine'
+  | 'course'
+  | 'dietTags'
+  | 'flavorTags'
+  | 'mainIngredients'
+  | 'techniques'
+  | 'prepMinutes'
+  | 'cookMinutes'
+  | 'saved'
 > & {
   ingredients: string[]
   instructions: string[]
@@ -69,11 +80,16 @@ export const generatedSchema = z.object({
     id: z.string(),
     ingredients: z.array(z.string()),
     instructions: z.array(z.string()),
-    prepTime: z.string(),
-    cookTime: z.string(),
+    prepMinutes: z.number().optional(),
+    cookMinutes: z.number().optional(),
+    cuisine: z.string().optional(),
+    course: z.string().optional(),
+    dietTags: z.array(z.string()).optional(),
+    flavorTags: z.array(z.string()).optional(),
+    mainIngredients: z.array(z.string()).optional(),
+    techniques: z.array(z.string()).optional(),
     messageId: z.string(),
     chatId: z.string()
   })
-  // categories: z.array(z.string())
 })
 export type Generated = z.infer<typeof generatedSchema>
