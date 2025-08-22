@@ -1,6 +1,8 @@
 import { streamObject } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { chatParams, generatedMessageSchema } from '~/schemas/chats'
+import { buildSystemPrompt } from '~/app/constants/chat'
+import { prisma } from '~/server/db'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
@@ -8,16 +10,18 @@ export const maxDuration = 30
 export async function POST(req: Request) {
   const request = await req.json()
   const input = chatParams.parse(request)
-  const { filters, messages } = input
+  const { filters, messages, userId } = input
 
-  let system = `You are an assistant that responds with a helpful message and 0 to 5 recipes. If you do respond with more than 1 recipe only include name and description for each recipe. If you only respond with 1 recipe, include the name, description, prep time, cook time, ingredients, and instructions. Ask clarifying questions before responding with recipes if needed. Respond with a wide variety of cuisines and cultures. Don't repeat recipes in the same conversation unless the user asks for changes`
-  if (filters.length) {
-    const filtersMessage = ` The following filters should be applied to the recipe: ${filters.join(
-      ', '
-    )}.`
-
-    system += filtersMessage
-  }
+  const system = buildSystemPrompt({ filters, savedRecipes: [] })
+  // const savedRecipes = await prisma.recipe.findMany({
+  //   where: {
+  //     userId: userId
+  //   },
+  //   orderBy: {
+  //     createdAt: 'desc'
+  //   },
+  //   take: 50
+  // })
 
   const result = streamObject({
     /**
@@ -28,10 +32,29 @@ export async function POST(req: Request) {
     model: openai('gpt-4-turbo'),
     schema: generatedMessageSchema,
     messages: messages.map(({ content, role }) => ({
-      role,
-      content
+      content,
+      role
     })),
     system
   })
   return result.toTextStreamResponse()
 }
+
+// Example: build a compact history string
+// function compactSaved(
+//   recipes: Array<{
+//     name: string
+//     cuisine?: string
+//     tags?: string[]
+//   }>
+// ) {
+//   // Keep it compact: "Title — cuisine; tags:a,b,c"
+//   return recipes
+//     .slice(0, 50) // or diversity-sampled
+//     .map((r) => {
+//       const t = r.tags?.slice(0, 3).join(', ') || ''
+//       const c = r.cuisine ? `${r.cuisine}; ` : ''
+//       return `${r.title} — ${c}${t}`
+//     })
+//     .join(' | ')
+// }

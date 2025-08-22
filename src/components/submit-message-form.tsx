@@ -12,8 +12,10 @@ import { useEffect } from 'react'
 import { userMessageDTO } from '~/utils/user-message-dto'
 import { useFiltersByUser } from './recipe-filters'
 import type { GeneratedRecipe } from '~/schemas/messages'
+import { useUserId } from '~/hooks/use-user-id'
 
 function useRecipeChat() {
+  const userId = useUserId()
   const { setInput, setStream } = chatStore()
   const { onFinishMessage, createUserMessage } = useChatAI()
   const {
@@ -34,10 +36,10 @@ function useRecipeChat() {
       createUserMessage(lastMessage)
     }
     setInput('')
-    // setStreamingStatus('streaming')
     aiSubmit({
       messages,
-      filters: filters?.filter((f) => f.checked).map((f) => f.name) ?? []
+      filters: filters?.filter((f) => f.checked).map((f) => f.name) ?? [],
+      userId
     })
   }
 
