@@ -188,7 +188,6 @@ export class ChatsAccess extends DataAccess {
             }
           }
         })
-        console.log('cratedRecipe', createdRecipe)
         // Create the many-to-many relationship between recipe and message
         await tx.recipesOnMessages.create({
           data: {

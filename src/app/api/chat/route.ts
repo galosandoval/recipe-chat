@@ -12,6 +12,7 @@ export async function POST(req: Request) {
   const input = chatParams.parse(request)
   const { filters, messages, userId } = input
 
+  // not just saved recipes, any recipe genereated by the user
   const generatedRecipes = await prisma.recipe.findMany({
     where: {
       userId: userId

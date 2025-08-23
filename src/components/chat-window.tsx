@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useContext, useEffect } from 'react'
+import { memo, useContext, useEffect, useMemo, useRef } from 'react'
 import { ScreenLoader } from './loaders/screen'
 import { type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser, useFiltersByUser } from './recipe-filters'
@@ -18,6 +18,9 @@ import { Stream } from './stream'
 import { CollaplableRecipe } from './collapsable-recipe'
 import type { MessageWithRecipes } from '~/schemas/chats'
 import { RecipesToGenerate } from './recipes-to-generate'
+import { buildGenerateRecipeContent } from '~/utils/build-generate-recipe-content'
+import { api } from '~/trpc/react'
+import { LoadingSpinner } from './loaders/loading-spinner'
 
 export default function ChatWindow() {
   const { setScrollMode } = useContext(ScrollModeContext)
@@ -147,6 +150,41 @@ const Message = function Message({
     )
   }
 
+  return <UserMessage message={message} isStreaming={isStreaming} />
+}
+
+const UserMessage = memo(function UserMessage({
+  message,
+  isStreaming
+}: {
+  message: MessageWithRecipes
+  isStreaming: boolean
+}) {
+  const t = useTranslations()
+  const utils = api.useUtils()
+  const someNameIsThisMessage = useMemo(() => {
+    const chatId = chatStore.getState().chatId
+    const data = utils.chats.getMessagesById.getData({ chatId: chatId ?? '' })
+    const allRecipes =
+      data?.messages.flatMap((m) => m.recipes)?.flatMap((r) => r.recipe) ?? []
+
+    return allRecipes.find(
+      (r) =>
+        message.content ===
+        buildGenerateRecipeContent(
+          t.chatWindow.generateRecipe,
+          r.name ?? '',
+          r.description ?? ''
+        )
+    )
+  }, [message.content, t.chatWindow.generateRecipe, utils])
+
+  if (someNameIsThisMessage) {
+    return (
+      <AppMessage name={someNameIsThisMessage.name} isStreaming={isStreaming} />
+    )
+  }
+
   return (
     <div className='flex flex-col items-center self-end'>
       <div className='mx-auto w-full'>
@@ -161,6 +199,30 @@ const Message = function Message({
           </div>
         </div>
         <ActiveFilters />
+      </div>
+    </div>
+  )
+})
+
+function AppMessage({
+  name,
+  isStreaming
+}: {
+  name: string
+  isStreaming: boolean
+}) {
+  const t = useTranslations()
+  return (
+    <div className='flex w-full justify-center'>
+      <div className='bg-base-300 flex items-center justify-center gap-2 rounded-2xl px-4 py-2'>
+        {isStreaming && (
+          <div className='flex items-center justify-center'>
+            <LoadingSpinner className='text-base-content size-3' />
+          </div>
+        )}
+        <p className='text-base-content text-xs font-bold'>
+          {t.chatWindow.replace('generatingRecipe', name)}
+        </p>
       </div>
     </div>
   )

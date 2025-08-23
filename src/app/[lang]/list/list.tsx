@@ -9,7 +9,7 @@ import { type UseFormHandleSubmit, type UseFormRegister } from 'react-hook-form'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
-import { AddCircleIcon } from '~/components/icons'
+import { AddCircleIcon, ArrowSmallDownIcon } from '~/components/icons'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -101,12 +101,20 @@ function EmptyList({ children }: { children: ReactNode }) {
   const t = useTranslations()
 
   return (
-    <div className='text-primary my-auto grid h-96 place-items-center'>
+    <div className='text-primary fixed inset-0 my-auto grid place-items-center'>
       <div className='bg-base-100 rounded-lg'>
-        <h1 className='text-primary my-auto px-5 text-center'>
+        <h1 className='text-base-content my-auto px-5 text-center text-2xl font-bold'>
           {t.list.noItems}
         </h1>
-        <div className='fixed bottom-0 left-0 w-full'>{children}</div>
+        <div className='left-0 w-full'>{children}</div>
+        <div className='fixed bottom-14 left-0 flex w-full items-center justify-center gap-2'>
+          <p className='text-base-content text-center text-sm'>
+            {t.list.addIngredient}
+          </p>
+          <div className='animate-bounce'>
+            <ArrowSmallDownIcon />
+          </div>
+        </div>
       </div>
     </div>
   )

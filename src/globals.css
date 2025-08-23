@@ -31,7 +31,7 @@
 }
 
 /*
-  This prevents zooming in on Safari when focusing on input fields.
+  This prevents zooming in on Safari when focusing on input fields for mobile.
 */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   select,

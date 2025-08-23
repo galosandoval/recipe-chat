@@ -15,7 +15,8 @@ import React, {
   useState
 } from 'react'
 import { MagnifyingGlassCircleIcon, XCircleIcon } from '~/components/icons'
-import { LoadingSpinner, ScreenLoader } from '~/components/loaders/screen'
+import { ScreenLoader } from '~/components/loaders/screen'
+import { LoadingSpinner } from '~/components/loaders/loading-spinner'
 import { api } from '~/trpc/react'
 import { useInView } from 'react-intersection-observer'
 import { type FetchStatus, type QueryStatus } from '@tanstack/react-query'

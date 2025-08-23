@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
@@ -161,13 +161,15 @@ function Times({
   cookMinutes?: number | null
 }) {
   const t = useTranslations()
+  const formattedPrepMinutes = useMemo(
+    () => (prepMinutes ? formatTimeFromMinutes(prepMinutes, t) : null),
+    [prepMinutes]
+  )
+  const formattedCookMinutes = useMemo(
+    () => (cookMinutes ? formatTimeFromMinutes(cookMinutes, t) : null),
+    [cookMinutes]
+  )
   if (!prepMinutes && !cookMinutes) return null
-  const formattedPrepMinutes = prepMinutes
-    ? formatTimeFromMinutes(prepMinutes, t)
-    : null
-  const formattedCookMinutes = cookMinutes
-    ? formatTimeFromMinutes(cookMinutes, t)
-    : null
   return (
     <div className='text-muted-foreground mb-2 flex items-center gap-2 self-center text-sm'>
       <ClockIcon className='size-4' />

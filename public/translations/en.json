@@ -36,7 +36,8 @@
   "list": {
     "byRecipe": "By recipe",
     "noItems": "No items in your list",
-    "addToList": "Add to list"
+    "addToList": "Add to list",
+    "addIngredient": "Add a new ingredient to your list"
   },
 
   "valueProps": {
@@ -75,7 +76,8 @@
     "saveSuccess": "Recipe saved successfully!",
     "chats": "Recent chats",
     "noChats": "No chats found. Start a new chat by asking about a recipe",
-    "generateRecipe": "Generate a recipe for "
+    "generateRecipe": "Generate a recipe for ",
+    "generatingRecipe": "Generating full recipe for $1"
   },
 
   "recipes": {

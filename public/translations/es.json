@@ -36,7 +36,8 @@
   "list": {
     "byRecipe": "Por receta",
     "noItems": "No hay elementos en tu lista",
-    "addToList": "Agregar a tu lista"
+    "addToList": "Agregar a tu lista",
+    "addIngredient": "Agregar un nuevo ingrediente a tu lista"
   },
 
   "valueProps": {
@@ -75,7 +76,8 @@
     "saveSuccess": "¡Receta guardada!",
     "chats": "Recientes chats",
     "noChats": "No se encontraron chats. Iniciar un nuevo chat preguntando sobre una receta",
-    "generateRecipe": "Generar una receta para "
+    "generateRecipe": "Generar una receta para ",
+    "generatingRecipe": "Generando receta completa para $1"
   },
 
   "recipes": {
