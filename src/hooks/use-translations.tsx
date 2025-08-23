@@ -15,7 +15,7 @@ type EnhancedTranslations<T = Translations> = {
         }
       : T[K]
 } & {
-  replace(path: string, ...args: string[]): string
+  replace(path: keyof T, ...args: string[]): string
 }
 
 /**

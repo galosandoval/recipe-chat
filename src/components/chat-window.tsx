@@ -5,7 +5,7 @@ import { ScreenLoader } from './loaders/screen'
 import { type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser, useFiltersByUser } from './recipe-filters'
 import { ValueProps } from './value-props'
-import { UserCircleIcon } from './icons'
+import { CheckCircleIcon, CheckIcon, UserCircleIcon } from './icons'
 import { ChatLoader } from './loaders/chat'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
@@ -15,7 +15,7 @@ import { chatStore } from '~/stores/chat-store'
 import { useScrollToTop } from 'react-scroll-to-bottom'
 import { ChatsDrawer } from './chats-drawer'
 import { Stream } from './stream'
-import { CollaplableRecipe } from './collapsable-recipe'
+import { CollapsableRecipe } from './collapsable-recipe'
 import type { MessageWithRecipes } from '~/schemas/chats'
 import { RecipesToGenerate } from './recipes-to-generate'
 import { buildGenerateRecipeContent } from '~/utils/build-generate-recipe-content'
@@ -212,19 +212,45 @@ function AppMessage({
   isStreaming: boolean
 }) {
   const t = useTranslations()
+
   return (
     <div className='flex w-full justify-center'>
       <div className='bg-base-300 flex items-center justify-center gap-2 rounded-2xl px-4 py-2'>
-        {isStreaming && (
-          <div className='flex items-center justify-center'>
-            <LoadingSpinner className='text-base-content size-3' />
-          </div>
+        {isStreaming ? (
+          <GeneratingRecipe name={name} label={t.chatWindow.generatingRecipe} />
+        ) : (
+          <GeneratedRecipe name={name} label={t.chatWindow.generatedRecipe} />
         )}
-        <p className='text-base-content text-xs font-bold'>
-          {t.chatWindow.replace('generatingRecipe', name)}
-        </p>
       </div>
     </div>
+  )
+}
+
+function GeneratingRecipe({ name, label }: { name: string; label: string }) {
+  const t = useTranslations()
+  return (
+    <>
+      <div className='flex items-center justify-center'>
+        <LoadingSpinner className='text-base-content size-3' />
+      </div>
+      <p className='text-base-content text-xs font-bold'>
+        {t.chatWindow.replace(label, name)}
+      </p>
+    </>
+  )
+}
+
+function GeneratedRecipe({ name, label }: { name: string; label: string }) {
+  const t = useTranslations()
+  return (
+    <>
+      <div className='flex items-center justify-center'>
+        <CheckCircleIcon className='text-success size-3' />
+      </div>
+      <p className='text-base-content text-xs font-bold'>
+        {t.chatWindow.replace(label, name)}
+      </p>
+    </>
   )
 }
 
@@ -248,7 +274,7 @@ function AssistantMessage({
               {message.content || ''}
             </p>
             {message.recipes?.length === 1 && (
-              <CollaplableRecipe
+              <CollapsableRecipe
                 isStreaming={isStreaming}
                 recipe={message.recipes[0]}
               />

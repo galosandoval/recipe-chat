@@ -2,7 +2,7 @@
 
 import { UserCircleIcon } from './icons'
 import type { GeneratedMessage } from '~/schemas/chats'
-import { CollaplableRecipe } from './collapsable-recipe'
+import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
 
 export function Stream({
@@ -25,7 +25,7 @@ export function Stream({
           <div className='bg-base-300 flex flex-col rounded p-3 pb-4'>
             <p className='text-sm whitespace-pre-line'>{stream.content}</p>
             {stream.recipes?.length === 1 && (
-              <CollaplableRecipe
+              <CollapsableRecipe
                 recipe={{
                   ...stream.recipes[0],
                   id: '',

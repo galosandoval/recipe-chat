@@ -18,7 +18,7 @@ import type { RecipeDTO } from '~/schemas/chats'
 import { useRouter } from 'next/navigation'
 import { formatTimeFromMinutes } from '~/utils/format-time'
 
-export function CollaplableRecipe({
+export function CollapsableRecipe({
   recipe,
   isStreaming
 }: {

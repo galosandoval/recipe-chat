@@ -111,7 +111,7 @@ function EmptyList({ children }: { children: ReactNode }) {
           <p className='text-base-content text-center text-sm'>
             {t.list.addIngredient}
           </p>
-          <div className='animate-bounce'>
+          <div className='text-base-content animate-bounce'>
             <ArrowSmallDownIcon />
           </div>
         </div>
