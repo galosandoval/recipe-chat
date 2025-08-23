@@ -36,7 +36,8 @@
   "list": {
     "byRecipe": "Por receta",
     "noItems": "No hay elementos en tu lista",
-    "addToList": "Agregar a tu lista"
+    "addToList": "Agregar a tu lista",
+    "addIngredient": "Agregar un nuevo ingrediente a tu lista"
   },
 
   "valueProps": {
@@ -75,7 +76,9 @@
     "saveSuccess": "¡Receta guardada!",
     "chats": "Recientes chats",
     "noChats": "No se encontraron chats. Iniciar un nuevo chat preguntando sobre una receta",
-    "generateRecipe": "Generar una receta para "
+    "generateRecipe": "Generar una receta para ",
+    "generatedRecipe": "¡Receta generada para $1!",
+    "generatingRecipe": "Generando receta completa para $1..."
   },
 
   "recipes": {
@@ -141,6 +144,13 @@
   "toast": {
     "signUp": "Registrate y guarda tus recetas.",
     "loginSuccess": "¡Bienvenido! Aquí tienes la receta que guardaste:"
+  },
+
+  "time": {
+    "hour": "hora",
+    "hours": "horas",
+    "minute": "minuto",
+    "minutes": "minutos"
   },
 
   "components": {

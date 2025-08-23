@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from './button'
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'

@@ -166,25 +166,25 @@ function CreateRecipe({
 
         <div className='flex gap-2'>
           <div className='flex w-1/2 flex-col'>
-            <label htmlFor='prepTime' className='label'>
+            <label htmlFor='prepMinutes' className='label'>
               <span className='label-text'>{t.recipes.prepTime}</span>
             </label>
             <input
-              id='prepTime'
+              id='prepMinutes'
               type='text'
               className='input input-bordered input-sm'
-              {...register('prepTime')}
+              {...register('prepMinutes')}
             />
           </div>
           <div className='flex w-1/2 flex-col'>
-            <label htmlFor='cookTime' className='label'>
+            <label htmlFor='cookMinutes' className='label'>
               <span className='label-text'>{t.recipes.cookTime}</span>
             </label>
             <input
-              id='cookTime'
+              id='cookMinutes'
               type='text'
               className='input input-bordered input-sm pr-2'
-              {...register('cookTime')}
+              {...register('cookMinutes')}
             />
           </div>
         </div>

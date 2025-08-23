@@ -15,8 +15,8 @@ export const createChatAndRecipeSchema = z.object({
     author: z.string().optional(),
     ingredients: z.array(z.string()),
     instructions: z.array(z.string()),
-    prepTime: z.string().optional(),
-    cookTime: z.string().optional()
+    prepMinutes: z.number().optional(),
+    cookMinutes: z.number().optional()
   }),
   messages: z
     .object({

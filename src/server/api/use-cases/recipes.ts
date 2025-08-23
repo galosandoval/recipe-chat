@@ -27,10 +27,10 @@ async function updateRecipeFields(
 ) {
   const data = {} as Partial<Recipe>
   const {
-    newPrepTime,
-    prepTime,
-    newCookTime,
-    cookTime,
+    newPrepMinutes,
+    prepMinutes,
+    newCookMinutes,
+    cookMinutes,
     newDescription,
     description,
     newName,
@@ -39,11 +39,11 @@ async function updateRecipeFields(
     notes
   } = recipe
 
-  if (newPrepTime && newPrepTime !== prepTime) {
-    data.prepTime = newPrepTime
+  if (newPrepMinutes && newPrepMinutes !== prepMinutes) {
+    data.prepMinutes = newPrepMinutes
   }
-  if (newCookTime && newCookTime !== cookTime) {
-    data.cookTime = newCookTime
+  if (newCookMinutes && newCookMinutes !== cookMinutes) {
+    data.cookMinutes = newCookMinutes
   }
   if (newDescription && newDescription !== description) {
     data.description = newDescription

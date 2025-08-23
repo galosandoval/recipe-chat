@@ -4,6 +4,7 @@ import type { RecipeDTO } from '~/schemas/chats'
 import { Button } from './button'
 import { PaperPlaneIcon } from './icons'
 import { userMessageDTO } from '~/utils/user-message-dto'
+import { buildGenerateRecipeContent } from '~/utils/build-generate-recipe-content'
 
 export function RecipesToGenerate({
   recipes,
@@ -65,7 +66,11 @@ function GenerateButton({
     triggerAISubmission([
       ...messages,
       userMessageDTO(
-        t.chatWindow.generateRecipe + name + ': ' + description,
+        buildGenerateRecipeContent(
+          t.chatWindow.generateRecipe,
+          name,
+          description
+        ),
         chatStore.getState().chatId
       )
     ])

@@ -20,8 +20,8 @@ type FormValues = {
   ingredients: string
   instructions: string
   description: string
-  prepTime: string
-  cookTime: string
+  prepMinutes: number
+  cookMinutes: number
   notes: string
 }
 
@@ -56,8 +56,8 @@ function FoundRecipe({
     description,
     instructions,
     name,
-    prepTime,
-    cookTime,
+    prepMinutes,
+    cookMinutes,
     notes,
     imgUrl,
     id
@@ -69,12 +69,12 @@ function FoundRecipe({
     formState: { isDirty, isValid }
   } = useForm<FormValues>({
     defaultValues: {
-      cookTime: cookTime || '',
+      cookMinutes: cookMinutes || undefined,
       description: description || '',
       ingredients: ingredients.map((i) => i.name).join('\n') || '',
       instructions: instructions.map((i) => i.description).join('\n') || '',
       name: name || '',
-      prepTime: prepTime || '',
+      prepMinutes: prepMinutes || undefined,
       notes: notes || ''
     }
   })
@@ -151,10 +151,10 @@ function FoundRecipe({
       newInstructions: instructionsToChange,
       ingredients: oldIngredients,
       instructions: oldInstructions,
-      newCookTime: values.cookTime,
-      newPrepTime: values.prepTime,
-      cookTime: cookTime || '',
-      prepTime: prepTime || '',
+      newCookMinutes: values.cookMinutes,
+      newPrepMinutes: values.prepMinutes,
+      cookMinutes: cookMinutes || undefined,
+      prepMinutes: prepMinutes || undefined,
       name: name || '',
       description: description || '',
       notes,
@@ -393,26 +393,26 @@ function MutateRecipeIngredientsAndInstructions({
 
         <div className='flex w-full gap-2'>
           <div className='flex w-1/2 flex-col'>
-            <label htmlFor='prepTime' className='label'>
+            <label htmlFor='prepMinutes' className='label'>
               <span className='label-text'>{t.recipes.prepTime}</span>
             </label>
             <input
-              id='prepTime'
+              id='prepMinutes'
               type='text'
               className='input input-bordered'
-              {...register('prepTime')}
+              {...register('prepMinutes')}
             />
           </div>
 
           <div className='flex w-1/2 flex-col'>
-            <label htmlFor='cookTime' className='label'>
+            <label htmlFor='cookMinutes' className='label'>
               <span className='label-text'>{t.recipes.cookTime}</span>
             </label>
             <input
-              id='cookTime'
+              id='cookMinutes'
               type='text'
               className='input input-bordered pr-2'
-              {...register('cookTime')}
+              {...register('cookMinutes')}
             />
           </div>
         </div>

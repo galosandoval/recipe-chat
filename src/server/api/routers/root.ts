@@ -1,8 +1,8 @@
 import { chatsRouter } from './chats-router'
-import { filtersRouter } from './filters'
-import { listsRouter } from './lists'
-import { recipesRouter } from './recipes'
-import { userRouter } from './users'
+import { filtersRouter } from './filters-router'
+import { listsRouter } from './lists-router'
+import { recipesRouter } from './recipes-router'
+import { userRouter } from './users-router'
 import { createCallerFactory, createTRPCRouter } from '../trpc'
 
 /**

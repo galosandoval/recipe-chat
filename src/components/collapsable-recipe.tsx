@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
@@ -16,8 +16,9 @@ import { cn } from '~/utils/cn'
 import { useAuthModal } from './auth-modals'
 import type { RecipeDTO } from '~/schemas/chats'
 import { useRouter } from 'next/navigation'
+import { formatTimeFromMinutes } from '~/utils/format-time'
 
-export function CollaplableRecipe({
+export function CollapsableRecipe({
   recipe,
   isStreaming
 }: {
@@ -42,7 +43,10 @@ export function CollaplableRecipe({
         <p className='text-xs'>{recipe.description}</p>
         {isOpen && (
           <div className='pt-2'>
-            <Times prepTime={recipe.prepTime} cookTime={recipe.cookTime} />
+            <Times
+              prepMinutes={recipe.prepMinutes}
+              cookMinutes={recipe.cookMinutes}
+            />
             <Ingredients ingredients={recipe.ingredients} />
             <Instructions instructions={recipe.instructions} />
           </div>
@@ -149,28 +153,34 @@ function ActionButton({
   }
 }
 
-
-
 function Times({
-  prepTime,
-  cookTime
+  prepMinutes,
+  cookMinutes
 }: {
-  prepTime?: string | null
-  cookTime?: string | null
+  prepMinutes?: number | null
+  cookMinutes?: number | null
 }) {
   const t = useTranslations()
-  if (!prepTime && !cookTime) return null
+  const formattedPrepMinutes = useMemo(
+    () => (prepMinutes ? formatTimeFromMinutes(prepMinutes, t) : null),
+    [prepMinutes]
+  )
+  const formattedCookMinutes = useMemo(
+    () => (cookMinutes ? formatTimeFromMinutes(cookMinutes, t) : null),
+    [cookMinutes]
+  )
+  if (!prepMinutes && !cookMinutes) return null
   return (
     <div className='text-muted-foreground mb-2 flex items-center gap-2 self-center text-sm'>
       <ClockIcon className='size-4' />
-      {prepTime !== undefined && (
+      {prepMinutes && (
         <span className='flex items-center gap-2 text-xs'>
-          {t.recipes.prepTime} {prepTime}
+          {t.recipes.prepTime} {formattedPrepMinutes}
         </span>
       )}
-      {cookTime !== undefined && (
+      {cookMinutes && (
         <span className='flex items-center gap-2 text-xs'>
-          {t.recipes.cookTime} {cookTime}
+          {t.recipes.cookTime} {formattedCookMinutes}
         </span>
       )}
     </div>

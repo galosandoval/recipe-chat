@@ -17,8 +17,8 @@ export type LinkedDataRecipeField = {
     name?: string
     url?: string
   }[]
-  cookTime?: string
-  prepTime?: string
+  cookMinutes?: number
+  prepMinutes?: number
   totalTime?: string
   description?: string
   headline?: string
@@ -37,21 +37,12 @@ export type LinkedDataRecipeField = {
   parsingType: 'linkedData'
 }
 
-export type GeneratedRecipe = {
-  name: string
-  ingredients: string[]
-  instructions: string[]
-  description: string
-  prepTime: string
-  cookTime: string
-}
-
 const editRecipeSchema = z.object({
   description: z.string().optional(),
   name: z.string().optional(),
   imgUrl: z.string().optional(),
-  prepTime: z.string().optional(),
-  cookTime: z.string().optional(),
+  prepMinutes: z.number().optional(),
+  cookMinutes: z.number().optional(),
   notes: z.string().optional()
 })
 
@@ -64,8 +55,8 @@ export const createRecipeSchema = z.object({
   ingredients: z.array(z.string()),
   instructions: z.array(z.string()),
   url: z.string().optional(),
-  prepTime: z.string().optional(),
-  cookTime: z.string().optional(),
+  prepMinutes: z.number().optional(),
+  cookMinutes: z.number().optional(),
   messageId: z.string().optional()
 })
 export type CreateRecipe = z.infer<typeof createRecipeSchema>
@@ -96,8 +87,8 @@ export const updateRecipeSchema = z
     newImgUrl: z.string().optional(),
     newAuthor: z.string().optional(),
     newAddress: z.string().optional(),
-    newPrepTime: z.string().optional(),
-    newCookTime: z.string().optional(),
+    newPrepMinutes: z.number().optional(),
+    newCookMinutes: z.number().optional(),
     newIngredients: z.array(
       z.object({
         id: z.string(),

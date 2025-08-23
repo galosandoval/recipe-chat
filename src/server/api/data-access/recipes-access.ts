@@ -109,8 +109,8 @@ export class RecipesAccess extends DataAccess {
     data: {
       ingredients: string[]
       instructions: string[]
-      prepTime: string
-      cookTime: string
+      prepMinutes?: number
+      cookMinutes?: number
     }
   ) {
     return await this.prisma.recipe.update({

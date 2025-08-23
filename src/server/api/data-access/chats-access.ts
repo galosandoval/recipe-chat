@@ -169,9 +169,8 @@ export class ChatsAccess extends DataAccess {
             id: recipe.id,
             name: recipe.name,
             description: recipe.description,
-            prepTime: recipe.prepTime,
-            cookTime: recipe.cookTime,
-            categories: recipe.categories,
+            prepMinutes: recipe.prepMinutes,
+            cookMinutes: recipe.cookMinutes,
             user: {
               connect: {
                 id: userId
@@ -189,7 +188,6 @@ export class ChatsAccess extends DataAccess {
             }
           }
         })
-        console.log('cratedRecipe', createdRecipe)
         // Create the many-to-many relationship between recipe and message
         await tx.recipesOnMessages.create({
           data: {

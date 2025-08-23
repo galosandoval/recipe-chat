@@ -18,6 +18,7 @@ import { UploadImageButton } from '~/components/upload-image-button'
 import { ParallaxContainer } from '~/components/parallax-container'
 import { useState } from 'react'
 import { GlassElement } from '~/components/glass-element'
+import { NewRecipeTime, RecipeTime } from './recipe-time'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
 
@@ -119,29 +120,6 @@ function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
         )}
       >
         {name}
-      </div>
-    </div>
-  )
-}
-
-function RecipeTime({
-  prepTime,
-  cookTime
-}: {
-  prepTime: string
-  cookTime: string
-}) {
-  const t = useTranslations()
-  return (
-    <div className='stats glass-element my-2 rounded'>
-      <div className='stat place-items-center px-3 py-3'>
-        <div className='text-glass'>{t.recipes.prepTime}</div>
-        <div className='text-glass whitespace-normal'>{prepTime}</div>
-      </div>
-
-      <div className='stat place-items-center px-3 py-3'>
-        <div className='text-glass'>{t.recipes.cookTime}</div>
-        <div className='text-glass whitespace-normal'>{cookTime}</div>
       </div>
     </div>
   )
@@ -288,7 +266,8 @@ function RecipeMetaData({ textColor }: { textColor: string }) {
 
   if (!data) return null
 
-  const { name, prepTime, cookTime, description } = data
+  const { name, prepTime, cookTime, description, cookMinutes, prepMinutes } =
+    data
 
   return (
     <>
@@ -297,6 +276,11 @@ function RecipeMetaData({ textColor }: { textColor: string }) {
       {prepTime && cookTime && (
         <div className='flex justify-center px-5'>
           <RecipeTime prepTime={prepTime} cookTime={cookTime} />
+        </div>
+      )}
+      {prepMinutes && cookMinutes && (
+        <div className='flex justify-center px-5'>
+          <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} />
         </div>
       )}
       {description && (

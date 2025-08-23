@@ -36,9 +36,14 @@ const transformMessagesToChatStore = (
         id: r.recipe.id,
         name: r.recipe.name,
         description: r.recipe.description ?? null,
-        prepTime: r.recipe.prepTime ?? null,
-        cookTime: r.recipe.cookTime ?? null,
-        categories: r.recipe.categories ?? [],
+        prepMinutes: r.recipe.prepMinutes ?? null,
+        cookMinutes: r.recipe.cookMinutes ?? null,
+        cuisine: r.recipe.cuisine ?? null,
+        course: r.recipe.course ?? null,
+        dietTags: r.recipe.dietTags?.map((t) => t ?? '') ?? [],
+        flavorTags: r.recipe.flavorTags?.map((t) => t ?? '') ?? [],
+        mainIngredients: r.recipe.mainIngredients?.map((i) => i ?? '') ?? [],
+        techniques: r.recipe.techniques?.map((t) => t ?? '') ?? [],
         ingredients:
           r.recipe.ingredients?.map((ingredient) => ingredient.name) ?? [],
         instructions:
@@ -107,7 +112,15 @@ export const useChatAI = () => {
         name: r.name,
         description: r.description ?? '',
         ingredients: r.ingredients,
-        instructions: r.instructions
+        instructions: r.instructions,
+        prepMinutes: r.prepMinutes,
+        cookMinutes: r.cookMinutes,
+        cuisine: r.cuisine,
+        course: r.course,
+        dietTags: r.dietTags,
+        flavorTags: r.flavorTags,
+        mainIngredients: r.mainIngredients,
+        techniques: r.techniques
       }))
     }))
 
@@ -160,9 +173,14 @@ export const useChatAI = () => {
             description: recipe?.description ?? '',
             ingredients: recipe?.ingredients?.map((i) => i ?? '') ?? [],
             instructions: recipe?.instructions?.map((i) => i ?? '') ?? [],
-            prepTime: recipe?.prepTime ?? '',
-            cookTime: recipe?.cookTime ?? '',
-            categories: recipe?.categories ?? [],
+            prepMinutes: recipe?.prepMinutes ?? null,
+            cookMinutes: recipe?.cookMinutes ?? null,
+            course: recipe?.course ?? null,
+            cuisine: recipe?.cuisine ?? null,
+            dietTags: recipe?.dietTags?.map((t) => t ?? '') ?? [],
+            flavorTags: recipe?.flavorTags?.map((t) => t ?? '') ?? [],
+            mainIngredients: recipe?.mainIngredients?.map((i) => i ?? '') ?? [],
+            techniques: recipe?.techniques?.map((t) => t ?? '') ?? [],
             saved: false
           }))
         }
@@ -195,9 +213,6 @@ export const useChatAI = () => {
     if (!generatedMessage || !chatId || !promptMessage) {
       return
     }
-    console.log('promptMessage', promptMessage)
-    console.log('generatedMessage', generatedMessage)
-    console.log('chatId', chatId)
     const { id, ingredients, instructions, ...rest } =
       generatedMessage.recipes[0]
 
@@ -206,8 +221,8 @@ export const useChatAI = () => {
         id,
         ingredients,
         instructions,
-        prepTime: rest.prepTime ?? '',
-        cookTime: rest.cookTime ?? '',
+        prepMinutes: rest.prepMinutes ?? undefined,
+        cookMinutes: rest.cookMinutes ?? undefined,
         messageId: generatedMessage.id,
         content: generatedMessage.content,
         chatId
