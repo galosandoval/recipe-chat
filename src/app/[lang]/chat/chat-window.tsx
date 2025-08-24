@@ -3,8 +3,8 @@
 import { memo, useContext, useEffect, useMemo } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { type QueryStatus } from '@tanstack/react-query'
-import { FiltersByUser, useFiltersByUser } from '~/components/recipe-filters'
-import { ValueProps } from '~/components/value-props'
+import { FiltersByUser } from '~/app/[lang]/chat/recipe-filters'
+import { ValueProps } from './value-props'
 import { UserCircleIcon } from '~/components/icons'
 import { ChatLoader } from '~/components/loaders/chat'
 import { useSession } from 'next-auth/react'
@@ -24,6 +24,7 @@ import { api } from '~/trpc/react'
 import { GenerateStatusAppMessage } from './app-message'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
+import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
 
 export const ChatWindow = () => {
   const { setScrollMode } = useContext(ScrollModeContext)

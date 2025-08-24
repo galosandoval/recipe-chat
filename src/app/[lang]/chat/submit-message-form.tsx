@@ -12,9 +12,9 @@ import {
 import { useChatAI } from '~/hooks/use-chat-ai'
 import { useEffect } from 'react'
 import { userMessageDTO } from '~/utils/user-message-dto'
-import { useFiltersByUser } from '~/components/recipe-filters'
 import type { GeneratedRecipe } from '~/schemas/messages'
 import { useUserId } from '~/hooks/use-user-id'
+import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
 
 function useRecipeChat() {
   const userId = useUserId()

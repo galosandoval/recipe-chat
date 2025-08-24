@@ -6,7 +6,7 @@ import {
   PlusCircleIcon,
   XCircleIcon,
   XIcon
-} from './icons'
+} from '../../../components/icons'
 import { z } from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,8 +17,9 @@ import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { ValuePropsHeader } from './value-props'
-import { ErrorMessage } from './error-message-content'
+import { ErrorMessage } from '../../../components/error-message-content'
 import { useUserId } from '~/hooks/use-user-id'
+import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
 
 export const filterSchema = (t: any) =>
   z.object({
@@ -27,15 +28,7 @@ export const filterSchema = (t: any) =>
 
 type CreateFilter = z.infer<ReturnType<typeof filterSchema>>
 
-export const useFiltersByUser = () => {
-  const userId = useUserId()
-  const { data, status } = api.filters.getByUserId.useQuery(
-    { userId },
-    { enabled: !!userId }
-  )
 
-  return { data, status }
-}
 
 export function FiltersByUser() {
   const { data, status } = useFiltersByUser()

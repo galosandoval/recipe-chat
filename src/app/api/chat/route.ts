@@ -3,6 +3,7 @@ import { openai } from '@ai-sdk/openai'
 import { chatParams, generatedMessageSchema } from '~/schemas/chats'
 import { buildSystemPrompt } from '~/app/constants/chat'
 import { prisma } from '~/server/db'
+import { compactTitles } from '~/utils/compact-title'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
@@ -13,16 +14,20 @@ export async function POST(req: Request) {
   const { filters, messages, userId } = input
 
   // not just saved recipes, any recipe genereated by the user
-  // const generatedRecipes = await prisma.recipe.findMany({
-  //   where: {
-  //     userId: userId
-  //   },
-  //   orderBy: {
-  //     createdAt: 'desc'
-  //   },
-  //   take: 50
-  // })
-  const system = buildSystemPrompt({ filters, savedRecipes: [] })
+  const generatedRecipes = await prisma.recipe.findMany({
+    where: {
+      userId: userId
+    },
+    orderBy: {
+      createdAt: 'desc'
+    },
+    take: 50
+  })
+  const compactedTitles = compactTitles(generatedRecipes.map((r) => r.name))
+  const system = buildSystemPrompt({
+    filters,
+    savedRecipes: compactedTitles
+  })
 
   const result = streamObject({
     /**
@@ -38,6 +43,7 @@ export async function POST(req: Request) {
     })),
     system
   })
+  console.log('result.object', result.object)
   return result.toTextStreamResponse()
 }
 
