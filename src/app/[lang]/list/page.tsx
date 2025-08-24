@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { HydrateClient } from '~/trpc/server'
-import { ListByUserId } from './list'
+import { ListByUserId } from './list-by-user-id'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
 

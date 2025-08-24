@@ -1,6 +1,6 @@
 'use client'
 
-import { UserCircleIcon } from './icons'
+import { UserCircleIcon } from '~/components/icons'
 import type { GeneratedMessage } from '~/schemas/chats'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'

@@ -59,6 +59,7 @@
 
   "filters": {
     "title": "Filtros",
+    "description": "Los filtros se utilizan para reducir las recetas que se generan. Puedes agregar múltiples filtros a tu chat.",
     "placeholder": "Nuevo filtro",
     "active": "Filtros activos:",
     "minChars3": "Mínimo 3 caracteres",
@@ -77,7 +78,7 @@
     "chats": "Recientes chats",
     "noChats": "No se encontraron chats. Iniciar un nuevo chat preguntando sobre una receta",
     "generateRecipe": "Generar una receta para ",
-    "generatedRecipe": "¡Receta generada para $1!",
+    "generatedRecipe": "¡$1 generada!",
     "generatingRecipe": "Generando receta completa para $1..."
   },
 

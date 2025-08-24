@@ -59,6 +59,7 @@
 
   "filters": {
     "title": "Filters",
+    "description": "Filters are used to narrow down the recipes you want to generate. Choose from the list below or create a new one.",
     "placeholder": "New filter",
     "active": "Active filters:",
     "minChars3": "Minimum 3 characters",
@@ -77,7 +78,7 @@
     "chats": "Recent chats",
     "noChats": "No chats found. Start a new chat by asking about a recipe",
     "generateRecipe": "Generate a recipe for ",
-    "generatedRecipe": "Generated $1 recipe!",
+    "generatedRecipe": "Generated $1!",
     "generatingRecipe": "Generating full recipe for $1..."
   },
 

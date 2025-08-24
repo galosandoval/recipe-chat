@@ -1,8 +1,8 @@
 import { type MouseEvent } from 'react'
-import { Button } from './button'
-import { ArrowUTurnLeftIcon } from './icons'
+import { Button } from '~/components/button'
+import { ArrowUTurnLeftIcon } from '~/components/icons'
 import { useTranslations } from '~/hooks/use-translations'
-import { LoginModal, SignUpModal, useAuthModal } from './auth-modals'
+import { LoginModal, SignUpModal, useAuthModal } from '~/components/auth-modals'
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/utils/user-message-dto'
@@ -37,7 +37,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className='prose mx-auto flex flex-col items-center justify-center gap-2 pb-20'>
+    <div className='mx-auto flex max-w-sm flex-col items-center justify-center gap-2 pb-20'>
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <ValuePropsHeader
           icon={
@@ -98,7 +98,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      <div className='flex flex-col items-center justify-center'>
+      {/* <div className='flex flex-col items-center justify-center'>
         <ValuePropsHeader
           icon={
             <svg
@@ -130,7 +130,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             {t.capabilities.thirdDescription}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {children}
 
@@ -200,7 +200,7 @@ export function ValuePropsHeader({
   return (
     <div className='divider'>
       <div className='flex items-center gap-2'>
-        <h2 className='mt-2 mb-2'>{label}</h2>
+        <h2 className='text-base-content text-xl'>{label}</h2>
         {icon}
       </div>
     </div>

@@ -1,5 +1,4 @@
 import { useSession } from 'next-auth/react'
-import { useFiltersByUser } from '~/components/recipe-filters'
 import { api } from '~/trpc/react'
 import { chatStore } from '~/stores/chat-store'
 import { createId } from '@paralleldrive/cuid2'
@@ -13,6 +12,7 @@ import type {
 } from '~/schemas/chats'
 import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/react'
 import { toast } from '~/components/toast'
+import { useFiltersByUser } from './use-filters-by-user-id'
 
 type Object = UseObjectHelpers<typeof generatedMessageSchema, string>['object']
 type Error = UseObjectHelpers<typeof generatedMessageSchema, string>['error']

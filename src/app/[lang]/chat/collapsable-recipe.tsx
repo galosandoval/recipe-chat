@@ -5,15 +5,15 @@ import { useMemo, useState } from 'react'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
-import { Button } from './button'
+import { Button } from '../../../components/button'
 import {
   ArrowTopRightOnSquareIcon,
   ChevronDownIcon,
   ClockIcon,
   SaveIcon
-} from './icons'
+} from '../../../components/icons'
 import { cn } from '~/utils/cn'
-import { useAuthModal } from './auth-modals'
+import { useAuthModal } from '../../../components/auth-modals'
 import type { RecipeDTO } from '~/schemas/chats'
 import { useRouter } from 'next/navigation'
 import { formatTimeFromMinutes } from '~/utils/format-time'

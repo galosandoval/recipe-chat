@@ -127,7 +127,7 @@ export function SignUpModal() {
       success: () => t.toast.loginSuccess,
       error: () => t.error.somethingWentWrong
     })
-    router.push(`recipes/${user.id}}`)
+    router.push(`recipes/${user.recipes.id}}`)
   }
   return (
     <Modal isOpen={isSignUpOpen} closeModal={handleCloseSignUp}>
