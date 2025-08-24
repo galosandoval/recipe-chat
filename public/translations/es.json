@@ -77,7 +77,7 @@
     "chats": "Recientes chats",
     "noChats": "No se encontraron chats. Iniciar un nuevo chat preguntando sobre una receta",
     "generateRecipe": "Generar una receta para ",
-    "generatedRecipe": "¡Receta generada para $1!",
+    "generatedRecipe": "¡$1 generada!",
     "generatingRecipe": "Generando receta completa para $1..."
   },
 

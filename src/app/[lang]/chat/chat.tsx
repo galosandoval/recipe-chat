@@ -1,8 +1,8 @@
 'use client'
 
-import ChatWindow from '~/components/chat-window'
 import { ScrollToBottomProvider } from '~/components/scroll-to-bottom'
-import { SubmitMessageForm } from '~/components/submit-message-form'
+import { ChatWindow } from './chat-window'
+import { SubmitMessageForm } from './submit-message-form'
 
 export default function Chat() {
   return (

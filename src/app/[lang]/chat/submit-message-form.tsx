@@ -1,9 +1,9 @@
 'use client'
 
-import { Button } from './button'
+import { Button } from '~/components/button'
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
-import { PaperPlaneIcon, StopIcon } from './icons'
+import { PaperPlaneIcon, StopIcon } from '~/components/icons'
 import { experimental_useObject as useObject } from '@ai-sdk/react'
 import {
   generatedMessageSchema,
@@ -12,7 +12,7 @@ import {
 import { useChatAI } from '~/hooks/use-chat-ai'
 import { useEffect } from 'react'
 import { userMessageDTO } from '~/utils/user-message-dto'
-import { useFiltersByUser } from './recipe-filters'
+import { useFiltersByUser } from '~/components/recipe-filters'
 import type { GeneratedRecipe } from '~/schemas/messages'
 import { useUserId } from '~/hooks/use-user-id'
 
