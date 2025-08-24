@@ -99,7 +99,7 @@ function CreateFilterForm({
   )
 }
 
-function FilterItem({
+function FilterBadge({
   filter,
   canDelete,
   onCheck,
@@ -124,8 +124,8 @@ function FilterItem({
         canDelete
           ? 'badge-error badge-outline'
           : checked
-          ? 'badge-primary badge-outline'
-          : 'badge-ghost'
+            ? 'badge-primary badge-outline'
+            : 'badge-ghost'
       }`}
     >
       <span className='flex items-center'>
@@ -155,16 +155,18 @@ function FilterList({
   }
 
   return (
-    <div className='flex w-full flex-wrap gap-4'>
-      {filters.map((filter) => (
-        <FilterItem
-          key={filter.id}
-          filter={filter}
-          canDelete={canDelete}
-          onCheck={onCheck}
-          onRemove={onRemove}
-        />
-      ))}
+    <div className='flex flex-wrap gap-3'>
+      {filters
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((filter) => (
+          <FilterBadge
+            key={filter.id}
+            filter={filter}
+            canDelete={canDelete}
+            onCheck={onCheck}
+            onRemove={onRemove}
+          />
+        ))}
     </div>
   )
 }
@@ -188,7 +190,7 @@ function FilterControls({
   )
 }
 
-function ActiveFiltersSummary({
+function ActiveFiltersCount({
   activeFiltersCount
 }: {
   activeFiltersCount: number
@@ -346,10 +348,12 @@ export function Filters({ data }: { data: Filter[] }) {
   const activeFilters = data?.filter((f) => f.checked)
 
   return (
-    <div className='flex w-full flex-1 flex-col items-center justify-center gap-2'>
+    <div className='flex w-full flex-1 flex-col items-center justify-center'>
       <ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
-
-      <div className='flex w-full flex-wrap gap-4'>
+      <div className='flex flex-col gap-4 px-4 pb-2'>
+        <p className='text-base-content/80 text-sm'>{t.filters.description}</p>
+      </div>
+      <div className='flex flex-col px-4'>
         <FilterList
           filters={data ?? []}
           canDelete={canDelete}
@@ -365,7 +369,7 @@ export function Filters({ data }: { data: Filter[] }) {
       </div>
 
       {data?.length ? (
-        <ActiveFiltersSummary activeFiltersCount={activeFilters?.length ?? 0} />
+        <ActiveFiltersCount activeFiltersCount={activeFilters?.length ?? 0} />
       ) : null}
 
       <CreateFilterForm onCreate={handleCreateFilter} />

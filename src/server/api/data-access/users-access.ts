@@ -5,6 +5,7 @@ import {
   type SignUpSchema
 } from '~/server/api/schemas/users'
 import { DataAccess } from './data-access'
+import { initialFilters } from '~/utils/stock-filters'
 
 export class UsersAccess extends DataAccess {
   async getUserById(id: string) {
@@ -27,7 +28,15 @@ export class UsersAccess extends DataAccess {
       data: {
         username,
         password: hashedPassword,
-        list: { create: {} }
+        list: { create: {} },
+        filter: {
+          createMany: {
+            data: initialFilters.map((filter) => ({
+              name: filter,
+              checked: false
+            }))
+          }
+        }
       }
     })
   }

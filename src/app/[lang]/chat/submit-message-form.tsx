@@ -114,9 +114,7 @@ export function SubmitMessageForm() {
         <div className='pr-2'>
           <Button
             type='submit'
-            disabled={
-              (input.length < 5 && !isStreaming) || status === 'pending'
-            }
+            disabled={input.length < 5 && !isStreaming}
             className={`btn ${isStreaming ? 'btn-error' : 'btn-accent'}`}
           >
             {isStreaming ? <StopIcon /> : <PaperPlaneIcon />}

@@ -59,6 +59,7 @@
 
   "filters": {
     "title": "Filtros",
+    "description": "Los filtros se utilizan para reducir las recetas que se generan. Puedes agregar múltiples filtros a tu chat.",
     "placeholder": "Nuevo filtro",
     "active": "Filtros activos:",
     "minChars3": "Mínimo 3 caracteres",

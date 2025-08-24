@@ -10,11 +10,6 @@ export const metadata: Metadata = {
 }
 
 export default async function ChatPage() {
-  const session = await auth()
-  if (!session) {
-    redirect('/')
-  }
-
   return (
     <HydrateClient>
       <main className='flex min-h-svh flex-col items-center justify-center overflow-y-auto'>

@@ -59,6 +59,7 @@
 
   "filters": {
     "title": "Filters",
+    "description": "Filters are used to narrow down the recipes you want to generate. Choose from the list below or create a new one.",
     "placeholder": "New filter",
     "active": "Active filters:",
     "minChars3": "Minimum 3 characters",
