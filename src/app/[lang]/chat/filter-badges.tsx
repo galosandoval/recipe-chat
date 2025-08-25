@@ -67,18 +67,14 @@ function useCheckFilter() {
       utils.filters.getByUserId.setData({ userId }, (old) => {
         if (!old) return old
 
-        const index = old.findIndex((f) => f.id === input.filterId)
-
-        old[index].checked = input.checked
+        const filter = old.find((f) => f.id === input.filterId)
+        if (!filter) return old
+        filter.checked = input.checked
 
         return old
       })
 
       return { previousFilters }
-    },
-
-    onSuccess: async () => {
-      await utils.filters.getByUserId.invalidate({ userId })
     },
 
     onError: (error, _, ctx) => {
@@ -87,6 +83,15 @@ function useCheckFilter() {
         utils.filters.getByUserId.setData({ userId }, previousFilters)
       }
       toast.error(error.message)
+    },
+
+    onSettled: () => {
+      const count = utils.filters.check.isMutating()
+      // if there are more than 2 mutations, it means that the check filter mutation is being called twice
+      // so we need to invalidate the query only once to avoid displaying stale state
+      if (count < 2) {
+        utils.filters.getByUserId.invalidate({ userId })
+      }
     }
   })
 
@@ -103,10 +108,8 @@ export function FilterBadges({
   onToggleCanDelete: () => void
 }) {
   const t = useTranslations()
-  const { mutate: deleteFilter, variables: deleteFilterVariables } =
-    useDeleteFilter()
-  const { mutate: checkFilter, variables: checkFilterVariables } =
-    useCheckFilter()
+  const { mutate: deleteFilter } = useDeleteFilter()
+  const { mutate: checkFilter } = useCheckFilter()
 
   if (filters.length === 0) {
     return <div className='mx-auto'>{t.filters.noFilters}</div>
@@ -159,6 +162,14 @@ function FilterBadge({
 }) {
   const checked = filter.checked && !canDelete
 
+  let icon = null
+  if (checked) {
+    icon = <CheckCircleIcon className='h-4 w-4' />
+  } else if (canDelete) {
+    icon = <XCircleIcon size={5} />
+  } else {
+    icon = <span className='border-primary h-4 w-4 rounded-full border'></span>
+  }
   return (
     <button
       onClick={
@@ -168,18 +179,12 @@ function FilterBadge({
       }
       key={filter.id}
       className={cn(
-        `bg-base-300 flex h-fit items-center justify-center gap-1 rounded-md px-2 py-1`,
-        canDelete && 'badge-error badge-outline',
-        checked && 'badge-primary badge-outline',
-        !canDelete && !checked && 'badge-ghost'
+        `bg-base-300 border-base-300 flex h-fit items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm`,
+        canDelete && 'border-error text-error',
+        checked && 'border-primary text-primary'
       )}
     >
-      {checked ? (
-        <CheckCircleIcon className='h-4 w-4' />
-      ) : (
-        <span className='border-primary h-4 w-4 rounded-full border'></span>
-      )}
-      {canDelete && <XCircleIcon size={5} />}
+      {icon}
       <span className='text-base-content text-sm whitespace-nowrap'>
         {filter.name}
       </span>
@@ -197,7 +202,7 @@ function FilterControls({
   return (
     <button
       onClick={onToggleCanDelete}
-      className={`btn btn-circle badge-ghost ml-auto`}
+      className={`btn btn-circle btn-sm badge-outline ml-auto`}
     >
       <span>
         {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}

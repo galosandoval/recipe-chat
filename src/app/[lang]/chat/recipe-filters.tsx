@@ -104,7 +104,7 @@ function CreateFilterForm() {
 
   return (
     <>
-      <form className='join' onSubmit={handleSubmit(onSubmit)}>
+      <form className='join px-4' onSubmit={handleSubmit(onSubmit)}>
         <Controller
           name='name'
           control={control}
@@ -145,8 +145,6 @@ export function Filters({ data }: { data: Filter[] }) {
     return null
   }
 
-  const activeFilters = data?.filter((f) => f.checked)
-
   return (
     <div className='flex w-full flex-1 flex-col items-center justify-center'>
       <ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
@@ -161,23 +159,26 @@ export function Filters({ data }: { data: Filter[] }) {
         />
       </div>
 
-      {data?.length ? (
-        <ActiveFiltersCount activeFiltersCount={activeFilters?.length ?? 0} />
-      ) : null}
+      <div className='px-4'>
+        <ActiveFiltersCount />
+      </div>
 
       <CreateFilterForm />
     </div>
   )
 }
 
-function ActiveFiltersCount({
-  activeFiltersCount
-}: {
-  activeFiltersCount: number
-}) {
+function ActiveFiltersCount() {
   const t = useTranslations()
+  const utils = api.useUtils()
+  const userId = useUserId()
+  const filtersCtx = utils.filters.getByUserId.getData({ userId })
+
+  if (!filtersCtx) return null
+  const activeFiltersCount = filtersCtx.filter((f) => f.checked).length
+
   return (
-    <small className=''>
+    <small className='text-xs'>
       {t.filters.active} {activeFiltersCount}
     </small>
   )
