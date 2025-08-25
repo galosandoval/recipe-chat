@@ -72,11 +72,9 @@ function useCheckFilter() {
       utils.filters.getByUserId.setData({ userId }, (old) => {
         if (!old) return old
 
-        const filter = old.find((f) => f.id === input.filterId)
-        if (!filter) return old
-        filter.checked = input.checked
-
-        return old
+        return old.map((f) =>
+          f.id === input.filterId ? { ...f, checked: input.checked } : f
+        )
       })
 
       return { previousFilters }

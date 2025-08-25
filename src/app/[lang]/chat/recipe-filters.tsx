@@ -37,7 +37,7 @@ export function FiltersByUser() {
   return <FiltersSection data={data ?? []} />
 }
 
-function useCreateFilterMutation() {
+function useCreateFilter() {
   const userId = useUserId()
   const utils = api.useUtils()
   const { mutate } = api.filters.create.useMutation({
@@ -83,9 +83,9 @@ function useCreateFilterMutation() {
   return { mutate }
 }
 
-function useCreateFilter() {
+function useCreateFilterForm() {
   const t = useTranslations()
-  const { mutate } = useCreateFilterMutation()
+  const { mutate } = useCreateFilter()
 
   const {
     handleSubmit,
@@ -115,7 +115,7 @@ function useCreateFilter() {
 function CreateFilterForm() {
   const t = useTranslations()
   const { onSubmit, handleSubmit, control, errors, isDirty, touchedFields } =
-    useCreateFilter()
+    useCreateFilterForm()
 
   return (
     <>
@@ -175,7 +175,7 @@ export function FiltersSection({ data }: { data: Filter[] }) {
           onToggleCanDelete={toggleCanDelete}
         />
         <div className='flex w-full flex-col px-4'>
-          <ActiveFiltersCount />
+          <ActiveFiltersCount data={data ?? []} />
           <CreateFilterForm />
         </div>
       </div>
@@ -183,14 +183,10 @@ export function FiltersSection({ data }: { data: Filter[] }) {
   )
 }
 
-function ActiveFiltersCount() {
+function ActiveFiltersCount({ data }: { data: Filter[] }) {
   const t = useTranslations()
-  const utils = api.useUtils()
-  const userId = useUserId()
-  const filtersCtx = utils.filters.getByUserId.getData({ userId })
 
-  if (!filtersCtx) return null
-  const activeFiltersCount = filtersCtx.filter((f) => f.checked).length
+  const activeFiltersCount = data.filter((f) => f.checked).length
 
   return (
     <div className='items-start self-start'>
