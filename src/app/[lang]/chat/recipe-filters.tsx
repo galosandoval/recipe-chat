@@ -163,17 +163,21 @@ export function FiltersSection({ data }: { data: Filter[] }) {
   return (
     <section className='flex w-full flex-1 flex-col items-center justify-center'>
       <ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
-      <div className='flex flex-col gap-4 px-4 pb-2'>
-        <p className='text-base-content/80 text-sm'>{t.filters.description}</p>
-      </div>
-      <FilterBadges
-        filters={data ?? []}
-        canDelete={canDelete}
-        onToggleCanDelete={toggleCanDelete}
-      />
-      <div className='flex w-full flex-col gap-2 px-4'>
-        <ActiveFiltersCount />
-        <CreateFilterForm />
+      <div className='flex w-full flex-col gap-2'>
+        <div className='flex flex-col gap-4 px-4'>
+          <p className='text-base-content/80 text-sm'>
+            {t.filters.description}
+          </p>
+        </div>
+        <FilterBadges
+          filters={data ?? []}
+          canDelete={canDelete}
+          onToggleCanDelete={toggleCanDelete}
+        />
+        <div className='flex w-full flex-col px-4'>
+          <ActiveFiltersCount />
+          <CreateFilterForm />
+        </div>
       </div>
     </section>
   )
