@@ -11,6 +11,13 @@ async function main() {
     async (tx) => {
       const users = await tx.user.findMany()
       for (const user of users) {
+        const filters = await tx.filter.findMany({
+          where: {
+            userId: user.id
+          }
+        })
+        if (filters.length > 0) continue
+
         await tx.user.update({
           where: { id: user.id },
           data: {

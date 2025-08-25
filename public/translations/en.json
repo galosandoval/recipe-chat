@@ -65,7 +65,14 @@
     "minChars3": "Minimum 3 characters",
     "maxChars50": "Maximum 50 characters",
     "add": "Add filter",
-    "noFilters": "No filters found. Add a filter to get started."
+    "noFilters": "No filters found. Add a filter to get started.",
+    "initial": {
+      "vegetarian": "Vegetarian",
+      "vegan": "Vegan",
+      "gluten-free": "Gluten-free",
+      "under-30-minutes": "Under 30 minutes",
+      "weeknight-friendly": "Weeknight-friendly"
+    }
   },
 
   "chatWindow": {
