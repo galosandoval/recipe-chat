@@ -14,7 +14,7 @@ import { useEffect } from 'react'
 import { userMessageDTO } from '~/utils/user-message-dto'
 import type { GeneratedRecipe } from '~/schemas/messages'
 import { useUserId } from '~/hooks/use-user-id'
-import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
+import { api } from '~/trpc/react'
 
 function useRecipeChat() {
   const userId = useUserId()
@@ -29,7 +29,7 @@ function useRecipeChat() {
     schema: generatedMessageSchema,
     onFinish: onFinishMessage
   })
-  const { data: filters, status } = useFiltersByUser()
+  const utils = api.useUtils()
 
   // Enhanced AI submit function
   const handleAISubmit = (messages: MessageWithRecipes[]) => {
@@ -37,6 +37,7 @@ function useRecipeChat() {
     if (lastMessage) {
       createUserMessage(lastMessage)
     }
+    const filters = utils.filters.getByUserId.getData({ userId })
     setInput('')
     aiSubmit({
       messages,
@@ -57,8 +58,7 @@ function useRecipeChat() {
 
   return {
     handleAISubmit,
-    stop: aiStop,
-    status
+    stop: aiStop
   }
 }
 
@@ -72,7 +72,7 @@ export function SubmitMessageForm() {
   } = chatStore()
   const isStreaming = streamingStatus !== 'idle'
   const chatId = chatStore((state) => state.chatId)
-  const { handleAISubmit, stop: aiStop, status } = useRecipeChat()
+  const { handleAISubmit, stop: aiStop } = useRecipeChat()
   const t = useTranslations()
 
   // Set up the triggerAISubmission method in the store

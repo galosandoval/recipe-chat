@@ -1,12 +1,5 @@
 import { useState } from 'react'
-import {
-  CheckIcon,
-  FunnelIcon,
-  PencilSquareIcon,
-  PlusCircleIcon,
-  XCircleIcon,
-  XIcon
-} from '../../../components/icons'
+import { FunnelIcon, PlusCircleIcon } from '~/components/icons'
 import { z } from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,9 +10,10 @@ import { createId } from '@paralleldrive/cuid2'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { ValuePropsHeader } from './value-props'
-import { ErrorMessage } from '../../../components/error-message-content'
+import { ErrorMessage } from '~/components/error-message-content'
 import { useUserId } from '~/hooks/use-user-id'
 import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
+import { FilterBadges } from './filter-badges'
 
 export const filterSchema = (t: any) =>
   z.object({
@@ -27,8 +21,6 @@ export const filterSchema = (t: any) =>
   })
 
 type CreateFilter = z.infer<ReturnType<typeof filterSchema>>
-
-
 
 export function FiltersByUser() {
   const { data, status } = useFiltersByUser()
@@ -45,16 +37,11 @@ export function FiltersByUser() {
   return <Filters data={data ?? []} />
 }
 
-function CreateFilterForm({
-  onCreate
-}: {
-  onCreate: (data: CreateFilter) => void
-}) {
+function CreateFilterForm() {
   const t = useTranslations()
   const {
     handleSubmit,
     resetField,
-    setFocus,
     control,
     formState: { errors, isDirty, touchedFields }
   } = useForm<CreateFilter>({
@@ -63,154 +50,8 @@ function CreateFilterForm({
       name: ''
     }
   })
-
-  const onSubmit = (data: CreateFilter) => {
-    onCreate(data)
-    resetField('name')
-    setFocus('name')
-  }
-
-  return (
-    <>
-      <form className='join' onSubmit={handleSubmit(onSubmit)}>
-        <Controller
-          name='name'
-          control={control}
-          render={({ field }) => (
-            <input
-              {...field}
-              className='input join-item input-bordered input-sm'
-              placeholder={t.filters.placeholder}
-            />
-          )}
-        />
-        <button
-          type='submit'
-          className='btn btn-outline join-item no-animation btn-sm'
-        >
-          <PlusCircleIcon />
-          <span>{t.filters.add}</span>
-        </button>
-      </form>
-      {errors.name && isDirty && touchedFields.name && (
-        <ErrorMessage name='name' errors={errors} align='center' />
-      )}
-    </>
-  )
-}
-
-function FilterBadge({
-  filter,
-  canDelete,
-  onCheck,
-  onRemove
-}: {
-  filter: Filter
-  canDelete: boolean
-  onCheck: (id: string, checked: boolean) => void
-  onRemove: (id: string) => void
-}) {
-  const checked = filter.checked && !canDelete
-
-  return (
-    <button
-      onClick={
-        canDelete
-          ? () => onRemove(filter.id)
-          : () => onCheck(filter.id, !filter.checked)
-      }
-      key={filter.id}
-      className={`badge flex h-fit items-center gap-1 py-0 ${
-        canDelete
-          ? 'badge-error badge-outline'
-          : checked
-            ? 'badge-primary badge-outline'
-            : 'badge-ghost'
-      }`}
-    >
-      <span className='flex items-center'>
-        {checked && <CheckIcon size={4} />}
-        <span className=''>{filter.name}</span>
-        {canDelete && <XCircleIcon size={5} />}
-      </span>
-    </button>
-  )
-}
-
-function FilterList({
-  filters,
-  canDelete,
-  onCheck,
-  onRemove
-}: {
-  filters: Filter[]
-  canDelete: boolean
-  onCheck: (id: string, checked: boolean) => void
-  onRemove: (id: string) => void
-}) {
-  const t = useTranslations()
-
-  if (filters.length === 0) {
-    return <div className='mx-auto'>{t.filters.noFilters}</div>
-  }
-
-  return (
-    <div className='flex flex-wrap gap-3'>
-      {filters
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((filter) => (
-          <FilterBadge
-            key={filter.id}
-            filter={filter}
-            canDelete={canDelete}
-            onCheck={onCheck}
-            onRemove={onRemove}
-          />
-        ))}
-    </div>
-  )
-}
-
-function FilterControls({
-  canDelete,
-  onToggleCanDelete
-}: {
-  canDelete: boolean
-  onToggleCanDelete: () => void
-}) {
-  return (
-    <button
-      onClick={onToggleCanDelete}
-      className={`btn btn-circle badge-ghost ml-auto`}
-    >
-      <span>
-        {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
-      </span>
-    </button>
-  )
-}
-
-function ActiveFiltersCount({
-  activeFiltersCount
-}: {
-  activeFiltersCount: number
-}) {
-  const t = useTranslations()
-  return (
-    <small className=''>
-      {t.filters.active} {activeFiltersCount}
-    </small>
-  )
-}
-
-export function Filters({ data }: { data: Filter[] }) {
-  const session = useSession()
-
-  const t = useTranslations()
-
   const userId = useUserId()
-  const utils = api.useContext()
-
+  const utils = api.useUtils()
   const { mutate: createFilter } = api.filters.create.useMutation({
     onMutate: async (input) => {
       await utils.filters.getByUserId.cancel({ userId })
@@ -251,101 +92,58 @@ export function Filters({ data }: { data: Filter[] }) {
     }
   })
 
-  const { mutate: checkFilter } = api.filters.check.useMutation({
-    onMutate: async (input) => {
-      await utils.filters.getByUserId.cancel({ userId })
-
-      const previousFilters = utils.filters.getByUserId.getData({ userId })
-
-      if (!previousFilters) return previousFilters
-
-      utils.filters.getByUserId.setData({ userId }, (old) => {
-        if (!old) return old
-
-        const index = old.findIndex((f) => f.id === input.filterId)
-
-        old[index].checked = input.checked
-
-        return old
-      })
-
-      return { previousFilters }
-    },
-
-    onSuccess: async () => {
-      await utils.filters.getByUserId.invalidate({ userId })
-    },
-
-    onError: (error, _, ctx) => {
-      const previousFilters = ctx?.previousFilters
-      if (previousFilters) {
-        utils.filters.getByUserId.setData({ userId }, previousFilters)
-      }
-      toast.error(error.message)
-    }
-  })
-
-  const { mutate: deleteFilter } = api.filters.delete.useMutation({
-    onMutate: async (input) => {
-      await utils.filters.getByUserId.cancel({ userId })
-
-      const previousFilters = utils.filters.getByUserId.getData({ userId })
-
-      if (!previousFilters) return previousFilters
-
-      utils.filters.getByUserId.setData({ userId }, (old) => {
-        if (!old) return old
-
-        const index = old.findIndex((f) => f.id === input.filterId)
-
-        old.splice(index, 1)
-
-        return old
-      })
-
-      return { previousFilters }
-    },
-
-    onSuccess: async () => {
-      await utils.filters.getByUserId.invalidate({ userId })
-    },
-
-    onError: (error, _, ctx) => {
-      const previousFilters = ctx?.previousFilters
-      if (previousFilters) {
-        utils.filters.getByUserId.setData({ userId }, previousFilters)
-      }
-      toast.error(error.message)
-    }
-  })
-
-  const [canDelete, setCanDelete] = useState(false)
-
-  const handleToggleCanDelete = () => {
-    setCanDelete((prev) => !prev)
-  }
-
-  const handleCheck = (id: string, checked: boolean) => {
-    checkFilter({ checked, filterId: id })
-  }
-
-  const handleRemoveFilter = (id: string) => {
-    deleteFilter({ filterId: id })
-    if (data.length === 1) {
-      setCanDelete(false)
-    }
-  }
-
   const handleCreateFilter = (data: CreateFilter) => {
     const id = createId()
     createFilter({ name: data.name, id })
+    resetField('name')
+  }
+
+  const onSubmit = (data: CreateFilter) => {
+    handleCreateFilter(data)
+  }
+
+  return (
+    <>
+      <form className='join px-4' onSubmit={handleSubmit(onSubmit)}>
+        <Controller
+          name='name'
+          control={control}
+          render={({ field }) => (
+            <input
+              {...field}
+              className='input join-item input-bordered input-sm'
+              placeholder={t.filters.placeholder}
+            />
+          )}
+        />
+        <button
+          type='submit'
+          className='btn btn-outline join-item no-animation btn-sm'
+        >
+          <PlusCircleIcon />
+          <span>{t.filters.add}</span>
+        </button>
+      </form>
+      {errors.name && isDirty && touchedFields.name && (
+        <ErrorMessage name='name' errors={errors} align='center' />
+      )}
+    </>
+  )
+}
+
+export function Filters({ data }: { data: Filter[] }) {
+  const session = useSession()
+  const t = useTranslations()
+
+  const [canDelete, setCanDelete] = useState(false)
+
+  const toggleCanDelete = () => {
+    setCanDelete((prev) => !prev)
   }
 
   if (session.status !== 'authenticated') {
     return null
   }
-
-  const activeFilters = data?.filter((f) => f.checked)
 
   return (
     <div className='flex w-full flex-1 flex-col items-center justify-center'>
@@ -354,25 +152,34 @@ export function Filters({ data }: { data: Filter[] }) {
         <p className='text-base-content/80 text-sm'>{t.filters.description}</p>
       </div>
       <div className='flex flex-col px-4'>
-        <FilterList
+        <FilterBadges
           filters={data ?? []}
           canDelete={canDelete}
-          onCheck={handleCheck}
-          onRemove={handleRemoveFilter}
+          onToggleCanDelete={toggleCanDelete}
         />
-        {data.length > 0 && (
-          <FilterControls
-            canDelete={canDelete}
-            onToggleCanDelete={handleToggleCanDelete}
-          />
-        )}
       </div>
 
-      {data?.length ? (
-        <ActiveFiltersCount activeFiltersCount={activeFilters?.length ?? 0} />
-      ) : null}
+      <div className='px-4'>
+        <ActiveFiltersCount />
+      </div>
 
-      <CreateFilterForm onCreate={handleCreateFilter} />
+      <CreateFilterForm />
     </div>
+  )
+}
+
+function ActiveFiltersCount() {
+  const t = useTranslations()
+  const utils = api.useUtils()
+  const userId = useUserId()
+  const filtersCtx = utils.filters.getByUserId.getData({ userId })
+
+  if (!filtersCtx) return null
+  const activeFiltersCount = filtersCtx.filter((f) => f.checked).length
+
+  return (
+    <small className='text-xs'>
+      {t.filters.active} {activeFiltersCount}
+    </small>
   )
 }

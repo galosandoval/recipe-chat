@@ -91,10 +91,7 @@ function ActionButton({
   const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
     async onSuccess(_newRecipe, _messageId) {
       await utils.chats.getMessagesById.invalidate()
-      // Since the relationship is Recipe -> Message (via messageId),
-      // we don't need to update the message object
-      // The recipe will be linked to the message via the messageId field
-
+      await utils.recipes.infiniteRecipes.invalidate()
       toast.success(t.chatWindow.saveSuccess)
     },
     onError: (error) => {
