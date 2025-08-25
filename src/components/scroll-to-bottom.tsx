@@ -8,12 +8,19 @@ import ScrollToBottom, {
 } from 'react-scroll-to-bottom'
 import { ArrowSmallDownIcon, ArrowSmallUpIcon } from './icons'
 import { NoSsr } from './no-ssr'
+import { api } from '~/trpc/react'
+import { useUserId } from '~/hooks/use-user-id'
+import { cn } from '~/utils/cn'
 
 export function ScrollToButtons({ enable }: { enable: boolean }) {
   const scrollToBottom = useScrollToBottom()
   const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
   const { setScrollMode } = useContext(ScrollModeContext)
+  const utils = api.useUtils()
+  const userId = useUserId()
+  const filters = utils.filters.getByUserId.getData({ userId })
+  const activeFilters = filters?.filter((f) => f.checked)
 
   useEffect(() => {
     // if at the bottom and not streaming, scroll to bottom
@@ -26,9 +33,11 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
   return (
     <>
       <div
-        className={`absolute bottom-20 left-4 duration-300 transition-all${
-          !sticky ? 'translate-y-0 opacity-100' : 'invisible opacity-0'
-        }`}
+        className={cn(
+          'absolute bottom-20 left-4 transition-all duration-300',
+          sticky ? 'invisible opacity-0' : 'translate-y-0 opacity-100',
+          activeFilters?.length && 'bottom-24'
+        )}
       >
         <button
           className='btn btn-circle glass'
@@ -38,9 +47,13 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
         </button>
       </div>
       <div
-        className={`absolute bottom-20 left-4 duration-300 transition-all${
-          sticky && enable ? 'translate-y-0 opacity-100' : 'invisible opacity-0'
-        }`}
+        className={cn(
+          'absolute bottom-20 left-4 transition-all duration-300',
+          sticky && enable
+            ? 'translate-y-0 opacity-100'
+            : 'invisible opacity-0',
+          activeFilters?.length && 'bottom-24'
+        )}
       >
         <button
           className='btn btn-circle glass'

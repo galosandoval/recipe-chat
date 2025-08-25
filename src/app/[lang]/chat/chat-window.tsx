@@ -25,6 +25,8 @@ import { GenerateStatusAppMessage } from './app-message'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
 import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
+import { useUserId } from '~/hooks/use-user-id'
+import { cn } from '~/utils/cn'
 
 export const ChatWindow = () => {
   const { setScrollMode } = useContext(ScrollModeContext)
@@ -116,6 +118,9 @@ const Messages = memo(function Messages({
   isStreaming: boolean
 }) {
   const { stream } = chatStore()
+  const utils = api.useUtils()
+  const userId = useUserId()
+  const filters = utils.filters.getByUserId.getData({ userId })
 
   if (status === 'error') {
     return <p>Error</p>
@@ -124,7 +129,12 @@ const Messages = memo(function Messages({
   const streamHasContent = stream.content || stream.recipes.length > 0
 
   return (
-    <div className='bg-base-100 flex flex-col gap-4 px-3 pt-4 pb-16'>
+    <div
+      className={cn(
+        'bg-base-100 flex flex-col gap-4 px-3 pt-4 pb-16',
+        filters?.length && 'pb-24'
+      )}
+    >
       {data.map((m, i) => (
         <Message
           message={m}
@@ -220,7 +230,6 @@ const UserMessage = memo(function UserMessage({
             <UserCircleIcon />
           </div>
         </div>
-        <RecipeFilters />
       </div>
     </div>
   )
@@ -260,38 +269,6 @@ function AssistantMessage({
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-function RecipeFilters() {
-  const { data: filters, status } = useFiltersByUser()
-  const t = useTranslations()
-
-  if (status === 'pending') {
-    return null
-  }
-
-  if (status === 'error' || !filters) {
-    return <div>{t.error.somethingWentWrong}</div>
-  }
-  const activeFilters = filters.filter((f) => f.checked)
-
-  if (activeFilters.length === 0) {
-    return null
-  }
-
-  return (
-    <div className='flex flex-wrap gap-2 pt-2'>
-      <h3 className='mt-0 mb-0 text-sm'>{t.filters.title}:</h3>
-      {activeFilters.map((f) => (
-        <div
-          className='bg-base-300 rounded p-2 py-1 text-xs whitespace-nowrap'
-          key={f.id}
-        >
-          {f.name}
-        </div>
-      ))}
     </div>
   )
 }
