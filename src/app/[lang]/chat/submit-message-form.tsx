@@ -15,6 +15,7 @@ import { userMessageDTO } from '~/utils/user-message-dto'
 import type { GeneratedRecipe } from '~/schemas/messages'
 import { useUserId } from '~/hooks/use-user-id'
 import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
+import { api } from '~/trpc/react'
 
 function useRecipeChat() {
   const userId = useUserId()
@@ -29,7 +30,7 @@ function useRecipeChat() {
     schema: generatedMessageSchema,
     onFinish: onFinishMessage
   })
-  const { data: filters, status } = useFiltersByUser()
+  const utils = api.useUtils()
 
   // Enhanced AI submit function
   const handleAISubmit = (messages: MessageWithRecipes[]) => {
@@ -37,6 +38,7 @@ function useRecipeChat() {
     if (lastMessage) {
       createUserMessage(lastMessage)
     }
+    const filters = utils.filters.getByUserId.getData({ userId })
     setInput('')
     aiSubmit({
       messages,

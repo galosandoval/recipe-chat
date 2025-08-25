@@ -220,7 +220,7 @@ const UserMessage = memo(function UserMessage({
             <UserCircleIcon />
           </div>
         </div>
-        <ActiveFilters />
+        <RecipeFilters />
       </div>
     </div>
   )
@@ -264,7 +264,7 @@ function AssistantMessage({
   )
 }
 
-function ActiveFilters() {
+function RecipeFilters() {
   const { data: filters, status } = useFiltersByUser()
   const t = useTranslations()
 
@@ -286,7 +286,7 @@ function ActiveFilters() {
       <h3 className='mt-0 mb-0 text-sm'>{t.filters.title}:</h3>
       {activeFilters.map((f) => (
         <div
-          className='bg-base-300 rounded p-1 text-sm whitespace-nowrap'
+          className='bg-base-300 rounded p-2 py-1 text-xs whitespace-nowrap'
           key={f.id}
         >
           {f.name}

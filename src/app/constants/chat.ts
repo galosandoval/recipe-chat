@@ -13,7 +13,7 @@ Goals
 - If exactly 1 recipe: include fields required by the schema.
 
 Guidelines
-- Ask 1–3 clarifying questions if key info missing; then wait.
+- Unless the user asks for a specific recipe or has specific filters (see "Filters" below), ask 1–3 clarifying questions if key info missing; then wait.
 - Vary cuisines unless user fixes one.
 - Avoid duplicates and avoid already-saved items.
 

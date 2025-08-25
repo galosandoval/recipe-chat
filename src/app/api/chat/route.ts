@@ -29,6 +29,7 @@ export async function POST(req: Request) {
     savedRecipes: compactedTitles
   })
 
+  console.log('system', system)
   const result = streamObject({
     /**
      * Calls the OpenAI GPT-4 Turbo model with validated messages and system prompt,
@@ -43,7 +44,6 @@ export async function POST(req: Request) {
     })),
     system
   })
-  console.log('result.object', result.object)
   return result.toTextStreamResponse()
 }
 
