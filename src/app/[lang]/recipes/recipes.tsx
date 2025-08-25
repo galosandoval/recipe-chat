@@ -25,20 +25,26 @@ import { useTranslations } from '~/hooks/use-translations'
 import { RecipeFallbackIconLg } from '~/components/icons'
 import { CreateRecipeButton } from './create-recipe-button'
 
+const RECIPES_PER_PAGE_LIMIT = 10
+
 export default function Recipes() {
   const { ref: inViewRef, inView } = useInView()
-
+  const utils = api.useUtils()
   const [search, setSearch] = useState('')
 
   const debouncedSearch = useDebounce(search)
   const [{ pages }, { fetchNextPage, status, hasNextPage, fetchStatus }] =
     api.recipes.infiniteRecipes.useSuspenseInfiniteQuery(
       {
-        limit: 10,
+        limit: RECIPES_PER_PAGE_LIMIT,
         search: debouncedSearch
       },
       {
-        getNextPageParam: (lastPage) => lastPage.nextCursor
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        initialData: utils.recipes.infiniteRecipes.getInfiniteData({
+          limit: RECIPES_PER_PAGE_LIMIT,
+          search: debouncedSearch
+        })
       }
     )
 
@@ -66,7 +72,7 @@ export default function Recipes() {
       inputRef={inputRef}
       search={search}
     >
-      <YourRecipe
+      <RecipesPages
         pages={pages}
         search={search}
         status={status}
@@ -144,7 +150,7 @@ const SearchBar = React.memo(function SearchBar({
   )
 })
 
-const YourRecipe = React.memo(function YourRecipe({
+const RecipesPages = React.memo(function RecipesPages({
   search,
   pages,
   status,

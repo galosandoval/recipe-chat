@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FunnelIcon, PlusCircleIcon } from '~/components/icons'
 import { z } from 'zod'
 import { Controller, useForm } from 'react-hook-form'
@@ -14,6 +14,7 @@ import { ErrorMessage } from '~/components/error-message-content'
 import { useUserId } from '~/hooks/use-user-id'
 import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
 import { FilterBadges } from './filter-badges'
+import { cn } from '~/utils/cn'
 
 export const filterSchema = (t: any) =>
   z.object({
@@ -183,16 +184,43 @@ export function FiltersSection({ data }: { data: Filter[] }) {
   )
 }
 
+// 550ms is the duration of the bounce animation
+const ANIMATION_DURATION = 550
+
 function ActiveFiltersCount({ data }: { data: Filter[] }) {
   const t = useTranslations()
+  const [isBouncing, setIsBouncing] = useState(false)
+  const [renderCount, setRenderCount] = useState(0)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const activeFiltersCount = data.filter((f) => f.checked).length
 
+  useEffect(() => {
+    setRenderCount((prev) => prev + 1)
+    if (renderCount > 1) {
+      setIsBouncing(true)
+      timeoutRef.current = setTimeout(() => {
+        setIsBouncing(false)
+      }, ANIMATION_DURATION)
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [activeFiltersCount])
   return (
-    <div className='items-start self-start'>
-      <small className='text-xs'>
-        {t.filters.active} {activeFiltersCount}
-      </small>
+    <div className='self-start'>
+      <small className='text-xs'>{t.filters.active}</small>
+      <span
+        className={cn(
+          'text-primary-content relative inline-block pl-1 text-xs',
+          isBouncing && 'animate-bounce'
+        )}
+      >
+        {activeFiltersCount}
+      </span>
     </div>
   )
 }
