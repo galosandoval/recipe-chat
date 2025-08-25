@@ -190,14 +190,14 @@ const ANIMATION_DURATION = 550
 function ActiveFiltersCount({ data }: { data: Filter[] }) {
   const t = useTranslations()
   const [isBouncing, setIsBouncing] = useState(false)
-  const [renderCount, setRenderCount] = useState(0)
+  const renderCountRef = useRef(0)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const activeFiltersCount = data.filter((f) => f.checked).length
 
   useEffect(() => {
-    setRenderCount((prev) => prev + 1)
-    if (renderCount > 1) {
+    renderCountRef.current++
+    if (renderCountRef.current > 2) {
       setIsBouncing(true)
       timeoutRef.current = setTimeout(() => {
         setIsBouncing(false)
