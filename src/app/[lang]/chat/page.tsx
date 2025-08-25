@@ -1,7 +1,5 @@
 import { HydrateClient } from '~/trpc/server'
 import { type Metadata } from 'next'
-import { auth } from '~/server/auth'
-import { redirect } from 'next/navigation'
 import Chat from './chat'
 
 export const metadata: Metadata = {
