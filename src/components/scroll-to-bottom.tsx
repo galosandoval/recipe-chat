@@ -8,19 +8,15 @@ import ScrollToBottom, {
 } from 'react-scroll-to-bottom'
 import { ArrowSmallDownIcon, ArrowSmallUpIcon } from './icons'
 import { NoSsr } from './no-ssr'
-import { api } from '~/trpc/react'
-import { useUserId } from '~/hooks/use-user-id'
 import { cn } from '~/utils/cn'
+import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 
 export function ScrollToButtons({ enable }: { enable: boolean }) {
   const scrollToBottom = useScrollToBottom()
   const scrollToTop = useScrollToTop()
   const [sticky] = useSticky()
   const { setScrollMode } = useContext(ScrollModeContext)
-  const utils = api.useUtils()
-  const userId = useUserId()
-  const filters = utils.filters.getByUserId.getData({ userId })
-  const activeFilters = filters?.filter((f) => f.checked)
+  const { data: activeFilters } = useActiveFiltersByUserId()
 
   useEffect(() => {
     // if at the bottom and not streaming, scroll to bottom

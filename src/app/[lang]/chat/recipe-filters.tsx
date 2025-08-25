@@ -12,7 +12,10 @@ import { useTranslations } from '~/hooks/use-translations'
 import { ValuePropsHeader } from './value-props'
 import { ErrorMessage } from '~/components/error-message-content'
 import { useUserId } from '~/hooks/use-user-id'
-import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
+import {
+  selectActiveFilters,
+  useFiltersByUserId
+} from '~/hooks/use-filters-by-user-id'
 import { FilterBadges } from './filter-badges'
 import { cn } from '~/utils/cn'
 
@@ -24,7 +27,7 @@ export const filterSchema = (t: any) =>
 type CreateFilter = z.infer<ReturnType<typeof filterSchema>>
 
 export function FiltersByUser() {
-  const { data, status } = useFiltersByUser()
+  const { data, status } = useFiltersByUserId()
   const t = useTranslations()
 
   if (status === 'error') {
@@ -193,7 +196,7 @@ function ActiveFiltersCount({ data }: { data: Filter[] }) {
   const renderCountRef = useRef(0)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const activeFiltersCount = data.filter((f) => f.checked).length
+  const activeFiltersCount = selectActiveFilters(data).length
 
   useEffect(() => {
     renderCountRef.current++

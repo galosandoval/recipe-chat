@@ -15,6 +15,7 @@ import { userMessageDTO } from '~/utils/user-message-dto'
 import type { GeneratedRecipe } from '~/schemas/messages'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
+import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
 
 function useRecipeChat() {
   const userId = useUserId()
@@ -41,7 +42,7 @@ function useRecipeChat() {
     setInput('')
     aiSubmit({
       messages,
-      filters: filters?.filter((f) => f.checked).map((f) => f.name) ?? [],
+      filters: selectActiveFilters(filters ?? []).map((f) => f.name),
       userId
     })
   }

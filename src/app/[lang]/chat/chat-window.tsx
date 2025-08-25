@@ -24,7 +24,6 @@ import { api } from '~/trpc/react'
 import { GenerateStatusAppMessage } from './app-message'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
-import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
 import { useUserId } from '~/hooks/use-user-id'
 import { cn } from '~/utils/cn'
 
