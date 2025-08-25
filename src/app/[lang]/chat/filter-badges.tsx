@@ -36,8 +36,13 @@ function useDeleteFilter() {
       return { previousFilters }
     },
 
-    onSuccess: async () => {
-      await utils.filters.getByUserId.invalidate({ userId })
+    onSettled: () => {
+      const count = utils.filters.delete.isMutating()
+      // if there are more than 2 mutations, it means that the check filter mutation is being called twice
+      // so we need to invalidate the query only once to avoid displaying stale state
+      if (count < 2) {
+        utils.filters.getByUserId.invalidate({ userId })
+      }
     },
 
     onError: (error, _, ctx) => {
@@ -127,24 +132,26 @@ export function FilterBadges({
   }
 
   return (
-    <div className='flex flex-wrap gap-3'>
-      {filters
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((filter) => (
-          <FilterBadge
-            key={filter.id}
-            filter={filter}
+    <div className='flex flex-col'>
+      <div className='flex flex-wrap gap-2'>
+        {filters
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((filter) => (
+            <FilterBadge
+              key={filter.id}
+              filter={filter}
+              canDelete={canDelete}
+              onCheck={handleCheck}
+              onRemove={handleRemoveFilter}
+            />
+          ))}
+        {filters.length > 0 && (
+          <FilterControls
             canDelete={canDelete}
-            onCheck={handleCheck}
-            onRemove={handleRemoveFilter}
+            onToggleCanDelete={onToggleCanDelete}
           />
-        ))}
-      {filters.length > 0 && (
-        <FilterControls
-          canDelete={canDelete}
-          onToggleCanDelete={onToggleCanDelete}
-        />
-      )}
+        )}
+      </div>
     </div>
   )
 }

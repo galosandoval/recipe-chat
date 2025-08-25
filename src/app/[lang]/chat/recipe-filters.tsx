@@ -34,25 +34,13 @@ export function FiltersByUser() {
     return null
   }
 
-  return <Filters data={data ?? []} />
+  return <FiltersSection data={data ?? []} />
 }
 
-function CreateFilterForm() {
-  const t = useTranslations()
-  const {
-    handleSubmit,
-    resetField,
-    control,
-    formState: { errors, isDirty, touchedFields }
-  } = useForm<CreateFilter>({
-    resolver: zodResolver(filterSchema(t)),
-    defaultValues: {
-      name: ''
-    }
-  })
+function useCreateFilterMutation() {
   const userId = useUserId()
   const utils = api.useUtils()
-  const { mutate: createFilter } = api.filters.create.useMutation({
+  const { mutate } = api.filters.create.useMutation({
     onMutate: async (input) => {
       await utils.filters.getByUserId.cancel({ userId })
 
@@ -92,9 +80,28 @@ function CreateFilterForm() {
     }
   })
 
+  return { mutate }
+}
+
+function useCreateFilter() {
+  const t = useTranslations()
+  const { mutate } = useCreateFilterMutation()
+
+  const {
+    handleSubmit,
+    resetField,
+    control,
+    formState: { errors, isDirty, touchedFields }
+  } = useForm<CreateFilter>({
+    resolver: zodResolver(filterSchema(t)),
+    defaultValues: {
+      name: ''
+    }
+  })
+
   const handleCreateFilter = (data: CreateFilter) => {
     const id = createId()
-    createFilter({ name: data.name, id })
+    mutate({ name: data.name, id })
     resetField('name')
   }
 
@@ -102,9 +109,17 @@ function CreateFilterForm() {
     handleCreateFilter(data)
   }
 
+  return { handleSubmit, control, errors, isDirty, touchedFields, onSubmit }
+}
+
+function CreateFilterForm() {
+  const t = useTranslations()
+  const { onSubmit, handleSubmit, control, errors, isDirty, touchedFields } =
+    useCreateFilter()
+
   return (
     <>
-      <form className='join px-4' onSubmit={handleSubmit(onSubmit)}>
+      <form className='join w-full' onSubmit={handleSubmit(onSubmit)}>
         <Controller
           name='name'
           control={control}
@@ -131,7 +146,7 @@ function CreateFilterForm() {
   )
 }
 
-export function Filters({ data }: { data: Filter[] }) {
+export function FiltersSection({ data }: { data: Filter[] }) {
   const session = useSession()
   const t = useTranslations()
 
@@ -146,25 +161,21 @@ export function Filters({ data }: { data: Filter[] }) {
   }
 
   return (
-    <div className='flex w-full flex-1 flex-col items-center justify-center'>
+    <section className='flex w-full flex-1 flex-col items-center justify-center'>
       <ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
       <div className='flex flex-col gap-4 px-4 pb-2'>
         <p className='text-base-content/80 text-sm'>{t.filters.description}</p>
       </div>
-      <div className='flex flex-col px-4'>
-        <FilterBadges
-          filters={data ?? []}
-          canDelete={canDelete}
-          onToggleCanDelete={toggleCanDelete}
-        />
-      </div>
-
-      <div className='px-4'>
+      <FilterBadges
+        filters={data ?? []}
+        canDelete={canDelete}
+        onToggleCanDelete={toggleCanDelete}
+      />
+      <div className='flex w-full flex-col gap-2 px-4'>
         <ActiveFiltersCount />
+        <CreateFilterForm />
       </div>
-
-      <CreateFilterForm />
-    </div>
+    </section>
   )
 }
 
@@ -178,8 +189,10 @@ function ActiveFiltersCount() {
   const activeFiltersCount = filtersCtx.filter((f) => f.checked).length
 
   return (
-    <small className='text-xs'>
-      {t.filters.active} {activeFiltersCount}
-    </small>
+    <div className='items-start self-start'>
+      <small className='text-xs'>
+        {t.filters.active} {activeFiltersCount}
+      </small>
+    </div>
   )
 }

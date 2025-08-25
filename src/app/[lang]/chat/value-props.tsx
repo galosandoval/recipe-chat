@@ -37,7 +37,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className='mx-auto flex max-w-sm flex-col items-center justify-center gap-2 pb-20'>
+    <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2 pb-20'>
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <ValuePropsHeader
           icon={
@@ -59,7 +59,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
           label={t.valueProps.title}
         />
 
-        <div className='flex w-full flex-col items-center gap-4'>
+        <div className='flex w-full flex-col items-center gap-4 px-4'>
           <Button
             type='submit'
             className='btn btn-outline w-full normal-case'
