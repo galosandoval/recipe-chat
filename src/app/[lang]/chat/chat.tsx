@@ -3,7 +3,10 @@
 import { ScrollToBottomProvider } from '~/components/scroll-to-bottom'
 import { ChatWindow } from './chat-window'
 import { SubmitMessageForm } from './submit-message-form'
-import { useFiltersByUser } from '~/hooks/use-filters-by-user-id'
+import {
+  useActiveFiltersByUserId,
+  useFiltersByUserId
+} from '~/hooks/use-filters-by-user-id'
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
 
@@ -22,14 +25,13 @@ export default function Chat() {
 }
 
 function ActiveFilters() {
-  const { data: filters, status } = useFiltersByUser()
+  const { data: activeFilters, status } = useActiveFiltersByUserId()
   const t = useTranslations()
   const messages = chatStore((state) => state.messages)
 
-  if (status === 'error' || !filters) {
+  if (status === 'error' || !activeFilters) {
     return <div>{t.error.somethingWentWrong}</div>
   }
-  const activeFilters = filters.filter((f) => f.checked)
 
   if (
     activeFilters.length === 0 ||

@@ -12,7 +12,7 @@ import type {
 } from '~/schemas/chats'
 import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/react'
 import { toast } from '~/components/toast'
-import { useFiltersByUser } from './use-filters-by-user-id'
+import { useFiltersByUserId } from './use-filters-by-user-id'
 
 type Object = UseObjectHelpers<typeof generatedMessageSchema, string>['object']
 type Error = UseObjectHelpers<typeof generatedMessageSchema, string>['error']
@@ -59,7 +59,7 @@ export const useChatAI = () => {
   const { chatId, setChatId } = chatStore()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
-  const filters = useFiltersByUser()
+  const filters = useFiltersByUserId()
   const filtersData = filters.data
   const utils = api.useUtils()
 
