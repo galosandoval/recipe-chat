@@ -1,17 +1,21 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { api } from '~/trpc/react'
-import { Loader } from './loaders/recipe-list-recent'
+import { Loader } from '../../../components/loaders/recipe-list-recent'
 import { useTranslations } from '~/hooks/use-translations'
-import { RecipeFallbackIconSm } from './icons'
+import { RecipeFallbackIconSm } from '../../../components/icons'
 
-export function RecentRecipes() {
+export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
   const t = useTranslations()
 
   const { data, status } = api.recipes.recentRecipes.useQuery()
 
   if (status === 'error') {
     return <div className=''>{t.error.somethingWentWrong}</div>
+  }
+
+  if (hasSearch) {
+    return null
   }
 
   if (status === 'success') {

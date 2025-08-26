@@ -1,9 +1,8 @@
-import { HydrateClient } from '~/trpc/server'
-import Recipes from './recipes'
+import { api, HydrateClient } from '~/trpc/server'
+import InfiniteRecipes from './infinite-recipes'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
-import { ScreenLoader } from '~/components/loaders/screen'
+import { getInfiniteRecipes } from './get-infinite-recipes'
 
 export default async function RecipesView() {
   const session = await auth()
@@ -11,12 +10,12 @@ export default async function RecipesView() {
     return redirect('/')
   }
 
+  const data = await getInfiniteRecipes()
+
   return (
     <HydrateClient>
       <main className='mx-auto w-full overflow-y-auto pt-24'>
-        <Suspense fallback={<ScreenLoader />}>
-          <Recipes />
-        </Suspense>
+        <InfiniteRecipes data={data} />
       </main>
     </HydrateClient>
   )
