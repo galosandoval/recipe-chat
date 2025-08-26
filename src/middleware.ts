@@ -5,10 +5,8 @@ import { match as matchLocale } from '@formatjs/intl-localematcher'
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname
-  // if (!req.auth && pathname !== '/') {
-  // 	const newUrl = new URL('/', req.nextUrl.origin)
-  // 	return Response.redirect(newUrl)
-  // }
+  const searchParams = req.nextUrl.searchParams
+
   const pathnameIsMissingLocale = i18n.locales.every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   )
@@ -18,11 +16,15 @@ export async function middleware(req: NextRequest) {
   if (pathnameIsMissingLocale && !hasImages) {
     const locale = getLocale(req)
 
+    // Build the search params string with all existing parameters
+    const searchParamsString = searchParams.toString()
+    const queryString = searchParamsString ? `?${searchParamsString}` : ''
+
     // e.g. incoming request is /products
     // The new URL is now /en-US/products
     return Response.redirect(
       new URL(
-        `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`,
+        `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}${queryString}`,
         req.url
       )
     )

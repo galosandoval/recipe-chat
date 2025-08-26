@@ -1,4 +1,4 @@
-import { api, HydrateClient } from '~/trpc/server'
+import { HydrateClient } from '~/trpc/server'
 import InfiniteRecipes from './infinite-recipes'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
