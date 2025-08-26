@@ -74,7 +74,7 @@ function RecipeByIdNavbar() {
     <nav className='fixed z-20 flex w-full justify-between bg-transparent p-4'>
       <button
         className='btn btn-circle glass-element text-glass bg-slate-500/40'
-        onClick={() => router.push('/recipes')}
+        onClick={() => router.back()}
       >
         <ArrowBackLeftIcon />
       </button>

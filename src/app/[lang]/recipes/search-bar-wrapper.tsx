@@ -47,7 +47,7 @@ const SearchBar = React.memo(function SearchBar({
         <div className='flex w-full px-2 py-1'>
           <input
             type='text'
-            className='input input-bordered text-glass bg-base-100/60 focus:bg-base-100 w-full'
+            className='input input-bordered text-base-content/70 bg-base-100/60 focus:bg-base-100 w-full'
             value={search}
             onChange={handleChange}
             placeholder={t.recipes.search}
@@ -58,7 +58,7 @@ const SearchBar = React.memo(function SearchBar({
           <button
             type='button'
             onClick={handleSearchButtonClick}
-            className='btn btn-square btn-ghost'
+            className='btn btn-square btn-ghost text-base-content/70'
           >
             {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
           </button>

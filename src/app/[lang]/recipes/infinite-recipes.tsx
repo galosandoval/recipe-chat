@@ -14,6 +14,7 @@ import { SearchBarWrapper } from './search-bar-wrapper'
 import { RecipesPages } from './recipes-pages'
 import type { InfiniteRecipes } from './get-infinite-recipes'
 import type { InfiniteData } from '@tanstack/react-query'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const RECIPES_PER_PAGE_LIMIT = 10
 
@@ -23,9 +24,10 @@ export default function InfiniteRecipes({
   data: InfiniteRecipes
 }) {
   const { ref: inViewRef, inView } = useInView()
-  const [search, setSearch] = useState('')
-
+  const searchParams = useSearchParams()
+  const [search, setSearch] = useState(searchParams.get('search') ?? '')
   const debouncedSearch = useDebounce(search)
+  const router = useRouter()
 
   // Transform server data into InfiniteData format
   const transformedInitialData: InfiniteData<
@@ -36,7 +38,7 @@ export default function InfiniteRecipes({
     pageParams: [undefined]
   }
 
-  const { data, fetchNextPage, status, hasNextPage, fetchStatus } =
+  const { data, fetchNextPage, hasNextPage, fetchStatus } =
     api.recipes.infiniteRecipes.useInfiniteQuery(
       {
         limit: RECIPES_PER_PAGE_LIMIT,
@@ -50,14 +52,6 @@ export default function InfiniteRecipes({
 
   const pages = data?.pages || []
 
-  useEffect(() => {
-    console.log('status', status)
-  }, [status])
-
-  useEffect(() => {
-    console.log('fetchStatus', fetchStatus)
-  }, [fetchStatus])
-
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +59,12 @@ export default function InfiniteRecipes({
   }, [])
 
   const handleSearchButtonClick = useCallback(
-    !!search ? () => setSearch('') : () => inputRef.current?.focus(),
+    !!search
+      ? () =>
+          handleChange({
+            target: { value: '' }
+          } as ChangeEvent<HTMLInputElement>)
+      : () => inputRef.current?.focus(),
     [search]
   )
 
@@ -74,6 +73,10 @@ export default function InfiniteRecipes({
       fetchNextPage()
     }
   }, [inView, hasNextPage, fetchNextPage])
+
+  useEffect(() => {
+    router.push(`/recipes?search=${search}`)
+  }, [search])
 
   return (
     <SearchBarWrapper
