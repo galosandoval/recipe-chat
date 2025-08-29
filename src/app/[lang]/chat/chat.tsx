@@ -3,10 +3,7 @@
 import { ScrollToBottomProvider } from '~/components/scroll-to-bottom'
 import { ChatWindow } from './chat-window'
 import { SubmitMessageForm } from './submit-message-form'
-import {
-  useActiveFiltersByUserId,
-  useFiltersByUserId
-} from '~/hooks/use-filters-by-user-id'
+import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
 

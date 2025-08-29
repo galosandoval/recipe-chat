@@ -161,13 +161,7 @@ const Message = function Message({
   isLastMessage: boolean
 }) {
   if (message.role === 'assistant') {
-    return (
-      <AssistantMessage
-        message={message}
-        // handleSaveRecipe={handleSaveRecipe}
-        isStreaming={isStreaming}
-      />
-    )
+    return <AssistantMessage message={message} isStreaming={isStreaming} />
   }
 
   return (
