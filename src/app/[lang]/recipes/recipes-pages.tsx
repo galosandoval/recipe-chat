@@ -29,12 +29,14 @@ export const RecipesPages = React.memo(function RecipesPages({
       {pages.length > 0 && pages[0].items.length > 0 ? (
         <RecentRecipes hasSearch={!!search} />
       ) : null}
-      <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
-        <h2 className='text-base-content text-sm font-bold'>
-          {t.recipes.your}
-        </h2>
-        {!search && <CreateRecipeButton />}
-      </div>
+      {!search && (
+        <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
+          <h2 className='text-base-content text-sm font-bold'>
+            {t.recipes.your}
+          </h2>
+          <CreateRecipeButton />
+        </div>
+      )}
 
       <Pages pages={pages} search={search} />
 
@@ -96,8 +98,10 @@ const EmptyList = React.memo(function EmptyList() {
 const NoneFound = React.memo(function NoneFound() {
   const t = useTranslations()
   return (
-    <div className='col-span-2 sm:col-span-4'>
-      <p>{t.recipes.noRecipes.noneFound}</p>
+    <div className='fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center'>
+      <p className='text-base-content text-2xl'>
+        {t.recipes.noRecipes.noneFound}
+      </p>
     </div>
   )
 })
@@ -128,6 +132,10 @@ const Cards = React.memo(function Cards({
 
     return sortedData
   }, [data, search])
+
+  if (sortedAndFilteredData.length === 0) {
+    return <NoneFound />
+  }
 
   return sortedAndFilteredData.map((recipe) => (
     <Card key={recipe.id} data={recipe} />
