@@ -82,7 +82,7 @@ function StartNewChat() {
   }
 
   // Only show if there's an actual chat ID (not empty string or undefined)
-  if (!chatId && !pathname.includes('chat')) return null
+  if (!chatId || !pathname.includes('chat')) return null
 
   return (
     <MenuItem>
@@ -104,7 +104,7 @@ function ChatsSideBarButton() {
   const { handleToggleDrawer } = useChatsDrawer()
 
   // Only show if there's an actual chat ID (not empty string or undefined)
-  if (!chatId && !pathname.includes('chat')) return null
+  if (!chatId || !pathname.includes('chat')) return null
 
   return (
     <MenuItem>
