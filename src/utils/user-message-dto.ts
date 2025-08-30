@@ -1,5 +1,5 @@
 import { createId } from '@paralleldrive/cuid2'
-import { type MessageWithRecipes } from '~/schemas/chats'
+import { type MessageWithRecipes } from '~/schemas/chats-schema'
 
 export function userMessageDTO(
   content: string,

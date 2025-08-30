@@ -5,7 +5,11 @@ import {
   ChatBubbleBottomCenterIcon
 } from '~/components/icons'
 import { useTranslations } from '~/hooks/use-translations'
-import { LoginModal, SignUpModal, useAuthModal } from '~/components/auth-modals'
+import {
+  LoginModal,
+  SignUpModal,
+  useAuthModal
+} from '~/components/auth/auth-modals'
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/utils/user-message-dto'

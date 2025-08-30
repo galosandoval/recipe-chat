@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { idSchema, userIdSchema } from './ids-schema'
+import { idSchema, userIdSchema } from '~/schemas/ids-schema'
 
 export const getFiltersByUserIdSchema = z.object({ userId: idSchema.shape.id })
 export type GetFiltersByUserIdSchema = z.infer<typeof getFiltersByUserIdSchema>

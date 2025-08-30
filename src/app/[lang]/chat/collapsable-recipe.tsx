@@ -13,8 +13,8 @@ import {
   SaveIcon
 } from '../../../components/icons'
 import { cn } from '~/utils/cn'
-import { useAuthModal } from '../../../components/auth-modals'
-import type { RecipeDTO } from '~/schemas/chats'
+import { useAuthModal } from '../../../components/auth/auth-modals'
+import type { RecipeDTO } from '~/schemas/chats-schema'
 import { useRouter } from 'next/navigation'
 import { formatTimeFromMinutes } from '~/utils/format-time'
 

@@ -5,7 +5,6 @@ import { type Ingredient, type Instruction, type Recipe } from '@prisma/client'
 import { useDeleteRecipe } from '~/hooks/use-recipe'
 import { type UseFormHandleSubmit, useForm } from 'react-hook-form'
 import { Button } from '~/components/button'
-import { type UpdateRecipe } from '~/server/api/schemas/recipes-schema'
 import { CheckIcon, TrashIcon } from '~/components/icons'
 import { type ChangeEvent, useState } from 'react'
 import { Modal } from '~/components/modal'
@@ -14,6 +13,7 @@ import Image from 'next/image'
 import { api, type RouterOutputs } from '~/trpc/react'
 import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
 import { toast } from '~/components/toast'
+import type { UpdateRecipe } from '~/schemas/recipes-schema'
 
 type FormValues = {
   name: string

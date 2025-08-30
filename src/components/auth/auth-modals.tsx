@@ -1,89 +1,26 @@
 import { Button } from '~/components/button'
 import { api } from '~/trpc/react'
 import { signIn } from 'next-auth/react'
-import { ErrorMessage } from '~/components/error-message-content'
+import {
+  ErrorMessage,
+  type ErrorMessageProps
+} from '~/components/error-message-content'
 import { toast } from '~/components/toast'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Modal } from './modal'
+import { Modal } from '../modal'
 import { createContext, useContext, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
-import { useForm } from 'react-hook-form'
+import {
+  useForm,
+  type FieldErrors,
+  type FieldValues,
+  type Path,
+  type UseFormRegister
+} from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-
-export const signUpSchema = (t: any) =>
-  z
-    .object({
-      email: z.string().email(t.auth.emailRequired),
-      password: z.string().min(6, t.auth.minChars6).max(20, t.auth.maxChars20),
-      confirm: z.string().min(6, t.auth.minChars6).max(20, t.auth.maxChars20)
-    })
-    .refine((data) => data.confirm === data.password, {
-      message: t.auth.passwordsDontMatch,
-      path: ['confirm']
-    })
-
-type SignUpSchemaType = z.infer<ReturnType<typeof signUpSchema>>
-
-export function useSignUp(successCallback?: () => Promise<void>) {
-  const t = useTranslations()
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setError
-  } = useForm<SignUpSchemaType>({
-    resolver: zodResolver(signUpSchema(t))
-  })
-  const router = useRouter()
-
-  const { mutate, isPending } = api.users.signUp.useMutation({
-    onSuccess: async ({}, { email, password }) => {
-      const response = await signIn('credentials', {
-        email,
-        password,
-        redirect: false
-      })
-
-      if (successCallback) {
-        await successCallback()
-      } else if (response?.ok) {
-        router.push('/chat')
-
-        toast.success(t.auth.signUpSuccess)
-      }
-    },
-    onError: (error) => {
-      if (error.message && error.shape?.code === -32009) {
-        setError('email', {
-          type: 'pattern',
-          message: error.message
-        })
-      } else if (error.message && error.message.includes('password')) {
-        setError('password', {
-          type: 'pattern',
-          message: error.message
-        })
-      } else {
-        toast.error(error.message)
-      }
-    }
-  })
-
-  const onSubmit = (values: SignUpSchemaType) => {
-    mutate(values)
-  }
-
-  return {
-    register,
-    handleSubmit,
-    errors,
-    onSubmit,
-    isLoading: isPending
-  }
-}
+import { useSignUp } from './sign-up'
 
 export function SignUpModal() {
   const t = useTranslations()
@@ -135,6 +72,12 @@ export function SignUpModal() {
         <h1 className='px-5'>{t.auth.signUp}</h1>
 
         <form onSubmit={handleSubmit(onSubmit)}>
+          <FormControl
+            errors={errors}
+            register={register}
+            label={t.auth.email}
+            isError={errors.email}
+          />
           <div className='form-control'>
             <label htmlFor='email' className='label pt-0 pb-1'>
               <span className='label-text'>
@@ -203,6 +146,40 @@ export function SignUpModal() {
         </form>
       </div>
     </Modal>
+  )
+}
+
+function FormControl<T extends FieldValues>({
+  errors,
+  register,
+  label,
+  isError
+}: {
+  errors: Partial<FieldErrors<T>>
+  register: UseFormRegister<T>
+  label: string
+  isError: any
+}) {
+  return (
+    <div className='form-control'>
+      <label htmlFor='email' className='label pt-0 pb-1'>
+        <span className='label-text'>
+          {label}
+          <span className='text-error'>*</span>
+        </span>
+      </label>
+
+      <input
+        className={`input input-bordered ${isError ? 'input-error' : ''}`}
+        id='email'
+        {...register(label as Path<T>)}
+      />
+
+      <ErrorMessage
+        errors={errors}
+        name={label as ErrorMessageProps<T>['name']}
+      />
+    </div>
   )
 }
 

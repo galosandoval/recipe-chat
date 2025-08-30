@@ -1,6 +1,6 @@
 import z from 'zod'
-import { messagesWithRecipesSchema } from '~/schemas/chats'
-import { userIdSchema } from './ids-schema'
+import { messagesWithRecipesSchema } from '~/schemas/chats-schema'
+import { userIdSchema } from '~/schemas/ids-schema'
 
 export const createChatWithMessagesSchema = z
   .object({

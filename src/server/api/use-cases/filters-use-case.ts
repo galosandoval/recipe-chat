@@ -4,7 +4,7 @@ import {
   type CheckFilterSchema,
   type DeleteFilterSchema,
   type CreateFilterSchema
-} from '~/server/api/schemas/filters-schema'
+} from '~/schemas/filters-schema'
 
 export async function getAllFilters(userId: string, prisma: PrismaClient) {
   const filtersDataAccess = new FiltersAccess(prisma)

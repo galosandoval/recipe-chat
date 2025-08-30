@@ -1,11 +1,9 @@
 import { createId } from '@paralleldrive/cuid2'
 import { hash } from 'bcryptjs'
-import {
-  type CreateChatAndRecipeSchema,
-  type SignUpSchema
-} from '~/server/api/schemas/users-schema'
 import { DataAccess } from './data-access'
 import { initialFilters } from '~/utils/stock-filters'
+import type { SignUpSchemaType } from '~/schemas/sign-up-schema'
+import type { CreateChatAndRecipe } from '~/schemas/chats-schema'
 
 export class UsersAccess extends DataAccess {
   async getUserById(id: string) {
@@ -20,7 +18,7 @@ export class UsersAccess extends DataAccess {
     })
   }
 
-  async createUser(input: SignUpSchema) {
+  async createUser(input: SignUpSchemaType) {
     const { email, password } = input
     const username = email.toLowerCase()
     const hashedPassword = await hash(password, 10)
@@ -41,7 +39,7 @@ export class UsersAccess extends DataAccess {
     })
   }
 
-  async updateUser(userId: string, input: CreateChatAndRecipeSchema) {
+  async updateUser(userId: string, input: CreateChatAndRecipe) {
     const { recipe, messages } = input
     const { ingredients, instructions, ...rest } = recipe
     const messageId = createId()

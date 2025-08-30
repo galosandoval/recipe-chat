@@ -9,7 +9,6 @@ import { UserCircleIcon } from '~/components/icons'
 import { ChatLoader } from '~/components/loaders/chat'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
-import { SignUpModal } from '~/components/auth-modals'
 import {
   ScrollModeContext,
   ScrollToButtons
@@ -18,7 +17,7 @@ import { chatStore } from '~/stores/chat-store'
 import { useScrollToTop } from 'react-scroll-to-bottom'
 import { ChatsDrawer } from '~/components/chats-drawer'
 import { Stream } from './stream'
-import type { MessageWithRecipes } from '~/schemas/chats'
+import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { buildGenerateRecipeContent } from '~/utils/build-generate-recipe-content'
 import { api } from '~/trpc/react'
 import { GenerateStatusAppMessage } from './app-message'
@@ -26,6 +25,7 @@ import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
 import { useUserId } from '~/hooks/use-user-id'
 import { cn } from '~/utils/cn'
+import { SignUpModal } from '~/components/auth/auth-modals'
 
 export const ChatWindow = () => {
   const { setScrollMode } = useContext(ScrollModeContext)

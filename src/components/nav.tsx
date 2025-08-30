@@ -13,11 +13,8 @@ import {
   XIcon
 } from './icons'
 import { useTranslations } from '~/hooks/use-translations'
-import { ThemeToggle, useTheme } from './theme-toggle'
 import { api } from '~/trpc/react'
 import { cn } from '~/utils/cn'
-
-
 
 export function NavContainer() {
   return (
@@ -52,14 +49,13 @@ const Nav = () => {
 
 function PublicNavbar() {
   const t = useTranslations()
-  const { theme, updateTheme } = useTheme()
 
   return (
     <nav className='prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
       <div></div>
       <h1 className='mb-0 text-base'>{t.nav.appName}</h1>
       <div className='justify-self-end'>
-        <ThemeToggle theme={theme} updateTheme={updateTheme} />
+        <NavDropdownMenu />
       </div>
     </nav>
   )
@@ -149,7 +145,7 @@ function RoutesNavbar() {
             <span className='text-sm'>{t.nav[item.label]}</span>
           </Link>
         ))}
-        <div className=''>
+        <div>
           <NavDropdownMenu />
         </div>
       </nav>

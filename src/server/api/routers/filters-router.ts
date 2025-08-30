@@ -10,7 +10,7 @@ import {
   createFilterSchema,
   deleteFilterSchema,
   getFiltersByUserIdSchema
-} from '~/server/api/schemas/filters-schema'
+} from '~/schemas/filters-schema'
 
 export const filtersRouter = createTRPCRouter({
   getByUserId: protectedProcedure

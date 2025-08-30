@@ -1,8 +1,8 @@
 import { type PrismaClient } from '@prisma/client'
 import type { ITXClientDenyList } from '@prisma/client/runtime/library'
-import type { MessagesWithRecipes } from '~/schemas/chats'
+import type { MessagesWithRecipes } from '~/schemas/chats-schema'
 import { DataAccess } from './data-access'
-import type { CreateChatWithMessages } from '../schemas/chats-schema'
+import type { CreateChatWithMessages } from '~/schemas/chats-schema'
 
 export class ChatsAccess extends DataAccess {
   async getChatsByUserId(userId: string) {

@@ -68,14 +68,16 @@ class TranslationClass {
   replace(path: string, ...args: string[]): string {
     const translation = this.get(path)
 
-    if (typeof translation !== 'string') {
-      return path
-    }
+      console.log('no args', path, translation)
+      if (typeof translation !== 'string') {
+        return path
+      }
 
-    // Early return if no arguments to substitute
-    if (args.length === 0) {
-      return translation
-    }
+      // Early return if no arguments to substitute
+      if (args.length === 0) {
+        console.log('no args', path, translation)
+        return translation
+      }
 
     // Replace $1, $2, etc. with the provided arguments
     return translation.replace(/\$(\d+)/g, (match, index) => {

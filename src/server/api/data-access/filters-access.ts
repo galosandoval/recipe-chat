@@ -2,7 +2,7 @@ import {
   type CheckFilterSchema,
   type DeleteFilterSchema,
   type CreateFilterSchema
-} from '~/server/api/schemas/filters-schema'
+} from '~/schemas/filters-schema'
 import { DataAccess } from './data-access'
 
 export class FiltersAccess extends DataAccess {

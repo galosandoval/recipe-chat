@@ -13,7 +13,7 @@ import {
   type Translations
 } from '~/hooks/use-translations'
 
-import { AuthModalProvider } from './auth-modals'
+import { AuthModalProvider } from './auth/auth-modals'
 import { ChatsDrawerProvider } from './chats-drawer'
 
 export const Providers = ({

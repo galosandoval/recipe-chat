@@ -9,7 +9,7 @@ import type {
   MessageWithRecipes,
   MessageWithRecipesDTO,
   UpsertChatSchema
-} from '~/schemas/chats'
+} from '~/schemas/chats-schema'
 import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/react'
 import { toast } from '~/components/toast'
 import { useFiltersByUserId } from './use-filters-by-user-id'
