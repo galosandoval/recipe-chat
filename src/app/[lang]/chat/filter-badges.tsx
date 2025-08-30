@@ -1,3 +1,5 @@
+'use client'
+
 import type { Filter } from '@prisma/client'
 import { CheckCircleIcon, XCircleIcon } from '~/components/icons'
 import { toast } from '~/components/toast'
@@ -6,6 +8,7 @@ import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { cn } from '~/utils/cn'
 import { Badge } from './badge'
+import { useMemo } from 'react'
 
 export function FilterBadges({
   filters,
@@ -20,10 +23,6 @@ export function FilterBadges({
   const { mutate: deleteFilter } = useDeleteFilter()
   const { mutate: checkFilter } = useCheckFilter()
 
-  if (filters.length === 0) {
-    return <div className='mx-auto'>{t.filters.noFilters}</div>
-  }
-
   const handleRemoveFilter = (id: string) => {
     deleteFilter({ filterId: id })
     if (filters.length === 1) {
@@ -35,14 +34,22 @@ export function FilterBadges({
     checkFilter({ checked, filterId: id })
   }
 
+  const { firstHalf, secondHalf } = useMemo(
+    () => splitByNamesLength(filters),
+    [filters]
+  )
+
+  if (filters.length === 0) {
+    return <div className='mx-auto'>{t.filters.noFilters}</div>
+  }
+
   return (
     <div
       id='filter-badges'
-      className='grid h-[5.3rem] grid-flow-col grid-rows-2 place-items-start justify-start gap-2 overflow-x-scroll px-2'
+      className='grid h-[5.3rem] grid-rows-2 gap-2 overflow-x-scroll px-2'
     >
-      {filters
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((filter) => (
+      <div className='flex w-full gap-2'>
+        {firstHalf.map((filter) => (
           <FilterBadge
             key={filter.id}
             filter={filter}
@@ -51,6 +58,18 @@ export function FilterBadges({
             onRemove={handleRemoveFilter}
           />
         ))}
+      </div>
+      <div className='flex w-full gap-2'>
+        {secondHalf.map((filter) => (
+          <FilterBadge
+            key={filter.id}
+            filter={filter}
+            canDelete={canDelete}
+            onCheck={handleCheck}
+            onRemove={handleRemoveFilter}
+          />
+        ))}
+      </div>
     </div>
   )
 }
@@ -181,4 +200,35 @@ function useCheckFilter() {
   })
 
   return { mutate, variables }
+}
+
+function splitByNamesLength(filters: Filter[]) {
+  if (filters.length === 0) {
+    return {
+      firstHalf: [],
+      secondHalf: []
+    }
+  }
+  const sortedFilters = filters.sort((a, b) => a.name.localeCompare(b.name))
+  const filterIdxToName: Record<number, string> = {}
+  sortedFilters.forEach((f, i) => {
+    filterIdxToName[i] = f.name
+  })
+  let namesJoined = sortedFilters.map((f) => f.name).join('')
+  let lastIdx = 0
+  const startLength = namesJoined.length
+  for (let i = 0; i < sortedFilters.length; i++) {
+    const filter = sortedFilters[i]
+    const filterName = filter.name
+    namesJoined = namesJoined.replace(filterName, '')
+    if (namesJoined.length < startLength / 2) {
+      lastIdx = i
+      break
+    }
+  }
+
+  return {
+    firstHalf: sortedFilters.slice(0, lastIdx),
+    secondHalf: sortedFilters.slice(lastIdx)
+  }
 }

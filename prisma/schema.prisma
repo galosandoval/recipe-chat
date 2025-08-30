@@ -29,9 +29,10 @@ model User {
 
 // Simple enum for features
 enum Feature {
+    generateChat
     recentRecipes
     chat
-    filters
+    chatFilters
     lists
     savedRecipes
 }
