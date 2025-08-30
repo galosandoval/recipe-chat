@@ -18,6 +18,7 @@ export type Translations<T = AwaitedTranslations> = {
       : T[K]
 } & {
   replace(path: keyof T, ...args: string[]): string
+  get(path: string): string
 }
 
 /**
@@ -68,16 +69,16 @@ class TranslationClass {
   replace(path: string, ...args: string[]): string {
     const translation = this.get(path)
 
-      console.log('no args', path, translation)
-      if (typeof translation !== 'string') {
-        return path
-      }
+    console.log('no args', path, translation)
+    if (typeof translation !== 'string') {
+      return path
+    }
 
-      // Early return if no arguments to substitute
-      if (args.length === 0) {
-        console.log('no args', path, translation)
-        return translation
-      }
+    // Early return if no arguments to substitute
+    if (args.length === 0) {
+      console.log('no args', path, translation)
+      return translation
+    }
 
     // Replace $1, $2, etc. with the provided arguments
     return translation.replace(/\$(\d+)/g, (match, index) => {
@@ -96,7 +97,7 @@ class TranslationClass {
 
     // Add the root replace method
     enhanced.replace = this.replace.bind(this)
-
+    enhanced.get = this.get.bind(this)
     // Add replace methods to nested objects
     this.addReplaceMethods(enhanced, '', this)
 
@@ -157,5 +158,5 @@ export const useTranslations = (): Translations => {
   return useMemo(() => {
     const translationClass = new TranslationClass(translations)
     return translationClass.createEnhanced()
-  }, [translations])
+  }, [])
 }

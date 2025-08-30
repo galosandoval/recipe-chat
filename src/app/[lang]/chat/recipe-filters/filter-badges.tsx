@@ -25,7 +25,7 @@ export function FilterBadges({
   const { mutate: deleteFilter } = useDeleteFilter()
   const { mutate: activateFilter } = useActivateFilter()
   const { firstHalf, secondHalf } = useMemo(
-    () => transformAndSplit(filters, t),
+    () => transform(filters, t),
     [filters]
   )
 
@@ -97,11 +97,11 @@ function FilterBadge({
 
   let icon = null
   if (checked) {
-    icon = <CheckCircleIcon className='h-4 w-4' />
+    icon = <CheckCircleIcon className='size-5' />
   } else if (canDelete) {
-    icon = <XCircleIcon size={4} />
+    icon = <XCircleIcon size={5} />
   } else {
-    icon = <span className='border-primary h-4 w-4 rounded-full border'></span>
+    icon = <span className='border-primary size-5 rounded-full border'></span>
   }
   const handleClick = canDelete
     ? () => onRemove(filter.id)
@@ -218,7 +218,7 @@ function labelInitialFilters(filters: Filter[], t: Translations) {
   })
 }
 
-function transformAndSplit(filters: Filter[], t: Translations) {
+function transform(filters: Filter[], t: Translations) {
   if (filters.length === 0) {
     return {
       firstHalf: [],
@@ -230,25 +230,38 @@ function transformAndSplit(filters: Filter[], t: Translations) {
   const sortedFilters = labeledFilters.sort((a, b) =>
     a.name.localeCompare(b.name)
   )
-  const filterIdxToName: Record<number, string> = {}
-  sortedFilters.forEach((f, i) => {
-    filterIdxToName[i] = f.name
-  })
-  let namesJoined = sortedFilters.map((f) => f.name).join('')
-  let lastIdx = 0
-  const startLength = namesJoined.length
-  for (let i = 0; i < sortedFilters.length; i++) {
-    const filter = sortedFilters[i]
-    const filterName = filter.name
-    namesJoined = namesJoined.replace(filterName, '')
-    if (namesJoined.length < startLength / 2) {
-      lastIdx = i
-      break
-    }
-  }
+
+  const index = middleIndexOfNames(sortedFilters)
 
   return {
-    firstHalf: sortedFilters.slice(0, lastIdx),
-    secondHalf: sortedFilters.slice(lastIdx)
+    firstHalf: sortedFilters.slice(0, index),
+    secondHalf: sortedFilters.slice(index)
   }
+}
+
+function middleIndexOfNames(filters: Filter[]) {
+  let namesJoined = filters.map((f) => f.name).join('')
+  let lastIdx = 0
+  let runningLength = 0
+  const lengthToStop = namesJoined.length / 2
+
+  for (let i = 0; i < filters.length; i++) {
+    const filter = filters[i]
+    const filterName = filter.name
+    namesJoined = namesJoined.replace(filterName, '')
+
+    if (runningLength > lengthToStop) {
+      const leftLength = runningLength
+      const rightLength = namesJoined.length - runningLength
+      if (leftLength < rightLength) {
+        lastIdx = i - 2
+      } else {
+        lastIdx = i - 1
+      }
+      break
+    }
+    lastIdx = i
+    runningLength += filterName.length
+  }
+  return lastIdx
 }

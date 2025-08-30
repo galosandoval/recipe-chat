@@ -43,7 +43,7 @@ function useRecipeChat() {
     aiSubmit({
       messages,
       filters: selectActiveFilters(filters ?? []).map((f) => f.name),
-      userId
+      userId: userId || undefined
     })
   }
 

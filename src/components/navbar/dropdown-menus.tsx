@@ -1,17 +1,17 @@
 import { Menu, MenuItem, MenuButton, MenuItems } from '@headlessui/react'
-import { ThemeToggle, useTheme } from './theme-toggle'
+import { ThemeToggle, useTheme } from '../theme-toggle'
 import {
   ArrowLeftOnRectangleIcon,
   Cog6ToothIcon,
   ListBulletIcon,
   PlusIcon
-} from './icons'
+} from '../icons'
 import { signOut } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
-import { useChatsDrawer } from './chats-drawer'
+import { useChatsDrawer } from '../chats-drawer'
 import { chatStore } from '~/stores/chat-store'
-import { useAuthModal } from './auth/auth-modals'
+import { useAuthModal } from '../auth/auth-modals'
 
 export function NavDropdownMenu() {
   const { theme, updateTheme } = useTheme()
@@ -88,9 +88,9 @@ function DropdownMenu({ children }: { children: React.ReactNode }) {
 
 function StartNewChat() {
   const t = useTranslations()
-  const { chatId, setChatId } = chatStore()
+  const { setChatId } = chatStore()
   const pathname = usePathname()
-  const { setStream, setStreamingStatus, setMessages } = chatStore()
+  const { setStream, setStreamingStatus, setMessages, messages } = chatStore()
 
   const handleStartNewChat = () => {
     setChatId('')
@@ -100,7 +100,8 @@ function StartNewChat() {
   }
 
   // Only show if there's an actual chat ID (not empty string or undefined)
-  if (!chatId || !pathname.includes('chat')) return null
+  const isInChat = pathname.includes('chat')
+  if (!isInChat || (messages.length === 0 && isInChat)) return null
 
   return (
     <MenuItem>

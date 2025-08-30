@@ -22,6 +22,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useSignUp } from './sign-up'
 
+const inputNames = ['email', 'password', 'confirm'] as const
+
 export function SignUpModal() {
   const t = useTranslations()
   const router = useRouter()
@@ -66,12 +68,22 @@ export function SignUpModal() {
     })
     router.push(`recipes/${user.recipes.id}}`)
   }
+
   return (
     <Modal isOpen={isSignUpOpen} closeModal={handleCloseSignUp}>
       <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
         <h1 className='px-5'>{t.auth.signUp}</h1>
 
         <form onSubmit={handleSubmit(onSubmit)}>
+          {inputNames.map((name) => (
+            <FormControl
+              key={name}
+              errors={errors}
+              register={register}
+              label={t.get(name)}
+              isError={errors[name]}
+            />
+          ))}
           <FormControl
             errors={errors}
             register={register}
