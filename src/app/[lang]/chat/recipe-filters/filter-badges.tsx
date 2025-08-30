@@ -53,7 +53,6 @@ export function FilterBadges({
           canDelete={canDelete}
           onCheck={handleCheck}
           onRemove={handleRemoveFilter}
-          t={t}
         />
       </div>
     )
@@ -75,7 +74,6 @@ export function FilterBadges({
               canDelete={canDelete}
               onCheck={handleCheck}
               onRemove={handleRemoveFilter}
-              t={t}
             />
           ))}
         </div>
@@ -88,14 +86,12 @@ function FilterBadge({
   filter,
   canDelete,
   onCheck,
-  onRemove,
-  t
+  onRemove
 }: {
   filter: Filter
   canDelete: boolean
   onCheck: (id: string, checked: boolean) => void
   onRemove: (id: string) => void
-  t: Translations
 }) {
   const checked = filter.checked && !canDelete
 

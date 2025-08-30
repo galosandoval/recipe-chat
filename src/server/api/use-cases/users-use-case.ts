@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server'
 import {
   type CreateChatAndRecipeSchema,
   type SignUpSchema
-} from '~/server/api/schemas/users'
+} from '~/server/api/schemas/users-schema'
 import { UsersAccess } from '~/server/api/data-access/users-access'
 import type { Context } from '~/server/api/trpc'
 import { createId } from '@paralleldrive/cuid2'

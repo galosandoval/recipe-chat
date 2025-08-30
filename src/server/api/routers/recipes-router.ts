@@ -7,12 +7,12 @@ import {
   updateRecipeSchema,
   createRecipeSchema,
   updateRecipeImgUrlSchema
-} from '~/server/api/schemas/recipes'
+} from '~/server/api/schemas/recipes-schema'
 import { del } from '@vercel/blob'
 import { RecipesAccess } from '~/server/api/data-access/recipes-access'
 import { IngredientsAccess } from '~/server/api/data-access/ingredients-access'
 import { InstructionsAccess } from '~/server/api/data-access/instructions-access'
-import { editRecipe, saveRecipe } from '../use-cases/recipes'
+import { editRecipe, saveRecipe } from '../use-cases/recipes-use-case'
 import { type PrismaClient } from '@prisma/client'
 import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
 

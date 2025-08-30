@@ -8,6 +8,7 @@ import { Providers } from '~/components/providers'
 import { NavContainer } from '~/components/nav'
 import { getTranslations } from '~/utils/get-translations'
 import type { Locale } from '~/i18n-config'
+import type { AwaitedTranslations } from '~/hooks/use-translations'
 
 export const metadata: Metadata = {
   title: 'RecipeChat',

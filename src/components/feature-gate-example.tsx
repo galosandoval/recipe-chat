@@ -1,21 +1,22 @@
 'use client'
 
 import React from 'react'
-import { FeatureGate, Feature } from './feature-gate'
+import { FeatureGate } from './feature-gate'
+import { Feature } from '@prisma/client'
 
 /**
  * Example component showing how to use the simple Feature enum and FeatureGate
  */
 export function FeatureGateExample() {
   // Example user features - in real app this would come from the user's onboarding array
-  const userFeatures: Feature[] = [Feature.BASIC_RECIPES, Feature.CHAT]
+  const userFeatures: Feature[] = [Feature.chat, Feature.chatFilters]
 
   return (
     <div className='space-y-6 p-6'>
       <h1 className='text-2xl font-bold'>Recipe Chat Features</h1>
 
       {/* Basic feature - user has this */}
-      <FeatureGate feature={Feature.BASIC_RECIPES} userFeatures={userFeatures}>
+      <FeatureGate feature={Feature.chatFilters} userFeatures={userFeatures}>
         <div className='rounded-lg border border-green-200 bg-green-50 p-4'>
           <h3 className='font-semibold text-green-800'>Basic Recipe Search</h3>
           <p className='mb-3 text-sm text-green-700'>
@@ -28,7 +29,7 @@ export function FeatureGateExample() {
       </FeatureGate>
 
       {/* Advanced feature - user has this */}
-      <FeatureGate feature={Feature.CHAT} userFeatures={userFeatures}>
+      <FeatureGate feature={Feature.chat} userFeatures={userFeatures}>
         <div className='rounded-lg border border-blue-200 bg-blue-50 p-4'>
           <h3 className='font-semibold text-blue-800'>AI Chat</h3>
           <p className='mb-3 text-sm text-blue-700'>
@@ -42,7 +43,7 @@ export function FeatureGateExample() {
 
       {/* Premium feature - user doesn't have this */}
       <FeatureGate
-        feature={Feature.SAVED_RECIPES}
+        feature={Feature.savedRecipes}
         userFeatures={userFeatures}
         fallback={
           <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
@@ -74,12 +75,12 @@ export function FeatureGateExample() {
             <span>Basic Recipes:</span>
             <span
               className={
-                userFeatures.includes(Feature.BASIC_RECIPES)
+                userFeatures.includes(Feature.chatFilters)
                   ? 'text-green-600'
                   : 'text-red-600'
               }
             >
-              {userFeatures.includes(Feature.BASIC_RECIPES)
+              {userFeatures.includes(Feature.chatFilters)
                 ? '✅ Available'
                 : '❌ Locked'}
             </span>
@@ -88,12 +89,12 @@ export function FeatureGateExample() {
             <span>AI Chat:</span>
             <span
               className={
-                userFeatures.includes(Feature.CHAT)
+                userFeatures.includes(Feature.chat)
                   ? 'text-green-600'
                   : 'text-red-600'
               }
             >
-              {userFeatures.includes(Feature.CHAT)
+              {userFeatures.includes(Feature.chat)
                 ? '✅ Available'
                 : '❌ Locked'}
             </span>
@@ -102,12 +103,12 @@ export function FeatureGateExample() {
             <span>Saved Recipes:</span>
             <span
               className={
-                userFeatures.includes(Feature.SAVED_RECIPES)
+                userFeatures.includes(Feature.savedRecipes)
                   ? 'text-green-600'
                   : 'text-red-600'
               }
             >
-              {userFeatures.includes(Feature.SAVED_RECIPES)
+              {userFeatures.includes(Feature.savedRecipes)
                 ? '✅ Available'
                 : '❌ Locked'}
             </span>

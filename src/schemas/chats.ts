@@ -8,11 +8,12 @@ import {
   type GeneratedRecipe,
   generatedRecipeWithIdSchema
 } from '~/schemas/messages'
+import { userIdSchema } from '~/server/api/schemas/ids-schema'
 
 export const chatParams = z.object({
   messages: z.array(messageSchema.omit({ createdAt: true, updatedAt: true })),
   filters: z.array(z.string()),
-  userId: z.string().optional()
+  userId: userIdSchema.shape.userId.optional()
 })
 
 export const createOrAddMessages = z.object({

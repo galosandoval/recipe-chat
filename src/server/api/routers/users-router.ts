@@ -3,11 +3,14 @@ import {
   protectedProcedure,
   publicProcedure
 } from '~/server/api/trpc'
-import { createChatAndRecipe, signUp } from '~/server/api/use-cases/users'
+import {
+  createChatAndRecipe,
+  signUp
+} from '~/server/api/use-cases/users-use-case'
 import {
   createChatAndRecipeSchema,
   signUpSchema
-} from '~/server/api/schemas/users'
+} from '~/server/api/schemas/users-schema'
 import { UsersAccess } from '~/server/api/data-access/users-access'
 
 export const userRouter = createTRPCRouter({

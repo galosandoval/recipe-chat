@@ -1,5 +1,5 @@
 import { prisma } from '~/server/db'
-import { type CreateRecipe } from '../schemas/recipes'
+import { type CreateRecipe } from '../schemas/recipes-schema'
 import { type Prisma, type Recipe } from '@prisma/client'
 import { DataAccess } from './data-access'
 

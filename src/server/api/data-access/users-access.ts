@@ -3,7 +3,7 @@ import { hash } from 'bcryptjs'
 import {
   type CreateChatAndRecipeSchema,
   type SignUpSchema
-} from '~/server/api/schemas/users'
+} from '~/server/api/schemas/users-schema'
 import { DataAccess } from './data-access'
 import { initialFilters } from '~/utils/stock-filters'
 

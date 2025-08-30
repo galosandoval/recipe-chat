@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { type Filter } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'

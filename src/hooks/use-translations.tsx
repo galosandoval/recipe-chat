@@ -3,7 +3,9 @@
 import { createContext, useContext, useMemo } from 'react'
 import type { getTranslations } from '~/utils/get-translations'
 
-type AwaitedTranslations = Awaited<ReturnType<typeof getTranslations>>
+
+
+export type AwaitedTranslations = Awaited<ReturnType<typeof getTranslations>>
 
 // Enhanced translations type that adds replace methods to nested objects
 export type Translations<T = AwaitedTranslations> = {
@@ -22,10 +24,10 @@ export type Translations<T = AwaitedTranslations> = {
  * Translation class that provides both direct property access and variable substitution
  */
 class TranslationClass {
-  private translations: AwaitedTranslations
+  private translations: Translations
   private cache = new Map<string, string>()
 
-  constructor(translations: AwaitedTranslations) {
+  constructor(translations: Translations) {
     this.translations = translations
   }
 

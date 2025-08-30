@@ -3,13 +3,14 @@ import {
   deleteFilter,
   getAllFilters,
   updateFilterCheckStatus
-} from '~/server/api/use-cases/filters'
+} from '~/server/api/use-cases/filters-use-case'
 import {
   checkFilterSchema,
+  createFilterSchema,
   deleteFilterSchema,
   getFiltersByUserIdSchema
-} from '~/server/api/schemas/filters'
-import { z } from 'zod'
+} from '~/server/api/schemas/filters-schema'
+import { FiltersAccess } from '../data-access/filters-access'
 
 export const filtersRouter = createTRPCRouter({
   getByUserId: protectedProcedure
@@ -22,20 +23,13 @@ export const filtersRouter = createTRPCRouter({
     }),
 
   create: protectedProcedure
-    .input(
-      z.object({
-        name: z.string().min(3).max(20),
-        id: z.string().cuid2()
-      })
-    )
+    .input(createFilterSchema.omit({ userId: true }))
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.filter.create({
-        data: {
-          userId: ctx.session.user.id,
-          name: input.name,
-          checked: true,
-          id: input.id
-        }
+      const filtersAccess = new FiltersAccess(ctx.prisma)
+      return await filtersAccess.createFilter({
+        ...input,
+        userId: ctx.session.user.id,
+        filterId: input.filterId
       })
     }),
 

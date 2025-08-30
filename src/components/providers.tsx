@@ -9,6 +9,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import {
   TranslationsContext,
+  type AwaitedTranslations,
   type Translations
 } from '~/hooks/use-translations'
 
@@ -22,11 +23,11 @@ export const Providers = ({
 }: {
   children: ReactNode
   session: Session | null
-  translations: Translations
+  translations: AwaitedTranslations
 }) => {
   return (
     <TRPCReactProvider>
-      <TranslationsContext.Provider value={translations}>
+      <TranslationsContext.Provider value={translations as Translations}>
         <SessionProvider session={session}>
           <ChatsDrawerProvider>
             <AuthModalProvider>
