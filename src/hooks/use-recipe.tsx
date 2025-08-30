@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from '~/components/toast'
-import { type LinkedDataRecipeField } from '~/server/api/schemas/recipes'
 import { useForm } from 'react-hook-form'
 import { api } from '~/trpc/react'
+import type { LinkedDataRecipeField } from '~/schemas/recipes-schema'
 
 export default function useDebounce(value: string, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value)

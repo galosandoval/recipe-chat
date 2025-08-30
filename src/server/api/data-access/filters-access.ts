@@ -1,8 +1,8 @@
 import {
-  type CreateFilterSchema,
   type CheckFilterSchema,
-  type DeleteFilterSchema
-} from '~/server/api/schemas/filters'
+  type DeleteFilterSchema,
+  type CreateFilterSchema
+} from '~/schemas/filters-schema'
 import { DataAccess } from './data-access'
 
 export class FiltersAccess extends DataAccess {
@@ -10,9 +10,9 @@ export class FiltersAccess extends DataAccess {
     return await this.prisma.filter.findMany({ where: { userId } })
   }
 
-  async createFilter(input: CreateFilterSchema, userId: string) {
+  async createFilter({ name, filterId, userId }: CreateFilterSchema) {
     return await this.prisma.filter.create({
-      data: { userId, name: input.name, checked: true, id: input.filterId }
+      data: { userId, name: name, checked: true, id: filterId }
     })
   }
 

@@ -39,3 +39,13 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
 
+## Migration scripts
+`
+// Add saved column to recipes
+npm run data-migration:add-saved-column
+// Create many-to-many table for recipes and messages
+npm run data-migration:create-many-recipes-to-many-messages-table
+// Resets to initial filters for each user
+npm run data-migration:filter-user-id-not-unique
+//
+`

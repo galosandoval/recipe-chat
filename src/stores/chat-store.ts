@@ -1,5 +1,8 @@
 import { create } from 'zustand'
-import type { GeneratedMessage, MessageWithRecipes } from '~/schemas/chats'
+import type {
+  GeneratedMessage,
+  MessageWithRecipes
+} from '~/schemas/chats-schema'
 
 const CURRENT_CHAT_ID = 'currentChatId'
 

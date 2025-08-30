@@ -1,14 +1,12 @@
 import { TRPCError } from '@trpc/server'
-import {
-  type CreateChatAndRecipeSchema,
-  type SignUpSchema
-} from '~/server/api/schemas/users'
 import { UsersAccess } from '~/server/api/data-access/users-access'
 import type { Context } from '~/server/api/trpc'
 import { createId } from '@paralleldrive/cuid2'
 import type { PrismaClient } from '@prisma/client'
+import type { SignUpSchemaType } from '~/schemas/sign-up-schema'
+import type { CreateChatAndRecipe } from '~/schemas/chats-schema'
 
-export async function signUp(input: SignUpSchema, prisma: PrismaClient) {
+export async function signUp(input: SignUpSchemaType, prisma: PrismaClient) {
   const usersDataAccess = new UsersAccess(prisma)
   const username = input.email.toLowerCase()
 
@@ -23,10 +21,7 @@ export async function signUp(input: SignUpSchema, prisma: PrismaClient) {
   return usersDataAccess.createUser(input)
 }
 
-export async function createChatAndRecipe(
-  ctx: Context,
-  input: CreateChatAndRecipeSchema
-) {
+export async function createChatAndRecipe(ctx: Context, input: CreateChatAndRecipe) {
   const { recipe, messages } = input
   const userId = ctx?.session?.user.id
 

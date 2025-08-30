@@ -3,15 +3,15 @@ import {
   ErrorMessage as _ErrorMessage
 } from '@hookform/error-message'
 import { ExclamationCircle } from './icons'
-import { type FieldErrors, type FieldName } from 'react-hook-form'
+import { type FieldErrors, type FieldName, type FieldValues } from 'react-hook-form'
 
-type ErrorMessageProps<T extends Record<string, string>> = {
+export type ErrorMessageProps<T extends FieldValues> = {
   errors: Partial<FieldErrors<T>>
   name: FieldName<FieldValuesFromFieldErrors<Partial<FieldErrors<T>>>>
   align?: 'start' | 'center' | 'end'
 }
 
-export function ErrorMessage<T extends Record<string, string>>({
+export function ErrorMessage<T extends FieldValues>({
   name,
   errors,
   align

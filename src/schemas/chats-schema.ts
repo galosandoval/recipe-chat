@@ -6,13 +6,35 @@ import {
   generatedRecipeSchema,
   messagesSchema,
   type GeneratedRecipe,
-  generatedRecipeWithIdSchema
-} from '~/schemas/messages'
+  generatedRecipeWithIdSchema,
+  roleSchema
+} from '~/schemas/messages-schema'
+import { idSchema, userIdSchema } from '~/schemas/ids-schema'
+
+export const createChatAndRecipeSchema = z.object({
+  recipe: z.object({
+    description: z.string().optional(),
+    name: z.string(),
+    imgUrl: z.string().optional(),
+    author: z.string().optional(),
+    ingredients: z.array(z.string()),
+    instructions: z.array(z.string()),
+    prepMinutes: z.number().optional(),
+    cookMinutes: z.number().optional()
+  }),
+  messages: z
+    .object({
+      content: z.string().min(1),
+      role: roleSchema
+    })
+    .array()
+})
+export type CreateChatAndRecipe = z.infer<typeof createChatAndRecipeSchema>
 
 export const chatParams = z.object({
   messages: z.array(messageSchema.omit({ createdAt: true, updatedAt: true })),
   filters: z.array(z.string()),
-  userId: z.string().optional()
+  userId: userIdSchema.shape.userId.optional()
 })
 
 export const createOrAddMessages = z.object({
@@ -68,7 +90,8 @@ export type MessagesWithRecipes = z.infer<typeof messagesWithRecipesSchema>
 
 export const upsertChatSchema = z.object({
   chatId: z.string().optional(),
-  messages: messagesWithRecipesSchema
+  messages: messagesWithRecipesSchema,
+  filterIds: z.array(idSchema.shape.id).optional()
 })
 export type UpsertChatSchema = z.infer<typeof upsertChatSchema>
 
@@ -93,3 +116,12 @@ export const generatedSchema = z.object({
   })
 })
 export type Generated = z.infer<typeof generatedSchema>
+
+export const createChatWithMessagesSchema = z
+  .object({
+    messages: messagesWithRecipesSchema
+  })
+  .merge(userIdSchema)
+export type CreateChatWithMessages = z.infer<
+  typeof createChatWithMessagesSchema
+>

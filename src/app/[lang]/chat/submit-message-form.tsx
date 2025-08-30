@@ -8,11 +8,11 @@ import { experimental_useObject as useObject } from '@ai-sdk/react'
 import {
   generatedMessageSchema,
   type MessageWithRecipes
-} from '~/schemas/chats'
+} from '~/schemas/chats-schema'
 import { useChatAI } from '~/hooks/use-chat-ai'
 import { useEffect } from 'react'
 import { userMessageDTO } from '~/utils/user-message-dto'
-import type { GeneratedRecipe } from '~/schemas/messages'
+import type { GeneratedRecipe } from '~/schemas/messages-schema'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'

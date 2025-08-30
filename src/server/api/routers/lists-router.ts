@@ -7,7 +7,7 @@ import {
   updateIngredientCheckStatus,
   updateManyIngredientsCheckStatus,
   upsertList
-} from '../use-cases/lists'
+} from '../use-cases/lists-use-case'
 
 export const listsRouter = createTRPCRouter({
   upsert: protectedProcedure

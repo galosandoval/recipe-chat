@@ -2,21 +2,23 @@ import { Menu, MenuItem, MenuButton, MenuItems } from '@headlessui/react'
 import { ThemeToggle, useTheme } from './theme-toggle'
 import {
   ArrowLeftOnRectangleIcon,
+  Cog6ToothIcon,
   ListBulletIcon,
-  PlusIcon,
-  VerticalEllipsisIcon
+  PlusIcon
 } from './icons'
 import { signOut } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
 import { useChatsDrawer } from './chats-drawer'
 import { chatStore } from '~/stores/chat-store'
+import { useAuthModal } from './auth/auth-modals'
 
 export function NavDropdownMenu() {
   const { theme, updateTheme } = useTheme()
 
   return (
     <DropdownMenu>
+      <Login />
       <MenuItem>
         <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
       </MenuItem>
@@ -24,6 +26,22 @@ export function NavDropdownMenu() {
       <StartNewChat />
       <ChatsSideBarButton />
     </DropdownMenu>
+  )
+}
+
+function Login() {
+  const t = useTranslations()
+  const { handleOpenLogin } = useAuthModal()
+  return (
+    <MenuItem>
+      <button
+        className='btn btn-ghost w-[8rem] justify-between'
+        onClick={handleOpenLogin}
+      >
+        <span>{t.nav.menu.login}</span>
+        <ArrowLeftOnRectangleIcon />
+      </button>
+    </MenuItem>
   )
 }
 
@@ -55,7 +73,7 @@ function DropdownMenu({ children }: { children: React.ReactNode }) {
   return (
     <Menu>
       <MenuButton className='btn btn-circle btn-ghost'>
-        <VerticalEllipsisIcon />
+        <Cog6ToothIcon />
       </MenuButton>
       <MenuItems
         anchor='bottom'
@@ -82,7 +100,7 @@ function StartNewChat() {
   }
 
   // Only show if there's an actual chat ID (not empty string or undefined)
-  if (!chatId && !pathname.includes('chat')) return null
+  if (!chatId || !pathname.includes('chat')) return null
 
   return (
     <MenuItem>
@@ -104,7 +122,7 @@ function ChatsSideBarButton() {
   const { handleToggleDrawer } = useChatsDrawer()
 
   // Only show if there's an actual chat ID (not empty string or undefined)
-  if (!chatId && !pathname.includes('chat')) return null
+  if (!chatId || !pathname.includes('chat')) return null
 
   return (
     <MenuItem>

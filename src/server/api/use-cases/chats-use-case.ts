@@ -1,7 +1,10 @@
 import { type PrismaClient } from '@prisma/client'
 import { ChatsAccess } from '~/server/api/data-access/chats-access'
 import { type z } from 'zod'
-import { type Generated, type messagesWithRecipesSchema } from '~/schemas/chats'
+import {
+  type Generated,
+  type messagesWithRecipesSchema
+} from '~/schemas/chats-schema'
 import { RecipesAccess } from '../data-access/recipes-access'
 import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
 import { MessagesAccess } from '../data-access/messages-access'
@@ -43,7 +46,10 @@ export async function upsertChat(
     } as const
   } else {
     // Create new chat with all messages
-    const newChat = await chatsAccess.createChatWithMessages(userId, messages)
+    const newChat = await chatsAccess.createChatWithMessages({
+      userId,
+      messages
+    })
 
     return {
       success: true,

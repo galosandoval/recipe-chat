@@ -11,8 +11,11 @@ import { FormLoader } from '~/components/loaders/form'
 import { Modal } from '~/components/modal'
 import { useCreateRecipe } from '~/hooks/use-recipe'
 import { useTranslations } from '~/hooks/use-translations'
-import { recipeUrlSchema, type RecipeUrlSchemaType } from '~/schemas/recipes'
-import type { LinkedDataRecipeField } from '~/server/api/schemas/recipes'
+import {
+  recipeUrlSchema,
+  type LinkedDataRecipeField,
+  type RecipeUrlSchemaType
+} from '~/schemas/recipes-schema'
 import { api } from '~/trpc/react'
 
 export function useParseRecipe() {

@@ -1,6 +1,6 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
-import type { RecipeDTO } from '~/schemas/chats'
+import type { RecipeDTO } from '~/schemas/chats-schema'
 import { Button } from '../../../components/button'
 import { PaperPlaneIcon } from '../../../components/icons'
 import { userMessageDTO } from '~/utils/user-message-dto'

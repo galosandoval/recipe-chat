@@ -1,7 +1,7 @@
 import { prisma } from '~/server/db'
-import { type CreateRecipe } from '../schemas/recipes'
 import { type Prisma, type Recipe } from '@prisma/client'
 import { DataAccess } from './data-access'
+import type { CreateRecipe } from '~/schemas/recipes-schema'
 
 export class RecipesAccess extends DataAccess {
   async getRecipeById(id: string) {

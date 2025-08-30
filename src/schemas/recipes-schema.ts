@@ -1,5 +1,11 @@
 import { z } from 'zod'
-import { roleSchema } from '~/schemas/messages'
+
+export const recipeUrlSchema = (t: any) =>
+  z.object({
+    url: z.string().url(t.recipes.enterUrl)
+  })
+
+export type RecipeUrlSchemaType = z.infer<ReturnType<typeof recipeUrlSchema>>
 
 export type LinkedData =
   | ({
@@ -106,21 +112,8 @@ export const updateRecipeSchema = z
 
 export type UpdateRecipe = z.infer<typeof updateRecipeSchema>
 
-const messageSchema = z.object({
-  content: z.string(),
-  role: roleSchema
-})
-
-export const generateSchema = z.object({
-  content: z.string(),
-  messages: z.array(messageSchema).nullish(),
-  filters: z.array(z.string()).optional(),
-  chatId: z.string().optional()
-})
-
 export const updateRecipeImgUrlSchema = z.object({
   id: z.string(),
   imgUrl: z.string(),
   oldUrl: z.string().optional()
 })
-export type UpdateRecipeImgUrl = z.infer<typeof updateRecipeImgUrlSchema>

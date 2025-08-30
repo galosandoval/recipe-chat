@@ -1,28 +1,33 @@
+'use client'
+
 import type { Filter } from '@prisma/client'
 import { CheckCircleIcon, XCircleIcon } from '~/components/icons'
 import { toast } from '~/components/toast'
-import { useTranslations } from '~/hooks/use-translations'
+import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { cn } from '~/utils/cn'
-import { Badge } from './badge'
+import { Badge } from '../badge'
+import { useMemo } from 'react'
 
 export function FilterBadges({
   filters,
   canDelete,
+  containerRef,
   onToggleCanDelete
 }: {
   filters: Filter[]
   canDelete: boolean
+  containerRef: React.RefObject<HTMLDivElement | null>
   onToggleCanDelete: () => void
 }) {
   const t = useTranslations()
   const { mutate: deleteFilter } = useDeleteFilter()
-  const { mutate: checkFilter } = useCheckFilter()
-
-  if (filters.length === 0) {
-    return <div className='mx-auto'>{t.filters.noFilters}</div>
-  }
+  const { mutate: activateFilter } = useActivateFilter()
+  const { firstHalf, secondHalf } = useMemo(
+    () => transformAndSplit(filters, t),
+    [filters]
+  )
 
   const handleRemoveFilter = (id: string) => {
     deleteFilter({ filterId: id })
@@ -32,25 +37,47 @@ export function FilterBadges({
   }
 
   const handleCheck = (id: string, checked: boolean) => {
-    checkFilter({ checked, filterId: id })
+    activateFilter({ checked, filterId: id })
+  }
+
+  if (filters.length === 0) {
+    return <div className='mx-auto'>{t.filters.noFilters}</div>
+  }
+
+  if (filters.length === 1) {
+    return (
+      <div className='px-2'>
+        <FilterBadge
+          key={filters[0].id}
+          filter={filters[0]}
+          canDelete={canDelete}
+          onCheck={handleCheck}
+          onRemove={handleRemoveFilter}
+        />
+      </div>
+    )
   }
 
   return (
     <div
       id='filter-badges'
-      className='grid h-[5.3rem] grid-flow-col grid-rows-2 place-items-start justify-start gap-2 overflow-x-scroll px-2'
+      className='grid h-[5.3rem] grid-rows-2 gap-2 overflow-x-scroll px-2'
+      ref={containerRef}
     >
-      {filters
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((filter) => (
-          <FilterBadge
-            key={filter.id}
-            filter={filter}
-            canDelete={canDelete}
-            onCheck={handleCheck}
-            onRemove={handleRemoveFilter}
-          />
-        ))}
+      {/* splits in half because I couldn't figure out how to css the exact middle of item size */}
+      {[firstHalf, secondHalf].map((half, idx) => (
+        <div key={idx} className='flex w-full gap-2'>
+          {half.map((filter) => (
+            <FilterBadge
+              key={filter.id}
+              filter={filter}
+              canDelete={canDelete}
+              onCheck={handleCheck}
+              onRemove={handleRemoveFilter}
+            />
+          ))}
+        </div>
+      ))}
     </div>
   )
 }
@@ -108,11 +135,7 @@ function useDeleteFilter() {
       utils.filters.getByUserId.setData({ userId }, (old) => {
         if (!old) return old
 
-        const index = old.findIndex((f) => f.id === input.filterId)
-
-        old.splice(index, 1)
-
-        return old
+        return old.filter((f) => f.id !== input.filterId)
       })
 
       return { previousFilters }
@@ -139,7 +162,7 @@ function useDeleteFilter() {
   return { mutate, variables }
 }
 
-function useCheckFilter() {
+function useActivateFilter() {
   const userId = useUserId()
   const utils = api.useUtils()
 
@@ -181,4 +204,51 @@ function useCheckFilter() {
   })
 
   return { mutate, variables }
+}
+
+function labelInitialFilters(filters: Filter[], t: Translations) {
+  return filters.map((f) => {
+    let label = f.name
+    if (f.name in t.filters.initial) {
+      label = t.filters.initial[
+        f.name as keyof typeof t.filters.initial
+      ] as string
+    }
+    return { ...f, name: label }
+  })
+}
+
+function transformAndSplit(filters: Filter[], t: Translations) {
+  if (filters.length === 0) {
+    return {
+      firstHalf: [],
+      secondHalf: []
+    }
+  }
+  const labeledFilters = labelInitialFilters(filters, t)
+
+  const sortedFilters = labeledFilters.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  )
+  const filterIdxToName: Record<number, string> = {}
+  sortedFilters.forEach((f, i) => {
+    filterIdxToName[i] = f.name
+  })
+  let namesJoined = sortedFilters.map((f) => f.name).join('')
+  let lastIdx = 0
+  const startLength = namesJoined.length
+  for (let i = 0; i < sortedFilters.length; i++) {
+    const filter = sortedFilters[i]
+    const filterName = filter.name
+    namesJoined = namesJoined.replace(filterName, '')
+    if (namesJoined.length < startLength / 2) {
+      lastIdx = i
+      break
+    }
+  }
+
+  return {
+    firstHalf: sortedFilters.slice(0, lastIdx),
+    secondHalf: sortedFilters.slice(lastIdx)
+  }
 }
