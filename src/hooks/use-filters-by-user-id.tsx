@@ -6,12 +6,12 @@ import type { Filter } from '@prisma/client'
 
 export const useFiltersByUserId = (select?: (data: Filter[]) => Filter[]) => {
   const userId = useUserId()
-  const { data, status } = api.filters.getByUserId.useQuery(
+  const { data, status, ...rest } = api.filters.getByUserId.useQuery(
     { userId },
     { enabled: !!userId, select }
   )
 
-  return { data, status }
+  return { data, status, ...rest }
 }
 
 export const selectActiveFilters = (data: Filter[]) =>

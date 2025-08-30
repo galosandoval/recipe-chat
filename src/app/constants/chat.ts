@@ -24,6 +24,7 @@ ${
 }
 - Vary cuisines unless constrained by filters or an explicit user preference.
 - Avoid duplicates and avoid already-saved items (see "Saved" below).
+- When responding with one recipe, include all the fields required by the schema.
 
 Style
 - Ingredient line: "qty unit ingredient, note".

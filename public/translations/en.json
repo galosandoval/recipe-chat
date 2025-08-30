@@ -59,7 +59,8 @@
 
   "filters": {
     "title": "Filters",
-    "description": "Filters are used to narrow down the recipes you want to generate. Choose from the list below or create a new one.",
+      "description": "Filters are used to narrow down the recipes you want to generate. Choose from the list below or create a new one.",
+    "descriptionWithDelete": "Filters are used to narrow down the recipes you want to generate. Choose from the list below or create a new one. Click on a filter to delete it.",
     "placeholder": "New filter",
     "active": "Active filters:",
     "minChars3": "Minimum 3 characters",
