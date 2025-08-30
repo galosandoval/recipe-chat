@@ -7,21 +7,27 @@ import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { cn } from '~/utils/cn'
-import { Badge } from './badge'
+import { Badge } from '../badge'
 import { useMemo } from 'react'
 
 export function FilterBadges({
   filters,
   canDelete,
+  containerRef,
   onToggleCanDelete
 }: {
   filters: Filter[]
   canDelete: boolean
+  containerRef: React.RefObject<HTMLDivElement | null>
   onToggleCanDelete: () => void
 }) {
   const t = useTranslations()
   const { mutate: deleteFilter } = useDeleteFilter()
-  const { mutate: checkFilter } = useCheckFilter()
+  const { mutate: activateFilter } = useActivateFilter()
+  const { firstHalf, secondHalf } = useMemo(
+    () => transformAndSplit(filters, t),
+    [filters]
+  )
 
   const handleRemoveFilter = (id: string) => {
     deleteFilter({ filterId: id })
@@ -31,23 +37,35 @@ export function FilterBadges({
   }
 
   const handleCheck = (id: string, checked: boolean) => {
-    checkFilter({ checked, filterId: id })
+    activateFilter({ checked, filterId: id })
   }
-
-  const { firstHalf, secondHalf } = useMemo(
-    () => transformAndSplit(filters, t),
-    [filters]
-  )
 
   if (filters.length === 0) {
     return <div className='mx-auto'>{t.filters.noFilters}</div>
+  }
+
+  if (filters.length === 1) {
+    return (
+      <div className='px-2'>
+        <FilterBadge
+          key={filters[0].id}
+          filter={filters[0]}
+          canDelete={canDelete}
+          onCheck={handleCheck}
+          onRemove={handleRemoveFilter}
+          t={t}
+        />
+      </div>
+    )
   }
 
   return (
     <div
       id='filter-badges'
       className='grid h-[5.3rem] grid-rows-2 gap-2 overflow-x-scroll px-2'
+      ref={containerRef}
     >
+      {/* splits in half because I couldn't figure out how to css the exact middle of item size */}
       {[firstHalf, secondHalf].map((half, idx) => (
         <div key={idx} className='flex w-full gap-2'>
           {half.map((filter) => (
@@ -152,7 +170,7 @@ function useDeleteFilter() {
   return { mutate, variables }
 }
 
-function useCheckFilter() {
+function useActivateFilter() {
   const userId = useUserId()
   const utils = api.useUtils()
 

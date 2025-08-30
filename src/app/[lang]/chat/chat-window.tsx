@@ -3,7 +3,7 @@
 import { memo, useContext, useEffect, useMemo } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { type QueryStatus } from '@tanstack/react-query'
-import { FiltersByUser } from '~/app/[lang]/chat/recipe-filters'
+import { FiltersByUser } from '~/app/[lang]/chat/recipe-filters/recipe-filters'
 import { ValueProps } from './value-props'
 import { UserCircleIcon } from '~/components/icons'
 import { ChatLoader } from '~/components/loaders/chat'
