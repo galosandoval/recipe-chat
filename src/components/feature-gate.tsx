@@ -1,18 +1,7 @@
 'use client'
 
+import type { Feature } from '@prisma/client'
 import React from 'react'
-
-// Feature enum from Prisma schema
-export enum Feature {
-  BASIC_RECIPES = 'basic_recipes',
-  CHAT = 'chat',
-  FILTERS = 'filters',
-  LISTS = 'lists',
-  SAVED_RECIPES = 'saved_recipes',
-  ADVANCED_SEARCH = 'advanced_search',
-  MEAL_PLANNING = 'meal_planning',
-  SHOPPING_LISTS = 'shopping_lists'
-}
 
 interface FeatureGateProps {
   feature: Feature

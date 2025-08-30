@@ -22,21 +22,18 @@ model User {
     recipes    Recipe[]
     chats      Chat[]
     filter     Filter[]
-    onboarding Feature[]
+    onboarding Feature[] @default([])
     createdAt  DateTime  @default(now())
     updatedAt  DateTime  @updatedAt
 }
 
 // Simple enum for features
 enum Feature {
-    recipes
+    recentRecipes
     chat
     filters
     lists
     savedRecipes
-    advanced_search
-    meal_planning
-    shopping_lists
 }
 
 model Chat {

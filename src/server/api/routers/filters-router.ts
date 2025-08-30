@@ -15,6 +15,9 @@ export const filtersRouter = createTRPCRouter({
   getByUserId: protectedProcedure
     .input(getFiltersByUserIdSchema)
     .query(async ({ input, ctx }) => {
+      ctx.headers.set('cookie', 'test=test')
+      const cookies = ctx.headers.getSetCookie()
+      console.log('cookies--->', cookies)
       return await getAllFilters(input.userId, ctx.prisma)
     }),
 
