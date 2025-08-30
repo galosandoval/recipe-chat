@@ -3,7 +3,7 @@
 import type { Filter } from '@prisma/client'
 import { CheckCircleIcon, XCircleIcon } from '~/components/icons'
 import { toast } from '~/components/toast'
-import { useTranslations } from '~/hooks/use-translations'
+import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { cn } from '~/utils/cn'
@@ -35,7 +35,7 @@ export function FilterBadges({
   }
 
   const { firstHalf, secondHalf } = useMemo(
-    () => splitByNamesLength(filters),
+    () => transformAndSplit(filters, t),
     [filters]
   )
 
@@ -48,28 +48,20 @@ export function FilterBadges({
       id='filter-badges'
       className='grid h-[5.3rem] grid-rows-2 gap-2 overflow-x-scroll px-2'
     >
-      <div className='flex w-full gap-2'>
-        {firstHalf.map((filter) => (
-          <FilterBadge
-            key={filter.id}
-            filter={filter}
-            canDelete={canDelete}
-            onCheck={handleCheck}
-            onRemove={handleRemoveFilter}
-          />
-        ))}
-      </div>
-      <div className='flex w-full gap-2'>
-        {secondHalf.map((filter) => (
-          <FilterBadge
-            key={filter.id}
-            filter={filter}
-            canDelete={canDelete}
-            onCheck={handleCheck}
-            onRemove={handleRemoveFilter}
-          />
-        ))}
-      </div>
+      {[firstHalf, secondHalf].map((half, idx) => (
+        <div key={idx} className='flex w-full gap-2'>
+          {half.map((filter) => (
+            <FilterBadge
+              key={filter.id}
+              filter={filter}
+              canDelete={canDelete}
+              onCheck={handleCheck}
+              onRemove={handleRemoveFilter}
+              t={t}
+            />
+          ))}
+        </div>
+      ))}
     </div>
   )
 }
@@ -78,12 +70,14 @@ function FilterBadge({
   filter,
   canDelete,
   onCheck,
-  onRemove
+  onRemove,
+  t
 }: {
   filter: Filter
   canDelete: boolean
   onCheck: (id: string, checked: boolean) => void
   onRemove: (id: string) => void
+  t: Translations
 }) {
   const checked = filter.checked && !canDelete
 
@@ -202,14 +196,30 @@ function useCheckFilter() {
   return { mutate, variables }
 }
 
-function splitByNamesLength(filters: Filter[]) {
+function labelInitialFilters(filters: Filter[], t: Translations) {
+  return filters.map((f) => {
+    let label = f.name
+    if (f.name in t.filters.initial) {
+      label = t.filters.initial[
+        f.name as keyof typeof t.filters.initial
+      ] as string
+    }
+    return { ...f, name: label }
+  })
+}
+
+function transformAndSplit(filters: Filter[], t: Translations) {
   if (filters.length === 0) {
     return {
       firstHalf: [],
       secondHalf: []
     }
   }
-  const sortedFilters = filters.sort((a, b) => a.name.localeCompare(b.name))
+  const labeledFilters = labelInitialFilters(filters, t)
+
+  const sortedFilters = labeledFilters.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  )
   const filterIdxToName: Record<number, string> = {}
   sortedFilters.forEach((f, i) => {
     filterIdxToName[i] = f.name

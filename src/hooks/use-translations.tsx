@@ -3,14 +3,14 @@
 import { createContext, useContext, useMemo } from 'react'
 import type { getTranslations } from '~/utils/get-translations'
 
-export type Translations = Awaited<ReturnType<typeof getTranslations>>
+type AwaitedTranslations = Awaited<ReturnType<typeof getTranslations>>
 
 // Enhanced translations type that adds replace methods to nested objects
-type EnhancedTranslations<T = Translations> = {
+export type Translations<T = AwaitedTranslations> = {
   [K in keyof T]: T[K] extends string
     ? T[K]
     : T[K] extends object
-      ? EnhancedTranslations<T[K]> & {
+      ? Translations<T[K]> & {
           replace(key: string, ...args: string[]): string
         }
       : T[K]
@@ -22,10 +22,10 @@ type EnhancedTranslations<T = Translations> = {
  * Translation class that provides both direct property access and variable substitution
  */
 class TranslationClass {
-  private translations: Translations
+  private translations: AwaitedTranslations
   private cache = new Map<string, string>()
 
-  constructor(translations: Translations) {
+  constructor(translations: AwaitedTranslations) {
     this.translations = translations
   }
 
@@ -86,9 +86,9 @@ class TranslationClass {
    * Create an enhanced translations object with replace methods on nested objects
    * Uses shallow copy for better performance
    */
-  createEnhanced(): EnhancedTranslations {
+  createEnhanced(): Translations {
     // Use shallow copy instead of deep copy for better performance
-    const enhanced = { ...this.translations } as EnhancedTranslations
+    const enhanced = { ...this.translations } as Translations
 
     // Add the root replace method
     enhanced.replace = this.replace.bind(this)
@@ -142,7 +142,7 @@ class TranslationClass {
 
 export const TranslationsContext = createContext<Translations | null>(null)
 
-export const useTranslations = (): EnhancedTranslations => {
+export const useTranslations = (): Translations => {
   const translations = useContext(TranslationsContext)
 
   if (!translations) {
