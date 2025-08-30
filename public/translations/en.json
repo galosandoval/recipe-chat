@@ -55,11 +55,9 @@
     "thirdDescription": "Save generated recipes to your account"
   },
 
-  "chatFormPlaceholder": "Ask about a recipe",
-
   "filters": {
     "title": "Filters",
-      "description": "Filters are used to narrow down the recipes you want to generate. Choose from the list below or create a new one.",
+    "description": "Filters are used to narrow down the recipes you want to generate. Choose from the list below or create a new one.",
     "descriptionWithDelete": "Filters are used to narrow down the recipes you want to generate. Choose from the list below or create a new one. Click on a filter to delete it.",
     "placeholder": "New filter",
     "active": "Active filters:",
@@ -87,7 +85,9 @@
     "noChats": "No chats found. Start a new chat by asking about a recipe",
     "generateRecipe": "Generate a recipe for ",
     "generatedRecipe": "Generated $1!",
-    "generatingRecipe": "Generating full recipe for $1..."
+    "generatingRecipe": "Generating full recipe for $1...",
+    "chatFormPlaceholder": "Ask about a recipe",
+    "chatFormContinue": "Follow up with a message or corrections"
   },
 
   "recipes": {

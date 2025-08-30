@@ -366,7 +366,7 @@ function MutateRecipeIngredientsAndInstructions({
     <>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className='prose mx-2 flex flex-col items-center gap-4 pb-20 md:mx-auto'
+        className='mx-2 flex flex-col items-center gap-4 pb-20 md:mx-auto'
       >
         <div className='flex w-full flex-col'>
           <label htmlFor='name' className='label'>

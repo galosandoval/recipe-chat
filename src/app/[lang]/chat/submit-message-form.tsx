@@ -97,17 +97,22 @@ export function SubmitMessageForm() {
     }
   }
 
+  let placeholder = t.chatWindow.chatFormPlaceholder
+  if (messages.length > 0) {
+    placeholder = t.chatWindow.chatFormContinue
+  }
+
   return (
     <form
       onSubmit={enhancedHandleSubmit}
-      className={`fixed bottom-0 left-0 flex w-full items-center md:rounded-md`}
+      className='absolute bottom-0 left-0 flex w-full items-center md:rounded-md'
     >
-      <div className='prose bg-base-300/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
+      <div className='bg-base-300/75 mx-auto flex w-full max-w-2xl items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <input
             value={input}
             onChange={handleInputChange}
-            placeholder={t.chatFormPlaceholder}
+            placeholder={placeholder}
             className='input input-bordered bg-base-100/75 focus:bg-base-100 relative w-full'
           />
         </div>

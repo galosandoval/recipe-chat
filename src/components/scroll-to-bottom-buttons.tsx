@@ -27,38 +27,32 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
   }, [sticky, enable])
 
   return (
-    <>
-      <div
-        className={cn(
-          'absolute bottom-20 left-4 transition-all duration-300',
-          sticky ? 'invisible opacity-0' : 'translate-y-0 opacity-100',
-          activeFilters?.length && 'bottom-24'
-        )}
-      >
-        <button
-          className='btn btn-circle glass'
-          onClick={() => scrollToTop({ behavior: 'smooth' })}
+    <div
+      className={cn(
+        'fixed right-0 bottom-24 left-4 mx-auto w-full max-w-4xl',
+        activeFilters?.length && 'bottom-36'
+      )}
+    >
+      <div className='relative w-full'>
+        <div
+          className={cn(
+            'absolute transition-all duration-300',
+            enable ? 'translate-y-0 opacity-100' : 'invisible opacity-0'
+          )}
         >
-          <ArrowSmallUpIcon />
-        </button>
+          <button
+            className='btn btn-circle glass'
+            onClick={
+              sticky
+                ? () => scrollToBottom({ behavior: 'smooth' })
+                : () => scrollToTop({ behavior: 'smooth' })
+            }
+          >
+            {sticky ? <ArrowSmallDownIcon /> : <ArrowSmallUpIcon />}
+          </button>
+        </div>
       </div>
-      <div
-        className={cn(
-          'absolute bottom-20 left-4 transition-all duration-300',
-          sticky && enable
-            ? 'translate-y-0 opacity-100'
-            : 'invisible opacity-0',
-          activeFilters?.length && 'bottom-24'
-        )}
-      >
-        <button
-          className='btn btn-circle glass'
-          onClick={() => scrollToBottom({ behavior: 'smooth' })}
-        >
-          <ArrowSmallDownIcon />
-        </button>
-      </div>
-    </>
+    </div>
   )
 }
 

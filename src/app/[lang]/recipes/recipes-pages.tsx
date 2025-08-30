@@ -1,6 +1,6 @@
 import type { Recipe } from '@prisma/client'
 import type { FetchStatus } from '@tanstack/react-query'
-import React, { Fragment, useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { CreateRecipeButton } from './create-recipe-button'
 import { RecentRecipes } from './recipe-list-recent'
@@ -22,22 +22,14 @@ export const RecipesPages = React.memo(function RecipesPages({
   search: string
   fetchStatus: FetchStatus
 }) {
-  const t = useTranslations()
-
+  const hasPagesAndItems = pages.length > 0 && pages[0].items.length > 0
   return (
-    <div className='grid max-w-4xl grid-cols-2 gap-5 pb-4 sm:grid-cols-4'>
-      {pages.length > 0 && pages[0].items.length > 0 ? (
-        <RecentRecipes hasSearch={!!search} />
-      ) : null}
-      {!search && (
-        <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
-          <h2 className='text-base-content text-sm font-bold'>
-            {t.recipes.your}
-          </h2>
-          <CreateRecipeButton />
-        </div>
-      )}
+    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-5 pb-4 sm:grid-cols-4'>
+      {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
 
+      <div className='col-span-2 w-full translate-y-2 sm:col-span-4'>
+        <Header />
+      </div>
       <Pages pages={pages} search={search} />
 
       {fetchStatus === 'fetching' && (
@@ -45,6 +37,16 @@ export const RecipesPages = React.memo(function RecipesPages({
           <LoadingSpinner />
         </div>
       )}
+    </div>
+  )
+})
+
+const Header = React.memo(function Header() {
+  const t = useTranslations()
+  return (
+    <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
+      <h2 className='text-base-content text-sm font-bold'>{t.recipes.your}</h2>
+      <CreateRecipeButton />
     </div>
   )
 })
@@ -67,19 +69,21 @@ const Pages = React.memo(function Pages({
           return <NoneFound key={i} />
         }
 
-        return (
-          <Fragment key={i}>
-            {page.items.length > 0 ? (
-              <Cards data={page.items} search={search} />
-            ) : (
-              <EmptyList />
-            )}
-          </Fragment>
-        )
+        return <Page key={i} page={page} search={search} />
       })}
     </>
   )
 })
+
+function Page({ page, search }: { page: { items: Recipe[] }; search: string }) {
+  if (page.items.length === 0 && search) {
+    return <NoneFound />
+  }
+  if (page.items.length === 0) {
+    return <EmptyList />
+  }
+  return <Cards data={page.items} search={search} />
+}
 
 const EmptyList = React.memo(function EmptyList() {
   const t = useTranslations()
@@ -143,18 +147,19 @@ const Cards = React.memo(function Cards({
 })
 
 const Card = React.memo(function Card({ data }: { data: Recipe }) {
-  const { mutate } = api.recipes.updateLastViewedAt.useMutation()
+  const { mutate: updateLastViewedAt } =
+    api.recipes.updateLastViewedAt.useMutation()
 
-  const handleUpdateLastViewedAt = useCallback(() => {
-    mutate(data.id)
-  }, [mutate, data.id])
+  const handleOnClick = () => {
+    updateLastViewedAt(data.id)
+  }
 
   return (
     <Link
       href={`/recipes/${data.id}`}
       key={data.id}
       className='bg-base-100 relative col-span-1 overflow-hidden rounded shadow-xl active:scale-[99%]'
-      onClick={handleUpdateLastViewedAt}
+      onClick={handleOnClick}
     >
       <div className='w-full'>
         {data.imgUrl ? (

@@ -16,7 +16,7 @@ export const SearchBarWrapper = React.memo(function SearchBarWrapper({
   handleSearchButtonClick: () => void
 }) {
   return (
-    <div className='relative container flex flex-col overflow-y-auto px-2 pt-14'>
+    <div className='relative flex flex-col overflow-y-auto px-2 pt-14'>
       <SearchBar
         handleChange={handleChange}
         handleSearchButtonClick={handleSearchButtonClick}

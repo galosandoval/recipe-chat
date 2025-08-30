@@ -11,8 +11,9 @@ import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import {
   ScrollModeContext,
+  ScrollToBottomProvider,
   ScrollToButtons
-} from '~/components/scroll-to-bottom'
+} from '~/components/scroll-to-bottom-buttons'
 import { chatStore } from '~/stores/chat-store'
 import { useScrollToTop } from 'react-scroll-to-bottom'
 import { ChatsDrawer } from '~/components/chats-drawer'
@@ -26,8 +27,9 @@ import { RecipesToGenerate } from './recipes-to-generate'
 import { useUserId } from '~/hooks/use-user-id'
 import { cn } from '~/utils/cn'
 import { SignUpModal } from '~/components/auth/auth-modals'
+import { ChatMessage } from '~/app/[lang]/chat/message'
 
-export const ChatWindow = () => {
+export const Interface = () => {
   const { setScrollMode } = useContext(ScrollModeContext)
   const scrollToTop = useScrollToTop()
 
@@ -64,20 +66,22 @@ export const ChatWindow = () => {
   }
 
   return (
-    <>
-      <div className='flex h-full flex-col gap-4'>
-        <ChatWindowContent
-          messages={messages}
-          messagesStatus={'success' as QueryStatus}
-          isStreaming={isStreaming}
-        />
+    <ScrollToBottomProvider>
+      <div className='flex-1 pt-20'>
+        <div className='flex h-full flex-col gap-4'>
+          <ChatWindowContent
+            messages={messages}
+            messagesStatus={'success' as QueryStatus}
+            isStreaming={isStreaming}
+          />
+        </div>
+
+        <ScrollToButtons enable={!isStreaming} />
+
+        <SignUpModal />
+        <ChatsDrawer />
       </div>
-
-      <ScrollToButtons enable={!isStreaming} />
-
-      <SignUpModal />
-      <ChatsDrawer />
-    </>
+    </ScrollToBottomProvider>
   )
 }
 
@@ -130,8 +134,8 @@ const Messages = memo(function Messages({
   return (
     <div
       className={cn(
-        'bg-base-100 flex flex-col gap-4 px-3 pt-4 pb-16',
-        filters?.length && 'pb-24'
+        'bg-base-100 mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-16 sm:pb-24',
+        filters?.length && 'pb-24 sm:pb-28'
       )}
     >
       {data.map((m, i) => (
@@ -238,29 +242,26 @@ function AssistantMessage({
   return (
     <div className='flex flex-col'>
       <div className='mx-auto w-full'>
-        <div className='flex w-full justify-start gap-2 self-center'>
-          <div>
-            <UserCircleIcon />
-          </div>
-
-          <div className='bg-base-300 flex flex-col rounded p-3 pb-4'>
-            <p className='text-sm whitespace-pre-line'>
-              {message.content || ''}
-            </p>
-            {message.recipes?.length === 1 && (
-              <CollapsableRecipe
-                isStreaming={isStreaming}
-                recipe={message.recipes[0]}
-              />
-            )}
-            {message.recipes && message.recipes?.length > 1 && (
-              <RecipesToGenerate
-                isStreaming={isStreaming}
-                recipes={message.recipes}
-              />
-            )}
-          </div>
-        </div>
+        <ChatMessage
+          content={message.content}
+          icon={<UserCircleIcon />}
+          bubbleContent={
+            <>
+              {message.recipes?.length === 1 && (
+                <CollapsableRecipe
+                  isStreaming={isStreaming}
+                  recipe={message.recipes[0]}
+                />
+              )}
+              {message.recipes && message.recipes?.length > 1 && (
+                <RecipesToGenerate
+                  isStreaming={isStreaming}
+                  recipes={message.recipes}
+                />
+              )}
+            </>
+          }
+        />
       </div>
     </div>
   )

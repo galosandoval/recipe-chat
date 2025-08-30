@@ -1,4 +1,4 @@
-import { Menu, MenuItem, MenuButton, MenuItems } from '@headlessui/react'
+import { MenuItem } from '@headlessui/react'
 import { ThemeToggle, useTheme } from '../theme-toggle'
 import {
   ArrowLeftOnRectangleIcon,
@@ -6,32 +6,31 @@ import {
   ListBulletIcon,
   PlusIcon
 } from '../icons'
-import { signOut } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
 import { useChatsDrawer } from '../chats-drawer'
 import { chatStore } from '~/stores/chat-store'
 import { useAuthModal } from '../auth/auth-modals'
+import { DropdownMenu } from '../dropdown-menu'
 
 export function NavDropdownMenu() {
-  const { theme, updateTheme } = useTheme()
-
   return (
-    <DropdownMenu>
-      <Login />
-      <MenuItem>
-        <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
-      </MenuItem>
-      <Logout />
-      <StartNewChat />
-      <ChatsSideBarButton />
+    <DropdownMenu icon={<Cog6ToothIcon />}>
+      <LoginMenuItem />
+      <ThemeToggleMenuItem />
+      <LogoutMenuItem />
+      <StartNewChatMenuItem />
+      <ChatsSideBarMenuItem />
     </DropdownMenu>
   )
 }
 
-function Login() {
+function LoginMenuItem() {
   const t = useTranslations()
   const { handleOpenLogin } = useAuthModal()
+  const { data: session } = useSession()
+  if (session) return null
   return (
     <MenuItem>
       <button
@@ -45,7 +44,16 @@ function Login() {
   )
 }
 
-function Logout() {
+function ThemeToggleMenuItem() {
+  const { theme, updateTheme } = useTheme()
+  return (
+    <MenuItem>
+      <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
+    </MenuItem>
+  )
+}
+
+function LogoutMenuItem() {
   const { setChatId } = chatStore()
   const t = useTranslations()
   const pathname = usePathname()
@@ -69,24 +77,7 @@ function Logout() {
   )
 }
 
-function DropdownMenu({ children }: { children: React.ReactNode }) {
-  return (
-    <Menu>
-      <MenuButton className='btn btn-circle btn-ghost'>
-        <Cog6ToothIcon />
-      </MenuButton>
-      <MenuItems
-        anchor='bottom'
-        transition
-        className='bg-base-100 z-50 flex origin-top flex-col rounded-md transition duration-200 ease-out data-closed:scale-95 data-closed:opacity-0'
-      >
-        {children}
-      </MenuItems>
-    </Menu>
-  )
-}
-
-function StartNewChat() {
+function StartNewChatMenuItem() {
   const t = useTranslations()
   const { setChatId } = chatStore()
   const pathname = usePathname()
@@ -116,7 +107,7 @@ function StartNewChat() {
   )
 }
 
-function ChatsSideBarButton() {
+function ChatsSideBarMenuItem() {
   const t = useTranslations()
   const { chatId } = chatStore()
   const pathname = usePathname()
@@ -137,4 +128,3 @@ function ChatsSideBarButton() {
     </MenuItem>
   )
 }
-

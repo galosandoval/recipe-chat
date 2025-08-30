@@ -55,8 +55,6 @@
     "thirdDescription": "Guarda tus recetas"
   },
 
-  "chatFormPlaceholder": "Pregunta sobre una receta",
-
   "filters": {
     "title": "Filtros",
     "description": "Los filtros se utilizan para reducir las recetas que se generan. Puedes agregar múltiples filtros a tu chat.",
@@ -87,7 +85,9 @@
     "noChats": "No se encontraron chats. Iniciar un nuevo chat preguntando sobre una receta",
     "generateRecipe": "Generar una receta para ",
     "generatedRecipe": "¡$1 generada!",
-    "generatingRecipe": "Generando receta completa para $1..."
+    "generatingRecipe": "Generando receta completa para $1...",
+    "chatFormPlaceholder": "Pregunta sobre una receta",
+    "chatFormContinue": "Sigue con un mensaje o correcciones"
   },
 
   "recipes": {
