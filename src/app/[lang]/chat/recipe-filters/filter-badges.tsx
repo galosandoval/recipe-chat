@@ -135,11 +135,7 @@ function useDeleteFilter() {
       utils.filters.getByUserId.setData({ userId }, (old) => {
         if (!old) return old
 
-        const index = old.findIndex((f) => f.id === input.filterId)
-
-        old.splice(index, 1)
-
-        return old
+        return old.filter((f) => f.id !== input.filterId)
       })
 
       return { previousFilters }
