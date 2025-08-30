@@ -43,7 +43,10 @@ export async function upsertChat(
     } as const
   } else {
     // Create new chat with all messages
-    const newChat = await chatsAccess.createChatWithMessages(userId, messages)
+    const newChat = await chatsAccess.createChatWithMessages({
+      userId,
+      messages
+    })
 
     return {
       success: true,

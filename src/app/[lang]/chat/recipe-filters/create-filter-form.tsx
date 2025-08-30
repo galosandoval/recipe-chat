@@ -8,7 +8,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createId } from '@paralleldrive/cuid2'
 import { PlusCircleIcon } from '~/components/icons'
 import { ErrorMessage } from '~/components/error-message-content'
-import { chatStore } from '~/stores/chat-store'
 
 export function CreateFilterForm({ disabled }: { disabled?: boolean }) {
   const t = useTranslations()
@@ -119,8 +118,7 @@ function useCreateFilterForm() {
     const id = createId()
     mutate({
       name: data.name,
-      filterId: id,
-      chatId: chatStore.getState().chatId
+      filterId: id
     })
     resetField('name')
   }

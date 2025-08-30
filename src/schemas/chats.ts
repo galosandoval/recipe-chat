@@ -8,7 +8,7 @@ import {
   type GeneratedRecipe,
   generatedRecipeWithIdSchema
 } from '~/schemas/messages'
-import { userIdSchema } from '~/server/api/schemas/ids-schema'
+import { idSchema, userIdSchema } from '~/server/api/schemas/ids-schema'
 
 export const chatParams = z.object({
   messages: z.array(messageSchema.omit({ createdAt: true, updatedAt: true })),
@@ -69,7 +69,8 @@ export type MessagesWithRecipes = z.infer<typeof messagesWithRecipesSchema>
 
 export const upsertChatSchema = z.object({
   chatId: z.string().optional(),
-  messages: messagesWithRecipesSchema
+  messages: messagesWithRecipesSchema,
+  filterIds: z.array(idSchema.shape.id).optional()
 })
 export type UpsertChatSchema = z.infer<typeof upsertChatSchema>
 

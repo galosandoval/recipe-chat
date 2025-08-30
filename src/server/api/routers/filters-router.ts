@@ -1,5 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import {
+  createFilter,
   deleteFilter,
   getAllFilters,
   updateFilterCheckStatus
@@ -10,27 +11,24 @@ import {
   deleteFilterSchema,
   getFiltersByUserIdSchema
 } from '~/server/api/schemas/filters-schema'
-import { FiltersAccess } from '../data-access/filters-access'
 
 export const filtersRouter = createTRPCRouter({
   getByUserId: protectedProcedure
     .input(getFiltersByUserIdSchema)
     .query(async ({ input, ctx }) => {
-      ctx.headers.set('cookie', 'test=test')
-      const cookies = ctx.headers.getSetCookie()
-      console.log('cookies--->', cookies)
       return await getAllFilters(input.userId, ctx.prisma)
     }),
 
   create: protectedProcedure
     .input(createFilterSchema.omit({ userId: true }))
     .mutation(async ({ input, ctx }) => {
-      const filtersAccess = new FiltersAccess(ctx.prisma)
-      return await filtersAccess.createFilter({
-        ...input,
-        userId: ctx.session.user.id,
-        filterId: input.filterId
-      })
+      return await createFilter(
+        {
+          ...input,
+          userId: ctx.session.user.id
+        },
+        ctx.prisma
+      )
     }),
 
   delete: protectedProcedure

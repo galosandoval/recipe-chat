@@ -1,7 +1,7 @@
 import z from 'zod'
 
 export const idSchema = z.object({
-  id: z.string().length(24)
+  id: z.string().min(24)
 })
 
 export type IdSchema = z.infer<typeof idSchema>

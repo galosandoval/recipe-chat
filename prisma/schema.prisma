@@ -38,33 +38,22 @@ enum Feature {
 }
 
 model Chat {
-    id        String           @id @default(cuid())
+    id        String    @id @default(cuid())
     userId    String
-    user      User             @relation(fields: [userId], references: [id])
+    user      User      @relation(fields: [userId], references: [id])
     messages  Message[]
-    filters   FiltersOnChats[]
-    createdAt DateTime         @default(now())
-    updatedAt DateTime         @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
 }
 
 model Filter {
-    id        String           @id @default(cuid())
+    id        String   @id @default(cuid())
     name      String
-    user      User             @relation(fields: [userId], references: [id])
+    user      User     @relation(fields: [userId], references: [id])
     userId    String
-    chats     FiltersOnChats[]
-    checked   Boolean          @default(true)
-    createdAt DateTime         @default(now())
-    updatedAt DateTime         @updatedAt
-}
-
-model FiltersOnChats {
-    filter   Filter @relation(fields: [filterId], references: [id])
-    filterId String
-    chat     Chat   @relation(fields: [chatId], references: [id])
-    chatId   String
-
-    @@id([filterId, chatId])
+    checked   Boolean  @default(true)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 model Message {

@@ -10,13 +10,9 @@ export class FiltersAccess extends DataAccess {
     return await this.prisma.filter.findMany({ where: { userId } })
   }
 
-  async createFilter({ name, filterId, userId, chatId }: CreateFilterSchema) {
-    const filter = await this.prisma.filter.create({
+  async createFilter({ name, filterId, userId }: CreateFilterSchema) {
+    return await this.prisma.filter.create({
       data: { userId, name: name, checked: true, id: filterId }
-    })
-
-    await this.prisma.filtersOnChats.create({
-      data: { filterId: filter.id, chatId }
     })
   }
 
