@@ -26,12 +26,12 @@ function ActiveFilters() {
   const t = useTranslations()
   const messages = chatStore((state) => state.messages)
 
-  if (status === 'error' || !activeFilters) {
+  if (status === 'error') {
     return <div>{t.error.somethingWentWrong}</div>
   }
 
   if (
-    activeFilters.length === 0 ||
+    activeFilters?.length === 0 ||
     messages.length === 0 ||
     status === 'pending'
   ) {
@@ -42,7 +42,7 @@ function ActiveFilters() {
     <div className='fixed right-0 bottom-16 left-0 z-10'>
       <div className='flex items-center gap-2 overflow-x-auto px-4'>
         <h3 className='mt-0 mb-0 text-xs font-semibold'>{t.filters.title}:</h3>
-        {activeFilters.map((f) => (
+        {activeFilters?.map((f) => (
           <div
             className='bg-base-300 rounded p-2 py-1 text-xs whitespace-nowrap'
             key={f.id}

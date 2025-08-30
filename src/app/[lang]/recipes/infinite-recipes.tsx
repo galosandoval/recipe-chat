@@ -76,6 +76,9 @@ export default function InfiniteRecipes({
 
   useEffect(() => {
     router.push(`/recipes?search=${search}`)
+    if (search === '') {
+      inputRef.current?.focus()
+    }
   }, [search])
 
   return (

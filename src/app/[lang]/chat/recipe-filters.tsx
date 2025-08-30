@@ -18,6 +18,8 @@ import {
 } from '~/hooks/use-filters-by-user-id'
 import { FilterBadges } from './filter-badges'
 import { cn } from '~/utils/cn'
+import { Badge } from './badge'
+import { RecipeFilterControls } from './recipe-filter-controls'
 
 export const filterSchema = (t: any) =>
   z.object({
@@ -27,18 +29,54 @@ export const filterSchema = (t: any) =>
 type CreateFilter = z.infer<ReturnType<typeof filterSchema>>
 
 export function FiltersByUser() {
-  const { data, status } = useFiltersByUserId()
+  const { data, status, fetchStatus } = useFiltersByUserId()
   const t = useTranslations()
 
   if (status === 'error') {
     return <div>{t.error.somethingWentWrong}</div>
   }
-
-  if (status === 'pending') {
+  if (!data && fetchStatus === 'idle' && status === 'pending') {
     return null
+  }
+  if (status === 'pending') {
+    return <LoadingFilterBadges />
   }
 
   return <FiltersSection data={data ?? []} />
+}
+
+function LoadingFilterBadges() {
+  const t = useTranslations()
+  const loadingBadges = Array.from({ length: 5 }, (_, index) => (
+    <Badge
+      key={index}
+      icon={
+        <span className='border-primary h-4 w-4 rounded-full border'></span>
+      }
+      label='Loading...'
+      isLoading
+      labelClassName='skeleton h-5 w-24'
+    />
+  ))
+  return (
+    <section className='flex w-full flex-1 flex-col items-center justify-center'>
+      <ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
+      <div className='flex w-full flex-col gap-2'>
+        <div className='flex flex-col gap-4 px-4'>
+          <p className='text-base-content/80 text-sm'>
+            {t.filters.description}
+          </p>
+        </div>
+        <div className='grid h-[5.3rem] grid-flow-col grid-rows-2 place-items-start justify-start gap-2 overflow-x-scroll px-2'>
+          {loadingBadges}
+        </div>
+        <div className='flex w-full flex-col px-4'>
+          <ActiveFiltersCount data={[]} />
+          <CreateFilterForm disabled />
+        </div>
+      </div>
+    </section>
+  )
 }
 
 function useCreateFilter() {
@@ -116,7 +154,7 @@ function useCreateFilterForm() {
   return { handleSubmit, control, errors, isDirty, touchedFields, onSubmit }
 }
 
-function CreateFilterForm() {
+function CreateFilterForm({ disabled }: { disabled?: boolean }) {
   const t = useTranslations()
   const { onSubmit, handleSubmit, control, errors, isDirty, touchedFields } =
     useCreateFilterForm()
@@ -127,6 +165,7 @@ function CreateFilterForm() {
         <Controller
           name='name'
           control={control}
+          disabled={disabled}
           render={({ field }) => (
             <input
               {...field}
@@ -138,6 +177,7 @@ function CreateFilterForm() {
         <button
           type='submit'
           className='btn btn-outline join-item no-animation btn-sm'
+          disabled={disabled}
         >
           <PlusCircleIcon />
           <span>{t.filters.add}</span>
@@ -166,11 +206,22 @@ export function FiltersSection({ data }: { data: Filter[] }) {
 
   return (
     <section className='flex w-full flex-1 flex-col items-center justify-center'>
-      <ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
+      <ValuePropsHeader
+        icon={<FunnelIcon />}
+        label={t.filters.title}
+        actionIcon={
+          <RecipeFilterControls
+            canDelete={canDelete}
+            onToggleCanDelete={toggleCanDelete}
+          />
+        }
+      />
       <div className='flex w-full flex-col gap-2'>
         <div className='flex flex-col gap-4 px-4'>
           <p className='text-base-content/80 text-sm'>
-            {t.filters.description}
+            {canDelete
+              ? t.filters.descriptionWithDelete
+              : t.filters.description}
           </p>
         </div>
         <FilterBadges
@@ -218,7 +269,7 @@ function ActiveFiltersCount({ data }: { data: Filter[] }) {
       <small className='text-xs'>{t.filters.active}</small>
       <span
         className={cn(
-          'text-primary-content relative inline-block pl-1 text-xs',
+          'text-base-content relative inline-block pl-1 text-xs',
           isBouncing && 'animate-bounce'
         )}
       >
@@ -227,3 +278,4 @@ function ActiveFiltersCount({ data }: { data: Filter[] }) {
     </div>
   )
 }
+

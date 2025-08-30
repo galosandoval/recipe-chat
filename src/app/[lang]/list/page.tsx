@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation'
 export default async function ListView() {
   const session = await auth()
   if (!session?.user.id) {
-    return redirect('/')
+    return redirect('/chat')
   }
 
   return (
