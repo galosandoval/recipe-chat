@@ -24,54 +24,50 @@ export function Stream({
   return (
     <div className='flex flex-col'>
       <div className='mx-auto w-full'>
-        <ChatMessage
-          content={stream.content}
-          icon={<UserCircleIcon />}
-          children={
-            <>
-              {isRenderingOneRecipe && (
-                <CollapsableRecipe
-                  recipe={{
-                    ...recipe,
-                    id: '',
-                    saved: false,
-                    prepMinutes: recipe.prepMinutes ?? null,
-                    cookMinutes: recipe.cookMinutes ?? null,
-                    ingredients: recipe.ingredients ?? [],
-                    instructions: recipe.instructions ?? [],
-                    cuisine: recipe.cuisine ?? null,
-                    course: recipe.course ?? null,
-                    dietTags: recipe.dietTags ?? [],
-                    flavorTags: recipe.flavorTags ?? [],
-                    mainIngredients: recipe.mainIngredients ?? [],
-                    techniques: recipe.techniques ?? []
-                  }}
-                  isStreaming={isStreaming}
-                />
-              )}
-              {isRenderingRecipes && (
-                <RecipesToGenerate
-                  recipes={recipes.map((r) => ({
-                    ...r,
-                    id: '',
-                    saved: false,
-                    prepMinutes: r.prepMinutes ?? null,
-                    cookMinutes: r.cookMinutes ?? null,
-                    ingredients: r.ingredients ?? [],
-                    instructions: r.instructions ?? [],
-                    cuisine: r.cuisine ?? null,
-                    course: r.course ?? null,
-                    dietTags: r.dietTags ?? [],
-                    flavorTags: r.flavorTags ?? [],
-                    mainIngredients: r.mainIngredients ?? [],
-                    techniques: r.techniques ?? []
-                  }))}
-                  isStreaming={isStreaming}
-                />
-              )}
-            </>
-          }
-        />
+        <ChatMessage content={stream.content} icon={<UserCircleIcon />}>
+          <>
+            {isRenderingOneRecipe && (
+              <CollapsableRecipe
+                recipe={{
+                  ...recipe,
+                  id: '',
+                  saved: false,
+                  prepMinutes: recipe.prepMinutes ?? null,
+                  cookMinutes: recipe.cookMinutes ?? null,
+                  ingredients: recipe.ingredients ?? [],
+                  instructions: recipe.instructions ?? [],
+                  cuisine: recipe.cuisine ?? null,
+                  course: recipe.course ?? null,
+                  dietTags: recipe.dietTags ?? [],
+                  flavorTags: recipe.flavorTags ?? [],
+                  mainIngredients: recipe.mainIngredients ?? [],
+                  techniques: recipe.techniques ?? []
+                }}
+                isStreaming={isStreaming}
+              />
+            )}
+            {isRenderingRecipes && (
+              <RecipesToGenerate
+                recipes={recipes.map((r) => ({
+                  ...r,
+                  id: '',
+                  saved: false,
+                  prepMinutes: r.prepMinutes ?? null,
+                  cookMinutes: r.cookMinutes ?? null,
+                  ingredients: r.ingredients ?? [],
+                  instructions: r.instructions ?? [],
+                  cuisine: r.cuisine ?? null,
+                  course: r.course ?? null,
+                  dietTags: r.dietTags ?? [],
+                  flavorTags: r.flavorTags ?? [],
+                  mainIngredients: r.mainIngredients ?? [],
+                  techniques: r.techniques ?? []
+                }))}
+                isStreaming={isStreaming}
+              />
+            )}
+          </>
+        </ChatMessage>
       </div>
     </div>
   )

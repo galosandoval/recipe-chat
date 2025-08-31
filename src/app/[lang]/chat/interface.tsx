@@ -231,17 +231,16 @@ const UserMessage = memo(function UserMessage({
           content={message.content}
           icon={<UserCircleIcon />}
           reverse
-          children={
-            <>
-              {message.recipes?.length === 1 && (
-                <CollapsableRecipe
-                  isStreaming={isStreaming}
-                  recipe={message.recipes[0]}
-                />
-              )}
-            </>
-          }
-        />
+        >
+          <>
+            {message.recipes?.length === 1 && (
+              <CollapsableRecipe
+                isStreaming={isStreaming}
+                recipe={message.recipes[0]}
+              />
+            )}
+          </>
+        </ChatMessage>
       </div>
     </div>
   )
