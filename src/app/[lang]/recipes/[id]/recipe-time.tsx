@@ -1,5 +1,5 @@
 import { useTranslations } from '~/hooks/use-translations'
-import { formatTimeFromMinutes } from '~/utils/format-time'
+import { formatTimeFromMinutes } from '~/lib/format-time'
 
 export function RecipeTime({
   prepTime,

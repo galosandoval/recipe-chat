@@ -12,11 +12,11 @@ import {
   ClockIcon,
   SaveIcon
 } from '../../../components/icons'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 import { useAuthModal } from '../../../components/auth/auth-modals'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { useRouter } from 'next/navigation'
-import { formatTimeFromMinutes } from '~/utils/format-time'
+import { formatTimeFromMinutes } from '~/lib/format-time'
 
 export function CollapsableRecipe({
   recipe,

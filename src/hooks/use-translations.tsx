@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useMemo } from 'react'
-import type { getTranslations } from '~/utils/get-translations'
+import type { getTranslations } from '~/lib/get-translations'
 
 
 

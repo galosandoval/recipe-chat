@@ -1,7 +1,7 @@
 import { createId } from '@paralleldrive/cuid2'
 import { hash } from 'bcryptjs'
 import { DataAccess } from './data-access'
-import { initialFilters } from '~/utils/stock-filters'
+import { initialFilters } from '~/lib/stock-filters'
 import type { SignUpSchemaType } from '~/schemas/sign-up-schema'
 import type { CreateChatAndRecipe } from '~/schemas/chats-schema'
 

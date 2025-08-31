@@ -6,7 +6,7 @@ import { Geist } from 'next/font/google'
 import { auth } from '~/server/auth'
 import { Providers } from '~/components/providers'
 import { Navbar } from '~/components/navbar/navbar'
-import { getTranslations } from '~/utils/get-translations'
+import { getTranslations } from '~/lib/get-translations'
 import type { Locale } from '~/i18n-config'
 
 export const metadata: Metadata = {

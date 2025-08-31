@@ -3,7 +3,7 @@ import { openai } from '@ai-sdk/openai'
 import { chatParams, generatedMessageSchema } from '~/schemas/chats-schema'
 import { buildSystemPrompt } from '~/app/constants/chat'
 import { prisma } from '~/server/db'
-import { compactTitles } from '~/utils/compact-title'
+import { compactTitles } from '~/lib/compact-title'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30

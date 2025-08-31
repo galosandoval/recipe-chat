@@ -16,7 +16,7 @@ import { Button } from '~/components/button'
 import { Checkbox } from '~/components/checkbox'
 import { ListBulletIcon, PlusIcon } from '~/components/icons'
 import type { Ingredient } from '@prisma/client'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 
 type Checked = Record<string, boolean>
 

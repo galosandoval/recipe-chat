@@ -6,7 +6,7 @@ import { toast } from '~/components/toast'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 import { Badge } from '../badge'
 import { useMemo } from 'react'
 

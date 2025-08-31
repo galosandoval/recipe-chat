@@ -38,7 +38,9 @@
     "ai": "^4.3.19",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.12",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.542.0",
     "negotiator": "^1.0.0",
     "next": "^15.3.5",
     "next-auth": "^5.0.0-beta.25",
@@ -53,6 +55,7 @@
     "react-scroll-to-bottom": "^4.2.0",
     "superjson": "^1.12.1",
     "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
     "theme-change": "^2.5.0",
     "zod": "^3.20.2",
     "zustand": "^5.0.8"

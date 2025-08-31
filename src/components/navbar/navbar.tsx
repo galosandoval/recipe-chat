@@ -14,7 +14,7 @@ import {
 } from '../icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 
 export const Navbar = () => {
   const { data } = useSession()

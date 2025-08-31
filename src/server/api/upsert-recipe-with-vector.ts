@@ -1,6 +1,6 @@
 import { prisma } from '~/server/db' // your Prisma client
-import { buildSignature, embedSignature } from '~/utils/embeddings'
-import { normalize } from '~/utils/normalize'
+import { buildSignature, embedSignature } from '~/lib/embeddings'
+import { normalize } from '~/lib/normalize'
 
 type UpsertArgs = {
   userId: string

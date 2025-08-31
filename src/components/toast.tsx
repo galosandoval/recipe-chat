@@ -1,6 +1,6 @@
 import _toast, { type ToastOptions, Toaster, ToastBar } from 'react-hot-toast'
 import { CheckIcon, ExclamationCircle } from './icons'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 
 export function Toast() {
   return (

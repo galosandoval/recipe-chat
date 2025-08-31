@@ -1,4 +1,4 @@
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 import { LoadingSpinner } from './loading-spinner'
 
 export function ScreenLoader({ className }: { className?: string }) {

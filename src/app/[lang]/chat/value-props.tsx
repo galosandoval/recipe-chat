@@ -12,7 +12,7 @@ import {
 } from '~/components/auth/auth-modals'
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
-import { userMessageDTO } from '~/utils/user-message-dto'
+import { userMessageDTO } from '~/lib/user-message-dto'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()

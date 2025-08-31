@@ -2,7 +2,7 @@ import type { Filter } from '@prisma/client'
 import { useEffect, useRef, useState } from 'react'
 import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
 import { useTranslations } from '~/hooks/use-translations'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 
 // 550ms is the duration of the bounce animation
 const ANIMATION_DURATION = 550

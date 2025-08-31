@@ -4,11 +4,11 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useSession } from 'next-auth/react'
 import type { Chat, Message } from '@prisma/client'
 import { ListBulletIcon } from './icons'
-import { formatTimeAgo } from '~/utils/relative-time-format'
+import { formatTimeAgo } from '~/lib/relative-time-format'
 import { ScreenLoader } from './loaders/screen'
 import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 import { chatStore } from '~/stores/chat-store'
 
 export const ChatsDrawerContext = createContext<{

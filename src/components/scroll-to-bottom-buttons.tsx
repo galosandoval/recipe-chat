@@ -8,7 +8,7 @@ import ScrollToBottom, {
 } from 'react-scroll-to-bottom'
 import { ArrowSmallDownIcon, ArrowSmallUpIcon } from './icons'
 import { NoSsr } from './no-ssr'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 
 export function ScrollToButtons({ enable }: { enable: boolean }) {
