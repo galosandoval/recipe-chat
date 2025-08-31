@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import { NavDropdownMenu } from './nav-dropdown-menus'
+import { NavDropdownMenu } from './dropdown-menus'
 import {
   ArrowBackLeftIcon,
   ChatBubbleLeftRightIcon,
@@ -11,20 +11,12 @@ import {
   PencilSquareIcon,
   RecipesIcon,
   XIcon
-} from './icons'
+} from '../icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { cn } from '~/utils/cn'
 
-export function NavContainer() {
-  return (
-    <div>
-      <Nav />
-    </div>
-  )
-}
-
-const Nav = () => {
+export const Navbar = () => {
   const { data } = useSession()
   const pathname = usePathname()
   const { lang, id } = useParams()

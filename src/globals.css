@@ -46,7 +46,7 @@
     var(--color-slate-500) 40%,
     transparent
   ); /* Semi-transparent background */
-  backdrop-filter: blur(24px); /* Adjust blur strength as needed */
+  backdrop-filter: blur(8px); /* Adjust blur strength as needed */
 }
 
 @utility text-glass {

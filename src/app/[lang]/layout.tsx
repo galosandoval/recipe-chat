@@ -5,7 +5,7 @@ import { Geist } from 'next/font/google'
 
 import { auth } from '~/server/auth'
 import { Providers } from '~/components/providers'
-import { NavContainer } from '~/components/nav'
+import { Navbar } from '~/components/navbar/navbar'
 import { getTranslations } from '~/utils/get-translations'
 import type { Locale } from '~/i18n-config'
 
@@ -32,7 +32,7 @@ export default async function RootLayout({
     <html lang={lang} className={`${geist.variable}`}>
       <body className='flex h-svh overflow-hidden'>
         <Providers session={session} translations={translations}>
-          <NavContainer />
+          <Navbar />
 
           <div className='flex h-full flex-1 flex-col'>{children}</div>
         </Providers>

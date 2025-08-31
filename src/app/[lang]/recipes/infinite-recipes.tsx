@@ -25,7 +25,7 @@ export default function InfiniteRecipes({
 }) {
   const { ref: inViewRef, inView } = useInView()
   const searchParams = useSearchParams()
-  const [search, setSearch] = useState(searchParams.get('search') ?? '')
+  const [search, setSearch] = useState(() => searchParams.get('search') ?? '')
   const debouncedSearch = useDebounce(search)
   const router = useRouter()
 
@@ -75,10 +75,14 @@ export default function InfiniteRecipes({
   }, [inView, hasNextPage, fetchNextPage])
 
   useEffect(() => {
-    router.push(`/recipes?search=${search}`)
-    if (search === '') {
-      inputRef.current?.focus()
+    if (search) {
+      router.push(`/recipes?search=${search}`)
+    } else {
+      router.push('/recipes')
     }
+    // if (search === '') {
+    //   inputRef.current?.focus()
+    // }
   }, [search])
 
   return (

@@ -13,23 +13,25 @@ export async function POST(req: Request) {
   const input = chatParams.parse(request)
   const { filters, messages, userId } = input
 
-  // not just saved recipes, any recipe genereated by the user
-  const generatedRecipes = await prisma.recipe.findMany({
-    where: {
-      userId: userId
-    },
-    orderBy: {
-      createdAt: 'desc'
-    },
-    take: 50
-  })
-  const compactedTitles = compactTitles(generatedRecipes.map((r) => r.name))
+  let recipesNames: string[] = []
+  if (!userId) {
+    // not just saved recipes, any recipe genereated by the user
+    const generatedRecipes = await prisma.recipe.findMany({
+      where: {
+        userId: userId
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 50
+    })
+    recipesNames = compactTitles(generatedRecipes.map((r) => r.name))
+  }
   const system = buildSystemPrompt({
     filters,
-    savedRecipes: compactedTitles
+    savedRecipes: recipesNames
   })
 
-  console.log('system', system)
   const result = streamObject({
     /**
      * Calls the OpenAI GPT-4 Turbo model with validated messages and system prompt,
@@ -46,22 +48,3 @@ export async function POST(req: Request) {
   })
   return result.toTextStreamResponse()
 }
-
-// Example: build a compact history string
-// function compactSaved(
-//   recipes: Array<{
-//     name: string
-//     cuisine?: string
-//     tags?: string[]
-//   }>
-// ) {
-//   // Keep it compact: "Title — cuisine; tags:a,b,c"
-//   return recipes
-//     .slice(0, 50) // or diversity-sampled
-//     .map((r) => {
-//       const t = r.tags?.slice(0, 3).join(', ') || ''
-//       const c = r.cuisine ? `${r.cuisine}; ` : ''
-//       return `${r.title} — ${c}${t}`
-//     })
-//     .join(' | ')
-// }

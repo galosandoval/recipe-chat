@@ -1,37 +1,36 @@
-import { Menu, MenuItem, MenuButton, MenuItems } from '@headlessui/react'
-import { ThemeToggle, useTheme } from './theme-toggle'
+import { MenuItem } from '@headlessui/react'
+import { ThemeToggle, useTheme } from '../theme-toggle'
 import {
   ArrowLeftOnRectangleIcon,
   Cog6ToothIcon,
   ListBulletIcon,
   PlusIcon
-} from './icons'
-import { signOut } from 'next-auth/react'
+} from '../icons'
+import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
-import { useChatsDrawer } from './chats-drawer'
+import { useChatsDrawer } from '../chats-drawer'
 import { chatStore } from '~/stores/chat-store'
-import { useAuthModal } from './auth/auth-modals'
+import { useAuthModal } from '../auth/auth-modals'
+import { DropdownMenu } from '../dropdown-menu'
 
 export function NavDropdownMenu() {
-  const { theme, updateTheme } = useTheme()
-
   return (
-    <DropdownMenu>
-      <Login />
-      <MenuItem>
-        <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
-      </MenuItem>
-      <Logout />
-      <StartNewChat />
-      <ChatsSideBarButton />
+    <DropdownMenu icon={<Cog6ToothIcon />}>
+      <LoginMenuItem />
+      <ThemeToggleMenuItem />
+      <LogoutMenuItem />
+      <StartNewChatMenuItem />
+      <ChatsSideBarMenuItem />
     </DropdownMenu>
   )
 }
 
-function Login() {
+function LoginMenuItem() {
   const t = useTranslations()
   const { handleOpenLogin } = useAuthModal()
+  const { data: session } = useSession()
+  if (session) return null
   return (
     <MenuItem>
       <button
@@ -45,7 +44,16 @@ function Login() {
   )
 }
 
-function Logout() {
+function ThemeToggleMenuItem() {
+  const { theme, updateTheme } = useTheme()
+  return (
+    <MenuItem>
+      <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
+    </MenuItem>
+  )
+}
+
+function LogoutMenuItem() {
   const { setChatId } = chatStore()
   const t = useTranslations()
   const pathname = usePathname()
@@ -69,28 +77,11 @@ function Logout() {
   )
 }
 
-function DropdownMenu({ children }: { children: React.ReactNode }) {
-  return (
-    <Menu>
-      <MenuButton className='btn btn-circle btn-ghost'>
-        <Cog6ToothIcon />
-      </MenuButton>
-      <MenuItems
-        anchor='bottom'
-        transition
-        className='bg-base-100 z-50 flex origin-top flex-col rounded-md transition duration-200 ease-out data-closed:scale-95 data-closed:opacity-0'
-      >
-        {children}
-      </MenuItems>
-    </Menu>
-  )
-}
-
-function StartNewChat() {
+function StartNewChatMenuItem() {
   const t = useTranslations()
-  const { chatId, setChatId } = chatStore()
+  const { setChatId } = chatStore()
   const pathname = usePathname()
-  const { setStream, setStreamingStatus, setMessages } = chatStore()
+  const { setStream, setStreamingStatus, setMessages, messages } = chatStore()
 
   const handleStartNewChat = () => {
     setChatId('')
@@ -100,7 +91,8 @@ function StartNewChat() {
   }
 
   // Only show if there's an actual chat ID (not empty string or undefined)
-  if (!chatId || !pathname.includes('chat')) return null
+  const isInChat = pathname.includes('chat')
+  if (!isInChat || (messages.length === 0 && isInChat)) return null
 
   return (
     <MenuItem>
@@ -115,7 +107,7 @@ function StartNewChat() {
   )
 }
 
-function ChatsSideBarButton() {
+function ChatsSideBarMenuItem() {
   const t = useTranslations()
   const { chatId } = chatStore()
   const pathname = usePathname()
@@ -136,4 +128,3 @@ function ChatsSideBarButton() {
     </MenuItem>
   )
 }
-

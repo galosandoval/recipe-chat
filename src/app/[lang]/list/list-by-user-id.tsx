@@ -62,7 +62,7 @@ function ListController({ data }: { data: Ingredient[] }) {
             />
           </label>
         </div>
-
+        {/* break out this component */}
         <Button
           disabled={noneChecked}
           onClick={handleRemoveChecked}
@@ -107,7 +107,7 @@ function EmptyList({ children }: { children: ReactNode }) {
           {t.list.noItems}
         </h1>
         <div className='left-0 w-full'>{children}</div>
-        <div className='fixed bottom-14 left-0 flex w-full items-center justify-center gap-2'>
+        <div className='fixed bottom-14 left-0 flex w-full items-center justify-center gap-2 sm:bottom-16'>
           <p className='text-base-content text-center text-sm'>
             {t.list.addIngredient}
           </p>

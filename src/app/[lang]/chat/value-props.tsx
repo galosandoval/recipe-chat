@@ -44,8 +44,8 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2 pb-20'>
-      <div className='flex w-full flex-1 flex-col items-center justify-center'>
+    <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
+      <div className='flex w-full flex-1 flex-col items-center justify-center pt-20'>
         <ValuePropsHeader
           icon={<ChatBubbleBottomCenterIcon />}
           label={t.valueProps.title}
@@ -192,14 +192,14 @@ export function ValuePropsHeader({
   actionIcon?: React.ReactNode
 }) {
   return (
-    <div className='relative w-full'>
+    <div className='relative w-full px-2'>
       <div className='divider'>
         <div className='flex items-center gap-2'>
           <h2 className='text-base-content text-xl'>{label}</h2>
           {icon}
         </div>
       </div>
-      <span className='absolute top-2 right-0 ml-auto'>{actionIcon}</span>
+      <span className='absolute top-2 right-2 ml-auto'>{actionIcon}</span>
     </div>
   )
 }
