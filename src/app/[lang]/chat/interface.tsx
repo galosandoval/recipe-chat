@@ -95,7 +95,7 @@ function ChatWindowContent({
   messages: MessageWithRecipes[]
 }) {
   const { data } = useSession()
-
+  console.log('messages', messages)
   if (messages.length || !data?.user?.id) {
     return (
       <div className='bg-base-100 h-full'>
@@ -217,7 +217,7 @@ const UserMessage = memo(function UserMessage({
   return (
     <div className='flex flex-col items-center self-end'>
       <div className='mx-auto w-full'>
-        <div className='flex justify-end gap-2'>
+        {/* <div className='flex justify-end gap-2'>
           <div className='flex flex-col items-end'>
             <p className='bg-primary text-primary-content rounded p-3 text-sm whitespace-pre-line'>
               {message?.content || ''}
@@ -226,7 +226,22 @@ const UserMessage = memo(function UserMessage({
           <div>
             <UserCircleIcon />
           </div>
-        </div>
+        </div> */}
+        <ChatMessage
+          content={message.content}
+          icon={<UserCircleIcon />}
+          reverse
+          children={
+            <>
+              {message.recipes?.length === 1 && (
+                <CollapsableRecipe
+                  isStreaming={isStreaming}
+                  recipe={message.recipes[0]}
+                />
+              )}
+            </>
+          }
+        />
       </div>
     </div>
   )
@@ -240,28 +255,24 @@ function AssistantMessage({
   isStreaming: boolean
 }) {
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col items-center self-start'>
       <div className='mx-auto w-full'>
-        <ChatMessage
-          content={message.content}
-          icon={<UserCircleIcon />}
-          bubbleContent={
-            <>
-              {message.recipes?.length === 1 && (
-                <CollapsableRecipe
-                  isStreaming={isStreaming}
-                  recipe={message.recipes[0]}
-                />
-              )}
-              {message.recipes && message.recipes?.length > 1 && (
-                <RecipesToGenerate
-                  isStreaming={isStreaming}
-                  recipes={message.recipes}
-                />
-              )}
-            </>
-          }
-        />
+        <ChatMessage content={message.content} icon={<UserCircleIcon />}>
+          <>
+            {message.recipes?.length === 1 && (
+              <CollapsableRecipe
+                isStreaming={isStreaming}
+                recipe={message.recipes[0]}
+              />
+            )}
+            {message.recipes && message.recipes?.length > 1 && (
+              <RecipesToGenerate
+                isStreaming={isStreaming}
+                recipes={message.recipes}
+              />
+            )}
+          </>
+        </ChatMessage>
       </div>
     </div>
   )

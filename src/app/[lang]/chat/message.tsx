@@ -1,22 +1,21 @@
-import { Fragment } from 'react'
+import { cn } from '~/utils/cn'
 
 export function ChatMessage({
   icon,
   content,
-  bubbleContent,
+  children,
   reverse
 }: {
   content: string
   icon: React.ReactNode
-  bubbleContent: React.ReactNode
+  children: React.ReactNode
   reverse?: boolean
 }) {
-  const iconEl = <div>{icon}</div>
+  const iconEl = <div key='icon'>{icon}</div>
   const bubbleEl = (
-    <div className='bg-base-300 flex w-3/4 flex-col rounded p-3 pb-4 sm:w-2/3'>
-      <p className='text-sm whitespace-pre-line'>{content}</p>
-      {bubbleContent}
-    </div>
+    <Bubble key='bubble' content={content} reverse={reverse}>
+      {children}
+    </Bubble>
   )
   let layout = [iconEl, bubbleEl]
 
@@ -25,10 +24,42 @@ export function ChatMessage({
   }
 
   return (
-    <div className='flex w-full justify-start gap-2 self-center'>
-      {layout.map((el, i) => (
-        <Fragment key={i}>{el}</Fragment>
-      ))}
+    <div
+      className={cn(
+        'flex w-full justify-start gap-2 self-center',
+        reverse && 'justify-end'
+      )}
+    >
+      {layout}
+    </div>
+  )
+}
+
+function Bubble({
+  content,
+  reverse,
+  children
+}: {
+  content: string
+  reverse?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div
+      className={cn(
+        'bg-base-300 flex w-4/5 flex-col rounded p-3 pb-4 sm:w-3/4',
+        reverse && 'bg-primary'
+      )}
+    >
+      <p
+        className={cn(
+          'text-sm whitespace-pre-line',
+          reverse && 'text-primary-content'
+        )}
+      >
+        {content}
+      </p>
+      {children}
     </div>
   )
 }

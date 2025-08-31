@@ -27,7 +27,7 @@ export function Stream({
         <ChatMessage
           content={stream.content}
           icon={<UserCircleIcon />}
-          bubbleContent={
+          children={
             <>
               {isRenderingOneRecipe && (
                 <CollapsableRecipe
