@@ -2,10 +2,8 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import { useDeleteRecipe } from '~/hooks/use-recipe'
-import { FormProvider, useForm } from 'react-hook-form'
-import { TrashIcon } from '~/components/icons'
+import { useForm } from 'react-hook-form'
 import { type ChangeEvent, useState } from 'react'
-import { Modal } from '~/components/modal'
 import { useTranslations } from '~/hooks/use-translations'
 import Image from 'next/image'
 import { api } from '~/trpc/react'
@@ -16,11 +14,13 @@ import {
   type EditRecipeFormValues,
   type RecipeToEdit
 } from '~/schemas/recipes-schema'
-import { DrawerDialog } from '~/components/ui/drawer-dialog'
+import { DrawerDialog } from '~/components/drawer-dialog'
 import { SquarePen } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { FormInput, FormTextarea, Form } from '~/components/form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { submitEditRecipe } from '~/lib/submit-edit-recipe'
+import { Dialog } from '~/components/dialog'
 
 export function EditByIdDrawer() {
   const { id } = useParams()
@@ -34,68 +34,29 @@ export function EditByIdDrawer() {
   return <EditByIdForm recipe={recipe} />
 }
 
+const FORM_ID = 'edit-recipe-form'
+
 function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
-  const t = useTranslations()
-  const {
-    ingredients,
-    description,
-    instructions,
-    name,
-    prepMinutes,
-    cookMinutes,
-    notes
-  } = recipe
-
-  const form = useForm<EditRecipeFormValues>({
-    defaultValues: {
-      cookMinutes: cookMinutes || undefined,
-      description: description || '',
-      ingredients: ingredients.map((i) => i.name).join('\n') || '',
-      instructions: instructions.map((i) => i.description).join('\n') || '',
-      name: name || '',
-      prepMinutes: prepMinutes || undefined,
-      notes: notes || ''
-    },
-    resolver: zodResolver(editRecipeFormValues)
-  })
-
-  const onSubmit = (values: EditRecipeFormValues) => {
-    console.log('values---->', values)
-  }
-
   return (
     <DrawerDialog
       cancelText='Cancel'
       submitText='Save'
       title='Edit Recipe'
       description='Edit the recipe'
-      formId='edit-recipe-form'
+      formId={FORM_ID}
       trigger={
         <Button type='button' variant='outline' size='icon'>
           <SquarePen />
         </Button>
       }
     >
-      {/* <Form {...form}>
-        <form
-          id='edit-recipe-form'
-          onSubmit={form.handleSubmit(onSubmit)}
-          className='space-y-4'
-        >
-          <FormInput form={form} name='name' label={t.recipes.name} />
-        </form>
-      </Form> */}
-      <Form formId='edit-recipe-form' form={form} onSubmit={onSubmit}>
-        <FormInput name='name' label={t.recipes.name} />
-      </Form>
+      <EditById recipe={recipe} />
     </DrawerDialog>
   )
 }
 
-function EditById() {
+function EditById({ recipe }: { recipe: RecipeToEdit }) {
   const { id } = useParams()
-  const utils = api.useUtils()
-  const recipe = utils.recipes.byId.getData({ id: id as string })
 
   if (!recipe) return null
   const { name, imgUrl } = recipe
@@ -260,289 +221,82 @@ function UpdateImage({
 
 function EditForm({ data }: { data: RecipeToEdit }) {
   const t = useTranslations()
+  const {
+    cookMinutes,
+    description,
+    ingredients,
+    instructions,
+    name,
+    prepMinutes,
+    notes
+  } = data
   const utils = api.useUtils()
   const router = useRouter()
-
+  const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
   const { mutate: editRecipe, isPending } = api.recipes.edit.useMutation({
     onSuccess: async (data, { newName }) => {
       await utils.recipes.byId.invalidate({ id: data })
       router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
     }
   })
-
-  // const onSubmit = (values: EditRecipeFormValues) => {
-  //   const newIngredients = values.ingredients
-  //     .split('\n')
-  //     .filter((i) => i.length > 2)
-  //   const oldIngredients = [...ingredients]
-
-  //   const maxIngredientsLength = Math.max(
-  //     newIngredients.length,
-  //     oldIngredients.length
-  //   )
-  //   const ingredientsToChange: { id: string; name: string; listId?: string }[] =
-  //     []
-
-  //   for (let i = 0; i < maxIngredientsLength; i++) {
-  //     const newIngredient = newIngredients[i]
-  //     const oldIngredient = oldIngredients[i]
-
-  //     if (!!newIngredient) {
-  //       const changedIngredient = {
-  //         id: oldIngredient?.id || '',
-  //         name: newIngredient || '',
-  //         listId: oldIngredient?.listId || undefined
-  //       }
-  //       ingredientsToChange.push(changedIngredient)
-  //     }
-  //   }
-
-  //   const newInstructions = values.instructions.split('\n')
-  //   const oldInstructions = [...instructions]
-
-  //   const maxInstructionLength = Math.max(
-  //     newInstructions.length,
-  //     oldInstructions.length
-  //   )
-
-  //   const instructionsToChange: { id: string; description: string }[] = []
-
-  //   for (let i = 0; i < maxInstructionLength; i++) {
-  //     const newInstruction = newInstructions[i]
-  //     const oldInstruction = oldInstructions[i]
-
-  //     if (!!newInstruction) {
-  //       instructionsToChange.push({
-  //         id: oldInstruction?.id || '',
-  //         description: newInstruction || ''
-  //       })
-  //     }
-  //   }
-
-  //   const params: Partial<UpdateRecipe> = { id }
-  //   if (name !== values.name) {
-  //     params.name = values.name
-  //   }
-  //   if (description !== values.description) {
-  //     params.description = values.description
-  //   }
-
-  //   editRecipe({
-  //     newIngredients: ingredientsToChange,
-  //     newName: values.name,
-  //     newDescription: values.description,
-  //     id,
-  //     newInstructions: instructionsToChange,
-  //     ingredients: oldIngredients,
-  //     instructions: oldInstructions,
-  //     newCookMinutes: values.cookMinutes,
-  //     newPrepMinutes: values.prepMinutes,
-  //     cookMinutes: cookMinutes || undefined,
-  //     prepMinutes: prepMinutes || undefined,
-  //     name: name || '',
-  //     description: description || '',
-  //     notes,
-  //     newNotes: values.notes
-  //   })
-  // }
-
-  const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
-  const [isOpen, setIsOpen] = useState(false)
-
-  const handleCloseConfirmationModal = () => {
-    setIsOpen(false)
-  }
+  const form = useForm<EditRecipeFormValues>({
+    defaultValues: {
+      cookMinutes: cookMinutes || undefined,
+      description: description || '',
+      ingredients: ingredients.map((i) => i.name).join('\n') || '',
+      instructions: instructions.map((i) => i.description).join('\n') || '',
+      name: name || '',
+      prepMinutes: prepMinutes || undefined,
+      notes: notes || ''
+    },
+    resolver: zodResolver(editRecipeFormValues)
+  })
 
   const handleDelete = (id: string) => {
     deleteRecipe({ id })
   }
+
+  const onSubmit = (values: EditRecipeFormValues) => {
+    const params = submitEditRecipe(data, values)
+    editRecipe(params)
+  }
   return (
-    <>
-      {/* <form
-        onSubmit={handleSubmit(onSubmit)}
-        className='mx-2 flex flex-col items-center gap-4 md:mx-auto'
+    <Form
+      className='h-[70svh] space-y-4 overflow-y-auto'
+      formId={FORM_ID}
+      form={form}
+      onSubmit={onSubmit}
+    >
+      <FormInput name='name' label={t.recipes.name} />
+      <FormTextarea name='description' label={t.recipes.description} />
+      <div className='flex justify-between gap-2'>
+        <FormInput
+          inputProps={{ type: 'number' }}
+          name='prepMinutes'
+          label={t.recipes.prepTime}
+        />
+        <FormInput
+          inputProps={{ type: 'number' }}
+          name='cookMinutes'
+          label={t.recipes.cookTime}
+        />
+      </div>
+      <FormTextarea name='ingredients' label={t.recipes.ingredients} />
+      <FormTextarea name='instructions' label={t.recipes.instructions} />
+      <FormTextarea name='notes' label={t.recipes.notes} />
+      <Dialog
+        form='delete-recipe-form'
+        type='button'
+        isLoading={deleteStatus === 'pending'}
+        onClick={() => handleDelete(data.id)}
+        cancelText={t.common.cancel}
+        submitText={t.common.delete}
+        title={t.recipes.byId.delete.title}
+        description={t.recipes.byId.delete.message}
+        trigger={<Button type='button'>{t.common.delete}</Button>}
       >
-        <div className='flex w-full flex-col'>
-          <label htmlFor='name' className='label'>
-            <span className='label-text'>{t.recipes.name}</span>
-          </label>
-          <input
-            id='name'
-            {...register('name')}
-            className='input input-bordered'
-          />
-        </div>
-
-        <div className='flex w-full flex-col'>
-          <label htmlFor='description' className='label'>
-            <span className='label-text'>{t.recipes.description}</span>
-          </label>
-          <textarea
-            id='description'
-            rows={4}
-            {...register('description')}
-            className='textarea textarea-bordered resize-none'
-          />
-        </div>
-
-        <div className='flex w-full gap-2'>
-          <div className='flex w-1/2 flex-col'>
-            <label htmlFor='prepMinutes' className='label'>
-              <span className='label-text'>{t.recipes.prepTime}</span>
-            </label>
-            <input
-              id='prepMinutes'
-              type='text'
-              className='input input-bordered'
-              {...register('prepMinutes')}
-            />
-          </div>
-
-          <div className='flex w-1/2 flex-col'>
-            <label htmlFor='cookMinutes' className='label'>
-              <span className='label-text'>{t.recipes.cookTime}</span>
-            </label>
-            <input
-              id='cookMinutes'
-              type='text'
-              className='input input-bordered pr-2'
-              {...register('cookMinutes')}
-            />
-          </div>
-        </div>
-
-        <div className='flex w-full flex-col'>
-          <label htmlFor='ingredients' className='label'>
-            <span className='label-text'>{t.recipes.ingredients}</span>
-          </label>
-
-          <textarea
-            id='ingredients'
-            rows={4}
-            {...register('ingredients')}
-            className='textarea textarea-bordered resize-none'
-          />
-        </div>
-
-        <div className='flex w-full flex-col'>
-          <label htmlFor='instructions' className='label'>
-            <span className='label-text'>{t.recipes.instructions}</span>
-          </label>
-
-          <textarea
-            id='instructions'
-            rows={4}
-            {...register('instructions')}
-            className='textarea textarea-bordered resize-none'
-          />
-        </div>
-
-        <div className='flex w-full flex-col'>
-          <label htmlFor='notes' className='label'>
-            <span className='label-text'>{t.recipes.notes}</span>
-          </label>
-
-          <textarea
-            id='notes'
-            rows={4}
-            {...register('notes')}
-            className='textarea textarea-bordered resize-none'
-          />
-        </div>
-        <div className='bg-base-100/80 fixed bottom-0 w-full'>
-          <div className='mx-auto grid max-w-sm grid-cols-2 gap-2 px-1 py-2'>
-            <Button
-              disabled={isPending}
-              className='btn btn-error'
-              type='button'
-              onClick={() => setIsOpen(true)}
-            >
-              <TrashIcon /> Delete
-            </Button>
-
-            <Button
-              // isLoading={isPending}
-              disabled={!isDirty || !isValid}
-              className='btn btn-success'
-              type='submit'
-            >
-              <CheckIcon /> {t.common.save}
-            </Button>
-          </div>
-        </div>
-      </form> */}
-      {/* <FormInput name='name' label={t.recipes.name} />
-      <FormTextarea
-        name='description'
-        label={t.recipes.description}
-        textareaProps={{ rows: 3 }}
-      />
-      <FormInput name='prepMinutes' label={t.recipes.prepTime} />
-      <FormInput name='cookMinutes' label={t.recipes.cookTime} />
-      <FormTextarea
-        name='ingredients'
-        label={t.recipes.ingredients}
-        textareaProps={{ rows: 4 }}
-      />
-      <FormTextarea
-        name='instructions'
-        label={t.recipes.instructions}
-        textareaProps={{ rows: 4 }}
-      />
-      <FormTextarea
-        name='notes'
-        label={t.recipes.notes}
-        textareaProps={{ rows: 3 }}
-      /> */}
-
-      <Button
-        // isLoading={deleteStatus === 'pending'}
-        className='btn btn-error w-1/4'
-        type='submit'
-      >
-        <TrashIcon />
-      </Button>
-
-      <Modal isOpen={isOpen} closeModal={handleCloseConfirmationModal}>
-        <div className='mx-2 my-1'>
-          <div className=''>
-            <h1 className='mb-0 text-xl'>{t.recipes.byId.delete.title}</h1>
-          </div>
-
-          <div className=''>
-            <p className=''>{t.recipes.byId.delete.message}</p>
-          </div>
-          <div className='flex justify-end'>
-            <Button
-              className='btn btn-ghost w-1/4'
-              onClick={handleCloseConfirmationModal}
-            >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                strokeWidth={1.5}
-                stroke='currentColor'
-                className='h-6 w-6'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M6 18L18 6M6 6l12 12'
-                />
-              </svg>
-            </Button>
-
-            <Button
-              onClick={() => handleDelete(data.id)}
-              // isLoading={deleteStatus === 'pending'}
-              className='btn btn-error w-1/4'
-            >
-              <TrashIcon />
-            </Button>
-          </div>
-        </div>
-      </Modal>
-    </>
+        {null}
+      </Dialog>
+    </Form>
   )
 }

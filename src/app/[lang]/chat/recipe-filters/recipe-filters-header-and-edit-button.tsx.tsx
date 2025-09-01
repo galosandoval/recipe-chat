@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { FunnelIcon, PencilSquareIcon, XIcon } from '~/components/icons'
 import { ValuePropsHeader } from '../value-props'
 import { useTranslations } from '~/hooks/use-translations'
+import { Funnel, PenSquare, X } from 'lucide-react'
+import { Button } from '~/components/ui/button'
 
 export function FilterHeaderAndEditButton({
   canDelete,
@@ -17,7 +18,7 @@ export function FilterHeaderAndEditButton({
   const t = useTranslations()
   return (
     <ValuePropsHeader
-      icon={<FunnelIcon />}
+      icon={<Funnel />}
       label={t.filters.title}
       actionIcon={
         <EditButton
@@ -42,7 +43,6 @@ function EditButton({
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   const handleClickOutside = (e: MouseEvent) => {
-    console.log('clicked outside')
     const node = e.target as Node
     const buttonClicked = buttonRef.current?.contains(node) ?? false
     const filterBadges = filterBadgesRef.current
@@ -72,14 +72,13 @@ function EditButton({
   }, [canDelete])
 
   return (
-    <button
+    <Button
       ref={buttonRef}
       onClick={handleOnClick}
-      className={`btn btn-circle btn-sm badge-outline ml-auto`}
+      variant='outline'
+      className='ml-auto'
     >
-      <span>
-        {canDelete ? <XIcon size={5} /> : <PencilSquareIcon size={5} />}
-      </span>
-    </button>
+      <span>{canDelete ? <X size={5} /> : <PenSquare size={5} />}</span>
+    </Button>
   )
 }

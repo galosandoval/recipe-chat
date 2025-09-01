@@ -130,8 +130,8 @@ export const editRecipeFormValues = z.object({
   ingredients: z.string(),
   instructions: z.string(),
   description: z.string(),
-  prepMinutes: z.number(),
-  cookMinutes: z.number(),
+  prepMinutes: z.coerce.number(),
+  cookMinutes: z.coerce.number(),
   notes: z.string()
 })
 

@@ -1,7 +1,8 @@
 {
   "common": {
     "cancel": "Cancelar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "delete": "Borrar"
   },
 
   "nav": {

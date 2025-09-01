@@ -1,9 +1,4 @@
 import { type MouseEvent } from 'react'
-import { Button } from '~/components/button'
-import {
-  ArrowUTurnLeftIcon,
-  ChatBubbleBottomCenterIcon
-} from '~/components/icons'
 import { useTranslations } from '~/hooks/use-translations'
 import {
   LoginModal,
@@ -13,6 +8,8 @@ import {
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
+import { Button } from '~/components/ui/button'
+import { CookingPot, CornerRightUp } from 'lucide-react'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
@@ -46,10 +43,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
   return (
     <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
       <div className='flex w-full flex-1 flex-col items-center justify-center pt-20'>
-        <ValuePropsHeader
-          icon={<ChatBubbleBottomCenterIcon />}
-          label={t.valueProps.title}
-        />
+        <ValuePropsHeader icon={<CookingPot />} label={t.valueProps.title} />
 
         <div className='flex w-full flex-col items-center gap-4 px-4'>
           <Button
@@ -62,7 +56,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
               {t.valueProps.firstButton}
             </span>
             <span>
-              <ArrowUTurnLeftIcon />
+              <CornerRightUp />
             </span>
           </Button>
           <Button
@@ -73,7 +67,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
           >
             <span>{t.valueProps.secondButton}</span>
             <span>
-              <ArrowUTurnLeftIcon />
+              <CornerRightUp />
             </span>
           </Button>
           <Button
@@ -84,7 +78,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
           >
             <span>{t.valueProps.thirdButton}</span>
             <span>
-              <ArrowUTurnLeftIcon />
+              <CornerRightUp />
             </span>
           </Button>
         </div>
@@ -193,11 +187,9 @@ export function ValuePropsHeader({
 }) {
   return (
     <div className='relative w-full px-2'>
-      <div className='divider'>
-        <div className='flex items-center gap-2'>
-          <h2 className='text-base-content text-xl'>{label}</h2>
-          {icon}
-        </div>
+      <div className='flex items-center justify-center gap-2 py-2'>
+        {icon}
+        <h2 className='text-base-content text-xl'>{label}</h2>
       </div>
       <span className='absolute top-2 right-2 ml-auto'>{actionIcon}</span>
     </div>

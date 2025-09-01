@@ -1,8 +1,9 @@
 {
   "common": {
-    "cancel": "Cancel",
-    "save": "Save"
-  },
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete"
+    },
 
   "nav": {
     "appName": "RecipeChat",

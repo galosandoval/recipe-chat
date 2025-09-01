@@ -8,6 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createId } from '@paralleldrive/cuid2'
 import { PlusCircleIcon } from '~/components/icons'
 import { ErrorMessage } from '~/components/error-message-content'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
 
 export function CreateFilterForm({ disabled }: { disabled?: boolean }) {
   const t = useTranslations()
@@ -16,27 +18,24 @@ export function CreateFilterForm({ disabled }: { disabled?: boolean }) {
 
   return (
     <>
-      <form className='join w-full' onSubmit={handleSubmit(onSubmit)}>
+      <form className='flex w-full gap-2' onSubmit={handleSubmit(onSubmit)}>
         <Controller
           name='name'
           control={control}
           disabled={disabled}
           render={({ field }) => (
-            <input
-              {...field}
-              className='input join-item input-bordered input-sm'
-              placeholder={t.filters.placeholder}
-            />
+            <Input {...field} placeholder={t.filters.placeholder} />
           )}
         />
-        <button
+        <Button
           type='submit'
-          className='btn btn-outline join-item no-animation btn-sm'
+          variant='outline'
+          className='no-animation'
           disabled={disabled}
         >
           <PlusCircleIcon />
           <span>{t.filters.add}</span>
-        </button>
+        </Button>
       </form>
       {errors.name && isDirty && touchedFields.name && (
         <ErrorMessage name='name' errors={errors} align='center' />

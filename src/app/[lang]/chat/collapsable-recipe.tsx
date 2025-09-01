@@ -5,18 +5,13 @@ import { useMemo, useState } from 'react'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
-import { Button } from '../../../components/button'
-import {
-  ArrowTopRightOnSquareIcon,
-  ChevronDownIcon,
-  ClockIcon,
-  SaveIcon
-} from '../../../components/icons'
 import { cn } from '~/lib/utils'
-import { useAuthModal } from '../../../components/auth/auth-modals'
+import { useAuthModal } from '~/components/auth/auth-modals'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { useRouter } from 'next/navigation'
 import { formatTimeFromMinutes } from '~/lib/format-time'
+import { Button } from '~/components/ui/button'
+import { ChevronDown, Clock, Save, SquareArrowOutUpRight } from 'lucide-react'
 
 export function CollapsableRecipe({
   recipe,
@@ -58,7 +53,7 @@ export function CollapsableRecipe({
           disabled={isStreaming}
           onClick={() => setIsOpen(!isOpen)}
         >
-          <ChevronDownIcon className={cn('h-4 w-4', isOpen && 'rotate-180')} />
+          <ChevronDown className={cn('h-4 w-4', isOpen && 'rotate-180')} />
           {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
         </Button>
         <ActionButton
@@ -130,14 +125,14 @@ function ActionButton({
         isLoading={isPending}
         onClick={handleSaveRecipe}
       >
-        <SaveIcon className='size-4' />
+        <Save className='size-4' />
         {t.common.save}
       </Button>
     )
   } else if (isAuthenticated && saved) {
     return (
       <Button className='btn btn-sm mt-2' onClick={handleGoToRecipe}>
-        <ArrowTopRightOnSquareIcon className='size-4' />
+        <SquareArrowOutUpRight className='size-4' />
         {t.chatWindow.toRecipe}
       </Button>
     )
@@ -169,7 +164,7 @@ function Times({
   if (!prepMinutes && !cookMinutes) return null
   return (
     <div className='text-muted-foreground mb-2 flex items-center gap-2 self-center text-sm'>
-      <ClockIcon className='size-4' />
+      <Clock className='size-4' />
       {prepMinutes && (
         <span className='flex items-center gap-2 text-xs'>
           {t.recipes.prepTime} {formattedPrepMinutes}

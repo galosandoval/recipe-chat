@@ -1,50 +1,54 @@
-import { Dialog, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
+import { Button } from './ui/button'
+import {
+  DrawerClose,
+  DrawerHeader,
+  DrawerContent,
+  DrawerTrigger,
+  Drawer as DrawerUI,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter
+} from './ui/drawer'
 
 export const Drawer = ({
-  isOpen,
-  closeModal,
-  children
+  open,
+  onOpenChange,
+  children,
+  cancelText,
+  submitText,
+  title,
+  description,
+  trigger,
+  formId
 }: {
-  isOpen: boolean
+  cancelText: string
   children: React.ReactNode
-  closeModal: () => void
+  submitText: string
+  title: string
+  description: string
+  trigger: React.ReactNode
+  formId: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }) => {
   return (
-    <>
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as='div' className='relative z-10' onClose={closeModal}>
-          <Transition.Child
-            as={Fragment}
-            enter='ease-out duration-300'
-            enterFrom='opacity-0'
-            enterTo='opacity-100'
-            leave='ease-in duration-200'
-            leaveFrom='opacity-100'
-            leaveTo='opacity-0'
-          >
-            <div className='bg-base-300/70 fixed inset-0' />
-          </Transition.Child>
-
-          <div className='fixed inset-0 overflow-y-auto'>
-            <div className='flex h-full min-h-full items-center justify-start text-center'>
-              <Transition.Child
-                as={Fragment}
-                enter='ease-out duration-300'
-                enterFrom='opacity-0 -translate-x-4'
-                enterTo='opacity-100 -translate-x-0'
-                leave='ease-in duration-200'
-                leaveFrom='opacity-100 -translate-x-0'
-                leaveTo='opacity-0 -translate-x-4'
-              >
-                <Dialog.Panel className='bg-base-100 my-auto h-full w-[80%] max-w-sm transform overflow-hidden p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
-                  {children}
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-    </>
+    <DrawerUI open={open} onOpenChange={onOpenChange}>
+      <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className='text-left'>
+          <DrawerTitle>{title}</DrawerTitle>
+          {description && <DrawerDescription>{description}</DrawerDescription>}
+        </DrawerHeader>
+        <div className='px-4'>{children}</div>
+        <DrawerFooter className='pt-2'>
+          <DrawerClose asChild>
+            <Button variant='outline'>{cancelText}</Button>
+          </DrawerClose>
+          <Button type='submit' form={formId}>
+            {submitText}
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </DrawerUI>
   )
 }

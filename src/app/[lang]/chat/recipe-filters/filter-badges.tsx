@@ -1,7 +1,6 @@
 'use client'
 
 import type { Filter } from '@prisma/client'
-import { CheckCircleIcon, XCircleIcon } from '~/components/icons'
 import { toast } from '~/components/toast'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
@@ -9,6 +8,7 @@ import { api } from '~/trpc/react'
 import { cn } from '~/lib/utils'
 import { Badge } from '../badge'
 import { useMemo } from 'react'
+import { CheckCircle, XCircle } from 'lucide-react'
 
 export function FilterBadges({
   filters,
@@ -97,9 +97,9 @@ function FilterBadge({
 
   let icon = null
   if (checked) {
-    icon = <CheckCircleIcon className='size-5' />
+    icon = <CheckCircle className='size-5' />
   } else if (canDelete) {
-    icon = <XCircleIcon size={5} />
+    icon = <XCircle className='size-5' />
   } else {
     icon = <span className='border-primary size-5 rounded-full border'></span>
   }

@@ -44,7 +44,7 @@ export const Providers = ({
               </ThemeProvider>
             </AuthModalProvider>
           </ChatsDrawerProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </SessionProvider>
       </TranslationsContext.Provider>
     </TRPCReactProvider>
