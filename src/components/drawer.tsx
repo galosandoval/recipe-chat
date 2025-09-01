@@ -13,7 +13,7 @@ export const Drawer = ({
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as='div' className='prose relative z-10' onClose={closeModal}>
+        <Dialog as='div' className='relative z-10' onClose={closeModal}>
           <Transition.Child
             as={Fragment}
             enter='ease-out duration-300'
@@ -23,7 +23,7 @@ export const Drawer = ({
             leaveFrom='opacity-100'
             leaveTo='opacity-0'
           >
-            <div className='fixed inset-0 bg-base-300/70' />
+            <div className='bg-base-300/70 fixed inset-0' />
           </Transition.Child>
 
           <div className='fixed inset-0 overflow-y-auto'>
@@ -37,7 +37,7 @@ export const Drawer = ({
                 leaveFrom='opacity-100 -translate-x-0'
                 leaveTo='opacity-0 -translate-x-4'
               >
-                <Dialog.Panel className='my-auto h-full w-[80%] max-w-sm transform overflow-hidden bg-base-100 p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
+                <Dialog.Panel className='bg-base-100 my-auto h-full w-[80%] max-w-sm transform overflow-hidden p-2 text-left align-middle shadow-xl transition-all md:w-1/2'>
                   {children}
                 </Dialog.Panel>
               </Transition.Child>

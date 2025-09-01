@@ -363,7 +363,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
           type='submit'
           className='btn btn-primary self-end'
         >
-          {t.recipes.save}
+          {t.common.save}
         </Button>
       </form>
     </>

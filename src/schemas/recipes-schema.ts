@@ -1,3 +1,5 @@
+import type { Ingredient, Instruction } from '@prisma/client'
+import type { Recipe } from '@prisma/client'
 import { z } from 'zod'
 
 export const recipeUrlSchema = (t: any) =>
@@ -117,3 +119,20 @@ export const updateRecipeImgUrlSchema = z.object({
   imgUrl: z.string(),
   oldUrl: z.string().optional()
 })
+
+export type RecipeToEdit = Recipe & {
+  ingredients: Ingredient[]
+  instructions: Instruction[]
+}
+
+export const editRecipeFormValues = z.object({
+  name: z.string(),
+  ingredients: z.string(),
+  instructions: z.string(),
+  description: z.string(),
+  prepMinutes: z.number(),
+  cookMinutes: z.number(),
+  notes: z.string()
+})
+
+export type EditRecipeFormValues = z.infer<typeof editRecipeFormValues>

@@ -71,7 +71,7 @@ export function SignUpModal() {
 
   return (
     <Modal isOpen={isSignUpOpen} closeModal={handleCloseSignUp}>
-      <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
+      <div className='mx-auto flex h-full flex-col items-center justify-center py-5'>
         <h1 className='px-5'>{t.auth.signUp}</h1>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -246,7 +246,7 @@ export function LoginModal() {
 
   return (
     <Modal isOpen={isLoginOpen} closeModal={handleCloseLogin}>
-      <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
+      <div className='mx-auto flex h-full flex-col items-center justify-center py-5'>
         <h1 className='text-center'>{t.auth.login}</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-control'>

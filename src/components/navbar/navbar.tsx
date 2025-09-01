@@ -4,17 +4,18 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { NavDropdownMenu } from './dropdown-menus'
+import { ArrowBigLeft, SquarePen } from 'lucide-react'
 import {
-  ArrowBackLeftIcon,
   ChatBubbleLeftRightIcon,
   ListBulletIcon,
-  PencilSquareIcon,
   RecipesIcon,
   XIcon
 } from '../icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { cn } from '~/lib/utils'
+import { Button } from '../ui/button'
+import { EditByIdDrawer } from '~/app/[lang]/recipes/[id]/edit-by-id-drawer'
 
 export const Navbar = () => {
   const { data } = useSession()
@@ -43,7 +44,7 @@ function PublicNavbar() {
   const t = useTranslations()
 
   return (
-    <nav className='prose navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
+    <nav className='navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
       <div></div>
       <h1 className='mb-0 text-base'>{t.nav.appName}</h1>
       <div className='justify-self-end'>
@@ -56,24 +57,15 @@ function PublicNavbar() {
 function RecipeByIdNavbar() {
   const router = useRouter()
   const { id } = useParams()
-  const { data } = api.recipes.byId.useQuery({ id: id as string })
-
+  const utils = api.useUtils()
+  const recipe = utils.recipes.byId.getData({ id: id as string })
   return (
     <nav className='fixed z-20 flex w-full justify-between bg-transparent p-4'>
-      <button
-        className='btn btn-circle glass-element text-glass bg-slate-500/40'
-        onClick={() => router.back()}
-      >
-        <ArrowBackLeftIcon />
-      </button>
-      <button
-        className='btn btn-circle glass-element text-glass justify-self-end'
-        onClick={() => router.push(`/recipes/${id}/edit?name=${data?.name}`)}
-      >
-        <span>
-          <PencilSquareIcon />
-        </span>
-      </button>
+      <Button variant='outline' onClick={() => router.back()} size='icon'>
+        <ArrowBigLeft />
+      </Button>
+
+      <EditByIdDrawer recipe={recipe} />
     </nav>
   )
 }
@@ -82,7 +74,7 @@ function EditRecipeNavbar() {
   const t = useTranslations()
   const router = useRouter()
   return (
-    <nav className='prose navbar grid w-full grid-cols-3 gap-24 bg-transparent px-4'>
+    <nav className='navbar grid w-full grid-cols-3 gap-24 bg-transparent px-4'>
       <button
         className='btn btn-circle btn-ghost'
         onClick={() => router.back()}

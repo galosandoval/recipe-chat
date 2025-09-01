@@ -131,7 +131,7 @@ function ActionButton({
         onClick={handleSaveRecipe}
       >
         <SaveIcon className='size-4' />
-        {t.chatWindow.save}
+        {t.common.save}
       </Button>
     )
   } else if (isAuthenticated && saved) {
@@ -144,7 +144,7 @@ function ActionButton({
   } else {
     return (
       <Button className='btn btn-sm mt-2' onClick={handleOpenSignUp}>
-        {t.chatWindow.save}
+        {t.common.save}
       </Button>
     )
   }

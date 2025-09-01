@@ -1,56 +1,41 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { type Ingredient, type Instruction, type Recipe } from '@prisma/client'
+import { useParams, useRouter } from 'next/navigation'
 import { useDeleteRecipe } from '~/hooks/use-recipe'
-import { type UseFormHandleSubmit, useForm } from 'react-hook-form'
-import { Button } from '~/components/button'
-import { CheckIcon, TrashIcon } from '~/components/icons'
+import { useForm } from 'react-hook-form'
+import { TrashIcon } from '~/components/icons'
 import { type ChangeEvent, useState } from 'react'
 import { Modal } from '~/components/modal'
 import { useTranslations } from '~/hooks/use-translations'
 import Image from 'next/image'
-import { api, type RouterOutputs } from '~/trpc/react'
+import { api } from '~/trpc/react'
 import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
 import { toast } from '~/components/toast'
-import type { UpdateRecipe } from '~/schemas/recipes-schema'
+import {
+  editRecipeFormValues,
+  type EditRecipeFormValues,
+  type RecipeToEdit
+} from '~/schemas/recipes-schema'
+import { DrawerDialog } from '~/components/ui/drawer-dialog'
+import { SquarePen } from 'lucide-react'
+import { Button } from '~/components/ui/button'
+import { Form, FormInput, FormTextarea } from '~/components/form'
+import { zodResolver } from '@hookform/resolvers/zod'
 
-type FormValues = {
-  name: string
-  ingredients: string
-  instructions: string
-  description: string
-  prepMinutes: number
-  cookMinutes: number
-  notes: string
+export function EditByIdDrawer() {
+  const { id } = useParams()
+  const { data: recipe } = api.recipes.byId.useQuery({ id: id as string })
+  if (!recipe)
+    return (
+      <Button variant='outline' size='icon'>
+        <SquarePen />
+      </Button>
+    )
+  return <EditByIdForm recipe={recipe} />
 }
 
-export function EditById({
-  data
-}: {
-  data: NonNullable<RouterOutputs['recipes']['byId']>
-}) {
-  const { data: recipe } = api.recipes.byId.useQuery(
-    { id: data.id },
-    { initialData: data }
-  )
-
-  if (!recipe) return null
-
-  return <FoundRecipe data={recipe} />
-}
-
-function FoundRecipe({
-  data
-}: {
-  data: Recipe & {
-    ingredients: Ingredient[]
-    instructions: Instruction[]
-  }
-}) {
-  const utils = api.useContext()
-  const router = useRouter()
-
+function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
+  const t = useTranslations()
   const {
     ingredients,
     description,
@@ -58,16 +43,10 @@ function FoundRecipe({
     name,
     prepMinutes,
     cookMinutes,
-    notes,
-    imgUrl,
-    id
-  } = data
+    notes
+  } = recipe
 
-  const {
-    register,
-    handleSubmit,
-    formState: { isDirty, isValid }
-  } = useForm<FormValues>({
+  const form = useForm<EditRecipeFormValues>({
     defaultValues: {
       cookMinutes: cookMinutes || undefined,
       description: description || '',
@@ -76,105 +55,46 @@ function FoundRecipe({
       name: name || '',
       prepMinutes: prepMinutes || undefined,
       notes: notes || ''
-    }
+    },
+    resolver: zodResolver(editRecipeFormValues)
   })
 
-  const { mutate: editRecipe, isPending } = api.recipes.edit.useMutation({
-    onSuccess: async (data, { newName }) => {
-      await utils.recipes.byId.invalidate({ id: data })
-      router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
-    }
-  })
+  console.log('errors', form.formState.errors)
 
-  const onSubmit = (values: FormValues) => {
-    const newIngredients = values.ingredients
-      .split('\n')
-      .filter((i) => i.length > 2)
-    const oldIngredients = [...ingredients]
-
-    const maxIngredientsLength = Math.max(
-      newIngredients.length,
-      oldIngredients.length
-    )
-    const ingredientsToChange: { id: string; name: string; listId?: string }[] =
-      []
-
-    for (let i = 0; i < maxIngredientsLength; i++) {
-      const newIngredient = newIngredients[i]
-      const oldIngredient = oldIngredients[i]
-
-      if (!!newIngredient) {
-        const changedIngredient = {
-          id: oldIngredient?.id || '',
-          name: newIngredient || '',
-          listId: oldIngredient?.listId || undefined
-        }
-        ingredientsToChange.push(changedIngredient)
-      }
-    }
-
-    const newInstructions = values.instructions.split('\n')
-    const oldInstructions = [...instructions]
-
-    const maxInstructionLength = Math.max(
-      newInstructions.length,
-      oldInstructions.length
-    )
-
-    const instructionsToChange: { id: string; description: string }[] = []
-
-    for (let i = 0; i < maxInstructionLength; i++) {
-      const newInstruction = newInstructions[i]
-      const oldInstruction = oldInstructions[i]
-
-      if (!!newInstruction) {
-        instructionsToChange.push({
-          id: oldInstruction?.id || '',
-          description: newInstruction || ''
-        })
-      }
-    }
-
-    const params: Partial<UpdateRecipe> = { id }
-    if (name !== values.name) {
-      params.name = values.name
-    }
-    if (description !== values.description) {
-      params.description = values.description
-    }
-
-    editRecipe({
-      newIngredients: ingredientsToChange,
-      newName: values.name,
-      newDescription: values.description,
-      id,
-      newInstructions: instructionsToChange,
-      ingredients: oldIngredients,
-      instructions: oldInstructions,
-      newCookMinutes: values.cookMinutes,
-      newPrepMinutes: values.prepMinutes,
-      cookMinutes: cookMinutes || undefined,
-      prepMinutes: prepMinutes || undefined,
-      name: name || '',
-      description: description || '',
-      notes,
-      newNotes: values.notes
-    })
+  const handleSubmit = (values: EditRecipeFormValues) => {
+    console.log('values', values)
   }
 
   return (
-    <div className='flex flex-col gap-4 overflow-y-auto pt-20'>
-      <UpdateImage imgUrl={imgUrl} id={id} name={name} />
+    <Form onSubmit={handleSubmit} form={form} className='space-y-4 px-4'>
+      <DrawerDialog
+        cancelText='Cancel'
+        submitText='Save'
+        title='Edit Recipe'
+        description='Edit the recipe'
+        trigger={
+          <Button variant='outline' size='icon'>
+            <SquarePen />
+          </Button>
+        }
+      >
+        <FormInput name='name' label={t.recipes.name} />
+      </DrawerDialog>
+    </Form>
+  )
+}
 
-      <MutateRecipeIngredientsAndInstructions
-        handleSubmit={handleSubmit}
-        onSubmit={onSubmit}
-        data={data}
-        register={register}
-        isPending={isPending}
-        isDirty={isDirty}
-        isValid={isValid}
-      />
+function EditById() {
+  const { id } = useParams()
+  const utils = api.useUtils()
+  const recipe = utils.recipes.byId.getData({ id: id as string })
+
+  if (!recipe) return null
+  const { name, imgUrl } = recipe
+  return (
+    <div className='flex flex-col gap-4 overflow-y-auto'>
+      <UpdateImage imgUrl={imgUrl} id={id as string} name={name} />
+      <EditForm data={recipe} />
     </div>
   )
 }
@@ -188,7 +108,7 @@ function UpdateImage({
   id: string
   name: string
 }) {
-  const utils = api.useContext()
+  const utils = api.useUtils()
   const t = useTranslations()
   const router = useRouter()
 
@@ -304,7 +224,7 @@ function UpdateImage({
 
             <div className='flex w-full justify-center'>
               <Button
-                isLoading={status === 'pending'}
+                // isLoading={status === 'pending'}
                 className='btn btn-primary'
                 onClick={() => {
                   const fileInput = document.querySelector(
@@ -330,27 +250,93 @@ function UpdateImage({
   )
 }
 
-function MutateRecipeIngredientsAndInstructions({
-  handleSubmit,
-  onSubmit,
-  register,
-  data,
-  isPending,
-  isDirty,
-  isValid
-}: {
-  handleSubmit: UseFormHandleSubmit<FormValues>
-  onSubmit: (values: FormValues) => void
-  data: Recipe & {
-    ingredients: Ingredient[]
-    instructions: Instruction[]
-  }
-  register: any
-  isPending: boolean
-  isDirty: boolean
-  isValid: boolean
-}) {
+function EditForm({ data }: { data: RecipeToEdit }) {
   const t = useTranslations()
+  const utils = api.useUtils()
+  const router = useRouter()
+
+  const { mutate: editRecipe, isPending } = api.recipes.edit.useMutation({
+    onSuccess: async (data, { newName }) => {
+      await utils.recipes.byId.invalidate({ id: data })
+      router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
+    }
+  })
+
+  // const onSubmit = (values: EditRecipeFormValues) => {
+  //   const newIngredients = values.ingredients
+  //     .split('\n')
+  //     .filter((i) => i.length > 2)
+  //   const oldIngredients = [...ingredients]
+
+  //   const maxIngredientsLength = Math.max(
+  //     newIngredients.length,
+  //     oldIngredients.length
+  //   )
+  //   const ingredientsToChange: { id: string; name: string; listId?: string }[] =
+  //     []
+
+  //   for (let i = 0; i < maxIngredientsLength; i++) {
+  //     const newIngredient = newIngredients[i]
+  //     const oldIngredient = oldIngredients[i]
+
+  //     if (!!newIngredient) {
+  //       const changedIngredient = {
+  //         id: oldIngredient?.id || '',
+  //         name: newIngredient || '',
+  //         listId: oldIngredient?.listId || undefined
+  //       }
+  //       ingredientsToChange.push(changedIngredient)
+  //     }
+  //   }
+
+  //   const newInstructions = values.instructions.split('\n')
+  //   const oldInstructions = [...instructions]
+
+  //   const maxInstructionLength = Math.max(
+  //     newInstructions.length,
+  //     oldInstructions.length
+  //   )
+
+  //   const instructionsToChange: { id: string; description: string }[] = []
+
+  //   for (let i = 0; i < maxInstructionLength; i++) {
+  //     const newInstruction = newInstructions[i]
+  //     const oldInstruction = oldInstructions[i]
+
+  //     if (!!newInstruction) {
+  //       instructionsToChange.push({
+  //         id: oldInstruction?.id || '',
+  //         description: newInstruction || ''
+  //       })
+  //     }
+  //   }
+
+  //   const params: Partial<UpdateRecipe> = { id }
+  //   if (name !== values.name) {
+  //     params.name = values.name
+  //   }
+  //   if (description !== values.description) {
+  //     params.description = values.description
+  //   }
+
+  //   editRecipe({
+  //     newIngredients: ingredientsToChange,
+  //     newName: values.name,
+  //     newDescription: values.description,
+  //     id,
+  //     newInstructions: instructionsToChange,
+  //     ingredients: oldIngredients,
+  //     instructions: oldInstructions,
+  //     newCookMinutes: values.cookMinutes,
+  //     newPrepMinutes: values.prepMinutes,
+  //     cookMinutes: cookMinutes || undefined,
+  //     prepMinutes: prepMinutes || undefined,
+  //     name: name || '',
+  //     description: description || '',
+  //     notes,
+  //     newNotes: values.notes
+  //   })
+  // }
 
   const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
   const [isOpen, setIsOpen] = useState(false)
@@ -364,9 +350,9 @@ function MutateRecipeIngredientsAndInstructions({
   }
   return (
     <>
-      <form
+      {/* <form
         onSubmit={handleSubmit(onSubmit)}
-        className='mx-2 flex flex-col items-center gap-4 pb-20 md:mx-auto'
+        className='mx-2 flex flex-col items-center gap-4 md:mx-auto'
       >
         <div className='flex w-full flex-col'>
           <label htmlFor='name' className='label'>
@@ -467,16 +453,47 @@ function MutateRecipeIngredientsAndInstructions({
             </Button>
 
             <Button
-              isLoading={isPending}
+              // isLoading={isPending}
               disabled={!isDirty || !isValid}
               className='btn btn-success'
               type='submit'
             >
-              <CheckIcon /> {t.recipes.save}
+              <CheckIcon /> {t.common.save}
             </Button>
           </div>
         </div>
-      </form>
+      </form> */}
+      <FormInput name='name' label={t.recipes.name} />
+      <FormTextarea
+        name='description'
+        label={t.recipes.description}
+        textareaProps={{ rows: 3 }}
+      />
+      <FormInput name='prepMinutes' label={t.recipes.prepTime} />
+      <FormInput name='cookMinutes' label={t.recipes.cookTime} />
+      <FormTextarea
+        name='ingredients'
+        label={t.recipes.ingredients}
+        textareaProps={{ rows: 4 }}
+      />
+      <FormTextarea
+        name='instructions'
+        label={t.recipes.instructions}
+        textareaProps={{ rows: 4 }}
+      />
+      <FormTextarea
+        name='notes'
+        label={t.recipes.notes}
+        textareaProps={{ rows: 3 }}
+      />
+
+      <Button
+        // isLoading={deleteStatus === 'pending'}
+        className='btn btn-error w-1/4'
+        type='submit'
+      >
+        <TrashIcon />
+      </Button>
 
       <Modal isOpen={isOpen} closeModal={handleCloseConfirmationModal}>
         <div className='mx-2 my-1'>
@@ -510,7 +527,7 @@ function MutateRecipeIngredientsAndInstructions({
 
             <Button
               onClick={() => handleDelete(data.id)}
-              isLoading={deleteStatus === 'pending'}
+              // isLoading={deleteStatus === 'pending'}
               className='btn btn-error w-1/4'
             >
               <TrashIcon />

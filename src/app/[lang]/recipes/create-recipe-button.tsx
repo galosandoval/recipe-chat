@@ -100,7 +100,7 @@ function UploadRecipeUrlForm({
   })
 
   return (
-    <div className='prose min-w-sm'>
+    <div className='min-w-sm'>
       <DialogTitle as='h3' className='mt-0'>
         {t.recipes.url}
       </DialogTitle>
@@ -233,7 +233,7 @@ function CreateRecipe({
               className='btn btn-primary w-1/2'
               type='submit'
             >
-              {t.recipes.save}
+              {t.common.save}
             </Button>
           </>
         )}

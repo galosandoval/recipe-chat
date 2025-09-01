@@ -3,7 +3,7 @@ import { UserCircleIcon } from '~/components/icons'
 export const ChatLoader = () => {
   return (
     <div className='bg-base-100 pb-4'>
-      <div className='prose mx-auto flex justify-start gap-2'>
+      <div className='mx-auto flex justify-start gap-2'>
         <UserCircleIcon />
         <div className='flex items-center justify-start space-x-1'>
           <div

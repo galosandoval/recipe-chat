@@ -1,4 +1,9 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+
   "nav": {
     "appName": "RecipeChat",
 
@@ -79,7 +84,6 @@
     "expand": "Expand",
     "collapse": "Collapse",
     "generate": "Generate",
-    "save": "Save",
     "saveSuccess": "Recipe saved successfully!",
     "chats": "Recent chats",
     "noChats": "No chats found. Start a new chat by asking about a recipe",
@@ -115,7 +119,6 @@
     "url": "Recipe URL",
     "upload": "Upload",
     "cancel": "Cancel",
-    "save": "Save",
     "delete": "Delete",
     "enterUrl": "Enter a valid url that contains a recipe.",
     "generate": "Generate",

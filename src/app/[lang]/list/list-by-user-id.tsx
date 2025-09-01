@@ -144,7 +144,7 @@ function AddIngredientForm({
       className='fixed bottom-0 left-0 flex w-full items-center md:rounded-md'
       onSubmit={handleSubmit(onSubmitNewIngredient)}
     >
-      <div className='prose bg-base-300/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
+      <div className='bg-base-300/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <input
             type='text'
