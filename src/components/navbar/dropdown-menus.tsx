@@ -1,5 +1,4 @@
 import { MenuItem } from '@headlessui/react'
-import { ThemeToggle, useTheme } from '../theme-toggle'
 import {
   ArrowLeftOnRectangleIcon,
   Cog6ToothIcon,
@@ -13,6 +12,8 @@ import { useChatsDrawer } from '../chats-drawer'
 import { chatStore } from '~/stores/chat-store'
 import { useAuthModal } from '../auth/auth-modals'
 import { DropdownMenu } from '../dropdown-menu'
+import { useTheme } from 'next-themes'
+import { ThemeToggle } from '../theme-toggle'
 
 export function NavDropdownMenu() {
   return (
@@ -45,10 +46,10 @@ function LoginMenuItem() {
 }
 
 function ThemeToggleMenuItem() {
-  const { theme, updateTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   return (
     <MenuItem>
-      <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
+      <ThemeToggle />
     </MenuItem>
   )
 }

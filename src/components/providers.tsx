@@ -15,6 +15,7 @@ import {
 
 import { AuthModalProvider } from './auth/auth-modals'
 import { ChatsDrawerProvider } from './chats-drawer'
+import { ThemeProvider } from './theme-provider'
 
 export const Providers = ({
   children,
@@ -31,9 +32,16 @@ export const Providers = ({
         <SessionProvider session={session}>
           <ChatsDrawerProvider>
             <AuthModalProvider>
-              {children}
-              <Toast />
-              <Analytics />
+              <ThemeProvider
+                attribute='class'
+                defaultTheme='system'
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+                <Toast />
+                <Analytics />
+              </ThemeProvider>
             </AuthModalProvider>
           </ChatsDrawerProvider>
           <ReactQueryDevtools initialIsOpen={false} />

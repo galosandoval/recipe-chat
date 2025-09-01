@@ -56,16 +56,13 @@ function PublicNavbar() {
 
 function RecipeByIdNavbar() {
   const router = useRouter()
-  const { id } = useParams()
-  const utils = api.useUtils()
-  const recipe = utils.recipes.byId.getData({ id: id as string })
   return (
     <nav className='fixed z-20 flex w-full justify-between bg-transparent p-4'>
       <Button variant='outline' onClick={() => router.back()} size='icon'>
         <ArrowBigLeft />
       </Button>
 
-      <EditByIdDrawer recipe={recipe} />
+      <EditByIdDrawer />
     </nav>
   )
 }

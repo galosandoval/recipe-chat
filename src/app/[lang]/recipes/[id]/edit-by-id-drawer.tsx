@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import { useDeleteRecipe } from '~/hooks/use-recipe'
-import { useForm } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { TrashIcon } from '~/components/icons'
 import { type ChangeEvent, useState } from 'react'
 import { Modal } from '~/components/modal'
@@ -27,7 +27,7 @@ export function EditByIdDrawer() {
   const { data: recipe } = api.recipes.byId.useQuery({ id: id as string })
   if (!recipe)
     return (
-      <Button variant='outline' size='icon'>
+      <Button variant='outline' disabled size='icon'>
         <SquarePen />
       </Button>
     )
@@ -66,21 +66,26 @@ function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
   }
 
   return (
-    <Form onSubmit={handleSubmit} form={form} className='space-y-4 px-4'>
-      <DrawerDialog
-        cancelText='Cancel'
-        submitText='Save'
-        title='Edit Recipe'
-        description='Edit the recipe'
-        trigger={
-          <Button variant='outline' size='icon'>
-            <SquarePen />
-          </Button>
-        }
+    <FormProvider {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className='space-y-4 px-4'
       >
-        <FormInput name='name' label={t.recipes.name} />
-      </DrawerDialog>
-    </Form>
+        <DrawerDialog
+          cancelText='Cancel'
+          submitText='Save'
+          title='Edit Recipe'
+          description='Edit the recipe'
+          trigger={
+            <Button variant='outline' size='icon'>
+              <SquarePen />
+            </Button>
+          }
+        >
+          <FormInput name='name' label={t.recipes.name} />
+        </DrawerDialog>
+      </form>
+    </FormProvider>
   )
 }
 
