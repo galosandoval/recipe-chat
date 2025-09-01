@@ -19,8 +19,9 @@ import {
 import { DrawerDialog } from '~/components/ui/drawer-dialog'
 import { SquarePen } from 'lucide-react'
 import { Button } from '~/components/ui/button'
-import { Form, FormInput, FormTextarea } from '~/components/form'
+import { FormInput, FormTextarea } from '~/components/form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Form } from '~/components/ui/form'
 
 export function EditByIdDrawer() {
   const { id } = useParams()
@@ -48,44 +49,46 @@ function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
 
   const form = useForm<EditRecipeFormValues>({
     defaultValues: {
-      cookMinutes: cookMinutes || undefined,
-      description: description || '',
-      ingredients: ingredients.map((i) => i.name).join('\n') || '',
-      instructions: instructions.map((i) => i.description).join('\n') || '',
-      name: name || '',
-      prepMinutes: prepMinutes || undefined,
-      notes: notes || ''
+      // cookMinutes: cookMinutes || undefined,
+      // description: description || '',
+      // ingredients: ingredients.map((i) => i.name).join('\n') || '',
+      // instructions: instructions.map((i) => i.description).join('\n') || '',
+      name: name || ''
+      // prepMinutes: prepMinutes || undefined,
+      // notes: notes || ''
     },
     resolver: zodResolver(editRecipeFormValues)
   })
 
   console.log('errors', form.formState.errors)
 
-  const handleSubmit = (values: EditRecipeFormValues) => {
+  const onSubmit = (values: EditRecipeFormValues) => {
     console.log('values', values)
   }
 
   return (
-    <FormProvider {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className='space-y-4 px-4'
-      >
-        <DrawerDialog
-          cancelText='Cancel'
-          submitText='Save'
-          title='Edit Recipe'
-          description='Edit the recipe'
-          trigger={
-            <Button variant='outline' size='icon'>
-              <SquarePen />
-            </Button>
-          }
+    <DrawerDialog
+      cancelText='Cancel'
+      submitText='Save'
+      title='Edit Recipe'
+      description='Edit the recipe'
+      formId='edit-recipe-form'
+      trigger={
+        <Button type='button' variant='outline' size='icon'>
+          <SquarePen />
+        </Button>
+      }
+    >
+      <Form {...form}>
+        <form
+          id='edit-recipe-form'
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='space-y-4'
         >
-          <FormInput name='name' label={t.recipes.name} />
-        </DrawerDialog>
-      </form>
-    </FormProvider>
+          <FormInput form={form} name='name' label={t.recipes.name} />
+        </form>
+      </Form>
+    </DrawerDialog>
   )
 }
 
@@ -468,7 +471,7 @@ function EditForm({ data }: { data: RecipeToEdit }) {
           </div>
         </div>
       </form> */}
-      <FormInput name='name' label={t.recipes.name} />
+      {/* <FormInput name='name' label={t.recipes.name} />
       <FormTextarea
         name='description'
         label={t.recipes.description}
@@ -490,7 +493,7 @@ function EditForm({ data }: { data: RecipeToEdit }) {
         name='notes'
         label={t.recipes.notes}
         textareaProps={{ rows: 3 }}
-      />
+      /> */}
 
       <Button
         // isLoading={deleteStatus === 'pending'}

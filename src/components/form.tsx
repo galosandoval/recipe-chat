@@ -48,15 +48,15 @@ export function FormField<T extends FieldValues>({
   name,
   label,
   description,
+  form,
   children
 }: {
   name: Path<T>
   label: string
   description?: string
+  form: UseFormReturn<T>
   children: ((field: any) => React.ReactElement) | React.ReactNode
 }) {
-  const form = useFormContext<T>()
-
   return (
     <FormFieldUI
       control={form.control}
@@ -80,16 +80,18 @@ export function FormInput<T extends FieldValues>({
   name,
   label,
   description,
-  inputProps
+  inputProps,
+  form
 }: {
   name: Path<T>
   label: string
   description?: string
   inputProps?: React.ComponentProps<typeof Input>
+  form: UseFormReturn<T>
 }) {
   return (
-    <FormField name={name} label={label} description={description}>
-      {(field: any) => <Input {...inputProps} {...field} />}
+    <FormField name={name} label={label} description={description} form={form}>
+      {(field: T) => <Input {...inputProps} {...field} />}
     </FormField>
   )
 }
@@ -99,15 +101,17 @@ export function FormTextarea<T extends FieldValues>({
   name,
   label,
   description,
-  textareaProps
+  textareaProps,
+  form
 }: {
   name: Path<T>
   label: string
   description?: string
   textareaProps?: React.ComponentProps<'textarea'>
+  form: UseFormReturn<T>
 }) {
   return (
-    <FormField name={name} label={label} description={description}>
+    <FormField name={name} label={label} description={description} form={form}>
       {(field: any) => (
         <textarea
           {...textareaProps}
@@ -125,16 +129,18 @@ export function FormSelect<T extends FieldValues>({
   label,
   description,
   options,
-  selectProps
+  selectProps,
+  form
 }: {
   name: Path<T>
   label: string
   description?: string
   options: { value: string; label: string }[]
   selectProps?: React.ComponentProps<'select'>
+  form: UseFormReturn<T>
 }) {
   return (
-    <FormField name={name} label={label} description={description}>
+    <FormField name={name} label={label} description={description} form={form}>
       {(field: any) => (
         <select
           {...selectProps}

@@ -29,7 +29,8 @@ export function DrawerDialog({
   trigger,
   children,
   cancelText,
-  submitText
+  submitText,
+  formId
 }: {
   title: string
   description: string
@@ -37,6 +38,7 @@ export function DrawerDialog({
   children: React.ReactNode
   cancelText: string
   submitText: string
+  formId?: string
 }) {
   const [open, setOpen] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
@@ -57,7 +59,9 @@ export function DrawerDialog({
             <DrawerClose asChild>
               <Button variant='outline'>{cancelText}</Button>
             </DrawerClose>
-            <Button type='submit'>{submitText}</Button>
+            <Button type='submit' form={formId}>
+              {submitText}
+            </Button>
           </DrawerFooter>
         </DialogContent>
       </Dialog>
@@ -77,7 +81,9 @@ export function DrawerDialog({
           <DrawerClose asChild>
             <Button variant='outline'>{cancelText}</Button>
           </DrawerClose>
-          <Button type='submit'>{submitText}</Button>
+          <Button type='submit' form={formId}>
+            {submitText}
+          </Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
