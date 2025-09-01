@@ -19,9 +19,8 @@ import {
 import { DrawerDialog } from '~/components/ui/drawer-dialog'
 import { SquarePen } from 'lucide-react'
 import { Button } from '~/components/ui/button'
-import { FormInput, FormTextarea } from '~/components/form'
+import { FormInput, FormTextarea, Form } from '~/components/form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Form } from '~/components/ui/form'
 
 export function EditByIdDrawer() {
   const { id } = useParams()
@@ -49,21 +48,19 @@ function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
 
   const form = useForm<EditRecipeFormValues>({
     defaultValues: {
-      // cookMinutes: cookMinutes || undefined,
-      // description: description || '',
-      // ingredients: ingredients.map((i) => i.name).join('\n') || '',
-      // instructions: instructions.map((i) => i.description).join('\n') || '',
-      name: name || ''
-      // prepMinutes: prepMinutes || undefined,
-      // notes: notes || ''
+      cookMinutes: cookMinutes || undefined,
+      description: description || '',
+      ingredients: ingredients.map((i) => i.name).join('\n') || '',
+      instructions: instructions.map((i) => i.description).join('\n') || '',
+      name: name || '',
+      prepMinutes: prepMinutes || undefined,
+      notes: notes || ''
     },
     resolver: zodResolver(editRecipeFormValues)
   })
 
-  console.log('errors', form.formState.errors)
-
   const onSubmit = (values: EditRecipeFormValues) => {
-    console.log('values', values)
+    console.log('values---->', values)
   }
 
   return (
@@ -79,7 +76,7 @@ function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
         </Button>
       }
     >
-      <Form {...form}>
+      {/* <Form {...form}>
         <form
           id='edit-recipe-form'
           onSubmit={form.handleSubmit(onSubmit)}
@@ -87,6 +84,9 @@ function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
         >
           <FormInput form={form} name='name' label={t.recipes.name} />
         </form>
+      </Form> */}
+      <Form formId='edit-recipe-form' form={form} onSubmit={onSubmit}>
+        <FormInput name='name' label={t.recipes.name} />
       </Form>
     </DrawerDialog>
   )

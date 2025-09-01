@@ -38,6 +38,9 @@ export function DrawerDialog({
   children: React.ReactNode
   cancelText: string
   submitText: string
+  /**
+   * The id of the form to submit
+   */
   formId?: string
 }) {
   const [open, setOpen] = useState(false)

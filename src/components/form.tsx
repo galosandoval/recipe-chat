@@ -21,22 +21,26 @@ export function Form<T extends FieldValues>({
   children,
   form,
   className,
-  onSubmit
+  onSubmit,
+  formId
 }: {
   children: React.ReactNode
   form: UseFormReturn<T>
   className?: string
   onSubmit: SubmitHandler<T>
+  formId: string
 }) {
   if (!form) {
     throw new Error('Form is not provided')
   }
-  const help = () => {
-    console.log('form', form)
-  }
+
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(help)} className={className}>
+      <form
+        id={formId}
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={className}
+      >
         {children}
       </form>
     </FormProvider>
@@ -48,18 +52,17 @@ export function FormField<T extends FieldValues>({
   name,
   label,
   description,
-  form,
   children
 }: {
   name: Path<T>
   label: string
   description?: string
-  form: UseFormReturn<T>
   children: ((field: any) => React.ReactElement) | React.ReactNode
 }) {
+  const { control } = useFormContext<T>()
   return (
     <FormFieldUI
-      control={form.control}
+      control={control}
       name={name}
       render={({ field }) => (
         <FormItem>
@@ -80,17 +83,15 @@ export function FormInput<T extends FieldValues>({
   name,
   label,
   description,
-  inputProps,
-  form
+  inputProps
 }: {
   name: Path<T>
   label: string
   description?: string
   inputProps?: React.ComponentProps<typeof Input>
-  form: UseFormReturn<T>
 }) {
   return (
-    <FormField name={name} label={label} description={description} form={form}>
+    <FormField name={name} label={label} description={description}>
       {(field: T) => <Input {...inputProps} {...field} />}
     </FormField>
   )
@@ -101,17 +102,15 @@ export function FormTextarea<T extends FieldValues>({
   name,
   label,
   description,
-  textareaProps,
-  form
+  textareaProps
 }: {
   name: Path<T>
   label: string
   description?: string
   textareaProps?: React.ComponentProps<'textarea'>
-  form: UseFormReturn<T>
 }) {
   return (
-    <FormField name={name} label={label} description={description} form={form}>
+    <FormField name={name} label={label} description={description}>
       {(field: any) => (
         <textarea
           {...textareaProps}
@@ -129,18 +128,16 @@ export function FormSelect<T extends FieldValues>({
   label,
   description,
   options,
-  selectProps,
-  form
+  selectProps
 }: {
   name: Path<T>
   label: string
   description?: string
   options: { value: string; label: string }[]
   selectProps?: React.ComponentProps<'select'>
-  form: UseFormReturn<T>
 }) {
   return (
-    <FormField name={name} label={label} description={description} form={form}>
+    <FormField name={name} label={label} description={description}>
       {(field: any) => (
         <select
           {...selectProps}
