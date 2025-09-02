@@ -1,13 +1,14 @@
 import {
   FormProvider,
+  useForm,
   useFormContext,
+  type ControllerRenderProps,
+  type DefaultValues,
   type FieldValues,
   type Path,
-  type SubmitHandler,
-  type UseFormReturn
+  type SubmitHandler
 } from 'react-hook-form'
 import {
-  Form as FormUI,
   FormField as FormFieldUI,
   FormMessage,
   FormDescription
@@ -16,23 +17,25 @@ import { FormItem } from './ui/form'
 import { FormLabel } from './ui/form'
 import { FormControl } from './ui/form'
 import { Input } from './ui/input'
+import { zodResolver } from '@hookform/resolvers/zod'
+import type { ZodSchema } from 'zod'
 
 export function Form<T extends FieldValues>({
   children,
-  form,
   className,
   onSubmit,
-  formId
+  formId,
+  schema,
+  defaultValues
 }: {
   children: React.ReactNode
-  form: UseFormReturn<T>
   className?: string
   onSubmit: SubmitHandler<T>
   formId: string
+  schema: ZodSchema<T>
+  defaultValues?: DefaultValues<T>
 }) {
-  if (!form) {
-    throw new Error('Form is not provided')
-  }
+  const form = useForm<T>({ resolver: zodResolver(schema), defaultValues })
 
   return (
     <FormProvider {...form}>
@@ -55,9 +58,11 @@ export function FormField<T extends FieldValues>({
   children
 }: {
   name: Path<T>
-  label: string
+  label?: string
   description?: string
-  children: ((field: any) => React.ReactElement) | React.ReactNode
+  children:
+    | ((field: ControllerRenderProps<T, Path<T>>) => React.ReactElement)
+    | React.ReactNode
 }) {
   const { control } = useFormContext<T>()
   return (
@@ -66,7 +71,7 @@ export function FormField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             {typeof children === 'function' ? children(field) : children}
           </FormControl>
@@ -86,13 +91,13 @@ export function FormInput<T extends FieldValues>({
   inputProps
 }: {
   name: Path<T>
-  label: string
+  label?: string
   description?: string
   inputProps?: React.ComponentProps<typeof Input>
 }) {
   return (
     <FormField name={name} label={label} description={description}>
-      {(field: T) => <Input {...inputProps} {...field} />}
+      {(field) => <Input {...inputProps} {...field} />}
     </FormField>
   )
 }
@@ -138,7 +143,7 @@ export function FormSelect<T extends FieldValues>({
 }) {
   return (
     <FormField name={name} label={label} description={description}>
-      {(field: any) => (
+      {(field) => (
         <select
           {...selectProps}
           {...field}

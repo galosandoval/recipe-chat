@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '~/components/button'
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
 import { PaperPlaneIcon, StopIcon } from '~/components/icons'
@@ -16,6 +15,8 @@ import type { GeneratedRecipe } from '~/schemas/messages-schema'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
 
 function useRecipeChat() {
   const userId = useUserId()
@@ -109,11 +110,11 @@ export function SubmitMessageForm() {
     >
       <div className='bg-base-300/75 mx-auto flex w-full max-w-2xl items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
-          <input
+          <Input
             value={input}
             onChange={handleInputChange}
             placeholder={placeholder}
-            className='input input-bordered bg-base-100/75 focus:bg-base-100 relative w-full'
+            className='bg-base-100/75 focus:bg-base-100 relative w-full'
           />
         </div>
 
@@ -121,7 +122,7 @@ export function SubmitMessageForm() {
           <Button
             type='submit'
             disabled={input.length < 5 && !isStreaming}
-            className={`btn ${isStreaming ? 'btn-error' : 'btn-accent'}`}
+            variant={isStreaming ? 'destructive' : 'outline'}
           >
             {isStreaming ? <StopIcon /> : <PaperPlaneIcon />}
           </Button>

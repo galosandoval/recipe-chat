@@ -160,12 +160,10 @@ function Auth() {
         />
 
         <div className='flex w-full flex-col gap-2 px-4'>
-          <button onClick={handleOpenSignUp} className='btn btn-primary'>
-            {t.nav.menu.signUp}
-          </button>
-          <button onClick={handleOpenLogin} className='btn btn-outline'>
+          <Button onClick={handleOpenSignUp}>{t.nav.menu.signUp}</Button>
+          <Button onClick={handleOpenLogin} variant='outline'>
             {t.nav.menu.login}
-          </button>
+          </Button>
         </div>
       </div>
 
