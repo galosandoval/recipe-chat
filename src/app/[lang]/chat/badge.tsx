@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react'
+import { Badge as BadgeUI } from '~/components/ui/badge'
 import { cn } from '~/lib/utils'
 
 export function Badge({
@@ -6,7 +8,8 @@ export function Badge({
   onClick,
   className,
   labelClassName,
-  isLoading
+  isLoading,
+  variant
 }: {
   icon: React.ReactNode
   label: string
@@ -14,16 +17,15 @@ export function Badge({
   className?: string
   labelClassName?: string
   isLoading?: boolean
+  variant?: ComponentProps<typeof BadgeUI>['variant']
 }) {
   return (
-    <button
-      className={cn(
-        'bg-base-300 border-base-300 flex h-fit items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm',
-        className
-      )}
+    <BadgeUI
+      className={cn('gap-1', className)}
+      variant={variant}
       onClick={onClick}
     >
-      {icon}
+      {icon && <div className='size-5'>{icon}</div>}
       <span
         className={cn(
           'text-base-content text-sm whitespace-nowrap',
@@ -32,6 +34,6 @@ export function Badge({
       >
         {isLoading ? null : label}
       </span>
-    </button>
+    </BadgeUI>
   )
 }

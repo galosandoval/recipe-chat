@@ -4,15 +4,9 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { NavDropdownMenu } from './dropdown-menus'
-import { ArrowBigLeft, SquarePen } from 'lucide-react'
-import {
-  ChatBubbleLeftRightIcon,
-  ListBulletIcon,
-  RecipesIcon,
-  XIcon
-} from '../icons'
+import { ArrowBigLeft, CookingPot, ListTodo, MessageCircle } from 'lucide-react'
+import { XIcon } from '../icons'
 import { useTranslations } from '~/hooks/use-translations'
-import { api } from '~/trpc/react'
 import { cn } from '~/lib/utils'
 import { Button } from '../ui/button'
 import { EditByIdDrawer } from '~/app/[lang]/recipes/[id]/edit-by-id-drawer'
@@ -71,7 +65,7 @@ function EditRecipeNavbar() {
   const t = useTranslations()
   const router = useRouter()
   return (
-    <nav className='navbar grid w-full grid-cols-3 gap-24 bg-transparent px-4'>
+    <nav className='grid w-full grid-cols-3 gap-24 bg-transparent px-4'>
       <button
         className='btn btn-circle btn-ghost'
         onClick={() => router.back()}
@@ -88,17 +82,17 @@ function EditRecipeNavbar() {
 const MENU_ITEMS = [
   {
     value: '/chat',
-    icon: <ChatBubbleLeftRightIcon size={4} />,
+    icon: <MessageCircle size='1rem' />,
     label: 'chat'
   },
   {
     value: '/list',
-    icon: <ListBulletIcon size={4} />,
+    icon: <ListTodo size='1rem' />,
     label: 'list'
   },
   {
     value: '/recipes',
-    icon: <RecipesIcon size={4} />,
+    icon: <CookingPot size='1rem' />,
     label: 'recipes'
   }
 ] as const

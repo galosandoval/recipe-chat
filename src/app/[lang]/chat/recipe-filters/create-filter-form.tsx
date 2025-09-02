@@ -1,46 +1,39 @@
-import { Controller, useForm } from 'react-hook-form'
 import z from 'zod'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { createId } from '@paralleldrive/cuid2'
-import { PlusCircleIcon } from '~/components/icons'
-import { ErrorMessage } from '~/components/error-message-content'
 import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
+import { PlusCircle } from 'lucide-react'
+import { Form, FormInput } from '~/components/form'
 
 export function CreateFilterForm({ disabled }: { disabled?: boolean }) {
   const t = useTranslations()
-  const { onSubmit, handleSubmit, control, errors, isDirty, touchedFields } =
-    useCreateFilterForm()
+  const { onSubmit } = useCreateFilterForm()
 
   return (
-    <>
-      <form className='flex w-full gap-2' onSubmit={handleSubmit(onSubmit)}>
-        <Controller
-          name='name'
-          control={control}
-          disabled={disabled}
-          render={({ field }) => (
-            <Input {...field} placeholder={t.filters.placeholder} />
-          )}
-        />
-        <Button
-          type='submit'
-          variant='outline'
-          className='no-animation'
-          disabled={disabled}
-        >
-          <PlusCircleIcon />
-          <span>{t.filters.add}</span>
-        </Button>
-      </form>
-      {errors.name && isDirty && touchedFields.name && (
-        <ErrorMessage name='name' errors={errors} align='center' />
-      )}
-    </>
+    <Form
+      schema={filterSchema}
+      onSubmit={onSubmit}
+      defaultValues={{ name: '' }}
+      className='flex items-center gap-2'
+      formId='create-filter-form'
+    >
+      <FormInput
+        name='name'
+        inputProps={{ placeholder: t.filters.placeholder }}
+      />
+      <Button
+        type='submit'
+        variant='outline'
+        className='no-animation'
+        disabled={disabled}
+      >
+        <PlusCircle />
+        <span>{t.filters.add}</span>
+      </Button>
+    </Form>
   )
 }
 
@@ -90,28 +83,23 @@ function useCreateFilter() {
   return { mutate }
 }
 
-export const filterSchema = (t: any) =>
-  z.object({
-    name: z.string().min(3, t.filters.minChars3).max(50, t.filters.maxChars50)
-  })
+export const filterSchema = z.object({
+  name: z
+    .string()
+    .min(3, 'minChars3')
+    .max(50, 'maxChars50')
+    .refine((data) => !data.includes('_'), {
+      message: 'charNotAllowed',
+      params: {
+        char: '_'
+      }
+    })
+})
 
-type CreateFilter = z.infer<ReturnType<typeof filterSchema>>
+type CreateFilter = z.infer<typeof filterSchema>
 
 function useCreateFilterForm() {
-  const t = useTranslations()
   const { mutate } = useCreateFilter()
-
-  const {
-    handleSubmit,
-    resetField,
-    control,
-    formState: { errors, isDirty, touchedFields }
-  } = useForm<CreateFilter>({
-    resolver: zodResolver(filterSchema(t)),
-    defaultValues: {
-      name: ''
-    }
-  })
 
   const handleCreateFilter = (data: CreateFilter) => {
     const id = createId()
@@ -119,12 +107,11 @@ function useCreateFilterForm() {
       name: data.name,
       filterId: id
     })
-    resetField('name')
   }
 
   const onSubmit = (data: CreateFilter) => {
     handleCreateFilter(data)
   }
 
-  return { handleSubmit, control, errors, isDirty, touchedFields, onSubmit }
+  return { onSubmit }
 }
