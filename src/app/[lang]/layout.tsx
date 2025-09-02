@@ -1,7 +1,7 @@
 import '~/globals.css'
 
 import { type Metadata } from 'next'
-import { Geist } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
 
 import { auth } from '~/server/auth'
 import { Providers } from '~/components/providers'
@@ -15,11 +15,6 @@ export const metadata: Metadata = {
   icons: [{ rel: 'icon', url: '/favicon.ico' }]
 }
 
-const geist = Geist({
-  subsets: ['latin'],
-  variable: '--font-geist-sans'
-})
-
 export default async function RootLayout({
   children,
   params
@@ -29,7 +24,11 @@ export default async function RootLayout({
   const translations = await getTranslations(lang)
 
   return (
-    <html lang={lang} className={`${geist.variable}`}>
+    <html
+      suppressHydrationWarning
+      lang={lang}
+      className={`${GeistSans.variable}`}
+    >
       <body className='flex h-svh overflow-hidden'>
         <Providers session={session} translations={translations}>
           <Navbar />
