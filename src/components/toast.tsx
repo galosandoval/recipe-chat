@@ -96,7 +96,7 @@ export const toast = {
         <div
           className={cn(
             t.visible ? 'animate-enter' : 'animate-leave',
-            'bg-base-300 border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl'
+            'bg-secondary border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl'
           )}
         >
           <div className='flex-1 cursor-auto text-left text-sm whitespace-break-spaces select-text'>

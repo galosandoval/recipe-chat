@@ -16,15 +16,15 @@ export const Checkbox = ({
     <div>
       <label
         className={cn(
-          'label bg-base-200 flex cursor-pointer flex-row-reverse gap-2 rounded p-3 transition-all duration-200 ease-in-out active:scale-95',
-          checked && 'bg-base-300'
+          'label bg-background flex cursor-pointer flex-row-reverse gap-2 rounded p-3 transition-all duration-200 ease-in-out active:scale-95',
+          checked && 'bg-secondary'
         )}
         htmlFor={id}
       >
         <span
           className={cn(
-            'label-text text-base-content mr-auto whitespace-normal transition-all duration-75',
-            checked && 'text-base-content/40'
+            'label-text text-foreground mr-auto whitespace-normal transition-all duration-75',
+            checked && 'text-foreground/40'
           )}
         >
           {label}

@@ -51,7 +51,7 @@ function ListController({ data }: { data: Ingredient[] }) {
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
           <label className='label flex cursor-pointer gap-2'>
-            <span className='label-text text-base-content'>
+            <span className='label-text text-foreground'>
               {t.list.byRecipe}
             </span>
             <input
@@ -89,16 +89,16 @@ function EmptyList({ children }: { children: ReactNode }) {
 
   return (
     <div className='text-primary fixed inset-0 my-auto grid place-items-center'>
-      <div className='bg-base-100 rounded-lg'>
-        <h1 className='text-base-content my-auto px-5 text-center text-2xl font-bold'>
+      <div className='bg-background rounded-lg'>
+        <h1 className='text-foreground my-auto px-5 text-center text-2xl font-bold'>
           {t.list.noItems}
         </h1>
         <div className='left-0 w-full'>{children}</div>
         <div className='fixed bottom-14 left-0 flex w-full items-center justify-center gap-2 sm:bottom-16'>
-          <p className='text-base-content text-center text-sm'>
+          <p className='text-foreground text-center text-sm'>
             {t.list.addIngredient}
           </p>
-          <div className='text-base-content animate-bounce'>
+          <div className='text-foreground animate-bounce'>
             <ArrowDownIcon className='size-4' />
           </div>
         </div>
@@ -131,12 +131,12 @@ function AddIngredientForm({
       className='fixed bottom-0 left-0 flex w-full items-center md:rounded-md'
       onSubmit={handleSubmit(onSubmitNewIngredient)}
     >
-      <div className='bg-base-300/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
+      <div className='bg-secondary/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <input
             type='text'
             placeholder={t.list.addToList}
-            className='input input-bordered bg-base-100/75 focus:bg-base-100 w-full'
+            className='input input-bordered bg-background/75 focus:bg-background w-full'
             {...register('newIngredientName')}
           />
         </div>

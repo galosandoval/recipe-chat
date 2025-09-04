@@ -35,7 +35,7 @@ export function ActiveCount({ data }: { data: Filter[] }) {
       <small className='text-xs'>{t.filters.active}</small>
       <span
         className={cn(
-          'text-base-content relative inline-block pl-1 text-xs',
+          'text-foreground relative inline-block pl-1 text-xs',
           isBouncing && 'animate-bounce'
         )}
       >

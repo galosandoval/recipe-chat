@@ -6,7 +6,7 @@ export function ScreenLoader({ className }: { className?: string }) {
     <div
       className={cn('fixed inset-0 z-50 h-svh bg-transparent pt-8', className)}
     >
-      <div className='bg-base-100 grid h-full w-full place-items-center'>
+      <div className='bg-background grid h-full w-full place-items-center'>
         <LoadingSpinner />
       </div>
     </div>

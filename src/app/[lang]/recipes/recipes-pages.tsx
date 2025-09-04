@@ -45,7 +45,7 @@ const Header = React.memo(function Header() {
   const t = useTranslations()
   return (
     <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
-      <h2 className='text-base-content text-sm font-bold'>{t.recipes.your}</h2>
+      <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
       <CreateRecipeButton />
     </div>
   )
@@ -103,7 +103,7 @@ const NoneFound = React.memo(function NoneFound() {
   const t = useTranslations()
   return (
     <div className='fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center'>
-      <p className='text-base-content text-2xl'>
+      <p className='text-foreground text-2xl'>
         {t.recipes.noRecipes.noneFound}
       </p>
     </div>
@@ -158,7 +158,7 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
     <Link
       href={`/recipes/${data.id}`}
       key={data.id}
-      className='bg-base-100 relative col-span-1 overflow-hidden rounded shadow-xl active:scale-[99%]'
+      className='bg-background relative col-span-1 overflow-hidden rounded shadow-xl active:scale-[99%]'
       onClick={handleOnClick}
     >
       <div className='w-full'>

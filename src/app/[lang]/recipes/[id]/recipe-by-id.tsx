@@ -85,7 +85,7 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
       <div className='relative'>
         {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
         <div className='mx-auto flex flex-col items-center px-4 pb-4'>
-          <div className='bg-base-100 flex flex-col'>
+          <div className='bg-background flex flex-col'>
             <IngredientsCheckList ingredients={ingredients} />
             <div className='pt-4'>
               <Instructions instructions={instructions} />
@@ -159,7 +159,7 @@ function RecipeImgButtonAndMetaData() {
       <StickyHeader name={data.name} visible={true} />
       <div className='pt-10'>
         <UploadImageButton />
-        <RecipeMetaData textColor='text-base-content' />
+        <RecipeMetaData textColor='text-foreground' />
       </div>
     </>
   )
@@ -295,13 +295,13 @@ function Instructions({ instructions }: { instructions: Instruction[] }) {
 
   return (
     <>
-      <h2 className='text-base-content/90 mb-2 text-lg font-bold'>
+      <h2 className='text-foreground/90 mb-2 text-lg font-bold'>
         {t.recipes.instructions}
       </h2>
       <ol className='flex list-none flex-col gap-3 pl-0'>
         {instructions.map((i, index) => (
-          <li key={i.id} className='bg-base-300 mt-0 mb-0 rounded p-4'>
-            <h3 className='text-base-content mb-1 text-sm font-bold uppercase'>
+          <li key={i.id} className='bg-secondary mt-0 mb-0 rounded p-4'>
+            <h3 className='text-foreground mb-1 text-sm font-bold uppercase'>
               {t.recipes.step} {index + 1}
             </h3>
             <p>{i.description}</p>

@@ -34,7 +34,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
                   recipe.name
                 )}`}
                 key={recipe.id}
-                className='bg-base-300 flex h-10 gap-2 overflow-hidden rounded active:scale-[99%]'
+                className='bg-secondary flex h-10 gap-2 overflow-hidden rounded active:scale-[99%]'
               >
                 {recipe.imgUrl ? (
                   <Image
@@ -72,9 +72,7 @@ function Container({ children }: { children: React.ReactNode }) {
 
   return (
     <div className='col-span-2 w-full sm:col-span-4'>
-      <h2 className='text-base-content text-sm font-bold'>
-        {t.recipes.recent}
-      </h2>
+      <h2 className='text-foreground text-sm font-bold'>{t.recipes.recent}</h2>
 
       {children}
     </div>

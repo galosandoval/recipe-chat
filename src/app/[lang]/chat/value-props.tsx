@@ -105,13 +105,13 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
         />
 
         <div className='flex w-full flex-col items-center gap-4'>
-          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
+          <div className='text-foreground mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
             {t.capabilities.firstDescription}
           </div>
-          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
+          <div className='text-foreground mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
             {t.capabilities.secondDescription}
           </div>
-          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
+          <div className='text-foreground mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
             {t.capabilities.thirdDescription}
           </div>
         </div>
@@ -172,9 +172,7 @@ export function ValuePropsHeader({
         <span></span>
         <div className='flex items-center justify-center gap-2 py-2'>
           {icon}
-          <h2 className='text-base-content text-xl whitespace-nowrap'>
-            {label}
-          </h2>
+          <h2 className='text-foreground text-xl whitespace-nowrap'>{label}</h2>
         </div>
         <span className='ml-auto'>{actionIcon}</span>
       </div>

@@ -28,7 +28,7 @@ export const Navbar = () => {
   }
 
   return (
-    <div className='border-b-base-300 from-base-100 to-base-100/70 text-base-content fixed top-0 z-10 flex w-full justify-center border-b bg-gradient-to-b bg-blend-saturation backdrop-blur transition-all duration-300'>
+    <div className='border-b-secondary from-background to-background/70 text-foreground fixed top-0 z-10 flex w-full justify-center border-b bg-gradient-to-b bg-blend-saturation backdrop-blur transition-all duration-300'>
       {navbar}
     </div>
   )
@@ -99,8 +99,8 @@ function RoutesNavbar() {
   const t = useTranslations()
   const isActive = (path: string) => pathname.includes(path)
   return (
-    <div className='from-base-100 to-base-100/70 border-b-base-content/30 fixed top-0 z-10 mx-auto flex w-full flex-col items-center border-b-[0.5px] bg-transparent bg-gradient-to-b bg-blend-saturation backdrop-blur-xs'>
-      <div className='text-base-content bg-base-100 my-1 text-sm font-bold'>
+    <div className='from-background to-background/70 border-b-foreground/30 fixed top-0 z-10 mx-auto flex w-full flex-col items-center border-b-[0.5px] bg-transparent bg-gradient-to-b bg-blend-saturation backdrop-blur-xs'>
+      <div className='text-foreground bg-background my-1 text-sm font-bold'>
         RecipeChat
       </div>
       <nav className='bg-card p top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden px-5 py-1.5'>

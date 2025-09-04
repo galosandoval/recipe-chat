@@ -48,7 +48,7 @@ const SearchBar = React.memo(function SearchBar({
         <div className='flex w-full px-2 py-1'>
           <input
             type='text'
-            className='input input-bordered text-base-content/70 bg-base-100/60 focus:bg-base-100 w-full'
+            className='input input-bordered text-foreground/70 bg-background/60 focus:bg-background w-full'
             value={search}
             onChange={handleChange}
             placeholder={t.recipes.search}

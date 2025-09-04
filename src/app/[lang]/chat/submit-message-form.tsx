@@ -108,13 +108,13 @@ export function SubmitMessageForm() {
       onSubmit={enhancedHandleSubmit}
       className='absolute bottom-0 left-0 flex w-full items-center md:rounded-md'
     >
-      <div className='bg-base-300/75 mx-auto flex w-full max-w-2xl items-center py-1 sm:mb-2 sm:rounded-lg'>
+      <div className='bg-secondary/75 mx-auto flex w-full max-w-2xl items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
           <Input
             value={input}
             onChange={handleInputChange}
             placeholder={placeholder}
-            className='bg-base-100/75 focus:bg-base-100 relative w-full'
+            className='bg-background/75 focus:bg-background relative w-full'
           />
         </div>
 

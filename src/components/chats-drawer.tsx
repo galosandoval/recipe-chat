@@ -151,8 +151,8 @@ function ChatOption({
   return (
     <div
       className={cn(
-        'hover:bg-base-200 flex flex-col rounded px-2 py-2 select-none',
-        chatId === chat.id && 'bg-base-300'
+        'hover:bg-background flex flex-col rounded px-2 py-2 select-none',
+        chatId === chat.id && 'bg-secondary'
       )}
       onClick={onClick}
     >

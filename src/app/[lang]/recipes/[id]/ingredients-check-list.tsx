@@ -95,7 +95,7 @@ export function IngredientsCheckList({
     <>
       <div>
         <div className='mb-2 flex items-center justify-between'>
-          <h2 className='text-base-content/90 text-lg font-bold'>
+          <h2 className='text-foreground/90 text-lg font-bold'>
             {t.recipes.ingredients}
           </h2>
           <Checkbox

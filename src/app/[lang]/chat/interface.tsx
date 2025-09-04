@@ -88,7 +88,7 @@ function ChatWindowContent({
   const { data } = useSession()
   if (messages.length || !data?.user?.id) {
     return (
-      <div className='bg-base-100 h-full'>
+      <div className='bg-background h-full'>
         <Messages
           data={messages as []}
           status={messagesStatus}
@@ -124,7 +124,7 @@ const Messages = memo(function Messages({
   return (
     <div
       className={cn(
-        'bg-base-100 mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-16 sm:pb-24',
+        'bg-background mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-16 sm:pb-24',
         filters?.length && 'pb-24 sm:pb-28'
       )}
     >

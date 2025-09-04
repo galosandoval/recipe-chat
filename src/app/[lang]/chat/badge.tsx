@@ -28,7 +28,7 @@ export function Badge({
       {icon && <div className='size-5'>{icon}</div>}
       <span
         className={cn(
-          'text-base-content text-sm whitespace-nowrap',
+          'text-foreground text-sm whitespace-nowrap',
           labelClassName
         )}
       >
