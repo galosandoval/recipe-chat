@@ -41,7 +41,7 @@ function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
     <DrawerDialog
       cancelText='Cancel'
       submitText='Save'
-      title='Edit Recipe'
+      title='recipes.byId.edit'
       description='Edit the recipe'
       formId={FORM_ID}
       trigger={
@@ -194,7 +194,6 @@ function UpdateImage({
             <div className='flex w-full justify-center'>
               <Button
                 // isLoading={status === 'pending'}
-                className='btn btn-primary'
                 onClick={() => {
                   const fileInput = document.querySelector(
                     '#file-input'

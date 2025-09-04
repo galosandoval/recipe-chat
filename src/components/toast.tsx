@@ -1,6 +1,7 @@
 import _toast, { type ToastOptions, Toaster, ToastBar } from 'react-hot-toast'
 import { CheckIcon, ExclamationCircle } from './icons'
 import { cn } from '~/lib/utils'
+import { Button } from './ui/button'
 
 export function Toast() {
   return (
@@ -103,12 +104,13 @@ export const toast = {
           </div>
           <div className='flex'>
             <div>
-              <button
+              <Button
                 onClick={() => _toast.dismiss(t.id)}
-                className='btn btn-ghost flex w-full'
+                className='flex w-full'
+                variant='ghost'
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>

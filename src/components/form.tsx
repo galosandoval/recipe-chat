@@ -1,9 +1,8 @@
 import {
   FormProvider,
-  useForm,
+  type UseFormReturn,
   useFormContext,
   type ControllerRenderProps,
-  type DefaultValues,
   type FieldValues,
   type Path,
   type SubmitHandler
@@ -17,26 +16,20 @@ import { FormItem } from './ui/form'
 import { FormLabel } from './ui/form'
 import { FormControl } from './ui/form'
 import { Input } from './ui/input'
-import { zodResolver } from '@hookform/resolvers/zod'
-import type { ZodSchema } from 'zod'
 
 export function Form<T extends FieldValues>({
   children,
   className,
   onSubmit,
   formId,
-  schema,
-  defaultValues
+  form
 }: {
   children: React.ReactNode
   className?: string
   onSubmit: SubmitHandler<T>
   formId: string
-  schema: ZodSchema<T>
-  defaultValues?: DefaultValues<T>
+  form: UseFormReturn<T>
 }) {
-  const form = useForm<T>({ resolver: zodResolver(schema), defaultValues })
-
   return (
     <FormProvider {...form}>
       <form

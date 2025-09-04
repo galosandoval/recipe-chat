@@ -1,10 +1,10 @@
 'use client'
 
 import { useMediaQuery } from '~/hooks/use-media-query'
-import { Button } from '~/components/ui/button'
 import React, { useState } from 'react'
 import { Dialog } from './dialog'
 import { Drawer } from './drawer'
+import { type TPaths } from '~/hooks/use-translations'
 
 export function DrawerDialog({
   title,
@@ -15,7 +15,7 @@ export function DrawerDialog({
   submitText,
   formId
 }: {
-  title: string
+  title: TPaths
   description: string
   trigger: React.ReactNode
   children: React.ReactNode

@@ -115,7 +115,7 @@ function FilterBadge({
       onClick={handleClick}
       className={cn(
         'select-none',
-        canDelete && 'border-error text-error',
+        canDelete && 'border-destructive text-destructive',
         checked && 'border-primary text-primary'
       )}
     />

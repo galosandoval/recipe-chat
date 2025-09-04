@@ -4,11 +4,11 @@ import { DialogTitle } from '@headlessui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Button } from '~/components/button'
 import { ErrorMessage } from '~/components/error-message-content'
 import { PlusIcon } from '~/components/icons'
 import { FormLoader } from '~/components/loaders/form'
 import { Modal } from '~/components/modal'
+import { Button } from '~/components/ui/button'
 import { useCreateRecipe } from '~/hooks/use-recipe'
 import { useTranslations } from '~/hooks/use-translations'
 import {
@@ -74,7 +74,13 @@ export function CreateRecipeButton() {
 
   return (
     <>
-      <Button type='button' onClick={openModal} className='btn btn-circle'>
+      <Button
+        type='button'
+        onClick={openModal}
+        className='rounded-full'
+        variant='ghost'
+        size='icon'
+      >
         <PlusIcon size={6} />
       </Button>
       <Modal closeModal={closeModal} isOpen={isOpen}>
@@ -117,7 +123,7 @@ function UploadRecipeUrlForm({
           <ErrorMessage errors={errors} name='url' />
         </div>
         <div className='mt-4'>
-          <Button className='btn btn-primary w-full' type='submit'>
+          <Button className='w-full' type='submit'>
             {t.recipes.generate}
           </Button>
         </div>
@@ -216,7 +222,7 @@ function CreateRecipe({
       </div>
       <div className='flex w-full gap-1 px-2 py-2'>
         {isSuccess ? (
-          <Button className='btn btn-ghost w-1/2' onClick={closeModal}>
+          <Button className='w-1/2' variant='ghost' onClick={closeModal}>
             Return
           </Button>
         ) : (
@@ -224,15 +230,12 @@ function CreateRecipe({
             <Button
               type='button'
               onClick={closeModal}
-              className='btn btn-ghost w-1/2'
+              className='w-1/2'
+              variant='ghost'
             >
               {t.recipes.cancel}
             </Button>
-            <Button
-              isLoading={isLoading}
-              className='btn btn-primary w-1/2'
-              type='submit'
-            >
+            <Button isLoading={isLoading} className='w-1/2' type='submit'>
               {t.common.save}
             </Button>
           </>

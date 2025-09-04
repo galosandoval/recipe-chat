@@ -5,10 +5,10 @@ export function middleIndexOfNames(data: { name: string }[]) {
     .split('')
   const middleIdx = Math.floor(charsSplit.length / 2)
 
-  let middleName = ''
   let left = middleIdx
-  let right = middleIdx
-  let addToLeft = true
+  let right = middleIdx + 1
+  let index = middleIdx
+
   while (left > 0 && right < charsSplit.length) {
     const leftChar = charsSplit[left]
     const rightChar = charsSplit[right]
@@ -22,17 +22,19 @@ export function middleIndexOfNames(data: { name: string }[]) {
     if (leftChar == '_' && rightChar == '_') {
       const leftLength = left
       const rightLength = charsSplit.length - right
-      addToLeft = leftLength < rightLength
-      middleName = charsSplit.slice(left + 1, right).join('')
+      const addToLeft = leftLength < rightLength
+      // this cuts out the underscores
+      const middleName = charsSplit.slice(left + 1, right).join('')
+
+      data.forEach((f, i) => {
+        if (f.name == middleName) {
+          index = addToLeft ? i + 1 : i
+        }
+      })
+
       break
     }
   }
 
-  let index = -1
-  data.forEach((f, i) => {
-    if (f.name == middleName) {
-      index = i
-    }
-  })
-  return addToLeft ? index : index - 1
+  return index
 }

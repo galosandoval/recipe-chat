@@ -49,7 +49,8 @@ export function CollapsableRecipe({
       </div>
       <div className='flex justify-between'>
         <Button
-          className='btn btn-sm mt-2'
+          size='sm'
+          className='mt-2'
           disabled={isStreaming}
           onClick={() => setIsOpen(!isOpen)}
         >
@@ -120,7 +121,8 @@ function ActionButton({
   if (isAuthenticated && !saved) {
     return (
       <Button
-        className='btn btn-sm mt-2'
+        className='mt-2'
+        size='sm'
         disabled={isStreaming || isUpsertingMessages > 0}
         isLoading={isPending}
         onClick={handleSaveRecipe}
@@ -131,14 +133,14 @@ function ActionButton({
     )
   } else if (isAuthenticated && saved) {
     return (
-      <Button className='btn btn-sm mt-2' onClick={handleGoToRecipe}>
+      <Button className='mt-2' onClick={handleGoToRecipe} size='sm'>
         <SquareArrowOutUpRight className='size-4' />
         {t.chatWindow.toRecipe}
       </Button>
     )
   } else {
     return (
-      <Button className='btn btn-sm mt-2' onClick={handleOpenSignUp}>
+      <Button className='mt-2' onClick={handleOpenSignUp} size='sm'>
         {t.common.save}
       </Button>
     )

@@ -1,10 +1,10 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
 import type { RecipeDTO } from '~/schemas/chats-schema'
-import { Button } from '../../../components/button'
 import { PaperPlaneIcon } from '../../../components/icons'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
+import { Button } from '~/components/ui/button'
 
 export function RecipesToGenerate({
   recipes,
@@ -79,7 +79,12 @@ function GenerateButton({
     await generateRecipe(recipeName, recipeDescription)
   }
   return (
-    <Button className='btn-sm btn' disabled={disabled} onClick={handleGenerate}>
+    <Button
+      size='sm'
+      disabled={disabled}
+      onClick={handleGenerate}
+      variant='outline'
+    >
       <PaperPlaneIcon className='size-4' />
       {t.chatWindow.generate}
     </Button>

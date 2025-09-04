@@ -10,6 +10,7 @@ import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
 import { cn } from '~/lib/utils'
 import { chatStore } from '~/stores/chat-store'
+import { List } from 'lucide-react'
 
 export const ChatsDrawerContext = createContext<{
   isOpen: boolean
@@ -151,7 +152,7 @@ function ChatOption({
     <div
       className={cn(
         'hover:bg-base-200 flex flex-col rounded px-2 py-2 select-none',
-        chatId === chat.id ? 'bg-base-300' : ''
+        chatId === chat.id && 'bg-base-300'
       )}
       onClick={onClick}
     >
@@ -168,7 +169,13 @@ export function ChatsDrawer() {
   const { isOpen, handleToggleDrawer } = useChatsDrawer()
 
   return (
-    <Drawer closeModal={handleToggleDrawer} isOpen={isOpen}>
+    <Drawer
+      trigger={<List />}
+      formId='chats-drawer'
+      onOpenChange={handleToggleDrawer}
+      open={isOpen}
+      title='nav.chat'
+    >
       <div className='flex h-full flex-col justify-between'>
         <ChatList handleToggleChatsModal={handleToggleDrawer} />
       </div>

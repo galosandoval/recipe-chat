@@ -2,7 +2,6 @@
 
 import { useRef, useMemo } from 'react'
 import { type Instruction } from '@prisma/client'
-import { Button } from '~/components/button'
 import { type RouterOutputs, api } from '~/trpc/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,6 +18,7 @@ import { ParallaxContainer } from '~/components/parallax-container'
 import { useState } from 'react'
 import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
+import { Button } from '~/components/ui/button'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
 
@@ -361,7 +361,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
         <Button
           disabled={!isDirty || !isValid}
           type='submit'
-          className='btn btn-primary self-end'
+          className='self-end'
         >
           {t.common.save}
         </Button>

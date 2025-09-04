@@ -1,22 +1,54 @@
-import { Menu, MenuButton, MenuItems } from '@headlessui/react'
+import { useTranslations, type TPaths } from '~/hooks/use-translations'
+import { Button } from './ui/button'
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from './ui/dropdown-menu'
+import { DropdownMenu as DropdownMenuUI } from './ui/dropdown-menu'
 
-export function DropdownMenu({
-  children,
-  icon
+export type MenuItemProps = {
+  label?: TPaths
+  icon?: React.ReactNode
+  onClick?: () => void
+}
+
+export function DropdownMenu<T extends MenuItemProps | null>({
+  items,
+  title,
+  trigger
 }: {
-  children: React.ReactNode
-  icon: React.ReactNode
+  items: T[]
+  title: string
+  trigger: React.ReactNode
 }) {
+  const t = useTranslations()
+  console.log('items', items)
   return (
-    <Menu>
-      <MenuButton className='btn btn-circle btn-ghost'>{icon}</MenuButton>
-      <MenuItems
-        anchor='bottom'
-        transition
-        className='bg-base-100 z-50 flex origin-top flex-col rounded-md transition duration-200 ease-out data-closed:scale-95 data-closed:opacity-0'
-      >
-        {children}
-      </MenuItems>
-    </Menu>
+    <DropdownMenuUI>
+      <DropdownMenuTrigger asChild>
+        <Button variant='outline' size='icon'>
+          {trigger}
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent>
+        <DropdownMenuLabel>{title}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {items.map((item, idx) => {
+          if (!item) return null
+          if (!item.label && !item.icon && !item.onClick)
+            return <DropdownMenuSeparator key={idx} />
+          return (
+            <DropdownMenuItem key={idx} onClick={item.onClick}>
+              {item.icon}
+              {<span>{t.get(item.label as TPaths)}</span>}
+            </DropdownMenuItem>
+          )
+        })}
+      </DropdownMenuContent>
+    </DropdownMenuUI>
   )
 }

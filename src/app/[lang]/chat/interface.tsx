@@ -60,7 +60,6 @@ export const Interface = () => {
         <ValueProps>
           <FiltersByUser />
         </ValueProps>
-        <ChatsDrawer />
       </div>
     )
   }
@@ -79,7 +78,6 @@ export const Interface = () => {
         <ScrollToButtons enable={!isStreaming} />
 
         <SignUpModal />
-        <ChatsDrawer />
       </div>
     </ScrollToBottomProvider>
   )

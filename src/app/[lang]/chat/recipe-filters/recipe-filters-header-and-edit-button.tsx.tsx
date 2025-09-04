@@ -20,6 +20,7 @@ export function FilterHeaderAndEditButton({
     <ValuePropsHeader
       icon={<Funnel />}
       label={t.filters.title}
+      description={t.filters.description}
       actionIcon={
         <EditButton
           canDelete={canDelete}

@@ -28,7 +28,6 @@ export function FiltersByUser() {
 
 export function FiltersSection({ data }: { data: Filter[] }) {
   const session = useSession()
-  const t = useTranslations()
 
   const [canDelete, setCanDelete] = useState(false)
   const filterBadgesRef = useRef<HTMLDivElement>(null)
@@ -49,13 +48,6 @@ export function FiltersSection({ data }: { data: Filter[] }) {
         filterBadgesRef={filterBadgesRef}
       />
       <div className='flex w-full flex-col'>
-        <div className='flex flex-col gap-4 px-4 pb-2'>
-          <p className='text-base-content/80 text-sm'>
-            {canDelete
-              ? t.filters.descriptionWithDelete
-              : t.filters.description}
-          </p>
-        </div>
         <FilterBadges
           filters={data ?? []}
           canDelete={canDelete}

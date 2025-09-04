@@ -1,6 +1,7 @@
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useTranslations } from '~/hooks/use-translations'
+import { Button } from './ui/button'
 
 export const darkTheme = 'dark'
 export const lightTheme = 'light'
@@ -18,13 +19,10 @@ export const ThemeToggle = () => {
 
   return (
     <div className='relative w-full'>
-      <button
-        onClick={handleToggleTheme}
-        className='btn btn-ghost w-full justify-between'
-      >
+      <Button onClick={handleToggleTheme} className='w-full justify-between'>
         {t.nav.menu.theme}
         {theme === 'dark' ? <Sun /> : <Moon />}
-      </button>
+      </Button>
     </div>
   )
 }

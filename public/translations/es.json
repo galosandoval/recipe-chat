@@ -71,6 +71,7 @@
     "maxChars50": "Máximo 50 caracteres",
     "add": "Agregar filtro",
     "noFilters": "No se encontraron filtros. Agrega un filtro para empezar.",
+    "nameAlreadyExists": "El nombre del filtro ya existe",
     "initial": {
       "vegetarian": "Vegetariano",
       "vegan": "Vegano",

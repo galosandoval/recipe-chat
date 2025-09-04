@@ -109,8 +109,7 @@
 
 /*
   ---break---
-*/
-:root {
+*/:root {
   --radius: 0.65rem;
 
   /* Light (tasty) */

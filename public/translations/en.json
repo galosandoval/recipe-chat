@@ -71,6 +71,8 @@
     "maxChars50": "Maximum 50 characters",
     "add": "Add filter",
     "noFilters": "No filters found. Add a filter to get started.",
+    "nameAlreadyExists": "Filter name already exists",
+    "charNotAllowedUnderscore": "Character not allowed: underscore",
     "initial": {
       "vegetarian": "Vegetarian",
       "vegan": "Vegan",

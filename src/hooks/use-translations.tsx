@@ -3,23 +3,44 @@
 import { createContext, useContext, useMemo } from 'react'
 import type { getTranslations } from '~/lib/get-translations'
 
-
-
 export type AwaitedTranslations = Awaited<ReturnType<typeof getTranslations>>
+
+// Type utility to extract all possible nested key paths
+type PathsToStringProps<T> = T extends string
+  ? ''
+  : T extends object
+    ? {
+        [K in keyof T]: T[K] extends string
+          ? K extends string
+            ? K
+            : never
+          : T[K] extends object
+            ? K extends string
+              ? `${K}.${PathsToStringProps<T[K]>}`
+              : never
+            : never
+      }[keyof T]
+    : never
+
+// Flatten the union type to get all possible paths
+type Flatten<T> = T extends infer U ? U : never
+export type AllPaths<T> = Flatten<PathsToStringProps<T>>
+
+type TranslationMethods<T> = {
+  replace(path: AllPaths<T>, ...args: string[]): string
+  get(path: AllPaths<T>): string
+}
 
 // Enhanced translations type that adds replace methods to nested objects
 export type Translations<T = AwaitedTranslations> = {
   [K in keyof T]: T[K] extends string
     ? T[K]
     : T[K] extends object
-      ? Translations<T[K]> & {
-          replace(key: string, ...args: string[]): string
-        }
+      ? Translations<T[K]> & TranslationMethods<T[K]>
       : T[K]
-} & {
-  replace(path: keyof T, ...args: string[]): string
-  get(path: string): string
-}
+} & TranslationMethods<T>
+
+export type TPaths = AllPaths<Translations>
 
 /**
  * Translation class that provides both direct property access and variable substitution

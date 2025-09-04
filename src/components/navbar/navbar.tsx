@@ -66,12 +66,9 @@ function EditRecipeNavbar() {
   const router = useRouter()
   return (
     <nav className='grid w-full grid-cols-3 gap-24 bg-transparent px-4'>
-      <button
-        className='btn btn-circle btn-ghost'
-        onClick={() => router.back()}
-      >
+      <Button variant='ghost' size='icon' onClick={() => router.back()}>
         <XIcon />
-      </button>
+      </Button>
       <h1 className='mb-0 justify-self-center text-center text-base whitespace-nowrap'>
         {t.recipes.byId.edit}
       </h1>
@@ -103,22 +100,26 @@ function RoutesNavbar() {
   const isActive = (path: string) => pathname.includes(path)
   return (
     <div className='from-base-100 to-base-100/70 border-b-base-content/30 fixed top-0 z-10 mx-auto flex w-full flex-col items-center border-b-[0.5px] bg-transparent bg-gradient-to-b bg-blend-saturation backdrop-blur-xs'>
-      <div className='text-base-content bg-base-100 my-2 text-sm font-bold'>
+      <div className='text-base-content bg-base-100 my-1 text-sm font-bold'>
         RecipeChat
       </div>
-      <nav className='bg-base-300/60 top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden px-5 py-1'>
+      <nav className='bg-card p top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden px-5 py-1.5'>
         {MENU_ITEMS.map((item) => (
-          <Link
+          <Button
             className={cn(
-              'text-base-content/75 active:bg-base-100 hover:bg-base-100 flex flex-1 items-center justify-center gap-1 transition-colors duration-75 active:scale-[99%]',
-              isActive(item.value) && 'bg-base-100 text-base-content rounded'
+              'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex flex-1 items-center justify-center gap-1 rounded transition-colors duration-75 active:scale-[99%]',
+              isActive(item.value) &&
+                'bg-accent text-accent-foreground/75 rounded'
             )}
-            href={item.value}
+            variant={isActive(item.value) ? 'default' : 'outline'}
             key={item.value}
+            asChild
           >
-            {item.icon}
-            <span className='text-sm'>{t.nav[item.label]}</span>
-          </Link>
+            <Link href={item.value}>
+              {item.icon}
+              <span className='text-sm'>{t.nav[item.label]}</span>
+            </Link>
+          </Button>
         ))}
         <div>
           <NavDropdownMenu />
