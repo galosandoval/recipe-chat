@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { Button } from '~/components/ui/button'
-import { CornerRightUp, Save, Sparkles } from 'lucide-react'
+import { CornerRightUpIcon, SaveIcon, SparklesIcon } from 'lucide-react'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
@@ -43,7 +43,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
   return (
     <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
       <div className='flex w-full flex-1 flex-col items-center justify-center pt-20'>
-        <ValuePropsHeader icon={<Sparkles />} label={t.valueProps.title} />
+        <ValuePropsHeader icon={<SparklesIcon />} label={t.valueProps.title} />
 
         <div className='flex w-full flex-col items-center gap-4 px-4'>
           <Button
@@ -54,7 +54,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             disabled={isStreaming}
           >
             {t.valueProps.firstButton}
-            <CornerRightUp />
+            <CornerRightUpIcon />
           </Button>
           <Button
             type='button'
@@ -65,7 +65,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
           >
             <span>{t.valueProps.secondButton}</span>
             <span>
-              <CornerRightUp />
+              <CornerRightUpIcon />
             </span>
           </Button>
           <Button
@@ -77,7 +77,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
           >
             <span>{t.valueProps.thirdButton}</span>
             <span>
-              <CornerRightUp />
+              <CornerRightUpIcon />
             </span>
           </Button>
         </div>
@@ -138,8 +138,10 @@ function Auth() {
   return (
     <>
       <div className='flex w-full flex-col items-center justify-center'>
-        <ValuePropsHeader icon={<Save />} label={t.valueProps.saveRecipes} />
-
+        <ValuePropsHeader
+          icon={<SaveIcon />}
+          label={t.valueProps.saveRecipes}
+        />
         <div className='flex w-full flex-col gap-2 px-4'>
           <Button onClick={handleOpenSignUp}>{t.nav.menu.signUp}</Button>
           <Button onClick={handleOpenLogin} variant='outline'>
@@ -147,9 +149,7 @@ function Auth() {
           </Button>
         </div>
       </div>
-
       <SignUpModal />
-
       <LoginModal />
     </>
   )

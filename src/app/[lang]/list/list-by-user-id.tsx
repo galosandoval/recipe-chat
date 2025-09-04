@@ -9,7 +9,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 import { Button } from '~/components/ui/button'
-import { ArrowDown, CirclePlus, Trash } from 'lucide-react'
+import { ArrowDownIcon, CirclePlusIcon, TrashIcon } from 'lucide-react'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -68,7 +68,7 @@ function ListController({ data }: { data: Ingredient[] }) {
           onClick={handleRemoveChecked}
           variant='destructive'
         >
-          <Trash />
+          <TrashIcon />
         </Button>
       </div>
       <Lists byRecipe={byRecipe} data={data} handleCheck={handleCheck} />
@@ -99,7 +99,7 @@ function EmptyList({ children }: { children: ReactNode }) {
             {t.list.addIngredient}
           </p>
           <div className='text-base-content animate-bounce'>
-            <ArrowDown className='size-4' />
+            <ArrowDownIcon className='size-4' />
           </div>
         </div>
       </div>
@@ -142,7 +142,7 @@ function AddIngredientForm({
         </div>
         <div className='pr-2'>
           <Button disabled={isDisabled} variant='outline'>
-            <CirclePlus />
+            <CirclePlusIcon />
           </Button>
         </div>
       </div>

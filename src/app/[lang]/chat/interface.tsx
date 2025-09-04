@@ -1,14 +1,12 @@
 'use client'
 
-import { memo, useContext, useEffect, useMemo } from 'react'
+import { memo, useContext, useEffect } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser } from '~/app/[lang]/chat/recipe-filters/recipe-filters'
 import { ValueProps } from './value-props'
-import { UserCircleIcon } from '~/components/icons'
 import { ChatLoader } from '~/components/loaders/chat'
 import { useSession } from 'next-auth/react'
-import { useTranslations } from '~/hooks/use-translations'
 import {
   ScrollModeContext,
   ScrollToBottomProvider,
@@ -16,18 +14,13 @@ import {
 } from '~/components/scroll-to-bottom-buttons'
 import { chatStore } from '~/stores/chat-store'
 import { useScrollToTop } from 'react-scroll-to-bottom'
-import { ChatsDrawer } from '~/components/chats-drawer'
 import { Stream } from './stream'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
-import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { api } from '~/trpc/react'
-import { GenerateStatusAppMessage } from './app-message'
-import { CollapsableRecipe } from './collapsable-recipe'
-import { RecipesToGenerate } from './recipes-to-generate'
 import { useUserId } from '~/hooks/use-user-id'
 import { cn } from '~/lib/utils'
 import { SignUpModal } from '~/components/auth/auth-modals'
-import { ChatMessage } from '~/app/[lang]/chat/message'
+import { Message } from './message'
 
 export const Interface = () => {
   const { setScrollMode } = useContext(ScrollModeContext)
@@ -93,7 +86,6 @@ function ChatWindowContent({
   messages: MessageWithRecipes[]
 }) {
   const { data } = useSession()
-  console.log('messages', messages)
   if (messages.length || !data?.user?.id) {
     return (
       <div className='bg-base-100 h-full'>
@@ -152,125 +144,3 @@ const Messages = memo(function Messages({
     </div>
   )
 })
-
-const Message = function Message({
-  message,
-  isStreaming,
-  isLastMessage
-}: {
-  message: MessageWithRecipes
-  isStreaming: boolean
-  isLastMessage: boolean
-}) {
-  if (message.role === 'assistant') {
-    return <AssistantMessage message={message} isStreaming={isStreaming} />
-  }
-
-  return (
-    <UserMessage
-      message={message}
-      isStreaming={isStreaming}
-      isLastMessage={isLastMessage}
-    />
-  )
-}
-
-const UserMessage = memo(function UserMessage({
-  message,
-  isStreaming,
-  isLastMessage
-}: {
-  message: MessageWithRecipes
-  isStreaming: boolean
-  isLastMessage: boolean
-}) {
-  const t = useTranslations()
-  const utils = api.useUtils()
-  const foundMessage = useMemo(() => {
-    const chatId = chatStore.getState().chatId
-    const data = utils.chats.getMessagesById.getData({ chatId: chatId ?? '' })
-    const allRecipes =
-      data?.messages.flatMap((m) => m.recipes)?.flatMap((r) => r.recipe) ?? []
-
-    return allRecipes.find(
-      (r) =>
-        message.content ===
-        buildGenerateRecipeContent(
-          t.chatWindow.generateRecipe,
-          r.name ?? '',
-          r.description ?? ''
-        )
-    )
-  }, [message.content])
-
-  if (foundMessage) {
-    return (
-      <GenerateStatusAppMessage
-        recipeName={foundMessage.name}
-        isStreaming={isStreaming && isLastMessage}
-      />
-    )
-  }
-
-  return (
-    <div className='flex flex-col items-center self-end'>
-      <div className='mx-auto w-full'>
-        {/* <div className='flex justify-end gap-2'>
-          <div className='flex flex-col items-end'>
-            <p className='bg-primary text-primary-content rounded p-3 text-sm whitespace-pre-line'>
-              {message?.content || ''}
-            </p>
-          </div>
-          <div>
-            <UserCircleIcon />
-          </div>
-        </div> */}
-        <ChatMessage
-          content={message.content}
-          icon={<UserCircleIcon />}
-          reverse
-        >
-          <>
-            {message.recipes?.length === 1 && (
-              <CollapsableRecipe
-                isStreaming={isStreaming}
-                recipe={message.recipes[0]}
-              />
-            )}
-          </>
-        </ChatMessage>
-      </div>
-    </div>
-  )
-})
-
-function AssistantMessage({
-  message,
-  isStreaming
-}: {
-  message: MessageWithRecipes
-  isStreaming: boolean
-}) {
-  return (
-    <div className='flex flex-col items-center self-start'>
-      <div className='mx-auto w-full'>
-        <ChatMessage content={message.content} icon={<UserCircleIcon />}>
-          <>
-            {message.recipes?.length === 1 && (
-              <CollapsableRecipe
-                isStreaming={isStreaming}
-                recipe={message.recipes[0]}
-              />
-            )}
-            {message.recipes && message.recipes?.length > 1 && (
-              <RecipesToGenerate
-                isStreaming={isStreaming}
-                recipes={message.recipes}
-              />
-            )}
-          </>
-        </ChatMessage>
-      </div>
-    </div>
-  )
-}

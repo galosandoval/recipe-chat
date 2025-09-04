@@ -59,7 +59,6 @@ class TranslationClass {
   get(path: string): string {
     // Check cache first
     if (this.cache.has(path)) {
-      console.log('cache hit', path)
       return this.cache.get(path)!
     }
 

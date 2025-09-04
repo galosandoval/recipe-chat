@@ -15,7 +15,7 @@ import {
   type RecipeToEdit
 } from '~/schemas/recipes-schema'
 import { DrawerDialog } from '~/components/drawer-dialog'
-import { SquarePen } from 'lucide-react'
+import { SquarePenIcon } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { FormInput, FormTextarea, Form } from '~/components/form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -28,7 +28,7 @@ export function EditByIdDrawer() {
   if (!recipe)
     return (
       <Button variant='outline' disabled size='icon'>
-        <SquarePen />
+        <SquarePenIcon />
       </Button>
     )
   return <EditByIdForm recipe={recipe} />
@@ -46,7 +46,7 @@ function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
       formId={FORM_ID}
       trigger={
         <Button type='button' variant='outline' size='icon'>
-          <SquarePen />
+          <SquarePenIcon />
         </Button>
       }
     >

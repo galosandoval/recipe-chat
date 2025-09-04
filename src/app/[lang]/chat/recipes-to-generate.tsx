@@ -5,6 +5,7 @@ import { PaperPlaneIcon } from '../../../components/icons'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { Button } from '~/components/ui/button'
+import { Card } from '~/components/card'
 
 export function RecipesToGenerate({
   recipes,
@@ -33,8 +34,8 @@ function Recipe({
     recipe.ingredients?.length === 0 && recipe.instructions?.length === 0
 
   return (
-    <div className='bg-base-100 rounded p-2'>
-      <h3 className='font-semibold'>{recipe.name}</h3>
+    <Card className='bg-background rounded'>
+      <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
       <div className='flex justify-end pt-2'>
         {shouldShowGenerateButton && (
@@ -45,7 +46,7 @@ function Recipe({
           />
         )}
       </div>
-    </div>
+    </Card>
   )
 }
 

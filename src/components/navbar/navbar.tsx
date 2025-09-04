@@ -15,8 +15,8 @@ export const Navbar = () => {
   const { data } = useSession()
   const pathname = usePathname()
   const { lang, id } = useParams()
-  let navbar = <RoutesNavbar />
 
+  let navbar = <RoutesNavbar />
   if (!data) {
     navbar = <PublicNavbar />
   } else if (pathname === `/${lang}/recipes/${id}/edit`) {
@@ -107,9 +107,9 @@ function RoutesNavbar() {
         {MENU_ITEMS.map((item) => (
           <Button
             className={cn(
-              'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex flex-1 items-center justify-center gap-1 rounded transition-colors duration-75 active:scale-[99%]',
+              'text-card-foreground/75 active:bg-secondary hover:bg-secondary hover:text-secondary-foreground/75 flex flex-1 items-center justify-center gap-1 rounded transition-colors duration-75 active:scale-[99%]',
               isActive(item.value) &&
-                'bg-accent text-accent-foreground/75 rounded'
+                'bg-secondary text-secondary-foreground/75 rounded'
             )}
             variant={isActive(item.value) ? 'default' : 'outline'}
             key={item.value}

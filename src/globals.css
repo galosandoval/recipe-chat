@@ -127,8 +127,8 @@
   --primary-foreground: oklch(0.985 0.02 95);
 
   /* Structure: friendly orange */
-  --secondary: oklch(0.78 0.18 55);
-  --secondary-foreground: oklch(0.19 0.03 80);
+  --secondary: oklch(0.75 0.06 55);
+  --secondary-foreground: oklch(0.25 0.02 80);
 
   /* Muted surfaces & text */
   --muted: oklch(0.96 0.02 95);

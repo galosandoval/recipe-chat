@@ -10,7 +10,7 @@ import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
 import { cn } from '~/lib/utils'
 import { chatStore } from '~/stores/chat-store'
-import { List } from 'lucide-react'
+import { ListIcon } from 'lucide-react'
 
 export const ChatsDrawerContext = createContext<{
   isOpen: boolean
@@ -170,7 +170,7 @@ export function ChatsDrawer() {
 
   return (
     <Drawer
-      trigger={<List />}
+      trigger={<ListIcon />}
       formId='chats-drawer'
       onOpenChange={handleToggleDrawer}
       open={isOpen}

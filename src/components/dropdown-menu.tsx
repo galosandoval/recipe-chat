@@ -25,7 +25,6 @@ export function DropdownMenu<T extends MenuItemProps | null>({
   trigger: React.ReactNode
 }) {
   const t = useTranslations()
-  console.log('items', items)
   return (
     <DropdownMenuUI>
       <DropdownMenuTrigger asChild>

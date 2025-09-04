@@ -1,6 +1,5 @@
-import { MenuItem } from '@headlessui/react'
 import { signOut, useSession } from 'next-auth/react'
-import { useTranslations, type TPaths } from '~/hooks/use-translations'
+import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
 import { useChatsDrawer } from '../chats-drawer'
 import { chatStore } from '~/stores/chat-store'
@@ -8,6 +7,7 @@ import { useAuthModal } from '../auth/auth-modals'
 import { DropdownMenu, type MenuItemProps } from '../dropdown-menu'
 import {
   ListCheck,
+  LogOutIcon,
   Moon,
   Plus,
   Settings,
@@ -17,6 +17,7 @@ import {
 import { useTheme } from 'next-themes'
 
 export function NavDropdownMenu() {
+  const t = useTranslations()
   const items = [
     loginMenuItem(),
     themeToggleMenuItem(),
@@ -25,7 +26,9 @@ export function NavDropdownMenu() {
     startNewChatMenuItem(),
     chatsSideBarMenuItem()
   ]
-  return <DropdownMenu trigger={<Settings />} items={items} title='Settings' />
+  return (
+    <DropdownMenu trigger={<Settings />} items={items} title={t.nav.settings} />
+  )
 }
 
 function buildMenuItem(item: MenuItemProps) {
@@ -37,14 +40,13 @@ function buildMenuItem(item: MenuItemProps) {
 }
 
 function loginMenuItem() {
-  const t = useTranslations()
   const { handleOpenLogin } = useAuthModal()
   const { data: session } = useSession()
   if (session) return null
 
   return buildMenuItem({
     label: 'nav.menu.login',
-    icon: <SquareArrowOutUpLeft />,
+    icon: <LogOutIcon />,
     onClick: handleOpenLogin
   })
 }

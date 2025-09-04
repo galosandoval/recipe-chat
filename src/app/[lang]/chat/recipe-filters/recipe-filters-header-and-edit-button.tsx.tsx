@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { ValuePropsHeader } from '../value-props'
 import { useTranslations } from '~/hooks/use-translations'
-import { Funnel, PenSquare, X } from 'lucide-react'
+import { FunnelIcon, PenSquareIcon, XIcon } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 
 export function FilterHeaderAndEditButton({
@@ -18,7 +18,7 @@ export function FilterHeaderAndEditButton({
   const t = useTranslations()
   return (
     <ValuePropsHeader
-      icon={<Funnel />}
+      icon={<FunnelIcon />}
       label={t.filters.title}
       description={t.filters.description}
       actionIcon={
@@ -79,7 +79,7 @@ function EditButton({
       variant='outline'
       className='ml-auto'
     >
-      <span>{canDelete ? <X size={5} /> : <PenSquare size={5} />}</span>
+      <span>{canDelete ? <XIcon size={5} /> : <PenSquareIcon size={5} />}</span>
     </Button>
   )
 }

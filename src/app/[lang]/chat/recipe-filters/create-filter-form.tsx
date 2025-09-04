@@ -5,7 +5,7 @@ import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { createId } from '@paralleldrive/cuid2'
 import { Button } from '~/components/ui/button'
-import { PlusCircle } from 'lucide-react'
+import { PlusCircleIcon } from 'lucide-react'
 import { Form, FormInput } from '~/components/form'
 import { useForm, useFormContext } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -62,7 +62,7 @@ function FormContent({ disabled }: { disabled?: boolean }) {
         className='self-start'
         disabled={disabled}
       >
-        <PlusCircle />
+        <PlusCircleIcon />
         {t.filters.add}
       </Button>
     </>

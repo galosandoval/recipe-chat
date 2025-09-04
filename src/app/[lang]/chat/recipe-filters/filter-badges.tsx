@@ -8,7 +8,7 @@ import { api } from '~/trpc/react'
 import { cn } from '~/lib/utils'
 import { Badge } from '../badge'
 import { useMemo } from 'react'
-import { CheckCircle, Circle, XCircle } from 'lucide-react'
+import { CheckCircleIcon, CircleIcon, XCircleIcon } from 'lucide-react'
 import { middleIndexOfNames } from '~/lib/middle-index-of-names'
 
 export function FilterBadges({
@@ -97,11 +97,11 @@ function FilterBadge({
 
   let icon = null
   if (checked) {
-    icon = <CheckCircle className='size-5' />
+    icon = <CheckCircleIcon className='size-5' />
   } else if (canDelete) {
-    icon = <XCircle className='size-5' />
+    icon = <XCircleIcon className='size-5' />
   } else {
-    icon = <Circle className='text-primary size-5' />
+    icon = <CircleIcon className='text-primary size-5' />
   }
   const handleClick = canDelete
     ? () => onRemove(filter.id)

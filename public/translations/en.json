@@ -18,7 +18,8 @@
     },
     "chat": "Chat",
     "list": "List",
-    "recipes": "Recipes"
+    "recipes": "Recipes",
+    "settings": "Settings"
   },
 
   "required": "Required",
