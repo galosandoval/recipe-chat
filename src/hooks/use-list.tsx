@@ -42,20 +42,20 @@ export type Checked = Record<
 export function useListController(data: Ingredient[]) {
   const userId = useUserId()
 
-  const allChecked = data.every((c) => c.checked)
+  // const allChecked = data.every((c) => c.checked)
   const noneChecked = data.every((c) => !c.checked)
 
-  const utils = api.useContext()
+  const utils = api.useUtils()
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isValid }
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema)
   })
-  const { mutate: addToList, status: addStatus } = api.lists.add.useMutation({
+  const {
+    reset,
+    formState: { isValid }
+  } = form
+
+  const { mutate: addToList } = api.lists.add.useMutation({
     onMutate: async (input) => {
       await utils.lists.byUserId.cancel({ userId })
 
@@ -177,40 +177,40 @@ export function useListController(data: Ingredient[]) {
     }
   })
 
-  const { mutate: checkMany } = api.lists.checkMany.useMutation({
-    onMutate: async () => {
-      await utils.lists.byUserId.cancel({ userId })
+  // const { mutate: checkMany } = api.lists.checkMany.useMutation({
+  //   onMutate: async () => {
+  //     await utils.lists.byUserId.cancel({ userId })
 
-      const prevList = utils.lists.byUserId.getData({ userId })
+  //     const prevList = utils.lists.byUserId.getData({ userId })
 
-      if (prevList) {
-        utils.lists.byUserId.setData({ userId }, () => ({
-          ingredients: prevList.ingredients.map((i) => ({
-            ...i,
-            checked: allChecked
-          }))
-        }))
-      }
+  //     if (prevList) {
+  //       utils.lists.byUserId.setData({ userId }, () => ({
+  //         ingredients: prevList.ingredients.map((i) => ({
+  //           ...i,
+  //           checked: allChecked
+  //         }))
+  //       }))
+  //     }
 
-      return { prevList }
-    },
+  //     return { prevList }
+  //   },
 
-    onSuccess: async () => {
-      await utils.lists.byUserId.invalidate({ userId })
-    },
+  //   onSuccess: async () => {
+  //     await utils.lists.byUserId.invalidate({ userId })
+  //   },
 
-    onError: (error, _, ctx) => {
-      const stack = error.data?.stack
-      if (stack) {
-        // myToast.error(stack)
-      }
-      const prevList = ctx?.prevList
-      if (prevList) {
-        utils.lists.byUserId.setData({ userId }, prevList)
-      }
-      toast.error(error.message)
-    }
-  })
+  //   onError: (error, _, ctx) => {
+  //     const stack = error.data?.stack
+  //     if (stack) {
+  //       // myToast.error(stack)
+  //     }
+  //     const prevList = ctx?.prevList
+  //     if (prevList) {
+  //       utils.lists.byUserId.setData({ userId }, prevList)
+  //     }
+  //     toast.error(error.message)
+  //   }
+  // })
 
   const handleToggleByRecipe = (event: React.ChangeEvent<HTMLInputElement>) => {
     setByRecipe(event.target.checked)
@@ -221,12 +221,6 @@ export function useListController(data: Ingredient[]) {
     ingredientId: string
   ) => {
     checkIngredient({ id: ingredientId, checked: event.target.checked })
-  }
-
-  const handleCheckAll = () => {
-    const checked = allChecked ? true : false
-
-    checkMany(data.map((i) => ({ checked, id: i.id })))
   }
 
   const handleRemoveChecked = () => {
@@ -242,16 +236,12 @@ export function useListController(data: Ingredient[]) {
   return {
     handleToggleByRecipe,
     byRecipe,
-    allChecked,
     handleCheck,
-    handleCheckAll,
     noneChecked,
     handleRemoveChecked,
     isValid,
-    addStatus,
-    register,
-    handleSubmit,
-    onSubmitNewIngredient
+    onSubmitNewIngredient,
+    form
   }
 }
 

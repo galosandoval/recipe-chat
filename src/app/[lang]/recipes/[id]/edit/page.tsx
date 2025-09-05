@@ -2,7 +2,6 @@ import { api, HydrateClient } from '~/trpc/server'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
-import { EditById } from './edit-recipe'
 
 export async function generateMetadata({
   params
@@ -34,7 +33,7 @@ export default async function RecipePage({
     <HydrateClient>
       <main className='flex min-h-svh flex-col items-center justify-center'>
         <Suspense fallback={<ScreenLoader />}>
-          <EditById data={data} />
+          {/* <EditById data={data} /> */}
         </Suspense>
       </main>
     </HydrateClient>

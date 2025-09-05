@@ -3,11 +3,11 @@ export function Loader() {
 
   return (
     <>
-      <div className='col-span-2 sm:grid-cols-4 grid grid-cols-2 grid-2 gap-4 sm:col-span-4'>
+      <div className='grid-2 col-span-2 grid grid-cols-2 gap-4 sm:col-span-4 sm:grid-cols-4'>
         {cardAmount.map((card, index) => (
           <div
             key={card}
-            className='flex bg-base-300 rounded-md overflow-hidden gap-2 h-10'
+            className='bg-secondary flex h-10 gap-2 overflow-hidden rounded-md'
           >
             <div className='bg-primary-content self-center'>
               <svg
@@ -34,7 +34,7 @@ export function Loader() {
               </svg>
             </div>
             <div
-              className='m-5 h-2 w-72 animate-pulse rounded bg-base-content self-center'
+              className='bg-foreground m-5 h-2 w-72 animate-pulse self-center rounded'
               style={{
                 animationDuration: '2s',
                 animationDelay: `${index * 0.55}`

@@ -4,12 +4,13 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useSession } from 'next-auth/react'
 import type { Chat, Message } from '@prisma/client'
 import { ListBulletIcon } from './icons'
-import { formatTimeAgo } from '~/utils/relative-time-format'
+import { formatTimeAgo } from '~/lib/relative-time-format'
 import { ScreenLoader } from './loaders/screen'
 import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 import { chatStore } from '~/stores/chat-store'
+import { ListIcon } from 'lucide-react'
 
 export const ChatsDrawerContext = createContext<{
   isOpen: boolean
@@ -150,8 +151,8 @@ function ChatOption({
   return (
     <div
       className={cn(
-        'hover:bg-base-200 flex flex-col rounded px-2 py-2 select-none',
-        chatId === chat.id ? 'bg-base-300' : ''
+        'hover:bg-background flex flex-col rounded px-2 py-2 select-none',
+        chatId === chat.id && 'bg-secondary'
       )}
       onClick={onClick}
     >
@@ -168,7 +169,13 @@ export function ChatsDrawer() {
   const { isOpen, handleToggleDrawer } = useChatsDrawer()
 
   return (
-    <Drawer closeModal={handleToggleDrawer} isOpen={isOpen}>
+    <Drawer
+      trigger={<ListIcon />}
+      formId='chats-drawer'
+      onOpenChange={handleToggleDrawer}
+      open={isOpen}
+      title='nav.chat'
+    >
       <div className='flex h-full flex-col justify-between'>
         <ChatList handleToggleChatsModal={handleToggleDrawer} />
       </div>

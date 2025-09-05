@@ -41,7 +41,7 @@ function BottomActiveFilters() {
         </h3>
         {activeFilters?.map((f) => (
           <div
-            className='bg-base-300 text-base-content rounded p-2 py-1 text-xs whitespace-nowrap'
+            className='bg-secondary text-foreground rounded p-2 py-1 text-xs whitespace-nowrap'
             key={f.id}
           >
             {f.name}

@@ -1,6 +1,7 @@
 import _toast, { type ToastOptions, Toaster, ToastBar } from 'react-hot-toast'
 import { CheckIcon, ExclamationCircle } from './icons'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
+import { Button } from './ui/button'
 
 export function Toast() {
   return (
@@ -95,7 +96,7 @@ export const toast = {
         <div
           className={cn(
             t.visible ? 'animate-enter' : 'animate-leave',
-            'bg-base-300 border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl'
+            'bg-secondary border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl'
           )}
         >
           <div className='flex-1 cursor-auto text-left text-sm whitespace-break-spaces select-text'>
@@ -103,12 +104,13 @@ export const toast = {
           </div>
           <div className='flex'>
             <div>
-              <button
+              <Button
                 onClick={() => _toast.dismiss(t.id)}
-                className='btn btn-ghost flex w-full'
+                className='flex w-full'
+                variant='ghost'
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>

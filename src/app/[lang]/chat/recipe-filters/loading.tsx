@@ -23,11 +23,9 @@ export function LoadingFilterBadges() {
       <ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
       <div className='flex w-full flex-col gap-2'>
         <div className='flex flex-col gap-4 px-4'>
-          <p className='text-base-content/80 text-sm'>
-            {t.filters.description}
-          </p>
+          <p className='text-foreground/80 text-sm'>{t.filters.description}</p>
         </div>
-        <div className='grid h-[5.3rem] grid-flow-col grid-rows-2 place-items-start justify-start gap-2 overflow-x-scroll px-2'>
+        <div className='grid h-20 grid-flow-col grid-rows-[min-content] place-items-start justify-start gap-2 overflow-x-scroll px-2'>
           {loadingBadges}
         </div>
         <div className='flex w-full flex-col px-4'>

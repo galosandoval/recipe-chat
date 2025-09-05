@@ -2,11 +2,11 @@ import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import { Button } from './button'
 import { CameraIcon } from './icons'
 import { toast } from './toast'
 import { type ChangeEvent } from 'react'
 import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
+import { Button } from './ui/button'
 
 export function UploadImageButton() {
   const t = useTranslations()
@@ -115,7 +115,7 @@ export function UploadImageButton() {
             fileInput.click()
           }
         }}
-        className='btn btn-primary w-3/4'
+        className='w-3/4'
       >
         <CameraIcon />
         {String(

@@ -6,9 +6,9 @@ import { useTranslations } from '~/hooks/use-translations'
 function AppMessage({ label, icon }: { icon: React.ReactNode; label: string }) {
   return (
     <div className='flex w-full justify-center'>
-      <div className='bg-base-300 flex items-center justify-center gap-2 rounded-2xl px-4 py-1'>
+      <div className='bg-secondary flex items-center justify-center gap-2 rounded-2xl px-4 py-1'>
         <div className='flex items-center justify-center'>{icon}</div>
-        <p className='text-base-content text-xs'>{label}</p>
+        <p className='text-foreground text-xs'>{label}</p>
       </div>
     </div>
   )
@@ -26,7 +26,7 @@ export function GenerateStatusAppMessage({
   const icon = useMemo(
     () =>
       isStreaming ? (
-        <LoadingSpinner className='text-base-content size-4' />
+        <LoadingSpinner className='text-primary size-4' />
       ) : (
         <CheckCircleIcon className='text-success size-5' />
       ),

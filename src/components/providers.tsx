@@ -5,7 +5,6 @@ import { TRPCReactProvider } from '~/trpc/react'
 import { SessionProvider } from 'next-auth/react'
 import type { Session } from 'next-auth'
 import { Toast } from './toast'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import {
   TranslationsContext,
@@ -15,6 +14,7 @@ import {
 
 import { AuthModalProvider } from './auth/auth-modals'
 import { ChatsDrawerProvider } from './chats-drawer'
+import { ThemeProvider } from './theme-provider'
 
 export const Providers = ({
   children,
@@ -31,12 +31,19 @@ export const Providers = ({
         <SessionProvider session={session}>
           <ChatsDrawerProvider>
             <AuthModalProvider>
-              {children}
-              <Toast />
-              <Analytics />
+              <ThemeProvider
+                attribute='class'
+                defaultTheme='system'
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+                <Toast />
+                <Analytics />
+              </ThemeProvider>
             </AuthModalProvider>
           </ChatsDrawerProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </SessionProvider>
       </TranslationsContext.Provider>
     </TRPCReactProvider>

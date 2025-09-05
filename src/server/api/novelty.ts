@@ -1,5 +1,5 @@
 import { prisma } from '~/server/db'
-import { buildSignature, embedSignature } from '~/utils/embeddings'
+import { buildSignature, embedSignature } from '~/lib/embeddings'
 
 export async function nearestNeighborsForUser(
   userId: string,

@@ -12,11 +12,10 @@ import {
   type ChangeEvent
 } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '~/components/button'
 import { Checkbox } from '~/components/checkbox'
 import { ListBulletIcon, PlusIcon } from '~/components/icons'
 import type { Ingredient } from '@prisma/client'
-import { cn } from '~/utils/cn'
+import { Button } from '~/components/ui/button'
 
 type Checked = Record<string, boolean>
 
@@ -95,7 +94,7 @@ export function IngredientsCheckList({
     <>
       <div>
         <div className='mb-2 flex items-center justify-between'>
-          <h2 className='text-base-content/90 text-lg font-bold'>
+          <h2 className='text-foreground/90 text-lg font-bold'>
             {t.recipes.ingredients}
           </h2>
           <Checkbox
@@ -119,10 +118,9 @@ export function IngredientsCheckList({
           ))}
           <div className=''>
             <Button
-              className={cn(
-                'btn btn-lg w-full justify-between gap-2 rounded text-base',
-                addedToList && 'btn-primary'
-              )}
+              className={'w-full justify-between gap-2 rounded text-base'}
+              variant={addedToList ? 'default' : 'outline'}
+              size='lg'
               disabled={!someNotChecked}
               onClick={addedToList ? handleGoToList : handleAddToList}
               isLoading={isPending}

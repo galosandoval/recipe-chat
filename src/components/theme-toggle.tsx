@@ -1,83 +1,27 @@
-import { forwardRef, useEffect, useState } from 'react'
-import { MoonIcon, SunIcon } from './icons'
-import { themeChange } from 'theme-change'
+import { MoonIcon, SunIcon } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { useTranslations } from '~/hooks/use-translations'
+import { Button } from './ui/button'
+import { darkTheme, lightTheme } from '~/constants/theme'
 
-export const darkTheme = 'dark'
-export const lightTheme = 'winter'
-export type Theme = typeof darkTheme | typeof lightTheme
 
-export function useTheme() {
-  const [theme, setTheme] = useState<Theme>('dark')
-
-  const updateTheme = (theme: Theme) => {
-    setTheme(theme)
-  }
-
-  useEffect(() => {
-    themeChange(false)
-    // 👆 false parameter is required for react project
-  }, [])
-  useEffect(() => {
-    const themeDoesNotExist = !('theme' in localStorage)
-    const prefersDarkMode = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    ).matches
-    let { theme } = localStorage
-
-    if (themeDoesNotExist && prefersDarkMode) {
-      theme = darkTheme
-    } else if (themeDoesNotExist && !prefersDarkMode) {
-      theme = lightTheme
-    }
-
-    if (theme === lightTheme) {
-      document.documentElement.setAttribute('data-theme', lightTheme)
+export const ThemeToggle = () => {
+  const t = useTranslations()
+  const { theme, setTheme } = useTheme()
+  const handleToggleTheme = () => {
+    if (theme === darkTheme) {
       setTheme(lightTheme)
     } else {
-      document.documentElement.setAttribute('data-theme', darkTheme)
       setTheme(darkTheme)
     }
-  }, [])
-
-  return { theme, updateTheme }
-}
-
-type ThemeToggleProps = {
-  theme: Theme
-  showLabel?: boolean
-  updateTheme: (theme: Theme) => void
-}
-
-// eslint-disable-next-line react/display-name
-export const ThemeToggle = forwardRef<HTMLDivElement, ThemeToggleProps>(
-  ({ theme, updateTheme, showLabel }: ThemeToggleProps, ref) => {
-    const t = useTranslations()
-
-    const handleToggleTheme = () => {
-      const { theme } = localStorage
-
-      if (theme === darkTheme) {
-        localStorage.theme = lightTheme
-        document.documentElement.setAttribute('data-theme', lightTheme)
-        updateTheme(lightTheme)
-      } else {
-        localStorage.theme = darkTheme
-        document.documentElement.setAttribute('data-theme', darkTheme)
-        updateTheme(darkTheme)
-      }
-    }
-
-    return (
-      <div className='relative w-full' ref={ref}>
-        <button
-          onClick={handleToggleTheme}
-          className='btn btn-ghost w-full justify-between'
-        >
-          {showLabel ? t.nav.menu.theme : null}
-          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-        </button>
-      </div>
-    )
   }
-)
+
+  return (
+    <div className='relative w-full'>
+      <Button onClick={handleToggleTheme} className='w-full justify-between'>
+        {t.nav.menu.theme}
+        {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+      </Button>
+    </div>
+  )
+}

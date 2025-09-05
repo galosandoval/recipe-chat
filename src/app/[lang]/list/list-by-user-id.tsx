@@ -3,13 +3,13 @@
 import React, { type ReactNode } from 'react'
 import { type Ingredient } from '@prisma/client'
 import { Checkbox } from '~/components/checkbox'
-import { Button } from '~/components/button'
 import { useListController, useRecipeNames } from '~/hooks/use-list'
-import { type UseFormHandleSubmit, type UseFormRegister } from 'react-hook-form'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
-import { AddCircleIcon, ArrowSmallDownIcon } from '~/components/icons'
+import { Button } from '~/components/ui/button'
+import { ArrowDownIcon, CirclePlusIcon, TrashIcon } from 'lucide-react'
+import { Form, FormInput } from '~/components/form'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -24,24 +24,15 @@ function ListController({ data }: { data: Ingredient[] }) {
   const {
     byRecipe,
     handleCheck,
-    handleRemoveChecked,
     handleToggleByRecipe,
     noneChecked,
-    onSubmitNewIngredient,
-    handleSubmit,
-    register,
-    isValid
+    handleRemoveChecked
   } = useListController(data)
 
   if (data.length === 0) {
     return (
       <EmptyList>
-        <AddIngredientForm
-          handleSubmit={handleSubmit}
-          isValid={isValid}
-          register={register}
-          onSubmitNewIngredient={onSubmitNewIngredient}
-        />
+        <AddIngredientForm data={data} />
       </EmptyList>
     )
   }
@@ -51,7 +42,7 @@ function ListController({ data }: { data: Ingredient[] }) {
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
           <label className='label flex cursor-pointer gap-2'>
-            <span className='label-text text-base-content'>
+            <span className='label-text text-foreground'>
               {t.list.byRecipe}
             </span>
             <input
@@ -62,38 +53,34 @@ function ListController({ data }: { data: Ingredient[] }) {
             />
           </label>
         </div>
-        {/* break out this component */}
-        <Button
-          disabled={noneChecked}
-          onClick={handleRemoveChecked}
-          className='btn btn-error'
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth={1.5}
-            stroke='currentColor'
-            className='h-6 w-6'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0'
-            />
-          </svg>
-        </Button>
+        <RemoveCheckedButton
+          noneChecked={noneChecked}
+          handleRemoveChecked={handleRemoveChecked}
+        />
       </div>
       <Lists byRecipe={byRecipe} data={data} handleCheck={handleCheck} />
       <div className='fixed bottom-0 left-0 w-full'>
-        <AddIngredientForm
-          isValid={isValid}
-          handleSubmit={handleSubmit}
-          onSubmitNewIngredient={onSubmitNewIngredient}
-          register={register}
-        />
+        <AddIngredientForm data={data} />
       </div>
     </div>
+  )
+}
+
+function RemoveCheckedButton({
+  noneChecked,
+  handleRemoveChecked
+}: {
+  noneChecked: boolean
+  handleRemoveChecked: () => void
+}) {
+  return (
+    <Button
+      disabled={noneChecked}
+      onClick={handleRemoveChecked}
+      variant='destructive'
+    >
+      <TrashIcon />
+    </Button>
   )
 }
 
@@ -101,18 +88,18 @@ function EmptyList({ children }: { children: ReactNode }) {
   const t = useTranslations()
 
   return (
-    <div className='text-primary fixed inset-0 my-auto grid place-items-center'>
-      <div className='bg-base-100 rounded-lg'>
-        <h1 className='text-base-content my-auto px-5 text-center text-2xl font-bold'>
+    <div className='fixed inset-0 my-auto grid place-items-center'>
+      <div className='bg-background rounded-lg'>
+        <h1 className='text-foreground my-auto px-5 text-center text-2xl font-bold'>
           {t.list.noItems}
         </h1>
         <div className='left-0 w-full'>{children}</div>
-        <div className='fixed bottom-14 left-0 flex w-full items-center justify-center gap-2 sm:bottom-16'>
-          <p className='text-base-content text-center text-sm'>
+        <div className='fixed bottom-[3.2rem] left-0 flex w-full items-center justify-center gap-2 sm:bottom-16'>
+          <p className='text-foreground text-center text-sm'>
             {t.list.addIngredient}
           </p>
-          <div className='text-base-content animate-bounce'>
-            <ArrowSmallDownIcon />
+          <div className='text-primary animate-bounce'>
+            <ArrowDownIcon className='size-4' />
           </div>
         </div>
       </div>
@@ -120,46 +107,39 @@ function EmptyList({ children }: { children: ReactNode }) {
   )
 }
 
-function AddIngredientForm({
-  handleSubmit,
-  isValid,
-  onSubmitNewIngredient,
-  register
-}: {
-  isValid: boolean
-  register: UseFormRegister<{
-    newIngredientName: string
-  }>
-  onSubmitNewIngredient: (data: { newIngredientName: string }) => void
-  handleSubmit: UseFormHandleSubmit<{
-    newIngredientName: string
-  }>
-}) {
+function AddIngredientForm({ data }: { data: Ingredient[] }) {
   const t = useTranslations()
 
+  const { onSubmitNewIngredient, isValid, form } = useListController(data)
   const isDisabled = !isValid
-
   return (
-    <form
-      className='fixed bottom-0 left-0 flex w-full items-center md:rounded-md'
-      onSubmit={handleSubmit(onSubmitNewIngredient)}
+    <Form
+      className='fixed right-0 bottom-0 left-0 flex w-full items-center md:rounded-md'
+      onSubmit={onSubmitNewIngredient}
+      formId='add-ingredient-form'
+      form={form}
     >
-      <div className='prose bg-base-300/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
+      <div className='bg-secondary/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
-          <input
+          {/* <input
             type='text'
             placeholder={t.list.addToList}
-            className='input input-bordered bg-base-100/75 focus:bg-base-100 w-full'
+            className='input input-bordered bg-background/75 focus:bg-background w-full'
             {...register('newIngredientName')}
+          /> */}
+          <FormInput
+            name='newIngredientName'
+            placeholder={t.list.addToList}
+            className='w-full'
           />
         </div>
         <div className='pr-2'>
-          <button disabled={isDisabled} className='btn btn-square btn-success'>
-            <AddCircleIcon />
-          </button>
+          <Button disabled={isDisabled} variant='outline'>
+            <CirclePlusIcon />
+          </Button>
         </div>
       </div>
-    </form>
+    </Form>
   )
 }
 

@@ -1,46 +1,67 @@
-import { Controller, useForm } from 'react-hook-form'
 import z from 'zod'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { createId } from '@paralleldrive/cuid2'
-import { PlusCircleIcon } from '~/components/icons'
-import { ErrorMessage } from '~/components/error-message-content'
+import { Button } from '~/components/ui/button'
+import { PlusCircleIcon } from 'lucide-react'
+import { Form, FormInput } from '~/components/form'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
+
+const defaultValues = { name: '' }
 
 export function CreateFilterForm({ disabled }: { disabled?: boolean }) {
+  const { mutate } = useCreateFilter()
+  const { data: filters, isLoading } = useFiltersByUserId()
   const t = useTranslations()
-  const { onSubmit, handleSubmit, control, errors, isDirty, touchedFields } =
-    useCreateFilterForm()
+  const form = useForm<CreateFilter>({
+    defaultValues,
+    resolver: zodResolver(createFilterSchema)
+  })
+
+  const createFilter = (data: CreateFilter) => {
+    if (!filters) return
+
+    const id = createId()
+    if (filters.some((filter) => filter.name === data.name)) {
+      form.setError('name', { message: t.filters.nameAlreadyExists })
+      return
+    }
+    mutate({
+      name: data.name,
+      filterId: id
+    })
+  }
 
   return (
+    <Form
+      onSubmit={createFilter}
+      form={form}
+      className='flex items-center gap-2'
+      formId='create-filter-form'
+    >
+      <FormContent disabled={disabled || isLoading} />
+    </Form>
+  )
+}
+
+function FormContent({ disabled }: { disabled?: boolean }) {
+  const t = useTranslations()
+  return (
     <>
-      <form className='join w-full' onSubmit={handleSubmit(onSubmit)}>
-        <Controller
-          name='name'
-          control={control}
-          disabled={disabled}
-          render={({ field }) => (
-            <input
-              {...field}
-              className='input join-item input-bordered input-sm'
-              placeholder={t.filters.placeholder}
-            />
-          )}
-        />
-        <button
-          type='submit'
-          className='btn btn-outline join-item no-animation btn-sm'
-          disabled={disabled}
-        >
-          <PlusCircleIcon />
-          <span>{t.filters.add}</span>
-        </button>
-      </form>
-      {errors.name && isDirty && touchedFields.name && (
-        <ErrorMessage name='name' errors={errors} align='center' />
-      )}
+      <FormInput name='name' placeholder={t.filters.placeholder} />
+      <Button
+        type='submit'
+        variant='outline'
+        className='self-start'
+        disabled={disabled}
+      >
+        <PlusCircleIcon />
+        {t.filters.add}
+      </Button>
     </>
   )
 }
@@ -91,41 +112,14 @@ function useCreateFilter() {
   return { mutate }
 }
 
-export const filterSchema = (t: any) =>
-  z.object({
-    name: z.string().min(3, t.filters.minChars3).max(50, t.filters.maxChars50)
-  })
-
-type CreateFilter = z.infer<ReturnType<typeof filterSchema>>
-
-function useCreateFilterForm() {
-  const t = useTranslations()
-  const { mutate } = useCreateFilter()
-
-  const {
-    handleSubmit,
-    resetField,
-    control,
-    formState: { errors, isDirty, touchedFields }
-  } = useForm<CreateFilter>({
-    resolver: zodResolver(filterSchema(t)),
-    defaultValues: {
-      name: ''
-    }
-  })
-
-  const handleCreateFilter = (data: CreateFilter) => {
-    const id = createId()
-    mutate({
-      name: data.name,
-      filterId: id
+export const createFilterSchema = z.object({
+  name: z
+    .string()
+    .min(3, 'filters.minChars3')
+    .max(50, 'filters.maxChars50')
+    .refine((data) => !data.includes('_'), {
+      message: 'filters.charNotAllowedUnderscore'
     })
-    resetField('name')
-  }
+})
 
-  const onSubmit = (data: CreateFilter) => {
-    handleCreateFilter(data)
-  }
-
-  return { handleSubmit, control, errors, isDirty, touchedFields, onSubmit }
-}
+type CreateFilter = z.infer<typeof createFilterSchema>

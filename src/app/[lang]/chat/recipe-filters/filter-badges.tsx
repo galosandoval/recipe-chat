@@ -1,14 +1,15 @@
 'use client'
 
 import type { Filter } from '@prisma/client'
-import { CheckCircleIcon, XCircleIcon } from '~/components/icons'
 import { toast } from '~/components/toast'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 import { Badge } from '../badge'
 import { useMemo } from 'react'
+import { CheckCircleIcon, CircleIcon, XCircleIcon } from 'lucide-react'
+import { middleIndexOfNames } from '~/lib/middle-index-of-names'
 
 export function FilterBadges({
   filters,
@@ -60,13 +61,12 @@ export function FilterBadges({
 
   return (
     <div
-      id='filter-badges'
-      className='grid h-[5.3rem] grid-rows-2 gap-2 overflow-x-scroll px-2'
+      className='grid h-20 grid-rows-[min-content] gap-1 overflow-x-scroll px-2'
       ref={containerRef}
     >
       {/* splits in half because I couldn't figure out how to css the exact middle of item size */}
       {[firstHalf, secondHalf].map((half, idx) => (
-        <div key={idx} className='flex w-full gap-2'>
+        <div key={idx} className='flex h-fit w-full gap-2'>
           {half.map((filter) => (
             <FilterBadge
               key={filter.id}
@@ -99,9 +99,9 @@ function FilterBadge({
   if (checked) {
     icon = <CheckCircleIcon className='size-5' />
   } else if (canDelete) {
-    icon = <XCircleIcon size={5} />
+    icon = <XCircleIcon className='size-5' />
   } else {
-    icon = <span className='border-primary size-5 rounded-full border'></span>
+    icon = <CircleIcon className='text-primary size-5' />
   }
   const handleClick = canDelete
     ? () => onRemove(filter.id)
@@ -111,9 +111,11 @@ function FilterBadge({
     <Badge
       icon={icon}
       label={filter.name}
+      variant='outline'
       onClick={handleClick}
       className={cn(
-        canDelete && 'border-error text-error',
+        'select-none',
+        canDelete && 'border-destructive text-destructive',
         checked && 'border-primary text-primary'
       )}
     />
@@ -237,31 +239,4 @@ function transform(filters: Filter[], t: Translations) {
     firstHalf: sortedFilters.slice(0, index),
     secondHalf: sortedFilters.slice(index)
   }
-}
-
-function middleIndexOfNames(filters: Filter[]) {
-  let namesJoined = filters.map((f) => f.name).join('')
-  let lastIdx = 0
-  let runningLength = 0
-  const lengthToStop = namesJoined.length / 2
-
-  for (let i = 0; i < filters.length; i++) {
-    const filter = filters[i]
-    const filterName = filter.name
-    namesJoined = namesJoined.replace(filterName, '')
-
-    if (runningLength > lengthToStop) {
-      const leftLength = runningLength
-      const rightLength = namesJoined.length - runningLength
-      if (leftLength < rightLength) {
-        lastIdx = i - 2
-      } else {
-        lastIdx = i - 1
-      }
-      break
-    }
-    lastIdx = i
-    runningLength += filterName.length
-  }
-  return lastIdx
 }

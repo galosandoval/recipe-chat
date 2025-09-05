@@ -1,4 +1,3 @@
-import { Button } from '~/components/button'
 import { api } from '~/trpc/react'
 import { signIn } from 'next-auth/react'
 import {
@@ -21,8 +20,14 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useSignUp } from './sign-up'
+import { Button } from '../ui/button'
 
 const inputNames = ['email', 'password', 'confirm'] as const
+const translationKeys = {
+  email: 'auth.email',
+  password: 'auth.password',
+  confirm: 'auth.confirmPassword'
+} as const
 
 export function SignUpModal() {
   const t = useTranslations()
@@ -71,7 +76,7 @@ export function SignUpModal() {
 
   return (
     <Modal isOpen={isSignUpOpen} closeModal={handleCloseSignUp}>
-      <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
+      <div className='mx-auto flex h-full flex-col items-center justify-center py-5'>
         <h1 className='px-5'>{t.auth.signUp}</h1>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -80,7 +85,7 @@ export function SignUpModal() {
               key={name}
               errors={errors}
               register={register}
-              label={t.get(name)}
+              label={t.get(translationKeys[name])}
               isError={errors[name]}
             />
           ))}
@@ -147,11 +152,7 @@ export function SignUpModal() {
           </div>
 
           <div className='flex w-full max-w-[300px] flex-col items-center gap-2'>
-            <Button
-              className='btn btn-primary w-3/4'
-              type='submit'
-              isLoading={isLoading}
-            >
+            <Button className='w-3/4' type='submit' isLoading={isLoading}>
               {t.auth.signUp}
             </Button>
           </div>
@@ -246,7 +247,7 @@ export function LoginModal() {
 
   return (
     <Modal isOpen={isLoginOpen} closeModal={handleCloseLogin}>
-      <div className='prose mx-auto flex h-full flex-col items-center justify-center py-5'>
+      <div className='mx-auto flex h-full flex-col items-center justify-center py-5'>
         <h1 className='text-center'>{t.auth.login}</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-control'>
@@ -282,11 +283,7 @@ export function LoginModal() {
             <ErrorMessage errors={errors} name='password' />
           </div>
           <div className='mt-4 flex w-full max-w-[300px] flex-col items-center gap-2'>
-            <Button
-              isLoading={isSubmitting}
-              type='submit'
-              className='btn btn-primary w-3/4'
-            >
+            <Button isLoading={isSubmitting} type='submit' className='w-3/4'>
               {t.auth.login}
             </Button>
           </div>

@@ -1,9 +1,4 @@
 import { type MouseEvent } from 'react'
-import { Button } from '~/components/button'
-import {
-  ArrowUTurnLeftIcon,
-  ChatBubbleBottomCenterIcon
-} from '~/components/icons'
 import { useTranslations } from '~/hooks/use-translations'
 import {
   LoginModal,
@@ -12,7 +7,9 @@ import {
 } from '~/components/auth/auth-modals'
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
-import { userMessageDTO } from '~/utils/user-message-dto'
+import { userMessageDTO } from '~/lib/user-message-dto'
+import { Button } from '~/components/ui/button'
+import { CornerRightUpIcon, SaveIcon, SparklesIcon } from 'lucide-react'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
@@ -46,45 +43,41 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
   return (
     <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
       <div className='flex w-full flex-1 flex-col items-center justify-center pt-20'>
-        <ValuePropsHeader
-          icon={<ChatBubbleBottomCenterIcon />}
-          label={t.valueProps.title}
-        />
+        <ValuePropsHeader icon={<SparklesIcon />} label={t.valueProps.title} />
 
         <div className='flex w-full flex-col items-center gap-4 px-4'>
           <Button
-            type='submit'
-            className='btn btn-outline w-full normal-case'
+            type='button'
+            variant='outline'
+            className='w-full'
             onClick={handleFillMessage}
             disabled={isStreaming}
           >
-            <span className='whitespace-nowrap'>
-              {t.valueProps.firstButton}
-            </span>
-            <span>
-              <ArrowUTurnLeftIcon />
-            </span>
+            {t.valueProps.firstButton}
+            <CornerRightUpIcon />
           </Button>
           <Button
-            type='submit'
-            className='btn btn-outline w-full normal-case'
+            type='button'
+            variant='outline'
+            className='w-full'
             onClick={handleFillMessage}
             disabled={isStreaming}
           >
             <span>{t.valueProps.secondButton}</span>
             <span>
-              <ArrowUTurnLeftIcon />
+              <CornerRightUpIcon />
             </span>
           </Button>
           <Button
-            type='submit'
-            className='btn btn-outline w-full normal-case'
+            type='button'
+            variant='outline'
+            className='w-full'
             onClick={handleFillMessage}
             disabled={isStreaming}
           >
             <span>{t.valueProps.thirdButton}</span>
             <span>
-              <ArrowUTurnLeftIcon />
+              <CornerRightUpIcon />
             </span>
           </Button>
         </div>
@@ -112,13 +105,13 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
         />
 
         <div className='flex w-full flex-col items-center gap-4'>
-          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
+          <div className='text-foreground mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
             {t.capabilities.firstDescription}
           </div>
-          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
+          <div className='text-foreground mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
             {t.capabilities.secondDescription}
           </div>
-          <div className='text-base-content mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
+          <div className='text-foreground mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
             {t.capabilities.thirdDescription}
           </div>
         </div>
@@ -146,37 +139,17 @@ function Auth() {
     <>
       <div className='flex w-full flex-col items-center justify-center'>
         <ValuePropsHeader
-          icon={
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-6 w-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z'
-              />
-            </svg>
-          }
+          icon={<SaveIcon />}
           label={t.valueProps.saveRecipes}
         />
-
         <div className='flex w-full flex-col gap-2 px-4'>
-          <button onClick={handleOpenSignUp} className='btn btn-primary'>
-            {t.nav.menu.signUp}
-          </button>
-          <button onClick={handleOpenLogin} className='btn btn-outline'>
+          <Button onClick={handleOpenSignUp}>{t.nav.menu.signUp}</Button>
+          <Button onClick={handleOpenLogin} variant='outline'>
             {t.nav.menu.login}
-          </button>
+          </Button>
         </div>
       </div>
-
       <SignUpModal />
-
       <LoginModal />
     </>
   )
@@ -185,21 +158,29 @@ function Auth() {
 export function ValuePropsHeader({
   label,
   icon,
-  actionIcon = null
+  actionIcon = null,
+  description
 }: {
   label: string
   icon: React.ReactNode
   actionIcon?: React.ReactNode
+  description?: string
 }) {
   return (
-    <div className='relative w-full px-2'>
-      <div className='divider'>
-        <div className='flex items-center gap-2'>
-          <h2 className='text-base-content text-xl'>{label}</h2>
+    <>
+      <div className='grid w-full grid-cols-3 place-items-center px-2'>
+        <span></span>
+        <div className='flex items-center justify-center gap-2 py-2'>
           {icon}
+          <h2 className='text-foreground text-xl whitespace-nowrap'>{label}</h2>
         </div>
+        <span className='ml-auto'>{actionIcon}</span>
       </div>
-      <span className='absolute top-2 right-2 ml-auto'>{actionIcon}</span>
-    </div>
+      {description && (
+        <div className='flex flex-col gap-4 px-4 pb-2'>
+          <p className='text-foreground text-sm'>{description}</p>
+        </div>
+      )}
+    </>
   )
 }

@@ -2,7 +2,7 @@ import type { Filter } from '@prisma/client'
 import { useEffect, useRef, useState } from 'react'
 import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
 import { useTranslations } from '~/hooks/use-translations'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 
 // 550ms is the duration of the bounce animation
 const ANIMATION_DURATION = 550
@@ -35,7 +35,7 @@ export function ActiveCount({ data }: { data: Filter[] }) {
       <small className='text-xs'>{t.filters.active}</small>
       <span
         className={cn(
-          'text-base-content relative inline-block pl-1 text-xs',
+          'text-foreground relative inline-block pl-1 text-xs',
           isBouncing && 'animate-bounce'
         )}
       >

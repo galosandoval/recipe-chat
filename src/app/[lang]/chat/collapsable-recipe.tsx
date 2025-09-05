@@ -5,18 +5,19 @@ import { useMemo, useState } from 'react'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
-import { Button } from '../../../components/button'
-import {
-  ArrowTopRightOnSquareIcon,
-  ChevronDownIcon,
-  ClockIcon,
-  SaveIcon
-} from '../../../components/icons'
-import { cn } from '~/utils/cn'
-import { useAuthModal } from '../../../components/auth/auth-modals'
+import { cn } from '~/lib/utils'
+import { useAuthModal } from '~/components/auth/auth-modals'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { useRouter } from 'next/navigation'
-import { formatTimeFromMinutes } from '~/utils/format-time'
+import { formatTimeFromMinutes } from '~/lib/format-time'
+import { Button } from '~/components/ui/button'
+import {
+  ChevronDownIcon,
+  ClockIcon,
+  SaveIcon,
+  SquareArrowOutUpRightIcon
+} from 'lucide-react'
+import { Card } from '~/components/card'
 
 export function CollapsableRecipe({
   recipe,
@@ -33,10 +34,29 @@ export function CollapsableRecipe({
   }
 
   return (
-    <div
-      id={recipe.id}
-      key={recipe.name}
-      className='bg-base-100 mt-3 rounded p-3'
+    <Card
+      className='mt-3 w-full rounded'
+      footer={
+        <div className='flex w-full justify-between'>
+          <Button
+            size='sm'
+            variant='outline'
+            className='mt-2'
+            disabled={isStreaming}
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <ChevronDownIcon
+              className={cn('h-4 w-4', isOpen && 'rotate-180')}
+            />
+            {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
+          </Button>
+          <ActionButton
+            id={recipe.id}
+            saved={recipe.saved}
+            isStreaming={isStreaming}
+          />
+        </div>
+      }
     >
       <div className=''>
         <h3 className='font-semibold'>{recipe.name}</h3>
@@ -52,22 +72,7 @@ export function CollapsableRecipe({
           </div>
         )}
       </div>
-      <div className='flex justify-between'>
-        <Button
-          className='btn btn-sm mt-2'
-          disabled={isStreaming}
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <ChevronDownIcon className={cn('h-4 w-4', isOpen && 'rotate-180')} />
-          {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
-        </Button>
-        <ActionButton
-          id={recipe.id}
-          saved={recipe.saved}
-          isStreaming={isStreaming}
-        />
-      </div>
-    </div>
+    </Card>
   )
 }
 
@@ -125,26 +130,33 @@ function ActionButton({
   if (isAuthenticated && !saved) {
     return (
       <Button
-        className='btn btn-sm mt-2'
+        className='mt-2'
+        variant='outline'
+        size='sm'
         disabled={isStreaming || isUpsertingMessages > 0}
         isLoading={isPending}
         onClick={handleSaveRecipe}
       >
         <SaveIcon className='size-4' />
-        {t.chatWindow.save}
+        {t.common.save}
       </Button>
     )
   } else if (isAuthenticated && saved) {
     return (
-      <Button className='btn btn-sm mt-2' onClick={handleGoToRecipe}>
-        <ArrowTopRightOnSquareIcon className='size-4' />
+      <Button
+        variant='outline'
+        className='mt-2'
+        onClick={handleGoToRecipe}
+        size='sm'
+      >
+        <SquareArrowOutUpRightIcon className='size-4' />
         {t.chatWindow.toRecipe}
       </Button>
     )
   } else {
     return (
-      <Button className='btn btn-sm mt-2' onClick={handleOpenSignUp}>
-        {t.chatWindow.save}
+      <Button className='mt-2' onClick={handleOpenSignUp} size='sm'>
+        {t.common.save}
       </Button>
     )
   }
@@ -168,7 +180,7 @@ function Times({
   )
   if (!prepMinutes && !cookMinutes) return null
   return (
-    <div className='text-muted-foreground mb-2 flex items-center gap-2 self-center text-sm'>
+    <div className='text-foreground mb-2 flex items-center gap-2 self-center text-sm'>
       <ClockIcon className='size-4' />
       {prepMinutes && (
         <span className='flex items-center gap-2 text-xs'>

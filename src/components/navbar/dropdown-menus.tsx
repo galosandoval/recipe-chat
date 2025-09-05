@@ -1,61 +1,79 @@
-import { MenuItem } from '@headlessui/react'
-import { ThemeToggle, useTheme } from '../theme-toggle'
-import {
-  ArrowLeftOnRectangleIcon,
-  Cog6ToothIcon,
-  ListBulletIcon,
-  PlusIcon
-} from '../icons'
 import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
 import { useChatsDrawer } from '../chats-drawer'
 import { chatStore } from '~/stores/chat-store'
 import { useAuthModal } from '../auth/auth-modals'
-import { DropdownMenu } from '../dropdown-menu'
+import { DropdownMenu, type MenuItemProps } from '../dropdown-menu'
+import {
+  KeyRoundIcon,
+  ListCheck,
+  LogOutIcon,
+  MoonIcon,
+  PlusIcon,
+  SettingsIcon,
+  SunIcon
+} from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { darkTheme, lightTheme } from '~/constants/theme'
 
 export function NavDropdownMenu() {
+  const t = useTranslations()
+  const items = [
+    useLoginMenuItem(),
+    useThemeToggleMenuItem(),
+    useLogoutMenuItem(),
+    useStartNewChatMenuItem(),
+    useChatsSideBarMenuItem()
+  ]
   return (
-    <DropdownMenu icon={<Cog6ToothIcon />}>
-      <LoginMenuItem />
-      <ThemeToggleMenuItem />
-      <LogoutMenuItem />
-      <StartNewChatMenuItem />
-      <ChatsSideBarMenuItem />
-    </DropdownMenu>
+    <DropdownMenu
+      trigger={<SettingsIcon />}
+      items={items}
+      title={t.nav.settings}
+    />
   )
 }
 
-function LoginMenuItem() {
-  const t = useTranslations()
+function buildMenuItem(item: MenuItemProps) {
+  return {
+    label: item.label,
+    icon: item.icon,
+    onClick: item.onClick
+  }
+}
+
+function useLoginMenuItem() {
   const { handleOpenLogin } = useAuthModal()
   const { data: session } = useSession()
   if (session) return null
-  return (
-    <MenuItem>
-      <button
-        className='btn btn-ghost w-[8rem] justify-between'
-        onClick={handleOpenLogin}
-      >
-        <span>{t.nav.menu.login}</span>
-        <ArrowLeftOnRectangleIcon />
-      </button>
-    </MenuItem>
-  )
+
+  return buildMenuItem({
+    label: 'nav.menu.login',
+    icon: <KeyRoundIcon />,
+    onClick: handleOpenLogin
+  })
 }
 
-function ThemeToggleMenuItem() {
-  const { theme, updateTheme } = useTheme()
-  return (
-    <MenuItem>
-      <ThemeToggle showLabel updateTheme={updateTheme} theme={theme} />
-    </MenuItem>
-  )
+function useThemeToggleMenuItem() {
+  const { theme, setTheme } = useTheme()
+  const handleToggleTheme = () => {
+    if (theme === darkTheme) {
+      setTheme(lightTheme)
+    } else {
+      setTheme(darkTheme)
+    }
+  }
+
+  return buildMenuItem({
+    label: 'nav.menu.theme',
+    icon: theme === darkTheme ? <SunIcon /> : <MoonIcon />,
+    onClick: handleToggleTheme
+  })
 }
 
-function LogoutMenuItem() {
+function useLogoutMenuItem() {
   const { setChatId } = chatStore()
-  const t = useTranslations()
   const pathname = usePathname()
 
   const handleSignOut = () => {
@@ -64,21 +82,14 @@ function LogoutMenuItem() {
     setChatId('')
   }
 
-  return (
-    <MenuItem>
-      <button
-        onClick={handleSignOut}
-        className='btn btn-ghost w-[8rem] justify-between'
-      >
-        <span>{t.nav.menu.logout}</span>
-        <ArrowLeftOnRectangleIcon />
-      </button>
-    </MenuItem>
-  )
+  return buildMenuItem({
+    label: 'nav.menu.logout',
+    icon: <LogOutIcon />,
+    onClick: handleSignOut
+  })
 }
 
-function StartNewChatMenuItem() {
-  const t = useTranslations()
+function useStartNewChatMenuItem() {
   const { setChatId } = chatStore()
   const pathname = usePathname()
   const { setStream, setStreamingStatus, setMessages, messages } = chatStore()
@@ -94,21 +105,14 @@ function StartNewChatMenuItem() {
   const isInChat = pathname.includes('chat')
   if (!isInChat || (messages.length === 0 && isInChat)) return null
 
-  return (
-    <MenuItem>
-      <button
-        onClick={handleStartNewChat}
-        className='btn btn-ghost w-[8rem] justify-between'
-      >
-        <span>{t.nav.menu.startNewChat}</span>
-        <PlusIcon />
-      </button>
-    </MenuItem>
-  )
+  return buildMenuItem({
+    label: 'nav.menu.startNewChat',
+    icon: <PlusIcon />,
+    onClick: handleStartNewChat
+  })
 }
 
-function ChatsSideBarMenuItem() {
-  const t = useTranslations()
+function useChatsSideBarMenuItem() {
   const { chatId } = chatStore()
   const pathname = usePathname()
   const { handleToggleDrawer } = useChatsDrawer()
@@ -116,15 +120,9 @@ function ChatsSideBarMenuItem() {
   // Only show if there's an actual chat ID (not empty string or undefined)
   if (!chatId || !pathname.includes('chat')) return null
 
-  return (
-    <MenuItem>
-      <button
-        onClick={handleToggleDrawer}
-        className='btn btn-ghost w-[8rem] justify-between'
-      >
-        <span>{t.nav.menu.chats}</span>
-        <ListBulletIcon />
-      </button>
-    </MenuItem>
-  )
+  return buildMenuItem({
+    label: 'nav.menu.chats',
+    icon: <ListCheck />,
+    onClick: handleToggleDrawer
+  })
 }

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { initialFilters } from '~/utils/stock-filters'
+import { initialFilters } from '~/lib/stock-filters'
 
 const prisma = new PrismaClient()
 

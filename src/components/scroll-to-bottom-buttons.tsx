@@ -8,8 +8,9 @@ import ScrollToBottom, {
 } from 'react-scroll-to-bottom'
 import { ArrowSmallDownIcon, ArrowSmallUpIcon } from './icons'
 import { NoSsr } from './no-ssr'
-import { cn } from '~/utils/cn'
+import { cn } from '~/lib/utils'
 import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
+import { Button } from './ui/button'
 
 export function ScrollToButtons({ enable }: { enable: boolean }) {
   const scrollToBottom = useScrollToBottom()
@@ -40,8 +41,10 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
             enable ? 'translate-y-0 opacity-100' : 'invisible opacity-0'
           )}
         >
-          <button
-            className='btn btn-circle glass'
+          <Button
+            className='glass'
+            size='icon'
+            variant='ghost'
             onClick={
               sticky
                 ? () => scrollToBottom({ behavior: 'smooth' })
@@ -49,7 +52,7 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
             }
           >
             {sticky ? <ArrowSmallDownIcon /> : <ArrowSmallUpIcon />}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

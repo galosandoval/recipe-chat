@@ -1,4 +1,10 @@
 {
+  "common": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete"
+    },
+
   "nav": {
     "appName": "RecipeChat",
 
@@ -12,7 +18,8 @@
     },
     "chat": "Chat",
     "list": "List",
-    "recipes": "Recipes"
+    "recipes": "Recipes",
+    "settings": "Settings"
   },
 
   "required": "Required",
@@ -65,6 +72,8 @@
     "maxChars50": "Maximum 50 characters",
     "add": "Add filter",
     "noFilters": "No filters found. Add a filter to get started.",
+    "nameAlreadyExists": "Filter name already exists",
+    "charNotAllowedUnderscore": "Character not allowed: underscore",
     "initial": {
       "vegetarian": "Vegetarian",
       "vegan": "Vegan",
@@ -79,7 +88,6 @@
     "expand": "Expand",
     "collapse": "Collapse",
     "generate": "Generate",
-    "save": "Save",
     "saveSuccess": "Recipe saved successfully!",
     "chats": "Recent chats",
     "noChats": "No chats found. Start a new chat by asking about a recipe",
@@ -115,7 +123,6 @@
     "url": "Recipe URL",
     "upload": "Upload",
     "cancel": "Cancel",
-    "save": "Save",
     "delete": "Delete",
     "enterUrl": "Enter a valid url that contains a recipe.",
     "generate": "Generate",
