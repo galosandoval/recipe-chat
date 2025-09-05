@@ -20,11 +20,11 @@ import { darkTheme, lightTheme } from '~/constants/theme'
 export function NavDropdownMenu() {
   const t = useTranslations()
   const items = [
-    loginMenuItem(),
-    themeToggleMenuItem(),
-    logoutMenuItem(),
-    startNewChatMenuItem(),
-    chatsSideBarMenuItem()
+    useLoginMenuItem(),
+    useThemeToggleMenuItem(),
+    useLogoutMenuItem(),
+    useStartNewChatMenuItem(),
+    useChatsSideBarMenuItem()
   ]
   return (
     <DropdownMenu
@@ -43,7 +43,7 @@ function buildMenuItem(item: MenuItemProps) {
   }
 }
 
-function loginMenuItem() {
+function useLoginMenuItem() {
   const { handleOpenLogin } = useAuthModal()
   const { data: session } = useSession()
   if (session) return null
@@ -55,7 +55,7 @@ function loginMenuItem() {
   })
 }
 
-function themeToggleMenuItem() {
+function useThemeToggleMenuItem() {
   const { theme, setTheme } = useTheme()
   const handleToggleTheme = () => {
     if (theme === darkTheme) {
@@ -72,9 +72,8 @@ function themeToggleMenuItem() {
   })
 }
 
-function logoutMenuItem() {
+function useLogoutMenuItem() {
   const { setChatId } = chatStore()
-  const t = useTranslations()
   const pathname = usePathname()
 
   const handleSignOut = () => {
@@ -90,8 +89,7 @@ function logoutMenuItem() {
   })
 }
 
-function startNewChatMenuItem() {
-  const t = useTranslations()
+function useStartNewChatMenuItem() {
   const { setChatId } = chatStore()
   const pathname = usePathname()
   const { setStream, setStreamingStatus, setMessages, messages } = chatStore()
@@ -114,7 +112,7 @@ function startNewChatMenuItem() {
   })
 }
 
-function chatsSideBarMenuItem() {
+function useChatsSideBarMenuItem() {
   const { chatId } = chatStore()
   const pathname = usePathname()
   const { handleToggleDrawer } = useChatsDrawer()

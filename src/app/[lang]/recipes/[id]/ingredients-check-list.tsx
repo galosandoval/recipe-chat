@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation'
 import { Checkbox } from '~/components/checkbox'
 import { ListBulletIcon, PlusIcon } from '~/components/icons'
 import type { Ingredient } from '@prisma/client'
-import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 
 type Checked = Record<string, boolean>

@@ -232,7 +232,7 @@ function EditForm({ data }: { data: RecipeToEdit }) {
   const utils = api.useUtils()
   const router = useRouter()
   const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
-  const { mutate: editRecipe, isPending } = api.recipes.edit.useMutation({
+  const { mutate: editRecipe } = api.recipes.edit.useMutation({
     onSuccess: async (data, { newName }) => {
       await utils.recipes.byId.invalidate({ id: data })
       router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)

@@ -27,8 +27,12 @@ type Flatten<T> = T extends infer U ? U : never
 export type AllPaths<T> = Flatten<PathsToStringProps<T>>
 
 type TranslationMethods<T> = {
+  // Overload for typed paths (with autocomplete)
   replace(path: AllPaths<T>, ...args: string[]): string
   get(path: AllPaths<T>): string
+  // Overload for string paths (fallback)
+  replace(path: string, ...args: string[]): string
+  get(path: string): string
 }
 
 // Enhanced translations type that adds replace methods to nested objects

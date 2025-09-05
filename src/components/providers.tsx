@@ -5,7 +5,6 @@ import { TRPCReactProvider } from '~/trpc/react'
 import { SessionProvider } from 'next-auth/react'
 import type { Session } from 'next-auth'
 import { Toast } from './toast'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import {
   TranslationsContext,
