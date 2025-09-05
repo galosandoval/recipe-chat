@@ -11,9 +11,6 @@ import {
   type AwaitedTranslations,
   type Translations
 } from '~/hooks/use-translations'
-
-import { AuthModalProvider } from './auth/auth-modals'
-import { ChatsDrawerProvider } from './chats-drawer'
 import { ThemeProvider } from './theme-provider'
 
 export const Providers = ({
@@ -29,20 +26,16 @@ export const Providers = ({
     <TRPCReactProvider>
       <TranslationsContext.Provider value={translations as Translations}>
         <SessionProvider session={session}>
-          <ChatsDrawerProvider>
-            <AuthModalProvider>
-              <ThemeProvider
-                attribute='class'
-                defaultTheme='system'
-                enableSystem
-                disableTransitionOnChange
-              >
-                {children}
-                <Toast />
-                <Analytics />
-              </ThemeProvider>
-            </AuthModalProvider>
-          </ChatsDrawerProvider>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='system'
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toast />
+            <Analytics />
+          </ThemeProvider>
           {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </SessionProvider>
       </TranslationsContext.Provider>

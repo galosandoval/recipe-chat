@@ -23,24 +23,24 @@ export function Dialog({
   onClick,
   trigger,
   open,
-  setOpen
+  onOpenChange
 }: {
   cancelText: string
   submitText: string
   children: React.ReactNode
   title: string
   description: string
-  trigger: React.ReactNode
+  trigger?: React.ReactNode
   form: string
   type: ComponentProps<typeof Button>['type']
   isLoading: boolean
   onClick?: () => void
   open?: boolean
-  setOpen?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void
 }) {
   return (
-    <DialogUI open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+    <DialogUI open={open} onOpenChange={onOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className='pt-0 sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

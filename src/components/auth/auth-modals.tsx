@@ -1,40 +1,68 @@
 import { api } from '~/trpc/react'
 import { signIn } from 'next-auth/react'
-import {
-  ErrorMessage,
-  type ErrorMessageProps
-} from '~/components/error-message-content'
 import { toast } from '~/components/toast'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Modal } from '../modal'
-import { createContext, useContext, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
-import {
-  useForm,
-  type FieldErrors,
-  type FieldValues,
-  type Path,
-  type UseFormRegister
-} from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useSignUp } from './sign-up'
-import { Button } from '../ui/button'
+import { DrawerDialog } from '../drawer-dialog'
+import { Form, FormInput } from '../form'
+import { signUpSchema, type SignUpSchema } from '~/schemas/sign-up-schema'
+import type { MessageWithRecipes } from '~/schemas/chats-schema'
 
-const inputNames = ['email', 'password', 'confirm'] as const
-const translationKeys = {
-  email: 'auth.email',
-  password: 'auth.password',
-  confirm: 'auth.confirmPassword'
-} as const
-
-export function SignUpModal() {
+export function SignUpDrawerDialog({
+  trigger,
+  open,
+  onOpenChange
+}: {
+  trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}) {
   const t = useTranslations()
   const router = useRouter()
-  const { isSignUpOpen, handleCloseSignUp } = useAuthModal()
-  const { errors, isLoading, handleSubmit, onSubmit, register } =
-    useSignUp(onSignUpSuccess)
+  const form = useForm<SignUpSchema>({
+    resolver: zodResolver(signUpSchema)
+  })
+
+  const { mutate } = api.users.signUp.useMutation({
+    onSuccess: async ({}, { email, password }) => {
+      const response = await signIn('credentials', {
+        email,
+        password,
+        redirect: false
+      })
+      const lastMessage = messages.at(-1)
+      if (lastMessage) {
+        onSignUpSuccess(lastMessage)
+      } else if (response?.ok) {
+        router.push('/chat')
+
+        toast.success(t.auth.signUpSuccess)
+      }
+    },
+    onError: (error) => {
+      if (error.message && error.shape?.code === -32009) {
+        form.setError('email', {
+          type: 'pattern',
+          message: t.auth.replace(error.message)
+        })
+      } else if (error.message && error.message.includes('password')) {
+        form.setError('password', {
+          type: 'pattern',
+          message: t.auth.replace(error.message)
+        })
+      } else {
+        toast.error(error.message)
+      }
+    }
+  })
+
+  const onSubmit = (values: SignUpSchema) => {
+    mutate(values)
+  }
   const { messages } = chatStore()
   const { mutateAsync: createChatAndRecipeAsync } =
     api.users.createChatAndRecipe.useMutation({
@@ -43,13 +71,7 @@ export function SignUpModal() {
       }
     })
 
-  async function onSignUpSuccess() {
-    // TODO - this is a hack to get the selected recipe to save
-    const lastMessage = messages.at(-1)
-    if (!lastMessage) {
-      console.warn('No last message')
-      return
-    }
+  async function onSignUpSuccess(lastMessage: MessageWithRecipes) {
     const recipe = lastMessage.recipes?.[0]
     if (!recipe) {
       console.warn('No recipe')
@@ -75,124 +97,27 @@ export function SignUpModal() {
   }
 
   return (
-    <Modal isOpen={isSignUpOpen} closeModal={handleCloseSignUp}>
-      <div className='mx-auto flex h-full flex-col items-center justify-center py-5'>
-        <h1 className='px-5'>{t.auth.signUp}</h1>
-
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {inputNames.map((name) => (
-            <FormControl
-              key={name}
-              errors={errors}
-              register={register}
-              label={t.get(translationKeys[name])}
-              isError={errors[name]}
-            />
-          ))}
-          <FormControl
-            errors={errors}
-            register={register}
-            label={t.auth.email}
-            isError={errors.email}
-          />
-          <div className='form-control'>
-            <label htmlFor='email' className='label pt-0 pb-1'>
-              <span className='label-text'>
-                {t.auth.email}
-                <span className='text-error'>*</span>
-              </span>
-            </label>
-
-            <input
-              className={`input input-bordered ${
-                errors.email ? 'input-error' : ''
-              }`}
-              id='email'
-              {...register('email')}
-            />
-
-            <ErrorMessage errors={errors} name='email' />
-          </div>
-          <div className='form-control'>
-            <label htmlFor='password' className='label pt-0 pb-1'>
-              <span className='label-text'>
-                {t.auth.password}
-                <span className='text-error'>*</span>
-              </span>
-            </label>
-
-            <input
-              className={`input input-bordered ${
-                errors.password ? 'input-error' : ''
-              }`}
-              id='password'
-              type='password'
-              {...register('password')}
-            />
-            <ErrorMessage errors={errors} name='password' />
-          </div>
-          <div className='form-control'>
-            <label htmlFor='confirmPassword' className='label pt-0 pb-1'>
-              <span className='label-text'>
-                {t.auth.confirmPassword}
-                <span className='text-error'>*</span>
-              </span>
-            </label>
-
-            <input
-              className={`input input-bordered ${
-                errors.confirm ? 'input-error' : ''
-              }`}
-              id='confirmPassword'
-              type='password'
-              {...register('confirm')}
-            />
-
-            <ErrorMessage errors={errors} name='confirm' />
-          </div>
-
-          <div className='flex w-full max-w-[300px] flex-col items-center gap-2'>
-            <Button className='w-3/4' type='submit' isLoading={isLoading}>
-              {t.auth.signUp}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </Modal>
-  )
-}
-
-function FormControl<T extends FieldValues>({
-  errors,
-  register,
-  label,
-  isError
-}: {
-  errors: Partial<FieldErrors<T>>
-  register: UseFormRegister<T>
-  label: string
-  isError: any
-}) {
-  return (
-    <div className='form-control'>
-      <label htmlFor='email' className='label pt-0 pb-1'>
-        <span className='label-text'>
-          {label}
-          <span className='text-error'>*</span>
-        </span>
-      </label>
-
-      <input
-        className={`input input-bordered ${isError ? 'input-error' : ''}`}
-        id='email'
-        {...register(label as Path<T>)}
-      />
-
-      <ErrorMessage
-        errors={errors}
-        name={label as ErrorMessageProps<T>['name']}
-      />
-    </div>
+    <DrawerDialog
+      title={t.auth.signUp}
+      description={t.auth.signUpDescription}
+      trigger={trigger}
+      cancelText={t.common.cancel}
+      submitText={t.auth.signUp}
+      formId='signUp'
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <Form
+        onSubmit={onSubmit}
+        className='flex flex-col gap-3'
+        formId='signUp'
+        form={form}
+      >
+        <FormInput name='email' label={t.auth.email} />
+        <FormInput name='password' label={t.auth.password} />
+        <FormInput name='confirm' label={t.auth.confirmPassword} />
+      </Form>
+    </DrawerDialog>
   )
 }
 
@@ -203,17 +128,20 @@ export const loginSchema = (t: any) =>
   })
 type LoginSchemaType = z.infer<ReturnType<typeof loginSchema>>
 
-export function useLogin() {
+export function LoginDrawerDialog({
+  trigger,
+  open,
+  onOpenChange
+}: {
+  trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}) {
   const t = useTranslations()
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting }
-  } = useForm<LoginSchemaType>({
+  const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema(t))
   })
 
@@ -227,123 +155,31 @@ export function useLogin() {
     }
     if (response?.status === 401 || response?.error) {
       toast.error(t.auth.invalidCreds)
-      setError('email', { message: t.auth.invalidCreds })
-      setError('password', { message: t.auth.invalidCreds })
+      form.setError('email', { message: t.auth.invalidCreds })
+      form.setError('password', { message: t.auth.invalidCreds })
     }
   }
-  return {
-    register,
-    handleSubmit,
-    errors,
-    onSubmit,
-    isSubmitting
-  }
-}
-
-export function LoginModal() {
-  const t = useTranslations()
-  const { isLoginOpen, handleCloseLogin } = useAuthModal()
-  const { handleSubmit, errors, register, isSubmitting, onSubmit } = useLogin()
 
   return (
-    <Modal isOpen={isLoginOpen} closeModal={handleCloseLogin}>
-      <div className='mx-auto flex h-full flex-col items-center justify-center py-5'>
-        <h1 className='text-center'>{t.auth.login}</h1>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className='form-control'>
-            <label htmlFor='email' className='label pb-1'>
-              <span className='label-text'>{t.auth.email}</span>
-            </label>
-
-            <input
-              id='email'
-              className={`input input-bordered ${
-                errors.email ? 'input-error' : ''
-              }`}
-              {...register('email')}
-            />
-
-            <ErrorMessage errors={errors} name='email' />
-          </div>
-
-          <div className='form-control'>
-            <label htmlFor='password' className='label pb-1'>
-              <span className='label-text'>{t.auth.password}</span>
-            </label>
-
-            <input
-              id='password'
-              className={`input input-bordered ${
-                errors.password ? 'input-error' : ''
-              }`}
-              type='password'
-              {...register('password')}
-            />
-
-            <ErrorMessage errors={errors} name='password' />
-          </div>
-          <div className='mt-4 flex w-full max-w-[300px] flex-col items-center gap-2'>
-            <Button isLoading={isSubmitting} type='submit' className='w-3/4'>
-              {t.auth.login}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </Modal>
-  )
-}
-
-export const AuthModalContext = createContext<{
-  isSignUpOpen: boolean
-  isLoginOpen: boolean
-  handleCloseSignUp: () => void
-  handleOpenSignUp: () => void
-  handleCloseLogin: () => void
-  handleOpenLogin: () => void
-}>({
-  isSignUpOpen: false,
-  isLoginOpen: false,
-  handleCloseSignUp: () => {},
-  handleOpenSignUp: () => {},
-  handleCloseLogin: () => {},
-  handleOpenLogin: () => {}
-})
-
-export function AuthModalProvider({ children }: { children: React.ReactNode }) {
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
-
-  const handleCloseSignUp = () => {
-    setIsSignUpOpen(false)
-  }
-
-  const handleOpenSignUp = () => {
-    setIsSignUpOpen(true)
-  }
-
-  const handleCloseLogin = () => {
-    setIsLoginOpen(false)
-  }
-
-  const handleOpenLogin = () => {
-    setIsLoginOpen(true)
-  }
-  return (
-    <AuthModalContext.Provider
-      value={{
-        isSignUpOpen,
-        handleCloseSignUp,
-        handleOpenSignUp,
-        isLoginOpen,
-        handleCloseLogin,
-        handleOpenLogin
-      }}
+    <DrawerDialog
+      title={t.auth.login}
+      description={t.auth.loginDescription}
+      trigger={trigger}
+      cancelText={t.common.cancel}
+      submitText={t.auth.login}
+      formId='login'
+      open={open}
+      onOpenChange={onOpenChange}
     >
-      {children}
-    </AuthModalContext.Provider>
+      <Form
+        onSubmit={onSubmit}
+        className='flex flex-col gap-3'
+        formId='login'
+        form={form}
+      >
+        <FormInput name='email' label={t.auth.email} />
+        <FormInput name='password' type='password' label={t.auth.password} />
+      </Form>
+    </DrawerDialog>
   )
-}
-
-export const useAuthModal = () => {
-  return useContext(AuthModalContext)
 }

@@ -19,7 +19,6 @@ import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 import { cn } from '~/lib/utils'
-import { SignUpModal } from '~/components/auth/auth-modals'
 import { Message } from './message'
 
 export const Interface = () => {
@@ -69,8 +68,6 @@ export const Interface = () => {
         </div>
 
         <ScrollToButtons enable={!isStreaming} />
-
-        <SignUpModal />
       </div>
     </ScrollToBottomProvider>
   )

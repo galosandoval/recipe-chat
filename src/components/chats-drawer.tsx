@@ -11,42 +11,9 @@ import { Drawer } from './drawer'
 import { cn } from '~/lib/utils'
 import { chatStore } from '~/stores/chat-store'
 import { ListIcon } from 'lucide-react'
+import { LoadingSpinner } from './loaders/loading-spinner'
 
-export const ChatsDrawerContext = createContext<{
-  isOpen: boolean
-  handleToggleDrawer: () => void
-}>({
-  isOpen: false,
-  handleToggleDrawer: () => {}
-})
-
-export const ChatsDrawerProvider = ({
-  children
-}: {
-  children: React.ReactNode
-}) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const pathname = usePathname()
-
-  const handleToggleDrawer = () => {
-    setIsOpen((state) => !state)
-  }
-
-  if (!pathname.includes('chat')) {
-    return <>{children}</>
-  }
-
-  return (
-    <ChatsDrawerContext.Provider value={{ isOpen, handleToggleDrawer }}>
-      {children}
-    </ChatsDrawerContext.Provider>
-  )
-}
-
-export function useChatsDrawer() {
-  const { isOpen, handleToggleDrawer } = useContext(ChatsDrawerContext)
-  return { isOpen, handleToggleDrawer }
-}
+export function useChatsDrawer() {}
 
 const useGetChats = () => {
   const { status: authStatus, data } = useSession()
@@ -79,6 +46,14 @@ function ChatList({
     return null
   }
 
+  if (status === 'pending') {
+    return (
+      <div className='grid h-[30svh] place-items-center'>
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
   if (status === 'error') {
     return <div>{t.error.somethingWentWrong}</div>
   }
@@ -95,12 +70,6 @@ function ChatList({
   if (status === 'success') {
     return (
       <div className='flex h-full flex-col justify-end gap-2'>
-        {data.length > 0 && (
-          <div className='flex items-center justify-center gap-2'>
-            <h2 className='mt-0 mb-0'>{t.chatWindow.chats}</h2>
-            <ListBulletIcon />
-          </div>
-        )}
         <div className=''>
           {data.map((chat) => (
             <ChatOption
@@ -165,19 +134,26 @@ function ChatOption({
   )
 }
 
-export function ChatsDrawer() {
-  const { isOpen, handleToggleDrawer } = useChatsDrawer()
-
+export function ChatsDrawer({
+  open,
+  onOpenChange,
+  trigger = null
+}: {
+  open: boolean
+  onOpenChange: () => void
+  trigger?: React.ReactNode
+}) {
+  const t = useTranslations()
   return (
     <Drawer
-      trigger={<ListIcon />}
+      trigger={trigger}
       formId='chats-drawer'
-      onOpenChange={handleToggleDrawer}
-      open={isOpen}
-      title='nav.chat'
+      onOpenChange={onOpenChange}
+      open={open}
+      title={t.chatWindow.chatsDrawer.title}
     >
       <div className='flex h-full flex-col justify-between'>
-        <ChatList handleToggleChatsModal={handleToggleDrawer} />
+        <ChatList handleToggleChatsModal={onOpenChange} />
       </div>
     </Drawer>
   )

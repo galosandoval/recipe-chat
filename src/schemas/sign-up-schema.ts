@@ -11,4 +11,4 @@ export const signUpSchema = z
     path: ['confirm']
   })
 
-export type SignUpSchemaType = z.infer<typeof signUpSchema>
+export type SignUpSchema = z.infer<typeof signUpSchema>

@@ -9,11 +9,15 @@ import {
 } from './ui/dropdown-menu'
 import { DropdownMenu as DropdownMenuUI } from './ui/dropdown-menu'
 
-export type MenuItemProps = {
-  label?: TPaths
-  icon?: React.ReactNode
-  onClick?: () => void
-}
+export type MenuItemProps =
+  | {
+      label?: TPaths
+      icon?: React.ReactNode
+      onClick?: () => void
+    }
+  | {
+      slot: React.ReactNode
+    }
 
 export function DropdownMenu<T extends MenuItemProps | null>({
   items,
@@ -38,12 +42,19 @@ export function DropdownMenu<T extends MenuItemProps | null>({
         <DropdownMenuSeparator />
         {items.map((item, idx) => {
           if (!item) return null
+          if ('slot' in item) {
+            return (
+              <DropdownMenuItem asChild key={idx}>
+                {item.slot}
+              </DropdownMenuItem>
+            )
+          }
           if (!item.label && !item.icon && !item.onClick)
             return <DropdownMenuSeparator key={idx} />
           return (
             <DropdownMenuItem key={idx} onClick={item.onClick}>
               {item.icon}
-              {<span>{t.get(item.label as TPaths)}</span>}
+              {<span>{t.get(item.label ?? '')}</span>}
             </DropdownMenuItem>
           )
         })}

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { toast } from '../toast'
-import { signUpSchema, type SignUpSchemaType } from '~/schemas/sign-up-schema'
+import { signUpSchema, type SignUpSchema } from '~/schemas/sign-up-schema'
 
 export function useSignUp(successCallback?: () => Promise<void>) {
   const t = useTranslations()
@@ -15,7 +15,7 @@ export function useSignUp(successCallback?: () => Promise<void>) {
     handleSubmit,
     formState: { errors },
     setError
-  } = useForm<SignUpSchemaType>({
+  } = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema)
   })
   const router = useRouter()
@@ -53,7 +53,7 @@ export function useSignUp(successCallback?: () => Promise<void>) {
     }
   })
 
-  const onSubmit = (values: SignUpSchemaType) => {
+  const onSubmit = (values: SignUpSchema) => {
     mutate(values)
   }
 

@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import { NavDropdownMenu } from './dropdown-menus'
+import { NavDropdownMenu } from './settings-dropdown-menu'
 import { ArrowBigLeft, CookingPot, ListTodo, MessageCircle } from 'lucide-react'
 import { XIcon } from '../icons'
 import { useTranslations } from '~/hooks/use-translations'
@@ -38,9 +38,9 @@ function PublicNavbar() {
   const t = useTranslations()
 
   return (
-    <nav className='navbar grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4'>
+    <nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4 py-2'>
       <div></div>
-      <h1 className='mb-0 text-base'>{t.nav.appName}</h1>
+      <h1 className='text-base'>{t.nav.appName}</h1>
       <div className='justify-self-end'>
         <NavDropdownMenu />
       </div>
@@ -103,7 +103,7 @@ function RoutesNavbar() {
       <div className='text-foreground my-1 bg-transparent text-sm font-bold'>
         RecipeChat
       </div>
-      <nav className='bg-card p top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden bg-transparent px-5 py-1.5'>
+      <nav className='top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden bg-transparent px-5 py-1.5'>
         {MENU_ITEMS.map((item) => (
           <Button
             className={cn(

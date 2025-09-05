@@ -37,7 +37,9 @@
     "minChars6": "Mínimo 6 caracteres",
     "maxChars20": "Mínimo 20 caracteres",
     "passwordsDontMatch": "Las contraseñas no coinciden",
-    "emailRequired": "Correo electrónico no válido"
+    "emailRequired": "Correo electrónico no válido",
+    "signUpDescription": "Únete a RecipeChat y descubre tu próxima comida favorita! Obtén recomendaciones de recetas personalizadas, guarda tus favoritos y chatea con IA para encontrar el plato perfecto para cualquier ocasión.",
+    "loginDescription": "Bienvenido de nuevo a RecipeChat! Continúa explorando deliciosas recetas, accede a tus favoritos guardados y obtén inspiración instantánea para cocinar."
   },
 
   "list": {
@@ -95,7 +97,10 @@
     "generatedRecipe": "¡$1 generada!",
     "generatingRecipe": "Generando receta completa para $1...",
     "chatFormPlaceholder": "Pregunta sobre una receta",
-    "chatFormContinue": "Sigue con un mensaje o correcciones"
+    "chatFormContinue": "Sigue con un mensaje o correcciones",
+    "chatsDrawer": {
+      "title": "Recientes chats"
+    }
   },
 
   "recipes": {

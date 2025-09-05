@@ -1,9 +1,8 @@
 import { type MouseEvent } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import {
-  LoginModal,
-  SignUpModal,
-  useAuthModal
+  LoginDrawerDialog,
+  SignUpDrawerDialog
 } from '~/components/auth/auth-modals'
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
@@ -129,7 +128,6 @@ function Auth() {
   const isAuthenticated = session.status === 'authenticated'
 
   const t = useTranslations()
-  const { handleOpenSignUp, handleOpenLogin } = useAuthModal()
 
   if (isAuthenticated) {
     return null
@@ -143,14 +141,12 @@ function Auth() {
           label={t.valueProps.saveRecipes}
         />
         <div className='flex w-full flex-col gap-2 px-4'>
-          <Button onClick={handleOpenSignUp}>{t.nav.menu.signUp}</Button>
-          <Button onClick={handleOpenLogin} variant='outline'>
-            {t.nav.menu.login}
-          </Button>
+          <SignUpDrawerDialog trigger={<Button>{t.nav.menu.signUp}</Button>} />
+          <LoginDrawerDialog
+            trigger={<Button variant='outline'>{t.nav.menu.login}</Button>}
+          />
         </div>
       </div>
-      <SignUpModal />
-      <LoginModal />
     </>
   )
 }
