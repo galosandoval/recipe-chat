@@ -7,7 +7,7 @@ import { createId } from '@paralleldrive/cuid2'
 import { Button } from '~/components/ui/button'
 import { PlusCircleIcon } from 'lucide-react'
 import { Form, FormInput } from '~/components/form'
-import { useForm, useFormContext } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 
@@ -52,10 +52,7 @@ function FormContent({ disabled }: { disabled?: boolean }) {
   const t = useTranslations()
   return (
     <>
-      <FormInput
-        name='name'
-        inputProps={{ placeholder: t.filters.placeholder }}
-      />
+      <FormInput name='name' placeholder={t.filters.placeholder} />
       <Button
         type='submit'
         variant='outline'

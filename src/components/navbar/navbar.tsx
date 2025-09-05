@@ -100,10 +100,10 @@ function RoutesNavbar() {
   const isActive = (path: string) => pathname.includes(path)
   return (
     <div className='from-background to-background/70 border-b-foreground/30 fixed top-0 z-10 mx-auto flex w-full flex-col items-center border-b-[0.5px] bg-transparent bg-gradient-to-b bg-blend-saturation backdrop-blur-xs'>
-      <div className='text-foreground bg-background my-1 text-sm font-bold'>
+      <div className='text-foreground my-1 bg-transparent text-sm font-bold'>
         RecipeChat
       </div>
-      <nav className='bg-card p top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden px-5 py-1.5'>
+      <nav className='bg-card p top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden bg-transparent px-5 py-1.5'>
         {MENU_ITEMS.map((item) => (
           <Button
             className={cn(

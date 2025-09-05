@@ -6,15 +6,16 @@ import { chatStore } from '~/stores/chat-store'
 import { useAuthModal } from '../auth/auth-modals'
 import { DropdownMenu, type MenuItemProps } from '../dropdown-menu'
 import {
+  KeyRoundIcon,
   ListCheck,
   LogOutIcon,
-  Moon,
-  Plus,
-  Settings,
-  SquareArrowOutUpLeft,
-  Sun
+  MoonIcon,
+  PlusIcon,
+  SettingsIcon,
+  SunIcon
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { darkTheme, lightTheme } from '~/constants/theme'
 
 export function NavDropdownMenu() {
   const t = useTranslations()
@@ -22,12 +23,15 @@ export function NavDropdownMenu() {
     loginMenuItem(),
     themeToggleMenuItem(),
     logoutMenuItem(),
-    // separator
     startNewChatMenuItem(),
     chatsSideBarMenuItem()
   ]
   return (
-    <DropdownMenu trigger={<Settings />} items={items} title={t.nav.settings} />
+    <DropdownMenu
+      trigger={<SettingsIcon />}
+      items={items}
+      title={t.nav.settings}
+    />
   )
 }
 
@@ -46,12 +50,10 @@ function loginMenuItem() {
 
   return buildMenuItem({
     label: 'nav.menu.login',
-    icon: <LogOutIcon />,
+    icon: <KeyRoundIcon />,
     onClick: handleOpenLogin
   })
 }
-export const darkTheme = 'dark'
-export const lightTheme = 'light'
 
 function themeToggleMenuItem() {
   const { theme, setTheme } = useTheme()
@@ -65,7 +67,7 @@ function themeToggleMenuItem() {
 
   return buildMenuItem({
     label: 'nav.menu.theme',
-    icon: theme === darkTheme ? <Sun /> : <Moon />,
+    icon: theme === darkTheme ? <SunIcon /> : <MoonIcon />,
     onClick: handleToggleTheme
   })
 }
@@ -83,7 +85,7 @@ function logoutMenuItem() {
 
   return buildMenuItem({
     label: 'nav.menu.logout',
-    icon: <SquareArrowOutUpLeft />,
+    icon: <LogOutIcon />,
     onClick: handleSignOut
   })
 }
@@ -107,7 +109,7 @@ function startNewChatMenuItem() {
 
   return buildMenuItem({
     label: 'nav.menu.startNewChat',
-    icon: <Plus />,
+    icon: <PlusIcon />,
     onClick: handleStartNewChat
   })
 }

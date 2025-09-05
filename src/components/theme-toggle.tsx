@@ -2,9 +2,8 @@ import { MoonIcon, SunIcon } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useTranslations } from '~/hooks/use-translations'
 import { Button } from './ui/button'
+import { darkTheme, lightTheme } from '~/constants/theme'
 
-export const darkTheme = 'dark'
-export const lightTheme = 'light'
 
 export const ThemeToggle = () => {
   const t = useTranslations()

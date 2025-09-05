@@ -270,12 +270,12 @@ function EditForm({ data }: { data: RecipeToEdit }) {
       <FormTextarea name='description' label={t.recipes.description} />
       <div className='flex justify-between gap-2'>
         <FormInput
-          inputProps={{ type: 'number' }}
+          type='number'
           name='prepMinutes'
           label={t.recipes.prepTime}
         />
         <FormInput
-          inputProps={{ type: 'number' }}
+          type='number'
           name='cookMinutes'
           label={t.recipes.cookTime}
         />

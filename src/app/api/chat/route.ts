@@ -1,7 +1,7 @@
 import { streamObject } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { chatParams, generatedMessageSchema } from '~/schemas/chats-schema'
-import { buildSystemPrompt } from '~/app/constants/chat'
+import { buildSystemPrompt } from '~/constants/chat'
 import { prisma } from '~/server/db'
 import { compactTitles } from '~/lib/compact-title'
 

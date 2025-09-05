@@ -45,16 +45,16 @@ export function useListController(data: Ingredient[]) {
   const allChecked = data.every((c) => c.checked)
   const noneChecked = data.every((c) => !c.checked)
 
-  const utils = api.useContext()
+  const utils = api.useUtils()
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isValid }
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema)
   })
+  const {
+    reset,
+    formState: { isValid }
+  } = form
+
   const { mutate: addToList, status: addStatus } = api.lists.add.useMutation({
     onMutate: async (input) => {
       await utils.lists.byUserId.cancel({ userId })
@@ -242,16 +242,12 @@ export function useListController(data: Ingredient[]) {
   return {
     handleToggleByRecipe,
     byRecipe,
-    allChecked,
     handleCheck,
-    handleCheckAll,
     noneChecked,
     handleRemoveChecked,
     isValid,
-    addStatus,
-    register,
-    handleSubmit,
-    onSubmitNewIngredient
+    onSubmitNewIngredient,
+    form
   }
 }
 

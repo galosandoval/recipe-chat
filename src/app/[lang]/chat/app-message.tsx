@@ -26,7 +26,7 @@ export function GenerateStatusAppMessage({
   const icon = useMemo(
     () =>
       isStreaming ? (
-        <LoadingSpinner className='text-foreground size-4' />
+        <LoadingSpinner className='text-primary size-4' />
       ) : (
         <CheckCircleIcon className='text-success size-5' />
       ),

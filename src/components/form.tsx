@@ -63,7 +63,7 @@ export function FormField<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className='w-full'>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             {typeof children === 'function' ? children(field) : children}
@@ -81,13 +81,12 @@ export function FormInput<T extends FieldValues>({
   name,
   label,
   description,
-  inputProps
+  ...inputProps
 }: {
   name: Path<T>
   label?: string
   description?: string
-  inputProps?: React.ComponentProps<typeof Input>
-}) {
+} & React.ComponentProps<typeof Input>) {
   return (
     <FormField name={name} label={label} description={description}>
       {(field) => <Input {...inputProps} {...field} />}
