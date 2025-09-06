@@ -1,6 +1,6 @@
 'use client'
 
-import { UserCircleIcon } from '~/components/icons'
+import { BotMessageSquareIcon } from 'lucide-react'
 import type { GeneratedMessage } from '~/schemas/chats-schema'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
@@ -24,7 +24,7 @@ export function Stream({
   return (
     <div className='flex flex-col'>
       <div className='mx-auto w-full'>
-        <ChatMessage content={stream.content} icon={<UserCircleIcon />}>
+        <ChatMessage content={stream.content} icon={<BotMessageSquareIcon />}>
           <>
             {isRenderingOneRecipe && (
               <CollapsableRecipe

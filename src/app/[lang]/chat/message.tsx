@@ -1,4 +1,4 @@
-import { UserCircleIcon } from 'lucide-react'
+import { BotMessageSquareIcon, UserCircleIcon } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { CollapsableRecipe } from './collapsable-recipe'
@@ -154,7 +154,7 @@ export function AssistantMessage({
   return (
     <div className='flex flex-col items-center self-start'>
       <div className='mx-auto w-full'>
-        <ChatMessage content={message.content} icon={<UserCircleIcon />}>
+        <ChatMessage content={message.content} icon={<BotMessageSquareIcon />}>
           <>
             {message.recipes?.length === 1 && (
               <CollapsableRecipe

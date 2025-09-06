@@ -1,10 +1,8 @@
 'use client'
 
 import { useMediaQuery } from '~/hooks/use-media-query'
-import React, { useState } from 'react'
 import { Dialog } from './dialog'
 import { Drawer } from './drawer'
-import { type TPaths } from '~/hooks/use-translations'
 
 export function DrawerDialog({
   title,
@@ -13,27 +11,30 @@ export function DrawerDialog({
   children,
   cancelText,
   submitText,
-  formId
+  formId,
+  open,
+  onOpenChange
 }: {
-  title: TPaths
+  title: string
   description: string
-  trigger: React.ReactNode
+  trigger?: React.ReactNode
   children: React.ReactNode
   cancelText: string
   submitText: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
   /**
    * The id of the form to submit if the children are a form
    */
   formId: string
 }) {
-  const [open, setOpen] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
   if (isDesktop) {
     return (
       <Dialog
         open={open}
-        setOpen={setOpen}
+        onOpenChange={onOpenChange}
         trigger={trigger}
         cancelText={cancelText}
         submitText={submitText}
@@ -51,7 +52,7 @@ export function DrawerDialog({
   return (
     <Drawer
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={onOpenChange}
       trigger={trigger}
       cancelText={cancelText}
       submitText={submitText}

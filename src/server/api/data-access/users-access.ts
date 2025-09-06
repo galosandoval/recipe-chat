@@ -2,7 +2,7 @@ import { createId } from '@paralleldrive/cuid2'
 import { hash } from 'bcryptjs'
 import { DataAccess } from './data-access'
 import { initialFilters } from '~/lib/stock-filters'
-import type { SignUpSchemaType } from '~/schemas/sign-up-schema'
+import type { SignUpSchema } from '~/schemas/sign-up-schema'
 import type { CreateChatAndRecipe } from '~/schemas/chats-schema'
 
 export class UsersAccess extends DataAccess {
@@ -18,7 +18,7 @@ export class UsersAccess extends DataAccess {
     })
   }
 
-  async createUser(input: SignUpSchemaType) {
+  async createUser(input: SignUpSchema) {
     const { email, password } = input
     const username = email.toLowerCase()
     const hashedPassword = await hash(password, 10)

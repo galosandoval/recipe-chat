@@ -1,4 +1,3 @@
-import { useTranslations, type TPaths } from '~/hooks/use-translations'
 import { Button } from './ui/button'
 import {
   DrawerClose,
@@ -20,43 +19,44 @@ export const Drawer = ({
   title,
   description,
   trigger,
-  formId
+  formId,
+  className
 }: {
   cancelText?: string
   children: React.ReactNode
   submitText?: string
-  title: TPaths
+  title: string
   description?: string
-  trigger: React.ReactNode
+  trigger?: React.ReactNode
   formId: string
+  className?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }) => {
-  const t = useTranslations()
+  const isDisplayingFooter = cancelText || submitText
   return (
     <DrawerUI open={open} onOpenChange={onOpenChange}>
-      <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-      <DrawerContent>
+      {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
+      <DrawerContent className={className}>
         <DrawerHeader className='text-left'>
-          <DrawerTitle>{t.get(title)}</DrawerTitle>
+          <DrawerTitle>{title}</DrawerTitle>
           {description && <DrawerDescription>{description}</DrawerDescription>}
         </DrawerHeader>
         <div className='px-4'>{children}</div>
-        {cancelText ||
-          (submitText && (
-            <DrawerFooter className='pt-2'>
-              {cancelText && (
-                <DrawerClose asChild>
-                  <Button variant='outline'>{cancelText}</Button>
-                </DrawerClose>
-              )}
-              {submitText && (
-                <Button type='submit' form={formId}>
-                  {submitText}
-                </Button>
-              )}
-            </DrawerFooter>
-          ))}
+        {isDisplayingFooter && (
+          <DrawerFooter className='pt-2'>
+            {cancelText && (
+              <DrawerClose asChild>
+                <Button variant='outline'>{cancelText}</Button>
+              </DrawerClose>
+            )}
+            {submitText && (
+              <Button type='submit' form={formId}>
+                {submitText}
+              </Button>
+            )}
+          </DrawerFooter>
+        )}
       </DrawerContent>
     </DrawerUI>
   )

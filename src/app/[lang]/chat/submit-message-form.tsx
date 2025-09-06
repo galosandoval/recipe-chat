@@ -17,6 +17,7 @@ import { api } from '~/trpc/react'
 import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
+import { BottomBar } from '~/components/bottom-bar'
 
 function useRecipeChat() {
   const userId = useUserId()
@@ -104,21 +105,18 @@ export function SubmitMessageForm() {
   }
 
   return (
-    <form
-      onSubmit={enhancedHandleSubmit}
-      className='absolute bottom-0 left-0 flex w-full items-center md:rounded-md'
-    >
-      <div className='bg-secondary/75 mx-auto flex w-full max-w-2xl items-center py-1 sm:mb-2 sm:rounded-lg'>
-        <div className='flex w-full px-2 py-1'>
+    <form onSubmit={enhancedHandleSubmit}>
+      <BottomBar>
+        <div className='flex w-full'>
           <Input
             value={input}
             onChange={handleInputChange}
             placeholder={placeholder}
-            className='bg-background/75 focus:bg-background relative w-full'
+            className='bg-background/75 focus:bg-background w-full'
           />
         </div>
 
-        <div className='pr-2'>
+        <div>
           <Button
             type='submit'
             disabled={input.length < 5 && !isStreaming}
@@ -127,7 +125,7 @@ export function SubmitMessageForm() {
             {isStreaming ? <StopIcon /> : <PaperPlaneIcon />}
           </Button>
         </div>
-      </div>
+      </BottomBar>
     </form>
   )
 }

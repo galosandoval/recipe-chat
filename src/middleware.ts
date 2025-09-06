@@ -10,10 +10,14 @@ export async function middleware(req: NextRequest) {
   const pathnameIsMissingLocale = i18n.locales.every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   )
-  const hasImages = req.nextUrl.href.includes(`${req.nextUrl.origin}/images/`)
+  const includesPath = (path: string) =>
+    req.nextUrl.href.includes(`${req.nextUrl.origin}/${path}`)
   // Redirect if there is no locale
 
-  if (pathnameIsMissingLocale && !hasImages) {
+  const paths = ['/images/']
+  const ignoreSomePath = paths.some((path) => includesPath(path))
+  console.log('ignoreSomePath', ignoreSomePath)
+  if (pathnameIsMissingLocale && !ignoreSomePath) {
     const locale = getLocale(req)
 
     // Build the search params string with all existing parameters

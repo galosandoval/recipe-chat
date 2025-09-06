@@ -1,6 +1,7 @@
 import React, { type ChangeEvent, type RefObject } from 'react'
 import { MagnifyingGlassCircleIcon, XCircleIcon } from '~/components/icons'
 import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
 import { useTranslations } from '~/hooks/use-translations'
 
 export const SearchBarWrapper = React.memo(function SearchBarWrapper({
@@ -43,12 +44,11 @@ const SearchBar = React.memo(function SearchBar({
   const t = useTranslations()
 
   return (
-    <div className='fixed top-[5.2rem] right-0 left-0 z-10 flex w-full items-center md:rounded-md'>
+    <div className='fixed top-[4.68rem] right-0 left-0 z-10 flex w-full items-center md:rounded-md'>
       <div className='glass-element mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
-          <input
+          <Input
             type='text'
-            className='input input-bordered text-foreground/70 bg-background/60 focus:bg-background w-full'
             value={search}
             onChange={handleChange}
             placeholder={t.recipes.search}
@@ -56,11 +56,7 @@ const SearchBar = React.memo(function SearchBar({
           />
         </div>
         <div className='pr-2'>
-          <Button
-            type='button'
-            onClick={handleSearchButtonClick}
-            className='text-foreground'
-          >
+          <Button type='button' onClick={handleSearchButtonClick}>
             {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
           </Button>
         </div>

@@ -10,7 +10,7 @@ export function RecipeTime({
 }) {
   const t = useTranslations()
   return (
-    <div className='stats glass-element my-2 rounded'>
+    <div className='glass-element my-2 rounded'>
       <div className='stat place-items-center px-3 py-3'>
         <div className='text-glass'>{t.recipes.prepTime}</div>
         <div className='text-glass whitespace-normal'>{prepTime}</div>
@@ -33,7 +33,7 @@ export function NewRecipeTime({
 }) {
   const t = useTranslations()
   return (
-    <div className='stats glass-element my-2 rounded'>
+    <div className='glass-element my-2 flex rounded'>
       <div className='stat place-items-center px-3 py-3'>
         <div className='text-glass'>{t.recipes.prepTime}</div>
         <div className='text-glass whitespace-normal'>

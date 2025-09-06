@@ -1,6 +1,5 @@
 'use client'
 
-import { DialogTitle } from '@headlessui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -107,9 +106,9 @@ function UploadRecipeUrlForm({
 
   return (
     <div className='min-w-sm'>
-      <DialogTitle as='h3' className='mt-0'>
+      {/* <DialogTitle as='h3' className='mt-0'>
         {t.recipes.url}
-      </DialogTitle>
+      </DialogTitle> */}
       <form onSubmit={handleSubmit(onSubmit)} className=''>
         <div className='mt-2 flex flex-col gap-1'>
           <label htmlFor='url' className='label'>

@@ -3,10 +3,10 @@ import { UsersAccess } from '~/server/api/data-access/users-access'
 import type { Context } from '~/server/api/trpc'
 import { createId } from '@paralleldrive/cuid2'
 import type { PrismaClient } from '@prisma/client'
-import type { SignUpSchemaType } from '~/schemas/sign-up-schema'
+import type { SignUpSchema } from '~/schemas/sign-up-schema'
 import type { CreateChatAndRecipe } from '~/schemas/chats-schema'
 
-export async function signUp(input: SignUpSchemaType, prisma: PrismaClient) {
+export async function signUp(input: SignUpSchema, prisma: PrismaClient) {
   const usersDataAccess = new UsersAccess(prisma)
   const username = input.email.toLowerCase()
 

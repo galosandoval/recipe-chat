@@ -6,7 +6,7 @@ import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { cn } from '~/lib/utils'
-import { useAuthModal } from '~/components/auth/auth-modals'
+import { LoginDrawerDialog } from '~/components/auth/auth-drawer-dialogs'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { useRouter } from 'next/navigation'
 import { formatTimeFromMinutes } from '~/lib/format-time'
@@ -88,7 +88,6 @@ function ActionButton({
   const t = useTranslations()
   const router = useRouter()
 
-  const { handleOpenSignUp } = useAuthModal()
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
@@ -112,8 +111,6 @@ function ActionButton({
 
   const handleSaveRecipe = () => {
     if (!isAuthenticated) {
-      handleOpenSignUp()
-
       toast.info(t.toast.signUp)
       return
     }
@@ -154,10 +151,15 @@ function ActionButton({
       </Button>
     )
   } else {
+    // Open sign up drawer
     return (
-      <Button className='mt-2' onClick={handleOpenSignUp} size='sm'>
-        {t.common.save}
-      </Button>
+      <LoginDrawerDialog
+        trigger={
+          <Button className='mt-2' size='sm'>
+            {t.common.save}
+          </Button>
+        }
+      />
     )
   }
 }

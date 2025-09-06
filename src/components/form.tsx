@@ -16,6 +16,7 @@ import { FormItem } from './ui/form'
 import { FormLabel } from './ui/form'
 import { FormControl } from './ui/form'
 import { Input } from './ui/input'
+import { Togglebox } from './togglebox'
 
 export function Form<T extends FieldValues>({
   children,
@@ -147,6 +148,34 @@ export function FormSelect<T extends FieldValues>({
             </option>
           ))}
         </select>
+      )}
+    </FormField>
+  )
+}
+
+export function FormCheckbox<T extends FieldValues>({
+  name,
+  label,
+  description,
+  checkboxProps
+}: {
+  name: Path<T>
+  label: string
+  description?: string
+  checkboxProps?: React.ComponentProps<typeof Togglebox>
+}) {
+  return (
+    <FormField name={name} label={label} description={description}>
+      {(field) => (
+        <Togglebox
+          checked={field.value?.checked}
+          onChange={(checked) =>
+            field.onChange({ ...field.value, checked: checked })
+          }
+          label={label}
+          id={name}
+          {...checkboxProps}
+        />
       )}
     </FormField>
   )

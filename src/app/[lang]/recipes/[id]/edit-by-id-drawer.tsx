@@ -27,7 +27,12 @@ export function EditByIdDrawer() {
   const { data: recipe } = api.recipes.byId.useQuery({ id: id as string })
   if (!recipe)
     return (
-      <Button variant='outline' disabled size='icon'>
+      <Button
+        variant='outline'
+        className='text-glass bg-transparent'
+        disabled
+        size='icon'
+      >
         <SquarePenIcon />
       </Button>
     )

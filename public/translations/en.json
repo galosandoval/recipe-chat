@@ -1,9 +1,9 @@
 {
   "common": {
-      "cancel": "Cancel",
-      "save": "Save",
-      "delete": "Delete"
-    },
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete"
+  },
 
   "nav": {
     "appName": "RecipeChat",
@@ -37,7 +37,9 @@
     "minChars6": "Minimum 6 characters",
     "maxChars20": "Minimum 20 characters",
     "passwordsDontMatch": "Passwords don't match",
-    "emailRequired": "Invalid email"
+    "emailRequired": "Invalid email",
+    "signUpDescription": "Join RecipeChat and discover your next favorite meal! Get personalized recipe recommendations, save your favorites, and chat with AI to find the perfect dish for any occasion.",
+    "loginDescription": "Welcome back to RecipeChat! Continue exploring delicious recipes, access your saved favorites, and get instant cooking inspiration."
   },
 
   "list": {
@@ -52,7 +54,9 @@
     "firstButton": "What should I make for dinner tonight?",
     "secondButton": "What can I make with chicken?",
     "thirdButton": "What's the best risotto recipe?",
-    "saveRecipes": "Save recipes"
+    "saveRecipes": "Save recipes",
+    "createAccount": "Create account or login",
+    "createAccountDescription": "Create an account or login to save your chat history and recipes."
   },
 
   "capabilities": {
@@ -95,7 +99,10 @@
     "generatedRecipe": "Generated $1!",
     "generatingRecipe": "Generating full recipe for $1...",
     "chatFormPlaceholder": "Ask about a recipe",
-    "chatFormContinue": "Follow up with a message or corrections"
+    "chatFormContinue": "Follow up with a message or corrections",
+    "chatsDrawer": {
+      "title": "Recent chats"
+    }
   },
 
   "recipes": {

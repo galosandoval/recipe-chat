@@ -1,15 +1,15 @@
 import { type MouseEvent } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import {
-  LoginModal,
-  SignUpModal,
-  useAuthModal
-} from '~/components/auth/auth-modals'
+  LoginDrawerDialog,
+  SignUpDrawerDialog
+} from '~/components/auth/auth-drawer-dialogs'
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { Button } from '~/components/ui/button'
-import { CornerRightUpIcon, SaveIcon, SparklesIcon } from 'lucide-react'
+import { CornerRightUpIcon, SparklesIcon, UserPlusIcon } from 'lucide-react'
+import { cn } from '~/lib/utils'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
@@ -21,7 +21,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
     setStreamingStatus
   } = chatStore()
   const isStreaming = streamingStatus !== 'idle'
-
+  const session = useSession()
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     const messageContent = e.currentTarget.innerText
 
@@ -42,7 +42,12 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
 
   return (
     <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
-      <div className='flex w-full flex-1 flex-col items-center justify-center pt-20'>
+      <div
+        className={cn(
+          'flex w-full flex-1 flex-col items-center justify-center pt-20',
+          !session.data && 'pt-14'
+        )}
+      >
         <ValuePropsHeader icon={<SparklesIcon />} label={t.valueProps.title} />
 
         <div className='flex w-full flex-col items-center gap-4 px-4'>
@@ -129,7 +134,6 @@ function Auth() {
   const isAuthenticated = session.status === 'authenticated'
 
   const t = useTranslations()
-  const { handleOpenSignUp, handleOpenLogin } = useAuthModal()
 
   if (isAuthenticated) {
     return null
@@ -139,18 +143,17 @@ function Auth() {
     <>
       <div className='flex w-full flex-col items-center justify-center'>
         <ValuePropsHeader
-          icon={<SaveIcon />}
-          label={t.valueProps.saveRecipes}
+          description={t.valueProps.createAccountDescription}
+          icon={<UserPlusIcon />}
+          label={t.valueProps.createAccount}
         />
         <div className='flex w-full flex-col gap-2 px-4'>
-          <Button onClick={handleOpenSignUp}>{t.nav.menu.signUp}</Button>
-          <Button onClick={handleOpenLogin} variant='outline'>
-            {t.nav.menu.login}
-          </Button>
+          <SignUpDrawerDialog trigger={<Button>{t.nav.menu.signUp}</Button>} />
+          <LoginDrawerDialog
+            trigger={<Button variant='outline'>{t.nav.menu.login}</Button>}
+          />
         </div>
       </div>
-      <SignUpModal />
-      <LoginModal />
     </>
   )
 }
