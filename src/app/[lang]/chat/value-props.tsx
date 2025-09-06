@@ -3,12 +3,17 @@ import { useTranslations } from '~/hooks/use-translations'
 import {
   LoginDrawerDialog,
   SignUpDrawerDialog
-} from '~/components/auth/auth-modals'
+} from '~/components/auth/auth-drawer-dialogs'
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { Button } from '~/components/ui/button'
-import { CornerRightUpIcon, SaveIcon, SparklesIcon } from 'lucide-react'
+import {
+  CornerRightUpIcon,
+  SaveIcon,
+  SparklesIcon,
+  UserPlusIcon
+} from 'lucide-react'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
@@ -137,8 +142,9 @@ function Auth() {
     <>
       <div className='flex w-full flex-col items-center justify-center'>
         <ValuePropsHeader
-          icon={<SaveIcon />}
-          label={t.valueProps.saveRecipes}
+          description={t.valueProps.createAccountDescription}
+          icon={<UserPlusIcon />}
+          label={t.valueProps.createAccount}
         />
         <div className='flex w-full flex-col gap-2 px-4'>
           <SignUpDrawerDialog trigger={<Button>{t.nav.menu.signUp}</Button>} />

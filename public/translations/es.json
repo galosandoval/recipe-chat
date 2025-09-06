@@ -54,7 +54,9 @@
     "firstButton": "¿Que podria hacer para cenar esta noche?",
     "secondButton": "¿Como se hace un risotto?",
     "thirdButton": "¿Que puedo hacer con pollo?",
-    "saveRecipes": "Guarda tus recetas"
+    "saveRecipes": "Guarda tus recetas",
+    "createAccount": "Crear cuenta o iniciar sesión",
+    "createAccountDescription": "Crea una cuenta o inicia sesión para guardar tu historial de chats y recetas."
   },
 
   "capabilities": {

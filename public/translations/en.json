@@ -54,7 +54,9 @@
     "firstButton": "What should I make for dinner tonight?",
     "secondButton": "What can I make with chicken?",
     "thirdButton": "What's the best risotto recipe?",
-    "saveRecipes": "Save recipes"
+    "saveRecipes": "Save recipes",
+    "createAccount": "Create account or login",
+    "createAccountDescription": "Create an account or login to save your chat history and recipes."
   },
 
   "capabilities": {
