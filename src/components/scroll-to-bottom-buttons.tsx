@@ -1,31 +1,31 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import ScrollToBottom, {
   useScrollToBottom,
-  useScrollToTop,
-  useSticky
+  useAtBottom
 } from 'react-scroll-to-bottom'
-import { ArrowSmallDownIcon, ArrowSmallUpIcon } from './icons'
+import { ArrowSmallDownIcon } from './icons'
 import { NoSsr } from './no-ssr'
 import { cn } from '~/lib/utils'
 import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { Button } from './ui/button'
 
-export function ScrollToButtons({ enable }: { enable: boolean }) {
+export function ScrollToBottomButton() {
   const scrollToBottom = useScrollToBottom()
-  const scrollToTop = useScrollToTop()
-  const [sticky] = useSticky()
-  const { setScrollMode } = useContext(ScrollModeContext)
+  const [atBottom] = useAtBottom()
   const { data: activeFilters } = useActiveFiltersByUserId()
+
+  const handleClick = () => {
+    scrollToBottom({ behavior: 'smooth' })
+  }
 
   useEffect(() => {
     // if at the bottom and not streaming, scroll to bottom
-    if (sticky && !enable) {
-      setScrollMode('bottom')
+    if (atBottom) {
       scrollToBottom({ behavior: 'smooth' })
     }
-  }, [sticky, enable])
+  }, [atBottom])
 
   return (
     <div
@@ -38,20 +38,16 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
         <div
           className={cn(
             'absolute transition-all duration-300',
-            enable ? 'translate-y-0 opacity-100' : 'invisible opacity-0'
+            atBottom && 'translate-y-1 opacity-0'
           )}
         >
           <Button
-            className='glass'
+            className='glass-element rounded-full'
             size='icon'
             variant='ghost'
-            onClick={
-              sticky
-                ? () => scrollToBottom({ behavior: 'smooth' })
-                : () => scrollToTop({ behavior: 'smooth' })
-            }
+            onClick={handleClick}
           >
-            {sticky ? <ArrowSmallDownIcon /> : <ArrowSmallUpIcon />}
+            <ArrowSmallDownIcon />
           </Button>
         </div>
       </div>
@@ -59,33 +55,21 @@ export function ScrollToButtons({ enable }: { enable: boolean }) {
   )
 }
 
-export const ScrollModeContext = createContext<{
-  scrollMode: 'bottom' | 'top'
-  setScrollMode: (mode: 'bottom' | 'top') => void
-}>({
-  scrollMode: 'bottom',
-  setScrollMode: () => {}
-})
-
 export function ScrollToBottomProvider({
   children
 }: {
   children: React.ReactNode
 }) {
-  const [scrollMode, setScrollMode] = useState<'bottom' | 'top'>('top')
-
   return (
-    <ScrollModeContext.Provider value={{ scrollMode, setScrollMode }}>
-      <NoSsr>
-        <ScrollToBottom
-          followButtonClassName='hidden'
-          initialScrollBehavior='auto'
-          className='h-full'
-          mode={scrollMode}
-        >
-          {children}
-        </ScrollToBottom>
-      </NoSsr>
-    </ScrollModeContext.Provider>
+    <NoSsr>
+      <ScrollToBottom
+        followButtonClassName='hidden'
+        initialScrollBehavior='auto'
+        className='h-full'
+        mode='bottom'
+      >
+        {children}
+      </ScrollToBottom>
+    </NoSsr>
   )
 }
