@@ -6,8 +6,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { signIn } from '~/server/auth'
 import { toast } from '../toast'
+import { signIn } from 'next-auth/react'
 
 export const loginSchema = (t: any) =>
   z.object({

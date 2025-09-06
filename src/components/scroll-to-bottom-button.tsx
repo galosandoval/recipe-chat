@@ -30,7 +30,7 @@ export function ScrollToBottomButton() {
   return (
     <div
       className={cn(
-        'fixed right-0 bottom-24 left-4 mx-auto w-full max-w-4xl',
+        'fixed right-0 bottom-24 left-3 mx-auto w-full max-w-4xl',
         activeFilters?.length && 'bottom-36'
       )}
     >

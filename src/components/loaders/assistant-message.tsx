@@ -1,10 +1,10 @@
-import { UserCircleIcon } from '~/components/icons'
+import { BotMessageSquareIcon } from 'lucide-react'
 
 export const AssistantMessageLoader = () => {
   return (
     <div className='bg-transparent pb-4'>
       <div className='mx-auto flex justify-start gap-2'>
-        <UserCircleIcon />
+        <BotMessageSquareIcon />
         <div className='bg-secondary flex items-center justify-start space-x-1 rounded p-3'>
           <div
             style={{ animationDelay: '0.0s', animationDuration: '1s' }}

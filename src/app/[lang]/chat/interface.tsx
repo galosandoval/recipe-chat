@@ -10,7 +10,7 @@ import { useSession } from 'next-auth/react'
 import {
   ScrollToBottomProvider,
   ScrollToBottomButton
-} from '~/components/scroll-to-bottom-buttons'
+} from '~/components/scroll-to-bottom-button'
 import { chatStore } from '~/stores/chat-store'
 import { Stream } from './stream'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
@@ -44,7 +44,7 @@ export const Interface = () => {
 
   return (
     <ScrollToBottomProvider>
-      <div className={cn('flex-1 pt-20', !session.data && 'pt-14')}>
+      <div className={cn('flex-1 pt-[4.8rem]', !session.data && 'pt-14')}>
         <div className='flex h-full flex-col gap-4'>
           <ChatWindowContent
             messages={messages}
@@ -107,8 +107,8 @@ const Messages = memo(function Messages({
   return (
     <div
       className={cn(
-        'bg-background mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-16 sm:pb-24',
-        filters?.length && 'pb-24 sm:pb-28'
+        'bg-background mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-14 sm:pb-20',
+        filters?.length && 'pb-[6.5rem] sm:pb-28'
       )}
     >
       {data.map((m, i) => (

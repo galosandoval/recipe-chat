@@ -12,7 +12,7 @@ import {
   type ChangeEvent
 } from 'react'
 import { useRouter } from 'next/navigation'
-import { Checkbox } from '~/components/checkbox'
+import { Togglebox } from '~/components/togglebox'
 import { ListBulletIcon, PlusIcon } from '~/components/icons'
 import type { Ingredient } from '@prisma/client'
 import { Button } from '~/components/ui/button'
@@ -97,7 +97,7 @@ export function IngredientsCheckList({
           <h2 className='text-foreground/90 text-lg font-bold'>
             {t.recipes.ingredients}
           </h2>
-          <Checkbox
+          <Togglebox
             id='check-all'
             label={
               allChecked ? t.recipes.byId.deselectAll : t.recipes.byId.selectAll
@@ -152,10 +152,10 @@ function IngredientCheckBox({
     )
   }
   return (
-    <Checkbox
+    <Togglebox
       id={ingredient.id.toString()}
       checked={checked[ingredient.id]}
-      onChange={handleCheck}
+      onChange={() => {}}
       label={ingredient.name}
       key={ingredient.id}
     />

@@ -2,7 +2,7 @@
 
 import React, { type ReactNode } from 'react'
 import { type Ingredient } from '@prisma/client'
-import { Checkbox } from '~/components/checkbox'
+import { Togglebox } from '~/components/togglebox'
 import { useListController, useRecipeNames } from '~/hooks/use-list'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
@@ -10,6 +10,8 @@ import { useUserId } from '~/hooks/use-user-id'
 import { Button } from '~/components/ui/button'
 import { ArrowDownIcon, CirclePlusIcon, TrashIcon } from 'lucide-react'
 import { Form, FormInput } from '~/components/form'
+import { useForm } from 'react-hook-form'
+import { toast } from '~/components/toast'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -21,13 +23,8 @@ export function ListByUserId() {
 function ListController({ data }: { data: Ingredient[] }) {
   const t = useTranslations()
 
-  const {
-    byRecipe,
-    handleCheck,
-    handleToggleByRecipe,
-    noneChecked,
-    handleRemoveChecked
-  } = useListController(data)
+  const { byRecipe, handleToggleByRecipe, noneChecked, handleRemoveChecked } =
+    useListController(data)
 
   if (data.length === 0) {
     return (
@@ -58,7 +55,7 @@ function ListController({ data }: { data: Ingredient[] }) {
           handleRemoveChecked={handleRemoveChecked}
         />
       </div>
-      <Lists byRecipe={byRecipe} data={data} handleCheck={handleCheck} />
+      <Lists byRecipe={byRecipe} data={data} />
       <div className='fixed bottom-0 left-0 w-full'>
         <AddIngredientForm data={data} />
       </div>
@@ -121,19 +118,13 @@ function AddIngredientForm({ data }: { data: Ingredient[] }) {
     >
       <div className='bg-secondary/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
         <div className='flex w-full px-2 py-1'>
-          {/* <input
-            type='text'
-            placeholder={t.list.addToList}
-            className='input input-bordered bg-background/75 focus:bg-background w-full'
-            {...register('newIngredientName')}
-          /> */}
           <FormInput
             name='newIngredientName'
             placeholder={t.list.addToList}
             className='w-full'
           />
         </div>
-        <div className='pr-2'>
+        <div >
           <Button disabled={isDisabled} variant='outline'>
             <CirclePlusIcon />
           </Button>
@@ -143,50 +134,19 @@ function AddIngredientForm({ data }: { data: Ingredient[] }) {
   )
 }
 
-function Lists({
-  data,
-  byRecipe,
-  handleCheck
-}: {
-  data: Ingredient[]
-  byRecipe: boolean
-  handleCheck: (
-    event: React.ChangeEvent<HTMLInputElement>,
-    ingredientId: string
-  ) => void
-}) {
+function Lists({ data, byRecipe }: { data: Ingredient[]; byRecipe: boolean }) {
   if (byRecipe) {
-    return <ListByRecipeId data={data} handleCheck={handleCheck} />
+    return <ListByRecipeId data={data} />
   }
 
-  return (
-    <div className='flex flex-col gap-2'>
-      {data.map((i, id) => (
-        <Checkbox
-          key={i.id ?? id}
-          checked={i.checked}
-          id={i.id.toString()}
-          label={i.name}
-          onChange={(e) => handleCheck(e, i.id)}
-        />
-      ))}
-    </div>
-  )
+  return <ListAll data={data} />
 }
 
 type IngredientsByRecipe = Record<string, Ingredient[]>
 
-function ListByRecipeId({
-  data,
-  handleCheck
-}: {
-  data: Ingredient[]
-  handleCheck: (
-    event: React.ChangeEvent<HTMLInputElement>,
-    ingredientId: string
-  ) => void
-}) {
+function ListByRecipeId({ data }: { data: Ingredient[] }) {
   const ids: string[] = []
+  const { checkIngredient } = useCheckIngredient()
 
   const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
     if (i.recipeId === null) {
@@ -209,6 +169,10 @@ function ListByRecipeId({
 
   const { data: nameDictionary, isSuccess } = useRecipeNames(ids)
 
+  const handleCheck = (checked: boolean, ingredientId: string) => {
+    checkIngredient({ id: ingredientId, checked })
+  }
+
   return (
     <div>
       {Object.values(recipeBuckets).map((b) => (
@@ -221,12 +185,12 @@ function ListByRecipeId({
 
           <div className='flex flex-col gap-2'>
             {b.map((i) => (
-              <Checkbox
+              <Togglebox
                 key={i.id}
                 checked={i.checked}
                 id={i.id.toString()}
                 label={i.name}
-                onChange={(e) => handleCheck(e, i.id)}
+                onChange={(checked) => handleCheck(checked as boolean, i.id)}
               />
             ))}
           </div>
@@ -234,4 +198,64 @@ function ListByRecipeId({
       ))}
     </div>
   )
+}
+
+function ListAll({ data }: { data: Ingredient[] }) {
+  const { checkIngredient } = useCheckIngredient()
+  return (
+    <div className='flex flex-col gap-2'>
+      {data.map((i, id) => (
+        <Togglebox
+          key={i.id ?? id}
+          checked={i.checked}
+          id={i.id.toString()}
+          label={i.name}
+          onChange={(checked) =>
+            checkIngredient({ id: i.id, checked: checked as boolean })
+          }
+        />
+      ))}
+    </div>
+  )
+}
+
+function useCheckIngredient() {
+  const userId = useUserId()
+  const utils = api.useUtils()
+
+  const { mutate: checkIngredient } = api.lists.check.useMutation({
+    onMutate: async (input) => {
+      await utils.lists.byUserId.cancel({ userId })
+
+      const prevList = utils.lists.byUserId.getData({ userId })
+
+      let ingredients: Ingredient[] = []
+      if (prevList) {
+        ingredients = prevList.ingredients.map((i) => {
+          if (i.id === input.id) {
+            return { ...i, checked: input.checked }
+          }
+
+          return i
+        })
+      }
+
+      utils.lists.byUserId.setData({ userId }, () => ({ ingredients }))
+      return { prevList }
+    },
+
+    onSuccess: async () => {
+      await utils.lists.byUserId.invalidate({ userId })
+    },
+
+    onError: (error, _, ctx) => {
+      const prevList = ctx?.prevList
+      if (prevList) {
+        utils.lists.byUserId.setData({ userId }, prevList)
+      }
+      toast.error(error.message)
+    }
+  })
+
+  return { checkIngredient }
 }

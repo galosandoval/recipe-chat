@@ -143,84 +143,8 @@ export function useListController(data: Ingredient[]) {
       : false
   )
 
-  const { mutate: checkIngredient } = api.lists.check.useMutation({
-    onMutate: async (input) => {
-      await utils.lists.byUserId.cancel({ userId })
-
-      const prevList = utils.lists.byUserId.getData({ userId })
-
-      let ingredients: Ingredient[] = []
-      if (prevList) {
-        ingredients = prevList.ingredients.map((i) => {
-          if (i.id === input.id) {
-            return { ...i, checked: input.checked }
-          }
-
-          return i
-        })
-      }
-
-      utils.lists.byUserId.setData({ userId }, () => ({ ingredients }))
-      return { prevList }
-    },
-
-    onSuccess: async () => {
-      await utils.lists.byUserId.invalidate({ userId })
-    },
-
-    onError: (error, _, ctx) => {
-      const prevList = ctx?.prevList
-      if (prevList) {
-        utils.lists.byUserId.setData({ userId }, prevList)
-      }
-      toast.error(error.message)
-    }
-  })
-
-  // const { mutate: checkMany } = api.lists.checkMany.useMutation({
-  //   onMutate: async () => {
-  //     await utils.lists.byUserId.cancel({ userId })
-
-  //     const prevList = utils.lists.byUserId.getData({ userId })
-
-  //     if (prevList) {
-  //       utils.lists.byUserId.setData({ userId }, () => ({
-  //         ingredients: prevList.ingredients.map((i) => ({
-  //           ...i,
-  //           checked: allChecked
-  //         }))
-  //       }))
-  //     }
-
-  //     return { prevList }
-  //   },
-
-  //   onSuccess: async () => {
-  //     await utils.lists.byUserId.invalidate({ userId })
-  //   },
-
-  //   onError: (error, _, ctx) => {
-  //     const stack = error.data?.stack
-  //     if (stack) {
-  //       // myToast.error(stack)
-  //     }
-  //     const prevList = ctx?.prevList
-  //     if (prevList) {
-  //       utils.lists.byUserId.setData({ userId }, prevList)
-  //     }
-  //     toast.error(error.message)
-  //   }
-  // })
-
   const handleToggleByRecipe = (event: React.ChangeEvent<HTMLInputElement>) => {
     setByRecipe(event.target.checked)
-  }
-
-  const handleCheck = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    ingredientId: string
-  ) => {
-    checkIngredient({ id: ingredientId, checked: event.target.checked })
   }
 
   const handleRemoveChecked = () => {
@@ -236,7 +160,6 @@ export function useListController(data: Ingredient[]) {
   return {
     handleToggleByRecipe,
     byRecipe,
-    handleCheck,
     noneChecked,
     handleRemoveChecked,
     isValid,

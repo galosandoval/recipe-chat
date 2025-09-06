@@ -4,7 +4,12 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { NavDropdownMenu } from './settings-dropdown-menu'
-import { ArrowBigLeft, CookingPot, ListTodo, MessageCircle } from 'lucide-react'
+import {
+  ArrowBigLeft,
+  CookingPotIcon,
+  ListTodoIcon,
+  MessageSquareIcon
+} from 'lucide-react'
 import { XIcon } from '../icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
@@ -79,17 +84,17 @@ function EditRecipeNavbar() {
 const MENU_ITEMS = [
   {
     value: '/chat',
-    icon: <MessageCircle size='1rem' />,
+    icon: <MessageSquareIcon size='1rem' />,
     label: 'chat'
   },
   {
     value: '/list',
-    icon: <ListTodo size='1rem' />,
+    icon: <ListTodoIcon size='1rem' />,
     label: 'list'
   },
   {
     value: '/recipes',
-    icon: <CookingPot size='1rem' />,
+    icon: <CookingPotIcon size='1rem' />,
     label: 'recipes'
   }
 ] as const
@@ -103,7 +108,7 @@ function RoutesNavbar() {
       <div className='text-foreground my-1 bg-transparent text-sm font-bold'>
         RecipeChat
       </div>
-      <nav className='top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden bg-transparent px-5 py-1.5'>
+      <nav className='top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden bg-transparent px-3 py-1.5'>
         {MENU_ITEMS.map((item) => (
           <Button
             className={cn(
