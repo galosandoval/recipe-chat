@@ -12,6 +12,7 @@ import { ArrowDownIcon, CirclePlusIcon, TrashIcon } from 'lucide-react'
 import { Form, FormInput } from '~/components/form'
 import { useForm } from 'react-hook-form'
 import { toast } from '~/components/toast'
+import { BottomBar } from '~/components/bottom-bar'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -91,7 +92,7 @@ function EmptyList({ children }: { children: ReactNode }) {
           {t.list.noItems}
         </h1>
         <div className='left-0 w-full'>{children}</div>
-        <div className='fixed bottom-[3.2rem] left-0 flex w-full items-center justify-center gap-2 sm:bottom-16'>
+        <div className='fixed bottom-[3.6rem] left-0 flex w-full items-center justify-center gap-2 sm:bottom-16'>
           <p className='text-foreground text-center text-sm'>
             {t.list.addIngredient}
           </p>
@@ -116,20 +117,20 @@ function AddIngredientForm({ data }: { data: Ingredient[] }) {
       formId='add-ingredient-form'
       form={form}
     >
-      <div className='bg-secondary/75 mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
-        <div className='flex w-full px-2 py-1'>
+      <BottomBar>
+        <div className='flex w-full'>
           <FormInput
             name='newIngredientName'
             placeholder={t.list.addToList}
-            className='w-full'
+            className='bg-background/75 focus:bg-background w-full'
           />
         </div>
-        <div >
+        <div>
           <Button disabled={isDisabled} variant='outline'>
             <CirclePlusIcon />
           </Button>
         </div>
-      </div>
+      </BottomBar>
     </Form>
   )
 }

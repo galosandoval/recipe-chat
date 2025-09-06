@@ -112,7 +112,7 @@ export function SubmitMessageForm() {
             value={input}
             onChange={handleInputChange}
             placeholder={placeholder}
-            className='bg-background/75 focus:bg-background relative w-full'
+            className='bg-background/75 focus:bg-background w-full'
           />
         </div>
 

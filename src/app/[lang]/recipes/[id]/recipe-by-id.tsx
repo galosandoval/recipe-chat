@@ -19,6 +19,7 @@ import { useState } from 'react'
 import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
 import { Button } from '~/components/ui/button'
+import { Card } from '~/components/card'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
 
@@ -32,7 +33,7 @@ export default function RecipeById({ data }: { data: RecipeByIdData }) {
   if (!recipe) return null
 
   return (
-    <div className='relative flex h-full max-w-md flex-col overflow-y-auto'>
+    <div className='relative flex h-full max-w-2xl flex-col overflow-y-auto'>
       <FoundRecipe data={recipe} />
     </div>
   )
@@ -157,10 +158,10 @@ function RecipeImgButtonAndMetaData() {
   return (
     <>
       <StickyHeader name={data.name} visible={true} />
-      <div className='pt-10'>
+      <Card className='m-3 h-1/2 pt-10'>
         <UploadImageButton />
         <RecipeMetaData textColor='text-foreground' />
-      </div>
+      </Card>
     </>
   )
 }
@@ -215,7 +216,7 @@ function ImageWithAspectRatio({
   return (
     <div className='absolute inset-0 h-svh overflow-hidden'>
       <Image
-        className={cn('absolute top-0 -z-10 object-cover object-center')}
+        className={cn('absolute top-0 -z-10 w-full object-cover object-center')}
         src={url}
         alt='recipe'
         width={aspectRatio ? imgHeight * aspectRatio : imgHeight * 0.75}
@@ -229,7 +230,7 @@ function ImageWithAspectRatio({
       />
       <Image
         className={cn(
-          'absolute bottom-0 -z-10 h-full rotate-180 object-cover object-center'
+          'absolute bottom-0 -z-10 h-full w-full rotate-180 object-cover object-center'
         )}
         src={url}
         alt='recipe'
@@ -250,11 +251,9 @@ function GlassMetadata() {
   return (
     <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
       <div className='h-full flex-1'></div>
-      <div className='sticky top-0 h-full flex-1 bg-gradient-to-b from-slate-900/15 to-slate-900'>
-        <GlassElement className='h-full bg-transparent py-4'>
-          <RecipeMetaData textColor='text-glass' />
-        </GlassElement>
-      </div>
+      <GlassElement className='sticky top-0 h-full flex-1 bg-transparent py-4'>
+        <RecipeMetaData textColor='text-glass' />
+      </GlassElement>
     </div>
   )
 }
@@ -266,12 +265,21 @@ function RecipeMetaData({ textColor }: { textColor: string }) {
 
   if (!data) return null
 
-  const { name, prepTime, cookTime, description, cookMinutes, prepMinutes } =
-    data
+  const {
+    name,
+    prepTime,
+    cookTime,
+    description,
+    cookMinutes,
+    prepMinutes,
+    imgUrl
+  } = data
 
   return (
     <>
-      <h2 className={cn('px-5 text-2xl font-bold', textColor)}>{name}</h2>
+      {imgUrl && (
+        <h2 className={cn('px-5 text-2xl font-bold', textColor)}>{name}</h2>
+      )}
 
       {prepTime && cookTime && (
         <div className='flex justify-center px-5'>

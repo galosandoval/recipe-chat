@@ -38,12 +38,16 @@ export function IngredientsCheckList({
   const [addedToList, setAddedToList] = useState(false)
   const router = useRouter()
 
-  const handleCheck = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setChecked((state) => ({
-      ...state,
-      [event.target.id]: event.target.checked
-    }))
-  }, [])
+  const handleCheck = useCallback(
+    (change: { id: string; checked: boolean }) => {
+      console.log('event', change)
+      setChecked((state) => ({
+        ...state,
+        [change.id]: change.checked
+      }))
+    },
+    []
+  )
 
   const allChecked = useMemo(
     () => Object.values(checked).every(Boolean),
@@ -111,8 +115,8 @@ export function IngredientsCheckList({
           {ingredients.map((i) => (
             <IngredientCheckBox
               ingredient={i}
-              checked={checked}
-              handleCheck={handleCheck}
+              checked={checked[i.id]}
+              handleCheck={(checked) => handleCheck({ id: i.id, checked })}
               key={i.id}
             />
           ))}
@@ -141,8 +145,8 @@ function IngredientCheckBox({
   handleCheck
 }: {
   ingredient: Ingredient
-  checked: Checked
-  handleCheck: (event: ChangeEvent<HTMLInputElement>) => void
+  checked: boolean
+  handleCheck: (checked: boolean) => void
 }) {
   if (ingredient.name.endsWith(':')) {
     return (
@@ -154,8 +158,8 @@ function IngredientCheckBox({
   return (
     <Togglebox
       id={ingredient.id.toString()}
-      checked={checked[ingredient.id]}
-      onChange={() => {}}
+      checked={checked}
+      onChange={handleCheck}
       label={ingredient.name}
       key={ingredient.id}
     />

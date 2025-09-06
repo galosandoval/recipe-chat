@@ -28,13 +28,15 @@ export const Navbar = () => {
     navbar = <EditRecipeNavbar />
   } else if (pathname === `/${lang}/recipes/${id}`) {
     return <RecipeByIdNavbar />
-  } else {
-    return navbar
   }
 
   return (
-    <div className='border-b-secondary from-background to-background/70 text-foreground fixed top-0 z-10 flex w-full justify-center border-b bg-gradient-to-b bg-blend-saturation backdrop-blur transition-all duration-300'>
-      {navbar}
+    <div className='fixed top-0 z-10 w-full'>
+      <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
+        <div className='glass-element from-background to-background/70 text-foreground w-full sm:rounded'>
+          {navbar}
+        </div>
+      </div>
     </div>
   )
 }
@@ -56,12 +58,19 @@ function PublicNavbar() {
 function RecipeByIdNavbar() {
   const router = useRouter()
   return (
-    <nav className='fixed z-20 flex w-full justify-between bg-transparent p-4'>
-      <Button variant='outline' onClick={() => router.back()} size='icon'>
-        <ArrowBigLeft />
-      </Button>
+    <nav className='fixed z-20 flex w-full'>
+      <div className='mx-auto flex w-full max-w-2xl flex-1 justify-between bg-transparent p-4'>
+        <Button
+          variant='outline'
+          className='text-glass bg-transparent'
+          onClick={() => router.back()}
+          size='icon'
+        >
+          <ArrowBigLeft className='text-glass' />
+        </Button>
 
-      <EditByIdDrawer />
+        <EditByIdDrawer />
+      </div>
     </nav>
   )
 }
@@ -104,7 +113,7 @@ function RoutesNavbar() {
   const t = useTranslations()
   const isActive = (path: string) => pathname.includes(path)
   return (
-    <div className='from-background to-background/70 border-b-foreground/30 fixed top-0 z-10 mx-auto flex w-full flex-col items-center border-b-[0.5px] bg-transparent bg-gradient-to-b bg-blend-saturation backdrop-blur-xs'>
+    <div className='flex w-full flex-col items-center'>
       <div className='text-foreground my-1 bg-transparent text-sm font-bold'>
         RecipeChat
       </div>
