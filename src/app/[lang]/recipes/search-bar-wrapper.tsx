@@ -44,8 +44,8 @@ const SearchBar = React.memo(function SearchBar({
   const t = useTranslations()
 
   return (
-    <div className='fixed top-[4.68rem] right-0 left-0 z-10 flex w-full items-center md:rounded-md'>
-      <div className='glass-element mx-auto flex w-full items-center py-1 sm:mb-2 sm:rounded-lg'>
+    <div className='fixed top-[4.68rem] right-0 left-0 z-10 flex w-full items-center sm:top-[5.75rem]'>
+      <div className='glass-element mx-auto flex w-full max-w-2xl items-center py-1 sm:mb-2 sm:rounded'>
         <div className='flex w-full px-2 py-1'>
           <Input
             type='text'

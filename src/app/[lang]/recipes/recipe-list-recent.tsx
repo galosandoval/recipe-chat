@@ -42,7 +42,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
                     alt='recipe'
                     height={40}
                     width={40}
-                    className='mt-0 mb-0 object-cover'
+                    className='object-cover'
                     priority={true}
                   />
                 ) : (
