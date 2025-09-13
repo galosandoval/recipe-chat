@@ -50,7 +50,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
                     <RecipeFallbackIconSm />
                   </div>
                 )}
-                <p className='self-center truncate text-left text-xs whitespace-nowrap'>
+                <p className='self-center truncate pr-2 text-left text-xs whitespace-nowrap'>
                   {recipe.name}
                 </p>
               </Link>

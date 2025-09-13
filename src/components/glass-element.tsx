@@ -7,5 +7,5 @@ export function GlassElement({
   children: React.ReactNode
   className?: string
 }) {
-  return <div className={cn('glass-element', className)}>{children}</div>
+  return <div className={cn('glass-background', className)}>{children}</div>
 }

@@ -3,14 +3,7 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { useAddToList } from '~/hooks/use-recipe'
 import { type RouterInputs } from '~/trpc/react'
-import {
-  useEffect,
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-  type ChangeEvent
-} from 'react'
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Togglebox } from '~/components/togglebox'
 import { ListBulletIcon, PlusIcon } from '~/components/icons'
@@ -101,14 +94,14 @@ export function IngredientsCheckList({
           <h2 className='text-foreground/90 text-lg font-bold'>
             {t.recipes.ingredients}
           </h2>
-          <Togglebox
+          <Button
             id='check-all'
-            label={
-              allChecked ? t.recipes.byId.deselectAll : t.recipes.byId.selectAll
-            }
-            checked={allChecked}
-            onChange={handleCheckAll}
-          />
+            className=''
+            variant='outline'
+            onClick={handleCheckAll}
+          >
+            {allChecked ? t.recipes.byId.deselectAll : t.recipes.byId.selectAll}
+          </Button>
         </div>
 
         <div className='flex flex-col gap-2'>

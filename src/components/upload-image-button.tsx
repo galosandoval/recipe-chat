@@ -102,7 +102,7 @@ export function UploadImageButton() {
         id='file-input'
         type='file'
         name='file'
-        className='invisible'
+        className='invisible hidden'
         onChange={handleFileChange}
       />
       <Button
