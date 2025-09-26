@@ -19,6 +19,7 @@ import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/card'
+import { Form, FormTextarea } from '~/components/form'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
 
@@ -292,45 +293,45 @@ function Notes({ notes, id }: { notes: string; id: string }) {
     }
   })
 
-  const {
-    register,
-    handleSubmit,
-    formState: { isDirty, isValid }
-  } = useForm<AddNotes>({
+  const form = useForm<AddNotes>({
     resolver: zodResolver(addNotesSchema)
   })
 
   if (notes) {
     return (
       <>
-        <h2 className='divider'>{t.recipes.notes}</h2>
+        <h2>{t.recipes.notes}</h2>
         <p className='whitespace-pre-line'>{notes}</p>
       </>
     )
   }
 
+  const onSubmit = (values: AddNotes) => {
+    mutate({ id, notes: values.notes })
+  }
+
   return (
-    <>
-      <h2 className='divider'>{t.recipes.notes}</h2>
-      <form
-        onSubmit={handleSubmit(({ notes }) => {
-          mutate({ id, notes })
-        })}
+    <div className='pt-3'>
+      <Form
+        formId='add-notes-form'
+        form={form}
+        onSubmit={onSubmit}
         className='flex flex-col gap-2 pb-4'
       >
-        <textarea
-          className='textarea textarea-primary w-full resize-none'
+        <FormTextarea
+          label='Notes'
           placeholder={t.recipes.byId.placeholder}
-          {...register('notes')}
-        ></textarea>
+          name='notes'
+          className='resize-none placeholder:text-sm'
+        />
         <Button
-          disabled={!isDirty || !isValid}
+          disabled={!form.formState.isDirty || !form.formState.isValid}
           type='submit'
           className='self-end'
         >
           {t.common.save}
         </Button>
-      </form>
-    </>
+      </Form>
+    </div>
   )
 }
