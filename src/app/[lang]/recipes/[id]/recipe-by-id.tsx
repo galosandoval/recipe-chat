@@ -82,7 +82,7 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
         {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
         <div className='mx-auto flex flex-col items-center px-4 pb-4'>
           <div className='bg-background flex flex-col'>
-            <IngredientsCheckList ingredients={ingredients} />
+            <IngredientsCheckList recipeId={id} ingredients={ingredients} />
             <div className='pt-4'>
               <Instructions instructions={instructions} />
             </div>

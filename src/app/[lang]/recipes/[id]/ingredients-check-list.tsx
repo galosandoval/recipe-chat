@@ -2,23 +2,68 @@
 
 import { useTranslations } from '~/hooks/use-translations'
 import { useAddToList } from '~/hooks/use-recipe'
-import { type RouterInputs } from '~/trpc/react'
+import { api, type RouterInputs } from '~/trpc/react'
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Togglebox } from '~/components/togglebox'
 import { ListBulletIcon, PlusIcon } from '~/components/icons'
 import type { Ingredient } from '@prisma/client'
 import { Button } from '~/components/ui/button'
+import toast from 'react-hot-toast'
 
 type Checked = Record<string, boolean>
 
+export function useCheckIngredient(recipeId: string) {
+  const utils = api.useUtils()
+
+  return api.lists.check.useMutation({
+    onMutate: async (input) => {
+      await utils.recipes.byId.cancel({ id: recipeId })
+
+      const prevRecipe = utils.recipes.byId.getData({ id: recipeId })
+
+      let ingredients: Ingredient[] = []
+      if (!prevRecipe) return { prevRecipe }
+      ingredients = prevRecipe.ingredients.map((i) => {
+        if (i.id === input.id) {
+          return { ...i, checked: input.checked }
+        }
+
+        return i
+      })
+
+      utils.recipes.byId.setData({ id: recipeId }, () => ({
+        ...prevRecipe,
+        ingredients
+      }))
+      return { prevRecipe }
+    },
+
+    onSuccess: async () => {
+      await utils.recipes.byId.invalidate({ id: recipeId })
+      await utils.lists.invalidate()
+    },
+
+    onError: (error, _, ctx) => {
+      const prevRecipe = ctx?.prevRecipe
+      if (prevRecipe) {
+        utils.recipes.byId.setData({ id: recipeId }, prevRecipe)
+      }
+      toast.error(error.message)
+    }
+  })
+}
+
 export function IngredientsCheckList({
-  ingredients
+  ingredients,
+  recipeId
 }: {
   ingredients: Ingredient[]
+  recipeId: string
 }) {
   const t = useTranslations()
   const { mutate, isPending } = useAddToList()
+  const { mutate: checkIngredient } = useCheckIngredient(recipeId)
 
   const initialChecked: Checked = ingredients.reduce((acc, i) => {
     if (!i.name.endsWith(':')) {
@@ -34,10 +79,7 @@ export function IngredientsCheckList({
   const handleCheck = useCallback(
     (change: { id: string; checked: boolean }) => {
       console.log('event', change)
-      setChecked((state) => ({
-        ...state,
-        [change.id]: change.checked
-      }))
+      checkIngredient({ id: change.id, checked: change.checked })
     },
     []
   )
@@ -88,42 +130,40 @@ export function IngredientsCheckList({
   }, [])
 
   return (
-    <>
-      <div>
-        <div className='mb-2 flex items-center justify-between'>
-          <h2 className='text-foreground/90 text-lg font-bold'>
-            {t.recipes.ingredients}
-          </h2>
-          <Button id='check-all' variant='outline' onClick={handleCheckAll}>
-            {allChecked ? t.recipes.byId.deselectAll : t.recipes.byId.selectAll}
+    <div>
+      <div className='mb-2 flex items-center justify-between'>
+        <h2 className='text-foreground/90 text-lg font-bold'>
+          {t.recipes.ingredients}
+        </h2>
+        <Button id='check-all' variant='outline' onClick={handleCheckAll}>
+          {allChecked ? t.recipes.byId.deselectAll : t.recipes.byId.selectAll}
+        </Button>
+      </div>
+
+      <div className='flex flex-col gap-2'>
+        {ingredients.map((i) => (
+          <IngredientCheckBox
+            ingredient={i}
+            checked={i.checked}
+            handleCheck={(checked) => handleCheck({ id: i.id, checked })}
+            key={i.id}
+          />
+        ))}
+        <div>
+          <Button
+            className={'w-full justify-between gap-2 rounded text-base'}
+            variant={addedToList ? 'default' : 'outline'}
+            size='lg'
+            disabled={!someNotChecked}
+            onClick={addedToList ? handleGoToList : handleAddToList}
+            isLoading={isPending}
+          >
+            {addedToList ? t.recipes.byId.goToList : t.recipes.byId.addToList}
+            {addedToList ? <ListBulletIcon /> : <PlusIcon />}
           </Button>
         </div>
-
-        <div className='flex flex-col gap-2'>
-          {ingredients.map((i) => (
-            <IngredientCheckBox
-              ingredient={i}
-              checked={checked[i.id]}
-              handleCheck={(checked) => handleCheck({ id: i.id, checked })}
-              key={i.id}
-            />
-          ))}
-          <div>
-            <Button
-              className={'w-full justify-between gap-2 rounded text-base'}
-              variant={addedToList ? 'default' : 'outline'}
-              size='lg'
-              disabled={!someNotChecked}
-              onClick={addedToList ? handleGoToList : handleAddToList}
-              isLoading={isPending}
-            >
-              {addedToList ? t.recipes.byId.goToList : t.recipes.byId.addToList}
-              {addedToList ? <ListBulletIcon /> : <PlusIcon />}
-            </Button>
-          </div>
-        </div>
       </div>
-    </>
+    </div>
   )
 }
 

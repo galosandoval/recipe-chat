@@ -3,7 +3,11 @@
 import React, { useEffect, useState, type ReactNode } from 'react'
 import { type Ingredient } from '@prisma/client'
 import { Togglebox } from '~/components/togglebox'
-import { useClearList, useRecipeNames } from '~/hooks/use-list'
+import {
+  useCheckListItem,
+  useClearList,
+  useRecipeNames
+} from '~/hooks/use-list'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
@@ -13,7 +17,6 @@ import { AddToListForm } from './add-to-list-form'
 import { Label } from '~/components/ui/label'
 import { Checkbox } from '~/components/ui/checkbox'
 import type { CheckedState } from '@radix-ui/react-checkbox'
-import { useCheckIngredient } from '~/hooks/use-check-ingredient'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -136,7 +139,7 @@ type IngredientsByRecipe = Record<string, Ingredient[]>
 
 function ListByRecipeId({ data }: { data: Ingredient[] }) {
   const ids: string[] = []
-  const { mutate: checkIngredient } = useCheckIngredient()
+  const { mutate: checkIngredient } = useCheckListItem()
 
   const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
     if (i.recipeId === null) {
@@ -193,7 +196,7 @@ function ListByRecipeId({ data }: { data: Ingredient[] }) {
 }
 
 function ListAll({ data }: { data: Ingredient[] }) {
-  const { mutate: checkIngredient } = useCheckIngredient()
+  const { mutate: checkIngredient } = useCheckListItem()
   return (
     <div className='flex flex-col gap-2'>
       {data
