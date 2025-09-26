@@ -11,12 +11,10 @@ import type { Ingredient } from '@prisma/client'
 import { Button } from '~/components/ui/button'
 import toast from 'react-hot-toast'
 
-type Checked = Record<string, boolean>
-
 export function useCheckIngredient(recipeId: string) {
   const utils = api.useUtils()
 
-  return api.lists.check.useMutation({
+  return api.lists.checkMany.useMutation({
     onMutate: async (input) => {
       await utils.recipes.byId.cancel({ id: recipeId })
 
@@ -24,11 +22,16 @@ export function useCheckIngredient(recipeId: string) {
 
       let ingredients: Ingredient[] = []
       if (!prevRecipe) return { prevRecipe }
-      ingredients = prevRecipe.ingredients.map((i) => {
-        if (i.id === input.id) {
-          return { ...i, checked: input.checked }
-        }
 
+      // Create a map of updates for efficient processing
+      const updateMap = new Map(
+        input.map((update) => [update.id, update.checked])
+      )
+
+      ingredients = prevRecipe.ingredients.map((i) => {
+        if (updateMap.has(i.id)) {
+          return { ...i, checked: updateMap.get(i.id)! }
+        }
         return i
       })
 
@@ -64,50 +67,40 @@ export function IngredientsCheckList({
   const t = useTranslations()
   const { mutate, isPending } = useAddToList()
   const { mutate: checkIngredient } = useCheckIngredient(recipeId)
-
-  const initialChecked: Checked = ingredients.reduce((acc, i) => {
-    if (!i.name.endsWith(':')) {
-      acc[i.id] = i.checked
-    }
-    return acc
-  }, {} as Checked)
-
-  const [checked, setChecked] = useState<Checked>(() => initialChecked)
   const [addedToList, setAddedToList] = useState(false)
   const router = useRouter()
 
   const handleCheck = useCallback(
     (change: { id: string; checked: boolean }) => {
       console.log('event', change)
-      checkIngredient({ id: change.id, checked: change.checked })
+      checkIngredient([{ id: change.id, checked: change.checked }])
     },
-    []
+    [checkIngredient]
   )
 
   const allChecked = useMemo(
-    () => Object.values(checked).every(Boolean),
-    [checked]
+    () => ingredients.every((i) => i.checked),
+    [ingredients]
   )
   const someNotChecked = useMemo(
-    () => Object.values(checked).some((i) => !i),
-    [checked]
+    () => ingredients.some((i) => !i.checked),
+    [ingredients]
   )
   const handleCheckAll = useCallback(() => {
-    setChecked((state) => {
-      const newState = { ...state }
-      for (const id in newState) {
-        newState[id] = !allChecked
-      }
-      return newState
-    })
-  }, [allChecked])
+    // Create updates for all ingredients that aren't already in the target state
+    const updates = ingredients
+      .filter((i) => !i.name.endsWith(':'))
+      .map((i) => ({ id: i.id, checked: !allChecked }))
+
+    checkIngredient(updates)
+  }, [allChecked, ingredients, checkIngredient])
 
   const goToListTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   )
 
   const handleAddToList = useCallback(() => {
-    const uncheckedIngredients = ingredients.filter((i) => !checked[i.id])
+    const uncheckedIngredients = ingredients.filter((i) => !i.checked)
     const newList: RouterInputs['lists']['upsert'] = uncheckedIngredients
     mutate(newList)
     setAddedToList(true)
@@ -115,7 +108,7 @@ export function IngredientsCheckList({
     goToListTimerRef.current = setTimeout(() => {
       setAddedToList(false)
     }, 6000)
-  }, [ingredients, checked, mutate])
+  }, [ingredients, mutate])
 
   const handleGoToList = useCallback(() => {
     router.push('/list')
