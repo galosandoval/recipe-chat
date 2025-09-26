@@ -17,19 +17,25 @@
     font-size: 16px;
   }
 }
+
 @utility glass-element {
   background-color: color-mix(
     in oklab,
-    var(--color-slate-500) 40%,
+    var(--color-background) 40%,
     transparent
   ); /* Semi-transparent background */
   backdrop-filter: blur(8px); /* Adjust blur strength as needed */
 }
 
-@utility text-glass {
-  color: var(--color-white);
+@utility glass-background {
+  backdrop-filter: blur(8px); /* Adjust blur strength as needed */
+  background-color:  color-mix(
+    in oklab,
+    var(--color-background) 40%,
+    transparent
+  ); /* Semi-transparent background */
+  color: var(--color-foreground);
 }
-
 /*
   ---break---
 */

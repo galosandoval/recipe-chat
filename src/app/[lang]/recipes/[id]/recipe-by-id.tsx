@@ -15,7 +15,6 @@ import { useObervationObserver } from '~/hooks/use-observation-observer'
 import { useParams } from 'next/navigation'
 import { UploadImageButton } from '~/components/upload-image-button'
 import { ParallaxContainer } from '~/components/parallax-container'
-import { useState } from 'react'
 import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
 import { Button } from '~/components/ui/button'
@@ -77,17 +76,13 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
 
   return (
     <>
-      <ImageWithTitleAndDescription
-        data={data}
-        translateY={translateY}
-        containerHeight={containerHeight}
-      />
+      <ImageWithTitleAndDescription data={data} translateY={translateY} />
 
       <div className='relative'>
         {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
         <div className='mx-auto flex flex-col items-center px-4 pb-4'>
           <div className='bg-background flex flex-col'>
-            <IngredientsCheckList ingredients={ingredients} />
+            <IngredientsCheckList recipeId={id} ingredients={ingredients} />
             <div className='pt-4'>
               <Instructions instructions={instructions} />
             </div>
@@ -116,7 +111,7 @@ function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
     >
       <div
         className={cn(
-          'text-glass bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
+          'bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
           visible && 'opacity-100'
         )}
       >
@@ -128,21 +123,15 @@ function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
 
 function ImageWithTitleAndDescription({
   data,
-  translateY,
-  containerHeight
+  translateY
 }: {
   data: RecipeByIdData
   translateY: string
-  containerHeight: number | undefined
 }) {
   return (
     <>
       {data.imgUrl ? (
-        <RecipeMetaDataWithImage
-          url={data.imgUrl}
-          translateY={translateY}
-          containerHeight={containerHeight}
-        />
+        <RecipeMetaDataWithImage url={data.imgUrl} translateY={translateY} />
       ) : (
         <RecipeImgButtonAndMetaData />
       )}
@@ -160,7 +149,7 @@ function RecipeImgButtonAndMetaData() {
       <StickyHeader name={data.name} visible={true} />
       <Card className='m-3 h-1/2 pt-10'>
         <UploadImageButton />
-        <RecipeMetaData textColor='text-foreground' />
+        <RecipeMetaData />
       </Card>
     </>
   )
@@ -168,81 +157,51 @@ function RecipeImgButtonAndMetaData() {
 
 function RecipeMetaDataWithImage({
   url,
-  translateY,
-  containerHeight
+  translateY
 }: {
   url: string
   translateY: string
-  containerHeight: number | undefined
 }) {
-  if (!containerHeight && containerHeight !== 0) return null
-
   return (
     <div>
-      <ImageWithAspectRatio
-        containerHeight={containerHeight}
-        url={url}
-        translateY={translateY}
-      />
+      <ImageWithAspectRatio url={url} translateY={translateY} />
       <GlassMetadata />
     </div>
   )
 }
 
-const IMG_HEIGHT_OFFSET = 0.66
-const IMG_HEIGHT_OFFSET_BOTTOM = 1 - IMG_HEIGHT_OFFSET
-
 function ImageWithAspectRatio({
-  containerHeight,
   url,
   translateY
 }: {
-  containerHeight: number
   url: string
   translateY: string
 }) {
-  const [aspectRatio, setAspectRatio] = useState<number | null>(null)
-  const imgHeight = containerHeight * IMG_HEIGHT_OFFSET
-
-  if (!containerHeight && containerHeight !== 0) return null
-
-  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    const img = event.currentTarget
-    const ratio = img.naturalWidth / img.naturalHeight
-
-    setAspectRatio(ratio)
-  }
-
   return (
     <div className='absolute inset-0 h-svh overflow-hidden'>
-      <Image
-        className={cn('absolute top-0 -z-10 w-full object-cover object-center')}
-        src={url}
-        alt='recipe'
-        width={aspectRatio ? imgHeight * aspectRatio : imgHeight * 0.75}
-        height={imgHeight}
-        priority
-        onLoad={handleImageLoad}
-        style={{
-          transform: `translateY(${translateY})`,
-          height: containerHeight * IMG_HEIGHT_OFFSET
-        }}
-      />
-      <Image
-        className={cn(
-          'absolute bottom-0 -z-10 h-full w-full rotate-180 object-cover object-center'
-        )}
-        src={url}
-        alt='recipe'
-        width={aspectRatio ? imgHeight * aspectRatio : imgHeight * 0.75}
-        height={imgHeight}
-        priority
-        onLoad={handleImageLoad}
-        style={{
-          transform: `translateY(${translateY})`,
-          height: containerHeight * IMG_HEIGHT_OFFSET_BOTTOM
-        }}
-      />
+      <div className='relative h-[55svh] w-full'>
+        <Image
+          className='object-cover'
+          sizes='100vw'
+          alt='recipe'
+          fill
+          src={url}
+          priority
+          style={{
+            transform: `translateY(${translateY})`
+          }}
+        />
+      </div>
+      <div className='relative h-[45svh] w-full rotate-180'>
+        <Image
+          className='object-cover'
+          sizes='100vw'
+          alt='recipe'
+          fill
+          src={url}
+          priority
+        />
+      </div>
     </div>
   )
 }
@@ -251,14 +210,14 @@ function GlassMetadata() {
   return (
     <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
       <div className='h-full flex-1'></div>
-      <GlassElement className='sticky top-0 h-full flex-1 bg-transparent py-4'>
-        <RecipeMetaData textColor='text-glass' />
+      <GlassElement className='to-background/90 sticky top-0 h-full flex-1 bg-gradient-to-b py-4'>
+        <RecipeMetaData />
       </GlassElement>
     </div>
   )
 }
 
-function RecipeMetaData({ textColor }: { textColor: string }) {
+function RecipeMetaData() {
   const utils = api.useUtils()
   const { id } = useParams()
   const data = utils.recipes.byId.getData({ id: id as string })
@@ -277,9 +236,7 @@ function RecipeMetaData({ textColor }: { textColor: string }) {
 
   return (
     <>
-      {imgUrl && (
-        <h2 className={cn('px-5 text-2xl font-bold', textColor)}>{name}</h2>
-      )}
+      {imgUrl && <h2 className={cn('px-5 text-2xl font-bold')}>{name}</h2>}
 
       {prepTime && cookTime && (
         <div className='flex justify-center px-5'>
@@ -292,7 +249,7 @@ function RecipeMetaData({ textColor }: { textColor: string }) {
         </div>
       )}
       {description && (
-        <p className={cn('bg-transparent px-5', textColor)}>{description}</p>
+        <p className={cn('bg-transparent px-5')}>{description}</p>
       )}
     </>
   )

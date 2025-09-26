@@ -32,7 +32,7 @@ export default async function RecipeByIdPage({
   }
   return (
     <HydrateClient>
-      <main className='flex min-h-svh flex-col items-center justify-center'>
+      <main className='min-h-svh w-full overflow-y-auto'>
         <Suspense fallback={<ScreenLoader />}>
           <RecipeById data={data} />
         </Suspense>
