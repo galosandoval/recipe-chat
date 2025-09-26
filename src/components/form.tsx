@@ -17,6 +17,7 @@ import { FormLabel } from './ui/form'
 import { FormControl } from './ui/form'
 import { Input } from './ui/input'
 import { Togglebox } from './togglebox'
+import { Textarea } from './ui/textarea'
 
 export function Form<T extends FieldValues>({
   children,
@@ -100,21 +101,16 @@ export function FormTextarea<T extends FieldValues>({
   name,
   label,
   description,
-  textareaProps
+  ...props
 }: {
   name: Path<T>
   label: string
   description?: string
-  textareaProps?: React.ComponentProps<'textarea'>
-}) {
+} & React.ComponentProps<typeof Textarea>) {
   return (
     <FormField name={name} label={label} description={description}>
       {(field: any) => (
-        <textarea
-          {...textareaProps}
-          {...field}
-          className='border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50'
-        />
+        <Textarea {...props} {...field} className={props.className} />
       )}
     </FormField>
   )
