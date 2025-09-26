@@ -181,8 +181,8 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
           </div>
         )}
       </div>
-      <div className='glass-element absolute top-0 z-0 flex w-full flex-col p-3'>
-        <h3 className='text-glass mt-0 mb-0 overflow-hidden text-sm font-bold text-ellipsis whitespace-nowrap'>
+      <div className='glass-background absolute top-0 z-0 flex w-full flex-col p-3'>
+        <h3 className='mt-0 mb-0 overflow-hidden text-sm font-bold text-ellipsis whitespace-nowrap'>
           {data.name}
         </h3>
       </div>

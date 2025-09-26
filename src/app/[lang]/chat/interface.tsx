@@ -14,10 +14,9 @@ import {
 import { chatStore } from '~/stores/chat-store'
 import { Stream } from './stream'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
-import { api } from '~/trpc/react'
-import { useUserId } from '~/hooks/use-user-id'
 import { cn } from '~/lib/utils'
 import { Message } from './message'
+import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 
 export const Interface = () => {
   const { messages, reset, chatId, streamingStatus } = chatStore()
@@ -94,9 +93,7 @@ const Messages = memo(function Messages({
   isStreaming: boolean
 }) {
   const { stream } = chatStore()
-  const utils = api.useUtils()
-  const userId = useUserId()
-  const filters = utils.filters.getByUserId.getData({ userId })
+  const { data: filters } = useActiveFiltersByUserId()
 
   if (status === 'error') {
     return <p>Error</p>
@@ -107,7 +104,7 @@ const Messages = memo(function Messages({
   return (
     <div
       className={cn(
-        'bg-background mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-14 sm:pb-20',
+        'bg-background mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-[5.25rem] sm:pb-20',
         filters?.length && 'pb-[6.5rem] sm:pb-28'
       )}
     >

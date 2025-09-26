@@ -34,12 +34,8 @@
     var(--color-background) 40%,
     transparent
   ); /* Semi-transparent background */
+  color: var(--color-foreground);
 }
-/* from-background to-background/70 */
-@utility text-glass {
-  color: var(--color-white);
-}
-
 /*
   ---break---
 */

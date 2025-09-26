@@ -111,7 +111,7 @@ function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
     >
       <div
         className={cn(
-          'text-glass bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
+          'bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
           visible && 'opacity-100'
         )}
       >
@@ -149,7 +149,7 @@ function RecipeImgButtonAndMetaData() {
       <StickyHeader name={data.name} visible={true} />
       <Card className='m-3 h-1/2 pt-10'>
         <UploadImageButton />
-        <RecipeMetaData textColor='text-foreground' />
+        <RecipeMetaData />
       </Card>
     </>
   )
@@ -211,13 +211,13 @@ function GlassMetadata() {
     <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
       <div className='h-full flex-1'></div>
       <GlassElement className='to-background/90 sticky top-0 h-full flex-1 bg-gradient-to-b py-4'>
-        <RecipeMetaData textColor='text-glass' />
+        <RecipeMetaData />
       </GlassElement>
     </div>
   )
 }
 
-function RecipeMetaData({ textColor }: { textColor: string }) {
+function RecipeMetaData() {
   const utils = api.useUtils()
   const { id } = useParams()
   const data = utils.recipes.byId.getData({ id: id as string })
@@ -236,9 +236,7 @@ function RecipeMetaData({ textColor }: { textColor: string }) {
 
   return (
     <>
-      {imgUrl && (
-        <h2 className={cn('px-5 text-2xl font-bold', textColor)}>{name}</h2>
-      )}
+      {imgUrl && <h2 className={cn('px-5 text-2xl font-bold')}>{name}</h2>}
 
       {prepTime && cookTime && (
         <div className='flex justify-center px-5'>
@@ -251,7 +249,7 @@ function RecipeMetaData({ textColor }: { textColor: string }) {
         </div>
       )}
       {description && (
-        <p className={cn('bg-transparent px-5', textColor)}>{description}</p>
+        <p className={cn('bg-transparent px-5')}>{description}</p>
       )}
     </>
   )

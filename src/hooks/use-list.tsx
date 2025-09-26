@@ -1,13 +1,8 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
 import { type Ingredient, type Recipe } from '@prisma/client'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { toast } from '~/components/toast'
 import { api } from '~/trpc/react'
-import { z } from 'zod'
-import { createId } from '@paralleldrive/cuid2'
 import { useUserId } from './use-user-id'
 
 export const useList = () => {
@@ -39,23 +34,10 @@ export type Checked = Record<
   { isChecked: boolean; recipeId: string | null }
 >
 
-export function useListController(data: Ingredient[]) {
+export function useAddToList() {
   const userId = useUserId()
-
-  // const allChecked = data.every((c) => c.checked)
-  const noneChecked = data.every((c) => !c.checked)
-
   const utils = api.useUtils()
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema)
-  })
-  const {
-    reset,
-    formState: { isValid }
-  } = form
-
-  const { mutate: addToList } = api.lists.add.useMutation({
+  return api.lists.add.useMutation({
     onMutate: async (input) => {
       await utils.lists.byUserId.cancel({ userId })
 
@@ -92,14 +74,13 @@ export function useListController(data: Ingredient[]) {
       toast.error(error.message)
     }
   })
+}
 
-  const onSubmitNewIngredient = (values: FormValues) => {
-    const newId = createId()
-    addToList({ newIngredientName: values.newIngredientName, id: newId })
-    reset()
-  }
+export function useClearList() {
+  const userId = useUserId()
+  const utils = api.useUtils()
 
-  const { mutate: deleteListItem } = api.lists.clear.useMutation({
+  return api.lists.clear.useMutation({
     async onMutate(input) {
       await utils.lists.byUserId.cancel({ userId })
 
@@ -111,7 +92,6 @@ export function useListController(data: Ingredient[]) {
         {} as Record<string, boolean>
       )
 
-      // Snapshot the previous value
       const prevList = utils.lists.byUserId.getData({ userId })
 
       let ingredients: Ingredient[] = []
@@ -119,10 +99,7 @@ export function useListController(data: Ingredient[]) {
         ingredients = prevList.ingredients.filter((i) => !(i.id in idDict))
       }
 
-      // Optimistically update to the new value
-
       utils.lists.byUserId.setData({ userId }, () => ({ ingredients }))
-      // Return a context object with the snapshotted value
       return { prevList }
     },
     onSuccess: async () => {
@@ -136,39 +113,4 @@ export function useListController(data: Ingredient[]) {
       toast.error(error.message)
     }
   })
-
-  const [byRecipe, setByRecipe] = useState(() =>
-    typeof window !== 'undefined' && typeof localStorage.byRecipe === 'string'
-      ? (JSON.parse(localStorage.byRecipe) as boolean)
-      : false
-  )
-
-  const handleToggleByRecipe = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setByRecipe(event.target.checked)
-  }
-
-  const handleRemoveChecked = () => {
-    const checkedIngredients = data.filter((i) => i.checked)
-
-    deleteListItem(checkedIngredients)
-  }
-
-  useEffect(() => {
-    localStorage.byRecipe = JSON.stringify(byRecipe)
-  }, [byRecipe])
-
-  return {
-    handleToggleByRecipe,
-    byRecipe,
-    noneChecked,
-    handleRemoveChecked,
-    isValid,
-    onSubmitNewIngredient,
-    form
-  }
 }
-
-const formSchema = z.object({
-  newIngredientName: z.string().min(3).max(50)
-})
-type FormValues = z.infer<typeof formSchema>

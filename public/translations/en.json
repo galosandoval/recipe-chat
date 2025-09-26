@@ -51,6 +51,7 @@
 
   "valueProps": {
     "title": "Examples",
+    "description": "Here are some examples of what you can ask. Select one to get started.",
     "firstButton": "What should I make for dinner tonight?",
     "secondButton": "What can I make with chicken?",
     "thirdButton": "What's the best risotto recipe?",
@@ -133,8 +134,8 @@
     "delete": "Delete",
     "enterUrl": "Enter a valid url that contains a recipe.",
     "generate": "Generate",
-
     "byId": {
+      "editDescription": "Make changes to the recipe.",
       "saveImage": "Save image",
       "goToList": "Go to list",
       "addToList": "Add to list",

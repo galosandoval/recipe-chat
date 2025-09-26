@@ -62,11 +62,11 @@ function RecipeByIdNavbar() {
       <div className='mx-auto flex w-full max-w-2xl flex-1 justify-between bg-transparent p-4'>
         <Button
           variant='outline'
-          className='text-glass bg-transparent'
+          className='glass-background'
           onClick={() => router.back()}
           size='icon'
         >
-          <ArrowBigLeft className='text-glass' />
+          <ArrowBigLeft />
         </Button>
 
         <EditByIdDrawer />

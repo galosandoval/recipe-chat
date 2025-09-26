@@ -41,7 +41,7 @@ export function Dialog({
   return (
     <DialogUI open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className='pt-0 sm:max-w-[425px]'>
+      <DialogContent className='pt-6 sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className='text-left'>

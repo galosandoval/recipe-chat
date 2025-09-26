@@ -48,7 +48,11 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
           !session.data && 'pt-14'
         )}
       >
-        <ValuePropsHeader icon={<SparklesIcon />} label={t.valueProps.title} />
+        <ValuePropsHeader
+          icon={<SparklesIcon />}
+          label={t.valueProps.title}
+          description={t.valueProps.description}
+        />
 
         <div className='flex w-full flex-col items-center gap-4 px-4'>
           <Button
@@ -181,7 +185,7 @@ export function ValuePropsHeader({
       </div>
       {description && (
         <div className='flex flex-col gap-4 px-4 pb-2'>
-          <p className='text-foreground text-sm'>{description}</p>
+          <p className='text-muted-foreground text-sm'>{description}</p>
         </div>
       )}
     </>

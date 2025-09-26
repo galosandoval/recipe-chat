@@ -51,6 +51,7 @@
 
   "valueProps": {
     "title": "Ejemplos",
+    "description": "Aquí hay algunos ejemplos de lo que puedes preguntar. Selecciona uno para empezar.",
     "firstButton": "¿Que podria hacer para cenar esta noche?",
     "secondButton": "¿Como se hace un risotto?",
     "thirdButton": "¿Que puedo hacer con pollo?",
@@ -134,8 +135,8 @@
     "delete": "borrar",
     "enterUrl": "Ingresa una URL válida que contenga una receta.",
     "generate": "Generar",
-
     "byId": {
+      "editDescription": "Haz cambios a la receta.",
       "saveImage": "Guardar imagen",
       "goToList": "Ir a lista",
       "addToList": "Agregar a tu lista",

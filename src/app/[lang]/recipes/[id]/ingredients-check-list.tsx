@@ -94,12 +94,7 @@ export function IngredientsCheckList({
           <h2 className='text-foreground/90 text-lg font-bold'>
             {t.recipes.ingredients}
           </h2>
-          <Button
-            id='check-all'
-            className=''
-            variant='outline'
-            onClick={handleCheckAll}
-          >
+          <Button id='check-all' variant='outline' onClick={handleCheckAll}>
             {allChecked ? t.recipes.byId.deselectAll : t.recipes.byId.selectAll}
           </Button>
         </div>
@@ -113,7 +108,7 @@ export function IngredientsCheckList({
               key={i.id}
             />
           ))}
-          <div className=''>
+          <div>
             <Button
               className={'w-full justify-between gap-2 rounded text-base'}
               variant={addedToList ? 'default' : 'outline'}
@@ -143,7 +138,7 @@ function IngredientCheckBox({
 }) {
   if (ingredient.name.endsWith(':')) {
     return (
-      <h3 className='divider mt-1 mb-1 text-sm' key={ingredient.id}>
+      <h3 className='mt-1 mb-1 text-sm' key={ingredient.id}>
         {ingredient.name.slice(0, -1)}
       </h3>
     )

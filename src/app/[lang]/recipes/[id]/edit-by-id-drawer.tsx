@@ -29,7 +29,7 @@ export function EditByIdDrawer() {
     return (
       <Button
         variant='outline'
-        className='text-glass bg-transparent'
+        className='bg-transparent'
         disabled
         size='icon'
       >
@@ -42,15 +42,21 @@ export function EditByIdDrawer() {
 const FORM_ID = 'edit-recipe-form'
 
 function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
+  const t = useTranslations()
   return (
     <DrawerDialog
-      cancelText='Cancel'
-      submitText='Save'
-      title='recipes.byId.edit'
-      description='Edit the recipe'
+      cancelText={t.common.cancel}
+      submitText={t.common.save}
+      title={t.recipes.byId.edit}
+      description={t.recipes.byId.editDescription}
       formId={FORM_ID}
       trigger={
-        <Button type='button' variant='outline' size='icon'>
+        <Button
+          type='button'
+          className='glass-background'
+          variant='outline'
+          size='icon'
+        >
           <SquarePenIcon />
         </Button>
       }
