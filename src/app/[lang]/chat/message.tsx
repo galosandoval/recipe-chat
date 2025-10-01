@@ -91,7 +91,14 @@ export function ChatMessage({
   children?: React.ReactNode
   isUserMessage?: boolean
 }) {
-  const iconEl = <div key='icon'>{icon}</div>
+  const iconEl = (
+    <div key='icon'>
+      <span className='relative grid size-8 place-items-center'>
+        <span className='bg-primary/10 absolute inset-0 size-8 rounded-full' />
+        <span className='grid size-6 place-items-center'>{icon}</span>
+      </span>
+    </div>
+  )
   const bubbleEl = (
     <Bubble key='bubble' content={content} isUserMessage={isUserMessage}>
       {children}
