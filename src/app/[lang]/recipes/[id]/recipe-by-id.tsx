@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo, useEffect } from 'react'
+import { useRef, useMemo } from 'react'
 import { type Instruction } from '@prisma/client'
 import { type RouterOutputs, api } from '~/trpc/react'
 import { useForm } from 'react-hook-form'
@@ -20,7 +20,6 @@ import { NewRecipeTime, RecipeTime } from './recipe-time'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/card'
 import { Form, FormTextarea } from '~/components/form'
-import { LoadingSpinner } from '~/components/loaders/loading-spinner'
 import { PencilIcon } from 'lucide-react'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
@@ -315,6 +314,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
       >
         <FormTextarea
           label='Notes'
+          labelClassName='text-foreground/90 mb-2 text-lg font-bold'
           placeholder={t.recipes.byId.placeholder}
           name='notes'
           className='resize-none placeholder:text-sm'

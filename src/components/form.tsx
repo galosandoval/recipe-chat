@@ -50,11 +50,13 @@ export function FormField<T extends FieldValues>({
   name,
   label,
   description,
+  labelClassName,
   children
 }: {
   name: Path<T>
   label?: string
   description?: string
+  labelClassName?: string
   children:
     | ((field: ControllerRenderProps<T, Path<T>>) => React.ReactElement)
     | React.ReactNode
@@ -66,7 +68,7 @@ export function FormField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem className='w-full'>
-          {label && <FormLabel>{label}</FormLabel>}
+          {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
           <FormControl>
             {typeof children === 'function' ? children(field) : children}
           </FormControl>
@@ -83,14 +85,21 @@ export function FormInput<T extends FieldValues>({
   name,
   label,
   description,
+  labelClassName,
   ...inputProps
 }: {
   name: Path<T>
   label?: string
   description?: string
+  labelClassName?: string
 } & React.ComponentProps<typeof Input>) {
   return (
-    <FormField name={name} label={label} description={description}>
+    <FormField
+      name={name}
+      label={label}
+      description={description}
+      labelClassName={labelClassName}
+    >
       {(field) => <Input {...inputProps} {...field} />}
     </FormField>
   )
@@ -101,14 +110,21 @@ export function FormTextarea<T extends FieldValues>({
   name,
   label,
   description,
+  labelClassName,
   ...props
 }: {
   name: Path<T>
   label: string
   description?: string
+  labelClassName?: string
 } & React.ComponentProps<typeof Textarea>) {
   return (
-    <FormField name={name} label={label} description={description}>
+    <FormField
+      name={name}
+      label={label}
+      description={description}
+      labelClassName={labelClassName}
+    >
       {(field: any) => (
         <Textarea {...props} {...field} className={props.className} />
       )}
@@ -122,16 +138,23 @@ export function FormSelect<T extends FieldValues>({
   label,
   description,
   options,
+  labelClassName,
   selectProps
 }: {
   name: Path<T>
   label: string
   description?: string
   options: { value: string; label: string }[]
+  labelClassName?: string
   selectProps?: React.ComponentProps<'select'>
 }) {
   return (
-    <FormField name={name} label={label} description={description}>
+    <FormField
+      name={name}
+      label={label}
+      description={description}
+      labelClassName={labelClassName}
+    >
       {(field) => (
         <select
           {...selectProps}
@@ -153,15 +176,22 @@ export function FormCheckbox<T extends FieldValues>({
   name,
   label,
   description,
+  labelClassName,
   checkboxProps
 }: {
   name: Path<T>
   label: string
   description?: string
+  labelClassName?: string
   checkboxProps?: React.ComponentProps<typeof Togglebox>
 }) {
   return (
-    <FormField name={name} label={label} description={description}>
+    <FormField
+      name={name}
+      label={label}
+      description={description}
+      labelClassName={labelClassName}
+    >
       {(field) => (
         <Togglebox
           checked={field.value?.checked}
