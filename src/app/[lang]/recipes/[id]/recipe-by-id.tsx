@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { type Instruction } from '@prisma/client'
 import { type RouterOutputs, api } from '~/trpc/react'
 import { useForm } from 'react-hook-form'
@@ -20,6 +20,8 @@ import { NewRecipeTime, RecipeTime } from './recipe-time'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/card'
 import { Form, FormTextarea } from '~/components/form'
+import { LoadingSpinner } from '~/components/loaders/loading-spinner'
+import { PencilIcon } from 'lucide-react'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
 
@@ -148,7 +150,7 @@ function RecipeImgButtonAndMetaData() {
   return (
     <>
       <StickyHeader name={data.name} visible={true} />
-      <Card className='m-3 h-1/2 pt-10'>
+      <Card className='m-3 mt-16 h-1/2'>
         <UploadImageButton />
         <RecipeMetaData />
       </Card>
@@ -279,34 +281,27 @@ function Instructions({ instructions }: { instructions: Instruction[] }) {
 }
 
 const addNotesSchema = z.object({
-  notes: z.string().nonempty()
+  notes: z.string()
 })
 type AddNotes = z.infer<typeof addNotesSchema>
 
 function Notes({ notes, id }: { notes: string; id: string }) {
   const t = useTranslations()
-
-  const utils = api.useContext()
-  const { mutate } = api.recipes.addNotes.useMutation({
-    onSuccess() {
-      utils.recipes.byId.invalidate({ id })
-    }
+  const utils = api.useUtils()
+  const { mutate, isPending, variables } = api.recipes.addNotes.useMutation({
+    onSettled: () => utils.recipes.byId.invalidate({ id })
   })
 
   const form = useForm<AddNotes>({
-    resolver: zodResolver(addNotesSchema)
+    resolver: zodResolver(addNotesSchema),
+    values: {
+      // optimistic update
+      notes: isPending ? variables?.notes : notes
+    }
   })
 
-  if (notes) {
-    return (
-      <>
-        <h2>{t.recipes.notes}</h2>
-        <p className='whitespace-pre-line'>{notes}</p>
-      </>
-    )
-  }
-
   const onSubmit = (values: AddNotes) => {
+    if (isPending) return
     mutate({ id, notes: values.notes })
   }
 
@@ -316,7 +311,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
         formId='add-notes-form'
         form={form}
         onSubmit={onSubmit}
-        className='flex flex-col gap-2 pb-4'
+        className='flex flex-col gap-2'
       >
         <FormTextarea
           label='Notes'
@@ -326,10 +321,12 @@ function Notes({ notes, id }: { notes: string; id: string }) {
         />
         <Button
           disabled={!form.formState.isDirty || !form.formState.isValid}
+          isLoading={isPending}
           type='submit'
           className='self-end'
+          icon={<PencilIcon />}
         >
-          {t.common.save}
+          {t.recipes.byId.updateNotes}
         </Button>
       </Form>
     </div>

@@ -150,7 +150,7 @@
       "uploadingImage": "Subiendo imagen...",
       "updateImageSuccess": "¡Imagen actualizada!",
       "noFile": "No hay archivo seleccionado",
-
+      "updateNotes": "Actualizar notas",
       "delete": {
         "title": "Borrar receta",
         "message": "¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer."
