@@ -201,7 +201,7 @@ export const recipesRouter = createTRPCRouter({
     }),
 
   addNotes: protectedProcedure
-    .input(z.object({ notes: z.string().nonempty(), id: z.string() }))
+    .input(z.object({ notes: z.string(), id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const recipesDataAccess = new RecipesAccess(ctx.prisma)
       const updatedRecipe = await recipesDataAccess.updateRecipe(input.id, {

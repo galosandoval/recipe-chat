@@ -10,13 +10,13 @@ export function RecipeTime({
 }) {
   const t = useTranslations()
   return (
-    <div className='glass-element my-2 rounded'>
-      <div className='stat place-items-center px-3 py-3'>
+    <div className='glass-element my-2 rounded leading-0'>
+      <div className='place-items-center px-2 py-2'>
         <div className='text-sm'>{t.recipes.prepTime}</div>
         <div className='text-sm whitespace-normal'>{prepTime}</div>
       </div>
 
-      <div className='stat place-items-center px-3 py-3'>
+      <div className='place-items-center px-2 py-2'>
         <div className='text-sm'>{t.recipes.cookTime}</div>
         <div className='text-sm whitespace-normal'>{cookTime}</div>
       </div>
@@ -33,14 +33,14 @@ export function NewRecipeTime({
 }) {
   const t = useTranslations()
   return (
-    <div className='glass-element my-2 flex rounded'>
-      <div className='stat place-items-center px-3 py-3'>
+    <div className='glass-element my-2 flex rounded leading-0'>
+      <div className='place-items-center px-2 py-2'>
         <div className='text-sm'>{t.recipes.prepTime}</div>
         <div className='text-sm whitespace-normal'>
           {formatTimeFromMinutes(prepMinutes, t)}
         </div>
       </div>
-      <div className='stat place-items-center px-3 py-3'>
+      <div className='place-items-center px-2 py-2'>
         <div className='text-sm'>{t.recipes.cookTime}</div>
         <div className='text-sm whitespace-normal'>
           {formatTimeFromMinutes(cookMinutes, t)}

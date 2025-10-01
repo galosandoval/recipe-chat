@@ -149,7 +149,7 @@
       "uploadingImage": "Uploading...",
       "updateImageSuccess": "Image updated successfully!",
       "noFile": "No file selected",
-
+      "updateNotes": "Update notes",
       "delete": {
         "title": "Delete recipe",
         "message": "Are you sure you want to delete this recipe? This action cannot be undone."
