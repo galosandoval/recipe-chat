@@ -93,7 +93,6 @@ class TranslationClass {
   replace(path: string, ...args: string[]): string {
     const translation = this.get(path)
 
-    console.log('no args', path, translation)
     if (typeof translation !== 'string') {
       return path
     }

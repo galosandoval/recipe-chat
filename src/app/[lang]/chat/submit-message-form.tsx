@@ -9,7 +9,7 @@ import {
   type MessageWithRecipes
 } from '~/schemas/chats-schema'
 import { useChatAI } from '~/hooks/use-chat-ai'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import type { GeneratedRecipe } from '~/schemas/messages-schema'
 import { useUserId } from '~/hooks/use-user-id'
@@ -65,6 +65,8 @@ function useRecipeChat() {
   }
 }
 
+const STREAM_TIMEOUT = 1000 // 2 seconds
+
 export function SubmitMessageForm() {
   const {
     input,
@@ -77,6 +79,7 @@ export function SubmitMessageForm() {
   const chatId = chatStore((state) => state.chatId)
   const { handleAISubmit, stop: aiStop } = useRecipeChat()
   const t = useTranslations()
+  const streamTimeout = useRef<NodeJS.Timeout | null>(null)
 
   // Set up the triggerAISubmission method in the store
   useEffect(() => {
@@ -93,11 +96,28 @@ export function SubmitMessageForm() {
     if (isStreaming) {
       aiStop()
       setStreamingStatus('idle')
+      if (streamTimeout.current) {
+        clearTimeout(streamTimeout.current)
+        streamTimeout.current = null
+      }
     } else if (input.trim()) {
       setStreamingStatus('streaming')
       handleAISubmit(messagesToSubmit)
+      streamTimeout.current = setTimeout(() => {
+        setStreamingStatus('idle')
+        streamTimeout.current = null
+      }, STREAM_TIMEOUT)
     }
   }
+
+  useEffect(() => {
+    return () => {
+      if (streamTimeout.current) {
+        clearTimeout(streamTimeout.current)
+        streamTimeout.current = null
+      }
+    }
+  }, [])
 
   let placeholder = t.chatWindow.chatFormPlaceholder
   if (messages.length > 0) {
