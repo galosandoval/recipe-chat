@@ -33,6 +33,7 @@ type ChatStore = {
 
   // Utilities
   reset: () => void
+  initializeFromStorage: () => void
 }
 
 const initialStream: GeneratedMessage = {
@@ -42,16 +43,10 @@ const initialStream: GeneratedMessage = {
 
 const initialMessages: MessageWithRecipes[] = []
 
-// Helper function to get initial chat ID from session storage
+// Always return empty string initially to avoid hydration mismatch
+// The actual chatId will be set via setChatId when needed
 const getInitialChatId = (): string => {
-  if (typeof window === 'undefined') return ''
-
-  try {
-    const stored = sessionStorage.getItem(CURRENT_CHAT_ID)
-    return stored ? JSON.parse(stored) : ''
-  } catch {
-    return ''
-  }
+  return ''
 }
 
 export const chatStore = create<ChatStore>((set, get) => ({
@@ -82,6 +77,21 @@ export const chatStore = create<ChatStore>((set, get) => ({
     set({ chatId })
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(CURRENT_CHAT_ID, JSON.stringify(chatId))
+    }
+  },
+
+  // Initialize chatId from session storage after hydration
+  initializeFromStorage: () => {
+    if (typeof window === 'undefined') return
+
+    try {
+      const stored = sessionStorage.getItem(CURRENT_CHAT_ID)
+      if (stored) {
+        const chatId = JSON.parse(stored)
+        set({ chatId })
+      }
+    } catch {
+      // Ignore errors when reading from session storage
     }
   },
 
