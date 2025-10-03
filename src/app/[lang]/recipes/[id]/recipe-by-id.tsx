@@ -34,7 +34,7 @@ export default function RecipeById({ data }: { data: RecipeByIdData }) {
   if (!recipe) return null
 
   return (
-    <div className='relative flex h-full max-w-2xl flex-col overflow-y-auto'>
+    <div className='relative mx-auto flex h-full max-w-2xl flex-col overflow-y-auto'>
       <FoundRecipe data={recipe} />
     </div>
   )
