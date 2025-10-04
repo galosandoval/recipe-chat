@@ -2,7 +2,8 @@
   "common": {
     "cancel": "Cancelar",
     "save": "Guardar",
-    "delete": "Borrar"
+    "delete": "Borrar",
+    "close": "Cerrar"
   },
 
   "nav": {

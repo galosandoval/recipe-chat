@@ -267,7 +267,7 @@ function Instructions({ instructions }: { instructions: Instruction[] }) {
       </h2>
       <ol className='flex list-none flex-col gap-3 pl-0'>
         {instructions.map((i, index) => (
-          <li key={i.id} className='bg-secondary mt-0 mb-0 rounded p-4'>
+          <li key={i.id} className='bg-secondary mt-0 mb-0 rounded-md p-4'>
             <h3 className='text-foreground mb-1 text-sm font-bold uppercase'>
               {t.recipes.step} {index + 1}
             </h3>

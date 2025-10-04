@@ -152,6 +152,10 @@ export const useChatAI = () => {
   // Handle AI response completion
   const handleAIResponse = useCallback(
     (aiResponse: OnFinish) => {
+      if (aiResponse.error?.stack) {
+        toast.error(aiResponse.error?.stack)
+        return
+      }
       if (aiResponse?.object?.content) {
         // Don't create a new generated recipe if the recipe already exists
         const { messages, chatId } = chatStore.getState()
@@ -221,8 +225,9 @@ export const useChatAI = () => {
         id,
         ingredients,
         instructions,
-        prepMinutes: rest.prepMinutes ?? undefined,
-        cookMinutes: rest.cookMinutes ?? undefined,
+        // if 0, set to null
+        prepMinutes: rest.prepMinutes || null,
+        cookMinutes: rest.cookMinutes || null,
         messageId: generatedMessage.id,
         content: generatedMessage.content,
         chatId
@@ -239,6 +244,11 @@ export const useChatAI = () => {
   }
 
   const onFinishMessage = (aiResponse: OnFinish) => {
+    if (aiResponse.error?.stack) {
+      toast.error(aiResponse.error?.stack)
+      return
+    }
+
     const streamingStatus = chatStore.getState().streamingStatus
     handleAIResponse(aiResponse)
     if (streamingStatus === 'generating') {

@@ -1,27 +1,10 @@
-import _toast, { type ToastOptions, Toaster, ToastBar } from 'react-hot-toast'
 import { CheckIcon, ExclamationCircle } from './icons'
 import { cn } from '~/lib/utils'
 import { Button } from './ui/button'
+import { toast as _toast, ToasterProps, ExternalToast } from 'sonner'
+import { useTranslations } from '~/hooks/use-translations'
 
-export function Toast() {
-  return (
-    <Toaster
-      toastOptions={{
-        success: successToastOptions,
-        error: errorToastOptions,
-        loading: loadingToastOptions
-      }}
-    >
-      {(t) => (
-        <div>
-          <ToastBar toast={t} />
-        </div>
-      )}
-    </Toaster>
-  )
-}
-
-export const loadingToastOptions: ToastOptions = {
+export const loadingToastOptions: ExternalToast = {
   icon: (
     // spinner
     <svg
@@ -45,7 +28,7 @@ export const loadingToastOptions: ToastOptions = {
   }
 }
 
-export const successToastOptions: ToastOptions = {
+export const successToastOptions: ExternalToast = {
   icon: <CheckIcon />,
   style: {
     backgroundColor: 'var(--color-success)',
@@ -53,17 +36,11 @@ export const successToastOptions: ToastOptions = {
   }
 }
 
-export const errorToastOptions: ToastOptions = {
-  icon: <ExclamationCircle />,
-  style: {
-    backgroundColor: 'var(--color-error)',
-    color: 'var(--color-error-content)',
-    fontSize: '12px'
-  },
+export const errorToastOptions: ExternalToast = {
   duration: Infinity
 }
 
-export const infoToastOptions: ToastOptions = {
+export const infoToastOptions: ExternalToast = {
   duration: 6000,
   style: {
     backgroundColor: 'var(--color-info)',
@@ -88,48 +65,48 @@ export const infoToastOptions: ToastOptions = {
   )
 }
 
+function ToastBar({ id, tKey }: { id: string | number; tKey: string }) {
+  const t = useTranslations()
+  return (
+    <div
+    // className={cn(
+    //   t ? 'animate-enter' : 'animate-leave',
+    //   'bg-secondary border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl'
+    // )}
+    >
+      <div className='bg-background flex-1 cursor-auto overflow-auto rounded-md p-3 text-left text-sm whitespace-break-spaces select-text'>
+        {t.replace(tKey)}
+      </div>
+      <div className='flex'>
+        <div>
+          <Button
+            onClick={() => _toast.dismiss(id)}
+            className='flex w-full'
+            variant='ghost'
+            type='button'
+          >
+            {t.common.close}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export const toast = {
   success: (message: string) => _toast.success(message),
   error: (message: string) =>
-    _toast.custom(
-      (t) => (
-        <div
-          className={cn(
-            t.visible ? 'animate-enter' : 'animate-leave',
-            'bg-secondary border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl'
-          )}
-        >
-          <div className='flex-1 cursor-auto text-left text-sm whitespace-break-spaces select-text'>
-            {message}
-          </div>
-          <div className='flex'>
-            <div>
-              <Button
-                onClick={() => _toast.dismiss(t.id)}
-                className='flex w-full'
-                variant='ghost'
-              >
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
-      ),
-      errorToastOptions
-    ),
+    _toast.custom((t) => <ToastBar id={t} tKey={message} />, errorToastOptions),
   loading: _toast.loading,
   info: (message: string) => _toast(message, infoToastOptions),
-  promise: async (
-    promise: Promise<any>,
+  promise: async function <T>(
+    promise: Promise<T>,
     msgs: {
       loading: string
       success: () => string
       error: () => string
     }
-  ) =>
-    await _toast.promise(promise, msgs, {
-      loading: loadingToastOptions,
-      success: { ...successToastOptions, duration: 3000 },
-      error: errorToastOptions
-    })
+  ) {
+    return _toast.promise(promise, msgs)
+  }
 }

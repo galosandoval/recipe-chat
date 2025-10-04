@@ -158,7 +158,7 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
     <Link
       href={`/recipes/${data.id}`}
       key={data.id}
-      className='bg-background relative col-span-1 overflow-hidden rounded shadow-xl active:scale-[99%]'
+      className='bg-background relative col-span-1 overflow-hidden rounded-md shadow-xl active:scale-[99%]'
       onClick={handleOnClick}
     >
       <div className='w-full'>

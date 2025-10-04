@@ -144,7 +144,7 @@ export function IngredientsCheckList({
         ))}
         <div>
           <Button
-            className={'w-full justify-between gap-2 rounded text-base'}
+            className={'w-full justify-between gap-2 rounded-md text-base'}
             variant={addedToList ? 'default' : 'outline'}
             size='lg'
             disabled={!someNotChecked}

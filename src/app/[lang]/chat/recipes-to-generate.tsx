@@ -6,6 +6,8 @@ import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/card'
+import { useEffect, useRef } from 'react'
+import { STREAM_TIMEOUT } from '~/constants/chat'
 
 export function RecipesToGenerate({
   recipes,
@@ -61,6 +63,7 @@ function GenerateButton({
 }) {
   const t = useTranslations()
   const { triggerAISubmission, messages, setStreamingStatus } = chatStore()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const generateRecipe = async (name: string, description: string) => {
     setStreamingStatus('generating')
@@ -75,7 +78,19 @@ function GenerateButton({
         chatStore.getState().chatId
       )
     ])
+    timeoutRef.current = setTimeout(() => {
+      setStreamingStatus('idle')
+      timeoutRef.current = null
+    }, STREAM_TIMEOUT)
   }
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+    }
+  }, [])
   const handleGenerate = async () => {
     await generateRecipe(recipeName, recipeDescription)
   }

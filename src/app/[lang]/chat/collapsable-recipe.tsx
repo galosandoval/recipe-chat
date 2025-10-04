@@ -35,7 +35,7 @@ export function CollapsableRecipe({
 
   return (
     <Card
-      className='mt-3 w-full rounded'
+      className='mt-3 w-full rounded-md'
       footer={
         <div className='flex w-full justify-between'>
           <Button

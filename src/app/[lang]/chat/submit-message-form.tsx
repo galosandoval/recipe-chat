@@ -18,10 +18,11 @@ import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { BottomBar } from '~/components/bottom-bar'
+import { toast } from '~/components/toast'
 
 function useRecipeChat() {
   const userId = useUserId()
-  const { setInput, setStream } = chatStore()
+  const { setInput, setStream, setStreamingStatus } = chatStore()
   const { onFinishMessage, createUserMessage } = useChatAI()
   const {
     object,
@@ -30,6 +31,12 @@ function useRecipeChat() {
   } = useObject({
     api: '/api/chat',
     schema: generatedMessageSchema,
+    onError(error) {
+      if (error?.stack) toast.error(error.stack)
+      if (error) toast.error(error.message)
+      setStream({ content: '', recipes: [] })
+      setStreamingStatus('idle')
+    },
     onFinish: onFinishMessage
   })
   const utils = api.useUtils()
@@ -57,7 +64,7 @@ function useRecipeChat() {
         recipes: (object.recipes ?? []).filter(Boolean) as GeneratedRecipe[]
       })
     }
-  }, [object, setStream])
+  }, [object])
 
   return {
     handleAISubmit,

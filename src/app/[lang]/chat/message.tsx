@@ -139,7 +139,7 @@ function Bubble({
   return (
     <div
       className={cn(
-        'bg-secondary flex w-4/5 flex-col rounded p-3 pb-4 sm:w-3/4',
+        'bg-secondary flex w-4/5 flex-col rounded-md p-3 pb-4 sm:w-3/4',
         isUserMessage && 'bg-primary'
       )}
     >

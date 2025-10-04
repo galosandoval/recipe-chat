@@ -34,7 +34,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
                   recipe.name
                 )}`}
                 key={recipe.id}
-                className='bg-secondary flex h-10 gap-2 overflow-hidden rounded active:scale-[99%]'
+                className='bg-secondary flex h-10 gap-2 overflow-hidden rounded-md active:scale-[99%]'
               >
                 {recipe.imgUrl ? (
                   <Image

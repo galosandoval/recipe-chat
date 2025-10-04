@@ -18,7 +18,6 @@ export const generatedRecipeSchema = z.object({
     .number()
     .int()
     .positive()
-    .optional()
     .nullable()
     .describe(
       'Preparation time in minutes. Required when only one recipe is returned.'
@@ -27,8 +26,6 @@ export const generatedRecipeSchema = z.object({
   cookMinutes: z
     .number()
     .int()
-    .positive()
-    .optional()
     .nullable()
     .describe(
       'Cook time in minutes. Required when only one recipe is returned.'
