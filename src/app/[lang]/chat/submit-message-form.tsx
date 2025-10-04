@@ -22,7 +22,7 @@ import { toast } from '~/components/toast'
 
 function useRecipeChat() {
   const userId = useUserId()
-  const { setInput, setStream, setStreamingStatus } = chatStore()
+  const { setInput, setStream } = chatStore()
   const { onFinishMessage, createUserMessage } = useChatAI()
   const {
     object,
@@ -35,7 +35,6 @@ function useRecipeChat() {
       if (error?.stack) toast.error(error.stack)
       if (error) toast.error(error.message)
       setStream({ content: '', recipes: [] })
-      setStreamingStatus('idle')
     },
     onFinish: onFinishMessage
   })
@@ -75,15 +74,9 @@ function useRecipeChat() {
 const STREAM_TIMEOUT = 1000 // 2 seconds
 
 export function SubmitMessageForm() {
-  const {
-    input,
-    handleInputChange,
-    messages,
-    streamingStatus,
-    setStreamingStatus
-  } = chatStore()
-  const isStreaming = streamingStatus !== 'idle'
-  const chatId = chatStore((state) => state.chatId)
+  const { input, handleInputChange, messages, chatId, reset, stream } =
+    chatStore()
+  const isStreaming = stream !== null
   const { handleAISubmit, stop: aiStop } = useRecipeChat()
   const t = useTranslations()
   const streamTimeout = useRef<NodeJS.Timeout | null>(null)
@@ -102,16 +95,14 @@ export function SubmitMessageForm() {
 
     if (isStreaming) {
       aiStop()
-      setStreamingStatus('idle')
       if (streamTimeout.current) {
         clearTimeout(streamTimeout.current)
         streamTimeout.current = null
       }
     } else if (input.trim()) {
-      setStreamingStatus('streaming')
       handleAISubmit(messagesToSubmit)
       streamTimeout.current = setTimeout(() => {
-        setStreamingStatus('idle')
+        reset()
         streamTimeout.current = null
       }, STREAM_TIMEOUT)
     }

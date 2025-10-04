@@ -49,14 +49,8 @@ const UserMessage = memo(function UserMessage({
     const allRecipes =
       data?.messages.flatMap((m) => m.recipes)?.flatMap((r) => r.recipe) ?? []
 
-    return allRecipes.find(
-      (r) =>
-        message.content ===
-        buildGenerateRecipeContent(
-          t.chatWindow.generateRecipe,
-          r.name ?? '',
-          r.description ?? ''
-        )
+    return allRecipes.find((r) =>
+      message.content.includes(`${t.chatWindow.generateRecipe} ${r.name}`)
     )
   }, [message.content])
   if (foundMessage) {

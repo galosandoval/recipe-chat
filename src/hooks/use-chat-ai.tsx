@@ -63,7 +63,7 @@ export const useChatAI = () => {
   const filtersData = filters.data
   const utils = api.useUtils()
 
-  const { addMessage, setMessages, setStreamingStatus, setStream } = chatStore()
+  const { addMessage, setMessages, setStream } = chatStore()
 
   const filterStrings: string[] = []
   if (filtersData) {
@@ -248,19 +248,23 @@ export const useChatAI = () => {
       toast.error(aiResponse.error?.stack)
       return
     }
-    const userOrAppMessage = chatStore.getState().messages.at(-1)
+    const messages = chatStore.getState().messages
+    const recipes = messages.flatMap((m) => m.recipes)
+    const userOrAppMessage = messages.at(-1)
     const assistantMessage = chatStore.getState().stream
+    const foundRecipe = recipes.find(
+      (r) => r.name === assistantMessage?.recipes?.[0]?.name
+    )
     if (!userOrAppMessage || !assistantMessage) return
 
     handleAIResponse(aiResponse)
     // path when user clicks generate recipe, updates the existing recipe on clicked message
-    if (userOrAppMessage.role === 'user') {
-      handleUpsertChat()
-    } else if (userOrAppMessage.role === 'assistant') {
+    if (foundRecipe) {
       handleGenerated()
+    } else {
+      handleUpsertChat()
     }
-    setStreamingStatus('idle')
-    setStream({ content: '', recipes: [] })
+    setStream(null)
   }
 
   useEffect(() => {

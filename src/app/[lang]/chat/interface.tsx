@@ -72,7 +72,7 @@ const Messages = memo(function Messages({
 }) {
   const { stream } = chatStore()
   const { data: filters } = useActiveFiltersByUserId()
-  const streamHasContent = !!stream.content
+  const streamHasContent = !!stream?.content
 
   useEffect(() => {
     console.log('streamHasContent', streamHasContent)
@@ -94,10 +94,11 @@ const Messages = memo(function Messages({
         />
       ))}
 
-      {!streamHasContent && data.at(-1)?.role === 'user' && (
+      {!streamHasContent && data.at(-1)?.role === 'user' ? (
         <AssistantMessageLoader />
-      )}
-      <Stream stream={stream} isStreaming={streamHasContent} />
+      ) : stream ? (
+        <Stream stream={stream} isStreaming={streamHasContent} />
+      ) : null}
     </div>
   )
 })

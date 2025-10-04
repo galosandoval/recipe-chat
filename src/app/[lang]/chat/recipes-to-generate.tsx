@@ -62,11 +62,10 @@ function GenerateButton({
   recipeDescription: string
 }) {
   const t = useTranslations()
-  const { triggerAISubmission, messages, setStreamingStatus } = chatStore()
+  const { triggerAISubmission, messages, setStream } = chatStore()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const generateRecipe = async (name: string, description: string) => {
-    setStreamingStatus('generating')
     triggerAISubmission([
       ...messages,
       userMessageDTO(
@@ -79,7 +78,8 @@ function GenerateButton({
       )
     ])
     timeoutRef.current = setTimeout(() => {
-      setStreamingStatus('idle')
+      // setStreamingStatus('idle')
+      setStream(null)
       timeoutRef.current = null
     }, STREAM_TIMEOUT)
   }
