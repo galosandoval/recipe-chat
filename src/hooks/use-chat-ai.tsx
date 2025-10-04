@@ -91,7 +91,7 @@ export const useChatAI = () => {
     }
   })
 
-  const handleUpsertMessage = () => {
+  const handleUpsertChat = () => {
     if (!isAuthenticated) {
       return
     }
@@ -248,13 +248,16 @@ export const useChatAI = () => {
       toast.error(aiResponse.error?.stack)
       return
     }
+    const userOrAppMessage = chatStore.getState().messages.at(-1)
+    const assistantMessage = chatStore.getState().stream
+    if (!userOrAppMessage || !assistantMessage) return
 
-    const streamingStatus = chatStore.getState().streamingStatus
     handleAIResponse(aiResponse)
-    if (streamingStatus === 'generating') {
+    // path when user clicks generate recipe, updates the existing recipe on clicked message
+    if (userOrAppMessage.role === 'user') {
+      handleUpsertChat()
+    } else if (userOrAppMessage.role === 'assistant') {
       handleGenerated()
-    } else if (streamingStatus === 'streaming') {
-      handleUpsertMessage()
     }
     setStreamingStatus('idle')
     setStream({ content: '', recipes: [] })

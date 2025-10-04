@@ -5,6 +5,7 @@ import type { GeneratedMessage } from '~/schemas/chats-schema'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
 import { ChatMessage } from '~/app/[lang]/chat/message'
+import { useEffect } from 'react'
 
 export function Stream({
   stream,
@@ -13,6 +14,9 @@ export function Stream({
   stream: GeneratedMessage
   isStreaming: boolean
 }) {
+  useEffect(() => {
+    console.log('stream', stream)
+  }, [stream])
   if (!isStreaming || !stream.content) return null
 
   const isRenderingOneRecipe = stream.recipes?.length === 1

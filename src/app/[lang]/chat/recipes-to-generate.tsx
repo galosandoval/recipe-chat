@@ -4,7 +4,7 @@ import type { RecipeDTO } from '~/schemas/chats-schema'
 import { PaperPlaneIcon } from '../../../components/icons'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { Card } from '~/components/card'
 import { useEffect, useRef } from 'react'
 import { STREAM_TIMEOUT } from '~/constants/chat'
@@ -36,7 +36,7 @@ function Recipe({
     recipe.ingredients?.length === 0 && recipe.instructions?.length === 0
 
   return (
-    <Card className='bg-background rounded'>
+    <Card className='bg-background'>
       <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
       <div className='flex justify-end pt-2'>

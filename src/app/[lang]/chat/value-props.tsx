@@ -7,7 +7,7 @@ import {
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { CornerRightUpIcon, SparklesIcon, UserPlusIcon } from 'lucide-react'
 import { cn } from '~/lib/utils'
 

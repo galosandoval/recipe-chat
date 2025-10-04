@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { Togglebox } from '~/components/togglebox'
 import { ListBulletIcon, PlusIcon } from '~/components/icons'
 import type { Ingredient } from '@prisma/client'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import toast from 'react-hot-toast'
 
 export function useCheckIngredient(recipeId: string) {

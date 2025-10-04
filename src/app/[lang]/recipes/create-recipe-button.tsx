@@ -7,7 +7,7 @@ import { ErrorMessage } from '~/components/error-message-content'
 import { PlusIcon } from '~/components/icons'
 import { FormLoader } from '~/components/loaders/form'
 import { Modal } from '~/components/modal'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { useCreateRecipe } from '~/hooks/use-recipe'
 import { useTranslations } from '~/hooks/use-translations'
 import {

@@ -13,7 +13,7 @@ import {
 import { XIcon } from '../icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
-import { Button } from '../ui/button'
+import { Button } from '../button'
 import { EditByIdDrawer } from '~/app/[lang]/recipes/[id]/edit-by-id-drawer'
 
 export const Navbar = () => {
@@ -33,7 +33,7 @@ export const Navbar = () => {
   return (
     <div className='fixed top-0 z-10 w-full'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
-        <div className='glass-element from-background to-background/30 text-foreground w-full bg-gradient-to-b sm:rounded'>
+        <div className='glass-element from-background to-background/30 text-foreground w-full bg-gradient-to-b sm:rounded-md'>
           {navbar}
         </div>
       </div>

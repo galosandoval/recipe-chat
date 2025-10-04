@@ -34,7 +34,7 @@ export function Loader() {
               </svg>
             </div>
             <div
-              className='bg-foreground m-5 h-2 w-72 animate-pulse self-center rounded'
+              className='bg-foreground m-5 h-2 w-72 animate-pulse self-center rounded-md'
               style={{
                 animationDuration: '2s',
                 animationDelay: `${index * 0.55}`

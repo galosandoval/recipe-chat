@@ -1,6 +1,6 @@
 import React, { type ChangeEvent, type RefObject } from 'react'
 import { MagnifyingGlassCircleIcon, XCircleIcon } from '~/components/icons'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import { useTranslations } from '~/hooks/use-translations'
 

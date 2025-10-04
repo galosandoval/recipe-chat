@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react'
-import { Button } from './ui/button'
+import { Button } from './button'
 import {
   Dialog as DialogUI,
   DialogHeader,

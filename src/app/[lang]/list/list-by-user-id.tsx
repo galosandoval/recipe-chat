@@ -11,7 +11,7 @@ import {
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { ArrowDownIcon, TrashIcon } from 'lucide-react'
 import { AddToListForm } from './add-to-list-form'
 import { Label } from '~/components/ui/label'

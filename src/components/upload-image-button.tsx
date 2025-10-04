@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { toast } from './toast'
 import { type ChangeEvent } from 'react'
 import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
-import { Button } from './ui/button'
+import { Button } from './button'
 import { CameraIcon } from 'lucide-react'
 
 export function UploadImageButton() {

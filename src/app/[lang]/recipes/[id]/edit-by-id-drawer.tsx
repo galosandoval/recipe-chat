@@ -16,7 +16,7 @@ import {
 } from '~/schemas/recipes-schema'
 import { DrawerDialog } from '~/components/drawer-dialog'
 import { SquarePenIcon } from 'lucide-react'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { FormInput, FormTextarea, Form } from '~/components/form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'

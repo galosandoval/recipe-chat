@@ -1,5 +1,5 @@
 import { useTranslations, type TPaths } from '~/hooks/use-translations'
-import { Button } from './ui/button'
+import { Button } from './button'
 import {
   DropdownMenuContent,
   DropdownMenuItem,

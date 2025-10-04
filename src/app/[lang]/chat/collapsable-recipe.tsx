@@ -10,7 +10,7 @@ import { LoginDrawerDialog } from '~/components/auth/auth-drawer-dialogs'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { useRouter } from 'next/navigation'
 import { formatTimeFromMinutes } from '~/lib/format-time'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import {
   ChevronDownIcon,
   ClockIcon,
@@ -133,8 +133,8 @@ function ActionButton({
         disabled={isStreaming || isUpsertingMessages > 0}
         isLoading={isPending}
         onClick={handleSaveRecipe}
+        icon={<SaveIcon className='size-4' />}
       >
-        <SaveIcon className='size-4' />
         {t.common.save}
       </Button>
     )
@@ -145,8 +145,8 @@ function ActionButton({
         className='mt-2'
         onClick={handleGoToRecipe}
         size='sm'
+        icon={<SquareArrowOutUpRightIcon className='size-4' />}
       >
-        <SquareArrowOutUpRightIcon className='size-4' />
         {t.chatWindow.toRecipe}
       </Button>
     )

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import z from 'zod'
 import { BottomBar } from '~/components/bottom-bar'
 import { Form, FormInput } from '~/components/form'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { useAddToList } from '~/hooks/use-list'
 import { useTranslations } from '~/hooks/use-translations'
 

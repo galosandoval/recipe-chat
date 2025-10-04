@@ -9,7 +9,7 @@ import { ArrowSmallDownIcon } from './icons'
 import { NoSsr } from './no-ssr'
 import { cn } from '~/lib/utils'
 import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
-import { Button } from './ui/button'
+import { Button } from './button'
 
 export function ScrollToBottomButton() {
   const scrollToBottom = useScrollToBottom()

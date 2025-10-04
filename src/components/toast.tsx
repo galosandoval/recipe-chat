@@ -1,6 +1,6 @@
 import { CheckIcon, ExclamationCircle } from './icons'
 import { cn } from '~/lib/utils'
-import { Button } from './ui/button'
+import { Button } from './button'
 import { toast as _toast, ToasterProps, ExternalToast } from 'sonner'
 import { useTranslations } from '~/hooks/use-translations'
 

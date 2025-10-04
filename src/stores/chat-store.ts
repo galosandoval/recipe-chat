@@ -66,7 +66,6 @@ export const chatStore = create<ChatStore>((set, get) => ({
 
   addMessage: (message: MessageWithRecipes) => {
     const { messages } = get()
-    console.log('addMessage', message)
     set({ messages: [...messages, message] })
   },
 
