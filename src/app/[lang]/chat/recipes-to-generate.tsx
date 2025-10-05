@@ -9,13 +9,9 @@ import { Card } from '~/components/card'
 import { useEffect, useRef } from 'react'
 import { STREAM_TIMEOUT } from '~/constants/chat'
 
-export function RecipesToGenerate({
-  recipes,
-  isStreaming
-}: {
-  recipes: RecipeDTO[]
-  isStreaming: boolean
-}) {
+export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
+  const isStreaming = !!chatStore((state) => state.stream)
+
   return (
     <div className='grid grid-cols-1 items-stretch gap-2 pt-3 sm:grid-cols-2'>
       {recipes.map((r, i) => (

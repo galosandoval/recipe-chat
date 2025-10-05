@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ErrorMessage } from '~/components/error-message-content'
-import { PlusIcon } from '~/components/icons'
 import { FormLoader } from '~/components/loaders/form'
 import { Modal } from '~/components/modal'
 import { Button } from '~/components/button'
@@ -16,6 +15,7 @@ import {
   type RecipeUrlSchemaType
 } from '~/schemas/recipes-schema'
 import { api } from '~/trpc/react'
+import { PlusIcon } from 'lucide-react'
 
 export function useParseRecipe() {
   const [isOpen, setIsOpen] = useState(false)

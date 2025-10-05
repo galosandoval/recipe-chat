@@ -15,7 +15,8 @@
       "logout": "Cierra",
       "theme": "Tema",
       "startNewChat": "Nuevo chat",
-      "chats": "Chats"
+      "chats": "Chats",
+      "editRecipe": "Editar receta"
     },
     "chat": "Chat",
     "list": "Lista",

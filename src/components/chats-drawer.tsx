@@ -1,16 +1,13 @@
-import { createContext, useContext, useState } from 'react'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useTranslations } from '~/hooks/use-translations'
 import { useSession } from 'next-auth/react'
 import type { Chat, Message } from '@prisma/client'
-import { ListBulletIcon } from './icons'
 import { formatTimeAgo } from '~/lib/relative-time-format'
 import { ScreenLoader } from './loaders/screen'
 import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
 import { cn } from '~/lib/utils'
 import { chatStore } from '~/stores/chat-store'
-import { ListIcon } from 'lucide-react'
 import { LoadingSpinner } from './loaders/loading-spinner'
 
 export function useChatsDrawer() {}
@@ -25,7 +22,6 @@ const useGetChats = () => {
       { userId: data?.user.id || '' },
 
       {
-        // onSuccess,
         enabled: isAuthenticated
       }
     ),

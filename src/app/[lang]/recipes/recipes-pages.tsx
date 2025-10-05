@@ -24,7 +24,7 @@ export const RecipesPages = React.memo(function RecipesPages({
 }) {
   const hasPagesAndItems = pages.length > 0 && pages[0].items.length > 0
   return (
-    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-5 pb-4 sm:grid-cols-4'>
+    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-3 pb-4 sm:grid-cols-4'>
       {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
 
       <div className='col-span-2 w-full translate-y-2 sm:col-span-4'>

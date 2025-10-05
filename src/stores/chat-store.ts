@@ -32,11 +32,6 @@ type ChatStore = {
   initializeFromStorage: () => void
 }
 
-const initialStream: GeneratedMessage = {
-  content: '',
-  recipes: []
-}
-
 const initialMessages: MessageWithRecipes[] = []
 
 // Always return empty string initially to avoid hydration mismatch

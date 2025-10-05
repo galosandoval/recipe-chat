@@ -7,14 +7,20 @@ import { NavDropdownMenu } from './settings-dropdown-menu'
 import {
   ArrowBigLeft,
   CookingPotIcon,
+  EditIcon,
+  EllipsisVerticalIcon,
   ListTodoIcon,
-  MessageSquareIcon
+  MessageSquareIcon,
+  TrashIcon
 } from 'lucide-react'
-import { XIcon } from '../icons'
+import { XIcon } from '~/components/icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
-import { Button } from '../button'
-import { EditByIdDrawer } from '~/app/[lang]/recipes/[id]/edit-by-id-drawer'
+import { Button } from '~/components/button'
+import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
+import { EditByIdDrawer } from '../recipes/[id]/edit-by-id-drawer'
+import { useState } from 'react'
+import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
 
 export const Navbar = () => {
   const { data } = useSession()
@@ -69,9 +75,41 @@ function RecipeByIdNavbar() {
           <ArrowBigLeft />
         </Button>
 
-        <EditByIdDrawer />
+        <RecipeByIdDropdownMenu />
       </div>
     </nav>
+  )
+}
+
+export function RecipeByIdDropdownMenu() {
+  const t = useTranslations()
+  const [openEditDrawer, setOpenEditDrawer] = useState(false)
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const items: MenuItemProps[] = [
+    {
+      label: 'nav.menu.editRecipe',
+      onClick: () => setOpenEditDrawer(true),
+      icon: <EditIcon />
+    },
+    {
+      label: 'recipes.delete',
+      onClick: () => setOpenDeleteDialog(true),
+      icon: <TrashIcon />
+    }
+  ]
+  return (
+    <>
+      <DropdownMenu
+        items={items}
+        title={t.nav.settings}
+        trigger={<EllipsisVerticalIcon />}
+      />
+      <EditByIdDrawer open={openEditDrawer} onOpenChange={setOpenEditDrawer} />
+      <DeleteRecipeDialog
+        open={openDeleteDialog}
+        onOpenChange={setOpenDeleteDialog}
+      />
+    </>
   )
 }
 

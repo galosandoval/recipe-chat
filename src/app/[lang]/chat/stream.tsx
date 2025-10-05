@@ -5,19 +5,9 @@ import type { GeneratedMessage } from '~/schemas/chats-schema'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
 import { ChatMessage } from '~/app/[lang]/chat/message'
-import { useEffect } from 'react'
 
-export function Stream({
-  stream,
-  isStreaming
-}: {
-  stream: GeneratedMessage
-  isStreaming: boolean
-}) {
-  useEffect(() => {
-    console.log('stream', stream)
-  }, [stream])
-  if (!isStreaming || !stream.content) return null
+export function Stream({ stream }: { stream: GeneratedMessage }) {
+  if (!stream.content) return null
 
   const isRenderingOneRecipe = stream.recipes?.length === 1
   const isRenderingRecipes = stream.recipes?.length > 1
@@ -47,7 +37,6 @@ export function Stream({
                   mainIngredients: recipe.mainIngredients ?? [],
                   techniques: recipe.techniques ?? []
                 }}
-                isStreaming={isStreaming}
               />
             )}
             {isRenderingRecipes && (
@@ -67,7 +56,6 @@ export function Stream({
                   mainIngredients: r.mainIngredients ?? [],
                   techniques: r.techniques ?? []
                 }))}
-                isStreaming={isStreaming}
               />
             )}
           </>

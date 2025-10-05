@@ -18,16 +18,12 @@ import {
   SquareArrowOutUpRightIcon
 } from 'lucide-react'
 import { Card } from '~/components/card'
+import { chatStore } from '~/stores/chat-store'
 
-export function CollapsableRecipe({
-  recipe,
-  isStreaming
-}: {
-  recipe: RecipeDTO
-  isStreaming: boolean
-}) {
+export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   const t = useTranslations()
   const [isOpen, setIsOpen] = useState(true)
+  const isStreaming = !!chatStore((state) => state.stream)
 
   if (!recipe) {
     return null
@@ -58,7 +54,7 @@ export function CollapsableRecipe({
         </div>
       }
     >
-      <div className=''>
+      <div>
         <h3 className='font-semibold'>{recipe.name}</h3>
         <p className='text-xs'>{recipe.description}</p>
         {isOpen && (
@@ -143,6 +139,7 @@ function ActionButton({
       <Button
         variant='outline'
         className='mt-2'
+        disabled={isStreaming || isUpsertingMessages > 0}
         onClick={handleGoToRecipe}
         size='sm'
         icon={<SquareArrowOutUpRightIcon className='size-4' />}

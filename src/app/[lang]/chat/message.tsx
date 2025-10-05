@@ -7,38 +7,27 @@ import { memo, useMemo } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { chatStore } from '~/stores/chat-store'
-import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { GenerateStatusAppMessage } from './app-message'
 
 export const Message = function Message({
   message,
-  isStreaming,
   isLastMessage
 }: {
   message: MessageWithRecipes
-  isStreaming: boolean
   isLastMessage: boolean
 }) {
   if (message.role === 'assistant') {
-    return <AssistantMessage message={message} isStreaming={isStreaming} />
+    return <AssistantMessage message={message} />
   }
 
-  return (
-    <UserMessage
-      message={message}
-      isStreaming={isStreaming}
-      isLastMessage={isLastMessage}
-    />
-  )
+  return <UserMessage message={message} isLastMessage={isLastMessage} />
 }
 
 const UserMessage = memo(function UserMessage({
   message,
-  isStreaming,
   isLastMessage
 }: {
   message: MessageWithRecipes
-  isStreaming: boolean
   isLastMessage: boolean
 }) {
   const t = useTranslations()
@@ -53,6 +42,8 @@ const UserMessage = memo(function UserMessage({
       message.content.includes(`${t.chatWindow.generateRecipe} ${r.name}`)
     )
   }, [message.content])
+  const isStreaming = !!chatStore((state) => state.stream)
+
   if (foundMessage) {
     return (
       <GenerateStatusAppMessage
@@ -150,29 +141,17 @@ function Bubble({
   )
 }
 
-export function AssistantMessage({
-  message,
-  isStreaming
-}: {
-  message: MessageWithRecipes
-  isStreaming: boolean
-}) {
+export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
   return (
     <div className='flex flex-col items-center self-start'>
       <div className='mx-auto w-full'>
         <ChatMessage content={message.content} icon={<BotMessageSquareIcon />}>
           <>
             {message.recipes?.length === 1 && (
-              <CollapsableRecipe
-                isStreaming={isStreaming}
-                recipe={message.recipes[0]}
-              />
+              <CollapsableRecipe recipe={message.recipes[0]} />
             )}
             {message.recipes && message.recipes?.length > 1 && (
-              <RecipesToGenerate
-                isStreaming={isStreaming}
-                recipes={message.recipes}
-              />
+              <RecipesToGenerate recipes={message.recipes} />
             )}
           </>
         </ChatMessage>

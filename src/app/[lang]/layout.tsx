@@ -5,7 +5,7 @@ import { GeistSans } from 'geist/font/sans'
 
 import { auth } from '~/server/auth'
 import { Providers } from '~/components/providers'
-import { Navbar } from '~/components/navbar/navbar'
+import { Navbar } from '~/app/[lang]/navbar/navbar'
 import { getTranslations } from '~/lib/get-translations'
 import type { Locale } from '~/i18n-config'
 

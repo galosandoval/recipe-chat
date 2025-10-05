@@ -3,7 +3,7 @@ export function Loader() {
 
   return (
     <>
-      <div className='grid-2 col-span-2 grid grid-cols-2 gap-4 sm:col-span-4 sm:grid-cols-4'>
+      <div className='grid-2 col-span-2 grid grid-cols-2 gap-3 sm:col-span-4 sm:grid-cols-4'>
         {cardAmount.map((card, index) => (
           <div
             key={card}

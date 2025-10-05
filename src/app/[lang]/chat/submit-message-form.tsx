@@ -71,7 +71,7 @@ function useRecipeChat() {
   }
 }
 
-const STREAM_TIMEOUT = 1000 // 2 seconds
+const STREAM_TIMEOUT = 30000 // 30 seconds
 
 export function SubmitMessageForm() {
   const { input, handleInputChange, messages, chatId, reset, stream } =
