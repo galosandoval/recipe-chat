@@ -62,6 +62,7 @@ function GenerateButton({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const generateRecipe = async (name: string, description: string) => {
+    setStream({ content: '', recipes: [] })
     triggerAISubmission([
       ...messages,
       userMessageDTO(
