@@ -10,7 +10,7 @@ import { LoginDrawerDialog } from '~/components/auth/auth-drawer-dialogs'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { useRouter } from 'next/navigation'
 import { formatTimeFromMinutes } from '~/lib/format-time'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import {
   ChevronDownIcon,
   ClockIcon,
@@ -18,16 +18,13 @@ import {
   SquareArrowOutUpRightIcon
 } from 'lucide-react'
 import { Card } from '~/components/card'
+import { chatStore } from '~/stores/chat-store'
 
-export function CollapsableRecipe({
-  recipe,
-  isStreaming
-}: {
-  recipe: RecipeDTO
-  isStreaming: boolean
-}) {
+export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   const t = useTranslations()
   const [isOpen, setIsOpen] = useState(true)
+  const stream = chatStore((state) => state.stream)
+  const isStreaming = !!stream
 
   if (!recipe) {
     return null
@@ -35,7 +32,7 @@ export function CollapsableRecipe({
 
   return (
     <Card
-      className='mt-3 w-full rounded'
+      className='mt-3 w-full rounded-md'
       footer={
         <div className='flex w-full justify-between'>
           <Button
@@ -50,15 +47,11 @@ export function CollapsableRecipe({
             />
             {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
           </Button>
-          <ActionButton
-            id={recipe.id}
-            saved={recipe.saved}
-            isStreaming={isStreaming}
-          />
+          <ActionButton id={recipe.id} saved={recipe.saved} />
         </div>
       }
     >
-      <div className=''>
+      <div>
         <h3 className='font-semibold'>{recipe.name}</h3>
         <p className='text-xs'>{recipe.description}</p>
         {isOpen && (
@@ -76,21 +69,14 @@ export function CollapsableRecipe({
   )
 }
 
-function ActionButton({
-  id,
-  saved,
-  isStreaming
-}: {
-  id: string
-  saved: boolean
-  isStreaming: boolean
-}) {
+function ActionButton({ id, saved }: { id: string; saved: boolean }) {
   const t = useTranslations()
   const router = useRouter()
 
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
+  const isStreaming = !!chatStore((state) => state.stream)
   const isUpsertingMessages = utils.chats.upsert.isMutating()
   const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
     async onSuccess(_newRecipe, _messageId) {
@@ -133,8 +119,8 @@ function ActionButton({
         disabled={isStreaming || isUpsertingMessages > 0}
         isLoading={isPending}
         onClick={handleSaveRecipe}
+        icon={<SaveIcon className='size-4' />}
       >
-        <SaveIcon className='size-4' />
         {t.common.save}
       </Button>
     )
@@ -143,10 +129,11 @@ function ActionButton({
       <Button
         variant='outline'
         className='mt-2'
+        disabled={isStreaming || isUpsertingMessages > 0}
         onClick={handleGoToRecipe}
         size='sm'
+        icon={<SquareArrowOutUpRightIcon className='size-4' />}
       >
-        <SquareArrowOutUpRightIcon className='size-4' />
         {t.chatWindow.toRecipe}
       </Button>
     )

@@ -1,17 +1,17 @@
 import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
-import { ChatsDrawer } from '../chats-drawer'
+import { ChatsDrawer } from '../../../components/chats-drawer'
 import { chatStore } from '~/stores/chat-store'
 import {
   LoginDrawerDialog,
   SignUpDrawerDialog
-} from '../auth/auth-drawer-dialogs'
+} from '../../../components/auth/auth-drawer-dialogs'
 import {
   buildMenuItem,
   DropdownMenu,
   type MenuItemProps
-} from '../dropdown-menu'
+} from '../../../components/dropdown-menu'
 import {
   HistoryIcon,
   KeyRoundIcon,
@@ -145,12 +145,11 @@ function useLogoutMenuItem() {
 function useStartNewChatMenuItem() {
   const { setChatId } = chatStore()
   const pathname = usePathname()
-  const { setStream, setStreamingStatus, setMessages, messages } = chatStore()
+  const { setStream, setMessages, messages } = chatStore()
 
   const handleStartNewChat = () => {
     setChatId('')
-    setStream({ content: '', recipes: [] })
-    setStreamingStatus('idle')
+    setStream(null)
     setMessages([])
   }
 

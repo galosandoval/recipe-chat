@@ -2,7 +2,6 @@
 
 import { memo, useEffect } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
-import { type QueryStatus } from '@tanstack/react-query'
 import { FiltersByUser } from '~/app/[lang]/chat/recipe-filters/recipe-filters'
 import { ValueProps } from './value-props'
 import { AssistantMessageLoader } from '~/components/loaders/assistant-message'
@@ -19,11 +18,10 @@ import { Message } from './message'
 import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 
 export const Interface = () => {
-  const { messages, reset, chatId, streamingStatus } = chatStore()
+  const { messages, reset, chatId } = chatStore()
   const session = useSession()
-  const isStreaming = streamingStatus !== 'idle'
 
-  const isNewChat = !chatId && !isStreaming && messages.length === 0
+  const isNewChat = !chatId && messages.length === 0
 
   useEffect(() => {
     if (!chatId) {
@@ -45,11 +43,7 @@ export const Interface = () => {
     <ScrollToBottomProvider>
       <div className={cn('flex-1 pt-[4.8rem]', !session.data && 'pt-14')}>
         <div className='flex h-full flex-col gap-4'>
-          <ChatWindowContent
-            messages={messages}
-            messagesStatus={'success' as QueryStatus}
-            isStreaming={isStreaming}
-          />
+          <ChatWindowContent messages={messages} />
         </div>
 
         <ScrollToBottomButton />
@@ -58,24 +52,12 @@ export const Interface = () => {
   )
 }
 
-function ChatWindowContent({
-  messages,
-  messagesStatus,
-  isStreaming
-}: {
-  messagesStatus?: QueryStatus
-  isStreaming: boolean
-  messages: MessageWithRecipes[]
-}) {
+function ChatWindowContent({ messages }: { messages: MessageWithRecipes[] }) {
   const { data } = useSession()
   if (messages.length || !data?.user?.id) {
     return (
       <div className='bg-background h-full'>
-        <Messages
-          data={messages as []}
-          status={messagesStatus}
-          isStreaming={isStreaming}
-        />
+        <Messages data={messages as []} />
       </div>
     )
   }
@@ -84,22 +66,13 @@ function ChatWindowContent({
 }
 
 const Messages = memo(function Messages({
-  data,
-  status,
-  isStreaming
+  data
 }: {
   data: MessageWithRecipes[]
-  status?: QueryStatus
-  isStreaming: boolean
 }) {
   const { stream } = chatStore()
   const { data: filters } = useActiveFiltersByUserId()
-
-  if (status === 'error') {
-    return <p>Error</p>
-  }
-
-  const streamHasContent = stream.content || stream.recipes.length > 0
+  const isStreaming = !!stream
 
   return (
     <div
@@ -112,15 +85,15 @@ const Messages = memo(function Messages({
         <Message
           message={m}
           key={m?.id || '' + i}
-          isStreaming={isStreaming}
           isLastMessage={i === data.length - 1}
         />
       ))}
 
-      {isStreaming && !streamHasContent && data.at(-1)?.role === 'user' && (
+      {!isStreaming && data.at(-1)?.role === 'user' ? (
         <AssistantMessageLoader />
-      )}
-      <Stream stream={stream} isStreaming={isStreaming} />
+      ) : stream ? (
+        <Stream stream={stream} />
+      ) : null}
     </div>
   )
 })

@@ -7,20 +7,15 @@ import {
 import { useSession } from 'next-auth/react'
 import { chatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { CornerRightUpIcon, SparklesIcon, UserPlusIcon } from 'lucide-react'
 import { cn } from '~/lib/utils'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
-  const {
-    messages,
-    streamingStatus,
-    reset,
-    triggerAISubmission,
-    setStreamingStatus
-  } = chatStore()
-  const isStreaming = streamingStatus !== 'idle'
+  const { messages, reset, triggerAISubmission } = chatStore()
+  const stream = chatStore((state) => state.stream)
+  const isStreaming = !!stream
   const session = useSession()
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     const messageContent = e.currentTarget.innerText
@@ -35,7 +30,6 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
       reset()
     }
 
-    setStreamingStatus('streaming')
     // Trigger AI submission
     triggerAISubmission([userMessageDTO(messageContent)])
   }

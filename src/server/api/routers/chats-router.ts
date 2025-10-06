@@ -33,6 +33,10 @@ export const chatsRouter = createTRPCRouter({
       return upsertChat(chatId, messages, ctx.prisma, userId)
     }),
 
+  /**
+   * Api to generate a recipe by clicking on a recipe to generate.
+   * Adds ingredients and instructions to the recipe
+   */
   generated: protectedProcedure
     .input(generatedSchema)
     .mutation(async ({ ctx, input }) => {

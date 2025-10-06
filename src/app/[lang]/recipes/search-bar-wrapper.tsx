@@ -1,6 +1,6 @@
+import { SearchIcon, XCircleIcon } from 'lucide-react'
 import React, { type ChangeEvent, type RefObject } from 'react'
-import { MagnifyingGlassCircleIcon, XCircleIcon } from '~/components/icons'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import { useTranslations } from '~/hooks/use-translations'
 
@@ -57,7 +57,7 @@ const SearchBar = React.memo(function SearchBar({
         </div>
         <div className='pr-2'>
           <Button type='button' onClick={handleSearchButtonClick}>
-            {!!search ? <XCircleIcon /> : <MagnifyingGlassCircleIcon />}
+            {!!search ? <XCircleIcon /> : <SearchIcon />}
           </Button>
         </div>
       </div>

@@ -24,7 +24,7 @@ export const RecipesPages = React.memo(function RecipesPages({
 }) {
   const hasPagesAndItems = pages.length > 0 && pages[0].items.length > 0
   return (
-    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-5 pb-4 sm:grid-cols-4'>
+    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-3 pb-4 sm:grid-cols-4'>
       {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
 
       <div className='col-span-2 w-full translate-y-2 sm:col-span-4'>
@@ -158,7 +158,7 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
     <Link
       href={`/recipes/${data.id}`}
       key={data.id}
-      className='bg-background relative col-span-1 overflow-hidden rounded shadow-xl active:scale-[99%]'
+      className='bg-background relative col-span-1 overflow-hidden rounded-md shadow-xl active:scale-[99%]'
       onClick={handleOnClick}
     >
       <div className='w-full'>

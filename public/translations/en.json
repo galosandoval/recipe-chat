@@ -2,7 +2,8 @@
   "common": {
     "cancel": "Cancel",
     "save": "Save",
-    "delete": "Delete"
+    "delete": "Delete",
+    "close": "Close"
   },
 
   "nav": {
@@ -14,7 +15,8 @@
       "logout": "Logout",
       "theme": "Theme",
       "startNewChat": "New chat",
-      "chats": "Chats"
+      "chats": "Chats",
+      "editRecipe": "Edit recipe"
     },
     "chat": "Chat",
     "list": "List",

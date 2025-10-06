@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react'
-import { Button } from './ui/button'
+import { Button } from './button'
 import {
   Dialog as DialogUI,
   DialogHeader,
@@ -20,7 +20,7 @@ export function Dialog({
   form,
   type = 'submit',
   isLoading,
-  onClick,
+  onClickConfirm,
   trigger,
   open,
   onOpenChange
@@ -34,7 +34,7 @@ export function Dialog({
   form: string
   type: ComponentProps<typeof Button>['type']
   isLoading: boolean
-  onClick?: () => void
+  onClickConfirm?: () => void
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }) {
@@ -57,7 +57,7 @@ export function Dialog({
             type={type}
             form={form}
             isLoading={isLoading}
-            onClick={onClick}
+            onClick={onClickConfirm}
           >
             {submitText}
           </Button>

@@ -17,7 +17,7 @@ import { UploadImageButton } from '~/components/upload-image-button'
 import { ParallaxContainer } from '~/components/parallax-container'
 import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { Card } from '~/components/card'
 import { Form, FormTextarea } from '~/components/form'
 import { PencilIcon } from 'lucide-react'
@@ -34,7 +34,7 @@ export default function RecipeById({ data }: { data: RecipeByIdData }) {
   if (!recipe) return null
 
   return (
-    <div className='relative flex h-full max-w-2xl flex-col overflow-y-auto'>
+    <div className='relative mx-auto flex h-full max-w-2xl flex-col overflow-y-auto'>
       <FoundRecipe data={recipe} />
     </div>
   )
@@ -267,7 +267,7 @@ function Instructions({ instructions }: { instructions: Instruction[] }) {
       </h2>
       <ol className='flex list-none flex-col gap-3 pl-0'>
         {instructions.map((i, index) => (
-          <li key={i.id} className='bg-secondary mt-0 mb-0 rounded p-4'>
+          <li key={i.id} className='bg-secondary mt-0 mb-0 rounded-md p-4'>
             <h3 className='text-foreground mb-1 text-sm font-bold uppercase'>
               {t.recipes.step} {index + 1}
             </h3>

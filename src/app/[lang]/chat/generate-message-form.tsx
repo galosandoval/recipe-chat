@@ -2,22 +2,23 @@
 
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
-import { PaperPlaneIcon, StopIcon } from '~/components/icons'
 import { experimental_useObject as useObject } from '@ai-sdk/react'
 import {
   generatedMessageSchema,
   type MessageWithRecipes
 } from '~/schemas/chats-schema'
 import { useChatAI } from '~/hooks/use-chat-ai'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import type { GeneratedRecipe } from '~/schemas/messages-schema'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import { BottomBar } from '~/components/bottom-bar'
+import { toast } from '~/components/toast'
+import { SendIcon, StopCircleIcon } from 'lucide-react'
 
 function useRecipeChat() {
   const userId = useUserId()
@@ -30,6 +31,11 @@ function useRecipeChat() {
   } = useObject({
     api: '/api/chat',
     schema: generatedMessageSchema,
+    onError(error) {
+      if (error?.stack) toast.error(error.stack)
+      if (error) toast.error(error.message)
+      setStream({ content: '', recipes: [] })
+    },
     onFinish: onFinishMessage
   })
   const utils = api.useUtils()
@@ -57,7 +63,7 @@ function useRecipeChat() {
         recipes: (object.recipes ?? []).filter(Boolean) as GeneratedRecipe[]
       })
     }
-  }, [object, setStream])
+  }, [object])
 
   return {
     handleAISubmit,
@@ -65,18 +71,15 @@ function useRecipeChat() {
   }
 }
 
-export function SubmitMessageForm() {
-  const {
-    input,
-    handleInputChange,
-    messages,
-    streamingStatus,
-    setStreamingStatus
-  } = chatStore()
-  const isStreaming = streamingStatus !== 'idle'
-  const chatId = chatStore((state) => state.chatId)
+const STREAM_TIMEOUT = 30000 // 30 seconds
+
+export function GenerateMessageForm() {
+  const { input, handleInputChange, messages, chatId, reset, stream } =
+    chatStore()
+  const isStreaming = stream !== null
   const { handleAISubmit, stop: aiStop } = useRecipeChat()
   const t = useTranslations()
+  const streamTimeout = useRef<NodeJS.Timeout | null>(null)
 
   // Set up the triggerAISubmission method in the store
   useEffect(() => {
@@ -92,12 +95,27 @@ export function SubmitMessageForm() {
 
     if (isStreaming) {
       aiStop()
-      setStreamingStatus('idle')
+      if (streamTimeout.current) {
+        clearTimeout(streamTimeout.current)
+        streamTimeout.current = null
+      }
     } else if (input.trim()) {
-      setStreamingStatus('streaming')
       handleAISubmit(messagesToSubmit)
+      streamTimeout.current = setTimeout(() => {
+        reset()
+        streamTimeout.current = null
+      }, STREAM_TIMEOUT)
     }
   }
+
+  useEffect(() => {
+    return () => {
+      if (streamTimeout.current) {
+        clearTimeout(streamTimeout.current)
+        streamTimeout.current = null
+      }
+    }
+  }, [])
 
   let placeholder = t.chatWindow.chatFormPlaceholder
   if (messages.length > 0) {
@@ -122,7 +140,7 @@ export function SubmitMessageForm() {
             disabled={input.length < 5 && !isStreaming}
             variant={isStreaming ? 'destructive' : 'outline'}
           >
-            {isStreaming ? <StopIcon /> : <PaperPlaneIcon />}
+            {isStreaming ? <StopCircleIcon /> : <SendIcon />}
           </Button>
         </div>
       </BottomBar>

@@ -25,7 +25,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
 
     return (
       <Container>
-        <div className='grid-2 col-span-2 grid grid-cols-2 gap-4 sm:col-span-4 sm:grid-cols-4'>
+        <div className='grid-2 col-span-2 grid grid-cols-2 gap-3 sm:col-span-4 sm:grid-cols-4'>
           {data
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((recipe) => (
@@ -34,7 +34,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
                   recipe.name
                 )}`}
                 key={recipe.id}
-                className='bg-secondary flex h-10 gap-2 overflow-hidden rounded active:scale-[99%]'
+                className='bg-secondary flex h-10 gap-2 overflow-hidden rounded-md active:scale-[99%]'
               >
                 {recipe.imgUrl ? (
                   <Image

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { ValuePropsHeader } from '../value-props'
 import { useTranslations } from '~/hooks/use-translations'
 import { FunnelIcon, PenSquareIcon, XIcon } from 'lucide-react'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 
 export function FilterHeaderAndEditButton({
   canDelete,

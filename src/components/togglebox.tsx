@@ -18,7 +18,7 @@ export const Togglebox = ({
   return (
     <Label
       className={cn(
-        'hover:bg-accent/50 flex items-start gap-3 rounded border p-3 has-[[aria-checked=true]]:line-through has-[[aria-checked=true]]:opacity-60',
+        'hover:bg-accent/50 flex items-start gap-3 rounded-md border p-3 has-[[aria-checked=true]]:line-through has-[[aria-checked=true]]:opacity-60',
         className
       )}
     >

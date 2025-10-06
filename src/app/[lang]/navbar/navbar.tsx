@@ -7,14 +7,20 @@ import { NavDropdownMenu } from './settings-dropdown-menu'
 import {
   ArrowBigLeft,
   CookingPotIcon,
+  EditIcon,
+  EllipsisVerticalIcon,
   ListTodoIcon,
-  MessageSquareIcon
+  MessageSquareIcon,
+  TrashIcon,
+  XIcon
 } from 'lucide-react'
-import { XIcon } from '../icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
-import { Button } from '../ui/button'
-import { EditByIdDrawer } from '~/app/[lang]/recipes/[id]/edit-by-id-drawer'
+import { Button } from '~/components/button'
+import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
+import { EditByIdDrawer } from '../recipes/[id]/edit-by-id-drawer'
+import { useState } from 'react'
+import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
 
 export const Navbar = () => {
   const { data } = useSession()
@@ -33,7 +39,7 @@ export const Navbar = () => {
   return (
     <div className='fixed top-0 z-10 w-full'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
-        <div className='glass-element from-background to-background/70 text-foreground w-full sm:rounded'>
+        <div className='glass-element from-background to-background/30 text-foreground w-full bg-gradient-to-b sm:rounded-md'>
           {navbar}
         </div>
       </div>
@@ -69,9 +75,41 @@ function RecipeByIdNavbar() {
           <ArrowBigLeft />
         </Button>
 
-        <EditByIdDrawer />
+        <RecipeByIdDropdownMenu />
       </div>
     </nav>
+  )
+}
+
+export function RecipeByIdDropdownMenu() {
+  const t = useTranslations()
+  const [openEditDrawer, setOpenEditDrawer] = useState(false)
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const items: MenuItemProps[] = [
+    {
+      label: 'nav.menu.editRecipe',
+      onClick: () => setOpenEditDrawer(true),
+      icon: <EditIcon />
+    },
+    {
+      label: 'recipes.delete',
+      onClick: () => setOpenDeleteDialog(true),
+      icon: <TrashIcon />
+    }
+  ]
+  return (
+    <>
+      <DropdownMenu
+        items={items}
+        title={t.nav.settings}
+        trigger={<EllipsisVerticalIcon />}
+      />
+      <EditByIdDrawer open={openEditDrawer} onOpenChange={setOpenEditDrawer} />
+      <DeleteRecipeDialog
+        open={openDeleteDialog}
+        onOpenChange={setOpenDeleteDialog}
+      />
+    </>
   )
 }
 
@@ -121,9 +159,9 @@ function RoutesNavbar() {
         {MENU_ITEMS.map((item) => (
           <Button
             className={cn(
-              'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex flex-1 items-center justify-center gap-1 rounded transition-colors duration-75 active:scale-[99%]',
+              'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex flex-1 items-center justify-center gap-1 rounded-md transition-colors duration-75 active:scale-[99%]',
               isActive(item.value) &&
-                'bg-accent text-accent-foreground/75 rounded'
+                'bg-accent text-accent-foreground/75 rounded-md'
             )}
             variant={isActive(item.value) ? 'default' : 'outline'}
             key={item.value}

@@ -4,7 +4,6 @@ import { type ReactNode } from 'react'
 import { TRPCReactProvider } from '~/trpc/react'
 import { SessionProvider } from 'next-auth/react'
 import type { Session } from 'next-auth'
-import { Toast } from './toast'
 import { Analytics } from '@vercel/analytics/react'
 import {
   TranslationsContext,
@@ -12,6 +11,7 @@ import {
   type Translations
 } from '~/hooks/use-translations'
 import { ThemeProvider } from './theme-provider'
+import { Toaster } from 'sonner'
 
 export const Providers = ({
   children,
@@ -33,7 +33,7 @@ export const Providers = ({
             disableTransitionOnChange
           >
             {children}
-            <Toast />
+            <Toaster />
             <Analytics />
           </ThemeProvider>
           {/* <ReactQueryDevtools initialIsOpen={false} /> */}

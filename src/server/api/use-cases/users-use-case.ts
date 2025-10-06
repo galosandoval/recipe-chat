@@ -35,8 +35,9 @@ export async function createChatAndRecipe(ctx: Context, input: CreateChatAndReci
   const chatId = createId()
 
   const { ingredients, instructions, ...rest } = recipe
+  const recipeId = createId()
 
-  const onboardedUser = await ctx.prisma.user.update({
+  await ctx.prisma.user.update({
     where: { id: userId },
     data: {
       chats: {
@@ -61,6 +62,7 @@ export async function createChatAndRecipe(ctx: Context, input: CreateChatAndReci
       },
       recipes: {
         create: {
+          id: recipeId,
           ingredients: {
             create: ingredients.map((ingredient) => ({
               name: ingredient
@@ -81,5 +83,5 @@ export async function createChatAndRecipe(ctx: Context, input: CreateChatAndReci
     }
   })
 
-  return onboardedUser
+  return { recipeId }
 }

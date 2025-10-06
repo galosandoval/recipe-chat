@@ -1,7 +1,6 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { useDeleteRecipe } from '~/hooks/use-recipe'
 import { useForm } from 'react-hook-form'
 import { type ChangeEvent, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
@@ -15,33 +14,37 @@ import {
   type RecipeToEdit
 } from '~/schemas/recipes-schema'
 import { DrawerDialog } from '~/components/drawer-dialog'
-import { SquarePenIcon } from 'lucide-react'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { FormInput, FormTextarea, Form } from '~/components/form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'
-import { Dialog } from '~/components/dialog'
 
-export function EditByIdDrawer() {
+export function EditByIdDrawer({
+  open,
+  onOpenChange
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
   const { id } = useParams()
   const { data: recipe } = api.recipes.byId.useQuery({ id: id as string })
-  if (!recipe)
-    return (
-      <Button
-        variant='outline'
-        className='bg-transparent'
-        disabled
-        size='icon'
-      >
-        <SquarePenIcon />
-      </Button>
-    )
-  return <EditByIdForm recipe={recipe} />
+  if (!recipe) return null
+  return (
+    <EditByIdForm recipe={recipe} open={open} onOpenChange={onOpenChange} />
+  )
 }
 
 const FORM_ID = 'edit-recipe-form'
 
-function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
+function EditByIdForm({
+  recipe,
+  open,
+  onOpenChange
+}: {
+  recipe: RecipeToEdit
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
   const t = useTranslations()
   return (
     <DrawerDialog
@@ -50,16 +53,8 @@ function EditByIdForm({ recipe }: { recipe: RecipeToEdit }) {
       title={t.recipes.byId.edit}
       description={t.recipes.byId.editDescription}
       formId={FORM_ID}
-      trigger={
-        <Button
-          type='button'
-          className='glass-background'
-          variant='outline'
-          size='icon'
-        >
-          <SquarePenIcon />
-        </Button>
-      }
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <EditById recipe={recipe} />
     </DrawerDialog>
@@ -70,24 +65,16 @@ function EditById({ recipe }: { recipe: RecipeToEdit }) {
   const { id } = useParams()
 
   if (!recipe) return null
-  const { name, imgUrl } = recipe
+  const { imgUrl } = recipe
   return (
     <div className='flex flex-col gap-4 overflow-y-auto'>
-      <UpdateImage imgUrl={imgUrl} id={id as string} name={name} />
+      <UpdateImage imgUrl={imgUrl} id={id as string} />
       <EditForm data={recipe} />
     </div>
   )
 }
 
-function UpdateImage({
-  imgUrl,
-  id,
-  name
-}: {
-  imgUrl: string | null
-  id: string
-  name: string
-}) {
+function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
   const utils = api.useUtils()
   const t = useTranslations()
   const router = useRouter()
@@ -120,7 +107,7 @@ function UpdateImage({
       await utils.recipes.byId.invalidate({ id })
 
       toast.success(t.recipes.byId.updateImageSuccess)
-      router.push(`/recipes/${id}?name=${encodeURIComponent(name)}`)
+      router.push(`/recipes/${id}`)
     },
 
     onError: (error, _, context) => {
@@ -204,7 +191,6 @@ function UpdateImage({
 
             <div className='flex w-full justify-center'>
               <Button
-                // isLoading={status === 'pending'}
                 onClick={() => {
                   const fileInput = document.querySelector(
                     '#file-input'
@@ -242,11 +228,10 @@ function EditForm({ data }: { data: RecipeToEdit }) {
   } = data
   const utils = api.useUtils()
   const router = useRouter()
-  const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
   const { mutate: editRecipe } = api.recipes.edit.useMutation({
-    onSuccess: async (data, { newName }) => {
-      await utils.recipes.byId.invalidate({ id: data })
-      router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
+    onSuccess: async (id) => {
+      await utils.recipes.byId.invalidate({ id })
+      router.push(`/recipes/${id}`)
     }
   })
   const form = useForm<EditRecipeFormValues>({
@@ -261,10 +246,6 @@ function EditForm({ data }: { data: RecipeToEdit }) {
     },
     resolver: zodResolver(editRecipeFormValues)
   })
-
-  const handleDelete = (id: string) => {
-    deleteRecipe({ id })
-  }
 
   const onSubmit = (values: EditRecipeFormValues) => {
     const params = submitEditRecipe(data, values)
@@ -294,19 +275,6 @@ function EditForm({ data }: { data: RecipeToEdit }) {
       <FormTextarea name='ingredients' label={t.recipes.ingredients} />
       <FormTextarea name='instructions' label={t.recipes.instructions} />
       <FormTextarea name='notes' label={t.recipes.notes} />
-      <Dialog
-        form='delete-recipe-form'
-        type='button'
-        isLoading={deleteStatus === 'pending'}
-        onClick={() => handleDelete(data.id)}
-        cancelText={t.common.cancel}
-        submitText={t.common.delete}
-        title={t.recipes.byId.delete.title}
-        description={t.recipes.byId.delete.message}
-        trigger={<Button type='button'>{t.common.delete}</Button>}
-      >
-        {null}
-      </Dialog>
     </Form>
   )
 }

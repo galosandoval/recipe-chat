@@ -6,10 +6,10 @@ import { api, type RouterInputs } from '~/trpc/react'
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Togglebox } from '~/components/togglebox'
-import { ListBulletIcon, PlusIcon } from '~/components/icons'
 import type { Ingredient } from '@prisma/client'
-import { Button } from '~/components/ui/button'
-import toast from 'react-hot-toast'
+import { Button } from '~/components/button'
+import { ListChecksIcon, PlusIcon } from 'lucide-react'
+import { toast } from '~/components/toast'
 
 export function useCheckIngredient(recipeId: string) {
   const utils = api.useUtils()
@@ -144,7 +144,7 @@ export function IngredientsCheckList({
         ))}
         <div>
           <Button
-            className={'w-full justify-between gap-2 rounded text-base'}
+            className={'w-full justify-between gap-2 rounded-md text-base'}
             variant={addedToList ? 'default' : 'outline'}
             size='lg'
             disabled={!someNotChecked}
@@ -152,7 +152,7 @@ export function IngredientsCheckList({
             isLoading={isPending}
           >
             {addedToList ? t.recipes.byId.goToList : t.recipes.byId.addToList}
-            {addedToList ? <ListBulletIcon /> : <PlusIcon />}
+            {addedToList ? <ListChecksIcon /> : <PlusIcon />}
           </Button>
         </div>
       </div>

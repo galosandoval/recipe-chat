@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { Interface } from './interface'
-import { SubmitMessageForm } from './submit-message-form'
+import { GenerateMessageForm } from './generate-message-form'
 import { BottomActiveFilters } from './bottom-active-filters'
 import { chatStore } from '~/stores/chat-store'
 
@@ -16,7 +16,7 @@ export default function Chat() {
     <div className='relative flex h-full w-full flex-1 flex-col'>
       <Interface />
       <BottomActiveFilters />
-      <SubmitMessageForm />
+      <GenerateMessageForm />
     </div>
   )
 }

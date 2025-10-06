@@ -5,11 +5,11 @@ import ScrollToBottom, {
   useScrollToBottom,
   useAtBottom
 } from 'react-scroll-to-bottom'
-import { ArrowSmallDownIcon } from './icons'
 import { NoSsr } from './no-ssr'
 import { cn } from '~/lib/utils'
 import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
-import { Button } from './ui/button'
+import { Button } from './button'
+import { ArrowDownIcon } from 'lucide-react'
 
 export function ScrollToBottomButton() {
   const scrollToBottom = useScrollToBottom()
@@ -47,7 +47,7 @@ export function ScrollToBottomButton() {
             variant='ghost'
             onClick={handleClick}
           >
-            <ArrowSmallDownIcon />
+            <ArrowDownIcon />
           </Button>
         </div>
       </div>

@@ -36,3 +36,5 @@ Filters: ${hasFilters ? filters.join(', ') : 'none'}
 Saved: ${savedRecipes.slice(0, 50).join(' | ') || 'none'}
 `.trim()
 }
+
+export const STREAM_TIMEOUT = 30000

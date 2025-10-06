@@ -1,19 +1,17 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
 import type { RecipeDTO } from '~/schemas/chats-schema'
-import { PaperPlaneIcon } from '../../../components/icons'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
-import { Button } from '~/components/ui/button'
+import { Button } from '~/components/button'
 import { Card } from '~/components/card'
+import { useEffect, useRef } from 'react'
+import { STREAM_TIMEOUT } from '~/constants/chat'
+import { SendIcon } from 'lucide-react'
 
-export function RecipesToGenerate({
-  recipes,
-  isStreaming
-}: {
-  recipes: RecipeDTO[]
-  isStreaming: boolean
-}) {
+export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
+  const isStreaming = !!chatStore((state) => state.stream)
+
   return (
     <div className='grid grid-cols-1 items-stretch gap-2 pt-3 sm:grid-cols-2'>
       {recipes.map((r, i) => (
@@ -34,7 +32,7 @@ function Recipe({
     recipe.ingredients?.length === 0 && recipe.instructions?.length === 0
 
   return (
-    <Card className='bg-background rounded'>
+    <Card className='bg-background'>
       <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
       <div className='flex justify-end pt-2'>
@@ -60,10 +58,11 @@ function GenerateButton({
   recipeDescription: string
 }) {
   const t = useTranslations()
-  const { triggerAISubmission, messages, setStreamingStatus } = chatStore()
+  const { triggerAISubmission, messages, setStream } = chatStore()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const generateRecipe = async (name: string, description: string) => {
-    setStreamingStatus('generating')
+    setStream({ content: '', recipes: [] })
     triggerAISubmission([
       ...messages,
       userMessageDTO(
@@ -75,7 +74,19 @@ function GenerateButton({
         chatStore.getState().chatId
       )
     ])
+    timeoutRef.current = setTimeout(() => {
+      setStream(null)
+      timeoutRef.current = null
+    }, STREAM_TIMEOUT)
   }
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+    }
+  }, [])
   const handleGenerate = async () => {
     await generateRecipe(recipeName, recipeDescription)
   }
@@ -86,7 +97,7 @@ function GenerateButton({
       onClick={handleGenerate}
       variant='outline'
     >
-      <PaperPlaneIcon className='size-4' />
+      <SendIcon className='size-4' />
       {t.chatWindow.generate}
     </Button>
   )

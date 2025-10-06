@@ -63,7 +63,7 @@ export const useChatAI = () => {
   const filtersData = filters.data
   const utils = api.useUtils()
 
-  const { addMessage, setMessages, setStreamingStatus, setStream } = chatStore()
+  const { addMessage, setMessages, setStream } = chatStore()
 
   const filterStrings: string[] = []
   if (filtersData) {
@@ -91,7 +91,7 @@ export const useChatAI = () => {
     }
   })
 
-  const handleUpsertMessage = () => {
+  const handleUpsertChat = () => {
     if (!isAuthenticated) {
       return
     }
@@ -152,6 +152,10 @@ export const useChatAI = () => {
   // Handle AI response completion
   const handleAIResponse = useCallback(
     (aiResponse: OnFinish) => {
+      if (aiResponse.error?.stack) {
+        toast.error(aiResponse.error?.stack)
+        return
+      }
       if (aiResponse?.object?.content) {
         // Don't create a new generated recipe if the recipe already exists
         const { messages, chatId } = chatStore.getState()
@@ -221,8 +225,9 @@ export const useChatAI = () => {
         id,
         ingredients,
         instructions,
-        prepMinutes: rest.prepMinutes ?? undefined,
-        cookMinutes: rest.cookMinutes ?? undefined,
+        // if 0, set to null
+        prepMinutes: rest.prepMinutes || null,
+        cookMinutes: rest.cookMinutes || null,
         messageId: generatedMessage.id,
         content: generatedMessage.content,
         chatId
@@ -239,15 +244,27 @@ export const useChatAI = () => {
   }
 
   const onFinishMessage = (aiResponse: OnFinish) => {
-    const streamingStatus = chatStore.getState().streamingStatus
-    handleAIResponse(aiResponse)
-    if (streamingStatus === 'generating') {
-      handleGenerated()
-    } else if (streamingStatus === 'streaming') {
-      handleUpsertMessage()
+    if (aiResponse.error?.stack) {
+      toast.error(aiResponse.error?.stack)
+      return
     }
-    setStreamingStatus('idle')
-    setStream({ content: '', recipes: [] })
+    const messages = chatStore.getState().messages
+    const recipes = messages.flatMap((m) => m.recipes)
+    const userOrAppMessage = messages.at(-1)
+    const assistantMessage = chatStore.getState().stream
+    const foundRecipe = recipes.find(
+      (r) => r.name === assistantMessage?.recipes?.[0]?.name
+    )
+    if (!userOrAppMessage || !assistantMessage) return
+
+    handleAIResponse(aiResponse)
+    // path when user clicks generate recipe, updates the existing recipe on clicked message
+    if (foundRecipe) {
+      handleGenerated()
+    } else {
+      handleUpsertChat()
+    }
+    setStream(null)
   }
 
   useEffect(() => {

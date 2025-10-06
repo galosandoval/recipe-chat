@@ -27,7 +27,6 @@ export const generatedRecipeSchema = z.object({
   cookMinutes: z
     .number()
     .int()
-    .positive()
     .optional()
     .nullable()
     .describe(

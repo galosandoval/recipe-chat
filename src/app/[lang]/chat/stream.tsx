@@ -6,14 +6,8 @@ import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
 import { ChatMessage } from '~/app/[lang]/chat/message'
 
-export function Stream({
-  stream,
-  isStreaming
-}: {
-  stream: GeneratedMessage
-  isStreaming: boolean
-}) {
-  if (!isStreaming || !stream.content) return null
+export function Stream({ stream }: { stream: GeneratedMessage }) {
+  if (!stream.content) return null
 
   const isRenderingOneRecipe = stream.recipes?.length === 1
   const isRenderingRecipes = stream.recipes?.length > 1
@@ -43,7 +37,6 @@ export function Stream({
                   mainIngredients: recipe.mainIngredients ?? [],
                   techniques: recipe.techniques ?? []
                 }}
-                isStreaming={isStreaming}
               />
             )}
             {isRenderingRecipes && (
@@ -63,7 +56,6 @@ export function Stream({
                   mainIngredients: r.mainIngredients ?? [],
                   techniques: r.techniques ?? []
                 }))}
-                isStreaming={isStreaming}
               />
             )}
           </>

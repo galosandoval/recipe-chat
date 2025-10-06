@@ -80,12 +80,13 @@ export function SignUpForm() {
       },
       messages
     })
-    const user = await toast.promise(newRecipePromise, {
+    const result = await toast.promise(newRecipePromise, {
       loading: t.loading.loggingIn,
       success: () => t.toast.loginSuccess,
       error: () => t.error.somethingWentWrong
     })
-    router.push(`recipes/${user.recipes.id}}`)
+    const newUser = await result.unwrap()
+    router.push(`recipes/${newUser.recipeId}}`)
   }
 
   return (
