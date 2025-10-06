@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
@@ -23,7 +23,13 @@ import { chatStore } from '~/stores/chat-store'
 export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   const t = useTranslations()
   const [isOpen, setIsOpen] = useState(true)
-  const isStreaming = !!chatStore((state) => state.stream)
+  const stream = chatStore((state) => state.stream)
+  console.log('stream', stream)
+  const isStreaming = !!stream
+
+  useEffect(() => {
+    console.log('isStreaming', isStreaming)
+  }, [isStreaming])
 
   if (!recipe) {
     return null
@@ -46,11 +52,7 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
             />
             {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
           </Button>
-          <ActionButton
-            id={recipe.id}
-            saved={recipe.saved}
-            isStreaming={isStreaming}
-          />
+          <ActionButton id={recipe.id} saved={recipe.saved} />
         </div>
       }
     >
@@ -72,21 +74,14 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   )
 }
 
-function ActionButton({
-  id,
-  saved,
-  isStreaming
-}: {
-  id: string
-  saved: boolean
-  isStreaming: boolean
-}) {
+function ActionButton({ id, saved }: { id: string; saved: boolean }) {
   const t = useTranslations()
   const router = useRouter()
 
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
+  const isStreaming = !!chatStore((state) => state.stream)
   const isUpsertingMessages = utils.chats.upsert.isMutating()
   const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
     async onSuccess(_newRecipe, _messageId) {

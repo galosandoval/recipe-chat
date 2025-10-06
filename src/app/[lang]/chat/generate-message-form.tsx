@@ -2,7 +2,6 @@
 
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
-import { PaperPlaneIcon, StopIcon } from '~/components/icons'
 import { experimental_useObject as useObject } from '@ai-sdk/react'
 import {
   generatedMessageSchema,
@@ -19,6 +18,7 @@ import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import { BottomBar } from '~/components/bottom-bar'
 import { toast } from '~/components/toast'
+import { SendIcon, StopCircleIcon } from 'lucide-react'
 
 function useRecipeChat() {
   const userId = useUserId()
@@ -140,7 +140,7 @@ export function GenerateMessageForm() {
             disabled={input.length < 5 && !isStreaming}
             variant={isStreaming ? 'destructive' : 'outline'}
           >
-            {isStreaming ? <StopIcon /> : <PaperPlaneIcon />}
+            {isStreaming ? <StopCircleIcon /> : <SendIcon />}
           </Button>
         </div>
       </BottomBar>

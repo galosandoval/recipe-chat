@@ -1,7 +1,6 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { useDeleteRecipe } from '~/hooks/use-recipe'
 import { useForm } from 'react-hook-form'
 import { type ChangeEvent, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
@@ -15,12 +14,10 @@ import {
   type RecipeToEdit
 } from '~/schemas/recipes-schema'
 import { DrawerDialog } from '~/components/drawer-dialog'
-import { SquarePenIcon, TrashIcon } from 'lucide-react'
 import { Button } from '~/components/button'
 import { FormInput, FormTextarea, Form } from '~/components/form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'
-import { Dialog } from '~/components/dialog'
 
 export function EditByIdDrawer({
   open,
@@ -119,7 +116,7 @@ function UpdateImage({
       await utils.recipes.byId.invalidate({ id })
 
       toast.success(t.recipes.byId.updateImageSuccess)
-      router.push(`/recipes/${id}?name=${encodeURIComponent(name)}`)
+      router.push(`/recipes/${id}`)
     },
 
     onError: (error, _, context) => {
@@ -241,9 +238,9 @@ function EditForm({ data }: { data: RecipeToEdit }) {
   const utils = api.useUtils()
   const router = useRouter()
   const { mutate: editRecipe } = api.recipes.edit.useMutation({
-    onSuccess: async (data, { newName }) => {
-      await utils.recipes.byId.invalidate({ id: data })
-      router.push(`/recipes/${data}?name=${encodeURIComponent(newName)}`)
+    onSuccess: async (id) => {
+      await utils.recipes.byId.invalidate({ id })
+      router.push(`/recipes/${id}`)
     }
   })
   const form = useForm<EditRecipeFormValues>({

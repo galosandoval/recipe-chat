@@ -2,7 +2,7 @@ import {
   type FieldValuesFromFieldErrors,
   ErrorMessage as _ErrorMessage
 } from '@hookform/error-message'
-import { ExclamationCircle } from './icons'
+import { AlertCircleIcon } from 'lucide-react'
 import { type FieldErrors, type FieldName, type FieldValues } from 'react-hook-form'
 
 export type ErrorMessageProps<T extends FieldValues> = {
@@ -32,9 +32,9 @@ export function ErrorMessage<T extends FieldValues>({
 function ErrorMessageContent({ message }: { message: string }) {
   const errorMessage = handleError({ message })
   return (
-    <div className='absolute flex items-center justify-start gap-1 truncate text-error'>
-      <ExclamationCircle />
-      <p className='mb-0 mt-0 text-sm'>{errorMessage}</p>
+    <div className='text-error absolute flex items-center justify-start gap-1 truncate'>
+      <AlertCircleIcon />
+      <p className='mt-0 mb-0 text-sm'>{errorMessage}</p>
     </div>
   )
 }

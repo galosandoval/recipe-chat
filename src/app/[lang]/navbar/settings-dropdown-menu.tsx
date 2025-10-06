@@ -145,12 +145,11 @@ function useLogoutMenuItem() {
 function useStartNewChatMenuItem() {
   const { setChatId } = chatStore()
   const pathname = usePathname()
-  const { setStream, setStreamingStatus, setMessages, messages } = chatStore()
+  const { setStream, setMessages, messages } = chatStore()
 
   const handleStartNewChat = () => {
     setChatId('')
-    setStream({ content: '', recipes: [] })
-    setStreamingStatus('idle')
+    setStream(null)
     setMessages([])
   }
 

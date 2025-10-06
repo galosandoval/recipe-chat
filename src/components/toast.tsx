@@ -1,8 +1,9 @@
-import { CheckIcon, ExclamationCircle } from './icons'
 import { cn } from '~/lib/utils'
 import { Button } from './button'
 import { toast as _toast, ToasterProps, ExternalToast } from 'sonner'
 import { useTranslations } from '~/hooks/use-translations'
+import { Card } from './card'
+import { CheckIcon } from 'lucide-react'
 
 export const loadingToastOptions: ExternalToast = {
   icon: (
@@ -68,7 +69,7 @@ export const infoToastOptions: ExternalToast = {
 function ToastBar({ id, tKey }: { id: string | number; tKey: string }) {
   const t = useTranslations()
   return (
-    <div
+    <Card
     // className={cn(
     //   t ? 'animate-enter' : 'animate-leave',
     //   'bg-secondary border-error pointer-events-auto flex max-h-[calc(100svh-50px)] w-full overflow-auto rounded-lg border-4 p-4 shadow-lg md:max-w-3xl'
@@ -89,14 +90,13 @@ function ToastBar({ id, tKey }: { id: string | number; tKey: string }) {
           </Button>
         </div>
       </div>
-    </div>
+    </Card>
   )
 }
 
 export const toast = {
   success: (message: string) => _toast.success(message),
-  error: (message: string) =>
-    _toast.custom((t) => <ToastBar id={t} tKey={message} />, errorToastOptions),
+  error: (message: string) => _toast.error(message, errorToastOptions),
   loading: _toast.loading,
   info: (message: string) => _toast(message, infoToastOptions),
   promise: async function <T>(

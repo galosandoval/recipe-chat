@@ -11,9 +11,9 @@ import {
   EllipsisVerticalIcon,
   ListTodoIcon,
   MessageSquareIcon,
-  TrashIcon
+  TrashIcon,
+  XIcon
 } from 'lucide-react'
-import { XIcon } from '~/components/icons'
 import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/button'

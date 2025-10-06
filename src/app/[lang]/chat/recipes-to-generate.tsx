@@ -1,13 +1,13 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { chatStore } from '~/stores/chat-store'
 import type { RecipeDTO } from '~/schemas/chats-schema'
-import { PaperPlaneIcon } from '../../../components/icons'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { Button } from '~/components/button'
 import { Card } from '~/components/card'
 import { useEffect, useRef } from 'react'
 import { STREAM_TIMEOUT } from '~/constants/chat'
+import { SendIcon } from 'lucide-react'
 
 export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
   const isStreaming = !!chatStore((state) => state.stream)
@@ -74,7 +74,6 @@ function GenerateButton({
       )
     ])
     timeoutRef.current = setTimeout(() => {
-      // setStreamingStatus('idle')
       setStream(null)
       timeoutRef.current = null
     }, STREAM_TIMEOUT)
@@ -97,7 +96,7 @@ function GenerateButton({
       onClick={handleGenerate}
       variant='outline'
     >
-      <PaperPlaneIcon className='size-4' />
+      <SendIcon className='size-4' />
       {t.chatWindow.generate}
     </Button>
   )

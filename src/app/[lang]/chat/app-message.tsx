@@ -1,5 +1,5 @@
+import { CheckCircleIcon } from 'lucide-react'
 import { useMemo } from 'react'
-import { CheckCircleIcon } from '~/components/icons'
 import { LoadingSpinner } from '~/components/loaders/loading-spinner'
 import { useTranslations } from '~/hooks/use-translations'
 

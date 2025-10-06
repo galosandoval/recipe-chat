@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation'
 import { Togglebox } from '~/components/togglebox'
 import type { Ingredient } from '@prisma/client'
 import { Button } from '~/components/button'
-import toast from 'react-hot-toast'
 import { ListChecksIcon, PlusIcon } from 'lucide-react'
+import { toast } from '~/components/toast'
 
 export function useCheckIngredient(recipeId: string) {
   const utils = api.useUtils()

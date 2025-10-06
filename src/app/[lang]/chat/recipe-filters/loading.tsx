@@ -1,9 +1,9 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { ValuePropsHeader } from '../value-props'
-import { FunnelIcon } from '~/components/icons'
 import { ActiveCount } from './active-count'
 import { CreateFilterForm } from './create-filter-form'
 import { Skeleton } from '~/components/ui/skeleton'
+import { FunnelIcon } from 'lucide-react'
 
 export function LoadingFilterBadges() {
   const t = useTranslations()
