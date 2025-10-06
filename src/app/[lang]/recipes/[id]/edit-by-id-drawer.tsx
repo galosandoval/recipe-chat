@@ -27,7 +27,6 @@ export function EditByIdDrawer({
   onOpenChange: (open: boolean) => void
 }) {
   const { id } = useParams()
-  const t = useTranslations()
   const { data: recipe } = api.recipes.byId.useQuery({ id: id as string })
   if (!recipe) return null
   return (
@@ -66,24 +65,16 @@ function EditById({ recipe }: { recipe: RecipeToEdit }) {
   const { id } = useParams()
 
   if (!recipe) return null
-  const { name, imgUrl } = recipe
+  const { imgUrl } = recipe
   return (
     <div className='flex flex-col gap-4 overflow-y-auto'>
-      <UpdateImage imgUrl={imgUrl} id={id as string} name={name} />
+      <UpdateImage imgUrl={imgUrl} id={id as string} />
       <EditForm data={recipe} />
     </div>
   )
 }
 
-function UpdateImage({
-  imgUrl,
-  id,
-  name
-}: {
-  imgUrl: string | null
-  id: string
-  name: string
-}) {
+function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
   const utils = api.useUtils()
   const t = useTranslations()
   const router = useRouter()
