@@ -2,7 +2,8 @@ import { toast as _toast, type ExternalToast } from 'sonner'
 import { InfoIcon } from 'lucide-react'
 
 export const errorToastOptions: ExternalToast = {
-  duration: Infinity
+  duration: Infinity,
+  cancel: true
 }
 
 export const infoToastOptions: ExternalToast = {

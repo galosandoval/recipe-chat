@@ -2,9 +2,9 @@ import type { Ingredient, Instruction } from '@prisma/client'
 import type { Recipe } from '@prisma/client'
 import { z } from 'zod'
 
-export const recipeUrlSchema = (t: any) =>
+export const recipeUrlSchema = (urlError: string) =>
   z.object({
-    url: z.string().url(t.recipes.enterUrl)
+    url: z.string().url(urlError)
   })
 
 export type RecipeUrlSchemaType = z.infer<ReturnType<typeof recipeUrlSchema>>

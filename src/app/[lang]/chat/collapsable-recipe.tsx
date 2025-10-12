@@ -78,6 +78,7 @@ function ActionButton({ id, saved }: { id: string; saved: boolean }) {
   const utils = api.useUtils()
   const isStreaming = !!chatStore((state) => state.stream)
   const isUpsertingMessages = utils.chats.upsert.isMutating()
+
   const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
     async onSuccess(_newRecipe, _messageId) {
       await utils.chats.getMessagesById.invalidate()

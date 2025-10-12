@@ -1,17 +1,19 @@
+'use client'
+
 import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
-import { ChatsDrawer } from '../../../components/chats-drawer'
+import { ChatsDrawer } from '~/components/chats-drawer'
 import { chatStore } from '~/stores/chat-store'
 import {
   LoginDrawerDialog,
   SignUpDrawerDialog
-} from '../../../components/auth/auth-drawer-dialogs'
+} from '~/components/auth/auth-drawer-dialogs'
 import {
   buildMenuItem,
   DropdownMenu,
   type MenuItemProps
-} from '../../../components/dropdown-menu'
+} from '~/components/dropdown-menu'
 import {
   HistoryIcon,
   KeyRoundIcon,
@@ -25,14 +27,26 @@ import {
 import { useTheme } from 'next-themes'
 import { darkTheme, lightTheme } from '~/constants/theme'
 import { useState } from 'react'
+import { Dialog } from '~/components/dialog'
+import { Form, FormInput } from '~/components/form'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { api } from '~/trpc/react'
+import {
+  recipeUrlSchema,
+  type RecipeUrlSchemaType
+} from '~/schemas/recipes-schema'
+import { CreateParsedRecipe } from '../recipes/create-recipe-button'
 
 export function NavDropdownMenu() {
   const t = useTranslations()
   const [isSignUpOpen, setIsSignUpOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isChatsOpen, setIsChatsOpen] = useState(false)
+  const [isAddRecipeOpen, setIsAddRecipeOpen] = useState(false)
   const { chatId } = chatStore()
   const pathname = usePathname()
+
   const session = useSession()
 
   const handleToggleSignUp = () => {
@@ -44,10 +58,14 @@ export function NavDropdownMenu() {
   const handleToggleDrawer = () => {
     setIsChatsOpen((state) => !state)
   }
+  const handleToggleAddRecipe = () => {
+    setIsAddRecipeOpen((state) => !state)
+  }
 
+  const isAuthenticated = !!session.data
   const items: MenuItemProps[] = [useThemeToggleMenuItem(), useLogoutMenuItem()]
 
-  if (!chatId && pathname.includes('chat') && session.data) {
+  if (!chatId && pathname.includes('chat') && isAuthenticated) {
     items.push({
       slot: (
         <span onClick={handleToggleDrawer}>
@@ -58,8 +76,7 @@ export function NavDropdownMenu() {
     })
   }
 
-  // should be last
-  if (!session.data) {
+  if (!isAuthenticated) {
     // auth items
     if (chatStore.getState().messages.length) {
       items.push(
@@ -82,6 +99,15 @@ export function NavDropdownMenu() {
       )
     }
   }
+  if (isAuthenticated && pathname.includes('recipes')) {
+    // recipe items
+    items.push({
+      icon: <PlusIcon />,
+      label: 'nav.menu.addRecipe',
+      onClick: handleToggleAddRecipe,
+      space: 'above'
+    })
+  }
 
   items.push(useStartNewChatMenuItem())
 
@@ -96,8 +122,65 @@ export function NavDropdownMenu() {
         open={isSignUpOpen}
         onOpenChange={handleToggleSignUp}
       />
+      <ParseAndAddRecipeDialogs
+        open={isAddRecipeOpen}
+        onOpenChange={handleToggleAddRecipe}
+      />
       <LoginDrawerDialog open={isLoginOpen} onOpenChange={handleToggleLogin} />
       <ChatsDrawer open={isChatsOpen} onOpenChange={handleToggleDrawer} />
+    </>
+  )
+}
+
+function ParseAndAddRecipeDialogs({
+  open,
+  onOpenChange
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  const t = useTranslations()
+  const [isAddRecipeOpen, setIsAddRecipeOpen] = useState(false)
+  const { mutate, status, data } = api.recipes.parseRecipeUrl.useMutation({
+    onSuccess: (_) => {
+      onOpenChange(false)
+      setTimeout(() => {
+        setIsAddRecipeOpen(true)
+      }, 200)
+    }
+  })
+  const form = useForm<RecipeUrlSchemaType>({
+    resolver: zodResolver(recipeUrlSchema(t.error.invalidUrl)),
+    defaultValues: {
+      url: ''
+    }
+  })
+  const onSubmit = (values: RecipeUrlSchemaType) => {
+    mutate(values.url)
+  }
+
+  return (
+    <>
+      <Dialog
+        formId='parse-recipe-form'
+        cancelText={t.common.cancel}
+        submitText={t.recipes.upload}
+        title={t.recipes.paste}
+        description={t.recipes.enterUrl}
+        open={open}
+        onOpenChange={onOpenChange}
+        isLoading={status === 'pending'}
+      >
+        <Form form={form} onSubmit={onSubmit} formId='parse-recipe-form'>
+          <FormInput name='url' label={t.recipes.url} />
+        </Form>
+      </Dialog>
+
+      <CreateParsedRecipe
+        isAddRecipeOpen={isAddRecipeOpen}
+        data={data}
+        closeModal={() => setIsAddRecipeOpen(false)}
+      />
     </>
   )
 }

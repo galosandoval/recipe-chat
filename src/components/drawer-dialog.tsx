@@ -41,7 +41,7 @@ export function DrawerDialog({
         title={title}
         description={description}
         form={formId}
-        type='button'
+        buttonType='button'
         isLoading={false}
       >
         {children}

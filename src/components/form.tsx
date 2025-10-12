@@ -125,9 +125,7 @@ export function FormTextarea<T extends FieldValues>({
       description={description}
       labelClassName={labelClassName}
     >
-      {(field: any) => (
-        <Textarea {...props} {...field} className={props.className} />
-      )}
+      {(field: any) => <Textarea {...props} {...field} />}
     </FormField>
   )
 }
@@ -156,11 +154,7 @@ export function FormSelect<T extends FieldValues>({
       labelClassName={labelClassName}
     >
       {(field) => (
-        <select
-          {...selectProps}
-          {...field}
-          className='border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50'
-        >
+        <select {...selectProps} {...field}>
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -172,7 +166,7 @@ export function FormSelect<T extends FieldValues>({
   )
 }
 
-export function FormCheckbox<T extends FieldValues>({
+export function FormTogglebox<T extends FieldValues>({
   name,
   label,
   description,
