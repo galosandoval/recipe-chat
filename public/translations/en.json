@@ -16,7 +16,8 @@
       "theme": "Theme",
       "startNewChat": "New chat",
       "chats": "Chats",
-      "editRecipe": "Edit recipe"
+      "editRecipe": "Edit recipe",
+      "addRecipe": "Add recipe"
     },
     "chat": "Chat",
     "list": "List",
@@ -110,15 +111,19 @@
 
   "recipes": {
     "noRecipes": {
-      "message": "No recipes found. Save recipes from chats ",
-      "link": "here",
-      "noneFound": "No recipes found."
+      "empty": {
+        "title": "No recipes yet",
+        "description": "Start building your recipe collection by saving recipes from your chats. Create new recipes or discover favorites through AI-powered conversations.",
+        "link": "Start chatting"
+      },
+      "search": {
+        "title": "No matching recipes",
+        "description": "We couldn't find any recipes matching your search. Try adjusting your search terms or browse all your saved recipes."
+      }
     },
-
     "recent": "Recent recipes",
     "your": "Your recipes",
     "search": "Search recipes",
-
     "name": "Name",
     "description": "Description",
     "ingredients": "Ingredients",
@@ -126,15 +131,15 @@
     "cookTime": "Cook:",
     "prepTime": "Prep:",
     "notes": "Notes",
-
     "step": "Step",
-
     "paste": "Paste a recipe from the web",
+    "addParsed": "Add parsed recipe",
+    "addParsedDescription": "Add the recipe we parsed for you. You might need to make some changes to the recipe.",
     "url": "Recipe URL",
     "upload": "Upload",
     "cancel": "Cancel",
     "delete": "Delete",
-    "enterUrl": "Enter a valid url that contains a recipe.",
+    "enterUrl": "Enter a valid url that contains a recipe. We'll parse it for you so you can save and start cooking!",
     "generate": "Generate",
     "byId": {
       "editDescription": "Make changes to the recipe.",
@@ -162,7 +167,8 @@
   "error": {
     "error": "Error: ",
     "somethingWentWrong": "Something went wrong.",
-    "saveRecipe": "Error saving recipe."
+    "saveRecipe": "Error saving recipe.",
+    "invalidUrl": "Invalid url"
   },
 
   "loading": { "screen": "Loading...", "loggingIn": "Logging in..." },
