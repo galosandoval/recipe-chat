@@ -40,7 +40,7 @@ export function DrawerDialog({
         submitText={submitText}
         title={title}
         description={description}
-        form={formId}
+        formId={formId}
         buttonType='button'
         isLoading={false}
       >

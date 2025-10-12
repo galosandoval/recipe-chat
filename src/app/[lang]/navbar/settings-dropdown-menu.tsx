@@ -28,7 +28,7 @@ import { useTheme } from 'next-themes'
 import { darkTheme, lightTheme } from '~/constants/theme'
 import { useState } from 'react'
 import { Dialog } from '~/components/dialog'
-import { Form, FormInput } from '~/components/form'
+import { Form } from '~/components/form/form'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '~/trpc/react'
@@ -37,6 +37,7 @@ import {
   type RecipeUrlSchemaType
 } from '~/schemas/recipes-schema'
 import { CreateParsedRecipe } from '../recipes/create-recipe-button'
+import { FormInput } from '~/components/form/form-input'
 
 export function NavDropdownMenu() {
   const t = useTranslations()

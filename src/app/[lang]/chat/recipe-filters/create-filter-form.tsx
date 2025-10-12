@@ -6,10 +6,11 @@ import { api } from '~/trpc/react'
 import { createId } from '@paralleldrive/cuid2'
 import { Button } from '~/components/button'
 import { PlusCircleIcon } from 'lucide-react'
-import { Form, FormInput } from '~/components/form'
+import { Form } from '~/components/form/form'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
+import { FormInput } from '~/components/form/form-input'
 
 const defaultValues = { name: '' }
 

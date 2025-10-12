@@ -11,13 +11,12 @@ import {
   FormField as FormFieldUI,
   FormMessage,
   FormDescription
-} from './ui/form'
-import { FormItem } from './ui/form'
-import { FormLabel } from './ui/form'
-import { FormControl } from './ui/form'
-import { Input } from './ui/input'
-import { Togglebox } from './togglebox'
-import { Textarea } from './ui/textarea'
+} from '../ui/form'
+import { FormItem } from '../ui/form'
+import { FormLabel } from '../ui/form'
+import { FormControl } from '../ui/form'
+import { Togglebox } from '../togglebox'
+import { Textarea } from '../ui/textarea'
 
 export function Form<T extends FieldValues>({
   children,
@@ -79,32 +78,6 @@ export function FormField<T extends FieldValues>({
     />
   )
 }
-
-// Specific input components for common field types
-export function FormInput<T extends FieldValues>({
-  name,
-  label,
-  description,
-  labelClassName,
-  ...inputProps
-}: {
-  name: Path<T>
-  label?: string
-  description?: string
-  labelClassName?: string
-} & React.ComponentProps<typeof Input>) {
-  return (
-    <FormField
-      name={name}
-      label={label}
-      description={description}
-      labelClassName={labelClassName}
-    >
-      {(field) => <Input {...inputProps} {...field} />}
-    </FormField>
-  )
-}
-
 // Textarea component
 export function FormTextarea<T extends FieldValues>({
   name,

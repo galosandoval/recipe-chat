@@ -92,7 +92,7 @@
   },
 
   "chatWindow": {
-    "toRecipe": "Ir a receta",
+    "toRecipe": "Cocinar",
     "expand": "Expandir",
     "collapse": "Colapsar",
     "generate": "Generar",

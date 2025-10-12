@@ -19,7 +19,7 @@ import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
 import { Button } from '~/components/button'
 import { Card } from '~/components/card'
-import { Form, FormTextarea } from '~/components/form'
+import { Form, FormTextarea } from '~/components/form/form'
 import { PencilIcon } from 'lucide-react'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
