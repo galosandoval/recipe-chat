@@ -17,8 +17,9 @@ export function Dialog({
   children,
   title,
   description,
-  form,
-  type = 'submit',
+  formId,
+  buttonIcon,
+  buttonType = 'submit',
   isLoading,
   onClickConfirm,
   trigger,
@@ -27,13 +28,14 @@ export function Dialog({
 }: {
   cancelText: string
   submitText: string
-  children: React.ReactNode
+  children?: React.ReactNode
   title: string
   description: string
   trigger?: React.ReactNode
-  form: string
-  type: ComponentProps<typeof Button>['type']
-  isLoading: boolean
+  formId?: string
+  buttonIcon?: React.ReactNode
+  buttonType?: ComponentProps<typeof Button>['type']
+  isLoading?: boolean
   onClickConfirm?: () => void
   open?: boolean
   onOpenChange?: (open: boolean) => void
@@ -54,10 +56,11 @@ export function Dialog({
             <Button variant='outline'>{cancelText}</Button>
           </DialogClose>
           <Button
-            type={type}
-            form={form}
+            type={buttonType}
+            form={formId}
             isLoading={isLoading}
             onClick={onClickConfirm}
+            icon={buttonIcon}
           >
             {submitText}
           </Button>

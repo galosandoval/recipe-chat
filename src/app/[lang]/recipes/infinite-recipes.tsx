@@ -58,6 +58,12 @@ export default function InfiniteRecipes({
     setSearch(event.target.value)
   }, [])
 
+  useEffect(() => {
+    if ((data || search) && inputRef.current) {
+      inputRef.current?.focus()
+    }
+  }, [data, inputRef.current])
+
   const handleSearchButtonClick = useCallback(
     !!search
       ? () =>
@@ -81,8 +87,11 @@ export default function InfiniteRecipes({
       router.push('/recipes')
     }
     // if (search === '') {
-    //   inputRef.current?.focus()
     // }
+  }, [search])
+
+  useEffect(() => {
+    inputRef.current?.focus()
   }, [search])
 
   return (

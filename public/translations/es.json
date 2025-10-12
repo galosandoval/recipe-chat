@@ -16,7 +16,8 @@
       "theme": "Tema",
       "startNewChat": "Nuevo chat",
       "chats": "Chats",
-      "editRecipe": "Editar receta"
+      "editRecipe": "Editar receta",
+      "addRecipe": "Agregar receta"
     },
     "chat": "Chat",
     "list": "Lista",
@@ -80,6 +81,7 @@
     "add": "Agregar filtro",
     "noFilters": "No se encontraron filtros. Agrega un filtro para empezar.",
     "nameAlreadyExists": "El nombre del filtro ya existe",
+    "charNotAllowedUnderscore": "Caracter no permitido: guión bajo",
     "initial": {
       "vegetarian": "Vegetariano",
       "vegan": "Vegano",
@@ -90,7 +92,7 @@
   },
 
   "chatWindow": {
-    "toRecipe": "Ir a receta",
+    "toRecipe": "Cocinar",
     "expand": "Expandir",
     "collapse": "Colapsar",
     "generate": "Generar",
@@ -110,15 +112,19 @@
 
   "recipes": {
     "noRecipes": {
-      "message": "No tienes recetas guardada. Guarda recetas de chats ",
-      "link": "aqui",
-      "noneFound": "No se encontraron recetas."
+      "empty": {
+        "title": "Aún no hay recetas",
+        "description": "Comienza a construir tu colección de recetas guardando recetas de tus chats. Crea nuevas recetas o descubre favoritas a través de conversaciones impulsadas por IA.",
+        "link": "Empezar a chatear"
+      },
+      "search": {
+        "title": "No se encontraron recetas coincidentes",
+        "description": "No pudimos encontrar recetas que coincidan con tu búsqueda. Intenta ajustar tus términos de búsqueda o navega por todas tus recetas guardadas."
+      }
     },
-
     "recent": "Recetas recientes",
     "your": "Tus recetas",
     "search": "Buscar recetas",
-
     "name": "Nombre",
     "description": "Descripción",
     "ingredients": "Ingredientes",
@@ -126,16 +132,16 @@
     "cookTime": "Cocción:",
     "prepTime": "Preparación:",
     "notes": "Notas",
-
     "step": "Paso",
-
     "paste": "Pegar una receta de la web",
+    "addParsed": "Agregar receta parseada",
+    "addParsedDescription": "Agrega la receta que parseamos para ti. Quizás necesites hacer algunos cambios a la receta.",
     "url": "Receta URL",
     "upload": "Subir",
     "cancel": "Cancelar",
     "save": "guardar",
     "delete": "borrar",
-    "enterUrl": "Ingresa una URL válida que contenga una receta.",
+    "enterUrl": "Ingresa una URL válida que contenga una receta. Te lo parsearemos para que puedas guardarla y empezar a cocinar!",
     "generate": "Generar",
     "byId": {
       "editDescription": "Haz cambios a la receta.",
@@ -163,7 +169,8 @@
   "error": {
     "error": "Error: ",
     "somethingWentWrong": "Algo salió mal.",
-    "saveRecipe": "Error al guardar la receta."
+    "saveRecipe": "Error al guardar la receta.",
+    "invalidUrl": "URL inválida"
   },
 
   "loading": { "screen": "Cargando...", "loggingIn": "Iniciando sesión..." },

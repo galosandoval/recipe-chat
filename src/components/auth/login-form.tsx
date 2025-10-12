@@ -1,7 +1,8 @@
 'use client'
 
 import { useTranslations } from '~/hooks/use-translations'
-import { Form, FormInput } from '../form'
+import { Form } from '../form/form'
+import { FormInput } from '../form/form-input'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'

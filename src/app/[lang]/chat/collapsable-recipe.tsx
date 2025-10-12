@@ -11,12 +11,7 @@ import type { RecipeDTO } from '~/schemas/chats-schema'
 import { useRouter } from 'next/navigation'
 import { formatTimeFromMinutes } from '~/lib/format-time'
 import { Button } from '~/components/button'
-import {
-  ChevronDownIcon,
-  ClockIcon,
-  SaveIcon,
-  SquareArrowOutUpRightIcon
-} from 'lucide-react'
+import { ChefHat, ChevronDownIcon, ClockIcon, SaveIcon } from 'lucide-react'
 import { Card } from '~/components/card'
 import { chatStore } from '~/stores/chat-store'
 
@@ -78,6 +73,7 @@ function ActionButton({ id, saved }: { id: string; saved: boolean }) {
   const utils = api.useUtils()
   const isStreaming = !!chatStore((state) => state.stream)
   const isUpsertingMessages = utils.chats.upsert.isMutating()
+
   const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
     async onSuccess(_newRecipe, _messageId) {
       await utils.chats.getMessagesById.invalidate()
@@ -132,7 +128,7 @@ function ActionButton({ id, saved }: { id: string; saved: boolean }) {
         disabled={isStreaming || isUpsertingMessages > 0}
         onClick={handleGoToRecipe}
         size='sm'
-        icon={<SquareArrowOutUpRightIcon className='size-4' />}
+        icon={<ChefHat className='size-4' />}
       >
         {t.chatWindow.toRecipe}
       </Button>

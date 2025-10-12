@@ -19,7 +19,7 @@ import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
 import { Button } from '~/components/button'
 import { Card } from '~/components/card'
-import { Form, FormTextarea } from '~/components/form'
+import { Form, FormTextarea } from '~/components/form/form'
 import { PencilIcon } from 'lucide-react'
 
 type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
@@ -107,13 +107,13 @@ function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
   return (
     <div
       className={cn(
-        'glass-element sticky top-0 z-10 -mt-14 flex items-center justify-center py-5 opacity-0 transition-opacity duration-300',
+        'glass-element from-background to-background/5 sticky top-0 z-10 -mt-14 flex items-center justify-center bg-gradient-to-b py-5 opacity-0 transition-opacity duration-300',
         visible && 'opacity-100'
       )}
     >
       <div
         className={cn(
-          'bg-transparent text-lg font-bold opacity-0 transition-opacity duration-300',
+          'bg-transparent px-14 text-lg font-bold opacity-0 transition-opacity duration-300',
           visible && 'opacity-100'
         )}
       >

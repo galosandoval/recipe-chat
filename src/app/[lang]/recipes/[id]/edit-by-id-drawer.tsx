@@ -15,7 +15,8 @@ import {
 } from '~/schemas/recipes-schema'
 import { DrawerDialog } from '~/components/drawer-dialog'
 import { Button } from '~/components/button'
-import { FormInput, FormTextarea, Form } from '~/components/form'
+import { FormTextarea, Form } from '~/components/form/form'
+import { FormInput } from '~/components/form/form-input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'
 

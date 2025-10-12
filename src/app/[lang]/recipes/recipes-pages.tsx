@@ -2,13 +2,14 @@ import type { Recipe } from '@prisma/client'
 import type { FetchStatus } from '@tanstack/react-query'
 import React, { useMemo } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
-import { CreateRecipeButton } from './create-recipe-button'
 import { RecentRecipes } from './recipe-list-recent'
 import { LoadingSpinner } from '~/components/loaders/loading-spinner'
 import Link from 'next/link'
 import Image from 'next/image'
 import { api } from '~/trpc/react'
 import { RecipeFallbackIconLg } from '~/components/icons'
+import { Button } from '~/components/button'
+import { BotIcon } from 'lucide-react'
 
 export const RecipesPages = React.memo(function RecipesPages({
   search,
@@ -24,13 +25,13 @@ export const RecipesPages = React.memo(function RecipesPages({
 }) {
   const hasPagesAndItems = pages.length > 0 && pages[0].items.length > 0
   return (
-    <div className='mx-auto grid max-w-4xl grid-cols-2 gap-3 pb-4 sm:grid-cols-4'>
+    <div className='mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 pb-4 sm:grid-cols-4'>
       {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
 
-      <div className='col-span-2 w-full translate-y-2 sm:col-span-4'>
+      <div className='relative z-20 col-span-2 w-full translate-y-2 sm:col-span-4'>
         <Header />
       </div>
-      <Pages pages={pages} search={search} />
+      <RecipeCards pages={pages} search={search} />
 
       {fetchStatus === 'fetching' && (
         <div className='col-span-2 mt-4 flex justify-center sm:col-span-4'>
@@ -43,58 +44,49 @@ export const RecipesPages = React.memo(function RecipesPages({
 
 const Header = React.memo(function Header() {
   const t = useTranslations()
+
   return (
     <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
       <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
-      <CreateRecipeButton />
     </div>
   )
 })
 
-const Pages = React.memo(function Pages({
+const RecipeCards = React.memo(function RecipeCards({
   pages,
   search
 }: {
   pages: { items: Recipe[] }[]
   search: string
 }) {
-  if (pages.length === 0) {
-    return <NoneFound />
-  }
-
-  return (
-    <>
-      {pages.map((page, i) => {
-        if (page.items.length === 0 && search) {
-          return <NoneFound key={i} />
-        }
-
-        return <Page key={i} page={page} search={search} />
-      })}
-    </>
-  )
-})
-
-function Page({ page, search }: { page: { items: Recipe[] }; search: string }) {
-  if (page.items.length === 0 && search) {
-    return <NoneFound />
-  }
-  if (page.items.length === 0) {
+  const recipes = pages.flatMap((page) => page.items)
+  if (recipes.length === 0 && !search) {
     return <EmptyList />
   }
-  return <Cards data={page.items} search={search} />
-}
+
+  return <Cards data={recipes} search={search} />
+})
 
 const EmptyList = React.memo(function EmptyList() {
   const t = useTranslations()
   return (
-    <div className='col-span-2 sm:col-span-4'>
-      <p>
-        {t.recipes.noRecipes.message}
-        <Link className='link' href='/chat'>
-          {t.recipes.noRecipes.link}
-        </Link>
-      </p>
+    <div className='col-span-2 flex min-h-[60vh] items-center justify-center sm:col-span-4'>
+      <div className='flex max-w-md flex-col items-center gap-4 text-center'>
+        <div className='text-muted-foreground'>
+          <BotIcon size={80} />
+        </div>
+        <div className='space-y-2'>
+          <h3 className='text-foreground text-xl font-semibold'>
+            {t.recipes.noRecipes.empty.title}
+          </h3>
+          <p className='text-muted-foreground text-sm leading-relaxed'>
+            {t.recipes.noRecipes.empty.description}
+          </p>
+        </div>
+        <Button asChild variant='default' className='mt-2'>
+          <Link href='/chat'>{t.recipes.noRecipes.empty.link}</Link>
+        </Button>
+      </div>
     </div>
   )
 })
@@ -102,10 +94,20 @@ const EmptyList = React.memo(function EmptyList() {
 const NoneFound = React.memo(function NoneFound() {
   const t = useTranslations()
   return (
-    <div className='fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center'>
-      <p className='text-foreground text-2xl'>
-        {t.recipes.noRecipes.noneFound}
-      </p>
+    <div className='col-span-2 flex min-h-[60vh] items-center justify-center sm:col-span-4'>
+      <div className='flex max-w-md flex-col items-center gap-4 text-center'>
+        <div className='text-muted-foreground/50'>
+          <RecipeFallbackIconLg />
+        </div>
+        <div className='space-y-2'>
+          <h3 className='text-foreground text-xl font-semibold'>
+            {t.recipes.noRecipes.search.title}
+          </h3>
+          <p className='text-muted-foreground text-sm leading-relaxed'>
+            {t.recipes.noRecipes.search.description}
+          </p>
+        </div>
+      </div>
     </div>
   )
 })
@@ -118,7 +120,7 @@ const Cards = React.memo(function Cards({
   search: string
 }) {
   const sortedAndFilteredData = useMemo(() => {
-    let sortedData = data.sort((a, b) => {
+    let sortedData = data.toSorted((a, b) => {
       if (a.name < b.name) {
         return -1
       }
@@ -157,7 +159,6 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
   return (
     <Link
       href={`/recipes/${data.id}`}
-      key={data.id}
       className='bg-background relative col-span-1 overflow-hidden rounded-md shadow-xl active:scale-[99%]'
       onClick={handleOnClick}
     >
