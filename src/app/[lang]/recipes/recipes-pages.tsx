@@ -25,19 +25,18 @@ export const RecipesPages = React.memo(function RecipesPages({
 }) {
   const hasPagesAndItems = pages.length > 0 && pages[0].items.length > 0
   return (
-    <div className='mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 px-3 pb-4 sm:grid-cols-4'>
+    <div className='mx-auto w-full max-w-4xl px-3 pb-4'>
       {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
+      <Header />
+      <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
+        <RecipeCards pages={pages} search={search} />
 
-      <div className='relative z-20 col-span-2 w-full translate-y-2 sm:col-span-4'>
-        <Header />
+        {fetchStatus === 'fetching' && (
+          <div className='col-span-2 mt-4 flex justify-center sm:col-span-4'>
+            <LoadingSpinner />
+          </div>
+        )}
       </div>
-      <RecipeCards pages={pages} search={search} />
-
-      {fetchStatus === 'fetching' && (
-        <div className='col-span-2 mt-4 flex justify-center sm:col-span-4'>
-          <LoadingSpinner />
-        </div>
-      )}
     </div>
   )
 })
@@ -46,7 +45,7 @@ const Header = React.memo(function Header() {
   const t = useTranslations()
 
   return (
-    <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
+    <div className='pt-3'>
       <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
     </div>
   )

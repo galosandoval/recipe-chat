@@ -14,7 +14,7 @@ export default async function RecipesView() {
 
   return (
     <HydrateClient>
-      <main className='mx-auto w-full overflow-y-auto pt-32'>
+      <main className='mx-auto w-full overflow-y-auto pt-[8.75rem]'>
         <InfiniteRecipes data={data} />
       </main>
     </HydrateClient>
