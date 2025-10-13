@@ -29,7 +29,7 @@ export default function InfiniteRecipes({
     pageParams: [undefined]
   }
 
-  const { data, fetchNextPage, hasNextPage, fetchStatus } =
+  const { data, fetchNextPage, hasNextPage, fetchStatus, isSuccess } =
     api.recipes.infiniteRecipes.useInfiniteQuery(
       {
         limit: RECIPES_PER_PAGE_LIMIT,
@@ -42,6 +42,19 @@ export default function InfiniteRecipes({
     )
 
   const pages = data?.pages || []
+
+  // Update URL after successful search using History API (doesn't trigger re-renders)
+  useEffect(() => {
+    if (isSuccess) {
+      const url = new URL(window.location.href)
+      if (debouncedSearch) {
+        url.searchParams.set('search', debouncedSearch)
+      } else {
+        url.searchParams.delete('search')
+      }
+      window.history.replaceState({}, '', url.toString())
+    }
+  }, [debouncedSearch, isSuccess])
 
   useEffect(() => {
     if (inView && hasNextPage) {

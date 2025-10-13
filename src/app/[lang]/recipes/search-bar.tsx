@@ -1,16 +1,19 @@
 import { SearchIcon, XCircleIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useRef, type ChangeEvent } from 'react'
 import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import { useTranslations } from '~/hooks/use-translations'
 import { recipesStore } from '~/stores/recipes-store'
+import useDebounce from '~/hooks/use-recipe'
 
 export const SearchBar = React.memo(function SearchBar() {
   const t = useTranslations()
   const inputRef = useRef<HTMLInputElement>(null)
   const { search, setSearch } = recipesStore()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const debouncedSearch = useDebounce(search)
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value)
@@ -23,23 +26,19 @@ export const SearchBar = React.memo(function SearchBar() {
         } as ChangeEvent<HTMLInputElement>)
     : () => inputRef.current?.focus()
 
+  // Only update URL when debounced search changes, not on every keystroke
   useEffect(() => {
-    if (search) {
-      router.push(`/recipes?search=${search}`)
+    if (debouncedSearch) {
+      router.replace(`/recipes?search=${debouncedSearch}`)
     } else {
-      router.push('/recipes')
+      router.replace('/recipes')
     }
-  }, [search])
+  }, [debouncedSearch, router])
 
+  // Initialize search from URL on mount
   useEffect(() => {
-    inputRef.current?.focus()
-  }, [search])
-
-  useEffect(() => {
-    if (search && inputRef.current) {
-      inputRef.current?.focus()
-    }
-  }, [search, inputRef.current])
+    setSearch(searchParams.get('search') ?? '')
+  }, [])
 
   return (
     <div className='flex w-full items-center sm:top-[5.75rem]'>
