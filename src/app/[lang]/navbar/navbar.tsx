@@ -21,6 +21,7 @@ import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
 import { EditByIdDrawer } from '../recipes/[id]/edit-by-id-drawer'
 import { useState } from 'react'
 import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
+import { SearchBar } from '../recipes/search-bar'
 
 export const Navbar = () => {
   const { data } = useSession()
@@ -37,7 +38,7 @@ export const Navbar = () => {
   }
 
   return (
-    <div className='fixed top-0 z-10 w-full'>
+    <div className='fixed top-0 z-30 w-full'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
         <div className='glass-element from-background to-background/30 text-foreground w-full bg-gradient-to-b sm:rounded-md'>
           {navbar}
@@ -150,12 +151,11 @@ function RoutesNavbar() {
   const pathname = usePathname()
   const t = useTranslations()
   const isActive = (path: string) => pathname.includes(path)
+  const isInRecipes = pathname.includes('/recipes')
   return (
     <div className='flex w-full flex-col items-center'>
-      <div className='text-foreground my-1 bg-transparent text-sm font-bold'>
-        RecipeChat
-      </div>
-      <nav className='top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden bg-transparent px-3 py-1.5'>
+      <div className='text-foreground my-1 text-sm font-bold'>RecipeChat</div>
+      <nav className='top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden px-3 py-1.5'>
         {MENU_ITEMS.map((item) => (
           <Button
             className={cn(
@@ -177,6 +177,7 @@ function RoutesNavbar() {
           <NavDropdownMenu />
         </div>
       </nav>
+      {isInRecipes && <SearchBar />}
     </div>
   )
 }
