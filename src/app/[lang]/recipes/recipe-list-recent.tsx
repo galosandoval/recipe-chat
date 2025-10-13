@@ -25,7 +25,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
 
     return (
       <Container>
-        <div className='grid-2 relative z-20 col-span-2 grid grid-cols-2 gap-3 sm:col-span-4 sm:grid-cols-4'>
+        <div className='grid-2 relative z-0 col-span-2 grid grid-cols-2 gap-3 sm:col-span-4 sm:grid-cols-4'>
           {data
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((recipe) => (
