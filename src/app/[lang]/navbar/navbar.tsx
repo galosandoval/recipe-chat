@@ -151,6 +151,7 @@ function RoutesNavbar() {
   const pathname = usePathname()
   const t = useTranslations()
   const isActive = (path: string) => pathname.includes(path)
+  const isInRecipes = pathname.includes('/recipes')
   return (
     <div className='flex w-full flex-col items-center'>
       <div className='text-foreground my-1 text-sm font-bold'>RecipeChat</div>
@@ -176,7 +177,7 @@ function RoutesNavbar() {
           <NavDropdownMenu />
         </div>
       </nav>
-      <SearchBar />
+      {isInRecipes && <SearchBar />}
     </div>
   )
 }
