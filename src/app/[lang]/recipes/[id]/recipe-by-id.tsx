@@ -2,7 +2,7 @@
 
 import { useRef, useMemo } from 'react'
 import { type Instruction } from '@prisma/client'
-import { type RouterOutputs, api } from '~/trpc/react'
+import { api } from '~/trpc/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -13,7 +13,6 @@ import { IngredientsCheckList } from './ingredients-check-list'
 import { cn } from '~/lib/utils'
 import { useObervationObserver } from '~/hooks/use-observation-observer'
 import { useParams } from 'next/navigation'
-import { UploadImageButton } from '~/components/upload-image-button'
 import { ParallaxContainer } from '~/components/parallax-container'
 import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
@@ -21,15 +20,15 @@ import { Button } from '~/components/button'
 import { Card } from '~/components/card'
 import { Form, FormTextarea } from '~/components/form/form'
 import { PencilIcon } from 'lucide-react'
-
-type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
+import { AddImageDropdown } from '~/components/add-image-dropdown'
+import type { RecipeByIdData } from '~/hooks/use-recipe'
+import { useRecipe } from '~/hooks/use-recipe'
 
 export default function RecipeById({ data }: { data: RecipeByIdData }) {
   useNoSleep()
-  const { data: recipe } = api.recipes.byId.useQuery(
-    { id: data.id },
-    { initialData: data }
-  )
+  const { data: recipe } = useRecipe({
+    initialData: data
+  })
 
   if (!recipe) return null
 
@@ -82,7 +81,7 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
 
       <div className='relative'>
         {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
-        <div className='mx-auto flex flex-col items-center px-4 pb-4'>
+        <div className='mx-auto flex flex-col items-center px-3 pb-4'>
           <div className='bg-background flex flex-col'>
             <IngredientsCheckList recipeId={id} ingredients={ingredients} />
             <div className='pt-4'>
@@ -142,17 +141,21 @@ function ImageWithTitleAndDescription({
 }
 
 function RecipeImgButtonAndMetaData() {
-  const { id } = useParams()
-  const { data } = api.recipes.byId.useQuery({ id: id as string })
+  const { data } = useRecipe()
 
   if (!data) return null
   return (
     <>
       <StickyHeader name={data.name} visible={true} />
-      <Card className='m-3 mt-16 h-1/2'>
-        <UploadImageButton />
-        <RecipeMetaData />
-      </Card>
+      <div className='px-3'>
+        <Card
+          className='m-3 mx-auto mt-16 max-w-sm'
+          contentClassName='flex flex-col items-center justify-center'
+        >
+          <AddImageDropdown />
+          <RecipeInfo />
+        </Card>
+      </div>
     </>
   )
 }
@@ -213,13 +216,13 @@ function GlassMetadata() {
     <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
       <div className='h-full flex-1'></div>
       <GlassElement className='to-background/90 sticky top-0 h-full flex-1 bg-gradient-to-b py-4'>
-        <RecipeMetaData />
+        <RecipeInfo />
       </GlassElement>
     </div>
   )
 }
 
-function RecipeMetaData() {
+function RecipeInfo() {
   const utils = api.useUtils()
   const { id } = useParams()
   const data = utils.recipes.byId.getData({ id: id as string })
@@ -250,9 +253,7 @@ function RecipeMetaData() {
           <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} />
         </div>
       )}
-      {description && (
-        <p className={cn('bg-transparent px-5')}>{description}</p>
-      )}
+      {description && <p className={cn('bg-transparent')}>{description}</p>}
     </>
   )
 }

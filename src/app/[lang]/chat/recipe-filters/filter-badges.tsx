@@ -10,18 +10,21 @@ import { Badge } from '../badge'
 import { useMemo } from 'react'
 import { CheckCircleIcon, CircleIcon, XCircleIcon } from 'lucide-react'
 import { middleIndexOfNames } from '~/lib/middle-index-of-names'
+import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
+import { LoadingFilterBadges } from './loading'
 
 export function FilterBadges({
-  filters,
   canDelete,
   containerRef,
   onToggleCanDelete
 }: {
-  filters: Filter[]
   canDelete: boolean
   containerRef: React.RefObject<HTMLDivElement | null>
   onToggleCanDelete: () => void
 }) {
+  const { data, status, fetchStatus } = useFiltersByUserId()
+  const filters = data ?? []
+
   const t = useTranslations()
   const { mutate: deleteFilter } = useDeleteFilter()
   const { mutate: activateFilter } = useActivateFilter()
@@ -39,6 +42,16 @@ export function FilterBadges({
 
   const handleCheck = (id: string, checked: boolean) => {
     activateFilter({ checked, filterId: id })
+  }
+
+  if (status === 'error') {
+    return <div>{t.error.somethingWentWrong}</div>
+  }
+  if (!data && fetchStatus === 'idle' && status === 'pending') {
+    return null
+  }
+  if (status === 'pending') {
+    return <LoadingFilterBadges />
   }
 
   if (filters.length === 0) {

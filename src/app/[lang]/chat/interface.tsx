@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useEffect } from 'react'
+import { memo, useLayoutEffect } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { FiltersByUser } from '~/app/[lang]/chat/recipe-filters/recipe-filters'
 import { ValueProps } from './value-props'
@@ -23,7 +23,7 @@ export const Interface = () => {
 
   const isNewChat = !chatId && messages.length === 0
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!chatId) {
       reset()
     }
@@ -53,8 +53,7 @@ export const Interface = () => {
 }
 
 function ChatWindowContent({ messages }: { messages: MessageWithRecipes[] }) {
-  const { data } = useSession()
-  if (messages.length || !data?.user?.id) {
+  if (messages.length) {
     return (
       <div className='bg-background h-full'>
         <Messages data={messages as []} />

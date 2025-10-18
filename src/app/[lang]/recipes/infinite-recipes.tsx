@@ -4,7 +4,7 @@ import useDebounce from '~/hooks/use-recipe'
 import { useEffect } from 'react'
 import { api } from '~/trpc/react'
 import { useInView } from 'react-intersection-observer'
-import { RecipesPages } from './recipes-pages'
+import { Recipes } from './recipes'
 import type { InfiniteRecipes } from './get-infinite-recipes'
 import type { InfiniteData } from '@tanstack/react-query'
 import { recipesStore } from '~/stores/recipes-store'
@@ -42,6 +42,7 @@ export default function InfiniteRecipes({
     )
 
   const pages = data?.pages || []
+  const recipes = pages.flatMap((page) => page.items)
 
   // Update URL after successful search using History API (doesn't trigger re-renders)
   useEffect(() => {
@@ -64,7 +65,7 @@ export default function InfiniteRecipes({
 
   return (
     <>
-      <RecipesPages pages={pages} search={search} fetchStatus={fetchStatus} />
+      <Recipes recipes={recipes} search={search} fetchStatus={fetchStatus} />
       <span ref={inViewRef}></span>
     </>
   )

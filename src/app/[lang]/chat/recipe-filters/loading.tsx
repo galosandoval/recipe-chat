@@ -1,30 +1,21 @@
-import { useTranslations } from '~/hooks/use-translations'
-import { ValuePropsHeader } from '../value-props'
-import { ActiveCount } from './active-count'
-import { CreateFilterForm } from './create-filter-form'
 import { Skeleton } from '~/components/ui/skeleton'
-import { FunnelIcon } from 'lucide-react'
+import { CircleIcon } from 'lucide-react'
+import { cn } from '~/lib/utils'
 
 export function LoadingFilterBadges() {
-  const t = useTranslations()
   const loadingBadges = Array.from({ length: 4 }, (_, index) => (
-    <Skeleton className='bg-primary h-6 w-24 rounded-md' key={index} />
+    <div
+      key={index}
+      className='bg-background border-border mr-2 mb-2 flex h-[26px] items-center justify-between gap-2 rounded-md border px-3 py-1'
+    >
+      <CircleIcon className='text-primary size-5' />
+      <Skeleton
+        className='bg-foreground h-2'
+        style={{ width: `calc(6rem - ${Math.abs(index - 2) * 10}px)` }}
+      />
+    </div>
   ))
   return (
-    <section className='flex w-full flex-1 flex-col items-center justify-center'>
-      <ValuePropsHeader icon={<FunnelIcon />} label={t.filters.title} />
-      <div className='flex w-full flex-col gap-2'>
-        <div className='flex flex-col gap-4 px-4'>
-          <p className='text-foreground/80 text-sm'>{t.filters.description}</p>
-        </div>
-        <div className='flex flex-wrap justify-start gap-2 overflow-x-scroll px-2'>
-          {loadingBadges}
-        </div>
-        <div className='flex w-full flex-col px-4'>
-          <ActiveCount data={[]} />
-          <CreateFilterForm disabled />
-        </div>
-      </div>
-    </section>
+    <div className='flex flex-wrap justify-start px-2'>{loadingBadges}</div>
   )
 }

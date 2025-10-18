@@ -66,7 +66,7 @@ function RecipeByIdNavbar() {
   const router = useRouter()
   return (
     <nav className='fixed z-20 flex w-full'>
-      <div className='mx-auto flex w-full max-w-2xl flex-1 justify-between bg-transparent p-4'>
+      <div className='mx-auto flex w-full max-w-2xl flex-1 justify-between bg-transparent p-3'>
         <Button
           variant='outline'
           className='glass-background'
@@ -103,7 +103,11 @@ export function RecipeByIdDropdownMenu() {
       <DropdownMenu
         items={items}
         title={t.nav.settings}
-        trigger={<EllipsisVerticalIcon />}
+        trigger={
+          <Button variant='outline' size='icon'>
+            <EllipsisVerticalIcon />
+          </Button>
+        }
       />
       <EditByIdDrawer open={openEditDrawer} onOpenChange={setOpenEditDrawer} />
       <DeleteRecipeDialog

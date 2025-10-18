@@ -38,6 +38,7 @@ import {
 } from '~/schemas/recipes-schema'
 import { CreateParsedRecipe } from '../recipes/create-recipe-button'
 import { FormInput } from '~/components/form/form-input'
+import { Button } from '~/components/button'
 
 export function NavDropdownMenu() {
   const t = useTranslations()
@@ -115,7 +116,11 @@ export function NavDropdownMenu() {
   return (
     <>
       <DropdownMenu
-        trigger={<SettingsIcon />}
+        trigger={
+          <Button variant='outline' size='icon'>
+            <SettingsIcon />
+          </Button>
+        }
         items={items}
         title={t.nav.settings}
       />

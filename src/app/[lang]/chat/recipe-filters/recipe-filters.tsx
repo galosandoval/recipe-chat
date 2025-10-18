@@ -5,7 +5,6 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { FilterBadges } from './filter-badges'
 import { FilterHeaderAndEditButton } from './recipe-filters-header-and-edit-button.tsx'
-import { LoadingFilterBadges } from './loading'
 import { ActiveCount } from './active-count'
 import { CreateFilterForm } from './create-filter-form'
 
@@ -18,9 +17,6 @@ export function FiltersByUser() {
   }
   if (!data && fetchStatus === 'idle' && status === 'pending') {
     return null
-  }
-  if (status === 'pending') {
-    return <LoadingFilterBadges />
   }
 
   return <FiltersSection data={data ?? []} />
@@ -49,7 +45,6 @@ export function FiltersSection({ data }: { data: Filter[] }) {
       />
       <div className='flex w-full flex-col'>
         <FilterBadges
-          filters={data ?? []}
           canDelete={canDelete}
           containerRef={filterBadgesRef}
           onToggleCanDelete={toggleCanDelete}

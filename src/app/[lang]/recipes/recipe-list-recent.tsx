@@ -34,17 +34,20 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
                   recipe.name
                 )}`}
                 key={recipe.id}
-                className='bg-secondary flex h-10 gap-2 overflow-hidden rounded-md active:scale-[99%]'
+                className='bg-secondary flex h-10 w-full gap-2 overflow-hidden rounded-md active:scale-[99%]'
               >
                 {recipe.imgUrl ? (
-                  <Image
-                    src={recipe.imgUrl}
-                    alt='recipe'
-                    height={40}
-                    width={40}
-                    className='object-cover'
-                    priority={true}
-                  />
+                  <div className='aspect-square h-full w-10'>
+                    <Image
+                      src={recipe.imgUrl}
+                      alt='recipe'
+                      height={40}
+                      width={40}
+                      className='h-full w-full object-cover'
+                      // sizes='16vw'
+                      priority={true}
+                    />
+                  </div>
                 ) : (
                   <div className='bg-primary/70 self-center'>
                     <RecipeFallbackIconSm />

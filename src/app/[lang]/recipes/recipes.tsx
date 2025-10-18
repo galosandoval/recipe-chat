@@ -11,32 +11,27 @@ import { RecipeFallbackIconLg } from '~/components/icons'
 import { Button } from '~/components/button'
 import { BotIcon } from 'lucide-react'
 
-export const RecipesPages = React.memo(function RecipesPages({
+export const Recipes = React.memo(function Recipes({
   search,
-  pages,
-  fetchStatus
+  fetchStatus,
+  recipes
 }: {
-  pages: {
-    items: Recipe[]
-    nextCursor: string | undefined
-  }[]
+  recipes: Recipe[]
   search: string
   fetchStatus: FetchStatus
 }) {
-  const hasPagesAndItems = pages.length > 0 && pages[0].items.length > 0
+  const hasPagesAndItems = recipes.length > 0
   return (
     <div className='mx-auto w-full max-w-4xl px-3 pb-4'>
       {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
       <Header />
-      <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
-        <RecipeCards pages={pages} search={search} />
+      <RecipeCards recipes={recipes} search={search} />
 
-        {fetchStatus === 'fetching' && (
-          <div className='col-span-2 mt-4 flex justify-center sm:col-span-4'>
-            <LoadingSpinner />
-          </div>
-        )}
-      </div>
+      {fetchStatus === 'fetching' && (
+        <div className='col-span-2 mt-4 flex justify-center sm:col-span-4'>
+          <LoadingSpinner />
+        </div>
+      )}
     </div>
   )
 })
@@ -45,25 +40,30 @@ const Header = React.memo(function Header() {
   const t = useTranslations()
 
   return (
-    <div className='pt-3'>
-      <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
+    <div className='relative z-20 col-span-2 w-full translate-y-2 sm:col-span-4'>
+      <div className='col-span-2 flex items-center justify-between sm:col-span-4'>
+        <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
+      </div>
     </div>
   )
 })
 
 const RecipeCards = React.memo(function RecipeCards({
-  pages,
+  recipes,
   search
 }: {
-  pages: { items: Recipe[] }[]
+  recipes: Recipe[]
   search: string
 }) {
-  const recipes = pages.flatMap((page) => page.items)
   if (recipes.length === 0 && !search) {
     return <EmptyList />
   }
 
-  return <Cards data={recipes} search={search} />
+  return (
+    <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
+      <Cards data={recipes} search={search} />
+    </div>
+  )
 })
 
 const EmptyList = React.memo(function EmptyList() {
@@ -166,12 +166,12 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
           <div className='w-full'>
             <div className='relative h-60'>
               <Image
-                className='mt-0 mb-0 object-bottom'
+                className='object-cover'
                 src={data.imgUrl}
-                priority={false}
+                priority
                 alt='recipe'
                 fill
-                sizes='(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 33vw'
+                sizes='(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 50vw'
               />
             </div>
           </div>
