@@ -28,7 +28,7 @@ export const Recipes = React.memo(function Recipes({
       <RecipeCards recipes={recipes} search={search} />
 
       {fetchStatus === 'fetching' && (
-        <div className='col-span-2 mt-4 flex justify-center sm:col-span-4'>
+        <div className='mt-4 flex justify-center'>
           <LoadingSpinner />
         </div>
       )}
@@ -40,10 +40,8 @@ const Header = React.memo(function Header() {
   const t = useTranslations()
 
   return (
-    <div className='relative z-20 col-span-2 w-full translate-y-2 sm:col-span-4'>
-      <div className='col-span-2 flex items-center justify-between sm:col-span-4'>
-        <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
-      </div>
+    <div className='flex items-center justify-between pt-3'>
+      <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
     </div>
   )
 })

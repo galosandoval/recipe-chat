@@ -1,3 +1,4 @@
+import { XIcon } from 'lucide-react'
 import { Button } from './button'
 import {
   DrawerClose,
@@ -20,7 +21,9 @@ export const Drawer = ({
   description,
   trigger,
   formId,
-  className
+  className,
+  isLoading,
+  submitIcon
 }: {
   cancelText?: string
   children: React.ReactNode
@@ -32,6 +35,8 @@ export const Drawer = ({
   className?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  isLoading?: boolean
+  submitIcon?: React.ReactNode
 }) => {
   const isDisplayingFooter = cancelText || submitText
   return (
@@ -47,11 +52,18 @@ export const Drawer = ({
           <DrawerFooter className='pt-2'>
             {cancelText && (
               <DrawerClose asChild>
-                <Button variant='outline'>{cancelText}</Button>
+                <Button variant='outline' icon={<XIcon className='h-4 w-4' />}>
+                  {cancelText}
+                </Button>
               </DrawerClose>
             )}
             {submitText && (
-              <Button type='submit' form={formId}>
+              <Button
+                icon={submitIcon}
+                type='submit'
+                form={formId}
+                isLoading={isLoading}
+              >
                 {submitText}
               </Button>
             )}

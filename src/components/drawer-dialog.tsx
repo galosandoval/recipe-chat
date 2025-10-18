@@ -13,7 +13,9 @@ export function DrawerDialog({
   submitText,
   formId,
   open,
-  onOpenChange
+  isLoading,
+  onOpenChange,
+  submitIcon
 }: {
   title: string
   description: string
@@ -21,12 +23,14 @@ export function DrawerDialog({
   children: React.ReactNode
   cancelText: string
   submitText: string
+  isLoading?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
   /**
    * The id of the form to submit if the children are a form
    */
   formId: string
+  submitIcon?: React.ReactNode
 }) {
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
@@ -38,11 +42,12 @@ export function DrawerDialog({
         trigger={trigger}
         cancelText={cancelText}
         submitText={submitText}
+        submitIcon={submitIcon}
         title={title}
         description={description}
         formId={formId}
         buttonType='button'
-        isLoading={false}
+        isLoading={isLoading}
       >
         {children}
       </Dialog>
@@ -59,6 +64,8 @@ export function DrawerDialog({
       title={title}
       description={description}
       formId={formId}
+      isLoading={isLoading}
+      submitIcon={submitIcon}
     >
       {children}
     </Drawer>

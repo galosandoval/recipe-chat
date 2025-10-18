@@ -11,7 +11,8 @@ import { toast } from '~/components/toast'
 import {
   editRecipeFormValues,
   type EditRecipeFormValues,
-  type RecipeToEdit
+  type RecipeToEdit,
+  type UpdateRecipe
 } from '~/schemas/recipes-schema'
 import { DrawerDialog } from '~/components/drawer-dialog'
 import { Button } from '~/components/button'
@@ -20,6 +21,7 @@ import { FormInput } from '~/components/form/form-input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'
 import { useRecipe } from '~/hooks/use-recipe'
+import { SaveIcon } from 'lucide-react'
 
 export function EditByIdDrawer({
   open,
@@ -47,8 +49,17 @@ function EditByIdForm({
   onOpenChange: (open: boolean) => void
 }) {
   const t = useTranslations()
+  const utils = api.useUtils()
+  const { mutate: editRecipe, isPending } = api.recipes.edit.useMutation({
+    onSuccess: async (id) => {
+      await utils.recipes.byId.invalidate({ id })
+      onOpenChange(false)
+    }
+  })
+
   return (
     <DrawerDialog
+      submitIcon={<SaveIcon className='h-4 w-4' />}
       cancelText={t.common.cancel}
       submitText={t.common.save}
       title={t.recipes.byId.edit}
@@ -56,13 +67,20 @@ function EditByIdForm({
       formId={FORM_ID}
       open={open}
       onOpenChange={onOpenChange}
+      isLoading={isPending}
     >
-      <EditById recipe={recipe} />
+      <EditById recipe={recipe} editRecipe={editRecipe} />
     </DrawerDialog>
   )
 }
 
-function EditById({ recipe }: { recipe: RecipeToEdit }) {
+function EditById({
+  recipe,
+  editRecipe
+}: {
+  recipe: RecipeToEdit
+  editRecipe: (params: UpdateRecipe) => void
+}) {
   const { id } = useParams()
 
   if (!recipe) return null
@@ -70,7 +88,7 @@ function EditById({ recipe }: { recipe: RecipeToEdit }) {
   return (
     <div className='flex flex-col gap-4 overflow-y-auto'>
       <UpdateImage imgUrl={imgUrl} id={id as string} />
-      <EditForm data={recipe} />
+      <EditForm data={recipe} editRecipe={editRecipe} />
     </div>
   )
 }
@@ -216,7 +234,13 @@ function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
   )
 }
 
-function EditForm({ data }: { data: RecipeToEdit }) {
+function EditForm({
+  data,
+  editRecipe
+}: {
+  data: RecipeToEdit
+  editRecipe: (params: UpdateRecipe) => void
+}) {
   const t = useTranslations()
   const {
     cookMinutes,
@@ -227,14 +251,7 @@ function EditForm({ data }: { data: RecipeToEdit }) {
     prepMinutes,
     notes
   } = data
-  const utils = api.useUtils()
-  const router = useRouter()
-  const { mutate: editRecipe } = api.recipes.edit.useMutation({
-    onSuccess: async (id) => {
-      await utils.recipes.byId.invalidate({ id })
-      router.push(`/recipes/${id}`)
-    }
-  })
+
   const form = useForm<EditRecipeFormValues>({
     defaultValues: {
       cookMinutes: cookMinutes || undefined,

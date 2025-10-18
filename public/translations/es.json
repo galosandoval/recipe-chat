@@ -122,6 +122,7 @@
         "description": "No pudimos encontrar recetas que coincidan con tu búsqueda. Intenta ajustar tus términos de búsqueda o navega por todas tus recetas guardadas."
       }
     },
+    "noPhotos": "No se encontraron fotos",
     "recent": "Recetas recientes",
     "your": "Tus recetas",
     "search": "Buscar recetas",
@@ -157,8 +158,8 @@
       "updateImage": "Actualizar imagen",
       "uploadImage": "Subir imagen",
       "uploadingImage": "Subiendo imagen...",
-      "unsplash": "Obtener imagen de Unsplash",
-      "unsplashDescription": "Selecciona una de estas imágenes gratuitas de Unsplash.",
+      "unsplash": "Guardar imagen de Unsplash",
+      "unsplashDescription": "¿Quieres usar esta imagen de Unsplash? Haz clic en guardar para agregarla a tu receta.",
       "updateImageSuccess": "¡Imagen actualizada!",
       "noFile": "No hay archivo seleccionado",
       "updateNotes": "Actualizar notas",
