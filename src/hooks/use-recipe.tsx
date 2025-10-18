@@ -23,7 +23,8 @@ export default function useDebounce(value: string, delay = 500) {
   return debouncedValue
 }
 
-export type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
+type RecipeById = RouterOutputs['recipes']['byId']
+export type RecipeByIdData = NonNullable<RecipeById>
 
 export const useRecipe = (
   options?: Parameters<typeof api.recipes.byId.useQuery>[1]
@@ -35,7 +36,7 @@ export const useRecipe = (
     },
     options
   )
-  return { data: data as RecipeByIdData, isLoading, isError }
+  return { data: data as RecipeById, isLoading, isError }
 }
 
 export const useAddToList = () => {
