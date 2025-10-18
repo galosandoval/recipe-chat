@@ -22,7 +22,7 @@ export const Recipes = React.memo(function Recipes({
 }) {
   const hasPagesAndItems = recipes.length > 0
   return (
-    <div className='mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 px-3 pb-4 sm:grid-cols-4'>
+    <div className='mx-auto w-full max-w-4xl px-3 pb-4'>
       {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
 
       <Header />
