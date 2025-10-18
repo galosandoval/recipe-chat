@@ -7,7 +7,8 @@ const envVariables = z.object({
   NODE_ENV: z.string(),
   NEXTAUTH_SECRET: z.string(),
   OPENAI_API_KEY: z.string(),
-  PORT: z.string()
+  PORT: z.string(),
+  UNSPLASH_ACCESS_KEY: z.string()
 })
 
 envVariables.parse(process.env)

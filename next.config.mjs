@@ -9,6 +9,12 @@ const config = {
         hostname: 'nvpvglkh9iqe2xny.public.blob.vercel-storage.com',
         port: '',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**'
       }
     ]
   }

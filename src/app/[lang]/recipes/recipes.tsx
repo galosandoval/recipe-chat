@@ -11,27 +11,22 @@ import { RecipeFallbackIconLg } from '~/components/icons'
 import { Button } from '~/components/button'
 import { BotIcon } from 'lucide-react'
 
-export const RecipesPages = React.memo(function RecipesPages({
+export const Recipes = React.memo(function Recipes({
   search,
-  pages,
-  fetchStatus
+  fetchStatus,
+  recipes
 }: {
-  pages: {
-    items: Recipe[]
-    nextCursor: string | undefined
-  }[]
+  recipes: Recipe[]
   search: string
   fetchStatus: FetchStatus
 }) {
-  const hasPagesAndItems = pages.length > 0 && pages[0].items.length > 0
+  const hasPagesAndItems = recipes.length > 0
   return (
     <div className='mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 px-3 pb-4 sm:grid-cols-4'>
       {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
 
-      <div className='relative z-20 col-span-2 w-full translate-y-2 sm:col-span-4'>
-        <Header />
-      </div>
-      <RecipeCards pages={pages} search={search} />
+      <Header />
+      <RecipeCards recipes={recipes} search={search} />
 
       {fetchStatus === 'fetching' && (
         <div className='col-span-2 mt-4 flex justify-center sm:col-span-4'>
@@ -46,20 +41,21 @@ const Header = React.memo(function Header() {
   const t = useTranslations()
 
   return (
-    <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
-      <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
+    <div className='relative z-20 col-span-2 w-full translate-y-2 sm:col-span-4'>
+      <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
+        <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
+      </div>
     </div>
   )
 })
 
 const RecipeCards = React.memo(function RecipeCards({
-  pages,
+  recipes,
   search
 }: {
-  pages: { items: Recipe[] }[]
+  recipes: Recipe[]
   search: string
 }) {
-  const recipes = pages.flatMap((page) => page.items)
   if (recipes.length === 0 && !search) {
     return <EmptyList />
   }

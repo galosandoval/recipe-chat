@@ -15,6 +15,7 @@ import {
   updateRecipeSchema,
   type LinkedData
 } from '~/schemas/recipes-schema'
+import { unsplashApi } from '~/lib/unsplash'
 
 export const recipesRouter = createTRPCRouter({
   recentRecipes: protectedProcedure.query(async ({ ctx }) => {
@@ -249,5 +250,16 @@ export const recipesRouter = createTRPCRouter({
         await deleteRecipe
         return true
       })
+    }),
+
+  getPhotoFromTitle: protectedProcedure
+    .input(z.object({ title: z.string() }))
+    .query(async ({ input }) => {
+      const photo = await unsplashApi.search.getPhotos({
+        query: input.title,
+        orientation: 'portrait',
+        perPage: 1
+      })
+      return photo
     })
 })
