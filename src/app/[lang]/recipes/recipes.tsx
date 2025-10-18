@@ -42,7 +42,7 @@ const Header = React.memo(function Header() {
 
   return (
     <div className='relative z-20 col-span-2 w-full translate-y-2 sm:col-span-4'>
-      <div className='col-span-2 flex h-10 items-center justify-between sm:col-span-4'>
+      <div className='col-span-2 flex items-center justify-between sm:col-span-4'>
         <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
       </div>
     </div>
@@ -163,12 +163,12 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
           <div className='w-full'>
             <div className='relative h-60'>
               <Image
-                className='mt-0 mb-0 object-bottom'
+                className='object-cover'
                 src={data.imgUrl}
-                priority={false}
+                priority
                 alt='recipe'
                 fill
-                sizes='(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 33vw'
+                sizes='(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 50vw'
               />
             </div>
           </div>

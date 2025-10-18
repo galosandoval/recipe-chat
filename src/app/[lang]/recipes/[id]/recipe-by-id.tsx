@@ -81,7 +81,7 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
 
       <div className='relative'>
         {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
-        <div className='mx-auto flex flex-col items-center px-4 pb-4'>
+        <div className='mx-auto flex flex-col items-center px-3 pb-4'>
           <div className='bg-background flex flex-col'>
             <IngredientsCheckList recipeId={id} ingredients={ingredients} />
             <div className='pt-4'>
@@ -147,13 +147,15 @@ function RecipeImgButtonAndMetaData() {
   return (
     <>
       <StickyHeader name={data.name} visible={true} />
-      <Card
-        className='m-3 mx-auto mt-16 h-1/2 max-w-sm'
-        contentClassName='flex flex-col items-center justify-center'
-      >
-        <AddImageDropdown />
-        <RecipeMetaData />
-      </Card>
+      <div className='px-3'>
+        <Card
+          className='m-3 mx-auto mt-16 max-w-sm'
+          contentClassName='flex flex-col items-center justify-center'
+        >
+          <AddImageDropdown />
+          <RecipeMetaData />
+        </Card>
+      </div>
     </>
   )
 }

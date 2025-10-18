@@ -7,6 +7,7 @@ import {
   CardTitle
 } from './ui/card'
 import { cn } from '~/lib/utils'
+
 export const Card = ({
   children,
   title,
