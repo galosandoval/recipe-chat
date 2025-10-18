@@ -83,7 +83,7 @@ export function CreateParsedRecipe({
       open={isAddRecipeOpen}
       onOpenChange={closeModal}
       isLoading={isPending}
-      buttonIcon={<PlusIcon className='h-4 w-4' />}
+      submitIcon={<PlusIcon className='h-4 w-4' />}
     >
       <Form
         onSubmit={onSubmit}

@@ -121,6 +121,7 @@
         "description": "We couldn't find any recipes matching your search. Try adjusting your search terms or browse all your saved recipes."
       }
     },
+    "noPhotos": "No photos found",
     "recent": "Recent recipes",
     "your": "Your recipes",
     "search": "Search recipes",

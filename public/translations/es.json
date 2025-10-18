@@ -122,6 +122,7 @@
         "description": "No pudimos encontrar recetas que coincidan con tu búsqueda. Intenta ajustar tus términos de búsqueda o navega por todas tus recetas guardadas."
       }
     },
+    "noPhotos": "No se encontraron fotos",
     "recent": "Recetas recientes",
     "your": "Tus recetas",
     "search": "Buscar recetas",
