@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from '~/components/toast'
 import { api, type RouterOutputs } from '~/trpc/react'
-import type { QueryKey, UseQueryOptions } from '@tanstack/react-query'
 
 export default function useDebounce(value: string, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value)

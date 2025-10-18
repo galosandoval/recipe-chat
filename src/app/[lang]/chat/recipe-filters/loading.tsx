@@ -1,6 +1,5 @@
 import { Skeleton } from '~/components/ui/skeleton'
 import { CircleIcon } from 'lucide-react'
-import { cn } from '~/lib/utils'
 
 export function LoadingFilterBadges() {
   const loadingBadges = Array.from({ length: 4 }, (_, index) => (

@@ -251,7 +251,6 @@ function EditForm({
     prepMinutes,
     notes
   } = data
-  const utils = api.useUtils()
 
   const form = useForm<EditRecipeFormValues>({
     defaultValues: {
