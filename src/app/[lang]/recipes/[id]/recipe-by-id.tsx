@@ -153,7 +153,7 @@ function RecipeImgButtonAndMetaData() {
           contentClassName='flex flex-col items-center justify-center'
         >
           <AddImageDropdown />
-          <RecipeMetaData />
+          <RecipeInfo />
         </Card>
       </div>
     </>
@@ -216,13 +216,13 @@ function GlassMetadata() {
     <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
       <div className='h-full flex-1'></div>
       <GlassElement className='to-background/90 sticky top-0 h-full flex-1 bg-gradient-to-b py-4'>
-        <RecipeMetaData />
+        <RecipeInfo />
       </GlassElement>
     </div>
   )
 }
 
-function RecipeMetaData() {
+function RecipeInfo() {
   const utils = api.useUtils()
   const { id } = useParams()
   const data = utils.recipes.byId.getData({ id: id as string })
@@ -253,9 +253,7 @@ function RecipeMetaData() {
           <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} />
         </div>
       )}
-      {description && (
-        <p className={cn('bg-transparent px-5')}>{description}</p>
-      )}
+      {description && <p className={cn('bg-transparent')}>{description}</p>}
     </>
   )
 }
