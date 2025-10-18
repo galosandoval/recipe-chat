@@ -160,6 +160,8 @@
       "uploadingImage": "Subiendo imagen...",
       "unsplash": "Guardar imagen de Unsplash",
       "unsplashDescription": "¿Quieres usar esta imagen de Unsplash? Haz clic en guardar para agregarla a tu receta.",
+      "photoBy": "Foto por",
+      "on": "en",
       "updateImageSuccess": "¡Imagen actualizada!",
       "noFile": "No hay archivo seleccionado",
       "updateNotes": "Actualizar notas",

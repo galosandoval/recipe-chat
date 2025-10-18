@@ -173,6 +173,8 @@ function UnsplashDialog({
       onSuccess: () => {
         onOpenChange(false)
         utils.recipes.byId.invalidate({ id: id as string })
+        utils.recipes.infiniteRecipes.invalidate()
+        utils.recipes.recentRecipes.invalidate()
       },
       onError: (error) => {
         toast.error(error.message)
@@ -235,6 +237,7 @@ function useUnsplashImages(title?: string) {
 }
 
 function UnsplashImage({ photo }: { photo: any }) {
+  const t = useTranslations()
   return (
     <div className='flex flex-col gap-2'>
       <Image
@@ -247,7 +250,7 @@ function UnsplashImage({ photo }: { photo: any }) {
       />
       {/* Attribution as required by Unsplash guidelines */}
       <p className='text-muted-foreground text-sm'>
-        Photo by{' '}
+        {t.recipes.byId.photoBy}{' '}
         <a
           href={`${photo.user.links.html}?utm_source=recipe-chat&utm_medium=referral`}
           target='_blank'
@@ -256,7 +259,7 @@ function UnsplashImage({ photo }: { photo: any }) {
         >
           {photo.user.name}
         </a>{' '}
-        on{' '}
+        {t.recipes.byId.on}{' '}
         <a
           href='https://unsplash.com?utm_source=recipe-chat&utm_medium=referral'
           target='_blank'
