@@ -106,7 +106,7 @@ function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
   return (
     <div
       className={cn(
-        'glass-element from-background to-background/5 sticky top-0 z-10 -mt-14 flex items-center justify-center bg-gradient-to-b py-5 opacity-0 transition-opacity duration-300',
+        'glass-element from-background to-background/5 border-muted-foreground/20 sticky top-0 z-10 -mt-14 flex items-center justify-center border-b bg-gradient-to-b py-4 opacity-0 transition-opacity duration-300',
         visible && 'opacity-100'
       )}
     >
