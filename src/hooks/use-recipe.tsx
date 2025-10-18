@@ -1,7 +1,10 @@
+'use client'
+
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { toast } from '~/components/toast'
-import { api } from '~/trpc/react'
+import { api, type RouterOutputs } from '~/trpc/react'
+import type { QueryKey, UseQueryOptions } from '@tanstack/react-query'
 
 export default function useDebounce(value: string, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -20,13 +23,23 @@ export default function useDebounce(value: string, delay = 500) {
   return debouncedValue
 }
 
-export const useRecipe = (id: string) =>
-  api.recipes.byId.useQuery({
-    id
-  })
+export type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
+
+export const useRecipe = (
+  options?: Parameters<typeof api.recipes.byId.useQuery>[1]
+) => {
+  const { id } = useParams()
+  const { data, isLoading, isError } = api.recipes.byId.useQuery(
+    {
+      id: id as string
+    },
+    options
+  )
+  return { data: data as RecipeByIdData, isLoading, isError }
+}
 
 export const useAddToList = () => {
-  const utils = api.useContext()
+  const utils = api.useUtils()
   return api.lists.upsert.useMutation({
     onSuccess: async ({ id }) => {
       await utils.recipes.byId.invalidate({ id })
@@ -38,7 +51,7 @@ export const useAddToList = () => {
 }
 
 export const useDeleteRecipe = () => {
-  const utils = api.useContext()
+  const utils = api.useUtils()
   const router = useRouter()
 
   return api.recipes.delete.useMutation({

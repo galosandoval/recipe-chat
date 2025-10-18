@@ -103,7 +103,11 @@ export function RecipeByIdDropdownMenu() {
       <DropdownMenu
         items={items}
         title={t.nav.settings}
-        trigger={<EllipsisVerticalIcon />}
+        trigger={
+          <Button variant='outline' size='icon'>
+            <EllipsisVerticalIcon />
+          </Button>
+        }
       />
       <EditByIdDrawer open={openEditDrawer} onOpenChange={setOpenEditDrawer} />
       <DeleteRecipeDialog

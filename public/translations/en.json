@@ -142,6 +142,7 @@
     "enterUrl": "Enter a valid url that contains a recipe. We'll parse it for you so you can save and start cooking!",
     "generate": "Generate",
     "byId": {
+      "addImage": "Add image",
       "editDescription": "Make changes to the recipe.",
       "saveImage": "Save image",
       "goToList": "Go to list",
@@ -154,6 +155,8 @@
       "updateImage": "Update image",
       "uploadImage": "Upload image",
       "uploadingImage": "Uploading...",
+      "unsplash": "Get image from Unsplash",
+      "unsplashDescription": "Select one of these free images from Unsplash.",
       "updateImageSuccess": "Image updated successfully!",
       "noFile": "No file selected",
       "updateNotes": "Update notes",

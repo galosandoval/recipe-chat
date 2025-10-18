@@ -2,7 +2,7 @@
 
 import { useRef, useMemo } from 'react'
 import { type Instruction } from '@prisma/client'
-import { type RouterOutputs, api } from '~/trpc/react'
+import { api } from '~/trpc/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -13,7 +13,6 @@ import { IngredientsCheckList } from './ingredients-check-list'
 import { cn } from '~/lib/utils'
 import { useObervationObserver } from '~/hooks/use-observation-observer'
 import { useParams } from 'next/navigation'
-import { UploadImageButton } from '~/components/upload-image-button'
 import { ParallaxContainer } from '~/components/parallax-container'
 import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
@@ -21,15 +20,15 @@ import { Button } from '~/components/button'
 import { Card } from '~/components/card'
 import { Form, FormTextarea } from '~/components/form/form'
 import { PencilIcon } from 'lucide-react'
-
-type RecipeByIdData = NonNullable<RouterOutputs['recipes']['byId']>
+import { AddImageDropdown } from '~/components/add-image-dropdown'
+import type { RecipeByIdData } from '~/hooks/use-recipe'
+import { useRecipe } from '~/hooks/use-recipe'
 
 export default function RecipeById({ data }: { data: RecipeByIdData }) {
   useNoSleep()
-  const { data: recipe } = api.recipes.byId.useQuery(
-    { id: data.id },
-    { initialData: data }
-  )
+  const { data: recipe } = useRecipe({
+    initialData: data
+  })
 
   if (!recipe) return null
 
@@ -142,15 +141,17 @@ function ImageWithTitleAndDescription({
 }
 
 function RecipeImgButtonAndMetaData() {
-  const { id } = useParams()
-  const { data } = api.recipes.byId.useQuery({ id: id as string })
+  const { data } = useRecipe()
 
   if (!data) return null
   return (
     <>
       <StickyHeader name={data.name} visible={true} />
-      <Card className='m-3 mt-16 h-1/2'>
-        <UploadImageButton />
+      <Card
+        className='m-3 mx-auto mt-16 h-1/2 max-w-sm'
+        contentClassName='flex flex-col items-center justify-center'
+      >
+        <AddImageDropdown />
         <RecipeMetaData />
       </Card>
     </>

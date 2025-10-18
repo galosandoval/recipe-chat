@@ -12,13 +12,15 @@ export const Card = ({
   title,
   description,
   footer,
-  className
+  className,
+  contentClassName
 }: {
   children: React.ReactNode
   title?: string
   description?: string
   footer?: React.ReactNode
   className?: string
+  contentClassName?: string
 }) => (
   <CardUI className={cn('pt-3', className)}>
     {title ||
@@ -28,7 +30,7 @@ export const Card = ({
           {description && <CardDescription>{description}</CardDescription>}
         </CardHeader>
       ))}
-    <CardContent>{children}</CardContent>
+    <CardContent className={contentClassName}>{children}</CardContent>
     {footer && <CardFooter>{footer}</CardFooter>}
   </CardUI>
 )

@@ -1,5 +1,4 @@
 import { useTranslations, type TPaths } from '~/hooks/use-translations'
-import { Button } from './button'
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -33,11 +32,7 @@ export function DropdownMenu<T extends MenuItemProps | null>({
   const t = useTranslations()
   return (
     <DropdownMenuUI>
-      <DropdownMenuTrigger asChild>
-        <Button variant='outline' size='icon'>
-          {trigger}
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
 
       <DropdownMenuContent>
         <DropdownMenuLabel>{title}</DropdownMenuLabel>

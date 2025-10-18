@@ -19,6 +19,7 @@ import { FormTextarea, Form } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'
+import { useRecipe } from '~/hooks/use-recipe'
 
 export function EditByIdDrawer({
   open,
@@ -27,8 +28,7 @@ export function EditByIdDrawer({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const { id } = useParams()
-  const { data: recipe } = api.recipes.byId.useQuery({ id: id as string })
+  const { data: recipe } = useRecipe()
   if (!recipe) return null
   return (
     <EditByIdForm recipe={recipe} open={open} onOpenChange={onOpenChange} />
