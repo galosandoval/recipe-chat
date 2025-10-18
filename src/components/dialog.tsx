@@ -10,6 +10,7 @@ import {
   DialogClose,
   DialogFooter
 } from './ui/dialog'
+import { XIcon } from 'lucide-react'
 
 export function Dialog({
   cancelText,
@@ -18,9 +19,9 @@ export function Dialog({
   title,
   description,
   formId,
-  buttonIcon,
   buttonType = 'submit',
   isLoading,
+  submitIcon,
   onClickConfirm,
   trigger,
   open,
@@ -33,9 +34,9 @@ export function Dialog({
   description: string
   trigger?: React.ReactNode
   formId?: string
-  buttonIcon?: React.ReactNode
   buttonType?: ComponentProps<typeof Button>['type']
   isLoading?: boolean
+  submitIcon?: React.ReactNode
   onClickConfirm?: () => void
   open?: boolean
   onOpenChange?: (open: boolean) => void
@@ -53,14 +54,16 @@ export function Dialog({
         {children}
         <DialogFooter className='flex flex-row justify-between'>
           <DialogClose asChild>
-            <Button variant='outline'>{cancelText}</Button>
+            <Button variant='outline' icon={<XIcon className='h-4 w-4' />}>
+              {cancelText}
+            </Button>
           </DialogClose>
           <Button
             type={buttonType}
             form={formId}
             isLoading={isLoading}
             onClick={onClickConfirm}
-            icon={buttonIcon}
+            icon={submitIcon}
           >
             {submitText}
           </Button>

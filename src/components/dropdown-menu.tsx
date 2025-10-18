@@ -26,7 +26,7 @@ export function DropdownMenu<T extends MenuItemProps | null>({
   trigger
 }: {
   items: T[]
-  title: string
+  title?: string
   trigger: React.ReactNode
 }) {
   const t = useTranslations()
@@ -35,8 +35,13 @@ export function DropdownMenu<T extends MenuItemProps | null>({
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
 
       <DropdownMenuContent>
-        <DropdownMenuLabel>{title}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        {title && (
+          <>
+            {' '}
+            <DropdownMenuLabel>{title}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+          </>
+        )}
         {items.map((item, idx) => {
           if (!item) return null
           if ('slot' in item) {

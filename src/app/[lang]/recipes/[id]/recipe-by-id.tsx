@@ -240,20 +240,25 @@ function RecipeInfo() {
   } = data
 
   return (
+    // no parent here for sticky header
     <>
       {imgUrl && <h2 className={cn('px-5 text-2xl font-bold')}>{name}</h2>}
 
       {prepTime && cookTime && (
-        <div className='flex justify-center px-5'>
+        <div className='flex justify-center'>
           <RecipeTime prepTime={prepTime} cookTime={cookTime} />
         </div>
       )}
       {prepMinutes && cookMinutes && (
-        <div className='flex justify-center px-5'>
+        <div className='flex justify-center'>
           <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} />
         </div>
       )}
-      {description && <p className={cn('bg-transparent')}>{description}</p>}
+      {description && (
+        <p className={cn('text-muted-foreground bg-transparent px-3 text-sm')}>
+          {description}
+        </p>
+      )}
     </>
   )
 }

@@ -8,6 +8,7 @@ export function FormInput<T extends FieldValues>({
   label,
   description,
   labelClassName,
+  type,
   ...inputProps
 }: {
   name: Path<T>
@@ -22,7 +23,22 @@ export function FormInput<T extends FieldValues>({
       description={description}
       labelClassName={labelClassName}
     >
-      {(field) => <Input {...inputProps} {...field} />}
+      {(field) => (
+        <Input
+          {...inputProps}
+          {...field}
+          type={type}
+          onChange={(e) => {
+            // Convert string to number for number inputs
+            if (type === 'number') {
+              const value = e.target.value
+              field.onChange(value === '' ? undefined : Number(value))
+            } else {
+              field.onChange(e)
+            }
+          }}
+        />
+      )}
     </FormField>
   )
 }
