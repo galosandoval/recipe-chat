@@ -24,7 +24,6 @@ export const Recipes = React.memo(function Recipes({
   return (
     <div className='mx-auto w-full max-w-4xl px-3 pb-4'>
       {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
-
       <Header />
       <RecipeCards recipes={recipes} search={search} />
 
@@ -60,7 +59,11 @@ const RecipeCards = React.memo(function RecipeCards({
     return <EmptyList />
   }
 
-  return <Cards data={recipes} search={search} />
+  return (
+    <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
+      <Cards data={recipes} search={search} />
+    </div>
+  )
 })
 
 const EmptyList = React.memo(function EmptyList() {
