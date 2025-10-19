@@ -191,7 +191,7 @@ export const useChatAI = () => {
         addMessage(assistantMessage)
       }
     },
-    [chatId, addMessage, createId]
+    [chatId, addMessage]
   )
 
   const { mutate: generated } = api.chats.generated.useMutation({
