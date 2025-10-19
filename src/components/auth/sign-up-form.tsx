@@ -6,7 +6,7 @@ import { FormInput } from '../form/form-input'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn } from '~/server/auth'
+import { signIn } from 'next-auth/react'
 import { toast } from '../toast'
 import { signUpSchema, type SignUpSchema } from '~/schemas/sign-up-schema'
 import { api } from '~/trpc/react'
@@ -98,8 +98,12 @@ export function SignUpForm() {
       form={form}
     >
       <FormInput name='email' label={t.auth.email} />
-      <FormInput name='password' label={t.auth.password} />
-      <FormInput name='confirm' label={t.auth.confirmPassword} />
+      <FormInput type='password' name='password' label={t.auth.password} />
+      <FormInput
+        type='password'
+        name='confirm'
+        label={t.auth.confirmPassword}
+      />
     </Form>
   )
 }

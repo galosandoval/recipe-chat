@@ -1,4 +1,4 @@
-import { createId } from '@paralleldrive/cuid2'
+import { cuid } from '~/lib/createId'
 import { type MessageWithRecipes } from '~/schemas/chats-schema'
 
 export function userMessageDTO(
@@ -8,7 +8,7 @@ export function userMessageDTO(
   return {
     content,
     role: 'user',
-    id: createId(),
+    id: cuid(),
     chatId: chatId ?? '',
     createdAt: new Date(),
     updatedAt: new Date(),

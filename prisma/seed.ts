@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { slugify } from '~/lib/utils'
 
 const prisma = new PrismaClient()
 
@@ -81,6 +82,7 @@ async function main() {
 
       recipes: {
         create: {
+          slug: slugify('CREAMY MUSHROOM TOAST WITH SOFT EGG & GRUYÈRE'),
           author: 'gordon ramsay',
           address: 'https://www.gordonramsay.com/gr/recipes/mushroomtoast/',
           name: 'CREAMY MUSHROOM TOAST WITH SOFT EGG & GRUYÈRE',

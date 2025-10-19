@@ -135,8 +135,13 @@ const NoneFound = React.memo(function NoneFound() {
 })
 
 const Card = React.memo(function Card({ data }: { data: Recipe }) {
+  const utils = api.useUtils()
   const { mutate: updateLastViewedAt } =
-    api.recipes.updateLastViewedAt.useMutation()
+    api.recipes.updateLastViewedAt.useMutation({
+      onSuccess: (data) => {
+        utils.recipes.recentRecipes.setData(undefined, data)
+      }
+    })
 
   const handleOnClick = () => {
     updateLastViewedAt(data.id)
