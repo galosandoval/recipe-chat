@@ -29,9 +29,19 @@ export const recipesRouter = createTRPCRouter({
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
       const recipesDataAccess = new RecipesAccess(ctx.prisma)
-      return recipesDataAccess.updateRecipe(input, {
+      const result = await recipesDataAccess.updateRecipe(input, {
         lastViewedAt: new Date()
       })
+
+      if (!result) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Recipe not found'
+        })
+      }
+      const userId = ctx.session.user.id
+
+      return recipesDataAccess.getRecentRecipes(userId)
     }),
 
   infiniteRecipes: protectedProcedure
