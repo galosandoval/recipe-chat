@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react'
 import { api } from '~/trpc/react'
 import { chatStore } from '~/stores/chat-store'
-import { createId } from '@paralleldrive/cuid2'
+import { cuid } from '~/lib/createId'
 import { useCallback, useEffect } from 'react'
 import type {
   Generated,
@@ -165,14 +165,14 @@ export const useChatAI = () => {
           recipeNameToId.set(recipe.name, recipe.id)
         }
         const assistantMessage: MessageWithRecipes = {
-          id: createId(),
+          id: cuid(),
           content: aiResponse.object.content,
           role: 'assistant',
           createdAt: new Date(),
           updatedAt: new Date(),
           chatId: chatId ?? '',
           recipes: (aiResponse.object?.recipes ?? []).map((recipe) => ({
-            id: recipeNameToId.get(recipe?.name ?? '') ?? createId(),
+            id: recipeNameToId.get(recipe?.name ?? '') ?? cuid(),
             name: recipe?.name ?? '',
             description: recipe?.description ?? '',
             ingredients: recipe?.ingredients?.map((i) => i ?? '') ?? [],

@@ -1,4 +1,4 @@
-import { createId } from '@paralleldrive/cuid2'
+import { cuid } from '~/lib/createId'
 import { hash } from 'bcryptjs'
 import { DataAccess } from './data-access'
 import { initialFilters } from '~/lib/stock-filters'
@@ -42,8 +42,8 @@ export class UsersAccess extends DataAccess {
   async updateUser(userId: string, input: CreateChatAndRecipe) {
     const { recipe, messages } = input
     const { ingredients, instructions, ...rest } = recipe
-    const messageId = createId()
-    const chatId = createId()
+    const messageId = cuid()
+    const chatId = cuid()
 
     return await this.prisma.user.update({
       where: { id: userId },

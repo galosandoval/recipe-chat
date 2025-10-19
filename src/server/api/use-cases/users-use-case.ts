@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server'
 import { UsersAccess } from '~/server/api/data-access/users-access'
 import type { Context } from '~/server/api/trpc'
-import { createId } from '@paralleldrive/cuid2'
+import { cuid } from '~/lib/createId'
 import type { PrismaClient } from '@prisma/client'
 import type { SignUpSchema } from '~/schemas/sign-up-schema'
 import type { CreateChatAndRecipe } from '~/schemas/chats-schema'
@@ -21,7 +21,10 @@ export async function signUp(input: SignUpSchema, prisma: PrismaClient) {
   return usersDataAccess.createUser(input)
 }
 
-export async function createChatAndRecipe(ctx: Context, input: CreateChatAndRecipe) {
+export async function createChatAndRecipe(
+  ctx: Context,
+  input: CreateChatAndRecipe
+) {
   const { recipe, messages } = input
   const userId = ctx?.session?.user.id
 
@@ -31,11 +34,11 @@ export async function createChatAndRecipe(ctx: Context, input: CreateChatAndReci
       message: 'Unauthorized'
     })
   }
-  const messageId = createId()
-  const chatId = createId()
+  const messageId = cuid()
+  const chatId = cuid()
 
   const { ingredients, instructions, ...rest } = recipe
-  const recipeId = createId()
+  const recipeId = cuid()
 
   await ctx.prisma.user.update({
     where: { id: userId },

@@ -3,7 +3,7 @@ import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
-import { createId } from '@paralleldrive/cuid2'
+import { cuid } from '~/lib/createId'
 import { Button } from '~/components/button'
 import { PlusCircleIcon } from 'lucide-react'
 import { Form } from '~/components/form/form'
@@ -26,7 +26,7 @@ export function CreateFilterForm({ disabled }: { disabled?: boolean }) {
   const createFilter = (data: CreateFilter) => {
     if (!filters) return
 
-    const id = createId()
+    const id = cuid()
     if (filters.some((filter) => filter.name === data.name)) {
       form.setError('name', { message: t.filters.nameAlreadyExists })
       return

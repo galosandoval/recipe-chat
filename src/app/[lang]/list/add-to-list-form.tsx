@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createId } from '@paralleldrive/cuid2'
+import { cuid } from '~/lib/createId'
 import { CirclePlusIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
@@ -23,7 +23,7 @@ export function AddToListForm() {
   })
   const { mutate: addToList } = useAddToList()
   const onSubmitNewIngredient = (values: FormValues) => {
-    const newId = createId()
+    const newId = cuid()
     addToList({ newIngredientName: values.newIngredientName, id: newId })
     form.reset()
   }
