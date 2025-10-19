@@ -239,15 +239,17 @@ function useUnsplashImages(title?: string) {
 function UnsplashImage({ photo }: { photo: any }) {
   const t = useTranslations()
   return (
-    <div className='flex flex-col gap-2'>
-      <Image
-        src={photo.urls.small}
-        alt={photo.alt_description || 'Photo from Unsplash'}
-        width={400}
-        height={300}
-        sizes='(max-width: 768px) 100vw, 400px'
-        className='rounded-md'
-      />
+    <div className='flex flex-col gap-2 overflow-hidden'>
+      <div className='max-h-[400px] overflow-hidden rounded-md'>
+        <Image
+          src={photo.urls.small}
+          alt={photo.alt_description || 'Photo from Unsplash'}
+          width={400}
+          height={300}
+          sizes='(max-width: 768px) 100vw, 400px'
+          className='object-cover'
+        />
+      </div>
       {/* Attribution as required by Unsplash guidelines */}
       <p className='text-muted-foreground text-sm'>
         {t.recipes.byId.photoBy}{' '}

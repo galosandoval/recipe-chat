@@ -86,7 +86,7 @@ function EditById({
   if (!recipe) return null
   const { imgUrl } = recipe
   return (
-    <div className='flex flex-col gap-4 overflow-y-auto'>
+    <div className='flex max-h-[70svh] flex-col gap-4 overflow-y-auto'>
       <UpdateImage imgUrl={imgUrl} id={id as string} />
       <EditForm data={recipe} editRecipe={editRecipe} />
     </div>

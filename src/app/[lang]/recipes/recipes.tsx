@@ -53,13 +53,38 @@ const RecipeCards = React.memo(function RecipeCards({
   recipes: Recipe[]
   search: string
 }) {
+  const sortedAndFilteredData = useMemo(() => {
+    let sortedData = recipes.toSorted((a, b) => {
+      if (a.name < b.name) {
+        return -1
+      }
+      if (a.name > b.name) {
+        return 1
+      }
+      return 0
+    })
+
+    if (search) {
+      sortedData = sortedData.filter((recipe) =>
+        recipe.name.toLowerCase().includes(search.toLowerCase())
+      )
+    }
+
+    return sortedData
+  }, [recipes, search])
+
   if (recipes.length === 0 && !search) {
     return <EmptyList />
+  }
+  if (sortedAndFilteredData.length === 0) {
+    return <NoneFound />
   }
 
   return (
     <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
-      <Cards data={recipes} search={search} />
+      {sortedAndFilteredData.map((recipe) => (
+        <Card key={recipe.id} data={recipe} />
+      ))}
     </div>
   )
 })
@@ -107,42 +132,6 @@ const NoneFound = React.memo(function NoneFound() {
       </div>
     </div>
   )
-})
-
-const Cards = React.memo(function Cards({
-  data,
-  search
-}: {
-  data: Recipe[]
-  search: string
-}) {
-  const sortedAndFilteredData = useMemo(() => {
-    let sortedData = data.toSorted((a, b) => {
-      if (a.name < b.name) {
-        return -1
-      }
-      if (a.name > b.name) {
-        return 1
-      }
-      return 0
-    })
-
-    if (search) {
-      sortedData = sortedData.filter((recipe) =>
-        recipe.name.toLowerCase().includes(search.toLowerCase())
-      )
-    }
-
-    return sortedData
-  }, [data, search])
-
-  if (sortedAndFilteredData.length === 0) {
-    return <NoneFound />
-  }
-
-  return sortedAndFilteredData.map((recipe) => (
-    <Card key={recipe.id} data={recipe} />
-  ))
 })
 
 const Card = React.memo(function Card({ data }: { data: Recipe }) {
