@@ -84,6 +84,9 @@ model Recipe {
     author      String?
     address     String?
 
+    // NEW: slug for SEO-friendly URLs
+    slug        String  @unique
+
     // NEW: normalized name for dedupe/search (optional)
     nameNorm        String?  @db.Text
     // NEW: lightweight classification to power filters & embeddings
@@ -119,6 +122,7 @@ model Recipe {
     @@index([userId, nameNorm])
     @@index([userId, cuisine])
     @@index([userId, course])
+    @@index([userId,slug])
 }
 
 model RecipeVector {
