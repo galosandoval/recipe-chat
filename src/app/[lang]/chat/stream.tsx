@@ -35,7 +35,8 @@ export function Stream({ stream }: { stream: GeneratedMessage }) {
                   dietTags: recipe.dietTags ?? [],
                   flavorTags: recipe.flavorTags ?? [],
                   mainIngredients: recipe.mainIngredients ?? [],
-                  techniques: recipe.techniques ?? []
+                  techniques: recipe.techniques ?? [],
+                  slug: ''
                 }}
               />
             )}
@@ -54,7 +55,8 @@ export function Stream({ stream }: { stream: GeneratedMessage }) {
                   dietTags: r.dietTags ?? [],
                   flavorTags: r.flavorTags ?? [],
                   mainIngredients: r.mainIngredients ?? [],
-                  techniques: r.techniques ?? []
+                  techniques: r.techniques ?? [],
+                  slug: ''
                 }))}
               />
             )}

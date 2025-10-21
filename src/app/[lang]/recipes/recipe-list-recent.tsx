@@ -67,7 +67,6 @@ function RecentRecipe({
             height={40}
             width={40}
             className='h-full w-full object-cover'
-            // sizes='16vw'
             priority={true}
           />
         </div>
