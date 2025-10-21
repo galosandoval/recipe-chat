@@ -30,9 +30,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((recipe) => (
               <Link
-                href={`/recipes/${recipe.id}?name=${encodeURIComponent(
-                  recipe.name
-                )}`}
+                href={`/recipes/${recipe.slug}}`}
                 key={recipe.id}
                 className='bg-secondary flex h-10 w-full gap-2 overflow-hidden rounded-md active:scale-[99%]'
               >

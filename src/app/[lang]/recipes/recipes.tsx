@@ -149,7 +149,7 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
 
   return (
     <Link
-      href={`/recipes/${data.id}`}
+      href={`/recipes/${data.slug}`}
       className='bg-background relative col-span-1 overflow-hidden rounded-md shadow-xl active:scale-[99%]'
       onClick={handleOnClick}
     >

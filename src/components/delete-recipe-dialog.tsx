@@ -1,7 +1,6 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { Dialog } from './dialog'
-import { useParams } from 'next/navigation'
-import { useDeleteRecipe } from '~/hooks/use-recipe'
+import { useRecipe, useDeleteRecipe } from '~/hooks/use-recipe'
 
 export function DeleteRecipeDialog({
   open,
@@ -12,9 +11,9 @@ export function DeleteRecipeDialog({
 }) {
   const t = useTranslations()
   const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
-  const { id } = useParams<{ id: string | undefined }>()
+  const { data: recipe } = useRecipe()
 
-  if (!id) throw new Error('No id found')
+  if (!recipe) return null
 
   const handleDelete = (id: string) => {
     deleteRecipe({ id })
@@ -24,7 +23,7 @@ export function DeleteRecipeDialog({
       formId='delete-recipe-form'
       buttonType='button'
       isLoading={deleteStatus === 'pending'}
-      onClickConfirm={() => handleDelete(id)}
+      onClickConfirm={() => handleDelete(recipe.id)}
       cancelText={t.common.cancel}
       submitText={t.common.delete}
       title={t.recipes.byId.delete.title}

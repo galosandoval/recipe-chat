@@ -5,6 +5,7 @@ import { cuid } from '~/lib/createId'
 import type { PrismaClient } from '@prisma/client'
 import type { SignUpSchema } from '~/schemas/sign-up-schema'
 import type { CreateChatAndRecipe } from '~/schemas/chats-schema'
+import { slugify } from '~/lib/utils'
 
 export async function signUp(input: SignUpSchema, prisma: PrismaClient) {
   const usersDataAccess = new UsersAccess(prisma)
@@ -39,6 +40,7 @@ export async function createChatAndRecipe(
 
   const { ingredients, instructions, ...rest } = recipe
   const recipeId = cuid()
+  const slug = slugify(recipe.name)
 
   await ctx.prisma.user.update({
     where: { id: userId },
@@ -66,6 +68,7 @@ export async function createChatAndRecipe(
       recipes: {
         create: {
           id: recipeId,
+          slug,
           ingredients: {
             create: ingredients.map((ingredient) => ({
               name: ingredient
@@ -86,5 +89,5 @@ export async function createChatAndRecipe(
     }
   })
 
-  return { recipeId }
+  return { slug }
 }

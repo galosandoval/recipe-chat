@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useLayoutEffect } from 'react'
+import { memo, useEffect, useLayoutEffect } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { FiltersByUser } from '~/app/[lang]/chat/recipe-filters/recipe-filters'
 import { ValueProps } from './value-props'

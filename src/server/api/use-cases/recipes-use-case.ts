@@ -15,7 +15,11 @@ export async function editRecipe(recipe: UpdateRecipe, prisma: PrismaClient) {
       newInstructions,
       recipesDataAccess
     )
-    return id
+    const foundRecipe = await recipesDataAccess.getRecipeById(id)
+    if (!foundRecipe) {
+      throw new Error('Recipe not found')
+    }
+    return foundRecipe.slug
   })
 }
 

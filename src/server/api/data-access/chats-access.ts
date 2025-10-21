@@ -3,6 +3,7 @@ import type { ITXClientDenyList } from '@prisma/client/runtime/library'
 import type { MessagesWithRecipes } from '~/schemas/chats-schema'
 import { DataAccess } from './data-access'
 import type { CreateChatWithMessages } from '~/schemas/chats-schema'
+import { slugify } from '~/lib/utils'
 
 export class ChatsAccess extends DataAccess {
   async getChatsByUserId(userId: string) {
@@ -145,7 +146,6 @@ export class ChatsAccess extends DataAccess {
           },
           data: {
             ...recipe,
-
             ingredients: {
               create: recipe.ingredients?.map((i: string) => ({
                 name: i
@@ -169,6 +169,7 @@ export class ChatsAccess extends DataAccess {
           data: {
             id: recipe.id,
             name: recipe.name,
+            slug: slugify(recipe.name),
             description: recipe.description,
             prepMinutes: recipe.prepMinutes,
             cookMinutes: recipe.cookMinutes,

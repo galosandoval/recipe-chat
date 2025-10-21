@@ -18,22 +18,24 @@ import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/button'
 import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
-import { EditByIdDrawer } from '../recipes/[id]/edit-by-id-drawer'
+import { EditByIdDrawer } from '../recipes/[slug]/edit-by-id-drawer'
 import { useState } from 'react'
 import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
 import { SearchBar } from '../recipes/search-bar'
+import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
 export const Navbar = () => {
   const { data } = useSession()
   const pathname = usePathname()
-  const { lang, id } = useParams()
+  const { lang } = useParams()
+  const slug = useRecipeSlug()
 
   let navbar = <RoutesNavbar />
   if (!data) {
     navbar = <PublicNavbar />
-  } else if (pathname === `/${lang}/recipes/${id}/edit`) {
+  } else if (pathname === `/${lang}/recipes/${slug}/edit`) {
     navbar = <EditRecipeNavbar />
-  } else if (pathname === `/${lang}/recipes/${id}`) {
+  } else if (pathname === `/${lang}/recipes/${slug}`) {
     return <RecipeByIdNavbar />
   }
 
@@ -70,7 +72,7 @@ function RecipeByIdNavbar() {
         <Button
           variant='outline'
           className='glass-background'
-          onClick={() => router.back()}
+          onClick={() => router.push('/recipes')}
           size='icon'
         >
           <ArrowBigLeft />

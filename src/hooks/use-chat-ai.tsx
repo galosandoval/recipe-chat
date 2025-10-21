@@ -13,6 +13,7 @@ import type {
 import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/react'
 import { toast } from '~/components/toast'
 import { useFiltersByUserId } from './use-filters-by-user-id'
+import { slugify } from '~/lib/utils'
 
 type Object = UseObjectHelpers<typeof generatedMessageSchema, string>['object']
 type Error = UseObjectHelpers<typeof generatedMessageSchema, string>['error']
@@ -21,9 +22,8 @@ type OnFinish = { object: Object; error: Error }
 /**
  * Transforms database message data to the format expected by chatStore
  */
-const transformMessagesToChatStore = (
-  data: MessageWithRecipesDTO[]
-): MessageWithRecipes[] => {
+const transformMessagesToChatStore = (data: MessageWithRecipesDTO[]) => {
+  console.log('data', data)
   return data.map((message) => ({
     id: message.id,
     content: message.content,
@@ -44,6 +44,7 @@ const transformMessagesToChatStore = (
         flavorTags: r.recipe.flavorTags?.map((t) => t ?? '') ?? [],
         mainIngredients: r.recipe.mainIngredients?.map((i) => i ?? '') ?? [],
         techniques: r.recipe.techniques?.map((t) => t ?? '') ?? [],
+        slug: r.recipe.slug ?? '',
         ingredients:
           r.recipe.ingredients?.map((ingredient) => ingredient.name) ?? [],
         instructions:
@@ -110,6 +111,7 @@ export const useChatAI = () => {
       recipes: m.recipes.map((r) => ({
         id: r.id,
         name: r.name,
+        slug: r.slug,
         description: r.description ?? '',
         ingredients: r.ingredients,
         instructions: r.instructions,
@@ -174,6 +176,7 @@ export const useChatAI = () => {
           recipes: (aiResponse.object?.recipes ?? []).map((recipe) => ({
             id: recipeNameToId.get(recipe?.name ?? '') ?? cuid(),
             name: recipe?.name ?? '',
+            slug: recipe?.name ? slugify(recipe.name) : cuid(),
             description: recipe?.description ?? '',
             ingredients: recipe?.ingredients?.map((i) => i ?? '') ?? [],
             instructions: recipe?.instructions?.map((i) => i ?? '') ?? [],

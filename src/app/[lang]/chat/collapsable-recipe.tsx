@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
@@ -20,6 +20,9 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   const [isOpen, setIsOpen] = useState(true)
   const stream = chatStore((state) => state.stream)
   const isStreaming = !!stream
+  useEffect(() => {
+    console.log('recipe', recipe)
+  }, [recipe])
 
   if (!recipe) {
     return null
@@ -42,7 +45,11 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
             />
             {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
           </Button>
-          <ActionButton id={recipe.id} saved={recipe.saved} />
+          <ActionButton
+            slug={recipe.slug}
+            saved={recipe.saved}
+            id={recipe.id}
+          />
         </div>
       }
     >
@@ -64,10 +71,17 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   )
 }
 
-function ActionButton({ id, saved }: { id: string; saved: boolean }) {
+function ActionButton({
+  slug,
+  saved,
+  id
+}: {
+  slug: string
+  saved: boolean
+  id: string
+}) {
   const t = useTranslations()
   const router = useRouter()
-
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
@@ -103,7 +117,7 @@ function ActionButton({ id, saved }: { id: string; saved: boolean }) {
   }
 
   const handleGoToRecipe = () => {
-    router.push(`/recipes/${id}`)
+    router.push(`/recipes/${slug}`)
   }
 
   if (isAuthenticated && !saved) {

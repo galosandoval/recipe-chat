@@ -65,11 +65,11 @@ export const recipesRouter = createTRPCRouter({
       )
     }),
 
-  byId: protectedProcedure
-    .input(z.object({ id: z.string() }))
+  bySlug: protectedProcedure
+    .input(z.object({ slug: z.string() }))
     .query(async ({ input, ctx }) => {
       const recipesDataAccess = new RecipesAccess(ctx.prisma)
-      return recipesDataAccess.getRecipeById(input.id)
+      return recipesDataAccess.getRecipeBySlug(input.slug)
     }),
 
   byIds: protectedProcedure
