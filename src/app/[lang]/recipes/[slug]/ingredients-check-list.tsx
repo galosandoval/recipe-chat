@@ -4,21 +4,23 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useAddToList } from '~/hooks/use-recipe'
 import { api, type RouterInputs } from '~/trpc/react'
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { Togglebox } from '~/components/togglebox'
 import type { Ingredient } from '@prisma/client'
 import { Button } from '~/components/button'
 import { ListChecksIcon, PlusIcon } from 'lucide-react'
 import { toast } from '~/components/toast'
+import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
-export function useCheckIngredient(recipeId: string) {
+export function useCheckIngredient() {
   const utils = api.useUtils()
+  const slug = useRecipeSlug()
 
   return api.lists.checkMany.useMutation({
     onMutate: async (input) => {
-      await utils.recipes.byId.cancel({ id: recipeId })
+      await utils.recipes.bySlug.cancel({ slug })
 
-      const prevRecipe = utils.recipes.byId.getData({ id: recipeId })
+      const prevRecipe = utils.recipes.bySlug.getData({ slug })
 
       let ingredients: Ingredient[] = []
       if (!prevRecipe) return { prevRecipe }
@@ -35,7 +37,7 @@ export function useCheckIngredient(recipeId: string) {
         return i
       })
 
-      utils.recipes.byId.setData({ id: recipeId }, () => ({
+      utils.recipes.bySlug.setData({ slug }, () => ({
         ...prevRecipe,
         ingredients
       }))
@@ -43,14 +45,14 @@ export function useCheckIngredient(recipeId: string) {
     },
 
     onSuccess: async () => {
-      await utils.recipes.byId.invalidate({ id: recipeId })
+      await utils.recipes.bySlug.invalidate({ slug })
       await utils.lists.invalidate()
     },
 
     onError: (error, _, ctx) => {
       const prevRecipe = ctx?.prevRecipe
       if (prevRecipe) {
-        utils.recipes.byId.setData({ id: recipeId }, prevRecipe)
+        utils.recipes.bySlug.setData({ slug }, prevRecipe)
       }
       toast.error(error.message)
     }
@@ -58,15 +60,14 @@ export function useCheckIngredient(recipeId: string) {
 }
 
 export function IngredientsCheckList({
-  ingredients,
-  recipeId
+  ingredients
 }: {
   ingredients: Ingredient[]
-  recipeId: string
 }) {
   const t = useTranslations()
-  const { mutate, isPending } = useAddToList()
-  const { mutate: checkIngredient } = useCheckIngredient(recipeId)
+  const { slug } = useParams()
+  const { mutate, isPending } = useAddToList(slug as string)
+  const { mutate: checkIngredient } = useCheckIngredient()
   const [addedToList, setAddedToList] = useState(false)
   const router = useRouter()
 

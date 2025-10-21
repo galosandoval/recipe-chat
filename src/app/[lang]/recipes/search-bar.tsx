@@ -5,7 +5,7 @@ import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import { useTranslations } from '~/hooks/use-translations'
 import { recipesStore } from '~/stores/recipes-store'
-import useDebounce from '~/hooks/use-recipe'
+import { useDebounce } from '~/hooks/use-recipe'
 
 export const SearchBar = React.memo(function SearchBar() {
   const t = useTranslations()

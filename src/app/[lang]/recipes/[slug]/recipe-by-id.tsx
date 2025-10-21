@@ -12,7 +12,6 @@ import { useNoSleep } from '~/hooks/use-no-sleep'
 import { IngredientsCheckList } from './ingredients-check-list'
 import { cn } from '~/lib/utils'
 import { useObervationObserver } from '~/hooks/use-observation-observer'
-import { useParams } from 'next/navigation'
 import { ParallaxContainer } from '~/components/parallax-container'
 import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
@@ -23,6 +22,7 @@ import { PencilIcon } from 'lucide-react'
 import { AddImageDropdown } from '~/components/add-image-dropdown'
 import type { RecipeByIdData } from '~/hooks/use-recipe'
 import { useRecipe } from '~/hooks/use-recipe'
+import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
 export default function RecipeById({ data }: { data: RecipeByIdData }) {
   useNoSleep()
@@ -46,7 +46,7 @@ const observerOptions: IntersectionObserverInit = {
 }
 
 function FoundRecipe({ data }: { data: RecipeByIdData }) {
-  const { ingredients, instructions, notes, id, name } = data
+  const { ingredients, instructions, notes, name } = data
   const containerRef = useRef<HTMLDivElement>(null)
   const [startRef, startObservation] = useObervationObserver(observerOptions)
   const [endRef, endObservation] = useObervationObserver(observerOptions)
@@ -83,11 +83,11 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
         {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
         <div className='mx-auto flex flex-col items-center px-3 pb-4'>
           <div className='bg-background flex flex-col'>
-            <IngredientsCheckList recipeId={id} ingredients={ingredients} />
+            <IngredientsCheckList ingredients={ingredients} />
             <div className='pt-4'>
               <Instructions instructions={instructions} />
             </div>
-            <Notes notes={notes} id={id} />
+            <Notes notes={notes} id={data.id} />
           </div>
         </div>
       </div>
@@ -152,7 +152,7 @@ function RecipeImgButtonAndMetaData() {
           className='m-3 mx-auto mt-16 max-w-sm'
           contentClassName='flex flex-col items-center justify-center'
         >
-          <AddImageDropdown />
+          <AddImageDropdown recipeId={data.id} />
           <RecipeInfo />
         </Card>
       </div>
@@ -224,8 +224,8 @@ function GlassMetadata() {
 
 function RecipeInfo() {
   const utils = api.useUtils()
-  const { id } = useParams()
-  const data = utils.recipes.byId.getData({ id: id as string })
+  const slug = useRecipeSlug()
+  const data = utils.recipes.bySlug.getData({ slug })
 
   if (!data) return null
 
@@ -244,12 +244,12 @@ function RecipeInfo() {
     <>
       {imgUrl && <h2 className={cn('px-5 text-2xl font-bold')}>{name}</h2>}
 
-      {prepTime && cookTime && (
+      {prepTime != null && cookTime != null && (
         <div className='flex justify-center'>
           <RecipeTime prepTime={prepTime} cookTime={cookTime} />
         </div>
       )}
-      {prepMinutes && cookMinutes && (
+      {prepMinutes != null && cookMinutes != null && (
         <div className='flex justify-center'>
           <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} />
         </div>
@@ -293,8 +293,9 @@ type AddNotes = z.infer<typeof addNotesSchema>
 function Notes({ notes, id }: { notes: string; id: string }) {
   const t = useTranslations()
   const utils = api.useUtils()
+  const slug = useRecipeSlug()
   const { mutate, isPending, variables } = api.recipes.addNotes.useMutation({
-    onSettled: () => utils.recipes.byId.invalidate({ id })
+    onSettled: () => utils.recipes.bySlug.invalidate({ slug })
   })
 
   const form = useForm<AddNotes>({

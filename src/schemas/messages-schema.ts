@@ -97,7 +97,8 @@ export const messagesSchema = z.array(messageSchema)
 export type GeneratedRecipe = z.infer<typeof generatedRecipeSchema>
 
 export const generatedRecipeWithIdSchema = generatedRecipeSchema.extend({
-  id: z.string()
+  id: z.string(),
+  slug: z.string()
 })
 
 export type GeneratedMessageWithId = z.infer<typeof generatedRecipeWithIdSchema>

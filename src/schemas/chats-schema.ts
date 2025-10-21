@@ -66,6 +66,7 @@ export type RecipeDTO = Pick<
   | 'prepMinutes'
   | 'cookMinutes'
   | 'saved'
+  | 'slug'
 > & {
   ingredients: string[]
   instructions: string[]

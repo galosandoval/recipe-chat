@@ -42,7 +42,11 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
             />
             {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
           </Button>
-          <ActionButton id={recipe.id} saved={recipe.saved} />
+          <ActionButton
+            slug={recipe.slug}
+            saved={recipe.saved}
+            id={recipe.id}
+          />
         </div>
       }
     >
@@ -64,10 +68,17 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   )
 }
 
-function ActionButton({ id, saved }: { id: string; saved: boolean }) {
+function ActionButton({
+  slug,
+  saved,
+  id
+}: {
+  slug: string
+  saved: boolean
+  id: string
+}) {
   const t = useTranslations()
   const router = useRouter()
-
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
@@ -103,7 +114,7 @@ function ActionButton({ id, saved }: { id: string; saved: boolean }) {
   }
 
   const handleGoToRecipe = () => {
-    router.push(`/recipes/${id}`)
+    router.push(`/recipes/${slug}`)
   }
 
   if (isAuthenticated && !saved) {

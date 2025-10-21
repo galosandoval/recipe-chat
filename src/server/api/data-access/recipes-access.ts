@@ -2,11 +2,22 @@ import { prisma } from '~/server/db'
 import { type Prisma, type Recipe } from '@prisma/client'
 import { DataAccess } from './data-access'
 import type { CreateRecipe } from '~/schemas/recipes-schema'
+import { slugify } from '~/lib/utils'
 
 export class RecipesAccess extends DataAccess {
   async getRecipeById(id: string) {
     return await this.prisma.recipe.findFirst({
       where: { id: { equals: id } },
+      include: {
+        ingredients: { orderBy: { id: 'asc' } },
+        instructions: { orderBy: { id: 'asc' } }
+      }
+    })
+  }
+
+  async getRecipeBySlug(slug: string) {
+    return await this.prisma.recipe.findFirst({
+      where: { slug: { equals: slug } },
       include: {
         ingredients: { orderBy: { id: 'asc' } },
         instructions: { orderBy: { id: 'asc' } }
@@ -71,6 +82,7 @@ export class RecipesAccess extends DataAccess {
       data: {
         ...recipe,
         user: { connect: { id: userId } },
+        slug: slugify(recipe.name),
         instructions: {
           create: recipe.instructions.map((i) => ({ description: i }))
         },

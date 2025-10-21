@@ -1,6 +1,5 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
-import { useParams } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { toast } from './toast'
 import { type ChangeEvent } from 'react'
@@ -12,25 +11,26 @@ import Image from 'next/image'
 import { DropdownMenu, type MenuItemProps } from './dropdown-menu'
 import { useRecipe } from '~/hooks/use-recipe'
 import { LoadingSpinner } from './loaders/loading-spinner'
+import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
-function useAddImage() {
+function useAddImage(recipeId: string) {
   const t = useTranslations()
   const utils = api.useUtils()
-  const { id } = useParams()
+  const slug = useRecipeSlug()
 
   const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
     'addImage' | 'uploadImage' | 'uploadingImage'
   >('addImage')
 
   const { mutate: updateImgUrl } = api.recipes.updateImgUrl.useMutation({
-    onMutate: async ({ id, imgUrl }) => {
-      await utils.recipes.byId.cancel({ id })
+    onMutate: async ({ imgUrl }) => {
+      await utils.recipes.bySlug.cancel({ slug })
 
-      const previousData = utils.recipes.byId.getData({ id })
+      const previousData = utils.recipes.bySlug.getData({ slug })
 
       if (!previousData) return previousData
 
-      utils.recipes.byId.setData({ id }, (old) => {
+      utils.recipes.bySlug.setData({ slug }, (old) => {
         if (!old) return old
 
         return {
@@ -43,7 +43,7 @@ function useAddImage() {
     },
 
     onSuccess: async () => {
-      await utils.recipes.byId.invalidate({ id: id as string })
+      await utils.recipes.bySlug.invalidate({ slug })
       setUploadImgButtonLabel('addImage')
     },
 
@@ -53,7 +53,7 @@ function useAddImage() {
       const previousData = context?.previousData
 
       if (previousData && previousData) {
-        utils.recipes.byId.setData({ id: id as string }, previousData)
+        utils.recipes.bySlug.setData({ slug }, previousData)
       }
 
       toast.error(error.message)
@@ -82,7 +82,7 @@ function useAddImage() {
 
         const newBlob = (await response.json()) as PutBlobResult
 
-        updateImgUrl({ id: id as string, imgUrl: newBlob.url })
+        updateImgUrl({ id: recipeId, imgUrl: newBlob.url })
       } catch (error) {
         setUploadImgButtonLabel('addImage')
 
@@ -107,8 +107,8 @@ function useAddImage() {
   }
 }
 
-export function AddImageDropdown() {
-  const { uploadImgButtonLabel, handleFileChange } = useAddImage()
+export function AddImageDropdown({ recipeId }: { recipeId: string }) {
+  const { uploadImgButtonLabel, handleFileChange } = useAddImage(recipeId)
   const t = useTranslations()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUnsplashOpen, setIsUnsplashOpen] = useState(false)
@@ -152,27 +152,33 @@ export function AddImageDropdown() {
         className='hidden'
         onChange={handleFileChange}
       />
-      <UnsplashDialog open={isUnsplashOpen} onOpenChange={setIsUnsplashOpen} />
+      <UnsplashDialog
+        open={isUnsplashOpen}
+        onOpenChange={setIsUnsplashOpen}
+        recipeId={recipeId}
+      />
     </>
   )
 }
 
 function UnsplashDialog({
   open,
-  onOpenChange
+  onOpenChange,
+  recipeId
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  recipeId: string
 }) {
   const t = useTranslations()
-  const { id } = useParams()
   const utils = api.useUtils()
+  const slug = useRecipeSlug()
 
   const { mutate: updateImgUrl, isPending: isSaving } =
     api.recipes.updateImgUrl.useMutation({
       onSuccess: () => {
         onOpenChange(false)
-        utils.recipes.byId.invalidate({ id: id as string })
+        utils.recipes.bySlug.invalidate({ slug })
         utils.recipes.infiniteRecipes.invalidate()
         utils.recipes.recentRecipes.invalidate()
       },
@@ -197,7 +203,7 @@ function UnsplashDialog({
     triggerDownload({ downloadLocation: photo.links.download_location })
 
     // Update recipe with the raw Unsplash image URL
-    updateImgUrl({ id: id as string, imgUrl: photo.urls.regular })
+    updateImgUrl({ id: recipeId, imgUrl: photo.urls.regular })
   }
 
   const isSubmitting = isSaving || isTriggeringDownload

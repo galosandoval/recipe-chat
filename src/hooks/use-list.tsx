@@ -142,7 +142,7 @@ export function useCheckListItem() {
 
     onSuccess: async () => {
       await utils.lists.byUserId.invalidate({ userId })
-      await utils.recipes.byId.invalidate()
+      await utils.recipes.bySlug.invalidate()
     },
 
     onError: (error, _, ctx) => {

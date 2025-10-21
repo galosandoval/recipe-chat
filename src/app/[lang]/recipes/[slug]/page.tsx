@@ -7,10 +7,10 @@ import { ScreenLoader } from '~/components/loaders/screen'
 export async function generateMetadata({
   params
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 }) {
-  const { id } = await params
-  const data = await api.recipes.byId({ id })
+  const { slug } = await params
+  const data = await api.recipes.bySlug({ slug })
   if (!data) {
     return notFound()
   }
@@ -23,10 +23,10 @@ export async function generateMetadata({
 export default async function RecipeByIdPage({
   params
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 }) {
-  const { id } = await params
-  const data = await api.recipes.byId({ id })
+  const { slug } = await params
+  const data = await api.recipes.bySlug({ slug })
   if (!data) {
     return notFound()
   }

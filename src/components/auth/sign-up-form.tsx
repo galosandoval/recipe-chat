@@ -87,7 +87,7 @@ export function SignUpForm() {
       error: () => t.error.somethingWentWrong
     })
     const newUser = await result.unwrap()
-    router.push(`recipes/${newUser.recipeId}}`)
+    router.push(`recipes/${newUser.slug}}`)
   }
 
   return (

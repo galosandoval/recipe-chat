@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { toast } from '~/components/toast'
 import { api, type RouterOutputs } from '~/trpc/react'
 
-export default function useDebounce(value: string, delay = 500) {
+export function useDebounce(value: string, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
@@ -22,27 +22,27 @@ export default function useDebounce(value: string, delay = 500) {
   return debouncedValue
 }
 
-type RecipeById = RouterOutputs['recipes']['byId']
+type RecipeById = RouterOutputs['recipes']['bySlug']
 export type RecipeByIdData = NonNullable<RecipeById>
 
 export const useRecipe = (
-  options?: Parameters<typeof api.recipes.byId.useQuery>[1]
+  options?: Parameters<typeof api.recipes.bySlug.useQuery>[1]
 ) => {
-  const { id } = useParams()
-  const { data, isLoading, isError } = api.recipes.byId.useQuery(
+  const { slug } = useParams()
+  const { data, isLoading, isError } = api.recipes.bySlug.useQuery(
     {
-      id: id as string
+      slug: slug as string
     },
     options
   )
   return { data: data as RecipeById, isLoading, isError }
 }
 
-export const useAddToList = () => {
+export const useAddToList = (slug: string) => {
   const utils = api.useUtils()
   return api.lists.upsert.useMutation({
-    onSuccess: async ({ id }) => {
-      await utils.recipes.byId.invalidate({ id })
+    onSuccess: async () => {
+      await utils.recipes.bySlug.invalidate({ slug })
       await utils.lists.invalidate()
 
       toast.success('Added to list')

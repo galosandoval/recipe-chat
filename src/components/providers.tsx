@@ -33,7 +33,7 @@ export const Providers = ({
             disableTransitionOnChange
           >
             {children}
-            <Toaster />
+            <Toaster position='top-right' />
             <Analytics />
           </ThemeProvider>
           {/* <ReactQueryDevtools initialIsOpen={false} /> */}

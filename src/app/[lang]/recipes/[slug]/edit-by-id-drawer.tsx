@@ -1,6 +1,5 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { type ChangeEvent, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
@@ -22,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'
 import { useRecipe } from '~/hooks/use-recipe'
 import { SaveIcon } from 'lucide-react'
+import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
 export function EditByIdDrawer({
   open,
@@ -51,8 +51,8 @@ function EditByIdForm({
   const t = useTranslations()
   const utils = api.useUtils()
   const { mutate: editRecipe, isPending } = api.recipes.edit.useMutation({
-    onSuccess: async (id) => {
-      await utils.recipes.byId.invalidate({ id })
+    onSuccess: async (slug) => {
+      await utils.recipes.bySlug.invalidate({ slug })
       onOpenChange(false)
     }
   })
@@ -81,13 +81,11 @@ function EditById({
   recipe: RecipeToEdit
   editRecipe: (params: UpdateRecipe) => void
 }) {
-  const { id } = useParams()
-
   if (!recipe) return null
   const { imgUrl } = recipe
   return (
     <div className='flex max-h-[70svh] flex-col gap-4 overflow-y-auto'>
-      <UpdateImage imgUrl={imgUrl} id={id as string} />
+      <UpdateImage imgUrl={imgUrl} id={recipe.id} />
       <EditForm data={recipe} editRecipe={editRecipe} />
     </div>
   )
@@ -96,21 +94,23 @@ function EditById({
 function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
   const utils = api.useUtils()
   const t = useTranslations()
-  const router = useRouter()
+  const slug = useRecipeSlug()
 
   const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
     'updateImage' | 'uploadImage' | 'uploadingImage'
   >('updateImage')
 
   const { mutate: updateImgUrl } = api.recipes.updateImgUrl.useMutation({
-    onMutate: async ({ id, imgUrl }) => {
-      await utils.recipes.byId.cancel({ id })
+    onMutate: async ({ imgUrl }) => {
+      await utils.recipes.bySlug.cancel({ slug: slug as string })
 
-      const previousData = utils.recipes.byId.getData({ id })
+      const previousData = utils.recipes.bySlug.getData({
+        slug: slug as string
+      })
 
       if (!previousData) return previousData
 
-      utils.recipes.byId.setData({ id }, (old) => {
+      utils.recipes.bySlug.setData({ slug: slug as string }, (old) => {
         if (!old) return old
 
         return {
@@ -123,17 +123,16 @@ function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
     },
 
     onSuccess: async () => {
-      await utils.recipes.byId.invalidate({ id })
+      await utils.recipes.bySlug.invalidate({ slug })
 
       toast.success(t.recipes.byId.updateImageSuccess)
-      router.push(`/recipes/${id}`)
     },
 
     onError: (error, _, context) => {
       const previousData = context?.previousData
 
       if (previousData && previousData) {
-        utils.recipes.byId.setData({ id }, previousData)
+        utils.recipes.bySlug.setData({ slug }, previousData)
       }
 
       toast.error(error.message)

@@ -60,7 +60,7 @@ export function CreateParsedRecipe({
   })
   const { mutate, isPending } = api.recipes.create.useMutation({
     onSuccess: async (data) => {
-      router.push(`recipes/${data.id}?name=${encodeURIComponent(data.name)}`)
+      router.push(`recipes/${data.slug}}`)
       await utils.recipes.invalidate()
     }
   })

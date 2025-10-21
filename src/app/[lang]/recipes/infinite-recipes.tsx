@@ -1,6 +1,6 @@
 'use client'
 
-import useDebounce from '~/hooks/use-recipe'
+import { useDebounce } from '~/hooks/use-recipe'
 import { useEffect } from 'react'
 import { api } from '~/trpc/react'
 import { useInView } from 'react-intersection-observer'
