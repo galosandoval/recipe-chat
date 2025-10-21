@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
@@ -20,9 +20,6 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   const [isOpen, setIsOpen] = useState(true)
   const stream = chatStore((state) => state.stream)
   const isStreaming = !!stream
-  useEffect(() => {
-    console.log('recipe', recipe)
-  }, [recipe])
 
   if (!recipe) {
     return null

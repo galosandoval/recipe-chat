@@ -244,12 +244,12 @@ function RecipeInfo() {
     <>
       {imgUrl && <h2 className={cn('px-5 text-2xl font-bold')}>{name}</h2>}
 
-      {prepTime && cookTime && (
+      {prepTime != null && cookTime != null && (
         <div className='flex justify-center'>
           <RecipeTime prepTime={prepTime} cookTime={cookTime} />
         </div>
       )}
-      {prepMinutes && cookMinutes && (
+      {prepMinutes != null && cookMinutes != null && (
         <div className='flex justify-center'>
           <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} />
         </div>
