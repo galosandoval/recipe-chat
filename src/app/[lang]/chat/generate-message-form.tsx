@@ -117,9 +117,9 @@ export function GenerateMessageForm() {
     }
   }, [])
 
-  let placeholder = t.chatWindow.chatFormPlaceholder
+  let placeholder = t.chat.chatFormPlaceholder
   if (messages.length > 0) {
-    placeholder = t.chatWindow.chatFormContinue
+    placeholder = t.chat.chatFormContinue
   }
 
   return (

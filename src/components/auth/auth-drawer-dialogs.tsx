@@ -1,32 +1,29 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { DrawerDialog } from '../drawer-dialog'
 import { LoginForm } from './login-form'
-import { SignUpForm } from './sign-up-form'
+import { SignUp } from './sign-up-form'
 
 export function SignUpDrawerDialog({
   trigger,
   open,
+  title,
+  description,
   onOpenChange
 }: {
   trigger?: React.ReactNode
   open?: boolean
+  title?: string
+  description?: string
   onOpenChange?: (open: boolean) => void
 }) {
-  const t = useTranslations()
-
   return (
-    <DrawerDialog
-      title={t.auth.signUp}
-      description={t.auth.signUpDescription}
+    <SignUp
       trigger={trigger}
-      cancelText={t.common.cancel}
-      submitText={t.auth.signUp}
-      formId='signUp'
+      title={title}
+      description={description}
       open={open}
       onOpenChange={onOpenChange}
-    >
-      <SignUpForm />
-    </DrawerDialog>
+    />
   )
 }
 

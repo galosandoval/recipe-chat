@@ -66,11 +66,7 @@ function GenerateButton({
     triggerAISubmission([
       ...messages,
       userMessageDTO(
-        buildGenerateRecipeContent(
-          t.chatWindow.generateRecipe,
-          name,
-          description
-        ),
+        buildGenerateRecipeContent(t.chat.generateRecipe, name, description),
         chatStore.getState().chatId
       )
     ])
@@ -98,7 +94,7 @@ function GenerateButton({
       variant='outline'
     >
       <SendIcon className='size-4' />
-      {t.chatWindow.generate}
+      {t.chat.generate}
     </Button>
   )
 }

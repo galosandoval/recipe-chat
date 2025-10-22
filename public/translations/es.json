@@ -91,7 +91,9 @@
     }
   },
 
-  "chatWindow": {
+  "chat": {
+    "signUpToSave": "Regístrate para guardar recetas",
+    "signUpToSaveDescription": "Guarda tus recetas generadas, historial de chats y más.",
     "toRecipe": "Cocinar",
     "expand": "Expandir",
     "collapse": "Colapsar",

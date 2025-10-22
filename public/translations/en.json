@@ -91,7 +91,9 @@
     }
   },
 
-  "chatWindow": {
+  "chat": {
+    "signUpToSave": "Sign up to save recipes",
+    "signUpToSaveDescription": "Save your generated recipes, chat history and more.",
     "toRecipe": "Cook",
     "expand": "Expand",
     "collapse": "Collapse",

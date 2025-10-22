@@ -80,26 +80,24 @@ export function NavDropdownMenu() {
 
   if (!isAuthenticated) {
     // auth items
-    if (chatStore.getState().messages.length) {
-      items.push(
-        {
-          slot: (
-            <span onClick={handleToggleLogin}>
-              <KeyRoundIcon />
-              {t.nav.menu.login}
-            </span>
-          )
-        },
-        {
-          slot: (
-            <span onClick={handleToggleSignUp}>
-              <UserPlusIcon />
-              {t.nav.menu.signUp}
-            </span>
-          )
-        }
-      )
-    }
+    items.push(
+      {
+        slot: (
+          <span onClick={handleToggleLogin}>
+            <KeyRoundIcon />
+            {t.nav.menu.login}
+          </span>
+        )
+      },
+      {
+        slot: (
+          <span onClick={handleToggleSignUp}>
+            <UserPlusIcon />
+            {t.nav.menu.signUp}
+          </span>
+        )
+      }
+    )
   }
   if (isAuthenticated && pathname.includes('recipes')) {
     // recipe items
