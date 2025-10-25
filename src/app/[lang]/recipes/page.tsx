@@ -1,8 +1,9 @@
-import { HydrateClient } from '~/trpc/server'
+import { HydrateClient, api } from '~/trpc/server'
 import InfiniteRecipes from './infinite-recipes'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
-import { getInfiniteRecipes } from './get-infinite-recipes'
+
+const RECIPES_PER_PAGE_LIMIT = 10
 
 export default async function RecipesView() {
   const session = await auth()
@@ -10,12 +11,16 @@ export default async function RecipesView() {
     return redirect('/')
   }
 
-  const data = await getInfiniteRecipes()
+  // Prefetch infinite query data into React Query cache
+  await api.recipes.infiniteRecipes.prefetchInfinite({
+    limit: RECIPES_PER_PAGE_LIMIT,
+    search: ''
+  })
 
   return (
     <HydrateClient>
       <main className='mx-auto w-full overflow-y-auto pt-[8.75rem] sm:pt-40'>
-        <InfiniteRecipes data={data} />
+        <InfiniteRecipes />
       </main>
     </HydrateClient>
   )

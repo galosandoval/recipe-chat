@@ -1,8 +1,6 @@
 import { api, HydrateClient } from '~/trpc/server'
 import RecipeById from './recipe-by-id'
 import { notFound } from 'next/navigation'
-import { Suspense } from 'react'
-import { ScreenLoader } from '~/components/loaders/screen'
 
 export async function generateMetadata({
   params
@@ -26,16 +24,14 @@ export default async function RecipeByIdPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const data = await api.recipes.bySlug({ slug })
-  if (!data) {
-    return notFound()
-  }
+
+  // Prefetch data into React Query cache
+  await api.recipes.bySlug.prefetch({ slug })
+
   return (
     <HydrateClient>
       <main className='min-h-svh w-full overflow-y-auto'>
-        <Suspense fallback={<ScreenLoader />}>
-          <RecipeById data={data} />
-        </Suspense>
+        <RecipeById />
       </main>
     </HydrateClient>
   )

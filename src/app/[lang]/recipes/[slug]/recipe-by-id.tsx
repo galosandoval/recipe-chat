@@ -24,11 +24,9 @@ import type { RecipeByIdData } from '~/hooks/use-recipe'
 import { useRecipe } from '~/hooks/use-recipe'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
-export default function RecipeById({ data }: { data: RecipeByIdData }) {
+export default function RecipeById() {
   useNoSleep()
-  const { data: recipe } = useRecipe({
-    initialData: data
-  })
+  const { data: recipe } = useRecipe()
 
   if (!recipe) return null
 

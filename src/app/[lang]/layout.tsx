@@ -8,6 +8,7 @@ import { Providers } from '~/components/providers'
 import { Navbar } from '~/app/[lang]/navbar/navbar'
 import { getTranslations } from '~/lib/get-translations'
 import type { Locale } from '~/i18n-config'
+import { ErrorBoundary } from '~/components/error-boundary'
 
 export const metadata: Metadata = {
   title: 'RecipeChat',
@@ -31,9 +32,10 @@ export default async function RootLayout({
     >
       <body className='flex h-svh overflow-hidden'>
         <Providers session={session} translations={translations}>
-          <Navbar />
-
-          <div className='flex h-full flex-1 flex-col'>{children}</div>
+          <ErrorBoundary>
+            <Navbar />
+            <div className='flex h-full flex-1 flex-col'>{children}</div>
+          </ErrorBoundary>
         </Providers>
       </body>
     </html>
