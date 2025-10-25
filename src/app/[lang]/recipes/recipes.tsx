@@ -1,6 +1,6 @@
 import type { Recipe } from '@prisma/client'
 import type { FetchStatus } from '@tanstack/react-query'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useTransition } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { RecentRecipes } from './recipe-list-recent'
 import { LoadingSpinner } from '~/components/loaders/loading-spinner'
@@ -138,7 +138,7 @@ const NoneFound = React.memo(function NoneFound() {
 const Card = React.memo(function Card({ data }: { data: Recipe }) {
   const utils = api.useUtils()
   const router = useRouter()
-  const [isNavigating, setIsNavigating] = useState(false)
+  const [isNavigating, startTransition] = useTransition()
 
   const { mutate: updateLastViewedAt } =
     api.recipes.updateLastViewedAt.useMutation({
@@ -148,11 +148,11 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
     })
 
   const handleOnClick = async () => {
-    setIsNavigating(true)
     updateLastViewedAt(data.id)
 
-    // Navigate to the recipe page
-    router.push(`/recipes/${data.slug}`)
+    startTransition(() => {
+      router.push(`/recipes/${data.slug}`)
+    })
   }
 
   return (
