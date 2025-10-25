@@ -117,6 +117,14 @@ export function GenerateMessageForm() {
     }
   }, [])
 
+  // Clear timeout when stream finishes
+  useEffect(() => {
+    if (!isStreaming && streamTimeout.current) {
+      clearTimeout(streamTimeout.current)
+      streamTimeout.current = null
+    }
+  }, [isStreaming])
+
   let placeholder = t.chat.chatFormPlaceholder
   if (messages.length > 0) {
     placeholder = t.chat.chatFormContinue
