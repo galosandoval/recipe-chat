@@ -65,7 +65,7 @@ export function ScrollToBottomProvider({
       <ScrollToBottom
         followButtonClassName='hidden'
         initialScrollBehavior='auto'
-        className='h-full'
+        className='h-full touch-pan-y overscroll-contain'
         mode='bottom'
       >
         {children}

@@ -174,6 +174,13 @@ function UnsplashDialog({
   const utils = api.useUtils()
   const slug = useRecipeSlug()
 
+  const { data: recipe } = useRecipe()
+  const title = recipe?.name
+  const { data: photos, isLoading: isLoadingPhotos } = useUnsplashImages(title)
+  const { mutate: triggerDownload, isPending: isTriggeringDownload } =
+    api.recipes.triggerUnsplashDownload.useMutation()
+
+  const photo = photos?.response?.results[0]
   const { mutate: updateImgUrl, isPending: isSaving } =
     api.recipes.updateImgUrl.useMutation({
       onSuccess: () => {
@@ -181,26 +188,18 @@ function UnsplashDialog({
         utils.recipes.bySlug.invalidate({ slug })
         utils.recipes.infiniteRecipes.invalidate()
         utils.recipes.recentRecipes.invalidate()
+        // Trigger download tracking (required by Unsplash API)
+        if (photo) {
+          triggerDownload({ downloadLocation: photo.links.download_location })
+        }
       },
       onError: (error) => {
         toast.error(error.message)
       }
     })
 
-  const { mutate: triggerDownload, isPending: isTriggeringDownload } =
-    api.recipes.triggerUnsplashDownload.useMutation()
-
-  const { data: recipe } = useRecipe()
-  const title = recipe?.name
-  const { data: photos, isLoading: isLoadingPhotos } = useUnsplashImages(title)
-
-  const photo = photos?.response?.results[0]
-
   const handleSave = () => {
     if (!photo) return
-
-    // Trigger download tracking (required by Unsplash API)
-    triggerDownload({ downloadLocation: photo.links.download_location })
 
     // Update recipe with the raw Unsplash image URL
     updateImgUrl({ id: recipeId, imgUrl: photo.urls.regular })
@@ -260,7 +259,7 @@ function UnsplashImage({ photo }: { photo: any }) {
       <p className='text-muted-foreground text-sm'>
         {t.recipes.byId.photoBy}{' '}
         <a
-          href={`${photo.user.links.html}?utm_source=recipe-chat&utm_medium=referral`}
+          href={`${photo.user.links.html}?utm_source=recipe_chat&utm_medium=referral`}
           target='_blank'
           rel='noopener noreferrer'
           className='hover:text-foreground underline'
@@ -269,7 +268,7 @@ function UnsplashImage({ photo }: { photo: any }) {
         </a>{' '}
         {t.recipes.byId.on}{' '}
         <a
-          href='https://unsplash.com?utm_source=recipe-chat&utm_medium=referral'
+          href='https://unsplash.com?utm_source=recipe_chat&utm_medium=referral'
           target='_blank'
           rel='noopener noreferrer'
           className='hover:text-foreground underline'

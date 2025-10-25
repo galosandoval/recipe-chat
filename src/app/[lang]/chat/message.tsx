@@ -40,7 +40,7 @@ const UserMessage = memo(function UserMessage({
       data?.messages.flatMap((m) => m.recipes)?.flatMap((r) => r.recipe) ?? []
 
     return allRecipes.find((r) =>
-      message.content.includes(`${t.chatWindow.generateRecipe} ${r.name}`)
+      message.content.includes(`${t.chat.generateRecipe} ${r.name}`)
     )
   }, [message.content])
   const isStreaming = !!chatStore((state) => state.stream)

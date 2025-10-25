@@ -35,8 +35,8 @@ export function GenerateStatusAppMessage({
   const label = useMemo(
     () =>
       isStreaming
-        ? t.chatWindow.replace('generatingRecipe', recipeName)
-        : t.chatWindow.replace('generatedRecipe', recipeName),
+        ? t.chat.replace('generatingRecipe', recipeName)
+        : t.chat.replace('generatedRecipe', recipeName),
     [isStreaming]
   )
   return <AppMessage label={label} icon={icon} />

@@ -49,7 +49,7 @@ export const Drawer = ({
         </DrawerHeader>
         <div className='px-4'>{children}</div>
         {isDisplayingFooter && (
-          <DrawerFooter className='pt-2'>
+          <DrawerFooter className='pt-4'>
             {cancelText && (
               <DrawerClose asChild>
                 <Button variant='outline' icon={<XIcon className='h-4 w-4' />}>

@@ -10,9 +10,11 @@ export const metadata: Metadata = {
 export default async function ChatPage() {
   return (
     <HydrateClient>
+      {/* <div className='overflow-hidden'> */}
       <main className='flex min-h-svh flex-col items-center justify-center overflow-y-auto'>
         <Chat />
       </main>
+      {/* </div> */}
     </HydrateClient>
   )
 }

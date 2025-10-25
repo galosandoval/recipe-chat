@@ -12,15 +12,28 @@ import { signUpSchema, type SignUpSchema } from '~/schemas/sign-up-schema'
 import { api } from '~/trpc/react'
 import { chatStore } from '~/stores/chat-store'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
+import { DrawerDialog } from '../drawer-dialog'
 
-export function SignUpForm() {
+export function SignUp({
+  trigger,
+  title,
+  description,
+  open,
+  onOpenChange
+}: {
+  trigger?: React.ReactNode
+  title?: string
+  description?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}) {
   const t = useTranslations()
   const router = useRouter()
   const form = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema)
   })
 
-  const { mutate } = api.users.signUp.useMutation({
+  const { mutate, isPending } = api.users.signUp.useMutation({
     onSuccess: async ({}, { email, password }) => {
       const response = await signIn('credentials', {
         email,
@@ -91,19 +104,31 @@ export function SignUpForm() {
   }
 
   return (
-    <Form
-      onSubmit={onSubmit}
-      className='flex flex-col gap-3'
+    <DrawerDialog
+      title={title ?? t.auth.signUp}
+      description={description ?? t.auth.signUpDescription}
+      trigger={trigger}
+      cancelText={t.common.cancel}
+      submitText={t.auth.signUp}
       formId='signUp'
-      form={form}
+      open={open}
+      onOpenChange={onOpenChange}
+      isLoading={isPending}
     >
-      <FormInput name='email' label={t.auth.email} />
-      <FormInput type='password' name='password' label={t.auth.password} />
-      <FormInput
-        type='password'
-        name='confirm'
-        label={t.auth.confirmPassword}
-      />
-    </Form>
+      <Form
+        onSubmit={onSubmit}
+        className='flex flex-col gap-3'
+        formId='signUp'
+        form={form}
+      >
+        <FormInput name='email' label={t.auth.email} />
+        <FormInput type='password' name='password' label={t.auth.password} />
+        <FormInput
+          type='password'
+          name='confirm'
+          label={t.auth.confirmPassword}
+        />
+      </Form>
+    </DrawerDialog>
   )
 }

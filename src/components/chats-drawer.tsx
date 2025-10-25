@@ -146,7 +146,7 @@ export function ChatsDrawer({
       formId='chats-drawer'
       onOpenChange={onOpenChange}
       open={open}
-      title={t.chatWindow.chatsDrawer.title}
+      title={t.chat.chatsDrawer.title}
     >
       <div className='flex h-full flex-col justify-between'>
         <ChatList handleToggleChatsModal={onOpenChange} />

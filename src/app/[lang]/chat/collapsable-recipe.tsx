@@ -6,7 +6,7 @@ import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { cn } from '~/lib/utils'
-import { LoginDrawerDialog } from '~/components/auth/auth-drawer-dialogs'
+import { SignUpDrawerDialog } from '~/components/auth/auth-drawer-dialogs'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { useRouter } from 'next/navigation'
 import { formatTimeFromMinutes } from '~/lib/format-time'
@@ -40,7 +40,7 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
             <ChevronDownIcon
               className={cn('h-4 w-4', isOpen && 'rotate-180')}
             />
-            {isOpen ? t.chatWindow.collapse : t.chatWindow.expand}
+            {isOpen ? t.chat.collapse : t.chat.expand}
           </Button>
           <ActionButton
             slug={recipe.slug}
@@ -89,7 +89,7 @@ function ActionButton({
     async onSuccess(_newRecipe, _messageId) {
       await utils.chats.getMessagesById.invalidate()
       await utils.recipes.infiniteRecipes.invalidate()
-      toast.success(t.chatWindow.saveSuccess)
+      toast.success(t.chat.saveSuccess)
     },
     onError: (error) => {
       if (error.message in t.error) {
@@ -141,15 +141,21 @@ function ActionButton({
         size='sm'
         icon={<ChefHat className='size-4' />}
       >
-        {t.chatWindow.toRecipe}
+        {t.chat.toRecipe}
       </Button>
     )
   } else {
     // Open sign up drawer
     return (
-      <LoginDrawerDialog
+      <SignUpDrawerDialog
+        title={t.chat.signUpToSave}
+        description={t.chat.signUpToSaveDescription}
         trigger={
-          <Button className='mt-2' size='sm'>
+          <Button
+            icon={<SaveIcon className='size-4' />}
+            className='mt-2'
+            size='sm'
+          >
             {t.common.save}
           </Button>
         }

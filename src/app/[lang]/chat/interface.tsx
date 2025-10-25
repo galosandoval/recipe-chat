@@ -43,7 +43,7 @@ export const Interface = () => {
     <ScrollToBottomProvider>
       <div className={cn('flex-1 pt-[4.8rem]', !session.data && 'pt-14')}>
         <div className='flex h-full flex-col gap-4'>
-          <ChatWindowContent messages={messages} />
+          <Chat messages={messages} />
         </div>
 
         <ScrollToBottomButton />
@@ -52,7 +52,7 @@ export const Interface = () => {
   )
 }
 
-function ChatWindowContent({ messages }: { messages: MessageWithRecipes[] }) {
+function Chat({ messages }: { messages: MessageWithRecipes[] }) {
   if (messages.length) {
     return (
       <div className='bg-background h-full'>
