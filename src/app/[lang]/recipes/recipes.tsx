@@ -1,6 +1,6 @@
 import type { Recipe } from '@prisma/client'
 import type { FetchStatus } from '@tanstack/react-query'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { RecentRecipes } from './recipe-list-recent'
 import { LoadingSpinner } from '~/components/loaders/loading-spinner'
@@ -10,6 +10,7 @@ import { api } from '~/trpc/react'
 import { RecipeFallbackIconLg } from '~/components/icons'
 import { Button } from '~/components/button'
 import { BotIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export const Recipes = React.memo(function Recipes({
   search,
@@ -136,6 +137,9 @@ const NoneFound = React.memo(function NoneFound() {
 
 const Card = React.memo(function Card({ data }: { data: Recipe }) {
   const utils = api.useUtils()
+  const router = useRouter()
+  const [isNavigating, setIsNavigating] = useState(false)
+
   const { mutate: updateLastViewedAt } =
     api.recipes.updateLastViewedAt.useMutation({
       onSuccess: (data) => {
@@ -143,15 +147,19 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
       }
     })
 
-  const handleOnClick = () => {
+  const handleOnClick = async () => {
+    setIsNavigating(true)
     updateLastViewedAt(data.id)
+
+    // Navigate to the recipe page
+    router.push(`/recipes/${data.slug}`)
   }
 
   return (
-    <Link
-      href={`/recipes/${data.slug}`}
-      className='bg-background relative col-span-1 overflow-hidden rounded-md shadow-xl active:scale-[99%]'
+    <button
       onClick={handleOnClick}
+      disabled={isNavigating}
+      className='bg-background relative col-span-1 overflow-hidden rounded-md shadow-xl active:scale-[99%] disabled:cursor-wait disabled:opacity-50'
     >
       <div className='w-full'>
         {data.imgUrl ? (
@@ -178,6 +186,13 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
           {data.name}
         </h3>
       </div>
-    </Link>
+
+      {/* Loading overlay */}
+      {isNavigating && (
+        <div className='absolute inset-0 z-10 flex items-center justify-center bg-black/20'>
+          <LoadingSpinner />
+        </div>
+      )}
+    </button>
   )
 })
