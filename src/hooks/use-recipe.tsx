@@ -25,16 +25,11 @@ export function useDebounce(value: string, delay = 500) {
 type RecipeById = RouterOutputs['recipes']['bySlug']
 export type RecipeByIdData = NonNullable<RecipeById>
 
-export const useRecipe = (
-  options?: Parameters<typeof api.recipes.bySlug.useQuery>[1]
-) => {
+export const useRecipe = () => {
   const { slug } = useParams()
-  const { data, isLoading, isError } = api.recipes.bySlug.useQuery(
-    {
-      slug: slug as string
-    },
-    options
-  )
+  const [data, { isLoading, isError }] = api.recipes.bySlug.useSuspenseQuery({
+    slug: slug as string
+  })
   return { data: data as RecipeById, isLoading, isError }
 }
 
