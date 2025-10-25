@@ -1,16 +1,16 @@
 import type { Recipe } from '@prisma/client'
 import type { FetchStatus } from '@tanstack/react-query'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { RecentRecipes } from './recipe-list-recent'
 import { LoadingSpinner } from '~/components/loaders/loading-spinner'
-import Link from 'next/link'
 import Image from 'next/image'
 import { api } from '~/trpc/react'
 import { RecipeFallbackIconLg } from '~/components/icons'
-import { Button } from '~/components/button'
+import { NavigationButton } from '~/components/navigation-button'
 import { BotIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { navigationStore } from '~/stores/navigation-store'
 
 export const Recipes = React.memo(function Recipes({
   search,
@@ -106,9 +106,9 @@ const EmptyList = React.memo(function EmptyList() {
             {t.recipes.noRecipes.empty.description}
           </p>
         </div>
-        <Button asChild variant='default' className='mt-2'>
-          <Link href='/chat'>{t.recipes.noRecipes.empty.link}</Link>
-        </Button>
+        <NavigationButton href='/chat' variant='default' className='mt-2'>
+          {t.recipes.noRecipes.empty.link}
+        </NavigationButton>
       </div>
     </div>
   )
@@ -137,9 +137,9 @@ const NoneFound = React.memo(function NoneFound() {
 
 const Card = React.memo(function Card({ data }: { data: Recipe }) {
   const utils = api.useUtils()
-  const router = useRouter()
-  const [isNavigating, setIsNavigating] = useState(false)
-
+  const isNavigating = navigationStore((state) => state.isNavigating)
+  const targetRoute = navigationStore((state) => state.targetRoute)
+  const isThisRoute = targetRoute === `/recipes/${data.slug}`
   const { mutate: updateLastViewedAt } =
     api.recipes.updateLastViewedAt.useMutation({
       onSuccess: (data) => {
@@ -148,16 +148,14 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
     })
 
   const handleOnClick = async () => {
-    setIsNavigating(true)
     updateLastViewedAt(data.id)
-    router.push(`/recipes/${data.slug}`)
   }
 
   return (
-    <button
+    <NavigationButton
+      href={`/recipes/${data.slug}`}
       onClick={handleOnClick}
-      disabled={isNavigating}
-      className='bg-background relative col-span-1 overflow-hidden rounded-md shadow-xl active:scale-[99%] disabled:cursor-wait disabled:opacity-50'
+      className='bg-background relative col-span-1 h-60 overflow-hidden rounded-md shadow-xl active:scale-[99%] disabled:cursor-wait disabled:opacity-50'
     >
       <div className='w-full'>
         {data.imgUrl ? (
@@ -186,11 +184,11 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
       </div>
 
       {/* Loading overlay */}
-      {isNavigating && (
+      {isNavigating && isThisRoute && (
         <div className='absolute inset-0 z-10 flex items-center justify-center bg-black/20'>
           <LoadingSpinner />
         </div>
       )}
-    </button>
+    </NavigationButton>
   )
 })

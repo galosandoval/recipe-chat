@@ -1,12 +1,14 @@
 'use client'
 
-import Link from 'next/link'
 import { api, type RouterOutputs } from '~/trpc/react'
 import { Loader } from '../../../components/loaders/recipe-list-recent'
 import { useTranslations } from '~/hooks/use-translations'
 import { useMemo } from 'react'
 import { RecipeFallbackIconSm } from '~/components/icons'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { navigationStore } from '~/stores/navigation-store'
+import { NavigationButton } from '~/components/navigation-button'
 
 export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
   const t = useTranslations()
@@ -54,10 +56,9 @@ function RecentRecipe({
   recipe: RouterOutputs['recipes']['recentRecipes'][number]
 }) {
   return (
-    <Link
-      href={'/recipes/' + recipe.slug}
-      key={recipe.id}
-      className='bg-secondary flex h-10 w-full gap-2 overflow-hidden rounded-md active:scale-[99%]'
+    <NavigationButton
+      href={`/recipes/${recipe.slug}`}
+      className='bg-secondary flex h-10 w-full gap-2 overflow-hidden rounded-md shadow active:scale-[99%] disabled:cursor-wait disabled:opacity-50'
     >
       {recipe.imgUrl ? (
         <div className='aspect-square h-full w-10'>
@@ -78,7 +79,7 @@ function RecentRecipe({
       <p className='self-center truncate pr-2 text-left text-xs whitespace-nowrap'>
         {recipe.name}
       </p>
-    </Link>
+    </NavigationButton>
   )
 }
 

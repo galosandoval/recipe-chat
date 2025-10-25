@@ -1,7 +1,6 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { NavDropdownMenu } from './settings-dropdown-menu'
 import {
@@ -11,12 +10,12 @@ import {
   EllipsisVerticalIcon,
   ListTodoIcon,
   MessageSquareIcon,
-  TrashIcon,
-  XIcon
+  TrashIcon
 } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/button'
+import { NavigationButton } from '~/components/navigation-button'
 import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
 import { EditByIdDrawer } from '../recipes/[slug]/edit-by-id-drawer'
 import { useState } from 'react'
@@ -33,8 +32,6 @@ export const Navbar = () => {
   let navbar = <RoutesNavbar />
   if (!data) {
     navbar = <PublicNavbar />
-  } else if (pathname === `/${lang}/recipes/${slug}/edit`) {
-    navbar = <EditRecipeNavbar />
   } else if (pathname === `/${lang}/recipes/${slug}`) {
     return <RecipeByIdNavbar />
   }
@@ -120,21 +117,6 @@ export function RecipeByIdDropdownMenu() {
   )
 }
 
-function EditRecipeNavbar() {
-  const t = useTranslations()
-  const router = useRouter()
-  return (
-    <nav className='grid w-full grid-cols-3 gap-24 bg-transparent px-4'>
-      <Button variant='ghost' size='icon' onClick={() => router.back()}>
-        <XIcon />
-      </Button>
-      <h1 className='mb-0 justify-self-center text-center text-base whitespace-nowrap'>
-        {t.recipes.byId.edit}
-      </h1>
-    </nav>
-  )
-}
-
 const MENU_ITEMS = [
   {
     value: '/chat',
@@ -163,7 +145,8 @@ function RoutesNavbar() {
       <div className='text-foreground my-1 text-sm font-bold'>RecipeChat</div>
       <nav className='top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden px-3 py-1.5'>
         {MENU_ITEMS.map((item) => (
-          <Button
+          <NavigationButton
+            href={item.value}
             className={cn(
               'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex flex-1 items-center justify-center gap-1 rounded-md transition-colors duration-75 active:scale-[99%]',
               isActive(item.value) &&
@@ -171,13 +154,10 @@ function RoutesNavbar() {
             )}
             variant={isActive(item.value) ? 'default' : 'outline'}
             key={item.value}
-            asChild
           >
-            <Link href={item.value}>
-              {item.icon}
-              <span className='text-sm'>{t.nav[item.label]}</span>
-            </Link>
-          </Button>
+            {item.icon}
+            <span className='text-sm'>{t.nav[item.label]}</span>
+          </NavigationButton>
         ))}
         <div>
           <NavDropdownMenu />

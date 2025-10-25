@@ -12,6 +12,7 @@ import {
 } from '~/hooks/use-translations'
 import { ThemeProvider } from './theme-provider'
 import { Toaster } from 'sonner'
+import { NavigationHandler } from './navigation-handler'
 
 export const Providers = ({
   children,
@@ -32,6 +33,7 @@ export const Providers = ({
             enableSystem
             disableTransitionOnChange
           >
+            <NavigationHandler />
             {children}
             <Toaster position='top-right' />
             <Analytics />
