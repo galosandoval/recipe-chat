@@ -138,7 +138,7 @@ const NoneFound = React.memo(function NoneFound() {
 const Card = React.memo(function Card({ data }: { data: Recipe }) {
   const utils = api.useUtils()
   const router = useRouter()
-  const [isNavigating, startTransition] = useTransition()
+  const [isNavigating, setIsNavigating] = useState(false)
 
   const { mutate: updateLastViewedAt } =
     api.recipes.updateLastViewedAt.useMutation({
@@ -148,11 +148,9 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
     })
 
   const handleOnClick = async () => {
+    setIsNavigating(true)
     updateLastViewedAt(data.id)
-
-    startTransition(() => {
-      router.push(`/recipes/${data.slug}`)
-    })
+    router.push(`/recipes/${data.slug}`)
   }
 
   return (
