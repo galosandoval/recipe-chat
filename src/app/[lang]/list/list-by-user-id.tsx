@@ -28,10 +28,6 @@ export function ListByUserId() {
 function ListController({ data }: { data: Ingredient[] }) {
   const t = useTranslations()
 
-  const noneChecked = data.every((c) => !c.checked)
-
-  const { mutate: deleteListItem } = useClearList()
-
   const [byRecipe, setByRecipe] = useState(() =>
     typeof window !== 'undefined' && typeof localStorage.byRecipe === 'string'
       ? (JSON.parse(localStorage.byRecipe) as boolean)
@@ -40,12 +36,6 @@ function ListController({ data }: { data: Ingredient[] }) {
 
   const handleToggleByRecipe = (e: CheckedState) => {
     setByRecipe(e === true)
-  }
-
-  const handleRemoveChecked = () => {
-    const checkedIngredients = data.filter((i) => i.checked)
-
-    deleteListItem(checkedIngredients)
   }
 
   useEffect(() => {
@@ -73,12 +63,12 @@ function ListController({ data }: { data: Ingredient[] }) {
             <span>{t.list.byRecipe}</span>
           </Label>
         </div>
-        <RemoveCheckedButton
-          noneChecked={noneChecked}
-          handleRemoveChecked={handleRemoveChecked}
-        />
       </div>
       <Lists byRecipe={byRecipe} data={data} />
+      <div className='w-full pt-2'>
+        <RemoveCheckedButton data={data} />
+      </div>
+
       <div className='fixed bottom-0 left-0 w-full'>
         <AddToListForm />
       </div>
@@ -86,20 +76,25 @@ function ListController({ data }: { data: Ingredient[] }) {
   )
 }
 
-function RemoveCheckedButton({
-  noneChecked,
-  handleRemoveChecked
-}: {
-  noneChecked: boolean
-  handleRemoveChecked: () => void
-}) {
+function RemoveCheckedButton({ data }: { data: Ingredient[] }) {
+  const t = useTranslations()
+  const noneChecked = data.every((c) => !c.checked)
+
+  const { mutate: deleteListItem } = useClearList()
+  const handleRemoveChecked = () => {
+    const checkedIngredients = data.filter((i) => i.checked)
+
+    deleteListItem(checkedIngredients)
+  }
+
   return (
     <Button
       disabled={noneChecked}
       onClick={handleRemoveChecked}
-      variant='destructive'
+      variant='outline'
     >
       <TrashIcon />
+      {t.list.removeChecked}
     </Button>
   )
 }

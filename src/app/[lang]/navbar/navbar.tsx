@@ -152,6 +152,7 @@ function RoutesNavbar() {
               isActive(item.value) &&
                 'bg-accent text-accent-foreground/75 rounded-md'
             )}
+            as={Button}
             variant={isActive(item.value) ? 'default' : 'outline'}
             key={item.value}
           >

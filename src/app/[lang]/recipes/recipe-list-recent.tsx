@@ -6,8 +6,6 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useMemo } from 'react'
 import { RecipeFallbackIconSm } from '~/components/icons'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { navigationStore } from '~/stores/navigation-store'
 import { NavigationButton } from '~/components/navigation-button'
 
 export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
