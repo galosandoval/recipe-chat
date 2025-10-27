@@ -2,12 +2,6 @@
 
 import React, { useEffect, useState, type ReactNode } from 'react'
 import { type Ingredient } from '@prisma/client'
-import { Togglebox } from '~/components/togglebox'
-import {
-  useCheckListItem,
-  useClearList,
-  useRecipeNames
-} from '~/hooks/use-list'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
@@ -17,6 +11,8 @@ import { AddToListForm } from './add-to-list-form'
 import { Label } from '~/components/ui/label'
 import { Checkbox } from '~/components/ui/checkbox'
 import type { CheckedState } from '@radix-ui/react-checkbox'
+import { Lists } from './lists'
+import { toast } from '~/components/toast'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -122,91 +118,41 @@ function EmptyList({ children }: { children: ReactNode }) {
   )
 }
 
-function Lists({ data, byRecipe }: { data: Ingredient[]; byRecipe: boolean }) {
-  if (byRecipe) {
-    return <ListByRecipeId data={data} />
-  }
+function useClearList() {
+  const userId = useUserId()
+  const utils = api.useUtils()
 
-  return <ListAll data={data} />
-}
+  return api.lists.clear.useMutation({
+    async onMutate(input) {
+      await utils.lists.byUserId.cancel({ userId })
 
-type IngredientsByRecipe = Record<string, Ingredient[]>
+      const idDict = input.reduce(
+        (dict, i) => {
+          dict[i.id] = true
+          return dict
+        },
+        {} as Record<string, boolean>
+      )
 
-function ListByRecipeId({ data }: { data: Ingredient[] }) {
-  const ids: string[] = []
-  const { mutate: checkIngredient } = useCheckListItem()
+      const prevList = utils.lists.byUserId.getData({ userId })
 
-  const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
-    if (i.recipeId === null) {
-      if (!('other' in buckets)) {
-        buckets.other = []
+      let ingredients: Ingredient[] = []
+      if (prevList) {
+        ingredients = prevList.ingredients.filter((i) => !(i.id in idDict))
       }
 
-      buckets.other.push(i)
-    } else {
-      if (!(i.recipeId in buckets)) {
-        ids.push(i.recipeId)
-        buckets[i.recipeId] = []
+      utils.lists.byUserId.setData({ userId }, () => ({ ingredients }))
+      return { prevList }
+    },
+    onSuccess: async () => {
+      await utils.lists.byUserId.invalidate({ userId })
+    },
+    onError: (error, _, ctx) => {
+      const prevList = ctx?.prevList
+      if (prevList) {
+        utils.lists.byUserId.setData({ userId }, prevList)
       }
-
-      buckets[i.recipeId].push(i)
+      toast.error(error.message)
     }
-
-    return buckets
-  }, {})
-
-  const { data: nameDictionary, isSuccess } = useRecipeNames(ids)
-
-  const handleCheck = (checked: boolean, ingredientId: string) => {
-    checkIngredient({ id: ingredientId, checked })
-  }
-
-  return (
-    <div>
-      {Object.values(recipeBuckets).map((b) => (
-        <div key={b[0].recipeId} className='pr-4'>
-          {isSuccess && (
-            <h3 className='mt-2 font-bold'>
-              {b[0].recipeId ? nameDictionary[b[0].recipeId] : 'Other'}
-            </h3>
-          )}
-
-          <div className='flex flex-col gap-2'>
-            {b
-              .toSorted((a, b) => a.name.localeCompare(b.name))
-              .map((i) => (
-                <Togglebox
-                  key={i.id}
-                  checked={i.checked}
-                  id={i.id.toString()}
-                  label={i.name}
-                  onChange={(checked) => handleCheck(checked as boolean, i.id)}
-                />
-              ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function ListAll({ data }: { data: Ingredient[] }) {
-  const { mutate: checkIngredient } = useCheckListItem()
-  return (
-    <div className='flex flex-col gap-2'>
-      {data
-        .toSorted((a, b) => a.name.localeCompare(b.name))
-        .map((i, id) => (
-          <Togglebox
-            key={i.id ?? id}
-            checked={i.checked}
-            id={i.id.toString()}
-            label={i.name}
-            onChange={(checked) =>
-              checkIngredient({ id: i.id, checked: checked as boolean })
-            }
-          />
-        ))}
-    </div>
-  )
+  })
 }
