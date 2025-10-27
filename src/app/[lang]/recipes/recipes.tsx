@@ -9,7 +9,6 @@ import { api } from '~/trpc/react'
 import { RecipeFallbackIconLg } from '~/components/icons'
 import { NavigationButton } from '~/components/navigation-button'
 import { BotIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { navigationStore } from '~/stores/navigation-store'
 
 export const Recipes = React.memo(function Recipes({
