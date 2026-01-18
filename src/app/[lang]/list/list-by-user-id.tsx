@@ -11,7 +11,7 @@ import { Label } from '~/components/ui/label'
 import { Checkbox } from '~/components/ui/checkbox'
 import type { CheckedState } from '@radix-ui/react-checkbox'
 import { Lists } from './lists'
-import { RemoveCheckedButton } from './remove-found-ingredients'
+import { RemoveCheckedItemsButton } from './remove-checked-items-button'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -61,7 +61,7 @@ function ListController({ data }: { data: Ingredient[] }) {
       </div>
       <Lists byRecipe={byRecipe} data={data} />
       <div className='w-full pt-2'>
-        <RemoveCheckedButton data={data} />
+        <RemoveCheckedItemsButton data={data} />
       </div>
 
       <div className='fixed bottom-0 left-0 w-full'>

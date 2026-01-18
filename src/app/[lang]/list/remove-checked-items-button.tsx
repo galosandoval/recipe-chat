@@ -6,7 +6,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 
-export function RemoveCheckedButton({ data }: { data: Ingredient[] }) {
+export function RemoveCheckedItemsButton({ data }: { data: Ingredient[] }) {
   const t = useTranslations()
   const noneChecked = data.every((c) => !c.checked)
 
