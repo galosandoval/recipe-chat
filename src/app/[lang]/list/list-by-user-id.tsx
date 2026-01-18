@@ -5,14 +5,13 @@ import { type Ingredient } from '@prisma/client'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
-import { Button } from '~/components/button'
-import { ArrowDownIcon, TrashIcon } from 'lucide-react'
+import { ArrowDownIcon } from 'lucide-react'
 import { AddToListForm } from './add-to-list-form'
 import { Label } from '~/components/ui/label'
 import { Checkbox } from '~/components/ui/checkbox'
 import type { CheckedState } from '@radix-ui/react-checkbox'
 import { Lists } from './lists'
-import { toast } from '~/components/toast'
+import { RemoveCheckedItemsButton } from './remove-checked-items-button'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -62,36 +61,13 @@ function ListController({ data }: { data: Ingredient[] }) {
       </div>
       <Lists byRecipe={byRecipe} data={data} />
       <div className='w-full pt-2'>
-        <RemoveCheckedButton data={data} />
+        <RemoveCheckedItemsButton data={data} />
       </div>
 
       <div className='fixed bottom-0 left-0 w-full'>
         <AddToListForm />
       </div>
     </div>
-  )
-}
-
-function RemoveCheckedButton({ data }: { data: Ingredient[] }) {
-  const t = useTranslations()
-  const noneChecked = data.every((c) => !c.checked)
-
-  const { mutate: deleteListItem } = useClearList()
-  const handleRemoveChecked = () => {
-    const checkedIngredients = data.filter((i) => i.checked)
-
-    deleteListItem(checkedIngredients)
-  }
-
-  return (
-    <Button
-      disabled={noneChecked}
-      onClick={handleRemoveChecked}
-      variant='outline'
-    >
-      <TrashIcon />
-      {t.list.removeChecked}
-    </Button>
   )
 }
 
@@ -118,41 +94,3 @@ function EmptyList({ children }: { children: ReactNode }) {
   )
 }
 
-function useClearList() {
-  const userId = useUserId()
-  const utils = api.useUtils()
-
-  return api.lists.clear.useMutation({
-    async onMutate(input) {
-      await utils.lists.byUserId.cancel({ userId })
-
-      const idDict = input.reduce(
-        (dict, i) => {
-          dict[i.id] = true
-          return dict
-        },
-        {} as Record<string, boolean>
-      )
-
-      const prevList = utils.lists.byUserId.getData({ userId })
-
-      let ingredients: Ingredient[] = []
-      if (prevList) {
-        ingredients = prevList.ingredients.filter((i) => !(i.id in idDict))
-      }
-
-      utils.lists.byUserId.setData({ userId }, () => ({ ingredients }))
-      return { prevList }
-    },
-    onSuccess: async () => {
-      await utils.lists.byUserId.invalidate({ userId })
-    },
-    onError: (error, _, ctx) => {
-      const prevList = ctx?.prevList
-      if (prevList) {
-        utils.lists.byUserId.setData({ userId }, prevList)
-      }
-      toast.error(error.message)
-    }
-  })
-}
