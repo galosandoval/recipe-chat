@@ -1,3 +1,4 @@
+import { cn } from '~/lib/utils'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useRef, useState } from 'react'
@@ -5,20 +6,21 @@ import { toast } from './toast'
 import { type ChangeEvent } from 'react'
 import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
 import { Button } from './button'
-import { CameraIcon, DownloadIcon, ImageIcon, SaveIcon } from 'lucide-react'
+import { CameraIcon, CheckIcon, DownloadIcon, ImageIcon, SaveIcon } from 'lucide-react'
 import { Dialog } from './dialog'
 import Image from 'next/image'
 import { DropdownMenu, type MenuItemProps } from './dropdown-menu'
 import { useRecipe } from '~/hooks/use-recipe'
 import { LoadingSpinner } from './loaders/loading-spinner'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
+import type { Basic } from 'unsplash-js/dist/methods/photos/types'
 
 function useAddImage(recipeId: string) {
   const t = useTranslations()
   const utils = api.useUtils()
   const slug = useRecipeSlug()
 
-  const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
+  const [uploadImageButtonLabel, setUploadImageButtonLabel] = useState<
     'addImage' | 'uploadImage' | 'uploadingImage'
   >('addImage')
 
@@ -44,11 +46,11 @@ function useAddImage(recipeId: string) {
 
     onSuccess: async () => {
       await utils.recipes.bySlug.invalidate({ slug })
-      setUploadImgButtonLabel('addImage')
+      setUploadImageButtonLabel('addImage')
     },
 
     onError: (error, _, context) => {
-      setUploadImgButtonLabel('addImage')
+      setUploadImageButtonLabel('addImage')
 
       const previousData = context?.previousData
 
@@ -66,7 +68,7 @@ function useAddImage(recipeId: string) {
     const fileList = event.target.files
 
     if (fileList.length) {
-      setUploadImgButtonLabel('uploadingImage')
+      setUploadImageButtonLabel('uploadingImage')
 
       try {
         if (!fileList?.length) {
@@ -84,7 +86,7 @@ function useAddImage(recipeId: string) {
 
         updateImgUrl({ id: recipeId, imgUrl: newBlob.url })
       } catch (error) {
-        setUploadImgButtonLabel('addImage')
+        setUploadImageButtonLabel('addImage')
 
         // handle a recognized error
         if (error instanceof BlobAccessError || error instanceof Error) {
@@ -98,17 +100,17 @@ function useAddImage(recipeId: string) {
       }
     }
 
-    setUploadImgButtonLabel('uploadImage')
+    setUploadImageButtonLabel('uploadImage')
   }
 
   return {
-    uploadImgButtonLabel,
+    uploadImageButtonLabel,
     handleFileChange
   }
 }
 
 export function AddImageDropdown({ recipeId }: { recipeId: string }) {
-  const { uploadImgButtonLabel, handleFileChange } = useAddImage(recipeId)
+  const { uploadImageButtonLabel, handleFileChange } = useAddImage(recipeId)
   const t = useTranslations()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUnsplashOpen, setIsUnsplashOpen] = useState(false)
@@ -138,7 +140,7 @@ export function AddImageDropdown({ recipeId }: { recipeId: string }) {
             <ImageIcon />
             {String(
               t.recipes.byId[
-                uploadImgButtonLabel as keyof typeof t.recipes.byId
+              uploadImageButtonLabel as keyof typeof t.recipes.byId
               ]
             )}
           </Button>
@@ -173,24 +175,29 @@ function UnsplashDialog({
   const t = useTranslations()
   const utils = api.useUtils()
   const slug = useRecipeSlug()
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string>('')
 
   const { data: recipe } = useRecipe()
   const title = recipe?.name
-  const { data: photos, isLoading: isLoadingPhotos } = useUnsplashImages(title)
+  const { data, isLoading: isLoadingPhotos } = useUnsplashImages(title)
   const { mutate: triggerDownload, isPending: isTriggeringDownload } =
     api.recipes.triggerUnsplashDownload.useMutation()
 
-  const photo = photos?.response?.results[0]
+  const photos = data?.response?.results
   const { mutate: updateImgUrl, isPending: isSaving } =
     api.recipes.updateImgUrl.useMutation({
       onSuccess: () => {
         onOpenChange(false)
+        setSelectedPhotoId('')
         utils.recipes.bySlug.invalidate({ slug })
         utils.recipes.infiniteRecipes.invalidate()
         utils.recipes.recentRecipes.invalidate()
         // Trigger download tracking (required by Unsplash API)
-        if (photo) {
-          triggerDownload({ downloadLocation: photo.links.download_location })
+        if (photos) {
+          const selectedPhoto = photos.find((p) => p.id === selectedPhotoId)
+          if (selectedPhoto) {
+            triggerDownload({ downloadLocations: [selectedPhoto.links.download_location] })
+          }
         }
       },
       onError: (error) => {
@@ -199,10 +206,12 @@ function UnsplashDialog({
     })
 
   const handleSave = () => {
-    if (!photo) return
+    if (!photos || !selectedPhotoId) return
 
-    // Update recipe with the raw Unsplash image URL
-    updateImgUrl({ id: recipeId, imgUrl: photo.urls.regular })
+    const selectedPhoto = photos.find((p) => p.id === selectedPhotoId)
+    if (!selectedPhoto) return
+
+    updateImgUrl({ id: recipeId, imgUrl: selectedPhoto.urls.regular })
   }
 
   const isSubmitting = isSaving || isTriggeringDownload
@@ -218,11 +227,16 @@ function UnsplashDialog({
       onOpenChange={onOpenChange}
       onClickConfirm={handleSave}
       isLoading={isSubmitting}
+      isDisabled={!selectedPhotoId}
     >
       {isLoadingPhotos ? (
         <LoadingSpinner />
-      ) : photo ? (
-        <UnsplashImage photo={photo} />
+      ) : photos ? (
+        <UnsplashImages
+          photos={photos}
+          selectedPhotoId={selectedPhotoId}
+          onSelect={setSelectedPhotoId}
+        />
       ) : (
         <p className='text-muted-foreground text-sm'>{t.recipes.noPhotos}</p>
       )}
@@ -241,28 +255,78 @@ function useUnsplashImages(title?: string) {
   )
 }
 
-function UnsplashImage({ photo }: { photo: any }) {
+function UnsplashImages({
+  photos,
+  selectedPhotoId,
+  onSelect
+}: {
+  photos: Basic[]
+  selectedPhotoId: string
+  onSelect: (id: string) => void
+  }) {
+  const displayPhotos = photos.slice(0, 4)
+
+  return (
+    <div className='grid grid-cols-2 gap-4'>
+      {displayPhotos.map((photo) => (
+        <UnsplashPhotoCard
+          key={photo.id}
+          photo={photo}
+          isSelected={selectedPhotoId === photo.id}
+          onSelect={() => onSelect(photo.id)}
+        />
+      ))}
+    </div>
+  )
+}
+
+function UnsplashPhotoCard({
+  photo,
+  isSelected,
+  onSelect
+}: {
+  photo: Basic
+  isSelected: boolean
+  onSelect: () => void
+}) {
   const t = useTranslations()
   return (
-    <div className='flex flex-col gap-2 overflow-hidden'>
-      <div className='max-h-[400px] overflow-hidden rounded-md'>
+    <button
+      type='button'
+      className='flex flex-col gap-2 text-left'
+      onClick={onSelect}
+    >
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-md ring-2 transition-all',
+          isSelected
+            ? 'ring-primary ring-offset-2 ring-offset-background'
+            : 'ring-transparent hover:ring-muted-foreground/30'
+        )}
+      >
         <Image
           src={photo.urls.small}
           alt={photo.alt_description || 'Photo from Unsplash'}
-          width={400}
-          height={300}
-          sizes='(max-width: 768px) 100vw, 400px'
-          className='object-cover'
+          width={300}
+          height={200}
+          sizes='(max-width: 768px) 50vw, 300px'
+          className='aspect-[3/2] object-cover w-full'
         />
+        {isSelected && (
+          <div className='bg-primary text-primary-foreground absolute top-2 right-2 rounded-full p-1'>
+            <CheckIcon className='h-3 w-3' />
+          </div>
+        )}
       </div>
       {/* Attribution as required by Unsplash guidelines */}
-      <p className='text-muted-foreground text-sm'>
+      <p className='text-muted-foreground text-xs'>
         {t.recipes.byId.photoBy}{' '}
         <a
           href={`${photo.user.links.html}?utm_source=recipe_chat&utm_medium=referral`}
           target='_blank'
           rel='noopener noreferrer'
           className='hover:text-foreground underline'
+          onClick={(e) => e.stopPropagation()}
         >
           {photo.user.name}
         </a>{' '}
@@ -272,10 +336,11 @@ function UnsplashImage({ photo }: { photo: any }) {
           target='_blank'
           rel='noopener noreferrer'
           className='hover:text-foreground underline'
+          onClick={(e) => e.stopPropagation()}
         >
           Unsplash
         </a>
       </p>
-    </div>
+    </button>
   )
 }

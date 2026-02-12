@@ -1,8 +1,9 @@
 import { toast as _toast, type ExternalToast } from 'sonner'
 import { InfoIcon } from 'lucide-react'
 
+const ERROR_DURATION = process.env.NODE_ENV === 'production' ? 10000 : Infinity
 export const errorToastOptions: ExternalToast = {
-  duration: Infinity,
+  duration: ERROR_DURATION,
   cancel: true
 }
 

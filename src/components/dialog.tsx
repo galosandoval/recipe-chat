@@ -21,6 +21,7 @@ export function Dialog({
   formId,
   buttonType = 'submit',
   isLoading,
+  isDisabled,
   submitIcon,
   onClickConfirm,
   trigger,
@@ -36,6 +37,7 @@ export function Dialog({
   formId?: string
   buttonType?: ComponentProps<typeof Button>['type']
   isLoading?: boolean
+  isDisabled?: boolean
   submitIcon?: React.ReactNode
   onClickConfirm?: () => void
   open?: boolean
@@ -62,6 +64,7 @@ export function Dialog({
             type={buttonType}
             form={formId}
             isLoading={isLoading}
+            disabled={isDisabled}
             onClick={onClickConfirm}
             icon={submitIcon}
           >
