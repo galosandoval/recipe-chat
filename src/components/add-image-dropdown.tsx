@@ -1,3 +1,4 @@
+import { cn } from '~/lib/utils'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useRef, useState } from 'react'
@@ -19,7 +20,7 @@ function useAddImage(recipeId: string) {
   const utils = api.useUtils()
   const slug = useRecipeSlug()
 
-  const [uploadImgButtonLabel, setUploadImgButtonLabel] = useState<
+  const [uploadImageButtonLabel, setUploadImageButtonLabel] = useState<
     'addImage' | 'uploadImage' | 'uploadingImage'
   >('addImage')
 
@@ -45,11 +46,11 @@ function useAddImage(recipeId: string) {
 
     onSuccess: async () => {
       await utils.recipes.bySlug.invalidate({ slug })
-      setUploadImgButtonLabel('addImage')
+      setUploadImageButtonLabel('addImage')
     },
 
     onError: (error, _, context) => {
-      setUploadImgButtonLabel('addImage')
+      setUploadImageButtonLabel('addImage')
 
       const previousData = context?.previousData
 
@@ -67,7 +68,7 @@ function useAddImage(recipeId: string) {
     const fileList = event.target.files
 
     if (fileList.length) {
-      setUploadImgButtonLabel('uploadingImage')
+      setUploadImageButtonLabel('uploadingImage')
 
       try {
         if (!fileList?.length) {
@@ -85,7 +86,7 @@ function useAddImage(recipeId: string) {
 
         updateImgUrl({ id: recipeId, imgUrl: newBlob.url })
       } catch (error) {
-        setUploadImgButtonLabel('addImage')
+        setUploadImageButtonLabel('addImage')
 
         // handle a recognized error
         if (error instanceof BlobAccessError || error instanceof Error) {
@@ -99,17 +100,17 @@ function useAddImage(recipeId: string) {
       }
     }
 
-    setUploadImgButtonLabel('uploadImage')
+    setUploadImageButtonLabel('uploadImage')
   }
 
   return {
-    uploadImgButtonLabel,
+    uploadImageButtonLabel,
     handleFileChange
   }
 }
 
 export function AddImageDropdown({ recipeId }: { recipeId: string }) {
-  const { uploadImgButtonLabel, handleFileChange } = useAddImage(recipeId)
+  const { uploadImageButtonLabel, handleFileChange } = useAddImage(recipeId)
   const t = useTranslations()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUnsplashOpen, setIsUnsplashOpen] = useState(false)
@@ -139,7 +140,7 @@ export function AddImageDropdown({ recipeId }: { recipeId: string }) {
             <ImageIcon />
             {String(
               t.recipes.byId[
-              uploadImgButtonLabel as keyof typeof t.recipes.byId
+              uploadImageButtonLabel as keyof typeof t.recipes.byId
               ]
             )}
           </Button>
@@ -262,68 +263,84 @@ function UnsplashImages({
   photos: Basic[]
   selectedPhotoId: string
   onSelect: (id: string) => void
-}) {
-  const t = useTranslations()
+  }) {
   const displayPhotos = photos.slice(0, 4)
 
   return (
     <div className='grid grid-cols-2 gap-4'>
-      {displayPhotos.map((photo) => {
-        const isSelected = selectedPhotoId === photo.id
-        return (
-          <button
-            type='button'
-            key={photo.id}
-            className='flex flex-col gap-2 text-left'
-            onClick={() => onSelect(photo.id)}
-          >
-            <div
-              className={`relative overflow-hidden rounded-md ring-2 transition-all ${
-                isSelected
-                  ? 'ring-primary ring-offset-2 ring-offset-background'
-                  : 'ring-transparent hover:ring-muted-foreground/30'
-              }`}
-            >
-              <Image
-                src={photo.urls.small}
-                alt={photo.alt_description || 'Photo from Unsplash'}
-                width={300}
-                height={200}
-                sizes='(max-width: 768px) 50vw, 300px'
-                className='aspect-[3/2] object-cover w-full'
-              />
-              {isSelected && (
-                <div className='bg-primary text-primary-foreground absolute top-2 right-2 rounded-full p-1'>
-                  <CheckIcon className='h-3 w-3' />
-                </div>
-              )}
-            </div>
-            {/* Attribution as required by Unsplash guidelines */}
-            <p className='text-muted-foreground text-xs'>
-              {t.recipes.byId.photoBy}{' '}
-              <a
-                href={`${photo.user.links.html}?utm_source=recipe_chat&utm_medium=referral`}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='hover:text-foreground underline'
-                onClick={(e) => e.stopPropagation()}
-              >
-                {photo.user.name}
-              </a>{' '}
-              {t.recipes.byId.on}{' '}
-              <a
-                href='https://unsplash.com?utm_source=recipe_chat&utm_medium=referral'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='hover:text-foreground underline'
-                onClick={(e) => e.stopPropagation()}
-              >
-                Unsplash
-              </a>
-            </p>
-          </button>
-        )
-      })}
+      {displayPhotos.map((photo) => (
+        <UnsplashPhotoCard
+          key={photo.id}
+          photo={photo}
+          isSelected={selectedPhotoId === photo.id}
+          onSelect={() => onSelect(photo.id)}
+        />
+      ))}
     </div>
+  )
+}
+
+function UnsplashPhotoCard({
+  photo,
+  isSelected,
+  onSelect
+}: {
+  photo: Basic
+  isSelected: boolean
+  onSelect: () => void
+}) {
+  const t = useTranslations()
+  return (
+    <button
+      type='button'
+      className='flex flex-col gap-2 text-left'
+      onClick={onSelect}
+    >
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-md ring-2 transition-all',
+          isSelected
+            ? 'ring-primary ring-offset-2 ring-offset-background'
+            : 'ring-transparent hover:ring-muted-foreground/30'
+        )}
+      >
+        <Image
+          src={photo.urls.small}
+          alt={photo.alt_description || 'Photo from Unsplash'}
+          width={300}
+          height={200}
+          sizes='(max-width: 768px) 50vw, 300px'
+          className='aspect-[3/2] object-cover w-full'
+        />
+        {isSelected && (
+          <div className='bg-primary text-primary-foreground absolute top-2 right-2 rounded-full p-1'>
+            <CheckIcon className='h-3 w-3' />
+          </div>
+        )}
+      </div>
+      {/* Attribution as required by Unsplash guidelines */}
+      <p className='text-muted-foreground text-xs'>
+        {t.recipes.byId.photoBy}{' '}
+        <a
+          href={`${photo.user.links.html}?utm_source=recipe_chat&utm_medium=referral`}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='hover:text-foreground underline'
+          onClick={(e) => e.stopPropagation()}
+        >
+          {photo.user.name}
+        </a>{' '}
+        {t.recipes.byId.on}{' '}
+        <a
+          href='https://unsplash.com?utm_source=recipe_chat&utm_medium=referral'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='hover:text-foreground underline'
+          onClick={(e) => e.stopPropagation()}
+        >
+          Unsplash
+        </a>
+      </p>
+    </button>
   )
 }
