@@ -268,17 +268,21 @@ export const recipesRouter = createTRPCRouter({
       const photo = await unsplashApi.search.getPhotos({
         query: input.title,
         orientation: 'portrait',
-        perPage: 1
+        perPage: 4
       })
       return photo
     }),
 
   triggerUnsplashDownload: protectedProcedure
-    .input(z.object({ downloadLocation: z.string() }))
+    .input(z.object({ downloadLocations: z.string().array() }))
     .mutation(async ({ input }) => {
-      await unsplashApi.photos.trackDownload({
-        downloadLocation: input.downloadLocation
-      })
+      await Promise.all(
+        input.downloadLocations.map((downloadLocation) =>
+          unsplashApi.photos.trackDownload({
+            downloadLocation
+          })
+        )
+      )
       // Trigger download event as required by Unsplash API guidelines
       return true
     })
