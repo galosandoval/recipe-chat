@@ -13,6 +13,7 @@ import { api } from '~/trpc/react'
 import { chatStore } from '~/stores/chat-store'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { DrawerDialog } from '../drawer-dialog'
+import { UserPlusIcon } from 'lucide-react'
 
 export function SignUp({
   trigger,
@@ -114,6 +115,7 @@ export function SignUp({
       open={open}
       onOpenChange={onOpenChange}
       isLoading={isPending}
+      submitIcon={<UserPlusIcon />}
     >
       <Form
         onSubmit={onSubmit}
