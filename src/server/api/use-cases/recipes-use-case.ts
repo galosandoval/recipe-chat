@@ -98,7 +98,6 @@ async function handleIngredients(
     await recipesDataAccess.updateIngredients(
       ingredientsToUpdate.map((i) => ({
         id: i.id,
-        name: i.name,
         ...ingredientStringToCreatePayload(i.name)
       }))
     )

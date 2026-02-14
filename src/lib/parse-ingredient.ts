@@ -62,10 +62,17 @@ const COUNT_UNITS: Record<string, UnitType> = {
   small: 'count'
 }
 
+type UnitEntry = [string, { unit: string; unit_type: UnitType }]
 const UNIT_MAP = new Map<string, { unit: string; unit_type: UnitType }>([
-  ...Object.entries(VOLUME_UNITS).map(([k, v]) => [k.toLowerCase(), { unit: k, unit_type: v }]),
-  ...Object.entries(WEIGHT_UNITS).map(([k, v]) => [k.toLowerCase(), { unit: k, unit_type: v }]),
-  ...Object.entries(COUNT_UNITS).map(([k, v]) => [k.toLowerCase(), { unit: k, unit_type: v }])
+  ...Object.entries(VOLUME_UNITS).map(
+    ([k, v]): UnitEntry => [k.toLowerCase(), { unit: k, unit_type: v }]
+  ),
+  ...Object.entries(WEIGHT_UNITS).map(
+    ([k, v]): UnitEntry => [k.toLowerCase(), { unit: k, unit_type: v }]
+  ),
+  ...Object.entries(COUNT_UNITS).map(
+    ([k, v]): UnitEntry => [k.toLowerCase(), { unit: k, unit_type: v }]
+  )
 ])
 
 const PREPARATION_WORDS = new Set([
