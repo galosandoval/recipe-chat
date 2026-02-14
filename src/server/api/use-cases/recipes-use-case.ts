@@ -2,6 +2,7 @@ import { type Recipe, type PrismaClient } from '@prisma/client'
 import { RecipesAccess } from '../data-access/recipes-access'
 import type { UpdateRecipe } from '~/schemas/recipes-schema'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
+import { getIngredientDisplayText } from '~/lib/ingredient-display'
 
 export async function editRecipe(recipe: UpdateRecipe, prisma: PrismaClient) {
   const { id, ingredients, newIngredients, instructions, newInstructions } =
@@ -91,7 +92,9 @@ async function handleIngredients(
   }
 
   const ingredientsToUpdate = newIngredients.filter((n) =>
-    ingredients.some((old) => old.id === n.id && old.name !== n.name)
+    ingredients.some(
+      (old) => old.id === n.id && getIngredientDisplayText(old) !== n.name
+    )
   )
 
   if (ingredientsToUpdate.length > 0) {

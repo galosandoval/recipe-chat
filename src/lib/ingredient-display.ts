@@ -2,23 +2,22 @@
  * Shape accepted for display (Prisma Ingredient or DTO with optional structured fields).
  */
 export type IngredientDisplaySource = {
-  name: string
-  raw_string?: string | null
+  rawString?: string | null
   quantity?: number | null
   unit?: string | null
-  item_name?: string | null
+  itemName?: string | null
   preparation?: string | null
 }
 
 /**
- * Returns the best display string for an ingredient: raw_string when present,
- * otherwise formatted from structured fields, otherwise name (legacy).
+ * Returns the best display string for an ingredient: rawString when present,
+ * otherwise formatted from structured fields, otherwise empty string.
  */
 export function getIngredientDisplayText(ing: IngredientDisplaySource): string {
-  if (ing.raw_string?.trim()) return ing.raw_string.trim()
+  if (ing.rawString?.trim()) return ing.rawString.trim()
   const qty = ing.quantity
   const unit = ing.unit?.trim()
-  const item = ing.item_name?.trim()
+  const item = ing.itemName?.trim()
   const prep = ing.preparation?.trim()
   if (item) {
     const parts: string[] = []
@@ -28,7 +27,7 @@ export function getIngredientDisplayText(ing: IngredientDisplaySource): string {
     if (prep) parts.push(`(${prep})`)
     return parts.join(' ')
   }
-  return ing.name
+  return ''
 }
 
 export type AggregatedIngredient = {
@@ -43,8 +42,8 @@ type IngredientForAggregation = IngredientDisplaySource & {
 }
 
 /**
- * Groups ingredients by (item_name, unit) and sums quantity for aggregation.
- * Ingredients without item_name/unit are kept as single-item groups.
+ * Groups ingredients by (itemName, unit) and sums quantity for aggregation.
+ * Ingredients without itemName/unit are kept as single-item groups.
  */
 export function aggregateIngredients(
   ingredients: IngredientForAggregation[]
@@ -59,7 +58,7 @@ export function aggregateIngredients(
     }
   >()
   for (const ing of ingredients) {
-    const item = ing.item_name?.trim()
+    const item = ing.itemName?.trim()
     const unit = ing.unit?.trim()
     const qty = ing.quantity
     const canMerge = item && unit && qty != null
@@ -80,8 +79,8 @@ export function aggregateIngredients(
   }
   return Array.from(byKey.values()).map((v) => ({
     displayText:
-      v.ing.item_name && v.ing.unit && v.quantity > 0
-        ? [v.quantity, v.ing.unit, v.ing.item_name]
+      v.ing.itemName && v.ing.unit && v.quantity > 0
+        ? [v.quantity, v.ing.unit, v.ing.itemName]
             .filter(Boolean)
             .join(' ')
         : getIngredientDisplayText(v.ing),

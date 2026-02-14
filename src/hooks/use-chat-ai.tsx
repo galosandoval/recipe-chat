@@ -14,6 +14,7 @@ import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/
 import { toast } from '~/components/toast'
 import { useFiltersByUserId } from './use-filters-by-user-id'
 import { slugify } from '~/lib/utils'
+import { getIngredientDisplayText } from '~/lib/ingredient-display'
 
 type Object = UseObjectHelpers<typeof generatedMessageSchema, string>['object']
 type Error = UseObjectHelpers<typeof generatedMessageSchema, string>['error']
@@ -46,7 +47,7 @@ const transformMessagesToChatStore = (data: MessageWithRecipesDTO[]) => {
         techniques: r.recipe.techniques?.map((t) => t ?? '') ?? [],
         slug: r.recipe.slug ?? '',
         ingredients:
-          r.recipe.ingredients?.map((ingredient) => ingredient.name) ?? [],
+          r.recipe.ingredients?.map((ingredient) => getIngredientDisplayText(ingredient)) ?? [],
         instructions:
           r.recipe.instructions?.map(
             (instruction) => instruction.description

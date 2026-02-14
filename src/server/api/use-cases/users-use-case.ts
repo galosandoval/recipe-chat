@@ -71,7 +71,7 @@ export async function createChatAndRecipe(
           slug,
           ingredients: {
             create: ingredients.map((ingredient) => ({
-              name: ingredient
+              rawString: ingredient
             }))
           },
           instructions: {

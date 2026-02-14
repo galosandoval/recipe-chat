@@ -62,16 +62,16 @@ const COUNT_UNITS: Record<string, UnitType> = {
   small: 'count'
 }
 
-type UnitEntry = [string, { unit: string; unit_type: UnitType }]
-const UNIT_MAP = new Map<string, { unit: string; unit_type: UnitType }>([
+type UnitEntry = [string, { unit: string; unitType: UnitType }]
+const UNIT_MAP = new Map<string, { unit: string; unitType: UnitType }>([
   ...Object.entries(VOLUME_UNITS).map(
-    ([k, v]): UnitEntry => [k.toLowerCase(), { unit: k, unit_type: v }]
+    ([k, v]): UnitEntry => [k.toLowerCase(), { unit: k, unitType: v }]
   ),
   ...Object.entries(WEIGHT_UNITS).map(
-    ([k, v]): UnitEntry => [k.toLowerCase(), { unit: k, unit_type: v }]
+    ([k, v]): UnitEntry => [k.toLowerCase(), { unit: k, unitType: v }]
   ),
   ...Object.entries(COUNT_UNITS).map(
-    ([k, v]): UnitEntry => [k.toLowerCase(), { unit: k, unit_type: v }]
+    ([k, v]): UnitEntry => [k.toLowerCase(), { unit: k, unitType: v }]
   )
 ])
 
@@ -86,30 +86,30 @@ const PREPARATION_WORDS = new Set([
 export interface ParsedIngredient {
   quantity: number | null
   unit: string | null
-  unit_type: UnitType | null
-  item_name: string | null
+  unitType: UnitType | null
+  itemName: string | null
   preparation: string | null
-  raw_string: string
+  rawString: string
 }
 
 /**
  * Splits an ingredient name string into structured fields: quantity, unit,
- * unit_type, item_name, preparation. Always sets raw_string to the original name.
+ * unitType, itemName, preparation. Always sets rawString to the original name.
  */
 export function parseIngredientName(name: string): ParsedIngredient {
-  const raw_string = name.trim()
+  const rawString = name.trim()
   const result: ParsedIngredient = {
     quantity: null,
     unit: null,
-    unit_type: null,
-    item_name: null,
+    unitType: null,
+    itemName: null,
     preparation: null,
-    raw_string
+    rawString
   }
 
-  if (!raw_string) return result
+  if (!rawString) return result
 
-  let rest = raw_string
+  let rest = rawString
 
   // Optional leading quantity: "1 1/2", "2.5", or "1/2" (fraction only)
   const qtyMatch = rest.match(/^(\d+(?:\.\d+)?(?:\s+\d+\/\d+)?)\s+/)
@@ -120,11 +120,11 @@ export function parseIngredientName(name: string): ParsedIngredient {
       String(parseFloat(qtyStr) + Number(n) / Number(d))
     )
     result.quantity = parseFloat(simple) || null
-    rest = rest.slice(qtyMatch[0].length).trim()
+    rest = rest.slice(qtyMatch[0]!.length).trim()
   } else if (fractionOnlyMatch) {
     const [num, den] = fractionOnlyMatch[1]!.split('/').map(Number)
     result.quantity = num / den
-    rest = rest.slice(fractionOnlyMatch[0].length).trim()
+    rest = rest.slice(fractionOnlyMatch[0]!.length).trim()
   }
 
   // Optional unit (single word or "fl oz")
@@ -134,12 +134,12 @@ export function parseIngredientName(name: string): ParsedIngredient {
     const mapped = UNIT_MAP.get(unitKey)
     if (mapped) {
       result.unit = mapped.unit
-      result.unit_type = mapped.unit_type
+      result.unitType = mapped.unitType
       rest = rest.slice(unitMatch[0].length).trim()
     }
   }
 
-  // Remainder: possibly "prep item_name" or "item_name, prep" or "item_name"
+  // Remainder: possibly "prep itemName" or "itemName, prep" or "itemName"
   if (!rest) return result
 
   // Split by comma; last segment might be preparation
@@ -172,7 +172,7 @@ export function parseIngredientName(name: string): ParsedIngredient {
     main = mainWords.slice(i).join(' ').trim()
   }
 
-  result.item_name = main || null
+  result.itemName = main || null
   return result
 }
 
@@ -181,22 +181,20 @@ export function parseIngredientName(name: string): ParsedIngredient {
  * Use when persisting ingredients from the recipe generator or any string source.
  */
 export function ingredientStringToCreatePayload(rawString: string): {
-  name: string
-  raw_string: string
+  rawString: string
   quantity: number | null
   unit: string | null
-  unit_type: 'volume' | 'weight' | 'count' | null
-  item_name: string | null
+  unitType: 'volume' | 'weight' | 'count' | null
+  itemName: string | null
   preparation: string | null
 } {
   const parsed = parseIngredientName(rawString)
   return {
-    name: parsed.raw_string,
-    raw_string: parsed.raw_string,
+    rawString: parsed.rawString,
     quantity: parsed.quantity,
     unit: parsed.unit,
-    unit_type: parsed.unit_type,
-    item_name: parsed.item_name,
+    unitType: parsed.unitType,
+    itemName: parsed.itemName,
     preparation: parsed.preparation
   }
 }

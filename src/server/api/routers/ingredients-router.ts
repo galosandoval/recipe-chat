@@ -15,8 +15,8 @@ export const ingredientsRouter = createTRPCRouter({
     const ingredients = await getAllIngredients(userId, ctx.prisma)
     return ingredients.map((ing: Ingredient) => ({
       id: ing.id,
-      name: ing.name,
-      parsed: parseIngredientName(ing.name)
+      name: ing.rawString,
+      parsed: parseIngredientName(ing.rawString)
     }))
   })
 })

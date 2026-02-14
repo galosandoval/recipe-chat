@@ -153,13 +153,12 @@ export class RecipesAccess extends DataAccess {
 
   async createIngredients(
     ingredients: {
-      name: string
       recipeId: string
-      raw_string?: string | null
+      rawString: string
       quantity?: number | null
       unit?: string | null
-      unit_type?: 'volume' | 'weight' | 'count' | null
-      item_name?: string | null
+      unitType?: 'volume' | 'weight' | 'count' | null
+      itemName?: string | null
       preparation?: string | null
     }[],
     tx?: Prisma.TransactionClient
@@ -173,12 +172,11 @@ export class RecipesAccess extends DataAccess {
   async updateIngredients(
     ingredients: {
       id: string
-      name: string
-      raw_string?: string | null
+      rawString: string
       quantity?: number | null
       unit?: string | null
-      unit_type?: 'volume' | 'weight' | 'count' | null
-      item_name?: string | null
+      unitType?: 'volume' | 'weight' | 'count' | null
+      itemName?: string | null
       preparation?: string | null
     }[],
     tx?: Prisma.TransactionClient

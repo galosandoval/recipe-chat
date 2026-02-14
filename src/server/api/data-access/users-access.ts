@@ -72,7 +72,7 @@ export class UsersAccess extends DataAccess {
           create: {
             ingredients: {
               create: ingredients.map((ingredient) => ({
-                name: ingredient
+                rawString: ingredient
               }))
             },
             instructions: {

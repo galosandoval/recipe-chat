@@ -74,14 +74,13 @@ function useAddToList() {
             id: input.id,
             checked: false,
             listId: null,
-            name: input.newIngredientName,
             recipeId: null,
             quantity: null,
             unit: null,
-            unit_type: null,
-            item_name: null,
+            unitType: null,
+            itemName: null,
             preparation: null,
-            raw_string: input.newIngredientName
+            rawString: input.newIngredientName
           }
         ]
       }
