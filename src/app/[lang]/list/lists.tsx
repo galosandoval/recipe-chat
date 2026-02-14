@@ -1,6 +1,10 @@
 'use client'
 
 import type { Ingredient, Recipe } from '@prisma/client'
+import {
+  getIngredientDisplayText,
+  aggregateIngredients
+} from '~/lib/ingredient-display'
 import { toast } from '~/components/toast'
 import { Togglebox } from '~/components/togglebox'
 import { useUserId } from '~/hooks/use-user-id'
@@ -63,13 +67,17 @@ function ListByRecipeId({ data }: { data: Ingredient[] }) {
 
           <div className='flex flex-col gap-2'>
             {b
-              .toSorted((a, b) => a.name.localeCompare(b.name))
+              .toSorted((a, b) =>
+                getIngredientDisplayText(a).localeCompare(
+                  getIngredientDisplayText(b)
+                )
+              )
               .map((i) => (
                 <Togglebox
                   key={i.id}
                   checked={i.checked}
                   id={i.id.toString()}
-                  label={i.name}
+                  label={getIngredientDisplayText(i)}
                   onChange={(checked) => handleCheck(checked as boolean, i.id)}
                 />
               ))}
@@ -81,22 +89,29 @@ function ListByRecipeId({ data }: { data: Ingredient[] }) {
 }
 
 function ListAll({ data }: { data: Ingredient[] }) {
-  const { mutate: checkIngredient } = useCheckListItem()
+  const { mutate: checkMany } = useCheckManyItems()
+  const aggregated = aggregateIngredients(
+    data.map((i) => ({ ...i, checked: i.checked }))
+  ).toSorted((a, b) => a.displayText.localeCompare(b.displayText))
+
   return (
     <div className='flex flex-col gap-2'>
-      {data
-        .toSorted((a, b) => a.name.localeCompare(b.name))
-        .map((i, id) => (
-          <Togglebox
-            key={i.id ?? id}
-            checked={i.checked}
-            id={i.id.toString()}
-            label={i.name}
-            onChange={(checked) =>
-              checkIngredient({ id: i.id, checked: checked as boolean })
-            }
-          />
-        ))}
+      {aggregated.map((group) => (
+        <Togglebox
+          key={group.ingredientIds.join(',')}
+          checked={group.checked}
+          id={group.ingredientIds.join(',')}
+          label={group.displayText}
+          onChange={(checked) =>
+            checkMany(
+              group.ingredientIds.map((id) => ({
+                id,
+                checked
+              }))
+            )
+          }
+        />
+      ))}
     </div>
   )
 }
@@ -131,6 +146,47 @@ export function useCheckListItem() {
             return { ...i, checked: input.checked }
           }
 
+          return i
+        })
+      }
+
+      utils.lists.byUserId.setData({ userId }, () => ({ ingredients }))
+      return { prevList }
+    },
+
+    onSuccess: async () => {
+      await utils.lists.byUserId.invalidate({ userId })
+      await utils.recipes.bySlug.invalidate()
+    },
+
+    onError: (error, _, ctx) => {
+      const prevList = ctx?.prevList
+      if (prevList) {
+        utils.lists.byUserId.setData({ userId }, prevList)
+      }
+      toast.error(error.message)
+    }
+  })
+}
+
+function useCheckManyItems() {
+  const userId = useUserId()
+  const utils = api.useUtils()
+
+  return api.lists.checkMany.useMutation({
+    onMutate: async (input) => {
+      await utils.lists.byUserId.cancel({ userId })
+
+      const prevList = utils.lists.byUserId.getData({ userId })
+      const idSet = new Set(input.map((i) => i.id))
+      const checkedMap = new Map(input.map((i) => [i.id, i.checked]))
+
+      let ingredients: Ingredient[] = []
+      if (prevList) {
+        ingredients = prevList.ingredients.map((i) => {
+          if (idSet.has(i.id)) {
+            return { ...i, checked: checkedMap.get(i.id) ?? i.checked }
+          }
           return i
         })
       }

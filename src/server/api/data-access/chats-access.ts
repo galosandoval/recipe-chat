@@ -4,6 +4,7 @@ import type { MessagesWithRecipes } from '~/schemas/chats-schema'
 import { DataAccess } from './data-access'
 import type { CreateChatWithMessages } from '~/schemas/chats-schema'
 import { slugify } from '~/lib/utils'
+import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 
 export class ChatsAccess extends DataAccess {
   async getChatsByUserId(userId: string) {
@@ -147,9 +148,9 @@ export class ChatsAccess extends DataAccess {
           data: {
             ...recipe,
             ingredients: {
-              create: recipe.ingredients?.map((i: string) => ({
-                name: i
-              }))
+              create: recipe.ingredients?.map((i: string) =>
+                ingredientStringToCreatePayload(i)
+              )
             },
             instructions: {
               create: recipe.instructions?.map((i: string) => ({
@@ -179,9 +180,9 @@ export class ChatsAccess extends DataAccess {
               }
             },
             ingredients: {
-              create: recipe.ingredients?.map((i: string) => ({
-                name: i
-              }))
+              create: recipe.ingredients?.map((i: string) =>
+                ingredientStringToCreatePayload(i)
+              )
             },
             instructions: {
               create: recipe.instructions?.map((i: string) => ({

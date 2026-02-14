@@ -3,6 +3,7 @@ import { type Prisma, type Recipe } from '@prisma/client'
 import { DataAccess } from './data-access'
 import type { CreateRecipe } from '~/schemas/recipes-schema'
 import { slugify } from '~/lib/utils'
+import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 
 export class RecipesAccess extends DataAccess {
   async getRecipeById(id: string) {
@@ -87,7 +88,7 @@ export class RecipesAccess extends DataAccess {
           create: recipe.instructions.map((i) => ({ description: i }))
         },
         ingredients: {
-          create: recipe.ingredients.map((i) => ({ name: i }))
+          create: recipe.ingredients.map((i) => ingredientStringToCreatePayload(i))
         }
       },
       include: {
@@ -130,9 +131,9 @@ export class RecipesAccess extends DataAccess {
       data: {
         ...data,
         ingredients: {
-          create: data.ingredients.map((ingredient) => ({
-            name: ingredient
-          }))
+          create: data.ingredients.map((line) =>
+            ingredientStringToCreatePayload(line)
+          )
         },
         instructions: {
           create: data.instructions.map((instruction) => ({
@@ -151,7 +152,16 @@ export class RecipesAccess extends DataAccess {
   }
 
   async createIngredients(
-    ingredients: { name: string; recipeId: string }[],
+    ingredients: {
+      name: string
+      recipeId: string
+      raw_string?: string | null
+      quantity?: number | null
+      unit?: string | null
+      unit_type?: 'volume' | 'weight' | 'count' | null
+      item_name?: string | null
+      preparation?: string | null
+    }[],
     tx?: Prisma.TransactionClient
   ) {
     const client = tx ?? this.prisma
@@ -161,17 +171,27 @@ export class RecipesAccess extends DataAccess {
   }
 
   async updateIngredients(
-    ingredients: { id: string; name: string }[],
+    ingredients: {
+      id: string
+      name: string
+      raw_string?: string | null
+      quantity?: number | null
+      unit?: string | null
+      unit_type?: 'volume' | 'weight' | 'count' | null
+      item_name?: string | null
+      preparation?: string | null
+    }[],
     tx?: Prisma.TransactionClient
   ) {
     const client = tx ?? this.prisma
     return Promise.all(
-      ingredients.map((ingredient) =>
-        client.ingredient.update({
-          where: { id: ingredient.id },
-          data: { name: ingredient.name }
+      ingredients.map((ingredient) => {
+        const { id, ...data } = ingredient
+        return client.ingredient.update({
+          where: { id },
+          data
         })
-      )
+      })
     )
   }
 

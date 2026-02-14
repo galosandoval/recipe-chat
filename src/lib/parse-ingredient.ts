@@ -168,3 +168,28 @@ export function parseIngredientName(name: string): ParsedIngredient {
   result.item_name = main || null
   return result
 }
+
+/**
+ * Converts an ingredient line string into the shape needed for Prisma Ingredient create.
+ * Use when persisting ingredients from the recipe generator or any string source.
+ */
+export function ingredientStringToCreatePayload(rawString: string): {
+  name: string
+  raw_string: string
+  quantity: number | null
+  unit: string | null
+  unit_type: 'volume' | 'weight' | 'count' | null
+  item_name: string | null
+  preparation: string | null
+} {
+  const parsed = parseIngredientName(rawString)
+  return {
+    name: parsed.raw_string,
+    raw_string: parsed.raw_string,
+    quantity: parsed.quantity,
+    unit: parsed.unit,
+    unit_type: parsed.unit_type,
+    item_name: parsed.item_name,
+    preparation: parsed.preparation
+  }
+}

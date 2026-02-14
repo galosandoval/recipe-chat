@@ -1,6 +1,7 @@
 import { type PrismaClient } from '@prisma/client'
 import { ListsAccess } from '~/server/api/data-access/lists-access'
 import { IngredientsAccess } from '~/server/api/data-access/ingredients-access'
+import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 
 interface IngredientInput {
   id: string
@@ -30,10 +31,17 @@ export async function addIngredientToList(
   return prisma.$transaction(async (tx) => {
     const ingredientsDataAccess = new IngredientsAccess(tx as PrismaClient)
     const listDataAccess = new ListsAccess(tx as PrismaClient)
+    const parsed = ingredientStringToCreatePayload(newIngredientName)
 
     const newIngredient = await ingredientsDataAccess.createIngredient({
-      name: newIngredientName,
       id: newIngredientId,
+      name: parsed.name,
+      raw_string: parsed.raw_string,
+      quantity: parsed.quantity,
+      unit: parsed.unit,
+      unit_type: parsed.unit_type,
+      item_name: parsed.item_name,
+      preparation: parsed.preparation,
       checked: false,
       listId: null,
       recipeId: null
