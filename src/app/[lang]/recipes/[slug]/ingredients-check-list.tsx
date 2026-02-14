@@ -7,6 +7,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Togglebox } from '~/components/togglebox'
 import type { Ingredient } from '@prisma/client'
+import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { Button } from '~/components/button'
 import { ListChecksIcon, PlusIcon } from 'lucide-react'
 import { toast } from '~/components/toast'
@@ -73,7 +74,6 @@ export function IngredientsCheckList({
 
   const handleCheck = useCallback(
     (change: { id: string; checked: boolean }) => {
-      console.log('event', change)
       checkIngredient([{ id: change.id, checked: change.checked }])
     },
     [checkIngredient]
@@ -88,9 +88,9 @@ export function IngredientsCheckList({
     [ingredients]
   )
   const handleCheckAll = useCallback(() => {
-    // Create updates for all ingredients that aren't already in the target state
+    // Create updates for all ingredients that aren't section headers
     const updates = ingredients
-      .filter((i) => !i.name.endsWith(':'))
+      .filter((i) => !getIngredientDisplayText(i).endsWith(':'))
       .map((i) => ({ id: i.id, checked: !allChecked }))
 
     checkIngredient(updates)
@@ -170,10 +170,11 @@ function IngredientCheckBox({
   checked: boolean
   handleCheck: (checked: boolean) => void
 }) {
-  if (ingredient.name.endsWith(':')) {
+  const displayText = getIngredientDisplayText(ingredient)
+  if (displayText.endsWith(':')) {
     return (
       <h3 className='mt-1 mb-1 text-sm' key={ingredient.id}>
-        {ingredient.name.slice(0, -1)}
+        {displayText.slice(0, -1)}
       </h3>
     )
   }
@@ -182,7 +183,7 @@ function IngredientCheckBox({
       id={ingredient.id.toString()}
       checked={checked}
       onChange={handleCheck}
-      label={ingredient.name}
+      label={displayText}
       key={ingredient.id}
     />
   )

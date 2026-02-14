@@ -4,6 +4,7 @@ import { listsRouter } from './lists-router'
 import { recipesRouter } from './recipes-router'
 import { userRouter } from './users-router'
 import { createCallerFactory, createTRPCRouter } from '../trpc'
+import { ingredientsRouter } from './ingredients-router'
 
 /**
  * This is the primary router for your server.
@@ -15,7 +16,8 @@ export const appRouter = createTRPCRouter({
   lists: listsRouter,
   chats: chatsRouter,
   users: userRouter,
-  filters: filtersRouter
+  filters: filtersRouter,
+  ingredients: ingredientsRouter
 })
 
 // export type definition of API

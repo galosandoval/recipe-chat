@@ -143,7 +143,7 @@ function Auth() {
           label={t.valueProps.createAccount}
         />
         <div className='flex w-full flex-col gap-2 px-4'>
-          <SignUpDrawerDialog trigger={<Button>{t.nav.menu.signUp}</Button>} />
+          <SignUpDrawerDialog trigger={<Button icon={<UserPlusIcon />}>{t.nav.menu.signUp}</Button>} />
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 import { type Recipe, type PrismaClient } from '@prisma/client'
 import { RecipesAccess } from '../data-access/recipes-access'
 import type { UpdateRecipe } from '~/schemas/recipes-schema'
+import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 
 export async function editRecipe(recipe: UpdateRecipe, prisma: PrismaClient) {
   const { id, ingredients, newIngredients, instructions, newInstructions } =
@@ -82,7 +83,10 @@ async function handleIngredients(
   const ingredientsToCreate = newIngredients.filter((n) => n.id === '')
   if (ingredientsToCreate.length > 0) {
     await recipesDataAccess.createIngredients(
-      ingredientsToCreate.map((i) => ({ name: i.name, recipeId: id }))
+      ingredientsToCreate.map((i) => ({
+        ...ingredientStringToCreatePayload(i.name),
+        recipeId: id
+      }))
     )
   }
 
@@ -91,7 +95,12 @@ async function handleIngredients(
   )
 
   if (ingredientsToUpdate.length > 0) {
-    await recipesDataAccess.updateIngredients(ingredientsToUpdate)
+    await recipesDataAccess.updateIngredients(
+      ingredientsToUpdate.map((i) => ({
+        id: i.id,
+        ...ingredientStringToCreatePayload(i.name)
+      }))
+    )
   }
 }
 

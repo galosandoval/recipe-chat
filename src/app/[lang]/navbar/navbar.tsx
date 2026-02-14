@@ -39,7 +39,7 @@ export const Navbar = () => {
   return (
     <div className='fixed top-0 z-30 w-full'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
-        <div className='glass-element from-background to-background/30 text-foreground border-b-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md'>
+        <div className='glass-element from-background to-background/30 text-foreground w-full border-b border-muted-foreground/20 bg-gradient-to-b sm:rounded-md sm:border'>
           {navbar}
         </div>
       </div>

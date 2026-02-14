@@ -20,7 +20,6 @@ import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 export const Interface = () => {
   const { messages, reset, chatId } = chatStore()
   const session = useSession()
-
   const isNewChat = !chatId && messages.length === 0
 
   useLayoutEffect(() => {

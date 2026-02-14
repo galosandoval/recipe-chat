@@ -2,6 +2,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { DrawerDialog } from '../drawer-dialog'
 import { LoginForm } from './login-form'
 import { SignUp } from './sign-up-form'
+import { KeyRoundIcon } from 'lucide-react'
 
 export function SignUpDrawerDialog({
   trigger,
@@ -48,6 +49,7 @@ export function LoginDrawerDialog({
       formId='login'
       open={open}
       onOpenChange={onOpenChange}
+      submitIcon={<KeyRoundIcon />}
     >
       <LoginForm />
     </DrawerDialog>
