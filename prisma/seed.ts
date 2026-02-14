@@ -93,46 +93,34 @@ async function main() {
             'https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage192072050-50-Mushroomtoast.jpg',
           ingredients: {
             create: [
+              { rawString: '2 tablespoons unsalted butter, more as needed' },
+              { rawString: 'Olive oil' },
               {
-                name: '2 tablespoons unsalted butter, more as needed'
+                rawString:
+                  '8 ounces mushrooms, ends trimmed and sliced into even pieces'
+              },
+              { rawString: '3 cloves garlic, smashed' },
+              {
+                rawString:
+                  '½ shallot, finely minced, about 2 tablespoons'
+              },
+              { rawString: 'Kosher salt' },
+              { rawString: 'Freshly ground black pepper' },
+              { rawString: 'Sherry vinegar' },
+              { rawString: '3 tablespoons crème fraîche' },
+              {
+                rawString:
+                  '2 thick slices sourdough or country bread, toasted in a pan with butter'
               },
               {
-                name: 'Olive oil'
-              },
-
-              {
-                name: '8 ounces mushrooms, ends trimmed and sliced into even pieces'
+                rawString:
+                  'Handful of arugula, tossed with olive oil, lemon juice and salt'
               },
               {
-                name: '3 cloves garlic, smashed'
+                rawString:
+                  '2 soft-poached eggs, topped with flaky salt and black pepper'
               },
-              {
-                name: '½ shallot, finely minced, about 2 tablespoons'
-              },
-              {
-                name: 'Kosher salt'
-              },
-              {
-                name: 'Freshly ground black pepper'
-              },
-              {
-                name: 'Sherry vinegar'
-              },
-              {
-                name: '3 tablespoons crème fraîche'
-              },
-              {
-                name: '2 thick slices sourdough or country bread, toasted in a pan with butter'
-              },
-              {
-                name: 'Handful of arugula, tossed with olive oil, lemon juice and salt'
-              },
-              {
-                name: '2 soft-poached eggs, topped with flaky salt and black pepper'
-              },
-              {
-                name: 'Gruyère cheese, shaved'
-              }
+              { rawString: 'Gruyère cheese, shaved' }
             ]
           },
           instructions: {

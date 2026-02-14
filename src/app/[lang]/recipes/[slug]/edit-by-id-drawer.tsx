@@ -19,6 +19,7 @@ import { FormTextarea, Form } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'
+import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { useRecipe } from '~/hooks/use-recipe'
 import { SaveIcon } from 'lucide-react'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
@@ -255,7 +256,7 @@ function EditForm({
     defaultValues: {
       cookMinutes: cookMinutes || undefined,
       description: description || '',
-      ingredients: ingredients.map((i) => i.name).join('\n') || '',
+      ingredients: ingredients.map((i) => getIngredientDisplayText(i)).join('\n') || '',
       instructions: instructions.map((i) => i.description).join('\n') || '',
       name: name || '',
       prepMinutes: prepMinutes || undefined,

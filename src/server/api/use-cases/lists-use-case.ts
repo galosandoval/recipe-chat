@@ -35,12 +35,11 @@ export async function addIngredientToList(
 
     const newIngredient = await ingredientsDataAccess.createIngredient({
       id: newIngredientId,
-      name: parsed.name,
-      raw_string: parsed.raw_string,
+      rawString: parsed.rawString,
       quantity: parsed.quantity,
       unit: parsed.unit,
-      unit_type: parsed.unit_type,
-      item_name: parsed.item_name,
+      unitType: parsed.unitType,
+      itemName: parsed.itemName,
       preparation: parsed.preparation,
       checked: false,
       listId: null,

@@ -166,19 +166,17 @@ enum IngredientUnitType {
 
 model Ingredient {
     id          String              @id @default(cuid())
-    name        String
     recipe      Recipe?             @relation(fields: [recipeId], references: [id])
     recipeId    String?
     list        List?               @relation(fields: [listId], references: [id])
     listId      String?
     checked     Boolean             @default(false)
-    // Structured fields (expand phase); name kept until contract migration
     quantity    Float?
     unit        String?
-    unit_type   IngredientUnitType?
-    item_name   String?
+    unitType    IngredientUnitType?
+    itemName    String?
     preparation String?
-    raw_string  String?
+    rawString   String
 }
 
 model List {

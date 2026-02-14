@@ -6,9 +6,10 @@ const prisma = new PrismaClient()
 const BATCH_SIZE = 50
 
 async function main() {
-  const ingredients = await prisma.ingredient.findMany({
-    select: { id: true, name: true }
-  })
+  // Table still has "name" at migration time; Prisma client no longer does, so use raw query
+  const ingredients = await prisma.$queryRaw<{ id: string; name: string }[]>`
+    SELECT id, name FROM "Ingredient"
+  `
 
   let updated = 0
   for (let i = 0; i < ingredients.length; i += BATCH_SIZE) {
@@ -17,17 +18,17 @@ async function main() {
       async (tx) => {
         for (const ing of batch) {
           const parsed = parseIngredientName(ing.name)
-          await tx.ingredient.update({
-            where: { id: ing.id },
-            data: {
-              quantity: parsed.quantity,
-              unit: parsed.unit,
-              unit_type: parsed.unit_type,
-              item_name: parsed.item_name,
-              preparation: parsed.preparation,
-              raw_string: parsed.raw_string
-            }
-          })
+          // Use raw SQL: at migration time columns are still unit_type/item_name (before rename migration)
+          await tx.$executeRaw`
+            UPDATE "Ingredient"
+            SET quantity = ${parsed.quantity},
+                unit = ${parsed.unit},
+                unit_type = ${parsed.unitType}::"IngredientUnitType",
+                item_name = ${parsed.itemName},
+                preparation = ${parsed.preparation},
+                raw_string = ${parsed.rawString}
+            WHERE id = ${ing.id}
+          `
         }
       },
       { maxWait: 5000, timeout: 15000 }
@@ -37,7 +38,7 @@ async function main() {
   }
 
   console.log(
-    `Done. Updated ${ingredients.length} ingredients with structured fields and raw_string backfill.`
+    `Done. Updated ${ingredients.length} ingredients with structured fields and rawString backfill.`
   )
 }
 
