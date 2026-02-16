@@ -43,7 +43,8 @@ export async function addIngredientToList(
       preparation: parsed.preparation,
       checked: false,
       listId: null,
-      recipeId: null
+      recipeId: null,
+      pantryId: null
     })
 
     return listDataAccess.updateList(userId, {
