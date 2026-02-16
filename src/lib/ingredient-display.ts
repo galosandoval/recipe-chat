@@ -1,3 +1,11 @@
+import type { IngredientUnitType } from '@prisma/client'
+import {
+  type UnitKind,
+  getUnitKind,
+  toCanonical,
+  fromCanonical
+} from '~/lib/unit-conversion'
+
 /**
  * Shape accepted for display (Prisma Ingredient or DTO with optional structured fields).
  */
@@ -7,6 +15,10 @@ export type IngredientDisplaySource = {
   unit?: string | null
   itemName?: string | null
   preparation?: string | null
+}
+
+export type IngredientDisplaySourceWithUnitType = IngredientDisplaySource & {
+  unitType?: IngredientUnitType | null
 }
 
 /**
@@ -28,6 +40,52 @@ export function getIngredientDisplayText(ing: IngredientDisplaySource): string {
     return parts.join(' ')
   }
   return ''
+}
+
+/**
+ * Like getIngredientDisplayText but converts quantity to user's preferred weight/volume unit when set.
+ */
+export function getIngredientDisplayTextInPreferredUnits(
+  ing: IngredientDisplaySourceWithUnitType,
+  preferredWeightUnit: string | null | undefined,
+  preferredVolumeUnit: string | null | undefined
+): string {
+  const qty = ing.quantity
+  const unit = ing.unit?.trim()
+  const item = ing.itemName?.trim()
+  const prep = ing.preparation?.trim()
+  if (qty == null || !unit || !item) return getIngredientDisplayText(ing)
+
+  const kind: UnitKind =
+    ing.unitType === 'weight'
+      ? 'weight'
+      : ing.unitType === 'volume'
+        ? 'volume'
+        : getUnitKind(unit)
+
+  if (kind === 'weight' && preferredWeightUnit) {
+    const { amount } = toCanonical(qty, unit)
+    const converted = fromCanonical(amount, preferredWeightUnit, 'weight')
+    const rounded =
+      converted >= 1
+        ? Math.round(converted * 100) / 100
+        : Math.round(converted * 1000) / 1000
+    const parts = [String(rounded), preferredWeightUnit, item]
+    if (prep) parts.push(`(${prep})`)
+    return parts.join(' ')
+  }
+  if (kind === 'volume' && preferredVolumeUnit) {
+    const { amount } = toCanonical(qty, unit)
+    const converted = fromCanonical(amount, preferredVolumeUnit, 'volume')
+    const rounded =
+      converted >= 1
+        ? Math.round(converted * 100) / 100
+        : Math.round(converted * 1000) / 1000
+    const parts = [String(rounded), preferredVolumeUnit, item]
+    if (prep) parts.push(`(${prep})`)
+    return parts.join(' ')
+  }
+  return getIngredientDisplayText(ing)
 }
 
 export type AggregatedIngredient = {
