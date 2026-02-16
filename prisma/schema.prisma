@@ -13,18 +13,21 @@ datasource db {
 }
 
 model User {
-    id         String    @id @default(cuid())
-    firstName  String?
-    lastName   String?
-    username   String    @unique
-    password   String
-    list       List?
-    recipes    Recipe[]
-    chats      Chat[]
-    filter     Filter[]
-    onboarding Feature[] @default([])
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
+    id                   String    @id @default(cuid())
+    firstName            String?
+    lastName             String?
+    username             String    @unique
+    password             String
+    list                 List?
+    pantry               Pantry?
+    recipes              Recipe[]
+    chats                Chat[]
+    filter               Filter[]
+    onboarding           Feature[] @default([])
+    preferredWeightUnit  String?   // e.g. "g", "oz"
+    preferredVolumeUnit  String?   // e.g. "ml", "cup"
+    createdAt            DateTime  @default(now())
+    updatedAt            DateTime  @updatedAt
 }
 
 // Simple enum for features
@@ -170,6 +173,8 @@ model Ingredient {
     recipeId    String?
     list        List?               @relation(fields: [listId], references: [id])
     listId      String?
+    pantry      Pantry?             @relation(fields: [pantryId], references: [id], onDelete: Cascade)
+    pantryId    String?
     checked     Boolean             @default(false)
     quantity    Float?
     unit        String?
@@ -182,6 +187,15 @@ model Ingredient {
 model List {
     id          String       @id @default(cuid())
     user        User         @relation(fields: [userId], references: [id])
+    userId      String       @unique
+    ingredients Ingredient[]
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+}
+
+model Pantry {
+    id          String       @id @default(cuid())
+    user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId      String       @unique
     ingredients Ingredient[]
     createdAt   DateTime     @default(now())
