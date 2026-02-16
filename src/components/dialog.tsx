@@ -19,7 +19,7 @@ export function Dialog({
   title,
   description,
   formId,
-  buttonType = 'submit',
+  primaryButtonType = 'submit',
   isLoading,
   isDisabled,
   submitIcon,
@@ -35,7 +35,7 @@ export function Dialog({
   description: string
   trigger?: React.ReactNode
   formId?: string
-  buttonType?: ComponentProps<typeof Button>['type']
+  primaryButtonType?: ComponentProps<typeof Button>['type']
   isLoading?: boolean
   isDisabled?: boolean
   submitIcon?: React.ReactNode
@@ -61,7 +61,7 @@ export function Dialog({
             </Button>
           </DialogClose>
           <Button
-            type={buttonType}
+            type={primaryButtonType}
             form={formId}
             isLoading={isLoading}
             disabled={isDisabled}
