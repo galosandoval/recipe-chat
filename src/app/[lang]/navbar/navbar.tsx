@@ -10,6 +10,7 @@ import {
   EllipsisVerticalIcon,
   ListTodoIcon,
   MessageSquareIcon,
+  PackageIcon,
   TrashIcon
 } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
@@ -124,14 +125,19 @@ const MENU_ITEMS = [
     label: 'chat'
   },
   {
+    value: '/recipes',
+    icon: <CookingPotIcon size='1rem' />,
+    label: 'recipes'
+  },
+  {
     value: '/list',
     icon: <ListTodoIcon size='1rem' />,
     label: 'list'
   },
   {
-    value: '/recipes',
-    icon: <CookingPotIcon size='1rem' />,
-    label: 'recipes'
+    value: '/pantry',
+    icon: <PackageIcon size='1rem' />,
+    label: 'pantry'
   }
 ] as const
 

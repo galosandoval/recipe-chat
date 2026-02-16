@@ -75,6 +75,7 @@ function useAddToList() {
             checked: false,
             listId: null,
             recipeId: null,
+            pantryId: null,
             quantity: null,
             unit: null,
             unitType: null,
