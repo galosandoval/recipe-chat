@@ -1,11 +1,14 @@
 export const buildSystemPrompt = ({
   filters,
-  savedRecipes
+  savedRecipes,
+  pantrySummary = []
 }: {
   filters: string[]
   savedRecipes: string[]
+  pantrySummary?: string[]
 }) => {
   const hasFilters = (filters?.length ?? 0) > 0
+  const hasPantry = (pantrySummary?.length ?? 0) > 0
 
   return `
 You are a recipe assistant.
@@ -22,6 +25,11 @@ ${
 - If a filter is ambiguous or slightly conflicting, make a reasonable assumption and state it briefly in one sentence.`
     : `- No filters provided. If key info is missing and the user didn't request a specific recipe, ask 1–3 concise clarifying questions, then wait for the reply before suggesting recipes.`
 }
+${
+  hasPantry
+    ? `- The user has provided their pantry (ingredients they have on hand). When they ask what to make, what they can cook, or similar, prefer suggesting recipes that use mainly these ingredients. You may mention one or two extra items they might need.`
+    : ''
+}
 - Vary cuisines unless constrained by filters or an explicit user preference.
 - Avoid duplicates and avoid already-saved items (see "Saved" below).
 - When responding with one recipe, include all the fields required by the schema.
@@ -34,6 +42,7 @@ Style
 
 Filters: ${hasFilters ? filters.join(', ') : 'none'}
 Saved: ${savedRecipes.slice(0, 50).join(' | ') || 'none'}
+${hasPantry ? `Pantry (what the user has on hand): ${pantrySummary.slice(0, 80).join('; ')}` : ''}
 `.trim()
 }
 
