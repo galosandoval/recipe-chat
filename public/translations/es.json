@@ -17,10 +17,12 @@
       "startNewChat": "Nuevo chat",
       "chats": "Chats",
       "editRecipe": "Editar receta",
-      "addRecipe": "Agregar receta"
+      "addRecipe": "Agregar receta",
+      "preferredUnits": "Unidades preferidas"
     },
     "chat": "Chat",
     "list": "Lista",
+    "pantry": "Despensa",
     "recipes": "Recetas",
     "settings": "Ajustes"
   },
@@ -51,6 +53,19 @@
     "addToList": "Agregar a tu lista",
     "addIngredient": "Agregar un nuevo ingrediente a tu lista",
     "removeChecked": "Eliminar seleccionados"
+  },
+
+  "pantry": {
+    "noItems": "No hay nada en tu despensa",
+    "addItem": "Agregar a la despensa",
+    "addItemPlaceholder": "ej. 2 kg pechuga de pollo",
+    "bulkAdd": "Pegar lista",
+    "bulkAddPlaceholder": "Un ingrediente por línea",
+    "useInChat": "Usar en chat",
+    "editItem": "Editar",
+    "editItemDescription": "Cambia el nombre y la cantidad del ingrediente.",
+    "preferredWeightUnit": "Unidad de peso",
+    "preferredVolumeUnit": "Unidad de volumen"
   },
 
   "valueProps": {
