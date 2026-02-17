@@ -1,6 +1,6 @@
 # Issue #401: New pantry tab — Implementation plan
 
-**Status:** OPEN  
+**Status:** DONE (polish completed)  
 **Labels:** enhancement  
 **Source:** [GitHub Issue #401](https://github.com/recipe-chat/recipe-chat-v1/issues/401)
 
@@ -12,122 +12,104 @@ Add a **Pantry** tab where users can save what they have on hand (with quantitie
 
 ---
 
-## Acceptance criteria
+## Current implementation (what’s done)
 
-- [ ] New **Pantry** tab in the app nav (alongside Chat, List, Recipes).
-- [ ] Users can **save pantry items** (item + quantity + unit), view and edit them.
-- [ ] **AI suggests recipes** from chat using the user’s pantry (e.g. “what can I make with what I have?”).
-- [ ] **Unit handling**: support math across same-type units (e.g. 2 kg − 300 g); consider cross-type (e.g. 2 kg − 1 oz) via conversion or clear UX.
-- [ ] **Preferred unit** option for users (e.g. during onboarding or settings): weight (g vs oz) and/or volume (ml vs cup).
-- [ ] **Bulk / easy upload**: avoid one-by-one only; support pasted list and/or AI parse of “items and amounts”.
+Use this as the source of truth for what exists in the codebase when continuing work.
 
----
+### Implemented
 
-## Changes required
+- **Schema & migration** — `Pantry` 1:1 with User; `Ingredient` has optional `pantryId`; `User.preferredWeightUnit`, `User.preferredVolumeUnit`. Migration: `prisma/migrations/20260213000000_add_pantry_and_user_preferred_units/`.
+- **Unit conversion** — `src/lib/unit-conversion.ts`: `toCanonical`, `fromCanonical`, `getUnitKind`, `subtractQuantities`, `PREFERRED_WEIGHT_OPTIONS`, `PREFERRED_VOLUME_OPTIONS`.
+- **Pantry API** — `pantry-router.ts` (byUserId, add, update, delete, bulkAdd); `pantry-use-case.ts`; `pantry-access.ts`. Update re-parses `rawString` when provided (so structured fields stay in sync).
+- **Pantry tab UI** — `src/app/[lang]/pantry/page.tsx` (auth guard, prefetch), `pantry-by-user-id.tsx`, `add-to-pantry-form.tsx`, `bulk-add-pantry.tsx`.
+- **List row UX** — Each item with quantity/unit shows: **[−] [number input] [Badge(unit)] [+] item name** then edit/delete. Unit appears **after** the number; unit is in `~/components/ui/badge` (variant outline). Decrease/increase buttons use app icons (Minus/Plus); step 1 for count, 0.25 for weight/volume. Display uses preferred units when set.
+- **Display helpers** — `src/lib/ingredient-display.ts`: `getIngredientDisplayText`, `getIngredientDisplayTextInPreferredUnits`, `getIngredientDisplayQuantityAndUnit` (returns `{ displayQuantity, displayUnit, unitType }` or null).
+- **Nav** — Pantry in `MENU_ITEMS` in `navbar.tsx` (PackageIcon).
+- **Chat integration** — `buildSystemPrompt` in `src/constants/chat.ts` accepts `pantrySummary`; `src/app/api/chat/route.ts` loads pantry by `userId` and passes summary; chat client sends `userId` so backend gets pantry. Chat page reads `?prompt=` and prefills input (for “Use in chat” link).
+- **“Use in chat”** — Button/link in pantry (and in empty state) to `/[lang]/chat?prompt=What+can+I+make+with+what+I+have?`.
+- **Edit pantry item** — Edit (pencil) opens drawer with single raw-line input; save calls `pantry.update` with `rawString` (use-case re-parses and updates structured fields).
+- **Preferred units** — `users.updatePreferredUnits` API; “Preferred units” in nav settings dropdown (dialog: weight g/oz, volume ml/cup). Pantry list and quantity controls display in preferred unit when set.
+- **i18n** — `pantry.*` and `nav.menu.preferredUnits`, `common.decrease`/`increase` in en + es.
 
-### 1. `prisma/schema.prisma`
+### Key files to know
 
-- Add **Pantry** model: 1:1 with User (e.g. `id`, `userId` unique).
-- Either add **PantryItem** (quantity, unit, unitType, itemName, pantryId) or reuse **Ingredient** with optional `pantryId` and keep `listId`/`recipeId` nullable. Reusing Ingredient reuses parsing and display; a dedicated PantryItem keeps list vs pantry semantics clearer.
-- Optional: add `User.preferredWeightUnit` and `User.preferredVolumeUnit` (e.g. `String?`) for display/conversion.
-- Optional: add `pantry` to **Feature** enum if onboarding includes pantry/preferred-units step.
-
-### 2. `src/app/[lang]/navbar/navbar.tsx`
-
-- Add a fourth nav item (e.g. `{ value: '/pantry', icon: <PantryIcon />, label: 'pantry' }`) to `MENU_ITEMS` and ensure active state uses `pathname.includes('/pantry')`.
-
-### 3. `src/app/[lang]/pantry/page.tsx` (new)
-
-- Auth guard (redirect if no session), prefetch pantry data, render a client component that lists pantry items, add one, bulk add (paste + parse), edit/delete, and optionally “use in chat” or deep link to chat with pantry context.
-
-### 4. Pantry API (new router + use-cases + data-access)
-
-- **Router**: e.g. `pantry.byUserId`, `pantry.add`, `pantry.update`, `pantry.delete`, `pantry.bulkAdd` (accept array of parsed or raw strings). Mirror patterns from `lists-router.ts` and `lists-use-case.ts`.
-- **Data access**: get pantry by userId, CRUD pantry items (or ingredients with `pantryId`). Reuse `ingredientStringToCreatePayload` and `parseIngredientName` from `src/lib/parse-ingredient.ts` for single and bulk add.
-
-### 5. `src/constants/chat.ts` — `buildSystemPrompt`
-
-- Extend to accept optional `pantrySummary: string[]` or structured pantry lines (e.g. “2 kg chicken”, “300 g rice”). Add a line to the system prompt such as: “User’s pantry (what they have on hand): … Prefer suggesting recipes that use mainly these ingredients when the user asks what to make or similar.”
-
-### 6. `src/app/api/chat/route.ts`
-
-- Parse `chatParams` to include optional `pantryItems` or `pantrySummary` (e.g. from request body). Load pantry for `userId` if not provided in the request, then pass a short summary (e.g. array of display strings) into `buildSystemPrompt({ filters, savedRecipes, pantrySummary })`.
-
-### 7. Chat client (e.g. `generate-message-form.tsx` or where submit is built)
-
-- When calling the chat API, include pantry in the payload: e.g. prefetch `pantry.byUserId` and send a summary (or flag “use pantry”) so the backend or route can inject pantry into the system prompt.
-
-### 8. Unit conversion and preferred units
-
-- **New lib** (e.g. `src/lib/unit-conversion.ts`): define canonical base units (e.g. grams for weight, ml for volume). Implement `toCanonical(quantity, unit)` and `fromCanonical(amount, toUnit)` for weight and volume; count units pass through. Use in pantry when subtracting (e.g. “used 300 g” from “2 kg”) and when displaying in preferred unit.
-- **Preferred units**: read `User.preferredWeightUnit` / `preferredVolumeUnit` where needed (pantry display, optional chat recipe output). If not set, keep current behavior (e.g. display in stored unit).
-
-### 9. Onboarding / settings for preferred unit
-
-- Where onboarding or profile/settings are implemented, add a step or section: “Preferred weight unit: g / oz” and “Preferred volume unit: ml / cup (or tbsp)” and persist on User. If onboarding is feature-gated, add a `pantry` or `preferredUnits` feature and show this when that feature is introduced.
-
-### 10. Bulk add / AI parse
-
-- **Option A (simpler):** “Paste list” textarea; split by newlines, run `parseIngredientName` (or `ingredientStringToCreatePayload`) per line; show preview, then call `pantry.bulkAdd` with parsed items.
-- **Option B:** New API route or tRPC procedure that accepts a block of text and returns parsed ingredients (same parsing or an AI call that returns structured lines); then call `pantry.bulkAdd` with the result. Use Option A first; add Option B if UX demands it.
-
-### 10b. Photo and other upload methods (enhanced UX)
-
-Beyond paste + parse, consider these ways to get pantry items in with less friction:
-
-| Method | Description | Implementation idea |
-|--------|-------------|---------------------|
-| **Photo of fridge / pantry shelf** | User takes or uploads a photo; AI extracts visible food/ingredients. | **Vision API** (e.g. OpenAI GPT-4o or similar with image input): send image + prompt like “List every food or ingredient you can see. For each, output one line: quantity and unit if visible (e.g. 2 kg chicken), otherwise just the item name (e.g. milk). One ingredient per line, no numbering.” Return plain text lines → feed into existing `pantry.bulkAdd({ rawLines })` and show preview so user can edit before saving. Reuses all current parsing and unit handling. |
-| **Voice / dictation** | User speaks “I have milk, two kilos of rice, and a bag of onions.” | **Speech-to-text** (browser `SpeechRecognition` or provider API) → single string or paragraph → same as Option B: AI or rule-based parse into one-line-per-ingredient → `pantry.bulkAdd`. Good for “I’m in the kitchen” flow. |
-| **Receipt scan** | Photo of a grocery receipt. | Same as fridge photo but with a **receipt-specific prompt**: “From this receipt, list each food/grocery item as one line. Include quantity and unit if shown (e.g. 1 lb tomatoes). One item per line.” Then same pipeline: lines → preview → `pantry.bulkAdd`. |
-| **Barcode scan** (future) | Scan product barcode, lookup product name (and optionally size). | Requires barcode API or DB; add item by name (and optional quantity/unit). Lower priority; can be a later enhancement. |
-
-**Recommended first enhancement: photo of fridge/pantry**
-
-- **Why:** One tap (camera or gallery) instead of typing or pasting; fits “I’m standing in front of the fridge” use case.
-- **Flow:** Pantry tab → “Add from photo” → capture/upload image → call new API (e.g. `POST /api/pantry/parse-image` or tRPC `pantry.parseImage`) that uses vision model → returns `{ rawLines: string[] }` → UI shows preview (same as bulk paste) → user confirms/edits → `pantry.bulkAdd({ rawLines })`.
-- **Tech:** Reuse existing OpenAI setup; use a vision-capable model (e.g. `gpt-4o` or `gpt-4-turbo` with image part). Keep image out of tRPC if payloads get large; a dedicated API route that returns only the extracted lines is simpler. No schema changes; no change to `bulkAdd` contract.
-- **Cost/privacy:** Vision calls cost more than text; consider file size limits and optional “don’t store image” (process and discard). Add i18n for “Add from photo”, “Take picture of your fridge or pantry”, “Review and add to pantry”.
-
-### 11. Translations
-
-- **`public/translations/en.json`** (and any other locale): under `nav`, add `"pantry": "Pantry"`. Add a `pantry` section (e.g. `noItems`, `addItem`, `bulkAdd`, `useInChat`, `preferredUnit`, etc.) for all new UI strings.
-
-### 12. `src/server/api/routers/root.ts`
-
-- Add `pantry: pantryRouter` so the new router is mounted.
+| Area              | Path |
+|-------------------|------|
+| Pantry list/row   | `src/app/[lang]/pantry/pantry-by-user-id.tsx` |
+| Add one           | `src/app/[lang]/pantry/add-to-pantry-form.tsx` |
+| Bulk add          | `src/app/[lang]/pantry/bulk-add-pantry.tsx` |
+| Parsing           | `src/lib/parse-ingredient.ts` (`parseIngredientName`, `ingredientStringToCreatePayload`) |
+| Display/convert   | `src/lib/ingredient-display.ts`, `src/lib/unit-conversion.ts` |
+| Pantry API        | `src/server/api/routers/pantry-router.ts`, `use-cases/pantry-use-case.ts` |
+| Settings units    | `src/app/[lang]/navbar/settings-dropdown-menu.tsx` (PreferredUnitsDialog) |
+| Chat + pantry     | `src/constants/chat.ts`, `src/app/api/chat/route.ts`, `src/app/[lang]/chat/chat.tsx` |
 
 ---
 
-## Implementation steps
+## Remaining work / Next steps
 
-1. **Schema and migration** — Add Pantry (and optionally PantryItem or reuse Ingredient with pantryId). Add optional preferredWeightUnit / preferredVolumeUnit on User. Run migration.
-2. **Unit conversion** — Implement `src/lib/unit-conversion.ts` with weight/volume conversion and use it where quantities are updated or displayed (e.g. pantry deduct).
-3. **Pantry API** — Data-access layer for pantry (by user, CRUD items). Use-cases for add, update, delete, bulkAdd (using parse-ingredient). tRPC router and mount in root.
-4. **Pantry tab UI** — Create `[lang]/pantry/page.tsx` and client components: list, add-one form, bulk paste + parse, edit/delete. Use existing ingredient display/parsing and new conversion lib for display in preferred unit if desired.
-5. **Nav and i18n** — Add Pantry to MENU_ITEMS, add translations for nav and pantry screen.
-6. **Chat integration** — Extend chatParams and chat API to accept/load pantry; extend buildSystemPrompt with pantry summary; from chat client send pantry (or “use my pantry”) when user is asking for recipes from what they have.
-7. **Preferred units** — Add onboarding/settings step for preferred weight/volume; persist on User and use in pantry (and optionally in chat) for display/conversion.
-8. **Polish** — Deduct from pantry when “using” in a recipe (optional): either manual “used X” or future link from generated recipe to pantry deduction. Handle edge cases (e.g. 2 kg − 1 oz) via conversion or “different unit” UX.
-9. **Photo upload (optional)** — Add “Add from photo” on pantry: API route or tRPC that accepts an image, calls vision model to extract ingredient lines, returns `rawLines`; UI preview → `pantry.bulkAdd`. Receipt scan can reuse the same pipeline with a different prompt.
+Do these in a new chat (or in order below). Each item is self-contained with enough context.
+
+### 1. Hide browser number spinners on pantry quantity input
+
+- **Problem:** The number input in the pantry row shows the browser’s default increase/decrease arrows; we want only the app’s [−] and [+] buttons.
+- **Approach:** Hide the spinners via CSS. The input is in `pantry-by-user-id.tsx` inside `PantryRow` (`<Input type='number' ... />`). Add a class that hides spinners (e.g. `[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none` or equivalent in your Tailwind/setup). Apply to that input (or globally for `type="number"` if desired).
+
+### 2. Parse “2kg” / “kg2” style input (quantity + unit with no space)
+
+- **Problem:** Input like “2kg chicken breast” or “kg2 chicken” does not get quantity and unit parsed; the parser expects a space between number and unit (e.g. “2 kg”).
+- **Where:** `src/lib/parse-ingredient.ts`, function `parseIngredientName`.
+- **Current behavior:** It matches leading quantity with `^(\d+(?:\.\d+)?(?:\s+\d+\/\d+)?)\s+` (number then space) and unit with `^(fl\s+oz|...|[a-zA-Z]+)\s+` (unit then space). So “2kg” and “kg2” are not split.
+- **Approach:** Before or alongside the existing logic, try to strip a leading “quantity+unit” or “unit+quantity” token with no space:
+  - Number then unit (no space): e.g. `(\d+(?:\.\d+)?)\s*([a-zA-Z]+)` at start, then space or end. Match unit against `UNIT_MAP` (same keys as weight/volume/count). If matched, set `result.quantity`, `result.unit`, `result.unitType`, and set `rest` to the remainder (e.g. “chicken breast”).
+  - Unit then number (no space): e.g. `([a-zA-Z]+)\s*(\d+(?:\.\d+)?)` at start. Same: resolve unit from `UNIT_MAP`, then set quantity and remainder.
+- **Test cases:** “2kg chicken breast”, “kg2 chicken”, “2.5kg rice”, “1lb beef”, “lb1 beef”, “200g cheese”.
+
+### 3. “Use in chat” disabled when empty + alert when no pantry items
+
+- **Requirements:**
+  - “Use in chat” should be **disabled** when there are no items in the pantry (both in the empty state and if we ever show the button elsewhere when count is 0).
+  - Show an **alert** on the page when there are no pantry items. Use the shadcn Alert component.
+- **Shadcn Alert:** Run `npx shadcn@latest add alert` in the project root, then use the exported `Alert`, `AlertTitle`, `AlertDescription` (or as the CLI adds them) in the pantry UI.
+- **Where:** `src/app/[lang]/pantry/pantry-by-user-id.tsx`.
+  - **Empty state:** When `ingredients.length === 0`, render the Alert (e.g. “No items in your pantry. Add ingredients below or use bulk paste.”) and keep the existing empty-state CTA. The “Use in chat” link/button in that empty view should be disabled (e.g. `disabled` + not navigable, or render as a disabled button with the same label).
+  - **Non-empty state:** The “Use in chat” button is only shown when there are items; no change needed there except to ensure it’s never clickable when count is 0 (e.g. if state can be stale).
+- **i18n:** Add a string for the empty-pantry alert message (e.g. `pantry.emptyAlert` or reuse/expand `pantry.noItems`) in `public/translations/en.json` and `es.json`.
+
+### 4. Clear add-item input after successful add (pantry and list; consider global)
+
+- **Problem:** User reported that the input to add an item in the pantry doesn’t get cleared after adding. The code currently calls `form.reset()` inside `onSubmit` **before** the mutation completes, so the field may clear immediately but the pattern is fragile (e.g. if we only want to clear on success).
+- **Current pattern:** In `add-to-pantry-form.tsx`, `onSubmit` does `addToPantry({ rawLine, id })` then `form.reset()`. So reset runs synchronously on submit, not on mutation success. If the goal is “clear only on success”, move the reset into the mutation’s `onSuccess` (e.g. pass a callback or call `form.reset()` from a ref/callback provided to the mutation hook).
+- **Approach:**
+  - **Pantry:** In `add-to-pantry-form.tsx`, do **not** call `form.reset()` in `onSubmit`. In the `useAddToPantry` mutation, add `onSuccess: () => { form.reset() }`. That requires passing `form` (or a reset callback) into the hook or calling reset from the component after mutate (e.g. `mutate(..., { onSuccess: () => form.reset() })`).
+  - **List:** Same idea in `src/app/[lang]/list/add-to-list-form.tsx`: clear the form in the mutation’s `onSuccess` (or in the `mutate` call’s `onSuccess`).
+  - **Global (optional):** If other forms in the app should “clear on success”, consider a small pattern: e.g. a wrapper or convention where “add” forms pass an `onSuccess` that includes `form.reset()`, or document that add-type forms should reset in mutation `onSuccess` rather than in `onSubmit`.
 
 ---
 
-## Testing
+## Optional / future (from original plan)
 
-- **Pantry CRUD**: Add, edit, delete pantry items; bulk add from pasted list; list shows correct quantities and units.
-- **Unit conversion**: Subtract 300 g from 2 kg → 1.7 kg; display in oz when user prefers oz.
-- **Chat**: With pantry populated, ask “What can I make with what I have?” and confirm suggestions align with pantry; with empty pantry, behavior unchanged.
-- **Nav**: Pantry tab appears and is active on `/pantry`; all four tabs work.
-- **Preferred units**: Set g vs oz (and ml vs cup) and confirm pantry and any converted displays respect it.
-- **i18n**: All new strings exist in en (and other locales) and render correctly.
-- **Photo upload** (if implemented): Upload fridge/pantry image → preview shows plausible ingredient lines → confirm adds them to pantry; invalid/empty image handled gracefully.
+- **Deduct from pantry** when “using” in a recipe (manual “used X” or link from generated recipe).
+- **Photo upload:** “Add from photo” → vision API → raw lines → preview → `pantry.bulkAdd`. See original plan “10b” for flow and prompts.
+- **Onboarding:** Add pantry or preferred-units step to onboarding if feature-gated.
 
 ---
 
-## Notes
+## Acceptance criteria (reference)
 
-- **List vs Pantry**: List = shopping list (things to buy). Pantry = what you have. Reusing Ingredient with pantryId avoids duplicate parsing/display but blurs “list” vs “pantry”; a separate PantryItem keeps them distinct and may simplify queries (e.g. “only list ingredients”).
-- **Cross-unit math (2 kg − 1 oz)**: Implement via conversion to a canonical unit (e.g. grams), subtract, then convert back to display unit. The conversion lib should support oz ↔ g and similar.
-- **AI parse**: Starting with line-by-line parsing keeps scope smaller; an AI-based “paste a paragraph” parser can be a follow-up.
-- **Performance**: If pantry is large, send a summarized or truncated list to the system prompt (e.g. top 50 items or by category) to stay within token limits.
+- [x] New **Pantry** tab in the app nav (alongside Chat, List, Recipes).
+- [x] Users can **save pantry items** (item + quantity + unit), view and edit them.
+- [x] **AI suggests recipes** from chat using the user’s pantry (e.g. “what can I make with what I have?”).
+- [x] **Unit handling**: same-type conversion and display; preferred units in settings and list.
+- [x] **Preferred unit** option (settings: weight g/oz, volume ml/cup).
+- [x] **Bulk / easy upload**: paste list + parse; add one.
+- [x] **Polish:** Hide number spinners; parse “2kg”/“kg2”; empty-state alert + disabled “Use in chat”; clear add form on success.
+
+---
+
+## Notes (context for next session)
+
+- **List vs Pantry:** List = shopping list (things to buy). Pantry = what you have. We reuse `Ingredient` with `pantryId`; same parsing and display helpers.
+- **Parser:** `parseIngredientName` in `parse-ingredient.ts` is used for both list and pantry. Any change to support “2kg”/“kg2” benefits both.
+- **Pantry row:** Items **with** quantity/unit use the [−] input [Badge(unit)] [+] row; items **without** (e.g. raw string only) show a single line of text with edit/delete only. Display uses `getIngredientDisplayQuantityAndUnit` and preferred units from `api.users.get`.
+- **Performance:** Chat system prompt uses `pantrySummary.slice(0, 80)` to cap tokens.

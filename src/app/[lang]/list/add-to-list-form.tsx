@@ -27,8 +27,10 @@ export function AddToListForm() {
   const { mutate: addToList } = useAddToList()
   const onSubmitNewIngredient = (values: FormValues) => {
     const newId = cuid()
-    addToList({ newIngredientName: values.newIngredientName, id: newId })
-    form.reset()
+    addToList(
+      { newIngredientName: values.newIngredientName, id: newId },
+      { onSuccess: () => form.reset() }
+    )
   }
   const isDisabled = !form.formState.isValid
   return (

@@ -3,7 +3,9 @@
     "cancel": "Cancelar",
     "save": "Guardar",
     "delete": "Borrar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "decrease": "Disminuir",
+    "increase": "Aumentar"
   },
 
   "nav": {
@@ -57,6 +59,7 @@
 
   "pantry": {
     "noItems": "No hay nada en tu despensa",
+    "emptyAlert": "Agrega ingredientes abajo o pega una lista para empezar. Usar en chat estará disponible cuando tengas elementos.",
     "addItem": "Agregar a la despensa",
     "addItemPlaceholder": "ej. 2 kg pechuga de pollo",
     "bulkAdd": "Pegar lista",

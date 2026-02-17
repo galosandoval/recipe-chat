@@ -3,7 +3,9 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
-    "close": "Close"
+    "close": "Close",
+    "decrease": "Decrease",
+    "increase": "Increase"
   },
 
   "nav": {
@@ -57,6 +59,7 @@
 
   "pantry": {
     "noItems": "No items in your pantry",
+    "emptyAlert": "Add ingredients below or use bulk paste to get started. Use in chat will be available once you have items.",
     "addItem": "Add pantry item",
     "addItemPlaceholder": "e.g. 2 kg chicken breast",
     "bulkAdd": "Paste list",

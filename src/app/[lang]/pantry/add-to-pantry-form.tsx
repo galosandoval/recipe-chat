@@ -28,8 +28,10 @@ export function AddToPantryForm() {
   const { mutate: addToPantry } = useAddToPantry()
   const onSubmit = (values: FormValues) => {
     const newId = cuid()
-    addToPantry({ rawLine: values.rawLine.trim(), id: newId })
-    form.reset()
+    addToPantry(
+      { rawLine: values.rawLine.trim(), id: newId },
+      { onSuccess: () => form.reset() }
+    )
   }
   const isDisabled = !form.formState.isValid
 
