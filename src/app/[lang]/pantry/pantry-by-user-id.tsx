@@ -1,6 +1,6 @@
 'use client'
 
-import React, { type ReactNode, useEffect, useState } from 'react'
+import React, { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import type { Ingredient } from '@prisma/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -16,6 +16,7 @@ import {
   getIngredientDisplayTextInPreferredUnits,
   getIngredientDisplayQuantityAndUnit
 } from '~/lib/ingredient-display'
+import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { AddToPantryForm } from './add-to-pantry-form'
 import { BulkAddPantry } from './bulk-add-pantry'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
@@ -32,17 +33,53 @@ function usePantryData() {
   return api.pantry.byUserId.useSuspenseQuery({ userId })
 }
 
+function useAddToPantry() {
+  const userId = useUserId()
+  const utils = api.useUtils()
+  return api.pantry.add.useMutation({
+    onMutate: async (input) => {
+      await utils.pantry.byUserId.cancel({ userId })
+      const prev = utils.pantry.byUserId.getData({ userId })
+      if (!prev) return { prev }
+      const optimistic: Ingredient = {
+        id: input.id,
+        recipeId: null,
+        listId: null,
+        pantryId: prev.id,
+        checked: false,
+        quantity: null,
+        unit: null,
+        unitType: null,
+        itemName: null,
+        preparation: null,
+        rawString: input.rawLine
+      }
+      utils.pantry.byUserId.setData({ userId }, {
+        ...prev,
+        ingredients: [...prev.ingredients, optimistic]
+      })
+      return { prev }
+    },
+    onSuccess: () => utils.pantry.byUserId.invalidate({ userId }),
+    onError: (error, _, ctx) => {
+      if (ctx?.prev) utils.pantry.byUserId.setData({ userId }, ctx.prev)
+      toast.error(error.message)
+    }
+  })
+}
+
 export function PantryByUserId() {
   const [pantry] = usePantryData()
   const { data: user } = api.users.get.useQuery()
   const ingredients = pantry?.ingredients ?? []
   const preferredWeight = user?.preferredWeightUnit ?? null
   const preferredVolume = user?.preferredVolumeUnit ?? null
+  const { mutate: addToPantry, variables: addVariables } = useAddToPantry()
 
   if (ingredients.length === 0) {
     return (
       <EmptyPantry>
-        <AddToPantryForm />
+        <AddToPantryForm addToPantry={addToPantry} />
         <BulkAddPantry />
       </EmptyPantry>
     )
@@ -58,9 +95,10 @@ export function PantryByUserId() {
         ingredients={ingredients}
         preferredWeightUnit={preferredWeight}
         preferredVolumeUnit={preferredVolume}
+        pendingAddVariables={addVariables}
       />
       <div className='fixed bottom-0 left-0 w-full'>
-        <AddToPantryForm />
+        <AddToPantryForm addToPantry={addToPantry} />
       </div>
     </div>
   )
@@ -70,16 +108,21 @@ const QUANTITY_STEP_COUNT = 1
 const QUANTITY_STEP_WEIGHT_VOLUME = 0.25
 const MIN_WEIGHT_VOLUME = 0.25
 
+const DEBOUNCE_MS = 400
+
 function PantryRow({
   ingredient,
+  displayIngredient,
   preferredWeightUnit,
   preferredVolumeUnit,
   displayText,
   onEdit,
   onDelete,
-  updateItem
+  updateItem,
+  optimisticUpdateQuantity
 }: {
   ingredient: Ingredient
+  displayIngredient: Ingredient
   preferredWeightUnit?: string | null
   preferredVolumeUnit?: string | null
   displayText: string
@@ -88,24 +131,54 @@ function PantryRow({
   updateItem: (input: {
     ingredientId: string
     data: {
-      quantity: number
-      unit: string
-      unitType: 'volume' | 'weight' | 'count'
+      quantity?: number
+      unit?: string
+      unitType?: 'volume' | 'weight' | 'count'
+      rawString?: string
     }
+  }) => void
+  optimisticUpdateQuantity: (ingredientId: string, data: {
+    quantity: number
+    unit: string
+    unitType: 'volume' | 'weight' | 'count'
   }) => void
 }) {
   const t = useTranslations()
   const display = getIngredientDisplayQuantityAndUnit(
-    ingredient,
+    displayIngredient,
     preferredWeightUnit,
     preferredVolumeUnit
   )
   const [inputValue, setInputValue] = useState(
     display ? String(display.displayQuantity) : ''
   )
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingRef = useRef<{ quantity: number; unit: string; unitType: 'volume' | 'weight' | 'count' } | null>(null)
+
   useEffect(() => {
     if (display) setInputValue(String(display.displayQuantity))
   }, [display?.displayQuantity])
+
+  const flushDebounce = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = null
+    }
+    const pending = pendingRef.current
+    if (pending) {
+      pendingRef.current = null
+      updateItem({
+        ingredientId: ingredient.id,
+        data: {
+          quantity: pending.quantity,
+          unit: pending.unit,
+          unitType: pending.unitType
+        }
+      })
+    }
+  }, [ingredient.id, updateItem])
+
+  useEffect(() => () => { flushDebounce() }, [flushDebounce])
 
   const step =
     display?.unitType === 'count'
@@ -114,17 +187,17 @@ function PantryRow({
   const min =
     display?.unitType === 'count' ? 0 : MIN_WEIGHT_VOLUME
 
-  const persistQuantity = (qty: number) => {
+  const persistQuantity = useCallback((qty: number) => {
     if (!display || qty < min) return
-    updateItem({
-      ingredientId: ingredient.id,
-      data: {
-        quantity: qty,
-        unit: display.displayUnit,
-        unitType: display.unitType
-      }
+    optimisticUpdateQuantity(ingredient.id, {
+      quantity: qty,
+      unit: display.displayUnit,
+      unitType: display.unitType
     })
-  }
+    pendingRef.current = { quantity: qty, unit: display.displayUnit, unitType: display.unitType }
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(flushDebounce, DEBOUNCE_MS)
+  }, [display, min, ingredient.id, optimisticUpdateQuantity, flushDebounce])
 
   const handleDecrease = () => {
     if (!display) return
@@ -148,6 +221,7 @@ function PantryRow({
     if (!display) return
     const parsed = parseFloat(inputValue)
     if (!Number.isFinite(parsed) || parsed < min) {
+      flushDebounce()
       setInputValue(String(display.displayQuantity))
       return
     }
@@ -158,6 +232,9 @@ function PantryRow({
     setInputValue(String(rounded))
     if (rounded !== display.displayQuantity) {
       persistQuantity(rounded)
+      flushDebounce()
+    } else {
+      flushDebounce()
     }
   }
 
@@ -238,11 +315,13 @@ type EditPantryItemValues = z.infer<typeof editPantryItemSchema>
 function PantryList({
   ingredients,
   preferredWeightUnit,
-  preferredVolumeUnit
+  preferredVolumeUnit,
+  pendingAddVariables
 }: {
   ingredients: Ingredient[]
   preferredWeightUnit?: string | null
   preferredVolumeUnit?: string | null
+  pendingAddVariables?: { rawLine: string; id: string } | undefined
 }) {
   const utils = api.useUtils()
   const userId = useUserId()
@@ -255,18 +334,109 @@ function PantryList({
   })
   const { mutate: updateItem, status: updateStatus } =
     api.pantry.update.useMutation({
+      onMutate: async (input) => {
+        await utils.pantry.byUserId.cancel({ userId })
+        const prev = utils.pantry.byUserId.getData({ userId })
+        if (!prev) return { prev }
+        const hasQuantity =
+          input.data.quantity != null &&
+          input.data.unit != null &&
+          input.data.unitType != null
+        if (hasQuantity) {
+          utils.pantry.byUserId.setData({ userId }, (old) => {
+            if (!old) return old
+            return {
+              ...old,
+              ingredients: old.ingredients.map((ing) =>
+                ing.id === input.ingredientId
+                  ? {
+                      ...ing,
+                      quantity: input.data.quantity!,
+                      unit: input.data.unit!,
+                      unitType: input.data.unitType!
+                    }
+                  : ing
+              )
+            }
+          })
+        } else if (input.data.rawString != null) {
+          utils.pantry.byUserId.setData({ userId }, (old) => {
+            if (!old) return old
+            return {
+              ...old,
+              ingredients: old.ingredients.map((ing) =>
+                ing.id === input.ingredientId
+                  ? { ...ing, rawString: input.data.rawString! }
+                  : ing
+              )
+            }
+          })
+        }
+        return { prev }
+      },
       onSuccess: () => {
         utils.pantry.byUserId.invalidate({ userId })
         setEditingIngredient(null)
       },
-      onError: (err) => toast.error(err.message)
+      onError: (err, _variables, ctx) => {
+        if (ctx?.prev) utils.pantry.byUserId.setData({ userId }, ctx.prev)
+        toast.error(err.message)
+      }
     })
-  const displayText = (ing: Ingredient) =>
-    getIngredientDisplayTextInPreferredUnits(
-      ing,
-      preferredWeightUnit,
-      preferredVolumeUnit
-    ) || getIngredientDisplayText(ing)
+  const optimisticUpdateQuantity = useCallback(
+    (
+      ingredientId: string,
+      data: {
+        quantity: number
+        unit: string
+        unitType: 'volume' | 'weight' | 'count'
+      }
+    ) => {
+      utils.pantry.byUserId.setData({ userId }, (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          ingredients: old.ingredients.map((ing) =>
+            ing.id === ingredientId
+              ? { ...ing, quantity: data.quantity, unit: data.unit, unitType: data.unitType }
+              : ing
+          )
+        }
+      })
+    },
+    [userId, utils]
+  )
+  const getDisplayIngredient = useCallback(
+    (ing: Ingredient): Ingredient => {
+      if (
+        pendingAddVariables?.id === ing.id &&
+        pendingAddVariables?.rawLine &&
+        (ing.quantity == null || ing.unit == null)
+      ) {
+        const parsed = ingredientStringToCreatePayload(pendingAddVariables.rawLine)
+        return {
+          ...ing,
+          quantity: parsed.quantity,
+          unit: parsed.unit,
+          unitType: parsed.unitType,
+          itemName: parsed.itemName,
+          preparation: parsed.preparation
+        }
+      }
+      return ing
+    },
+    [pendingAddVariables]
+  )
+  const displayText = (ing: Ingredient) => {
+    const displayIng = getDisplayIngredient(ing)
+    return (
+      getIngredientDisplayTextInPreferredUnits(
+        displayIng,
+        preferredWeightUnit,
+        preferredVolumeUnit
+      ) || getIngredientDisplayText(displayIng)
+    )
+  }
   const sorted = [...ingredients].sort((a, b) =>
     displayText(a).localeCompare(displayText(b))
   )
@@ -278,12 +448,14 @@ function PantryList({
           <PantryRow
             key={ing.id}
             ingredient={ing}
+            displayIngredient={getDisplayIngredient(ing)}
             preferredWeightUnit={preferredWeightUnit}
             preferredVolumeUnit={preferredVolumeUnit}
             displayText={displayText(ing)}
             onEdit={() => setEditingIngredient(ing)}
             onDelete={() => deleteItem({ ingredientId: ing.id })}
             updateItem={updateItem}
+            optimisticUpdateQuantity={optimisticUpdateQuantity}
           />
         ))}
       </ul>
