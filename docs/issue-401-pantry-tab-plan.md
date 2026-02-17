@@ -50,6 +50,12 @@ Use this as the source of truth for what exists in the codebase when continuing 
 
 Do these in a new chat (or in order below). Each item is self-contained with enough context.
 
+### 0. Pantry aggregation (same item + same unit)
+
+- **Problem:** Adding the same item with the same unit (e.g. “2 kg chicken” then “1 kg chicken”) creates separate rows; aggregation does not happen in the pantry.
+- **For now:** Aggregate when **unit type** and **item name** match: group ingredients by `(itemName, unitType)`, sum quantities, and show one row per group. Display in a single chosen unit per group (e.g. first ingredient’s unit, or preferred unit when available). Use or adapt `aggregateIngredients` in `src/lib/ingredient-display.ts` (currently used by the list; it groups by `itemName|unit`). Pantry list would render aggregated groups; row actions (edit, delete, +/-) apply to the group or need a clear UX (e.g. edit/delete one logical “stack” or merge into one DB row).
+- **Future:** Support aggregating across **different unit types** (e.g. 2 kg + 500 g) by converting to a common unit and deferring to the user’s selected or default unit type for display.
+
 ### 1. Hide browser number spinners on pantry quantity input
 
 - **Problem:** The number input in the pantry row shows the browser’s default increase/decrease arrows; we want only the app’s [−] and [+] buttons.
@@ -113,3 +119,4 @@ Do these in a new chat (or in order below). Each item is self-contained with eno
 - **Parser:** `parseIngredientName` in `parse-ingredient.ts` is used for both list and pantry. Any change to support “2kg”/“kg2” benefits both.
 - **Pantry row:** Items **with** quantity/unit use the [−] input [Badge(unit)] [+] row; items **without** (e.g. raw string only) show a single line of text with edit/delete only. Display uses `getIngredientDisplayQuantityAndUnit` and preferred units from `api.users.get`.
 - **Performance:** Chat system prompt uses `pantrySummary.slice(0, 80)` to cap tokens.
+- **Aggregation:** Pantry currently shows a flat list (no grouping). List uses `aggregateIngredients` (groups by `itemName|unit`). For pantry, add aggregation by (itemName, unitType) first; later, support cross–unit-type aggregation with conversion and display in selected/default unit.
