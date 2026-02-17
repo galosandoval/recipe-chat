@@ -88,6 +88,65 @@ export function getIngredientDisplayTextInPreferredUnits(
   return getIngredientDisplayText(ing)
 }
 
+export type DisplayQuantityAndUnit = {
+  displayQuantity: number
+  displayUnit: string
+  unitType: UnitKind
+}
+
+/**
+ * Returns display quantity, unit, and kind for an ingredient (using preferred units when set).
+ * Use for inline quantity controls. Returns null when ingredient has no quantity/unit.
+ */
+export function getIngredientDisplayQuantityAndUnit(
+  ing: IngredientDisplaySourceWithUnitType,
+  preferredWeightUnit: string | null | undefined,
+  preferredVolumeUnit: string | null | undefined
+): DisplayQuantityAndUnit | null {
+  const qty = ing.quantity
+  const unit = ing.unit?.trim()
+  if (qty == null || !unit) return null
+
+  const kind: UnitKind =
+    ing.unitType === 'weight'
+      ? 'weight'
+      : ing.unitType === 'volume'
+        ? 'volume'
+        : getUnitKind(unit)
+
+  if (kind === 'weight' && preferredWeightUnit) {
+    const { amount } = toCanonical(qty, unit)
+    const converted = fromCanonical(amount, preferredWeightUnit, 'weight')
+    const rounded =
+      converted >= 1
+        ? Math.round(converted * 100) / 100
+        : Math.round(converted * 1000) / 1000
+    return {
+      displayQuantity: rounded,
+      displayUnit: preferredWeightUnit,
+      unitType: 'weight'
+    }
+  }
+  if (kind === 'volume' && preferredVolumeUnit) {
+    const { amount } = toCanonical(qty, unit)
+    const converted = fromCanonical(amount, preferredVolumeUnit, 'volume')
+    const rounded =
+      converted >= 1
+        ? Math.round(converted * 100) / 100
+        : Math.round(converted * 1000) / 1000
+    return {
+      displayQuantity: rounded,
+      displayUnit: preferredVolumeUnit,
+      unitType: 'volume'
+    }
+  }
+  return {
+    displayQuantity: qty,
+    displayUnit: unit,
+    unitType: kind
+  }
+}
+
 export type AggregatedIngredient = {
   displayText: string
   ingredientIds: string[]
