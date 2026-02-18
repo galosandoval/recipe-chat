@@ -8,8 +8,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 import { ArrowDownIcon, MessageSquareIcon, MinusIcon, PencilIcon, PlusIcon } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useAppForm } from '~/hooks/use-app-form'
 import z from 'zod'
 import {
   getIngredientDisplayText,
@@ -489,8 +488,7 @@ function EditPantryItemDrawer({
   isLoading: boolean
 }) {
   const t = useTranslations()
-  const form = useForm<EditPantryItemValues>({
-    resolver: zodResolver(editPantryItemSchema),
+  const form = useAppForm(editPantryItemSchema, {
     defaultValues: {
       rawString: getIngredientDisplayText(ingredient)
     },

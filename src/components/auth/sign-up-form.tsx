@@ -4,8 +4,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { Form } from '../form/form'
 import { FormInput } from '../form/form-input'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useAppForm } from '~/hooks/use-app-form'
 import { signIn } from 'next-auth/react'
 import { toast } from '../toast'
 import { signUpSchema, type SignUpSchema } from '~/schemas/sign-up-schema'
@@ -30,8 +29,8 @@ export function SignUp({
 }) {
   const t = useTranslations()
   const router = useRouter()
-  const form = useForm<SignUpSchema>({
-    resolver: zodResolver(signUpSchema)
+  const form = useAppForm(signUpSchema, {
+    defaultValues: { email: '', password: '', confirm: '' }
   })
 
   const { mutate, isPending } = api.users.signUp.useMutation({

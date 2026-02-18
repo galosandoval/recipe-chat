@@ -1,8 +1,11 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
 import { useTranslations } from '~/hooks/use-translations'
-import { type LinkedDataRecipeField } from '~/schemas/recipes-schema'
+import {
+  createRecipeFormSchema,
+  type CreateRecipeFormValues,
+  type LinkedDataRecipeField
+} from '~/schemas/recipes-schema'
 import { api } from '~/trpc/react'
 import { FormTextarea } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
@@ -10,15 +13,7 @@ import { Form } from '~/components/form/form'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '~/components/dialog'
 import { PlusIcon } from 'lucide-react'
-
-export type CreateRecipeValues = {
-  name: string
-  ingredients: string
-  instructions: string
-  description: string
-  prepMinutes: number
-  cookMinutes: number
-}
+import { useAppForm } from '~/hooks/use-app-form'
 
 export function CreateParsedRecipe({
   data,
@@ -40,23 +35,17 @@ export function CreateParsedRecipe({
     cookMinutes,
     prepMinutes
   } = data ?? ({} as LinkedDataRecipeField)
-  const form = useForm<CreateRecipeValues>({
-    defaultValues: {
-      description,
-      ingredients: recipeIngredient?.join('\n'),
-      instructions: recipeInstructions?.map((i) => i.text)?.join('\n'),
-      name,
-      cookMinutes,
-      prepMinutes
-    },
-    values: {
-      description: description ?? '',
-      ingredients: recipeIngredient?.join('\n') ?? '',
-      instructions: recipeInstructions?.map((i) => i.text)?.join('\n') ?? '',
-      name: name ?? '',
-      cookMinutes: cookMinutes ?? 0,
-      prepMinutes: prepMinutes ?? 0
-    }
+  const defaultValues = {
+    description: description ?? '',
+    ingredients: recipeIngredient?.join('\n') ?? '',
+    instructions: recipeInstructions?.map((i) => i.text)?.join('\n') ?? '',
+    name: name ?? '',
+    cookMinutes: cookMinutes ?? 0,
+    prepMinutes: prepMinutes ?? 0
+  }
+  const form = useAppForm(createRecipeFormSchema, {
+    defaultValues,
+    values: defaultValues
   })
   const { mutate, isPending } = api.recipes.create.useMutation({
     onSuccess: async (data) => {
@@ -65,7 +54,7 @@ export function CreateParsedRecipe({
     }
   })
 
-  const onSubmit = (values: CreateRecipeValues) => {
+  const onSubmit = (values: CreateRecipeFormValues) => {
     console.log('values', values)
     const ingredients = values.ingredients.split('\n')
     const instructions = values.instructions.split('\n')
@@ -79,7 +68,7 @@ export function CreateParsedRecipe({
       submitText={t.common.save}
       title={t.recipes.addParsed}
       description={t.recipes.addParsedDescription}
-      buttonType='button'
+      primaryButtonType='button'
       open={isAddRecipeOpen}
       onOpenChange={closeModal}
       isLoading={isPending}

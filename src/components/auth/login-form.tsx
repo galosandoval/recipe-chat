@@ -4,9 +4,8 @@ import { useTranslations } from '~/hooks/use-translations'
 import { Form } from '../form/form'
 import { FormInput } from '../form/form-input'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useAppForm } from '~/hooks/use-app-form'
 import { toast } from '../toast'
 import { signIn } from 'next-auth/react'
 
@@ -22,8 +21,8 @@ export function LoginForm() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const form = useForm<LoginSchemaType>({
-    resolver: zodResolver(loginSchema(t))
+  const form = useAppForm(loginSchema(t), {
+    defaultValues: { email: '', password: '' }
   })
 
   const onSubmit = async (data: LoginSchemaType) => {

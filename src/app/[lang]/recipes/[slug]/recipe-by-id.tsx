@@ -3,8 +3,7 @@
 import { useRef, useMemo } from 'react'
 import { type Instruction } from '@prisma/client'
 import { api } from '~/trpc/react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useAppForm } from '~/hooks/use-app-form'
 import { z } from 'zod'
 import { useTranslations } from '~/hooks/use-translations'
 import Image from 'next/image'
@@ -296,8 +295,8 @@ function Notes({ notes, id }: { notes: string; id: string }) {
     onSettled: () => utils.recipes.bySlug.invalidate({ slug })
   })
 
-  const form = useForm<AddNotes>({
-    resolver: zodResolver(addNotesSchema),
+  const form = useAppForm(addNotesSchema, {
+    defaultValues: { notes: '' },
     values: {
       // optimistic update
       notes: isPending ? variables?.notes : notes

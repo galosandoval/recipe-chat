@@ -1,8 +1,7 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { cuid } from '~/lib/createId'
 import { CirclePlusIcon } from 'lucide-react'
-import { useForm } from 'react-hook-form'
 import z from 'zod'
+import { useAppForm } from '~/hooks/use-app-form'
 import { BottomBar } from '~/components/bottom-bar'
 import { Form } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
@@ -21,16 +20,14 @@ type FormValues = z.infer<typeof formSchema>
 export function AddToListForm() {
   const t = useTranslations()
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema)
+  const form = useAppForm(formSchema, {
+    defaultValues: { newIngredientName: '' }
   })
   const { mutate: addToList } = useAddToList()
   const onSubmitNewIngredient = (values: FormValues) => {
     const newId = cuid()
-    addToList(
-      { newIngredientName: values.newIngredientName, id: newId },
-      { onSuccess: () => form.reset() }
-    )
+    addToList({ newIngredientName: values.newIngredientName, id: newId })
+    form.reset()
   }
   const isDisabled = !form.formState.isValid
   return (

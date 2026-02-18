@@ -7,6 +7,8 @@ import {
   type Path,
   type SubmitHandler
 } from 'react-hook-form'
+
+export { useAppForm } from '~/hooks/use-app-form'
 import {
   FormField as FormFieldUI,
   FormMessage,
@@ -98,7 +100,9 @@ export function FormTextarea<T extends FieldValues>({
       description={description}
       labelClassName={labelClassName}
     >
-      {(field: any) => <Textarea {...props} {...field} />}
+      {(field: any) => (
+        <Textarea {...props} {...field} value={field.value ?? ''} />
+      )}
     </FormField>
   )
 }

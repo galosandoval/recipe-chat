@@ -21,7 +21,7 @@ export function DeleteRecipeDialog({
   return (
     <Dialog
       formId='delete-recipe-form'
-      buttonType='button'
+      primaryButtonType='button'
       isLoading={deleteStatus === 'pending'}
       onClickConfirm={() => handleDelete(recipe.id)}
       cancelText={t.common.cancel}

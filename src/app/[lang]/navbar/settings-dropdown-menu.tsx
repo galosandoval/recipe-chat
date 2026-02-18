@@ -30,8 +30,6 @@ import { darkTheme, lightTheme } from '~/constants/theme'
 import { useState } from 'react'
 import { Dialog } from '~/components/dialog'
 import { Form } from '~/components/form/form'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '~/trpc/react'
 import {
   recipeUrlSchema,
@@ -40,6 +38,13 @@ import {
 import { CreateParsedRecipe } from '../recipes/create-recipe-button'
 import { FormInput } from '~/components/form/form-input'
 import { Button } from '~/components/button'
+import { useAppForm } from '~/hooks/use-app-form'
+import { z } from 'zod'
+
+const preferredUnitsFormSchema = z.object({
+  preferredWeightUnit: z.string(),
+  preferredVolumeUnit: z.string()
+})
 
 export function NavDropdownMenu() {
   const t = useTranslations()
@@ -169,10 +174,7 @@ function PreferredUnitsDialog({
       onOpenChange(false)
     }
   })
-  const form = useForm<{
-    preferredWeightUnit: string
-    preferredVolumeUnit: string
-  }>({
+  const form = useAppForm(preferredUnitsFormSchema, {
     defaultValues: {
       preferredWeightUnit: '',
       preferredVolumeUnit: ''
@@ -186,10 +188,7 @@ function PreferredUnitsDialog({
         : undefined
   })
 
-  const onSubmit = (values: {
-    preferredWeightUnit: string
-    preferredVolumeUnit: string
-  }) => {
+  const onSubmit = (values: z.infer<typeof preferredUnitsFormSchema>) => {
     mutate({
       preferredWeightUnit: values.preferredWeightUnit || null,
       preferredVolumeUnit: values.preferredVolumeUnit || null
@@ -258,8 +257,7 @@ function ParseAndAddRecipeDialogs({
       }, 200)
     }
   })
-  const form = useForm<RecipeUrlSchemaType>({
-    resolver: zodResolver(recipeUrlSchema(t.error.invalidUrl)),
+  const form = useAppForm(recipeUrlSchema(t.error.invalidUrl), {
     defaultValues: {
       url: ''
     }

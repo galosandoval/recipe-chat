@@ -1,10 +1,9 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
 import { cuid } from '~/lib/createId'
 import { CirclePlusIcon } from 'lucide-react'
-import { useForm } from 'react-hook-form'
 import z from 'zod'
+import { useAppForm } from '~/hooks/use-app-form'
 import { BottomBar } from '~/components/bottom-bar'
 import { Form } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
@@ -25,14 +24,18 @@ export function AddToPantryForm({
   ) => void
 }) {
   const t = useTranslations()
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema)
+  const form = useAppForm(formSchema, {
+    defaultValues: { rawLine: '' }
   })
   const onSubmit = (values: FormValues) => {
     const newId = cuid()
     addToPantry(
       { rawLine: values.rawLine.trim(), id: newId },
-      { onSuccess: () => form.reset() }
+      {
+        onSuccess: () => {
+          form.reset()
+        }
+      }
     )
   }
   const isDisabled = !form.formState.isValid
