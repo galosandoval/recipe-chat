@@ -2,9 +2,9 @@
 
 import React, { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import type { Ingredient } from '@prisma/client'
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import { useTranslations } from '~/hooks/use-translations'
+import { useChatPanelStore } from '~/stores/chat-panel-store'
+import { chatStore } from '~/stores/chat-store'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 import { ArrowDownIcon, MessageSquareIcon, MinusIcon, PencilIcon, PlusIcon } from 'lucide-react'
@@ -16,7 +16,6 @@ import {
   getIngredientDisplayQuantityAndUnit
 } from '~/lib/ingredient-display'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
-import { AddToPantryForm } from './add-to-pantry-form'
 import { BulkAddPantry } from './bulk-add-pantry'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { Badge as BadgeUI } from '~/components/ui/badge'
@@ -32,7 +31,7 @@ function usePantryData() {
   return api.pantry.byUserId.useSuspenseQuery({ userId })
 }
 
-function useAddToPantry() {
+export function useAddToPantry() {
   const userId = useUserId()
   const utils = api.useUtils()
   return api.pantry.add.useMutation({
@@ -73,12 +72,11 @@ export function PantryByUserId() {
   const ingredients = pantry?.ingredients ?? []
   const preferredWeight = user?.preferredWeightUnit ?? null
   const preferredVolume = user?.preferredVolumeUnit ?? null
-  const { mutate: addToPantry, variables: addVariables } = useAddToPantry()
+  const { variables: addVariables } = useAddToPantry()
 
   if (ingredients.length === 0) {
     return (
       <EmptyPantry>
-        <AddToPantryForm addToPantry={addToPantry} />
         <BulkAddPantry />
       </EmptyPantry>
     )
@@ -96,9 +94,6 @@ export function PantryByUserId() {
         preferredVolumeUnit={preferredVolume}
         pendingAddVariables={addVariables}
       />
-      <div className='fixed bottom-0 left-0 w-full'>
-        <AddToPantryForm addToPantry={addToPantry} />
-      </div>
     </div>
   )
 }
@@ -530,16 +525,19 @@ function EditPantryItemDrawer({
 
 function UseInChatButton() {
   const t = useTranslations()
-  const params = useParams()
-  const lang = (params?.lang as string) ?? 'en'
-  const href = `/${lang}/chat?prompt=${encodeURIComponent('What can I make with what I have?')}`
+  const { open } = useChatPanelStore()
+
+  const handleClick = () => {
+    chatStore
+      .getState()
+      .setInput('What can I make with what I have?')
+    open()
+  }
 
   return (
-    <Button variant='outline' size='sm' asChild>
-      <Link href={href}>
-        <MessageSquareIcon className='size-4' />
-        {t.pantry.useInChat}
-      </Link>
+    <Button variant='outline' size='sm' onClick={handleClick}>
+      <MessageSquareIcon className='size-4' />
+      {t.pantry.useInChat}
     </Button>
   )
 }
@@ -548,28 +546,24 @@ function EmptyPantry({ children }: { children: ReactNode }) {
   const t = useTranslations()
 
   return (
-    <div className='fixed inset-0 my-auto grid place-items-center'>
-      <div className='bg-background rounded-lg'>
-        <h1 className='text-foreground my-auto px-5 text-center text-2xl font-bold'>
-          {t.pantry.noItems}
-        </h1>
-        <Alert className='mx-4 mt-2'>
-          <AlertTitle>{t.pantry.noItems}</AlertTitle>
-          <AlertDescription>{t.pantry.emptyAlert}</AlertDescription>
-        </Alert>
-        <div className='left-0 w-full'>{children}</div>
-        <div className='fixed bottom-[3.6rem] left-0 flex w-full flex-col items-center justify-center gap-2 sm:bottom-16'>
-          <p className='text-foreground text-center text-sm'>
-            {t.pantry.addItem}
-          </p>
-          <Button variant='outline' size='sm' className='mt-1' disabled>
-            <MessageSquareIcon className='size-4' />
-            {t.pantry.useInChat}
-          </Button>
-          <div className='text-primary animate-bounce'>
-            <ArrowDownIcon className='size-4' />
-          </div>
-        </div>
+    <div className='flex min-h-full flex-col items-center justify-center gap-4 px-4'>
+      <h1 className='text-foreground text-center text-2xl font-bold'>
+        {t.pantry.noItems}
+      </h1>
+      <Alert className='mx-4'>
+        <AlertTitle>{t.pantry.noItems}</AlertTitle>
+        <AlertDescription>{t.pantry.emptyAlert}</AlertDescription>
+      </Alert>
+      <div className='flex w-full justify-center'>{children}</div>
+      <p className='text-foreground text-center text-sm'>
+        {t.pantry.addItem}
+      </p>
+      <Button variant='outline' size='sm' className='mt-1' disabled>
+        <MessageSquareIcon className='size-4' />
+        {t.pantry.useInChat}
+      </Button>
+      <div className='text-primary animate-bounce'>
+        <ArrowDownIcon className='size-4' />
       </div>
     </div>
   )

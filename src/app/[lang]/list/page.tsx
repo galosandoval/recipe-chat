@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 export default async function ListView() {
   const session = await auth()
   if (!session?.user.id) {
-    return redirect('/chat')
+    return redirect('/recipes')
   }
 
   // Prefetch user's list data into React Query cache
@@ -15,7 +15,7 @@ export default async function ListView() {
 
   return (
     <HydrateClient>
-      <main className='mx-auto w-full overflow-y-auto pt-24 pb-20'>
+      <main className='mx-auto w-full overflow-y-auto pt-4 pb-4'>
         <ListByUserId />
       </main>
     </HydrateClient>

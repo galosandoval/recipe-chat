@@ -9,6 +9,7 @@ import { Navbar } from '~/app/[lang]/navbar/navbar'
 import { getTranslations } from '~/lib/get-translations'
 import type { Locale } from '~/i18n-config'
 import { ErrorBoundary } from '~/components/error-boundary'
+import { AppFooter } from '~/app/[lang]/app-footer'
 
 export const metadata: Metadata = {
   title: 'RecipeChat',
@@ -30,13 +31,20 @@ export default async function RootLayout({
       lang={lang}
       className={`${GeistSans.variable}`}
     >
-      <body className='flex h-svh overflow-hidden'>
-        <Providers session={session} translations={translations}>
-          <ErrorBoundary>
-            <Navbar />
-            <div className='flex h-full flex-1 flex-col'>{children}</div>
-          </ErrorBoundary>
-        </Providers>
+      <body className='flex h-svh'>
+        <div className='mx-auto flex h-full w-full max-w-2xl flex-col overflow-y-auto'>
+          <Providers session={session} translations={translations}>
+            <ErrorBoundary>
+              <header className='sticky top-0 z-30'>
+                <Navbar />
+              </header>
+              <main className='flex min-h-0 flex-1 flex-col'>
+                {children}
+              </main>
+              <AppFooter />
+            </ErrorBoundary>
+          </Providers>
+        </div>
       </body>
     </html>
   )

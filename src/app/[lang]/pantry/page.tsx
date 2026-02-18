@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 export default async function PantryView() {
   const session = await auth()
   if (!session?.user.id) {
-    return redirect('/chat')
+    return redirect('/recipes')
   }
 
   await api.pantry.byUserId.prefetch({ userId: session.user.id })

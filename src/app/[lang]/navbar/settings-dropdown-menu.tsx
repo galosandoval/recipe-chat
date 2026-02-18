@@ -85,7 +85,7 @@ export function NavDropdownMenu() {
     })
   }
 
-  if (!chatId && pathname.includes('chat') && isAuthenticated) {
+  if (!chatId && isAuthenticated) {
     items.push({
       slot: (
         <span onClick={handleToggleDrawer}>
@@ -333,9 +333,7 @@ function useLogoutMenuItem() {
 }
 
 function useStartNewChatMenuItem() {
-  const { setChatId } = chatStore()
-  const pathname = usePathname()
-  const { setStream, setMessages, messages } = chatStore()
+  const { setChatId, setStream, setMessages, messages } = chatStore()
 
   const handleStartNewChat = () => {
     setChatId('')
@@ -343,9 +341,7 @@ function useStartNewChatMenuItem() {
     setMessages([])
   }
 
-  // Only show if there's an actual chat ID (not empty string or undefined)
-  const isInChat = pathname.includes('chat')
-  if (!isInChat || (messages.length === 0 && isInChat)) {
+  if (messages.length === 0) {
     return buildMenuItem({
       slot: null
     })

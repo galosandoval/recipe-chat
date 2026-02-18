@@ -30,7 +30,7 @@ export default function RecipeById() {
   if (!recipe) return null
 
   return (
-    <div className='relative mx-auto flex h-full max-w-2xl flex-col overflow-y-auto'>
+    <div className='relative mx-auto flex max-w-2xl flex-col'>
       <FoundRecipe data={recipe} />
     </div>
   )
@@ -146,7 +146,7 @@ function RecipeImgButtonAndMetaData() {
       <StickyHeader name={data.name} visible={true} />
       <div className='px-3'>
         <Card
-          className='m-3 mx-auto mt-16 max-w-sm'
+          className='m-3 mx-auto mt-4 max-w-sm'
           contentClassName='flex flex-col items-center justify-center'
         >
           <AddImageDropdown recipeId={data.id} />
