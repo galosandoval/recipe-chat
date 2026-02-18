@@ -1,6 +1,7 @@
 import type { Recipe } from '@prisma/client'
 import type { FetchStatus } from '@tanstack/react-query'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from '~/hooks/use-translations'
 import { RecentRecipes } from './recipe-list-recent'
 import { LoadingSpinner } from '~/components/loaders/loading-spinner'
@@ -8,8 +9,13 @@ import Image from 'next/image'
 import { api } from '~/trpc/react'
 import { RecipeFallbackIconLg } from '~/components/icons'
 import { NavigationButton } from '~/components/navigation-button'
-import { BotIcon } from 'lucide-react'
+import { Button } from '~/components/button'
+import { Input } from '~/components/ui/input'
+import { BotIcon, SearchIcon, XCircleIcon } from 'lucide-react'
 import { navigationStore } from '~/stores/navigation-store'
+import { recipesStore } from '~/stores/recipes-store'
+import { useDebounce } from '~/hooks/use-recipe'
+import { useChatPanelStore } from '~/stores/chat-panel-store'
 
 export const Recipes = React.memo(function Recipes({
   search,
@@ -38,10 +44,72 @@ export const Recipes = React.memo(function Recipes({
 
 const Header = React.memo(function Header() {
   const t = useTranslations()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const { search, setSearch } = recipesStore()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const debouncedSearch = useDebounce(search)
+
+  useEffect(() => {
+    const initial = searchParams.get('search') ?? ''
+    setSearch(initial)
+    if (initial) setIsExpanded(true)
+  }, [])
+
+  useEffect(() => {
+    if (debouncedSearch) {
+      router.replace(`/recipes?search=${debouncedSearch}`)
+    } else {
+      router.replace('/recipes')
+    }
+  }, [debouncedSearch, router])
+
+  const handleOpen = () => {
+    setIsExpanded(true)
+    requestAnimationFrame(() => inputRef.current?.focus())
+  }
+
+  const handleClose = () => {
+    setSearch('')
+    setIsExpanded(false)
+  }
+
+  const handleBlur = () => {
+    if (!search) setIsExpanded(false)
+  }
+
+  if (isExpanded) {
+    return (
+      <div className='flex items-center gap-2 pt-3 pb-1'>
+        <Input
+          ref={inputRef}
+          type='text'
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onBlur={handleBlur}
+          placeholder={t.recipes.search}
+          className='flex-1'
+        />
+        <Button
+          type='button'
+          variant='ghost'
+          size='icon'
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={handleClose}
+        >
+          <XCircleIcon className='h-4 w-4' />
+        </Button>
+      </div>
+    )
+  }
 
   return (
-    <div className='flex items-center justify-between pt-3'>
+    <div className='flex items-center justify-between pt-3 pb-1'>
       <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
+      <Button type='button' variant='ghost' size='icon' onClick={handleOpen}>
+        <SearchIcon className='h-4 w-4' />
+      </Button>
     </div>
   )
 })
@@ -91,6 +159,7 @@ const RecipeCards = React.memo(function RecipeCards({
 
 const EmptyList = React.memo(function EmptyList() {
   const t = useTranslations()
+  const openChat = useChatPanelStore((s) => s.open)
   return (
     <div className='col-span-2 flex min-h-[60vh] items-center justify-center sm:col-span-4'>
       <div className='flex max-w-md flex-col items-center gap-4 text-center'>
@@ -105,9 +174,9 @@ const EmptyList = React.memo(function EmptyList() {
             {t.recipes.noRecipes.empty.description}
           </p>
         </div>
-        <NavigationButton href='/chat' variant='default' className='mt-2'>
+        <Button variant='default' className='mt-2' onClick={openChat}>
           {t.recipes.noRecipes.empty.link}
-        </NavigationButton>
+        </Button>
       </div>
     </div>
   )
