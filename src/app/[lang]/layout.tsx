@@ -31,8 +31,8 @@ export default async function RootLayout({
       lang={lang}
       className={`${GeistSans.variable}`}
     >
-      <body className='flex h-svh'>
-        <div className='mx-auto flex h-full w-full max-w-2xl flex-col overflow-y-auto'>
+      <body className='h-svh overflow-y-auto'>
+        <div className='mx-auto flex w-full max-w-2xl flex-col'>
           <Providers session={session} translations={translations}>
             <ErrorBoundary>
               <header className='sticky top-0 z-30'>
