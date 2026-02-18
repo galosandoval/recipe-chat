@@ -32,7 +32,7 @@ export function AddToListForm() {
   const isDisabled = !form.formState.isValid
   return (
     <Form
-      className='fixed right-0 bottom-0 left-0 flex w-full items-center md:rounded-md'
+      className='flex w-full items-center md:rounded-md'
       onSubmit={onSubmitNewIngredient}
       formId='add-ingredient-form'
       form={form}

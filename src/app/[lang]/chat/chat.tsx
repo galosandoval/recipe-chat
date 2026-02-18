@@ -3,8 +3,6 @@
 import { useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Interface } from './interface'
-import { GenerateMessageForm } from './generate-message-form'
-import { BottomActiveFilters } from './bottom-active-filters'
 import { chatStore } from '~/stores/chat-store'
 
 export default function Chat() {
@@ -29,8 +27,6 @@ export default function Chat() {
   return (
     <div className='relative flex h-full w-full flex-1 flex-col'>
       <Interface />
-      <BottomActiveFilters />
-      <GenerateMessageForm />
     </div>
   )
 }

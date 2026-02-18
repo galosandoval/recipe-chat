@@ -42,7 +42,7 @@ export function AddToPantryForm({
 
   return (
     <Form
-      className='fixed right-0 bottom-0 left-0 flex w-full items-center md:rounded-md'
+      className='flex w-full items-center md:rounded-md'
       onSubmit={onSubmit}
       formId='add-pantry-form'
       form={form}

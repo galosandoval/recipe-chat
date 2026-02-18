@@ -7,7 +7,8 @@ import { useInView } from 'react-intersection-observer'
 import { Recipes } from './recipes'
 import { recipesStore } from '~/stores/recipes-store'
 
-const RECIPES_PER_PAGE_LIMIT = 10
+// on a desktop the user sees 12 at most
+const RECIPES_PER_PAGE_LIMIT = 12
 
 export default function InfiniteRecipes() {
   const { ref: inViewRef, inView } = useInView()
