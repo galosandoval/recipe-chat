@@ -15,7 +15,7 @@ export default async function ListView() {
 
   return (
     <HydrateClient>
-      <main className='mx-auto w-full overflow-y-auto pt-4 pb-4'>
+      <main className='mx-auto w-full overflow-y-auto pt-4 pb-20'>
         <ListByUserId />
       </main>
     </HydrateClient>

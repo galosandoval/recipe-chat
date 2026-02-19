@@ -32,7 +32,7 @@ export default async function RootLayout({
       className={`${GeistSans.variable}`}
     >
       <body className='h-svh overflow-y-auto'>
-        <div className='mx-auto flex w-full max-w-2xl flex-col'>
+        <div className='mx-auto flex min-h-full w-full max-w-2xl flex-col'>
           <Providers session={session} translations={translations}>
             <ErrorBoundary>
               <header className='sticky top-0 z-30'>

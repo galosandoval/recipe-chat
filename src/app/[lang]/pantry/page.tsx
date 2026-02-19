@@ -14,7 +14,7 @@ export default async function PantryView() {
 
   return (
     <HydrateClient>
-      <main className='mx-auto w-full overflow-y-auto pt-24 pb-20'>
+      <main className='mx-auto w-full overflow-y-auto pb-20'>
         <PantryByUserId />
       </main>
     </HydrateClient>

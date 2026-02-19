@@ -30,7 +30,12 @@ export default function RecipeById() {
   if (!recipe) return null
 
   return (
-    <div className='relative mx-auto flex max-w-2xl flex-col'>
+    <div
+      className={cn(
+        'relative mx-auto flex max-w-2xl translate-y-0 flex-col',
+        recipe.imgUrl && '-translate-y-16'
+      )}
+    >
       <FoundRecipe data={recipe} />
     </div>
   )
@@ -43,7 +48,7 @@ const observerOptions: IntersectionObserverInit = {
 }
 
 function FoundRecipe({ data }: { data: RecipeByIdData }) {
-  const { ingredients, instructions, notes, name } = data
+  const { ingredients, instructions, notes, name, imgUrl } = data
   const containerRef = useRef<HTMLDivElement>(null)
   const [startRef, startObservation] = useObervationObserver(observerOptions)
   const [endRef, endObservation] = useObervationObserver(observerOptions)
@@ -76,8 +81,10 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
     <>
       <ImageWithTitleAndDescription data={data} translateY={translateY} />
 
-      <div className='relative'>
-        {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
+      <div>
+        {data?.imgUrl && (
+          <StickyHeader visible={isPastHero} name={name} imgUrl={imgUrl} />
+        )}
         <div className='mx-auto flex flex-col items-center px-3 pb-4'>
           <div className='bg-background flex flex-col'>
             <IngredientsCheckList ingredients={ingredients} />
@@ -99,12 +106,21 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
   )
 }
 
-function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
+function StickyHeader({
+  name,
+  visible,
+  imgUrl
+}: {
+  name: string
+  visible: boolean
+  imgUrl?: string | null
+}) {
   return (
     <div
       className={cn(
-        'glass-element from-background to-background/5 border-muted-foreground/20 sticky top-0 z-10 -mt-14 flex items-center justify-center border-b bg-gradient-to-b py-4 opacity-0 transition-opacity duration-300',
-        visible && 'opacity-100'
+        'glass-element from-background to-background/5 border-muted-foreground/20 sticky top-0 z-10 -mt-14 flex translate-y-0 items-center justify-center border-b bg-gradient-to-b py-4 opacity-0 transition-opacity duration-300',
+        visible && 'opacity-100',
+        imgUrl && 'translate-y-16'
       )}
     >
       <div
@@ -143,7 +159,7 @@ function RecipeImgButtonAndMetaData() {
   if (!data) return null
   return (
     <>
-      <StickyHeader name={data.name} visible={true} />
+      <StickyHeader imgUrl={data.imgUrl} name={data.name} visible={true} />
       <div className='px-3'>
         <Card
           className='m-3 mx-auto mt-4 max-w-sm'
