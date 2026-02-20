@@ -2,7 +2,7 @@
 
 import { memo, useLayoutEffect } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
-import { FiltersByUser } from '~/app/[lang]/chat/recipe-filters/recipe-filters'
+import { FiltersByUser } from './recipe-filters/recipe-filters'
 import { ValueProps } from './value-props'
 import { AssistantMessageLoader } from '~/components/loaders/assistant-message'
 import {

@@ -6,9 +6,9 @@ import { Drawer as DrawerPrimitive } from 'vaul'
 import { cn } from '~/lib/utils'
 import { useChatPanelStore } from '~/stores/chat-panel-store'
 import { chatStore } from '~/stores/chat-store'
-import { Interface } from '~/app/[lang]/chat/interface'
-import { BottomActiveFilters } from '~/app/[lang]/chat/bottom-active-filters'
-import { GenerateMessageForm } from '~/app/[lang]/chat/generate-message-form'
+import { Interface } from '~/components/chat/interface'
+import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
+import { GenerateMessageForm } from '~/components/chat/generate-message-form'
 import { Button } from '~/components/button'
 
 export function ChatPanel() {

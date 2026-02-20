@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '~/server/auth'
-import { ChatPanel } from '~/components/chat-panel'
+import { Chat } from './chat'
 
 export default async function Home() {
   const session = await auth()
@@ -8,5 +8,5 @@ export default async function Home() {
     redirect('/recipes')
   }
 
-  return <ChatPanel />
+  return <Chat />
 }

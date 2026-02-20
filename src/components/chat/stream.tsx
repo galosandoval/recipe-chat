@@ -4,7 +4,7 @@ import { BotMessageSquareIcon } from 'lucide-react'
 import type { GeneratedMessage } from '~/schemas/chats-schema'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
-import { ChatMessage } from '~/app/[lang]/chat/message'
+import { ChatMessage } from './message'
 
 export function Stream({ stream }: { stream: GeneratedMessage }) {
   if (!stream.content) return null

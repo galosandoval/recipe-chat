@@ -31,14 +31,14 @@ export default async function RootLayout({
       lang={lang}
       className={`${GeistSans.variable}`}
     >
-      <body className='h-svh overflow-y-auto'>
-        <div className='mx-auto flex min-h-full w-full max-w-2xl flex-col'>
+      <body className='h-svh overflow-hidden'>
+        <div className='mx-auto flex h-full w-full max-w-2xl flex-col'>
           <Providers session={session} translations={translations}>
             <ErrorBoundary>
               <header className='sticky top-0 z-30'>
                 <Navbar />
               </header>
-              <main className='flex min-h-0 flex-1 flex-col'>
+              <main className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
                 {children}
               </main>
               <AppFooter />
