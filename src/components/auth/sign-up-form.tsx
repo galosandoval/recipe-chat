@@ -44,7 +44,7 @@ export function SignUp({
       if (lastMessage) {
         onSignUpSuccess(lastMessage)
       } else if (response?.ok) {
-        router.push('/chat')
+        router.push('/recipes')
 
         toast.success(t.auth.signUpSuccess)
       }

@@ -6,7 +6,7 @@ import { ParserTestClient } from './parser-test-client'
 export default async function ParserTestPage() {
   const session = await auth()
   if (!session?.user.id) {
-    return redirect('/chat')
+    return redirect('/')
   }
 
   return (
