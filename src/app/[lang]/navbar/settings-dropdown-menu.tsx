@@ -15,6 +15,7 @@ import {
   type MenuItemProps
 } from '~/components/dropdown-menu'
 import {
+  CreditCardIcon,
   HistoryIcon,
   KeyRoundIcon,
   LogOutIcon,
@@ -26,6 +27,7 @@ import {
   UserPlusIcon
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { useRouter } from 'next/navigation'
 import { darkTheme, lightTheme } from '~/constants/theme'
 import { useState } from 'react'
 import { Dialog } from '~/components/dialog'
@@ -57,6 +59,7 @@ export function NavDropdownMenu() {
   const pathname = usePathname()
 
   const session = useSession()
+  const router = useRouter()
 
   const handleToggleSignUp = () => {
     setIsSignUpOpen((state) => !state)
@@ -78,11 +81,18 @@ export function NavDropdownMenu() {
   const items: MenuItemProps[] = [useThemeToggleMenuItem(), useLogoutMenuItem()]
 
   if (isAuthenticated) {
-    items.push({
-      icon: <RulerIcon />,
-      label: 'nav.menu.preferredUnits',
-      onClick: handleTogglePreferredUnits
-    })
+    items.push(
+      {
+        icon: <RulerIcon />,
+        label: 'nav.menu.preferredUnits',
+        onClick: handleTogglePreferredUnits
+      },
+      {
+        icon: <CreditCardIcon />,
+        label: 'nav.menu.subscription',
+        onClick: () => router.push('/subscription')
+      }
+    )
   }
 
   if (!chatId && isAuthenticated) {
