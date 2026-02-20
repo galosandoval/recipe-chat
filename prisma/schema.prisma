@@ -12,22 +12,40 @@ datasource db {
     shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+enum SubscriptionTier {
+    FREE
+    STARTER
+    PREMIUM
+}
+
+enum SubscriptionStatus {
+    ACTIVE
+    PAST_DUE
+    CANCELED
+    INCOMPLETE
+}
+
 model User {
-    id                   String    @id @default(cuid())
-    firstName            String?
-    lastName             String?
-    username             String    @unique
-    password             String
-    list                 List?
-    pantry               Pantry?
-    recipes              Recipe[]
-    chats                Chat[]
-    filter               Filter[]
-    onboarding           Feature[] @default([])
-    preferredWeightUnit  String?   // e.g. "g", "oz"
-    preferredVolumeUnit  String?   // e.g. "ml", "cup"
-    createdAt            DateTime  @default(now())
-    updatedAt            DateTime  @updatedAt
+    id                    String              @id @default(cuid())
+    firstName             String?
+    lastName              String?
+    username              String              @unique
+    password              String
+    list                  List?
+    pantry                Pantry?
+    recipes               Recipe[]
+    chats                 Chat[]
+    filter                Filter[]
+    onboarding            Feature[]           @default([])
+    preferredWeightUnit   String?             // e.g. "g", "oz"
+    preferredVolumeUnit   String?             // e.g. "ml", "cup"
+    stripeCustomerId      String?             @unique
+    stripeSubscriptionId  String?             @unique
+    subscriptionTier      SubscriptionTier    @default(FREE)
+    subscriptionStatus    SubscriptionStatus?
+    currentPeriodEnd      DateTime?
+    createdAt             DateTime            @default(now())
+    updatedAt             DateTime            @updatedAt
 }
 
 // Simple enum for features

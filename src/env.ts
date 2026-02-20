@@ -8,7 +8,12 @@ const envVariables = z.object({
   NEXTAUTH_SECRET: z.string(),
   OPENAI_API_KEY: z.string(),
   PORT: z.string(),
-  UNSPLASH_ACCESS_KEY: z.string()
+  UNSPLASH_ACCESS_KEY: z.string(),
+  STRIPE_SECRET_KEY: z.string(),
+  STRIPE_WEBHOOK_SECRET: z.string(),
+  STRIPE_STARTER_PRICE_ID: z.string(),
+  STRIPE_PREMIUM_PRICE_ID: z.string(),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string()
 })
 
 envVariables.parse(process.env)
