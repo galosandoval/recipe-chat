@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   const { filters, messages, userId } = input
 
   let recipesNames: string[] = []
-  if (!userId) {
+  if (userId) {
     // not just saved recipes, any recipe genereated by the user
     const generatedRecipes = await prisma.recipe.findMany({
       where: {
