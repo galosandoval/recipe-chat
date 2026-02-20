@@ -23,6 +23,17 @@ Make sure env variables are set in .env
 npm run push
 ```
 
+## Stripe (local development)
+
+To test subscriptions locally, run two terminals:
+
+```bash
+npm run stripe:listen   # Terminal 1 — forwards Stripe webhooks
+npm run dev             # Terminal 2 — starts the dev server
+```
+
+See [docs/stripe-local-setup.md](docs/stripe-local-setup.md) for full setup instructions (env vars, test cards, troubleshooting).
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

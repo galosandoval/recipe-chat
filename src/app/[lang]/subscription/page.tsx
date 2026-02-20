@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
@@ -14,6 +14,15 @@ const TIERS = ['FREE', 'STARTER', 'PREMIUM'] as const
 type Tier = (typeof TIERS)[number]
 
 const TIER_ORDER: Record<Tier, number> = { FREE: 0, STARTER: 1, PREMIUM: 2 }
+
+function useRidirectIfNotLoggedIn() {
+  const router = useRouter()
+  const session = useSession()
+
+  if (!session.data) {
+    // router.
+  }
+}
 
 export default function SubscriptionPage() {
   const t = useTranslations()

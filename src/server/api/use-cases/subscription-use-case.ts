@@ -47,8 +47,8 @@ export async function createCheckoutSession(
     customer: customerId,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${process.env.NEXTAUTH_URL}/en/subscription?success=true`,
-    cancel_url: `${process.env.NEXTAUTH_URL}/en/subscription?canceled=true`
+    success_url: `${process.env.NEXTAUTH_URL}/subscription?success=true`,
+    cancel_url: `${process.env.NEXTAUTH_URL}/subscription?canceled=true`
   })
 
   return { url: session.url }

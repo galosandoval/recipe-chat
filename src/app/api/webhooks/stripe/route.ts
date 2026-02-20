@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
-
+  console.log('event.type', event.type)
   switch (event.type) {
     case 'customer.subscription.created':
       await handleSubscriptionCreated(
