@@ -23,7 +23,8 @@
     "data-migration:create-many-recipes-to-many-messages-table": "tsx ./prisma/migrations/20250730020516_create_many_recipes_to_many_messages_table/data-migration.ts",
     "data-migration:filter-user-id-not-unique": "tsx ./prisma/migrations/20250219050052_filter_user_id_not_unique/data-migration.ts",
     "data-migration:add-recipe-slug-with-default": "tsx ./prisma/migrations/20251018212537_add_recipe_slug_with_default/data-migration.ts",
-    "data-migration:ingredient-structured-fields": "npx tsx ./prisma/migrations/20251018220000_ingredient_structured_fields/data-migration.ts"
+    "data-migration:ingredient-structured-fields": "npx tsx ./prisma/migrations/20251018220000_ingredient_structured_fields/data-migration.ts",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.23",
@@ -67,6 +68,7 @@
     "react-intersection-observer": "^9.5.2",
     "react-scroll-to-bottom": "^4.2.0",
     "sonner": "^2.0.7",
+    "stripe": "^20.3.1",
     "superjson": "^1.12.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",

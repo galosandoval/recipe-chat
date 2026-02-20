@@ -16,6 +16,7 @@ npm run migrate          # Run Prisma migrations (uses .env.local)
 npm run gen              # Regenerate Prisma client
 npm run push             # Push schema changes to DB without migration
 npm run seed             # Seed database
+npm run stripe:listen    # Forward Stripe webhooks to local dev server
 ```
 
 ## Architecture
@@ -53,6 +54,10 @@ NextAuth v5 beta with credentials provider (email + password, bcrypt). Session i
 ### AI Chat
 
 Streaming endpoint at `src/app/api/chat/route.ts` using Vercel AI SDK + OpenAI. System prompt is built from user's filters, pantry items, and saved recipes (`src/constants/chat.ts`).
+
+### Subscriptions
+
+Stripe integration with checkout, billing portal, and webhook handling. Webhook endpoint at `src/app/api/webhooks/stripe/route.ts`. Follows the three-layer pattern: `subscription-router.ts` → `subscription-use-case.ts` → `subscription-access.ts`. Subscription state stored on the `User` model (`subscriptionTier`, `subscriptionStatus`, `currentPeriodEnd`). `stripe listen` must be running locally for webhook events to reach the dev server.
 
 ## Style Guidelines
 
