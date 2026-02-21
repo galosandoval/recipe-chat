@@ -32,8 +32,8 @@ export default function RecipeById() {
   return (
     <div
       className={cn(
-        'relative mx-auto flex max-w-2xl translate-y-0 flex-col',
-        recipe.imgUrl && '-translate-y-16'
+        'relative mx-auto flex max-w-2xl flex-col',
+        recipe.imgUrl && '-mt-16'
       )}
     >
       <FoundRecipe data={recipe} />
@@ -118,9 +118,9 @@ function StickyHeader({
   return (
     <div
       className={cn(
-        'glass-element from-background to-background/5 border-muted-foreground/20 sticky top-0 z-10 -mt-14 flex translate-y-0 items-center justify-center border-b bg-gradient-to-b py-4 opacity-0 transition-opacity duration-300',
+        'glass-element from-background to-background/5 border-muted-foreground/20 sticky top-0 z-10 flex items-center justify-center border-b bg-gradient-to-b py-4 opacity-0 transition-opacity duration-300',
         visible && 'opacity-100',
-        imgUrl && 'translate-y-16'
+        imgUrl && '-mt-14'
       )}
     >
       <div
