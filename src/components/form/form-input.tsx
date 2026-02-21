@@ -27,6 +27,7 @@ export function FormInput<T extends FieldValues>({
         <Input
           {...inputProps}
           {...field}
+          value={field.value ?? ''}
           type={type}
           onChange={(e) => {
             // Convert string to number for number inputs

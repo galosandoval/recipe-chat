@@ -111,9 +111,33 @@ export function parseIngredientName(name: string): ParsedIngredient {
 
   let rest = rawString
 
-  // Optional leading quantity: "1 1/2", "2.5", or "1/2" (fraction only)
-  const qtyMatch = rest.match(/^(\d+(?:\.\d+)?(?:\s+\d+\/\d+)?)\s+/)
-  const fractionOnlyMatch = !qtyMatch && rest.match(/^(\d+\/\d+)\s+/)
+  // Quantity + unit with no space: "2kg chicken", "kg2 chicken", "200g cheese"
+  const qtyThenUnit = rest.match(/^(\d+(?:\.\d+)?)\s*([a-zA-Z]+)(?=\s|$)/i)
+  if (qtyThenUnit) {
+    const unitKey = qtyThenUnit[2]!.toLowerCase()
+    const mapped = UNIT_MAP.get(unitKey)
+    if (mapped) {
+      result.quantity = parseFloat(qtyThenUnit[1]!)
+      result.unit = mapped.unit
+      result.unitType = mapped.unitType
+      rest = rest.slice(qtyThenUnit[0]!.length).trim()
+    }
+  }
+  const unitThenQty = !result.quantity && rest.match(/^([a-zA-Z]+)\s*(\d+(?:\.\d+)?)(?=\s|$)/i)
+  if (unitThenQty) {
+    const unitKey = unitThenQty[1]!.toLowerCase()
+    const mapped = UNIT_MAP.get(unitKey)
+    if (mapped) {
+      result.quantity = parseFloat(unitThenQty[2]!)
+      result.unit = mapped.unit
+      result.unitType = mapped.unitType
+      rest = rest.slice(unitThenQty[0]!.length).trim()
+    }
+  }
+
+  // Optional leading quantity (with space): "1 1/2", "2.5", or "1/2" (fraction only)
+  const qtyMatch = !result.quantity && rest.match(/^(\d+(?:\.\d+)?(?:\s+\d+\/\d+)?)\s+/)
+  const fractionOnlyMatch = !result.quantity && !qtyMatch && rest.match(/^(\d+\/\d+)\s+/)
   if (qtyMatch) {
     const qtyStr = qtyMatch[1]!
     const simple = qtyStr.replace(/\s+(\d+)\/(\d+)/, (_, n, d) =>

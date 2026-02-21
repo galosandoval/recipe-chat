@@ -2,6 +2,7 @@ import { HydrateClient, api } from '~/trpc/server'
 import InfiniteRecipes from './infinite-recipes'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
+import { ChatFab, ChatPanel } from '~/components/chat-panel'
 
 const RECIPES_PER_PAGE_LIMIT = 10
 
@@ -19,9 +20,11 @@ export default async function RecipesView() {
 
   return (
     <HydrateClient>
-      <main className='mx-auto w-full overflow-y-auto pt-[8.75rem] sm:pt-40'>
+      <main className='mx-auto w-full pt-3 sm:pt-4'>
         <InfiniteRecipes />
       </main>
+      <ChatFab />
+      <ChatPanel />
     </HydrateClient>
   )
 }

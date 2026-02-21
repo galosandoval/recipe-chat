@@ -12,6 +12,26 @@ export class UsersAccess extends DataAccess {
     })
   }
 
+  async updatePreferredUnits(
+    userId: string,
+    data: {
+      preferredWeightUnit?: string | null
+      preferredVolumeUnit?: string | null
+    }
+  ) {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.preferredWeightUnit !== undefined && {
+          preferredWeightUnit: data.preferredWeightUnit
+        }),
+        ...(data.preferredVolumeUnit !== undefined && {
+          preferredVolumeUnit: data.preferredVolumeUnit
+        })
+      }
+    })
+  }
+
   async getUserByUsername(username: string) {
     return await this.prisma.user.findUnique({
       where: { username }

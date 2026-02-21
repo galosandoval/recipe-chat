@@ -39,6 +39,7 @@ if [ "$DB_PASSWORD" = "password" ]; then
   sed -i -e "s/:password@/:$DB_PASSWORD@/" .env
 fi
 
-docker run --name $DB_CONTAINER_NAME -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=recipe-chat -d -p 5432:5432 docker.io/postgres
+# Use pgvector image so the vector extension is available for Prisma migrations
+docker run --name $DB_CONTAINER_NAME -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=recipe-chat -d -p 5432:5432 pgvector/pgvector:pg16
 
 echo "Database container was succesfuly created"

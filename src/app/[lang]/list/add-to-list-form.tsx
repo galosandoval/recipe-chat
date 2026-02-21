@@ -1,8 +1,7 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { cuid } from '~/lib/createId'
 import { CirclePlusIcon } from 'lucide-react'
-import { useForm } from 'react-hook-form'
 import z from 'zod'
+import { useAppForm } from '~/hooks/use-app-form'
 import { BottomBar } from '~/components/bottom-bar'
 import { Form } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
@@ -21,8 +20,8 @@ type FormValues = z.infer<typeof formSchema>
 export function AddToListForm() {
   const t = useTranslations()
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema)
+  const form = useAppForm(formSchema, {
+    defaultValues: { newIngredientName: '' }
   })
   const { mutate: addToList } = useAddToList()
   const onSubmitNewIngredient = (values: FormValues) => {
@@ -33,7 +32,7 @@ export function AddToListForm() {
   const isDisabled = !form.formState.isValid
   return (
     <Form
-      className='fixed right-0 bottom-0 left-0 flex w-full items-center md:rounded-md'
+      className='flex w-full items-center md:rounded-md'
       onSubmit={onSubmitNewIngredient}
       formId='add-ingredient-form'
       form={form}
@@ -75,6 +74,7 @@ function useAddToList() {
             checked: false,
             listId: null,
             recipeId: null,
+            pantryId: null,
             quantity: null,
             unit: null,
             unitType: null,

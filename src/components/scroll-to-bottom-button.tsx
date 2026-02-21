@@ -7,14 +7,12 @@ import ScrollToBottom, {
 } from 'react-scroll-to-bottom'
 import { NoSsr } from './no-ssr'
 import { cn } from '~/lib/utils'
-import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { Button } from './button'
 import { ArrowDownIcon } from 'lucide-react'
 
 export function ScrollToBottomButton() {
   const scrollToBottom = useScrollToBottom()
   const [atBottom] = useAtBottom()
-  const { data: activeFilters } = useActiveFiltersByUserId()
 
   const handleClick = () => {
     scrollToBottom({ behavior: 'smooth' })
@@ -28,12 +26,7 @@ export function ScrollToBottomButton() {
   }, [atBottom])
 
   return (
-    <div
-      className={cn(
-        'fixed right-0 bottom-[6.75rem] left-3 mx-auto w-full max-w-4xl',
-        activeFilters?.length && 'bottom-36'
-      )}
-    >
+    <div className='mx-auto w-full max-w-2xl px-3'>
       <div className='relative w-full'>
         <div
           className={cn(

@@ -27,6 +27,20 @@
   backdrop-filter: blur(8px); /* Adjust blur strength as needed */
 }
 
+@utility spinner-fade-in {
+  animation: screenLoaderFadeIn 200ms ease-in 200ms forwards;
+}
+
+@utility screen-loader-fade-in {
+  animation: screenLoaderFadeIn 300ms ease-in 500ms forwards;
+}
+
+@keyframes screenLoaderFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
 @utility glass-background {
   backdrop-filter: blur(8px); /* Adjust blur strength as needed */
   background-color: color-mix(

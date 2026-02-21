@@ -3,7 +3,9 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
-    "close": "Close"
+    "close": "Close",
+    "decrease": "Decrease",
+    "increase": "Increase"
   },
 
   "nav": {
@@ -17,10 +19,12 @@
       "startNewChat": "New chat",
       "chats": "Chats",
       "editRecipe": "Edit recipe",
-      "addRecipe": "Add recipe"
+      "addRecipe": "Add recipe",
+      "preferredUnits": "Preferred units"
     },
     "chat": "Chat",
     "list": "List",
+    "pantry": "Pantry",
     "recipes": "Recipes",
     "settings": "Settings"
   },
@@ -51,6 +55,20 @@
     "addToList": "Add to list",
     "addIngredient": "Add a new ingredient to your list",
     "removeChecked": "Remove checked"
+  },
+
+  "pantry": {
+    "noItems": "No items in your pantry",
+    "emptyAlert": "Add ingredients below or use bulk paste to get started. Use in chat will be available once you have items.",
+    "addItem": "Add pantry item",
+    "addItemPlaceholder": "e.g. 2 kg chicken breast",
+    "bulkAdd": "Paste list",
+    "bulkAddPlaceholder": "Paste one ingredient per line",
+    "useInChat": "Use in chat",
+    "editItem": "Edit item",
+    "editItemDescription": "Change the ingredient name and quantity.",
+    "preferredWeightUnit": "Weight unit",
+    "preferredVolumeUnit": "Volume unit"
   },
 
   "valueProps": {

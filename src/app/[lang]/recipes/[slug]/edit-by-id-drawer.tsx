@@ -1,6 +1,6 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useAppForm } from '~/hooks/use-app-form'
 import { type ChangeEvent, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import Image from 'next/image'
@@ -17,7 +17,6 @@ import { DrawerDialog } from '~/components/drawer-dialog'
 import { Button } from '~/components/button'
 import { FormTextarea, Form } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { useRecipe } from '~/hooks/use-recipe'
@@ -252,17 +251,16 @@ function EditForm({
     notes
   } = data
 
-  const form = useForm<EditRecipeFormValues>({
+  const form = useAppForm(editRecipeFormValues, {
     defaultValues: {
-      cookMinutes: cookMinutes || undefined,
+      cookMinutes: cookMinutes ?? 0,
       description: description || '',
       ingredients: ingredients.map((i) => getIngredientDisplayText(i)).join('\n') || '',
       instructions: instructions.map((i) => i.description).join('\n') || '',
       name: name || '',
-      prepMinutes: prepMinutes || undefined,
+      prepMinutes: prepMinutes ?? 0,
       notes: notes || ''
-    },
-    resolver: zodResolver(editRecipeFormValues)
+    }
   })
 
   const onSubmit = (values: EditRecipeFormValues) => {

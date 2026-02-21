@@ -46,7 +46,7 @@ export function DrawerDialog({
         title={title}
         description={description}
         formId={formId}
-        buttonType='button'
+        primaryButtonType='submit'
         isLoading={isLoading}
       >
         {children}

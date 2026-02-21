@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useEffect, useState, type ReactNode } from 'react'
+import React, { useEffect, useState } from 'react'
 import { type Ingredient } from '@prisma/client'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 import { ArrowDownIcon } from 'lucide-react'
-import { AddToListForm } from './add-to-list-form'
 import { Label } from '~/components/ui/label'
 import { Checkbox } from '~/components/ui/checkbox'
 import type { CheckedState } from '@radix-ui/react-checkbox'
@@ -38,11 +37,7 @@ function ListController({ data }: { data: Ingredient[] }) {
   }, [byRecipe])
 
   if (data.length === 0) {
-    return (
-      <EmptyList>
-        <AddToListForm />
-      </EmptyList>
-    )
+    return <EmptyList />
   }
 
   return (
@@ -63,32 +58,23 @@ function ListController({ data }: { data: Ingredient[] }) {
       <div className='w-full pt-2'>
         <RemoveCheckedItemsButton data={data} />
       </div>
-
-      <div className='fixed bottom-0 left-0 w-full'>
-        <AddToListForm />
-      </div>
     </div>
   )
 }
 
-function EmptyList({ children }: { children: ReactNode }) {
+function EmptyList() {
   const t = useTranslations()
 
   return (
-    <div className='fixed inset-0 my-auto grid place-items-center'>
-      <div className='bg-background rounded-lg'>
-        <h1 className='text-foreground my-auto px-5 text-center text-2xl font-bold'>
-          {t.list.noItems}
-        </h1>
-        <div className='left-0 w-full'>{children}</div>
-        <div className='fixed bottom-[3.6rem] left-0 flex w-full items-center justify-center gap-2 sm:bottom-16'>
-          <p className='text-foreground text-center text-sm'>
-            {t.list.addIngredient}
-          </p>
-          <div className='text-primary animate-bounce'>
-            <ArrowDownIcon className='size-4' />
-          </div>
-        </div>
+    <div className='flex min-h-full flex-col items-center justify-center gap-4 px-4'>
+      <h1 className='text-foreground text-center text-2xl font-bold'>
+        {t.list.noItems}
+      </h1>
+      <p className='text-foreground text-center text-sm'>
+        {t.list.addIngredient}
+      </p>
+      <div className='text-primary animate-bounce'>
+        <ArrowDownIcon className='size-4' />
       </div>
     </div>
   )

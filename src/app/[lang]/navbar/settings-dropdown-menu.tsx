@@ -20,6 +20,7 @@ import {
   LogOutIcon,
   MoonIcon,
   PlusIcon,
+  RulerIcon,
   SettingsIcon,
   SunIcon,
   UserPlusIcon
@@ -29,8 +30,6 @@ import { darkTheme, lightTheme } from '~/constants/theme'
 import { useState } from 'react'
 import { Dialog } from '~/components/dialog'
 import { Form } from '~/components/form/form'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '~/trpc/react'
 import {
   recipeUrlSchema,
@@ -39,6 +38,13 @@ import {
 import { CreateParsedRecipe } from '../recipes/create-recipe-button'
 import { FormInput } from '~/components/form/form-input'
 import { Button } from '~/components/button'
+import { useAppForm } from '~/hooks/use-app-form'
+import { z } from 'zod'
+
+const preferredUnitsFormSchema = z.object({
+  preferredWeightUnit: z.string(),
+  preferredVolumeUnit: z.string()
+})
 
 export function NavDropdownMenu() {
   const t = useTranslations()
@@ -46,6 +52,7 @@ export function NavDropdownMenu() {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isChatsOpen, setIsChatsOpen] = useState(false)
   const [isAddRecipeOpen, setIsAddRecipeOpen] = useState(false)
+  const [isPreferredUnitsOpen, setIsPreferredUnitsOpen] = useState(false)
   const { chatId } = chatStore()
   const pathname = usePathname()
 
@@ -63,11 +70,22 @@ export function NavDropdownMenu() {
   const handleToggleAddRecipe = () => {
     setIsAddRecipeOpen((state) => !state)
   }
+  const handleTogglePreferredUnits = () => {
+    setIsPreferredUnitsOpen((state) => !state)
+  }
 
   const isAuthenticated = !!session.data
   const items: MenuItemProps[] = [useThemeToggleMenuItem(), useLogoutMenuItem()]
 
-  if (!chatId && pathname.includes('chat') && isAuthenticated) {
+  if (isAuthenticated) {
+    items.push({
+      icon: <RulerIcon />,
+      label: 'nav.menu.preferredUnits',
+      onClick: handleTogglePreferredUnits
+    })
+  }
+
+  if (!chatId && isAuthenticated) {
     items.push({
       slot: (
         <span onClick={handleToggleDrawer}>
@@ -132,7 +150,93 @@ export function NavDropdownMenu() {
       />
       <LoginDrawerDialog open={isLoginOpen} onOpenChange={handleToggleLogin} />
       <ChatsDrawer open={isChatsOpen} onOpenChange={handleToggleDrawer} />
+      <PreferredUnitsDialog
+        open={isPreferredUnitsOpen}
+        onOpenChange={setIsPreferredUnitsOpen}
+      />
     </>
+  )
+}
+
+function PreferredUnitsDialog({
+  open,
+  onOpenChange
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  const t = useTranslations()
+  const { data: user } = api.users.get.useQuery(undefined, { enabled: open })
+  const utils = api.useUtils()
+  const { mutate, status } = api.users.updatePreferredUnits.useMutation({
+    onSuccess: () => {
+      utils.users.get.invalidate()
+      onOpenChange(false)
+    }
+  })
+  const form = useAppForm(preferredUnitsFormSchema, {
+    defaultValues: {
+      preferredWeightUnit: '',
+      preferredVolumeUnit: ''
+    },
+    values:
+      open && user
+        ? {
+            preferredWeightUnit: user.preferredWeightUnit ?? '',
+            preferredVolumeUnit: user.preferredVolumeUnit ?? ''
+          }
+        : undefined
+  })
+
+  const onSubmit = (values: z.infer<typeof preferredUnitsFormSchema>) => {
+    mutate({
+      preferredWeightUnit: values.preferredWeightUnit || null,
+      preferredVolumeUnit: values.preferredVolumeUnit || null
+    })
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t.nav.menu.preferredUnits}
+      description={t.pantry.preferredWeightUnit + ' / ' + t.pantry.preferredVolumeUnit}
+      cancelText={t.common.cancel}
+      submitText={t.common.save}
+      formId='preferred-units-form'
+      isLoading={status === 'pending'}
+    >
+      <Form form={form} onSubmit={onSubmit} formId='preferred-units-form'>
+        <div className='flex flex-col gap-4 py-2'>
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm font-medium'>
+              {t.pantry.preferredWeightUnit}
+            </label>
+            <select
+              className='border-input bg-background text-foreground flex h-9 w-full rounded-md border px-3 py-1 text-sm'
+              {...form.register('preferredWeightUnit')}
+            >
+              <option value=''>Default</option>
+              <option value='g'>g (grams)</option>
+              <option value='oz'>oz (ounces)</option>
+            </select>
+          </div>
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm font-medium'>
+              {t.pantry.preferredVolumeUnit}
+            </label>
+            <select
+              className='border-input bg-background text-foreground flex h-9 w-full rounded-md border px-3 py-1 text-sm'
+              {...form.register('preferredVolumeUnit')}
+            >
+              <option value=''>Default</option>
+              <option value='ml'>ml (milliliters)</option>
+              <option value='cup'>cup</option>
+            </select>
+          </div>
+        </div>
+      </Form>
+    </Dialog>
   )
 }
 
@@ -153,8 +257,7 @@ function ParseAndAddRecipeDialogs({
       }, 200)
     }
   })
-  const form = useForm<RecipeUrlSchemaType>({
-    resolver: zodResolver(recipeUrlSchema(t.error.invalidUrl)),
+  const form = useAppForm(recipeUrlSchema(t.error.invalidUrl), {
     defaultValues: {
       url: ''
     }
@@ -230,9 +333,7 @@ function useLogoutMenuItem() {
 }
 
 function useStartNewChatMenuItem() {
-  const { setChatId } = chatStore()
-  const pathname = usePathname()
-  const { setStream, setMessages, messages } = chatStore()
+  const { setChatId, setStream, setMessages, messages } = chatStore()
 
   const handleStartNewChat = () => {
     setChatId('')
@@ -240,9 +341,7 @@ function useStartNewChatMenuItem() {
     setMessages([])
   }
 
-  // Only show if there's an actual chat ID (not empty string or undefined)
-  const isInChat = pathname.includes('chat')
-  if (!isInChat || (messages.length === 0 && isInChat)) {
+  if (messages.length === 0) {
     return buildMenuItem({
       slot: null
     })

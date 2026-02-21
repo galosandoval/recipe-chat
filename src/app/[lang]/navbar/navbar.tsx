@@ -9,7 +9,7 @@ import {
   EditIcon,
   EllipsisVerticalIcon,
   ListTodoIcon,
-  MessageSquareIcon,
+  PackageIcon,
   TrashIcon
 } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
@@ -20,7 +20,6 @@ import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
 import { EditByIdDrawer } from '../recipes/[slug]/edit-by-id-drawer'
 import { useState } from 'react'
 import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
-import { SearchBar } from '../recipes/search-bar'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
 export const Navbar = () => {
@@ -37,7 +36,7 @@ export const Navbar = () => {
   }
 
   return (
-    <div className='fixed top-0 z-30 w-full'>
+    <div className='w-full'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
         <div className='glass-element from-background to-background/30 text-foreground w-full border-b border-muted-foreground/20 bg-gradient-to-b sm:rounded-md sm:border'>
           {navbar}
@@ -64,7 +63,7 @@ function PublicNavbar() {
 function RecipeByIdNavbar() {
   const router = useRouter()
   return (
-    <nav className='fixed z-20 flex w-full'>
+    <nav className='flex w-full'>
       <div className='mx-auto flex w-full max-w-2xl flex-1 justify-between bg-transparent p-3'>
         <Button
           variant='outline'
@@ -119,9 +118,9 @@ export function RecipeByIdDropdownMenu() {
 
 const MENU_ITEMS = [
   {
-    value: '/chat',
-    icon: <MessageSquareIcon size='1rem' />,
-    label: 'chat'
+    value: '/recipes',
+    icon: <CookingPotIcon size='1rem' />,
+    label: 'recipes'
   },
   {
     value: '/list',
@@ -129,9 +128,9 @@ const MENU_ITEMS = [
     label: 'list'
   },
   {
-    value: '/recipes',
-    icon: <CookingPotIcon size='1rem' />,
-    label: 'recipes'
+    value: '/pantry',
+    icon: <PackageIcon size='1rem' />,
+    label: 'pantry'
   }
 ] as const
 
@@ -139,7 +138,6 @@ function RoutesNavbar() {
   const pathname = usePathname()
   const t = useTranslations()
   const isActive = (path: string) => pathname.includes(path)
-  const isInRecipes = pathname.includes('/recipes')
   return (
     <div className='flex w-full flex-col items-center'>
       <div className='text-foreground my-1 text-sm font-bold'>RecipeChat</div>
@@ -164,7 +162,6 @@ function RoutesNavbar() {
           <NavDropdownMenu />
         </div>
       </nav>
-      {isInRecipes && <SearchBar />}
     </div>
   )
 }

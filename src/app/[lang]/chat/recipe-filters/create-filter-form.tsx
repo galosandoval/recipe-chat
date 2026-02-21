@@ -7,20 +7,16 @@ import { cuid } from '~/lib/createId'
 import { Button } from '~/components/button'
 import { PlusCircleIcon } from 'lucide-react'
 import { Form } from '~/components/form/form'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useAppForm } from '~/hooks/use-app-form'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { FormInput } from '~/components/form/form-input'
-
-const defaultValues = { name: '' }
 
 export function CreateFilterForm({ disabled }: { disabled?: boolean }) {
   const { mutate } = useCreateFilter()
   const { data: filters, isLoading } = useFiltersByUserId()
   const t = useTranslations()
-  const form = useForm<CreateFilter>({
-    defaultValues,
-    resolver: zodResolver(createFilterSchema)
+  const form = useAppForm(createFilterSchema, {
+    defaultValues: { name: '' }
   })
 
   const createFilter = (data: CreateFilter) => {
