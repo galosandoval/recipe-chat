@@ -31,9 +31,9 @@ export default async function RecipeByIdPage({
 
   return (
     <HydrateClient>
-      <main className='min-h-svh w-full'>
+      <div className='min-h-svh w-full'>
         <RecipeById />
-      </main>
+      </div>
       <ChatFab />
       <ChatPanel />
     </HydrateClient>

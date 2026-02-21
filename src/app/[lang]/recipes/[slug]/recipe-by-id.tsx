@@ -30,12 +30,7 @@ export default function RecipeById() {
   if (!recipe) return null
 
   return (
-    <div
-      className={cn(
-        'relative mx-auto flex max-w-2xl flex-col',
-        recipe.imgUrl && '-mt-16'
-      )}
-    >
+    <div className='relative mx-auto flex max-w-2xl flex-col'>
       <FoundRecipe data={recipe} />
     </div>
   )
@@ -119,8 +114,7 @@ function StickyHeader({
     <div
       className={cn(
         'glass-element from-background to-background/5 border-muted-foreground/20 sticky top-0 z-10 flex items-center justify-center border-b bg-gradient-to-b py-4 opacity-0 transition-opacity duration-300',
-        visible && 'opacity-100',
-        imgUrl && '-mt-14'
+        visible && 'opacity-100'
       )}
     >
       <div
@@ -228,7 +222,7 @@ function GlassMetadata() {
   return (
     <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
       <div className='h-full flex-1'></div>
-      <GlassElement className='to-background/90 sticky top-0 h-full flex-1 bg-gradient-to-b py-4'>
+      <GlassElement className='to-background/90 sticky top-14 h-full flex-1 bg-gradient-to-b py-4'>
         <RecipeInfo />
       </GlassElement>
     </div>

@@ -63,8 +63,8 @@ function PublicNavbar() {
 function RecipeByIdNavbar() {
   const router = useRouter()
   return (
-    <nav className='flex w-full'>
-      <div className='mx-auto flex w-full max-w-2xl flex-1 justify-between bg-transparent p-3'>
+    <nav>
+      <div className='absolute inset-x-0 top-0 z-30 mx-auto flex w-full max-w-2xl flex-1 justify-between bg-transparent p-3'>
         <Button
           variant='outline'
           className='glass-background'
