@@ -30,7 +30,7 @@ export function FilterBadges({
   const { mutate: activateFilter } = useActivateFilter()
   const { firstHalf, secondHalf } = useMemo(
     () => transform(filters, t),
-    [filters]
+    [filters, t]
   )
 
   const handleRemoveFilter = (id: string) => {

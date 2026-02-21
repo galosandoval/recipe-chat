@@ -174,11 +174,11 @@ function Times({
   const t = useTranslations()
   const formattedPrepMinutes = useMemo(
     () => (prepMinutes ? formatTimeFromMinutes(prepMinutes, t) : null),
-    [prepMinutes]
+    [prepMinutes, t]
   )
   const formattedCookMinutes = useMemo(
     () => (cookMinutes ? formatTimeFromMinutes(cookMinutes, t) : null),
-    [cookMinutes]
+    [cookMinutes, t]
   )
   if (!prepMinutes && !cookMinutes) return null
   return (

@@ -14,7 +14,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
   const { data, status } = api.recipes.recentRecipes.useQuery()
   const sortedData = useMemo(
     () => data?.toSorted((a, b) => a.name.localeCompare(b.name)) ?? [],
-    [data, status]
+    [data]
   )
 
   if (status === 'error') {
