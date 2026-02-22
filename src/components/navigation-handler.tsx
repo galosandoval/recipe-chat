@@ -2,14 +2,13 @@
 
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { navigationStore } from '~/stores/navigation-store'
+import { useNavigationStore } from '~/stores/navigation-store'
 
 export const NavigationHandler = () => {
   const pathname = usePathname()
-  const endNavigation = navigationStore((state) => state.endNavigation)
-  const targetRoute = navigationStore((state) => state.targetRoute)
-
+  
   useEffect(() => {
+    const { endNavigation, targetRoute } = useNavigationStore.getState()
     // Reset navigation state when we reach the target route
     if (
       targetRoute &&
@@ -18,7 +17,7 @@ export const NavigationHandler = () => {
     ) {
       endNavigation()
     }
-  }, [pathname, targetRoute, endNavigation])
+  }, [pathname])
 
   return null
 }

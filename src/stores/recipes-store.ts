@@ -6,7 +6,7 @@ type RecipesStore = {
   setSearch: (search: string) => void
 }
 
-export const recipesStore = create<RecipesStore>((set) => ({
+export const useRecipesStore = create<RecipesStore>((set) => ({
   // Initial state
   search: '',
   setSearch: (search: string) => set({ search })

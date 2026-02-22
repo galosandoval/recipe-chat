@@ -2,7 +2,6 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useRef
@@ -33,14 +32,16 @@ export function ScrollToBottomProvider({
   const { ref: sentinelRef, inView: atBottom } = useInView({ threshold: 0 })
 
   // Keep ref in sync for MutationObserver callback
-  atBottomRef.current = atBottom
+  useEffect(() => {
+    atBottomRef.current = atBottom
+  }, [atBottom])
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = () => {
     const container = containerRef.current
     if (container) {
       container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
     }
-  }, [])
+  }
 
   // Auto-scroll when content changes (e.g. streaming) if user is at bottom
   useEffect(() => {

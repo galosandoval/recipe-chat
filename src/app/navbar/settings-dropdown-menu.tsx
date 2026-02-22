@@ -4,7 +4,7 @@ import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
 import { ChatsDrawer } from '~/components/chats-drawer'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import {
   LoginDrawerDialog,
   SignUpDrawerDialog
@@ -55,7 +55,7 @@ export function NavDropdownMenu() {
   const [isChatsOpen, setIsChatsOpen] = useState(false)
   const [isAddRecipeOpen, setIsAddRecipeOpen] = useState(false)
   const [isPreferredUnitsOpen, setIsPreferredUnitsOpen] = useState(false)
-  const { chatId } = chatStore()
+  const { chatId } = useChatStore()
   const pathname = usePathname()
 
   const session = useSession()
@@ -320,7 +320,7 @@ function useThemeToggleMenuItem() {
 }
 
 function useLogoutMenuItem() {
-  const { setChatId } = chatStore()
+  const { setChatId } = useChatStore()
   const pathname = usePathname()
   const { data: session } = useSession()
 
@@ -343,7 +343,7 @@ function useLogoutMenuItem() {
 }
 
 function useStartNewChatMenuItem() {
-  const { setChatId, setStream, setMessages, messages } = chatStore()
+  const { setChatId, setStream, setMessages, messages } = useChatStore()
 
   const handleStartNewChat = () => {
     setChatId('')

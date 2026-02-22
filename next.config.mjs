@@ -2,6 +2,7 @@
 
 /** @type {import("next").NextConfig} */
 const config = {
+  experimental: { reactCompiler: true },
   devIndicators: false,
   images: {
     remotePatterns: [

@@ -1,11 +1,11 @@
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { useTranslations } from '~/hooks/use-translations'
 
 export function BottomActiveFilters() {
   const { data: activeFilters, status } = useActiveFiltersByUserId()
   const t = useTranslations()
-  const messages = chatStore((state) => state.messages)
+  const messages = useChatStore((state) => state.messages)
 
   if (status === 'error') {
     return <div>{t.error.somethingWentWrong}</div>

@@ -5,14 +5,14 @@ import { useEffect } from 'react'
 import { api } from '~/trpc/react'
 import { useInView } from 'react-intersection-observer'
 import { Recipes } from './recipes'
-import { recipesStore } from '~/stores/recipes-store'
+import { useRecipesStore } from '~/stores/recipes-store'
 
 // on a desktop the user sees 12 at most
 const RECIPES_PER_PAGE_LIMIT = 12
 
 export default function InfiniteRecipes() {
   const { ref: inViewRef, inView } = useInView()
-  const { search } = recipesStore()
+  const { search } = useRecipesStore()
   const debouncedSearch = useDebounce(search)
 
   const [data, { fetchNextPage, hasNextPage, fetchStatus, isSuccess }] =

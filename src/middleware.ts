@@ -1,56 +1,55 @@
-import { type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { i18n } from './i18n-config'
 import Negotiator from 'negotiator'
 import { match as matchLocale } from '@formatjs/intl-localematcher'
+import { LOCALE_COOKIE_NAME } from '~/lib/locale'
 
-export async function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname
-  const searchParams = req.nextUrl.searchParams
 
-  const pathnameIsMissingLocale = i18n.locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  )
-  const includesPath = (path: string) =>
-    req.nextUrl.href.includes(`${req.nextUrl.origin}/${path}`)
-  // Redirect if there is no locale
-
-  const paths = ['/images/']
-  const ignoreSomePath = paths.some((path) => includesPath(path))
-  console.log('ignoreSomePath', ignoreSomePath)
-  if (pathnameIsMissingLocale && !ignoreSomePath) {
-    const locale = getLocale(req)
-
-    // Build the search params string with all existing parameters
-    const searchParamsString = searchParams.toString()
-    const queryString = searchParamsString ? `?${searchParamsString}` : ''
-
-    // e.g. incoming request is /products
-    // The new URL is now /en-US/products
-    return Response.redirect(
-      new URL(
-        `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}${queryString}`,
-        req.url
-      )
-    )
+  // Backward compat: redirect /en/... or /es/... to clean path
+  for (const locale of i18n.locales) {
+    if (pathname === `/${locale}`) {
+      const url = req.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url, 301)
+    }
+    if (pathname.startsWith(`/${locale}/`)) {
+      const url = req.nextUrl.clone()
+      url.pathname = pathname.slice(`/${locale}`.length) || '/'
+      return NextResponse.redirect(url, 301)
+    }
   }
+
+  // If cookie already set and valid, pass through
+  const existingCookie = req.cookies.get(LOCALE_COOKIE_NAME)?.value
+  if (existingCookie && (i18n.locales as readonly string[]).includes(existingCookie)) {
+    return NextResponse.next()
+  }
+
+  // Detect locale from Accept-Language and set cookie
+  const detectedLocale = getLocaleFromRequest(req)
+  const response = NextResponse.next()
+  response.cookies.set(LOCALE_COOKIE_NAME, detectedLocale, {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 365, // 1 year
+    sameSite: 'lax'
+  })
+  return response
 }
 
-function getLocale(request: Request) {
-  // Negotiator expects plain object so we need to transform headers
+function getLocaleFromRequest(request: NextRequest): string {
   const negotiatorHeaders: Record<string, string> = {}
   request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))
 
   // @ts-expect-error locales are readonly
   const locales: string[] = i18n.locales
 
-  // Use negotiator and intl-localematcher to get best locale
   const languages = new Negotiator({ headers: negotiatorHeaders }).languages(
     locales
   )
 
-  const locale = matchLocale(languages, locales, i18n.defaultLocale)
-
-  return locale
+  return matchLocale(languages, locales, i18n.defaultLocale)
 }
 
 export const config = {

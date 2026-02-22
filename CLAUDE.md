@@ -25,7 +25,7 @@ Next.js 15 App Router with tRPC, Prisma (PostgreSQL), and OpenAI streaming chat.
 
 ### Routing
 
-All pages are under `src/app/[lang]/` for i18n (en, es). The `[lang]` param is handled by middleware that detects locale and redirects. API routes live in `src/app/api/` — tRPC at `/api/trpc`, streaming chat at `/api/chat`, auth at `/api/auth`.
+All pages are directly under `src/app/`. i18n uses a `NEXT_LOCALE` cookie (auto-detected from `Accept-Language` by middleware). Use `useTranslations()` for translations and `useLocale()` for the locale string. Old `/{locale}/...` URLs are redirected to clean paths by middleware. API routes live in `src/app/api/` — tRPC at `/api/trpc`, streaming chat at `/api/chat`, auth at `/api/auth`.
 
 ### Server Layers (tRPC)
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
@@ -13,12 +13,12 @@ import { formatTimeFromMinutes } from '~/lib/format-time'
 import { Button } from '~/components/button'
 import { ChefHat, ChevronDownIcon, ClockIcon, SaveIcon } from 'lucide-react'
 import { Card } from '~/components/card'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 
 export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   const t = useTranslations()
   const [isOpen, setIsOpen] = useState(true)
-  const stream = chatStore((state) => state.stream)
+  const stream = useChatStore((state) => state.stream)
   const isStreaming = !!stream
 
   if (!recipe) {
@@ -82,7 +82,7 @@ function ActionButton({
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
-  const isStreaming = !!chatStore((state) => state.stream)
+  const isStreaming = !!useChatStore((state) => state.stream)
   const isUpsertingMessages = utils.chats.upsert.isMutating()
 
   const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
@@ -172,14 +172,8 @@ function Times({
   cookMinutes?: number | null
 }) {
   const t = useTranslations()
-  const formattedPrepMinutes = useMemo(
-    () => (prepMinutes ? formatTimeFromMinutes(prepMinutes, t) : null),
-    [prepMinutes, t]
-  )
-  const formattedCookMinutes = useMemo(
-    () => (cookMinutes ? formatTimeFromMinutes(cookMinutes, t) : null),
-    [cookMinutes, t]
-  )
+  const formattedPrepMinutes = prepMinutes ? formatTimeFromMinutes(prepMinutes, t) : null
+  const formattedCookMinutes = cookMinutes ? formatTimeFromMinutes(cookMinutes, t) : null
   if (!prepMinutes && !cookMinutes) return null
   return (
     <div className='text-foreground mb-2 flex items-center gap-2 self-center text-sm'>

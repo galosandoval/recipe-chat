@@ -1,10 +1,10 @@
 'use client'
 
-import React, { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import type { Ingredient } from '@prisma/client'
 import { useTranslations } from '~/hooks/use-translations'
 import { useChatPanelStore } from '~/stores/chat-panel-store'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 import { ArrowDownIcon, MessageSquareIcon, MinusIcon, PencilIcon, PlusIcon } from 'lucide-react'
@@ -149,11 +149,12 @@ function PantryRow({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingRef = useRef<{ quantity: number; unit: string; unitType: 'volume' | 'weight' | 'count' } | null>(null)
 
+  const displayQuantity = display?.displayQuantity
   useEffect(() => {
-    if (display) setInputValue(String(display.displayQuantity))
-  }, [display?.displayQuantity])
+    if (displayQuantity != null) setInputValue(String(displayQuantity))
+  }, [displayQuantity])
 
-  const flushDebounce = useCallback(() => {
+  const flushDebounce = () => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
       debounceRef.current = null
@@ -170,9 +171,28 @@ function PantryRow({
         }
       })
     }
-  }, [ingredient.id, updateItem])
+  }
 
-  useEffect(() => () => { flushDebounce() }, [flushDebounce])
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+        debounceRef.current = null
+      }
+      const pending = pendingRef.current
+      if (pending) {
+        pendingRef.current = null
+        updateItem({
+          ingredientId: ingredient.id,
+          data: {
+            quantity: pending.quantity,
+            unit: pending.unit,
+            unitType: pending.unitType
+          }
+        })
+      }
+    }
+  }, [updateItem, ingredient.id])
 
   const step =
     display?.unitType === 'count'
@@ -181,7 +201,7 @@ function PantryRow({
   const min =
     display?.unitType === 'count' ? 0 : MIN_WEIGHT_VOLUME
 
-  const persistQuantity = useCallback((qty: number) => {
+  const persistQuantity = (qty: number) => {
     if (!display || qty < min) return
     optimisticUpdateQuantity(ingredient.id, {
       quantity: qty,
@@ -191,7 +211,7 @@ function PantryRow({
     pendingRef.current = { quantity: qty, unit: display.displayUnit, unitType: display.unitType }
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(flushDebounce, DEBOUNCE_MS)
-  }, [display, min, ingredient.id, optimisticUpdateQuantity, flushDebounce])
+  }
 
   const handleDecrease = () => {
     if (!display) return
@@ -377,50 +397,44 @@ function PantryList({
         toast.error(err.message)
       }
     })
-  const optimisticUpdateQuantity = useCallback(
-    (
-      ingredientId: string,
-      data: {
-        quantity: number
-        unit: string
-        unitType: 'volume' | 'weight' | 'count'
+  const optimisticUpdateQuantity = (
+    ingredientId: string,
+    data: {
+      quantity: number
+      unit: string
+      unitType: 'volume' | 'weight' | 'count'
+    }
+  ) => {
+    utils.pantry.byUserId.setData({ userId }, (old) => {
+      if (!old) return old
+      return {
+        ...old,
+        ingredients: old.ingredients.map((ing) =>
+          ing.id === ingredientId
+            ? { ...ing, quantity: data.quantity, unit: data.unit, unitType: data.unitType }
+            : ing
+        )
       }
-    ) => {
-      utils.pantry.byUserId.setData({ userId }, (old) => {
-        if (!old) return old
-        return {
-          ...old,
-          ingredients: old.ingredients.map((ing) =>
-            ing.id === ingredientId
-              ? { ...ing, quantity: data.quantity, unit: data.unit, unitType: data.unitType }
-              : ing
-          )
-        }
-      })
-    },
-    [userId, utils]
-  )
-  const getDisplayIngredient = useCallback(
-    (ing: Ingredient): Ingredient => {
-      if (
-        pendingAddVariables?.id === ing.id &&
-        pendingAddVariables?.rawLine &&
-        (ing.quantity == null || ing.unit == null)
-      ) {
-        const parsed = ingredientStringToCreatePayload(pendingAddVariables.rawLine)
-        return {
-          ...ing,
-          quantity: parsed.quantity,
-          unit: parsed.unit,
-          unitType: parsed.unitType,
-          itemName: parsed.itemName,
-          preparation: parsed.preparation
-        }
+    })
+  }
+  const getDisplayIngredient = (ing: Ingredient): Ingredient => {
+    if (
+      pendingAddVariables?.id === ing.id &&
+      pendingAddVariables?.rawLine &&
+      (ing.quantity == null || ing.unit == null)
+    ) {
+      const parsed = ingredientStringToCreatePayload(pendingAddVariables.rawLine)
+      return {
+        ...ing,
+        quantity: parsed.quantity,
+        unit: parsed.unit,
+        unitType: parsed.unitType,
+        itemName: parsed.itemName,
+        preparation: parsed.preparation
       }
-      return ing
-    },
-    [pendingAddVariables]
-  )
+    }
+    return ing
+  }
   const displayText = (ing: Ingredient) => {
     const displayIng = getDisplayIngredient(ing)
     return (
@@ -528,7 +542,7 @@ function UseInChatButton() {
   const { open } = useChatPanelStore()
 
   const handleClick = () => {
-    chatStore
+    useChatStore
       .getState()
       .setInput('What can I make with what I have?')
     open()

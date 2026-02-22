@@ -2,7 +2,7 @@ import { type MouseEvent } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { SignUpDrawerDialog } from '~/components/auth/auth-drawer-dialogs'
 import { useSession } from 'next-auth/react'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { Button } from '~/components/button'
 import { CornerRightUpIcon, SparklesIcon, UserPlusIcon } from 'lucide-react'
@@ -10,8 +10,8 @@ import { cn } from '~/lib/utils'
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
-  const { messages, reset, triggerAISubmission } = chatStore()
-  const stream = chatStore((state) => state.stream)
+  const { messages, reset, triggerAISubmission } = useChatStore()
+  const stream = useChatStore((state) => state.stream)
   const isStreaming = !!stream
   const session = useSession()
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {

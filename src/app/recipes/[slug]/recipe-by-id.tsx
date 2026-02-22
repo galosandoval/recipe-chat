@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo } from 'react'
+import { useRef } from 'react'
 import { type Instruction } from '@prisma/client'
 import { api } from '~/trpc/react'
 import { useAppForm } from '~/hooks/use-app-form'
@@ -47,30 +47,16 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [startRef, startObservation] = useObervationObserver(observerOptions)
   const [endRef, endObservation] = useObervationObserver(observerOptions)
-  // Memoize the intersection ratio calculation to prevent unnecessary re-renders
-  const intersectionRatio = useMemo(
-    () => endObservation?.intersectionRatio ?? 0,
-    [endObservation?.intersectionRatio]
-  )
+  const intersectionRatio = endObservation?.intersectionRatio ?? 0
+  const translateY = `${intersectionRatio * 30}%`
 
-  // Memoize the translateY calculation
-  const translateY = useMemo(
-    () => `${intersectionRatio * 30}%`,
-    [intersectionRatio]
-  )
-  // Memoize the container height to prevent unnecessary re-renders
-  const containerHeight = useMemo(() => {
-    if (containerRef.current) {
-      return containerRef.current.clientHeight
-    }
-    return 0
-  }, [containerRef.current])
+  let containerHeight = 0
+  if (containerRef.current) {
+    containerHeight = containerRef.current.clientHeight
+  }
 
-  const isPastHero = useMemo(() => {
-    return (
-      Math.abs(startObservation?.boundingClientRect?.y ?? 0) >= containerHeight
-    )
-  }, [startObservation?.boundingClientRect, containerHeight])
+  const isPastHero =
+    Math.abs(startObservation?.boundingClientRect?.y ?? 0) >= containerHeight
 
   return (
     <>

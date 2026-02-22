@@ -7,7 +7,6 @@ import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { cn } from '~/lib/utils'
 import { Badge } from '~/components/badge'
-import { useMemo } from 'react'
 import { CheckCircleIcon, CircleIcon, XCircleIcon } from 'lucide-react'
 import { middleIndexOfNames } from '~/lib/middle-index-of-names'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
@@ -28,10 +27,7 @@ export function FilterBadges({
   const t = useTranslations()
   const { mutate: deleteFilter } = useDeleteFilter()
   const { mutate: activateFilter } = useActivateFilter()
-  const { firstHalf, secondHalf } = useMemo(
-    () => transform(filters, t),
-    [filters, t]
-  )
+  const { firstHalf, secondHalf } = transform(filters, t)
 
   const handleRemoveFilter = (id: string) => {
     deleteFilter({ filterId: id })

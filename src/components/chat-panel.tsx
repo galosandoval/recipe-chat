@@ -5,7 +5,7 @@ import { MessageSquareIcon, XIcon } from 'lucide-react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 import { cn } from '~/lib/utils'
 import { useChatPanelStore } from '~/stores/chat-panel-store'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import { Interface } from '~/components/chat/interface'
 import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
 import { GenerateMessageForm } from '~/components/chat/generate-message-form'
@@ -16,7 +16,7 @@ export function ChatPanel() {
 
   useEffect(() => {
     if (isOpen) {
-      chatStore.getState().initializeFromStorage()
+      useChatStore.getState().initializeFromStorage()
     }
   }, [isOpen])
 

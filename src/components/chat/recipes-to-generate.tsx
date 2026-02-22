@@ -1,5 +1,5 @@
 import { useTranslations } from '~/hooks/use-translations'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
@@ -10,7 +10,7 @@ import { STREAM_TIMEOUT } from '~/constants/chat'
 import { SendIcon } from 'lucide-react'
 
 export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
-  const isStreaming = !!chatStore((state) => state.stream)
+  const isStreaming = !!useChatStore((state) => state.stream)
 
   return (
     <div className='grid grid-cols-1 items-stretch gap-2 pt-3 sm:grid-cols-2'>
@@ -58,7 +58,7 @@ function GenerateButton({
   recipeDescription: string
 }) {
   const t = useTranslations()
-  const { triggerAISubmission, messages, setStream } = chatStore()
+  const { triggerAISubmission, messages, setStream } = useChatStore()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const generateRecipe = async (name: string, description: string) => {
@@ -67,7 +67,7 @@ function GenerateButton({
       ...messages,
       userMessageDTO(
         buildGenerateRecipeContent(t.chat.generateRecipe, name, description),
-        chatStore.getState().chatId
+        useChatStore.getState().chatId
       )
     ])
     timeoutRef.current = setTimeout(() => {

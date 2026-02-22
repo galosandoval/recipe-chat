@@ -1,9 +1,9 @@
 'use client'
 
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { useTranslations } from '~/hooks/use-translations'
+import { useTranslations, useLocale } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { toast } from '~/components/toast'
 import { CheckIcon } from 'lucide-react'
@@ -28,8 +28,7 @@ export default function SubscriptionPage() {
   const t = useTranslations()
   const session = useSession()
   const searchParams = useSearchParams()
-  const params = useParams()
-  const lang = (params.lang as string) ?? 'en'
+  const lang = useLocale()
   const localeMap: Record<string, string> = { en: 'en-US', es: 'es-MX' }
   const locale = localeMap[lang] ?? 'en-US'
 
@@ -39,14 +38,14 @@ export default function SubscriptionPage() {
 
   const checkout = api.subscription.createCheckout.useMutation({
     onSuccess: (data) => {
-      if (data.url) window.location.href = data.url
+      if (data.url) window.location.assign(data.url)
     },
     onError: (err) => toast.error(err.message)
   })
 
   const portal = api.subscription.createPortalSession.useMutation({
     onSuccess: (data) => {
-      if (data.url) window.location.href = data.url
+      if (data.url) window.location.assign(data.url)
     },
     onError: (err) => toast.error(err.message)
   })
@@ -58,8 +57,7 @@ export default function SubscriptionPage() {
     if (searchParams.get('canceled') === 'true') {
       toast.info(t.subscription.canceledMessage)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
+  }, [searchParams, t])
 
   if (!session.data) {
     return (

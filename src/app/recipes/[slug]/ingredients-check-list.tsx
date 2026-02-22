@@ -3,7 +3,7 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { useAddToList } from '~/hooks/use-recipe'
 import { api, type RouterInputs } from '~/trpc/react'
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Togglebox } from '~/components/togglebox'
 import type { Ingredient } from '@prisma/client'
@@ -72,35 +72,27 @@ export function IngredientsCheckList({
   const [addedToList, setAddedToList] = useState(false)
   const router = useRouter()
 
-  const handleCheck = useCallback(
-    (change: { id: string; checked: boolean }) => {
-      checkIngredient([{ id: change.id, checked: change.checked }])
-    },
-    [checkIngredient]
-  )
+  const handleCheck = (change: { id: string; checked: boolean }) => {
+    checkIngredient([{ id: change.id, checked: change.checked }])
+  }
 
-  const allChecked = useMemo(
-    () => ingredients.every((i) => i.checked),
-    [ingredients]
-  )
-  const someNotChecked = useMemo(
-    () => ingredients.some((i) => !i.checked),
-    [ingredients]
-  )
-  const handleCheckAll = useCallback(() => {
+  const allChecked = ingredients.every((i) => i.checked)
+  const someNotChecked = ingredients.some((i) => !i.checked)
+
+  const handleCheckAll = () => {
     // Create updates for all ingredients that aren't section headers
     const updates = ingredients
       .filter((i) => !getIngredientDisplayText(i).endsWith(':'))
       .map((i) => ({ id: i.id, checked: !allChecked }))
 
     checkIngredient(updates)
-  }, [allChecked, ingredients, checkIngredient])
+  }
 
   const goToListTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   )
 
-  const handleAddToList = useCallback(() => {
+  const handleAddToList = () => {
     const uncheckedIngredients = ingredients.filter((i) => !i.checked)
     const newList: RouterInputs['lists']['upsert'] = uncheckedIngredients
     mutate(newList)
@@ -109,11 +101,11 @@ export function IngredientsCheckList({
     goToListTimerRef.current = setTimeout(() => {
       setAddedToList(false)
     }, 6000)
-  }, [ingredients, mutate])
+  }
 
-  const handleGoToList = useCallback(() => {
+  const handleGoToList = () => {
     router.push('/list')
-  }, [router])
+  }
 
   useEffect(() => {
     return () => {

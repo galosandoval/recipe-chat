@@ -1,5 +1,4 @@
 import { CheckCircleIcon } from 'lucide-react'
-import { useMemo } from 'react'
 import { LoadingSpinner } from '~/components/loaders/loading-spinner'
 import { useTranslations } from '~/hooks/use-translations'
 
@@ -23,21 +22,13 @@ export function GenerateStatusAppMessage({
 }) {
   const t = useTranslations()
 
-  const icon = useMemo(
-    () =>
-      isStreaming ? (
-        <LoadingSpinner className='text-primary size-4' />
-      ) : (
-        <CheckCircleIcon className='text-success size-5' />
-      ),
-    [isStreaming]
+  const icon = isStreaming ? (
+    <LoadingSpinner className='text-primary size-4' />
+  ) : (
+    <CheckCircleIcon className='text-success size-5' />
   )
-  const label = useMemo(
-    () =>
-      isStreaming
-        ? t.chat.replace('generatingRecipe', recipeName)
-        : t.chat.replace('generatedRecipe', recipeName),
-    [isStreaming]
-  )
+  const label = isStreaming
+    ? t.chat.replace('generatingRecipe', recipeName)
+    : t.chat.replace('generatedRecipe', recipeName)
   return <AppMessage label={label} icon={icon} />
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { NavDropdownMenu } from './settings-dropdown-menu'
 import {
   ArrowBigLeft,
@@ -25,13 +25,12 @@ import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 export const Navbar = () => {
   const { data } = useSession()
   const pathname = usePathname()
-  const { lang } = useParams()
   const slug = useRecipeSlug()
 
   let navbar = <RoutesNavbar />
   if (!data) {
     navbar = <PublicNavbar />
-  } else if (pathname === `/${lang}/recipes/${slug}`) {
+  } else if (pathname === `/recipes/${slug}`) {
     return <RecipeByIdNavbar />
   }
 

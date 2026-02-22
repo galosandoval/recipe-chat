@@ -3,10 +3,9 @@ import { cn } from '~/lib/utils'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
-import { memo, useMemo } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import { GenerateStatusAppMessage } from './app-message'
 import { Avatar } from './avatar'
 
@@ -24,7 +23,7 @@ export const Message = function Message({
   return <UserMessage message={message} isLastMessage={isLastMessage} />
 }
 
-const UserMessage = memo(function UserMessage({
+function UserMessage({
   message,
   isLastMessage
 }: {
@@ -33,17 +32,15 @@ const UserMessage = memo(function UserMessage({
 }) {
   const t = useTranslations()
   const utils = api.useUtils()
-  const foundMessage = useMemo(() => {
-    const chatId = chatStore.getState().chatId
-    const data = utils.chats.getMessagesById.getData({ chatId: chatId ?? '' })
-    const allRecipes =
-      data?.messages.flatMap((m) => m.recipes)?.flatMap((r) => r.recipe) ?? []
+  const chatId = useChatStore((state) => state.chatId)
+  const data = utils.chats.getMessagesById.getData({ chatId: chatId ?? '' })
+  const allRecipes =
+    data?.messages.flatMap((m) => m.recipes)?.flatMap((r) => r.recipe) ?? []
 
-    return allRecipes.find((r) =>
-      message.content.includes(`${t.chat.generateRecipe} ${r.name}`)
-    )
-  }, [message.content])
-  const isStreaming = !!chatStore((state) => state.stream)
+  const foundMessage = allRecipes.find((r) =>
+    message.content.includes(`${t.chat.generateRecipe} ${r.name}`)
+  )
+  const isStreaming = !!useChatStore((state) => state.stream)
 
   if (foundMessage) {
     return (
@@ -64,7 +61,7 @@ const UserMessage = memo(function UserMessage({
       </div>
     </div>
   )
-})
+}
 
 export function ChatMessage({
   icon,

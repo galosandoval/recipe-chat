@@ -1,9 +1,8 @@
 'use client'
 
 import { api, type RouterOutputs } from '~/trpc/react'
-import { Loader } from '../../../components/loaders/recipe-list-recent'
+import { Loader } from '~/components/loaders/recipe-list-recent'
 import { useTranslations } from '~/hooks/use-translations'
-import { useMemo } from 'react'
 import { RecipeFallbackIconSm } from '~/components/icons'
 import Image from 'next/image'
 import { NavigationButton } from '~/components/navigation-button'
@@ -12,10 +11,7 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
   const t = useTranslations()
 
   const { data, status } = api.recipes.recentRecipes.useQuery()
-  const sortedData = useMemo(
-    () => data?.toSorted((a, b) => a.name.localeCompare(b.name)) ?? [],
-    [data]
-  )
+  const sortedData = data?.toSorted((a, b) => a.name.localeCompare(b.name)) ?? []
 
   if (status === 'error') {
     return <div className=''>{t.error.somethingWentWrong}</div>

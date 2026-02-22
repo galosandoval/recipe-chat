@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useLayoutEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
 import { FiltersByUser } from './recipe-filters/recipe-filters'
 import { ValueProps } from './value-props'
@@ -9,13 +9,13 @@ import {
   ScrollToBottomProvider,
   ScrollToBottomButton
 } from '~/components/scroll-to-bottom-button'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import { Stream } from './stream'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { Message } from './message'
 
 export const Interface = () => {
-  const { messages, reset, chatId } = chatStore()
+  const { messages, reset, chatId } = useChatStore()
   const isNewChat = !chatId && messages.length === 0
 
   useLayoutEffect(() => {
@@ -56,12 +56,12 @@ function Chat({ messages }: { messages: MessageWithRecipes[] }) {
   return <ScreenLoader />
 }
 
-const Messages = memo(function Messages({
+function Messages({
   data
 }: {
   data: MessageWithRecipes[]
 }) {
-  const { stream } = chatStore()
+  const { stream } = useChatStore()
   const isStreaming = !!stream
 
   return (
@@ -81,4 +81,4 @@ const Messages = memo(function Messages({
       ) : null}
     </div>
   )
-})
+}

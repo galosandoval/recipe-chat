@@ -4,11 +4,11 @@ import { useEffect } from 'react'
 import { Interface } from '~/components/chat/interface'
 import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
 import { GenerateMessageForm } from '~/components/chat/generate-message-form'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 
 export function Chat() {
   useEffect(() => {
-    chatStore.getState().initializeFromStorage()
+    useChatStore.getState().initializeFromStorage()
   }, [])
 
   return (

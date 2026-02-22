@@ -43,34 +43,31 @@ function EditButton({
 }) {
   const buttonRef = useRef<HTMLButtonElement>(null)
 
-  const handleClickOutside = (e: MouseEvent) => {
-    const node = e.target as Node
-    const buttonClicked = buttonRef.current?.contains(node) ?? false
-    const filterBadges = filterBadgesRef.current
-    if (!buttonClicked) {
-      const hasFilterBadges = filterBadges?.contains(node)
-      if (hasFilterBadges) {
-        return
-      }
-      onToggleCanDelete()
-    }
-  }
-
   const handleOnClick = () => {
     onToggleCanDelete()
   }
 
   useEffect(() => {
-    if (canDelete) {
-      document.addEventListener('click', handleClickOutside)
-    } else {
-      document.removeEventListener('click', handleClickOutside)
+    if (!canDelete) return
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const node = e.target as Node
+      const buttonClicked = buttonRef.current?.contains(node) ?? false
+      const filterBadges = filterBadgesRef.current
+      if (!buttonClicked) {
+        const hasFilterBadges = filterBadges?.contains(node)
+        if (hasFilterBadges) {
+          return
+        }
+        onToggleCanDelete()
+      }
     }
 
+    document.addEventListener('click', handleClickOutside)
     return () => {
       document.removeEventListener('click', handleClickOutside)
     }
-  }, [canDelete])
+  }, [canDelete, onToggleCanDelete, filterBadgesRef])
 
   return (
     <Button

@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from '~/hooks/use-translations'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import { experimental_useObject as useObject } from '@ai-sdk/react'
 import {
   generatedMessageSchema,
@@ -22,7 +22,7 @@ import { SendIcon, StopCircleIcon } from 'lucide-react'
 
 function useRecipeChat() {
   const userId = useUserId()
-  const { setInput, setStream } = chatStore()
+  const { setInput, setStream } = useChatStore()
   const { onFinishMessage, createUserMessage } = useChatAI()
   const {
     object,
@@ -63,7 +63,7 @@ function useRecipeChat() {
         recipes: (object.recipes ?? []).filter(Boolean) as GeneratedRecipe[]
       })
     }
-  }, [object])
+  }, [object, setStream])
 
   return {
     handleAISubmit,
@@ -75,15 +75,24 @@ const STREAM_TIMEOUT = 30000 // 30 seconds
 
 export function GenerateMessageForm() {
   const { input, handleInputChange, messages, chatId, reset, stream } =
-    chatStore()
+    useChatStore()
   const isStreaming = stream !== null
   const { handleAISubmit, stop: aiStop } = useRecipeChat()
   const t = useTranslations()
   const streamTimeout = useRef<NodeJS.Timeout | null>(null)
+  const handleAISubmitRef = useRef(handleAISubmit)
 
-  // Set up the triggerAISubmission method in the store
+  // Keep the ref up-to-date with the latest handler
   useEffect(() => {
-    chatStore.setState({ triggerAISubmission: handleAISubmit })
+    handleAISubmitRef.current = handleAISubmit
+  })
+
+  // Set up a stable triggerAISubmission wrapper in the store (once)
+  useEffect(() => {
+    useChatStore.setState({
+      triggerAISubmission: (messages: MessageWithRecipes[]) =>
+        handleAISubmitRef.current(messages)
+    })
   }, [])
 
   const enhancedHandleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

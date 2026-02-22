@@ -2,14 +2,15 @@ import '~/globals.css'
 
 import { type Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
+import { cookies } from 'next/headers'
 
 import { auth } from '~/server/auth'
 import { Providers } from '~/components/providers'
-import { Navbar } from '~/app/[lang]/navbar/navbar'
+import { Navbar } from '~/app/navbar/navbar'
 import { getTranslations } from '~/lib/get-translations'
-import type { Locale } from '~/i18n-config'
 import { ErrorBoundary } from '~/components/error-boundary'
-import { AppFooter } from '~/app/[lang]/app-footer'
+import { AppFooter } from '~/app/app-footer'
+import { LOCALE_COOKIE_NAME, getLocaleFromCookie } from '~/lib/locale'
 
 export const metadata: Metadata = {
   title: 'RecipeChat',
@@ -18,22 +19,22 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({
-  children,
-  params
-}: Readonly<{ children: React.ReactNode; params: Promise<{ lang: Locale }> }>) {
+  children
+}: Readonly<{ children: React.ReactNode }>) {
   const session = await auth()
-  const { lang } = await params
-  const translations = await getTranslations(lang)
+  const cookieStore = await cookies()
+  const locale = getLocaleFromCookie(cookieStore.get(LOCALE_COOKIE_NAME)?.value)
+  const translations = await getTranslations(locale)
 
   return (
     <html
       suppressHydrationWarning
-      lang={lang}
+      lang={locale}
       className={`${GeistSans.variable}`}
     >
       <body className='h-svh overflow-hidden'>
         <div className='mx-auto flex h-full w-full max-w-2xl flex-col'>
-          <Providers session={session} translations={translations}>
+          <Providers session={session} translations={translations} locale={locale}>
             <ErrorBoundary>
               <header className='sticky top-0 z-30'>
                 <Navbar />

@@ -1,6 +1,6 @@
 import type { Recipe } from '@prisma/client'
 import type { FetchStatus } from '@tanstack/react-query'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from '~/hooks/use-translations'
 import { RecentRecipes } from './recipe-list-recent'
@@ -12,12 +12,12 @@ import { NavigationButton } from '~/components/navigation-button'
 import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import { BotIcon, SearchIcon, XCircleIcon } from 'lucide-react'
-import { navigationStore } from '~/stores/navigation-store'
-import { recipesStore } from '~/stores/recipes-store'
+import { useNavigationStore } from '~/stores/navigation-store'
+import { useRecipesStore } from '~/stores/recipes-store'
 import { useDebounce } from '~/hooks/use-recipe'
 import { useChatPanelStore } from '~/stores/chat-panel-store'
 
-export const Recipes = React.memo(function Recipes({
+export function Recipes({
   search,
   fetchStatus,
   recipes
@@ -40,22 +40,25 @@ export const Recipes = React.memo(function Recipes({
       )}
     </div>
   )
-})
+}
 
-const Header = React.memo(function Header() {
+function Header() {
   const t = useTranslations()
   const inputRef = useRef<HTMLInputElement>(null)
   const [isExpanded, setIsExpanded] = useState(false)
-  const { search, setSearch } = recipesStore()
+  const { search, setSearch } = useRecipesStore()
   const router = useRouter()
   const searchParams = useSearchParams()
   const debouncedSearch = useDebounce(search)
 
+  const initialized = useRef(false)
   useEffect(() => {
+    if (initialized.current) return
+    initialized.current = true
     const initial = searchParams.get('search') ?? ''
     setSearch(initial)
     if (initial) setIsExpanded(true)
-  }, [])
+  }, [searchParams, setSearch])
 
   useEffect(() => {
     if (debouncedSearch) {
@@ -112,34 +115,30 @@ const Header = React.memo(function Header() {
       </Button>
     </div>
   )
-})
+}
 
-const RecipeCards = React.memo(function RecipeCards({
+function RecipeCards({
   recipes,
   search
 }: {
   recipes: Recipe[]
   search: string
 }) {
-  const sortedAndFilteredData = useMemo(() => {
-    let sortedData = recipes.toSorted((a, b) => {
-      if (a.name < b.name) {
-        return -1
-      }
-      if (a.name > b.name) {
-        return 1
-      }
-      return 0
-    })
-
-    if (search) {
-      sortedData = sortedData.filter((recipe) =>
-        recipe.name.toLowerCase().includes(search.toLowerCase())
-      )
+  let sortedAndFilteredData = recipes.toSorted((a, b) => {
+    if (a.name < b.name) {
+      return -1
     }
+    if (a.name > b.name) {
+      return 1
+    }
+    return 0
+  })
 
-    return sortedData
-  }, [recipes, search])
+  if (search) {
+    sortedAndFilteredData = sortedAndFilteredData.filter((recipe) =>
+      recipe.name.toLowerCase().includes(search.toLowerCase())
+    )
+  }
 
   if (recipes.length === 0 && !search) {
     return <EmptyList />
@@ -155,9 +154,9 @@ const RecipeCards = React.memo(function RecipeCards({
       ))}
     </div>
   )
-})
+}
 
-const EmptyList = React.memo(function EmptyList() {
+function EmptyList() {
   const t = useTranslations()
   const openChat = useChatPanelStore((s) => s.open)
   return (
@@ -180,9 +179,9 @@ const EmptyList = React.memo(function EmptyList() {
       </div>
     </div>
   )
-})
+}
 
-const NoneFound = React.memo(function NoneFound() {
+function NoneFound() {
   const t = useTranslations()
   return (
     <div className='col-span-2 flex min-h-[60vh] items-center justify-center sm:col-span-4'>
@@ -201,12 +200,12 @@ const NoneFound = React.memo(function NoneFound() {
       </div>
     </div>
   )
-})
+}
 
-const Card = React.memo(function Card({ data }: { data: Recipe }) {
+function Card({ data }: { data: Recipe }) {
   const utils = api.useUtils()
-  const isNavigating = navigationStore((state) => state.isNavigating)
-  const targetRoute = navigationStore((state) => state.targetRoute)
+  const isNavigating = useNavigationStore((state) => state.isNavigating)
+  const targetRoute = useNavigationStore((state) => state.targetRoute)
   const isThisRoute = targetRoute === `/recipes/${data.slug}`
   const { mutate: updateLastViewedAt } =
     api.recipes.updateLastViewedAt.useMutation({
@@ -259,4 +258,4 @@ const Card = React.memo(function Card({ data }: { data: Recipe }) {
       )}
     </NavigationButton>
   )
-})
+}
