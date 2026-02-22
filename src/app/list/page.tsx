@@ -3,6 +3,7 @@ import { HydrateClient, api } from '~/trpc/server'
 import { ListByUserId } from './list-by-user-id'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
+import { ChatFab, ChatPanel } from '~/components/chat-panel'
 
 export default async function ListView() {
   const session = await auth()
@@ -18,6 +19,8 @@ export default async function ListView() {
       <main className='mx-auto w-full overflow-y-auto pt-4 pb-20'>
         <ListByUserId />
       </main>
+      <ChatFab context={{ page: 'list' }} />
+      <ChatPanel />
     </HydrateClient>
   )
 }

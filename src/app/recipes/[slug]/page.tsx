@@ -1,7 +1,7 @@
 import { api, HydrateClient } from '~/trpc/server'
 import RecipeById from './recipe-by-id'
 import { notFound } from 'next/navigation'
-import { ChatFab, ChatPanel } from '~/components/chat-panel'
+import { RecipeDetailChat } from './recipe-detail-chat'
 
 export async function generateMetadata({
   params
@@ -34,8 +34,7 @@ export default async function RecipeByIdPage({
       <div className='min-h-svh w-full'>
         <RecipeById />
       </div>
-      <ChatFab />
-      <ChatPanel />
+      <RecipeDetailChat />
     </HydrateClient>
   )
 }

@@ -545,7 +545,7 @@ function UseInChatButton() {
     useChatStore
       .getState()
       .setInput('What can I make with what I have?')
-    open()
+    open({ page: 'pantry' })
   }
 
   return (

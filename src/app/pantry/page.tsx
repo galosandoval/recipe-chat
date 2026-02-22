@@ -3,6 +3,7 @@ import { HydrateClient, api } from '~/trpc/server'
 import { PantryByUserId } from './pantry-by-user-id'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
+import { ChatFab, ChatPanel } from '~/components/chat-panel'
 
 export default async function PantryView() {
   const session = await auth()
@@ -17,6 +18,8 @@ export default async function PantryView() {
       <main className='mx-auto w-full overflow-y-auto pb-20'>
         <PantryByUserId />
       </main>
+      <ChatFab context={{ page: 'pantry' }} />
+      <ChatPanel />
     </HydrateClient>
   )
 }

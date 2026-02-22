@@ -250,7 +250,7 @@ function PreferredUnitsDialog({
   )
 }
 
-function ParseAndAddRecipeDialogs({
+export function ParseAndAddRecipeDialogs({
   open,
   onOpenChange
 }: {

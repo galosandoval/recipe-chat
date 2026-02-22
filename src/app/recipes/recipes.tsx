@@ -173,7 +173,7 @@ function EmptyList() {
             {t.recipes.noRecipes.empty.description}
           </p>
         </div>
-        <Button variant='default' className='mt-2' onClick={openChat}>
+        <Button variant='default' className='mt-2' onClick={() => openChat()}>
           {t.recipes.noRecipes.empty.link}
         </Button>
       </div>
