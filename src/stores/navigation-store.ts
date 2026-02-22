@@ -11,7 +11,7 @@ type NavigationStore = {
   endNavigation: () => void
 }
 
-export const navigationStore = create<NavigationStore>((set) => ({
+export const useNavigationStore = create<NavigationStore>((set) => ({
   // Initial state
   isNavigating: false,
   targetRoute: null,

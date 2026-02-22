@@ -5,20 +5,24 @@ import { MessageSquareIcon, XIcon } from 'lucide-react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 import { cn } from '~/lib/utils'
 import { useChatPanelStore } from '~/stores/chat-panel-store'
-import { chatStore } from '~/stores/chat-store'
-import { Interface } from '~/app/[lang]/chat/interface'
-import { BottomActiveFilters } from '~/app/[lang]/chat/bottom-active-filters'
-import { GenerateMessageForm } from '~/app/[lang]/chat/generate-message-form'
+import type { ChatContext } from '~/schemas/chats-schema'
+import { useChatStore } from '~/stores/chat-store'
+import { Interface } from '~/components/chat/interface'
+import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
+import { GenerateMessageForm } from '~/components/chat/generate-message-form'
 import { Button } from '~/components/button'
 
 export function ChatPanel() {
-  const { isOpen, close } = useChatPanelStore()
+  const { isOpen, close, context } = useChatPanelStore()
 
   useEffect(() => {
     if (isOpen) {
-      chatStore.getState().initializeFromStorage()
+      useChatStore.getState().initializeFromStorage()
     }
   }, [isOpen])
+
+  const headerLabel =
+    context.page === 'recipe-detail' ? context.recipe.name : 'Chat'
 
   return (
     <DrawerPrimitive.Root
@@ -35,12 +39,12 @@ export function ChatPanel() {
           aria-describedby={undefined}
         >
           <DrawerPrimitive.Title className='sr-only'>
-            Chat
+            {headerLabel}
           </DrawerPrimitive.Title>
           <div className='flex items-center justify-between border-b px-4 py-3'>
             <div className='flex items-center gap-2'>
               <MessageSquareIcon size='1rem' />
-              <span className='text-sm font-semibold'>Chat</span>
+              <span className='text-sm font-semibold'>{headerLabel}</span>
             </div>
             <Button variant='ghost' size='icon' onClick={close}>
               <XIcon size='1rem' />
@@ -63,12 +67,18 @@ export function ChatPanel() {
   )
 }
 
-export function ChatFab({ className }: { className?: string }) {
+export function ChatFab({
+  className,
+  context
+}: {
+  className?: string
+  context?: ChatContext
+}) {
   const { toggle } = useChatPanelStore()
 
   return (
     <Button
-      onClick={toggle}
+      onClick={() => toggle(context)}
       size='icon'
       className={cn(
         'fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full shadow-lg sm:bottom-6 sm:right-6',

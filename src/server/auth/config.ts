@@ -24,6 +24,18 @@ export const authConfig = {
         token.id = user.id
         //@ts-expect-error - listId is not in the default session
         token.listId = user.listId
+        //@ts-expect-error - subscriptionTier is not in the default session
+        token.subscriptionTier = user.subscriptionTier ?? 'FREE'
+      }
+
+      if (token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { subscriptionTier: true }
+        })
+        if (dbUser) {
+          token.subscriptionTier = dbUser.subscriptionTier
+        }
       }
 
       return token
@@ -32,6 +44,7 @@ export const authConfig = {
       if (token?.id) {
         session.user.id = token.id as string
         session.user.listId = token.listId as string
+        session.user.subscriptionTier = (token.subscriptionTier as string) ?? 'FREE'
       }
 
       return session
@@ -61,7 +74,12 @@ export const authConfig = {
         const username = email.toLowerCase()
         const user = await prisma.user.findFirst({
           where: { username },
-          select: { list: { select: { id: true } }, password: true, id: true }
+          select: {
+            list: { select: { id: true } },
+            password: true,
+            id: true,
+            subscriptionTier: true
+          }
         })
         if (!user) {
           return null
@@ -72,7 +90,8 @@ export const authConfig = {
         }
         return {
           id: user.id,
-          listId: user?.list?.id
+          listId: user?.list?.id,
+          subscriptionTier: user.subscriptionTier
         }
       }
     })
@@ -101,6 +120,7 @@ declare module 'next-auth' {
     user: {
       id: string
       listId: string
+      subscriptionTier: string
     } & DefaultSession['user']
   }
 }

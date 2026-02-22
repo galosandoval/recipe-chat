@@ -12,10 +12,10 @@ export const maxDuration = 30
 export async function POST(req: Request) {
   const request = await req.json()
   const input = chatParams.parse(request)
-  const { filters, messages, userId } = input
+  const { filters, messages, userId, context } = input
 
   let recipesNames: string[] = []
-  if (!userId) {
+  if (userId) {
     // not just saved recipes, any recipe genereated by the user
     const generatedRecipes = await prisma.recipe.findMany({
       where: {
@@ -45,7 +45,8 @@ export async function POST(req: Request) {
   const system = buildSystemPrompt({
     filters,
     savedRecipes: recipesNames,
-    pantrySummary
+    pantrySummary,
+    context
   })
 
   const result = streamObject({

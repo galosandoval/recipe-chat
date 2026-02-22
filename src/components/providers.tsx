@@ -10,6 +10,7 @@ import {
   type AwaitedTranslations,
   type Translations
 } from '~/hooks/use-translations'
+import type { Locale } from '~/i18n-config'
 import { ThemeProvider } from './theme-provider'
 import { Toaster } from 'sonner'
 import { NavigationHandler } from './navigation-handler'
@@ -17,15 +18,19 @@ import { NavigationHandler } from './navigation-handler'
 export const Providers = ({
   children,
   session,
-  translations
+  translations,
+  locale
 }: {
   children: ReactNode
   session: Session | null
   translations: AwaitedTranslations
+  locale: Locale
 }) => {
   return (
     <TRPCReactProvider>
-      <TranslationsContext.Provider value={translations as Translations}>
+      <TranslationsContext.Provider
+        value={{ translations: translations as Translations, locale }}
+      >
         <SessionProvider session={session}>
           <ThemeProvider
             attribute='class'

@@ -129,7 +129,7 @@ class TranslationClass {
 
   /**
    * Recursively add replace methods to nested objects
-   * Optimized to avoid unnecessary object creation
+   * Copies each nested object to avoid mutating the original context value
    */
   private addReplaceMethods(
     obj: any,
@@ -147,14 +147,22 @@ class TranslationClass {
           typeof value !== 'function' &&
           !Array.isArray(value)
         ) {
-          // Add replace method to this nested object
-          value.replace = (subKey: string, ...args: string[]) => {
+          // Copy the nested object to avoid mutating shared context references
+          const copy = { ...value }
+          obj[key] = copy
+
+          copy.replace = (subKey: string, ...args: string[]) => {
             const fullPath = `${currentPath}.${subKey}`
             return translationClass.replace(fullPath, ...args)
           }
 
+          copy.get = (subKey: string) => {
+            const fullPath = `${currentPath}.${subKey}`
+            return translationClass.get(fullPath)
+          }
+
           // Recursively process deeper nested objects
-          this.addReplaceMethods(value, currentPath, translationClass)
+          this.addReplaceMethods(copy, currentPath, translationClass)
         }
       }
     }
@@ -168,18 +176,32 @@ class TranslationClass {
   }
 }
 
-export const TranslationsContext = createContext<Translations | null>(null)
+type TranslationsContextValue = {
+  translations: Translations
+  locale: string
+} | null
+
+export const TranslationsContext = createContext<TranslationsContextValue>(null)
 
 export const useTranslations = (): Translations => {
-  const translations = useContext(TranslationsContext)
+  const ctx = useContext(TranslationsContext)
 
-  if (!translations) {
+  if (!ctx) {
     throw new Error('useTranslations must be used within a TranslationsContext')
   }
 
-  // Memoize the enhanced translations to avoid recreating on every render
   return useMemo(() => {
-    const translationClass = new TranslationClass(translations)
+    const translationClass = new TranslationClass(ctx.translations)
     return translationClass.createEnhanced()
-  }, [])
+  }, [ctx.translations])
+}
+
+export const useLocale = (): string => {
+  const ctx = useContext(TranslationsContext)
+
+  if (!ctx) {
+    throw new Error('useLocale must be used within a TranslationsContext')
+  }
+
+  return ctx.locale
 }

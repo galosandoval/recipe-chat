@@ -9,7 +9,7 @@ import { signIn } from 'next-auth/react'
 import { toast } from '../toast'
 import { signUpSchema, type SignUpSchema } from '~/schemas/sign-up-schema'
 import { api } from '~/trpc/react'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { DrawerDialog } from '../drawer-dialog'
 import { UserPlusIcon } from 'lucide-react'
@@ -40,11 +40,11 @@ export function SignUp({
         password,
         redirect: false
       })
-      const lastMessage = messages.at(-1)
+      const lastMessage = useChatStore.getState().messages.at(-1)
       if (lastMessage) {
         onSignUpSuccess(lastMessage)
       } else if (response?.ok) {
-        router.push('/chat')
+        router.push('/recipes')
 
         toast.success(t.auth.signUpSuccess)
       }
@@ -69,7 +69,6 @@ export function SignUp({
   const onSubmit = (values: SignUpSchema) => {
     mutate(values)
   }
-  const { messages } = chatStore()
   const { mutateAsync: createChatAndRecipeAsync } =
     api.users.createChatAndRecipe.useMutation({
       onError: (error) => {
@@ -92,7 +91,7 @@ export function SignUp({
         prepMinutes: recipe.prepMinutes ?? undefined,
         cookMinutes: recipe.cookMinutes ?? undefined
       },
-      messages
+      messages: useChatStore.getState().messages
     })
     const result = await toast.promise(newRecipePromise, {
       loading: t.loading.loggingIn,

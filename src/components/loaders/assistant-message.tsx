@@ -1,5 +1,5 @@
 import { BotMessageSquareIcon } from 'lucide-react'
-import { Avatar } from '~/app/[lang]/chat/avatar'
+import { Avatar } from '~/components/chat/avatar'
 
 export const AssistantMessageLoader = () => {
   return (

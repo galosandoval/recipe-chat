@@ -20,7 +20,8 @@
       "chats": "Chats",
       "editRecipe": "Edit recipe",
       "addRecipe": "Add recipe",
-      "preferredUnits": "Preferred units"
+      "preferredUnits": "Preferred units",
+      "subscription": "Subscription"
     },
     "chat": "Chat",
     "list": "List",
@@ -125,6 +126,9 @@
     "generatingRecipe": "Generating full recipe for $1...",
     "chatFormPlaceholder": "Ask about a recipe",
     "chatFormContinue": "Follow up with a message or corrections",
+    "chatFormRecipeDetail": "Ask about $1",
+    "chatFormList": "Ask about your grocery list",
+    "chatFormPantry": "What can I make with what I have?",
     "chatsDrawer": {
       "title": "Recent chats"
     }
@@ -161,6 +165,8 @@
     "upload": "Upload",
     "cancel": "Cancel",
     "delete": "Delete",
+    "addWithChat": "Add with chat",
+    "addFromUrl": "Add from URL",
     "enterUrl": "Enter a valid url that contains a recipe. We'll parse it for you so you can save and start cooking!",
     "generate": "Generate",
     "byId": {
@@ -189,6 +195,26 @@
         "message": "Are you sure you want to delete this recipe? This action cannot be undone."
       }
     }
+  },
+
+  "subscription": {
+    "title": "Subscription",
+    "currentPlan": "Current plan",
+    "free": "Free",
+    "starter": "Starter",
+    "premium": "Premium",
+    "pricePerMonth": "$1/mo",
+    "subscribe": "Subscribe",
+    "manageBilling": "Manage billing",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
+    "current": "Current plan",
+    "successMessage": "Subscription activated successfully!",
+    "canceledMessage": "Checkout was canceled.",
+    "pastDueWarning": "Your payment is past due. Please update your payment method.",
+    "freeFeatures": "Basic recipe chat, Save up to 10 recipes",
+    "starterFeatures": "Unlimited saved recipes, Full chat history, Aisle-sorted shopping lists, Staples management, Cook mode, Recipe remixing",
+    "premiumFeatures": "Everything in Starter, 7-day meal planning, Fridge-first recipe suggestions, Multi-user household sync, Customizable video editing, Private clubs and groups, Direct-to-cart grocery integration, Nutrition sync with Apple Health and Google Fit, Priority support"
   },
 
   "error": {

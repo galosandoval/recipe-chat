@@ -20,7 +20,8 @@
       "chats": "Chats",
       "editRecipe": "Editar receta",
       "addRecipe": "Agregar receta",
-      "preferredUnits": "Unidades preferidas"
+      "preferredUnits": "Unidades preferidas",
+      "subscription": "Suscripción"
     },
     "chat": "Chat",
     "list": "Lista",
@@ -126,6 +127,9 @@
     "generatingRecipe": "Generando receta completa para $1...",
     "chatFormPlaceholder": "Pregunta sobre una receta",
     "chatFormContinue": "Sigue con un mensaje o correcciones",
+    "chatFormRecipeDetail": "Pregunta sobre $1",
+    "chatFormList": "Pregunta sobre tu lista de compras",
+    "chatFormPantry": "Que puedo hacer con lo que tengo?",
     "chatsDrawer": {
       "title": "Recientes chats"
     }
@@ -163,6 +167,8 @@
     "cancel": "Cancelar",
     "save": "guardar",
     "delete": "borrar",
+    "addWithChat": "Agregar con chat",
+    "addFromUrl": "Agregar desde URL",
     "enterUrl": "Ingresa una URL válida que contenga una receta. Te lo parsearemos para que puedas guardarla y empezar a cocinar!",
     "generate": "Generar",
     "byId": {
@@ -191,6 +197,26 @@
         "message": "¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer."
       }
     }
+  },
+
+  "subscription": {
+    "title": "Suscripción",
+    "currentPlan": "Plan actual",
+    "free": "Gratis",
+    "starter": "Starter",
+    "premium": "Premium",
+    "pricePerMonth": "$1/mes",
+    "subscribe": "Suscribirse",
+    "manageBilling": "Administrar facturación",
+    "upgrade": "Mejorar plan",
+    "downgrade": "Bajar plan",
+    "current": "Plan actual",
+    "successMessage": "¡Suscripción activada exitosamente!",
+    "canceledMessage": "El pago fue cancelado.",
+    "pastDueWarning": "Tu pago está vencido. Por favor actualiza tu método de pago.",
+    "freeFeatures": "Chat de recetas básico, Guarda hasta 10 recetas",
+    "starterFeatures": "Recetas guardadas ilimitadas, Historial de chat completo, Listas de compras organizadas por pasillo, Gestión de productos básicos, Modo cocina, Remix de recetas",
+    "premiumFeatures": "Todo en Starter, Planificación de comidas de 7 días, Sugerencias basadas en lo que tienes, Sincronización para el hogar, Edición de video personalizable, Clubes y grupos privados, Integración directa con supermercados, Sincronización nutricional con Apple Health y Google Fit, Soporte prioritario"
   },
 
   "error": {

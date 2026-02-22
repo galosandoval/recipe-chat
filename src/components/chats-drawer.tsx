@@ -1,5 +1,4 @@
-import { useParams } from 'next/navigation'
-import { useTranslations } from '~/hooks/use-translations'
+import { useTranslations, useLocale } from '~/hooks/use-translations'
 import { useSession } from 'next-auth/react'
 import type { Chat, Message } from '@prisma/client'
 import { formatTimeAgo } from '~/lib/relative-time-format'
@@ -7,7 +6,7 @@ import { ScreenLoader } from './loaders/screen'
 import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
 import { cn } from '~/lib/utils'
-import { chatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/stores/chat-store'
 import { LoadingSpinner } from './loaders/loading-spinner'
 
 export function useChatsDrawer() {}
@@ -35,7 +34,7 @@ function ChatList({
   handleToggleChatsModal: () => void
 }) {
   const t = useTranslations()
-  const { chatId, setChatId } = chatStore()
+  const { chatId, setChatId } = useChatStore()
   const { data, status, isAuthenticated } = useGetChats()
 
   if (!isAuthenticated) {
@@ -94,7 +93,7 @@ function ChatOption({
   }
   onClick: () => void
 }) {
-  const params = useParams()
+  const locale = useLocale()
 
   if (chat.messages.length === 0) {
     return null
@@ -124,7 +123,7 @@ function ChatOption({
       <p className='mt-1 mb-1 truncate'>{message}</p>
 
       <span className='text-primary ml-auto text-xs'>
-        {formatTimeAgo(chat.updatedAt, params.lang as string)}
+        {formatTimeAgo(chat.updatedAt, locale)}
       </span>
     </div>
   )

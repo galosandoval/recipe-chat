@@ -27,7 +27,7 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginSchemaType) => {
     const path = searchParams.get('callbackUrl') as string | undefined
-    const callback = path ? decodeURIComponent(path) : '/chat'
+    const callback = path ? decodeURIComponent(path) : '/recipes'
 
     const response = await signIn('credentials', { redirect: false, ...data })
     if (response?.ok && !response.error) {

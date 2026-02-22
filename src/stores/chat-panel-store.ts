@@ -1,15 +1,25 @@
 import { create } from 'zustand'
+import type { ChatContext } from '~/schemas/chats-schema'
 
 type ChatPanelStore = {
   isOpen: boolean
-  open: () => void
+  context: ChatContext
+  open: (context?: ChatContext) => void
   close: () => void
-  toggle: () => void
+  toggle: (context?: ChatContext) => void
+  setContext: (context: ChatContext) => void
 }
 
 export const useChatPanelStore = create<ChatPanelStore>((set) => ({
   isOpen: false,
-  open: () => set({ isOpen: true }),
+  context: { page: 'recipes' },
+  open: (context) =>
+    set((s) => ({ isOpen: true, ...(context ? { context } : { context: s.context }) })),
   close: () => set({ isOpen: false }),
-  toggle: () => set((s) => ({ isOpen: !s.isOpen }))
+  toggle: (context) =>
+    set((s) => ({
+      isOpen: !s.isOpen,
+      ...(context ? { context } : { context: s.context })
+    })),
+  setContext: (context) => set({ context })
 }))

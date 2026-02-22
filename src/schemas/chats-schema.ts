@@ -31,10 +31,29 @@ export const createChatAndRecipeSchema = z.object({
 })
 export type CreateChatAndRecipe = z.infer<typeof createChatAndRecipeSchema>
 
+export const chatContextSchema = z.discriminatedUnion('page', [
+  z.object({ page: z.literal('recipes') }),
+  z.object({
+    page: z.literal('recipe-detail'),
+    recipe: z.object({
+      name: z.string(),
+      slug: z.string(),
+      description: z.string().nullable(),
+      ingredients: z.array(z.string()),
+      cuisine: z.string().nullable(),
+      course: z.string().nullable()
+    })
+  }),
+  z.object({ page: z.literal('list') }),
+  z.object({ page: z.literal('pantry') })
+])
+export type ChatContext = z.infer<typeof chatContextSchema>
+
 export const chatParams = z.object({
   messages: z.array(messageSchema.omit({ createdAt: true, updatedAt: true })),
   filters: z.array(z.string()),
-  userId: userIdSchema.shape.userId.optional()
+  userId: userIdSchema.shape.userId.optional(),
+  context: chatContextSchema.optional()
 })
 
 export const createOrAddMessages = z.object({

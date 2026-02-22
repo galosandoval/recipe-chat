@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import type { ButtonProps } from './ui/button'
-import { navigationStore } from '~/stores/navigation-store'
+import { useNavigationStore } from '~/stores/navigation-store'
 import type { ComponentType } from 'react'
 
 interface NavigationButtonProps extends Omit<ButtonProps, 'onClick'> {
@@ -24,9 +24,9 @@ export const NavigationButton = ({
   ...props
 }: NavigationButtonProps) => {
   const router = useRouter()
-  const isNavigating = navigationStore((state) => state.isNavigating)
-  const startNavigation = navigationStore((state) => state.startNavigation)
-  const endNavigation = navigationStore((state) => state.endNavigation)
+  const isNavigating = useNavigationStore((state) => state.isNavigating)
+  const startNavigation = useNavigationStore((state) => state.startNavigation)
+  const endNavigation = useNavigationStore((state) => state.endNavigation)
 
   const handleClick = async () => {
     if (disabled || isNavigating) return
