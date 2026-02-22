@@ -2,7 +2,7 @@ import { type PrismaClient } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import type Stripe from 'stripe'
 import { SubscriptionAccess } from '~/server/api/data-access/subscription-access'
-import { stripe } from '~/lib/stripe'
+import { getStripe } from '~/lib/stripe'
 import { PRICE_ID_TO_TIER, TIER_TO_PRICE_ID } from '~/lib/stripe-config'
 import { type CreateCheckoutSchema } from '~/schemas/subscription-schema'
 
@@ -29,7 +29,7 @@ export async function createCheckoutSession(
       select: { username: true }
     })
 
-    const customer = await stripe.customers.create({
+    const customer = await getStripe().customers.create({
       email: user.username,
       metadata: { userId }
     })
@@ -43,7 +43,7 @@ export async function createCheckoutSession(
     throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid tier' })
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
@@ -65,7 +65,7 @@ export async function createPortalSession(userId: string, prisma: PrismaClient) 
     })
   }
 
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await getStripe().billingPortal.sessions.create({
     customer: info.stripeCustomerId,
     return_url: `${process.env.NEXTAUTH_URL}/en/subscription`
   })

@@ -1,12 +1,13 @@
 import Stripe from 'stripe'
 
-const globalForStripe = global as unknown as { stripe: Stripe }
+let stripe: Stripe | null = null
 
-export const stripe =
-  globalForStripe.stripe ||
-  new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2026-01-28.clover',
-    typescript: true
-  })
-
-if (process.env.NODE_ENV !== 'production') globalForStripe.stripe = stripe
+export function getStripe() {
+  if (!stripe) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2026-01-28.clover',
+      typescript: true
+    })
+  }
+  return stripe
+}

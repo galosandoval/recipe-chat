@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { MessageSquareIcon, XIcon } from 'lucide-react'
+import { MessageSquareIcon, PlusIcon, XIcon } from 'lucide-react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 import { cn } from '~/lib/utils'
 import { useChatPanelStore } from '~/stores/chat-panel-store'
@@ -14,6 +14,7 @@ import { Button } from '~/components/button'
 
 export function ChatPanel() {
   const { isOpen, close, context } = useChatPanelStore()
+  const messages = useChatStore((s) => s.messages)
 
   useEffect(() => {
     if (isOpen) {
@@ -23,6 +24,13 @@ export function ChatPanel() {
 
   const headerLabel =
     context.page === 'recipe-detail' ? context.recipe.name : 'Chat'
+
+  const handleStartNewChat = () => {
+    const { setChatId, setStream, setMessages } = useChatStore.getState()
+    setChatId('')
+    setStream(null)
+    setMessages([])
+  }
 
   return (
     <DrawerPrimitive.Root
@@ -46,9 +54,21 @@ export function ChatPanel() {
               <MessageSquareIcon size='1rem' />
               <span className='text-sm font-semibold'>{headerLabel}</span>
             </div>
-            <Button variant='ghost' size='icon' onClick={close}>
-              <XIcon size='1rem' />
-            </Button>
+            <div className='flex items-center gap-1'>
+              {messages.length > 0 && (
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  onClick={handleStartNewChat}
+                  title='New chat'
+                >
+                  <PlusIcon size='1rem' />
+                </Button>
+              )}
+              <Button variant='ghost' size='icon' onClick={close}>
+                <XIcon size='1rem' />
+              </Button>
+            </div>
           </div>
 
           <div className='flex min-h-0 flex-1 flex-col'>
