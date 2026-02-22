@@ -1,15 +1,16 @@
 # V2 Roadmap — AI Context Document
 
-> Auto-generated from GitHub issues labeled `v2-roadmap` (21 issues, all OPEN).
-> Generated: 2026-02-21
+> Auto-generated from GitHub issues labeled `v2-roadmap` (29 issues, all OPEN).
+> Last updated: 2026-02-21
 
 ## Overview
 
-V2 is a **"Market Readiness & Monetization"** release. The strategy is:
+V2 is a **"Market Readiness, Monetization & Social"** release. The strategy is:
 
 1. **Monetize** via Stripe with three tiers: Free, Starter ($1/mo), Premium ($3/mo).
 2. **Reduce AI costs** by building a recipe cache architecture (vector DB + semantic search router) so most requests are served from cache or cheaply tweaked, not fully regenerated with GPT-4 Turbo.
 3. **Add user-facing features** gated by tier to justify paid plans.
+4. **Build a social layer** — transform from a private utility into a community platform where AI-generated recipes are validated, remixed, and shared. Phased rollout: profiles → engagement → virality → collaboration.
 
 ---
 
@@ -22,10 +23,24 @@ V2 is a **"Market Readiness & Monetization"** release. The strategy is:
 
 #431 Vector Database Implementation ─┐
 #432 Semantic Search Router          ├── Recipe Cache Architecture (cost reduction)
-#433 The 90% Tweak Logic             │
+#433 The 90% Tweak Logic             │   (also powers #446 Recipe Remixing)
 #434 Recipe Deduplication Engine     ─┘
-#435 Cold-Start Data Ingestion      ── (depends on #431, #434)
-#436 Cost-Observability Dashboard   ── (depends on #432, #433)
+#435 Cold-Start Data Ingestion      ── (depends on #431, #434; seeds community content)
+#436 Cost-Observability Dashboard   ── (depends on #432, #433; expands for social KPIs)
+
+#443 User Profiles                  ─┐
+#444 Content Moderation System      ─┤── Social Foundation (Phase 1)
+#418 Community Recipe Access         │   (depends on #443, #444)
+#447 Discovery Feed                 ─┘   (depends on #418, #430)
+
+#445 Likes, Ratings & Comments      ─┐
+#446 Recipe Remixing / Forking       ├── Engagement & Feedback (Phase 2)
+#448 Community Reputation            ─┘   (depends on Phase 1 social issues + #433)
+
+#441 Video Sharing                  ── Virality (Phase 3; depends on #443, #444)
+
+#427 Multi-User Household Sync     ─┐
+#449 Private Clubs / Groups         ─┘── Deep Collaboration (Phase 4)
 
 All tier-gated features depend on #428 + #429.
 ```
@@ -53,6 +68,12 @@ All tier-gated features depend on #428 + #429.
 - Route-level gating in `src/middleware.ts`
 - Upgrade prompts (not just blocks) when users hit gated features
 - Graceful degradation when subscription lapses
+**Tier assignments:**
+| Feature | Tier | Issue |
+|---------|------|-------|
+| Public profile, discovery feed, likes/ratings/comments | FREE | #443, #447, #445 |
+| Recipe remixing, basic video generation | STARTER | #446, #441 |
+| Customizable video, household sync, private clubs | PREMIUM | #441, #427, #449 |
 **Depends on:** #428
 
 ### #430 — Onboarding Quiz [Priority 3/15]
@@ -61,8 +82,10 @@ All tier-gated features depend on #428 + #429.
 - 3-5 screen quiz flow in `src/components/onboarding/` (empty dir exists)
 - Store results on User model (new fields or JSON blob)
 - Feed results into AI system prompt (`src/constants/chat.ts`) for personalized recommendations
+- Quiz results pre-populate User Profile (#443) dietary preferences and cooking level
+- Quiz results feed into Discovery Feed (#447) for cold-start personalization
 - Shown on first login, skippable, retakeable from settings
-**Related:** #358 (feature highlighting on onboarding)
+**Related:** #358, #443 (profile pre-population), #447 (cold-start discovery)
 
 ---
 
@@ -104,8 +127,8 @@ User message → /api/chat/route.ts
 **Depends on:** #431
 **Blocks:** #433, #436
 
-### #433 — The 90% Tweak Logic [Cost Optimizer]
-**What:** When a cached recipe is an 80-90% match, use a cheap model (GPT-4o-mini, ~50x cheaper) to "repair" it instead of full regeneration.
+### #433 — The 90% Tweak Logic [Cost Optimizer + Social Remixing]
+**What:** When a cached recipe is an 80-90% match, use a cheap model (GPT-4o-mini, ~50x cheaper) to "repair" it instead of full regeneration. **Dual purpose:** also powers the user-facing Recipe Remixing feature (#446).
 **Key work:**
 - `TweakService` that takes cached recipe + user query
 - Detect the diff (missing ingredient, dietary swap, serving size)
@@ -114,7 +137,9 @@ User message → /api/chat/route.ts
 - Output must conform to `generatedRecipeSchema` (drop-in replacement)
 - Fallback to full generation if repair fails
 - Target: <2s vs 5-8s for full generation
+- API is reusable: both the Semantic Search Router (automatic) and Recipe Remixing (#446, user-initiated) call the same service
 **Depends on:** #431, #432
+**Feeds into:** #446 (Recipe Remixing), #436 (Cost Dashboard)
 
 ### #434 — Recipe Deduplication Engine [Data Quality]
 **What:** Prevent 50 near-identical "Chicken Tacos" — group variations under master recipes.
@@ -132,20 +157,22 @@ User message → /api/chat/route.ts
 
 ## Data Hygiene & Performance
 
-### #435 — Cold-Start Data Ingestion [Data Quality]
-**What:** Pre-generate ~500 "Essential Base Recipes" so the vector DB isn't empty on launch.
+### #435 — Cold-Start Data Ingestion [Data Quality + Community Seeding]
+**What:** Pre-generate ~500 "Essential Base Recipes" so the vector DB isn't empty on launch. Also seeds the community index (#418) and discovery feed (#447), solving the "empty community" problem.
 **Key work:**
 - Seed script generating ~500 recipes across diverse categories (proteins, cuisines, dietary, quick meals, basics)
 - Each recipe gets full metadata + vector embedding
-- Created as system-level recipes (no userId) — shared cache
+- Created as system-level recipes (no userId) — shared cache AND community-visible
+- System recipes flagged as public for #418 and #447
 - Idempotent, uses `nameNorm` dedup
 - Batch generation using cheaper model
 - Document total cost estimate (tokens for generation + embedding)
 **Depends on:** #431, #434
+**Feeds into:** #418 (initial community content), #447 (cold-start discovery content)
 
-### #436 — Cost-Observability Dashboard [Performance]
-**What:** Request-level tracing showing cache hit rate and cost per request.
-**Key work:**
+### #436 — Cost-Observability Dashboard [Performance + Social KPIs]
+**What:** Request-level tracing showing cache hit rate and cost per request. Expands to track social engagement KPIs when social features launch.
+**Key work (Phase 1 — AI costs):**
 - New `RequestLog` model capturing: userId, source (cached/tweaked/generated), model, tokens, latency, similarity score, timestamp
 - Log every `/api/chat` request's resolution path
 - Admin dashboard at `/admin/costs` showing:
@@ -154,7 +181,14 @@ User message → /api/chat/route.ts
   - Per-user cost breakdown
   - Daily/weekly/monthly cost trends
 - Alert if cache hit rate drops below target (<70%)
-**Depends on:** #432, #433
+**Key work (Phase 2 — Social KPIs, when social features launch):**
+- Discovery success: % community saves (#418)
+- Interaction rate: likes/comments/ratings per recipe (#445)
+- Viral K-factor: signups per video share (#441)
+- Remix rate: % community recipes remixed (#446)
+- Trust maturity: AI-moderation accuracy vs. human reports (#444)
+- Economic conversion: upgrade rate triggered by social features (#428)
+**Depends on:** #432, #433; social KPIs depend on #418, #441, #444, #445, #446
 
 ---
 
@@ -183,10 +217,131 @@ User message → /api/chat/route.ts
 **What:** Public community recipe index — browse, search, save recipes from other users.
 **Key work:**
 - New concept of "public" recipes (currently all private)
+- Opt-in sharing mechanism (users choose which recipes to make public)
 - Discovery/search UI by name, cuisine, dietary tags, ingredients
 - Save community recipes to personal cookbook
-- Opt-in sharing, author attribution
+- Author attribution with link to profile (#443)
+- Basic discovery sections: "Recently shared", "Most saved"
 - Integration with shopping list and meal planning
+**Depends on:** #443 (User Profiles), #444 (Content Moderation)
+**Related:** #445 (engagement), #446 (remixing), #447 (algorithmic discovery)
+
+---
+
+## Social Features Epic
+
+Social features follow a phased rollout to avoid the "empty community" problem. Based on [social features research](./recipe-app-social-features-research.md).
+
+### Phase 1: Discovery & Profiles
+
+### #443 — User Profiles & Public Identity [FREE]
+**What:** Public profile system — the social identity foundation for all community features.
+**Key work:**
+- New profile fields: display name, bio, avatar, cooking level, dietary badges
+- Profile setup flow after first login (skippable)
+- Public profile page at `/profile/[username]`
+- Profile edit page, avatar upload, username uniqueness
+- Privacy controls for profile visibility
+- Pre-populated from #430 Onboarding Quiz results
+**Prerequisite for:** #418, #445, #446, #447, #448 (all social features)
+
+### #444 — Content Moderation System [INFRASTRUCTURE]
+**What:** Standalone automated moderation for all community content (recipes, comments, reviews, profiles, videos).
+**Key work:**
+- Level 1: Rule-based filtering (regex/keyword blocklist, URL detection, rate limiting)
+- Level 2: ML classification (OpenAI Moderation API for toxicity, image moderation)
+- Level 3: LLM semantic analysis (food safety — unsafe temps, non-edible ingredients, "AI slop" detection)
+- Level 4: Community reporting + admin review queue
+- Shared use-case callable by all content-creating features
+- `ContentStatus` enum: pending, approved, flagged, rejected
+- New `ModerationLog` model for audit trail
+**Prerequisite for:** #418, #441, #445, #449 (any public content)
+
+### #447 — Discovery Feed / AI-Curated Explore Tab [FREE]
+**What:** Algorithmic discovery beyond search — personalized, trending, and curated recipe feeds.
+**Key work:**
+- Personalized feed based on user preferences (#430 quiz answers)
+- "Trending this week" based on engagement signals (#445)
+- "Popular in your cuisine" sections
+- "New from the community" chronological feed
+- Cold-start: uses quiz + seeded recipes (#435) for new users
+- Ranking: engagement + recency + quality score + preference match
+- Diversity: avoids single-cuisine/dietary bubbles
+- "Surprise me" random recipe
+**Depends on:** #418, #430, #445
+
+### Phase 2: Engagement & Feedback
+
+### #445 — Likes, Ratings & Comments [FREE]
+**What:** Social engagement on community recipes — likes, star ratings with reviews, threaded comments.
+**Key work:**
+- Like/unlike toggle with counts on recipe cards and detail pages
+- 1-5 star rating system with average + count display
+- Written reviews alongside ratings, "helpful" voting
+- Threaded comments (single-level nesting), edit/delete own
+- Content moderation on reviews and comments (#444)
+- Report button for community flagging
+- Denormalized counts on Recipe model for performance (likeCount, avgRating, commentCount)
+**Depends on:** #443 (user identity), #444 (moderation), #418 (public recipes)
+
+### #446 — Recipe Remixing / Forking [STARTER]
+**What:** Users remix a community recipe via AI modification ("make it dairy-free", "swap chicken for tofu").
+**Key work:**
+- "Remix this recipe" button on community recipe detail pages
+- Remix flow: select recipe → enter modification → AI generates modified version
+- Attribution: "Remixed from [original] by [author]"
+- Remix count + lineage visible on original recipe
+- Optional: share remix back to community
+- Powered by #433 Tweak Logic backend (same pipeline)
+- Tier-gated: Starter+ only
+**Depends on:** #418, #433, #429, #443
+
+### #448 — Community Reputation / Trust System [INFRASTRUCTURE, Phase 2-3]
+**What:** Trust scoring where users earn reputation from recipe shares, ratings, and report accuracy.
+**Key work:**
+- Trust score from: shared recipes, average rating, positive reviews, report accuracy, account age
+- Badge progression: New Cook → Home Cook → Trusted Cook → Verified Cook
+- Discovery boost for high-trust users' content
+- Moderation integration: high-trust reports weighted more heavily
+- Anti-gaming: rate limiting, mutual-promotion detection, inactivity decay
+**Depends on:** #443, #444, #445, #418
+
+### Phase 3: Virality & Content Creation
+
+### #441 — Recipe Short-Form Video Sharing [STARTER/PREMIUM]
+**What:** AI-generated short-form recipe videos (TikTok/Reels style) using **Creatomate** API.
+**Key work:**
+- Share nav button + routes: `/video` (feed) and `/recipes/[slug]/video` (per-recipe)
+- Creatomate API integration for template-based 9:16 vertical video generation
+- Video includes: title, animated ingredients, step-by-step instructions, background imagery
+- Download + native share options, video caching
+- **Starter tier:** basic auto-generated video from template
+- **Premium tier:** Creatomate Preview SDK for browser-based customization, high-res output
+- Content moderation delegated to #444
+**Depends on:** #428, #429, #443, #444, #418
+
+### Phase 4: Deep Collaboration
+
+### #427 — Multi-User Household Sync [PREMIUM]
+**What:** Shared meal plans, shopping lists, and pantry for families/roommates.
+**Complexity:** Major schema change — currently all data is single-user (`userId` on all models).
+**Key work:**
+- Create/join household (invite via email/link)
+- Shared shopping lists, pantry, meal plans with real-time sync
+- Individual preferences preserved
+- Activity feed, household admin controls
+**Depends on:** #428, #429, #443
+**Related:** #404, #449
+
+### #449 — Private Clubs / Groups [PREMIUM]
+**What:** Create/join private recipe-sharing groups (family, friends, cooking clubs).
+**Key work:**
+- Group management: create, invite via link/username, roles (owner/admin/member)
+- Shared recipe collections with group-only visibility
+- Group activity feed and notifications
+- Max group size limit
+- Premium tier required to create/join groups
+**Depends on:** #428, #429, #443, #444
 
 ---
 
@@ -270,14 +425,10 @@ User message → /api/chat/route.ts
 - In-app nutrition dashboard
 
 ### #427 — Multi-User Household Sync [Priority 13/15]
-**What:** Shared meal plans, shopping lists, and pantry for families/roommates.
-**Complexity:** Major schema change — currently all data is single-user (`userId` on all models).
-**Key work:**
-- Create/join household (invite via email/link)
-- Shared shopping lists, pantry, meal plans with real-time sync
-- Individual preferences preserved
-- Activity feed, household admin controls
-**Related:** #404
+See Social Features Epic, Phase 4 above.
+
+### #449 — Private Clubs / Groups
+See Social Features Epic, Phase 4 above.
 
 ---
 
@@ -291,8 +442,11 @@ User message → /api/chat/route.ts
 | **4. Free Features** | #416, #417 | Meal planning + smart lists (user value) |
 | **5. Starter Features** | #422, #420, #421, #419 | Cook mode + shopping enhancements |
 | **6. Premium Features** | #423, #424 | Full week + fridge-first |
-| **7. Community** | #418 | Public recipe index |
-| **8. Integrations** | #425, #426, #427 | External APIs + multi-user (highest complexity) |
+| **7. Social Phase 1** | #443, #444, #418, #447 | Profiles + moderation + community index + discovery |
+| **8. Social Phase 2** | #445, #446, #448 | Likes/ratings/comments + remixing + reputation |
+| **9. Social Phase 3** | #441 | Video sharing (Creatomate) |
+| **10. Social Phase 4** | #427, #449 | Household sync + private clubs |
+| **11. Integrations** | #425, #426 | External APIs (highest complexity) |
 
 ---
 
@@ -304,10 +458,39 @@ User message → /api/chat/route.ts
 | System Prompt | `src/constants/chat.ts` | Onboarding quiz + meal planning extend this |
 | Recipe Creation | `src/server/api/data-access/chats-access.ts` | Dedup + embedding hooks here |
 | Recipe CRUD | `src/server/api/data-access/recipes-access.ts` | Secondary hook for dedup + embeddings |
-| Schema | `prisma/schema.prisma` | `RecipeVector` exists; needs billing fields, master recipe, request log |
+| Schema | `prisma/schema.prisma` | `RecipeVector` exists; needs billing, profile, social, moderation models |
 | Feature Gate | `src/components/feature-gate.tsx` | Exists but unused; evolve to tier-based |
 | Auth | `src/server/api/trpc.ts` | Add `starterProcedure`, `premiumProcedure` |
 | Shopping List | `src/server/api/routers/lists-router.ts` | Aisle sorting, staples, aggregation |
 | Pantry | `src/server/api/routers/pantry-router.ts` | Staples flag, fridge-first |
 | Onboarding | `src/components/onboarding/` | Empty dir, ready for quiz |
-| Recipe Schemas | `src/schemas/messages-schema.ts` | `generatedRecipeSchema` — tweak output must match |
+| Recipe Schemas | `src/schemas/messages-schema.ts` | `generatedRecipeSchema` — tweak + remix output must match |
+| Navbar | `src/app/navbar/navbar.tsx` | Add Share button for video feature (#441) |
+
+---
+
+## Social Feature Tier Map
+
+| Feature | Tier | Issue |
+|---------|------|-------|
+| Public profile, bio, avatar, cooking level | FREE | #443 |
+| Discovery feed, explore tab | FREE | #447 |
+| Liking/saving community recipes | FREE | #445 |
+| Star ratings + written reviews | FREE | #445 |
+| Comments on shared recipes | FREE | #445 |
+| Recipe remixing / forking | STARTER | #446 |
+| Basic auto-generated video | STARTER | #441 |
+| Customizable video editing (Preview SDK) | PREMIUM | #441 |
+| Multi-user household sync | PREMIUM | #427 |
+| Private clubs / groups | PREMIUM | #449 |
+
+## Features Explicitly Avoided
+
+Per [social features research](./recipe-app-social-features-research.md), these are intentionally **not** planned:
+
+| Feature | Reason | Alternative |
+|---------|--------|-------------|
+| Direct Messaging | High moderation risk & infra cost | Public comments on recipes (#445) |
+| Live Cooking Sessions | Extremely high bandwidth & complexity | Short-form automated video (#441) |
+| Recipe Gifting | Niche appeal, complex transaction logic | Recipe sharing via native link |
+| In-App Currency | Complex legal & tax implications | Reputation badges (#448) |
