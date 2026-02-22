@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { LinkIcon, MessageSquareIcon, PlusIcon } from 'lucide-react'
 import { useChatPanelStore } from '~/stores/chat-panel-store'
+import { useChatStore } from '~/stores/chat-store'
 import { ChatPanel } from '~/components/chat-panel'
 import { ParseAndAddRecipeDialogs } from '~/app/navbar/settings-dropdown-menu'
 import { Button } from '~/components/button'
@@ -15,11 +16,19 @@ export function RecipesAddFab() {
   const { open } = useChatPanelStore()
   const [isAddFromUrlOpen, setIsAddFromUrlOpen] = useState(false)
 
+  const handleAddWithChat = () => {
+    const { setChatId, setStream, setMessages } = useChatStore.getState()
+    setChatId('')
+    setStream(null)
+    setMessages([])
+    open({ page: 'recipes' })
+  }
+
   const items: MenuItemProps[] = [
     {
       label: 'recipes.addWithChat',
       icon: <MessageSquareIcon className='size-4' />,
-      onClick: () => open({ page: 'recipes' })
+      onClick: handleAddWithChat
     },
     {
       label: 'recipes.addFromUrl',
