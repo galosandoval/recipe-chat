@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 
 import { auth } from '~/server/auth'
 import { Providers } from '~/components/providers'
-import { Navbar } from '~/app/navbar/navbar'
+import { Navbar, BottomNav } from '~/app/navbar/navbar'
 import { getTranslations } from '~/lib/get-translations'
 import { ErrorBoundary } from '~/components/error-boundary'
 import { AppFooter } from '~/app/app-footer'
@@ -43,6 +43,7 @@ export default async function RootLayout({
                 {children}
               </main>
               <AppFooter />
+              <BottomNav />
             </ErrorBoundary>
           </Providers>
         </div>
