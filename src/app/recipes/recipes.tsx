@@ -209,8 +209,10 @@ function Card({ data }: { data: Recipe }) {
   const isThisRoute = targetRoute === `/recipes/${data.slug}`
   const { mutate: updateLastViewedAt } =
     api.recipes.updateLastViewedAt.useMutation({
-      onSuccess: (data) => {
-        utils.recipes.recentRecipes.setData(undefined, data)
+      onSuccess: () => {
+        utils.recipes.recentRecipes.invalidate()
+        // Prefetch to ensure recent recipes is correct when user returns to the recipes page
+        utils.recipes.recentRecipes.prefetch()
       }
     })
 
