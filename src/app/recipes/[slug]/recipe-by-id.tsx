@@ -23,7 +23,7 @@ import type { RecipeByIdData } from '~/hooks/use-recipe'
 import { useRecipe } from '~/hooks/use-recipe'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
-export default function RecipeById() {
+export function RecipeById() {
   useNoSleep()
   const { data: recipe } = useRecipe()
 

@@ -142,8 +142,7 @@ export class ChatsAccess extends DataAccess {
       })
       if (existingRecipe) {
         const {
-          id: _id,
-          slug: _slug,
+          id,
           ingredients,
           instructions,
           dietTags,
@@ -154,7 +153,7 @@ export class ChatsAccess extends DataAccess {
         } = recipe
         await tx.recipe.update({
           where: {
-            id: recipe.id
+            id
           },
           data: {
             ...recipeData,
