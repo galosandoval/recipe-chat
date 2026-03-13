@@ -3,6 +3,7 @@
 import type { Ingredient, Recipe } from '@prisma/client'
 import {
   getIngredientDisplayText,
+  getIngredientDisplayTextInPreferredUnits,
   aggregateIngredients
 } from '~/lib/ingredient-display'
 import { toast } from '~/components/toast'
@@ -17,18 +18,46 @@ export function Lists({
   data: Ingredient[]
   byRecipe: boolean
 }) {
+  const { data: user } = api.users.get.useQuery()
+  const preferredWeight = user?.preferredWeightUnit ?? null
+  const preferredVolume = user?.preferredVolumeUnit ?? null
+
   if (byRecipe) {
-    return <ListByRecipeId data={data} />
+    return (
+      <ListByRecipeId
+        data={data}
+        preferredWeight={preferredWeight}
+        preferredVolume={preferredVolume}
+      />
+    )
   }
 
-  return <ListAll data={data} />
+  return (
+    <ListAll
+      data={data}
+      preferredWeight={preferredWeight}
+      preferredVolume={preferredVolume}
+    />
+  )
 }
 
 type IngredientsByRecipe = Record<string, Ingredient[]>
 
-function ListByRecipeId({ data }: { data: Ingredient[] }) {
+function ListByRecipeId({
+  data,
+  preferredWeight,
+  preferredVolume
+}: {
+  data: Ingredient[]
+  preferredWeight: string | null
+  preferredVolume: string | null
+}) {
   const ids: string[] = []
   const { mutate: checkIngredient } = useCheckListItem()
+
+  const displayText = (i: Ingredient) =>
+    getIngredientDisplayTextInPreferredUnits(i, preferredWeight, preferredVolume) ||
+    getIngredientDisplayText(i)
 
   const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
     if (i.recipeId === null) {
@@ -68,16 +97,14 @@ function ListByRecipeId({ data }: { data: Ingredient[] }) {
           <div className='flex flex-col gap-2'>
             {b
               .toSorted((a, b) =>
-                getIngredientDisplayText(a).localeCompare(
-                  getIngredientDisplayText(b)
-                )
+                displayText(a).localeCompare(displayText(b))
               )
               .map((i) => (
                 <Togglebox
                   key={i.id}
                   checked={i.checked}
                   id={i.id.toString()}
-                  label={getIngredientDisplayText(i)}
+                  label={displayText(i)}
                   onChange={(checked) => handleCheck(checked as boolean, i.id)}
                 />
               ))}
@@ -88,10 +115,20 @@ function ListByRecipeId({ data }: { data: Ingredient[] }) {
   )
 }
 
-function ListAll({ data }: { data: Ingredient[] }) {
+function ListAll({
+  data,
+  preferredWeight,
+  preferredVolume
+}: {
+  data: Ingredient[]
+  preferredWeight: string | null
+  preferredVolume: string | null
+}) {
   const { mutate: checkMany } = useCheckManyItems()
   const aggregated = aggregateIngredients(
-    data.map((i) => ({ ...i, checked: i.checked }))
+    data.map((i) => ({ ...i, checked: i.checked })),
+    preferredWeight,
+    preferredVolume
   ).toSorted((a, b) => a.displayText.localeCompare(b.displayText))
 
   return (

@@ -163,7 +163,9 @@ type IngredientForAggregation = IngredientDisplaySource & {
  * Ingredients without itemName/unit are kept as single-item groups.
  */
 export function aggregateIngredients(
-  ingredients: IngredientForAggregation[]
+  ingredients: IngredientForAggregation[],
+  preferredWeightUnit?: string | null,
+  preferredVolumeUnit?: string | null
 ): AggregatedIngredient[] {
   const byKey = new Map<
     string,
@@ -194,14 +196,19 @@ export function aggregateIngredients(
       })
     }
   }
-  return Array.from(byKey.values()).map((v) => ({
-    displayText:
-      v.ing.itemName && v.ing.unit && v.quantity > 0
-        ? [v.quantity, v.ing.unit, v.ing.itemName]
-            .filter(Boolean)
-            .join(' ')
-        : getIngredientDisplayText(v.ing),
-    ingredientIds: v.ids,
-    checked: v.checked.every(Boolean)
-  }))
+  return Array.from(byKey.values()).map((v) => {
+    let displayText: string
+    if (v.ing.itemName && v.ing.unit && v.quantity > 0) {
+      const aggregatedIng = { ...v.ing, quantity: v.quantity }
+      const preferred = getIngredientDisplayTextInPreferredUnits(
+        aggregatedIng,
+        preferredWeightUnit,
+        preferredVolumeUnit
+      )
+      displayText = preferred || [v.quantity, v.ing.unit, v.ing.itemName].filter(Boolean).join(' ')
+    } else {
+      displayText = getIngredientDisplayText(v.ing)
+    }
+    return { displayText, ingredientIds: v.ids, checked: v.checked.every(Boolean) }
+  })
 }
