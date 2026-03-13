@@ -9,7 +9,30 @@ import { cn } from '~/lib/utils'
 import { useChatStore } from '~/stores/chat-store'
 import { LoadingSpinner } from './loaders/loading-spinner'
 
-export function useChatsDrawer() {}
+export function ChatsDrawer({
+  open,
+  onOpenChange,
+  trigger = null
+}: {
+  open: boolean
+  onOpenChange: () => void
+  trigger?: React.ReactNode
+}) {
+  const t = useTranslations()
+  return (
+    <Drawer
+      trigger={trigger}
+      formId='chats-drawer'
+      onOpenChange={onOpenChange}
+      open={open}
+      title={t.chat.chatsDrawer.title}
+    >
+      <div className='flex h-full flex-col justify-between'>
+        <ChatList handleToggleChatsModal={onOpenChange} />
+      </div>
+    </Drawer>
+  )
+}
 
 const useGetChats = () => {
   const { status: authStatus, data } = useSession()
@@ -126,31 +149,6 @@ function ChatOption({
         {formatTimeAgo(chat.updatedAt, locale)}
       </span>
     </div>
-  )
-}
-
-export function ChatsDrawer({
-  open,
-  onOpenChange,
-  trigger = null
-}: {
-  open: boolean
-  onOpenChange: () => void
-  trigger?: React.ReactNode
-}) {
-  const t = useTranslations()
-  return (
-    <Drawer
-      trigger={trigger}
-      formId='chats-drawer'
-      onOpenChange={onOpenChange}
-      open={open}
-      title={t.chat.chatsDrawer.title}
-    >
-      <div className='flex h-full flex-col justify-between'>
-        <ChatList handleToggleChatsModal={onOpenChange} />
-      </div>
-    </Drawer>
   )
 }
 
