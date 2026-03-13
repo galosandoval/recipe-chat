@@ -9,6 +9,7 @@ import { ArrowDownIcon } from 'lucide-react'
 import { Label } from '~/components/ui/label'
 import { Checkbox } from '~/components/ui/checkbox'
 import type { CheckedState } from '@radix-ui/react-checkbox'
+import { AddCheckedToPantryButton } from './add-checked-to-pantry-button'
 import { Lists } from './lists'
 import { RemoveCheckedItemsButton } from './remove-checked-items-button'
 
@@ -57,6 +58,7 @@ function ListController({ data }: { data: Ingredient[] }) {
       <Lists byRecipe={byRecipe} data={data} />
       <div className='w-full pt-2'>
         <RemoveCheckedItemsButton data={data} />
+        <AddCheckedToPantryButton data={data} />
       </div>
     </div>
   )

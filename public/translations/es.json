@@ -55,7 +55,8 @@
     "noItems": "No hay elementos en tu lista",
     "addToList": "Agregar a tu lista",
     "addIngredient": "Agregar un nuevo ingrediente a tu lista",
-    "removeChecked": "Eliminar seleccionados"
+    "removeChecked": "Eliminar seleccionados",
+    "addToPantry": "Agregar a despensa"
   },
 
   "pantry": {
