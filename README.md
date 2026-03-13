@@ -5,7 +5,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 First, run the development server:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -20,7 +20,7 @@ The `pages/api` directory is mapped to `/api/*`. Files in this directory are tre
 Make sure env variables are set in .env
 ```bash
 ./start-database.sh
-npm run push
+bun run push
 ```
 
 ## Stripe (local development)
@@ -28,8 +28,8 @@ npm run push
 To test subscriptions locally, run two terminals:
 
 ```bash
-npm run stripe:listen   # Terminal 1 — forwards Stripe webhooks
-npm run dev             # Terminal 2 — starts the dev server
+bun run stripe:listen   # Terminal 1 — forwards Stripe webhooks
+bun run dev             # Terminal 2 — starts the dev server
 ```
 
 See [docs/stripe-local-setup.md](docs/stripe-local-setup.md) for full setup instructions (env vars, test cards, troubleshooting).
@@ -53,10 +53,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## Migration scripts
 `
 // Add saved column to recipes
-npm run data-migration:add-saved-column
+bun run data-migration:add-saved-column
 // Create many-to-many table for recipes and messages
-npm run data-migration:create-many-recipes-to-many-messages-table
+bun run data-migration:create-many-recipes-to-many-messages-table
 // Resets to initial filters for each user
-npm run data-migration:filter-user-id-not-unique
+bun run data-migration:filter-user-id-not-unique
 //
 `
