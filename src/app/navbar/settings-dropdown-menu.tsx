@@ -137,8 +137,6 @@ export function NavDropdownMenu() {
     })
   }
 
-  items.push(useStartNewChatMenuItem())
-
   return (
     <>
       <DropdownMenu
@@ -339,28 +337,5 @@ function useLogoutMenuItem() {
     label: 'nav.menu.logout',
     icon: <LogOutIcon />,
     onClick: handleSignOut
-  })
-}
-
-function useStartNewChatMenuItem() {
-  const { setChatId, setStream, setMessages, messages } = useChatStore()
-
-  const handleStartNewChat = () => {
-    setChatId('')
-    setStream(null)
-    setMessages([])
-  }
-
-  if (messages.length === 0) {
-    return buildMenuItem({
-      slot: null
-    })
-  }
-
-  return buildMenuItem({
-    label: 'nav.menu.startNewChat',
-    icon: <PlusIcon />,
-    onClick: handleStartNewChat,
-    space: 'above'
   })
 }
