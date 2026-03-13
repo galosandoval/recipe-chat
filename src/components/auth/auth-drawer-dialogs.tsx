@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import { DrawerDialog } from '../drawer-dialog'
 import { LoginForm } from './login-form'
@@ -38,6 +39,7 @@ export function LoginDrawerDialog({
   onOpenChange?: (open: boolean) => void
 }) {
   const t = useTranslations()
+  const [isLoading, setIsLoading] = useState(false)
 
   return (
     <DrawerDialog
@@ -49,9 +51,10 @@ export function LoginDrawerDialog({
       formId='login'
       open={open}
       onOpenChange={onOpenChange}
+      isLoading={isLoading}
       submitIcon={<KeyRoundIcon />}
     >
-      <LoginForm onSuccess={() => onOpenChange?.(false)} />
+      <LoginForm onSuccess={() => onOpenChange?.(false)} onLoadingChange={setIsLoading} />
     </DrawerDialog>
   )
 }
