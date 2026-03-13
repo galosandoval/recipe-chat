@@ -6,6 +6,7 @@ import {
   getIngredientDisplayTextInPreferredUnits,
   aggregateIngredients
 } from '~/lib/ingredient-display'
+import { IngredientItemDisplay } from '~/components/ingredient-item-display'
 import { toast } from '~/components/toast'
 import { Togglebox } from '~/components/togglebox'
 import { useUserId } from '~/hooks/use-user-id'
@@ -104,7 +105,13 @@ function ListByRecipeId({
                   key={i.id}
                   checked={i.checked}
                   id={i.id.toString()}
-                  label={displayText(i)}
+                  label={
+                    <IngredientItemDisplay
+                      ingredient={i}
+                      preferredWeightUnit={preferredWeight}
+                      preferredVolumeUnit={preferredVolume}
+                    />
+                  }
                   onChange={(checked) => handleCheck(checked as boolean, i.id)}
                 />
               ))}
