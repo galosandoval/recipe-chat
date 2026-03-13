@@ -34,10 +34,12 @@ export function RecipeTime({
 
 export function NewRecipeTime({
   prepMinutes,
-  cookMinutes
+  cookMinutes,
+  servings
 }: {
   prepMinutes: number
   cookMinutes: number
+  servings?: number | null
 }) {
   const t = useTranslations()
   return (
@@ -58,6 +60,16 @@ export function NewRecipeTime({
           {formatTimeFromMinutes(cookMinutes, t)}
         </div>
       </div>
+      {servings != null && (
+        <div className='place-items-center px-2 py-2'>
+          <div className='text-muted-foreground text-sm'>
+            {t.recipes.servings}
+          </div>
+          <div className='text-muted-foreground text-sm whitespace-normal'>
+            {servings}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

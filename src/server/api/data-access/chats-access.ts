@@ -146,7 +146,6 @@ export class ChatsAccess extends DataAccess {
           slug: _slug,
           ingredients,
           instructions,
-          servings: _servings,
           dietTags,
           flavorTags,
           mainIngredients,
@@ -190,6 +189,7 @@ export class ChatsAccess extends DataAccess {
             description: recipe.description,
             prepMinutes: recipe.prepMinutes,
             cookMinutes: recipe.cookMinutes,
+            servings: recipe.servings,
             user: {
               connect: {
                 id: userId

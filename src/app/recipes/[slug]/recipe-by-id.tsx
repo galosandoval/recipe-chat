@@ -227,6 +227,7 @@ function RecipeInfo() {
     description,
     cookMinutes,
     prepMinutes,
+    servings,
     imgUrl
   } = data
 
@@ -242,7 +243,7 @@ function RecipeInfo() {
       )}
       {prepMinutes != null && cookMinutes != null && (
         <div className='flex justify-center'>
-          <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} />
+          <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} servings={servings} />
         </div>
       )}
       {description && (
