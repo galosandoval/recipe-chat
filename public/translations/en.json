@@ -80,7 +80,37 @@
     "thirdButton": "What's the best risotto recipe?",
     "saveRecipes": "Save recipes",
     "createAccount": "Create account or login",
-    "createAccountDescription": "Create an account or login to save your chat history and recipes."
+    "createAccountDescription": "Create an account or login to save your chat history and recipes.",
+    "welcome": {
+      "recipes": {
+        "title": "Recipe Assistant",
+        "description": "I can help you find recipes, plan meals, and answer cooking questions.",
+        "firstButton": "What should I make for dinner tonight?",
+        "secondButton": "What can I make with chicken?",
+        "thirdButton": "What's the best risotto recipe?"
+      },
+      "recipeDetail": {
+        "title": "Recipe Assistant",
+        "description": "I have context about $1 — ingredients, cuisine, and more.",
+        "firstButton": "How can I make this healthier?",
+        "secondButton": "What substitutions can I make?",
+        "thirdButton": "What sides go well with this?"
+      },
+      "list": {
+        "title": "List Assistant",
+        "description": "I can help you organize your grocery list and suggest what to buy.",
+        "firstButton": "What am I missing for a balanced meal?",
+        "secondButton": "Organize my list by aisle",
+        "thirdButton": "Suggest a recipe from my list items"
+      },
+      "pantry": {
+        "title": "Pantry Assistant",
+        "description": "I can suggest recipes based on what you already have.",
+        "firstButton": "What can I make with what I have?",
+        "secondButton": "What should I use before it expires?",
+        "thirdButton": "Suggest a quick meal from my pantry"
+      }
+    }
   },
 
   "capabilities": {

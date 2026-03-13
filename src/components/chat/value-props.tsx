@@ -10,13 +10,36 @@ import { userMessageDTO } from '~/lib/user-message-dto'
 import { Button } from '~/components/button'
 import { CornerRightUpIcon, SparklesIcon, UserPlusIcon } from 'lucide-react'
 import { cn } from '~/lib/utils'
+import { useChatDrawerStore } from '~/stores/chat-drawer-store'
+
+function useContextWelcome() {
+  const t = useTranslations()
+  const context = useChatDrawerStore((s) => s.context)
+
+  const page = context.page === 'recipe-detail' ? 'recipeDetail' : context.page
+  const welcome = t.valueProps.welcome[page]
+
+  const description =
+    context.page === 'recipe-detail'
+      ? t.valueProps.welcome.recipeDetail.replace('description', context.recipe.name)
+      : welcome.description
+
+  return {
+    title: welcome.title,
+    description,
+    firstButton: welcome.firstButton,
+    secondButton: welcome.secondButton,
+    thirdButton: welcome.thirdButton
+  }
+}
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
-  const t = useTranslations()
   const { messages, reset, triggerAISubmission } = useChatStore()
   const stream = useChatStore((state) => state.stream)
   const isStreaming = !!stream
   const session = useSession()
+  const welcome = useContextWelcome()
+
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     const messageContent = e.currentTarget.innerText
 
@@ -44,8 +67,8 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
       >
         <ValuePropsHeader
           icon={<SparklesIcon />}
-          label={t.valueProps.title}
-          description={t.valueProps.description}
+          label={welcome.title}
+          description={welcome.description}
         />
 
         <div className='flex w-full flex-col items-center gap-4 px-4'>
@@ -56,7 +79,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             onClick={handleFillMessage}
             disabled={isStreaming}
           >
-            {t.valueProps.firstButton}
+            {welcome.firstButton}
             <CornerRightUpIcon />
           </Button>
           <Button
@@ -66,7 +89,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             onClick={handleFillMessage}
             disabled={isStreaming}
           >
-            <span>{t.valueProps.secondButton}</span>
+            <span>{welcome.secondButton}</span>
             <span>
               <CornerRightUpIcon />
             </span>
@@ -78,47 +101,13 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
             onClick={handleFillMessage}
             disabled={isStreaming}
           >
-            <span>{t.valueProps.thirdButton}</span>
+            <span>{welcome.thirdButton}</span>
             <span>
               <CornerRightUpIcon />
             </span>
           </Button>
         </div>
       </div>
-
-      {/* <div className='flex flex-col items-center justify-center'>
-        <ValuePropsHeader
-          icon={
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='h-6 w-6'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z'
-              />
-            </svg>
-          }
-          label={t.capabilities.title}
-        />
-
-        <div className='flex w-full flex-col items-center gap-4'>
-          <div className='text-foreground mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
-            {t.capabilities.firstDescription}
-          </div>
-          <div className='text-foreground mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
-            {t.capabilities.secondDescription}
-          </div>
-          <div className='text-foreground mt-0 mb-0 grid h-12 w-full items-center rounded-lg px-5 text-center text-sm font-semibold normal-case'>
-            {t.capabilities.thirdDescription}
-          </div>
-        </div>
-      </div> */}
 
       {children}
 

@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import type { Ingredient } from '@prisma/client'
 import { useTranslations } from '~/hooks/use-translations'
-import { useChatPanelStore } from '~/stores/chat-panel-store'
+import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 import { useChatStore } from '~/stores/chat-store'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
@@ -539,7 +539,7 @@ function EditPantryItemDrawer({
 
 function UseInChatButton() {
   const t = useTranslations()
-  const { open } = useChatPanelStore()
+  const { open } = useChatDrawerStore()
 
   const handleClick = () => {
     useChatStore

@@ -80,7 +80,37 @@
     "thirdButton": "¿Que puedo hacer con pollo?",
     "saveRecipes": "Guarda tus recetas",
     "createAccount": "Crear cuenta o iniciar sesión",
-    "createAccountDescription": "Crea una cuenta o inicia sesión para guardar tu historial de chats y recetas."
+    "createAccountDescription": "Crea una cuenta o inicia sesión para guardar tu historial de chats y recetas.",
+    "welcome": {
+      "recipes": {
+        "title": "Asistente de Recetas",
+        "description": "Puedo ayudarte a encontrar recetas, planificar comidas y responder preguntas de cocina.",
+        "firstButton": "¿Qué podría hacer para cenar esta noche?",
+        "secondButton": "¿Qué puedo hacer con pollo?",
+        "thirdButton": "¿Cuál es la mejor receta de risotto?"
+      },
+      "recipeDetail": {
+        "title": "Asistente de Recetas",
+        "description": "Tengo información sobre $1 — ingredientes, cocina y más.",
+        "firstButton": "¿Cómo puedo hacer esto más saludable?",
+        "secondButton": "¿Qué sustituciones puedo hacer?",
+        "thirdButton": "¿Qué acompañamientos van bien con esto?"
+      },
+      "list": {
+        "title": "Asistente de Lista",
+        "description": "Puedo ayudarte a organizar tu lista de compras y sugerir qué comprar.",
+        "firstButton": "¿Qué me falta para una comida balanceada?",
+        "secondButton": "Organiza mi lista por pasillo",
+        "thirdButton": "Sugiere una receta con los ingredientes de mi lista"
+      },
+      "pantry": {
+        "title": "Asistente de Despensa",
+        "description": "Puedo sugerir recetas basadas en lo que ya tienes.",
+        "firstButton": "¿Qué puedo hacer con lo que tengo?",
+        "secondButton": "¿Qué debería usar antes de que expire?",
+        "thirdButton": "Sugiere una comida rápida con mi despensa"
+      }
+    }
   },
 
   "capabilities": {

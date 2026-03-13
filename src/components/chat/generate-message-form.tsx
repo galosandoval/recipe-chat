@@ -14,7 +14,7 @@ import type { GeneratedRecipe } from '~/schemas/messages-schema'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
-import { useChatPanelStore } from '~/stores/chat-panel-store'
+import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import { BottomBar } from '~/components/bottom-bar'
@@ -48,7 +48,7 @@ function useRecipeChat() {
       createUserMessage(lastMessage)
     }
     const filters = utils.filters.getByUserId.getData({ userId })
-    const context = useChatPanelStore.getState().context
+    const context = useChatDrawerStore.getState().context
     setInput('')
     aiSubmit({
       messages,
@@ -137,7 +137,7 @@ export function GenerateMessageForm() {
     }
   }, [isStreaming])
 
-  const context = useChatPanelStore((s) => s.context)
+  const context = useChatDrawerStore((s) => s.context)
 
   let placeholder = t.chat.chatFormPlaceholder
   if (messages.length > 0) {

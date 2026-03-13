@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { MessageSquareIcon, PlusIcon, XIcon } from 'lucide-react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 import { cn } from '~/lib/utils'
-import { useChatPanelStore } from '~/stores/chat-panel-store'
+import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 import type { ChatContext } from '~/schemas/chats-schema'
 import { useChatStore } from '~/stores/chat-store'
 import { Interface } from '~/components/chat/interface'
@@ -13,7 +13,7 @@ import { GenerateMessageForm } from '~/components/chat/generate-message-form'
 import { Button } from '~/components/button'
 
 export function ChatPanel() {
-  const { isOpen, close, context } = useChatPanelStore()
+  const { isOpen, close, context } = useChatDrawerStore()
   const messages = useChatStore((s) => s.messages)
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export function ChatFab({
   className?: string
   context?: ChatContext
 }) {
-  const { toggle } = useChatPanelStore()
+  const { toggle } = useChatDrawerStore()
 
   return (
     <Button

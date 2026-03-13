@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { ChatContext } from '~/schemas/chats-schema'
 
-type ChatPanelStore = {
+type ChatDrawerStore = {
   isOpen: boolean
   context: ChatContext
   open: (context?: ChatContext) => void
@@ -10,7 +10,7 @@ type ChatPanelStore = {
   setContext: (context: ChatContext) => void
 }
 
-export const useChatPanelStore = create<ChatPanelStore>((set) => ({
+export const useChatDrawerStore = create<ChatDrawerStore>((set) => ({
   isOpen: false,
   context: { page: 'recipes' },
   open: (context) =>

@@ -15,7 +15,7 @@ import { BotIcon, SearchIcon, XCircleIcon } from 'lucide-react'
 import { useNavigationStore } from '~/stores/navigation-store'
 import { useRecipesStore } from '~/stores/recipes-store'
 import { useDebounce } from '~/hooks/use-recipe'
-import { useChatPanelStore } from '~/stores/chat-panel-store'
+import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 
 export function Recipes({
   search,
@@ -158,7 +158,7 @@ function RecipeCards({
 
 function EmptyList() {
   const t = useTranslations()
-  const openChat = useChatPanelStore((s) => s.open)
+  const openChat = useChatDrawerStore((s) => s.open)
   return (
     <div className='col-span-2 flex min-h-[60vh] items-center justify-center sm:col-span-4'>
       <div className='flex max-w-md flex-col items-center gap-4 text-center'>
