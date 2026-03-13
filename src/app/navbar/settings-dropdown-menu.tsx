@@ -143,7 +143,7 @@ export function NavDropdownMenu() {
     <>
       <DropdownMenu
         trigger={
-          <Button variant='outline' size='icon'>
+          <Button variant='ghost' size='icon'>
             <SettingsIcon />
           </Button>
         }

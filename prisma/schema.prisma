@@ -127,6 +127,7 @@ model Recipe {
     // NEW: numeric times for better filtering/sorting (optional)
     prepMinutes Int?
     cookMinutes Int?
+    servings    Int?
 
     // existing
     messages     RecipesOnMessages[]

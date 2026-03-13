@@ -50,18 +50,16 @@ export async function POST(req: Request) {
   })
 
   const result = streamObject({
-    /**
-     * Calls the OpenAI GPT-4 Turbo model with validated messages and system prompt,
-     * using the generatedMessageSchema for output validation.
-     * The messages array is mapped to the expected CoreMessage format.
-     */
-    model: openai('gpt-4-turbo'),
+    model: openai('gpt-4o-mini'),
     schema: generatedMessageSchema,
-    messages: messages.map(({ content, role }) => ({
-      content,
-      role
-    })),
+    messages: messages
+      .filter(({ role }) => role !== 'data')
+      .map(({ content, role }) => ({
+        content,
+        role: role as 'system' | 'user' | 'assistant'
+      })),
     system
   })
+
   return result.toTextStreamResponse()
 }

@@ -54,8 +54,8 @@ docker exec -i recipe-chat-postgres psql -U postgres -d recipe-chat < prisma/bac
 After restore, the DB may be missing new tables (e.g. Pantry). Apply pending migrations:
 
 ```bash
-npm run migrate
-# or: dotenv -e .env.local -- npx prisma migrate dev
+bun run migrate
+# or: dotenv -e .env.local -- bunx prisma migrate dev
 ```
 
 If a migration was already applied in the backup, Prisma will skip it. If you restored an older backup and added new migrations, they will run in step 4.

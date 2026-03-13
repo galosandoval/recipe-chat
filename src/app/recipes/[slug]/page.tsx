@@ -1,5 +1,5 @@
 import { api, HydrateClient } from '~/trpc/server'
-import RecipeById from './recipe-by-id'
+import { RecipeById } from './recipe-by-id'
 import { notFound } from 'next/navigation'
 import { RecipeDetailChat } from './recipe-detail-chat'
 

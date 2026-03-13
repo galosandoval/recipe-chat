@@ -58,6 +58,7 @@ export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
             <Times
               prepMinutes={recipe.prepMinutes}
               cookMinutes={recipe.cookMinutes}
+              servings={recipe.servings}
             />
             <Ingredients ingredients={recipe.ingredients} />
             <Instructions instructions={recipe.instructions} />
@@ -166,15 +167,17 @@ function ActionButton({
 
 function Times({
   prepMinutes,
-  cookMinutes
+  cookMinutes,
+  servings
 }: {
   prepMinutes?: number | null
   cookMinutes?: number | null
+  servings?: number | null
 }) {
   const t = useTranslations()
   const formattedPrepMinutes = prepMinutes ? formatTimeFromMinutes(prepMinutes, t) : null
   const formattedCookMinutes = cookMinutes ? formatTimeFromMinutes(cookMinutes, t) : null
-  if (!prepMinutes && !cookMinutes) return null
+  if (!prepMinutes && !cookMinutes && !servings) return null
   return (
     <div className='text-foreground mb-2 flex items-center gap-2 self-center text-sm'>
       <ClockIcon className='size-4' />
@@ -186,6 +189,11 @@ function Times({
       {cookMinutes && (
         <span className='flex items-center gap-2 text-xs'>
           {t.recipes.cookTime} {formattedCookMinutes}
+        </span>
+      )}
+      {servings != null && (
+        <span className='flex items-center gap-2 text-xs'>
+          {t.recipes.servings} {servings}
         </span>
       )}
     </div>

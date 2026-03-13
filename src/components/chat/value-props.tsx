@@ -1,6 +1,9 @@
 import { type MouseEvent } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
-import { SignUpDrawerDialog } from '~/components/auth/auth-drawer-dialogs'
+import {
+  LoginDrawerDialog,
+  SignUpDrawerDialog
+} from '~/components/auth/auth-drawer-dialogs'
 import { useSession } from 'next-auth/react'
 import { useChatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
@@ -142,8 +145,19 @@ function Auth() {
           icon={<UserPlusIcon />}
           label={t.valueProps.createAccount}
         />
-        <div className='flex w-full flex-col gap-2 px-4'>
-          <SignUpDrawerDialog trigger={<Button icon={<UserPlusIcon />}>{t.nav.menu.signUp}</Button>} />
+        <div className='flex w-full flex-col px-4'>
+          <SignUpDrawerDialog
+            trigger={
+              <Button icon={<UserPlusIcon />}>{t.nav.menu.signUp}</Button>
+            }
+          />
+          <LoginDrawerDialog
+            trigger={
+              <Button variant='link' className='text-foreground text-xs'>
+                {t.nav.menu.login}
+              </Button>
+            }
+          />
         </div>
       </div>
     </>

@@ -84,6 +84,7 @@ export type RecipeDTO = Pick<
   | 'techniques'
   | 'prepMinutes'
   | 'cookMinutes'
+  | 'servings'
   | 'saved'
   | 'slug'
 > & {

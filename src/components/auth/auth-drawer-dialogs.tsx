@@ -51,7 +51,7 @@ export function LoginDrawerDialog({
       onOpenChange={onOpenChange}
       submitIcon={<KeyRoundIcon />}
     >
-      <LoginForm />
+      <LoginForm onSuccess={() => onOpenChange?.(false)} />
     </DrawerDialog>
   )
 }

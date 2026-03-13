@@ -141,19 +141,33 @@ export class ChatsAccess extends DataAccess {
         }
       })
       if (existingRecipe) {
+        const {
+          id,
+          ingredients,
+          instructions,
+          dietTags,
+          flavorTags,
+          mainIngredients,
+          techniques,
+          ...recipeData
+        } = recipe
         await tx.recipe.update({
           where: {
-            id: recipe.id
+            id
           },
           data: {
-            ...recipe,
+            ...recipeData,
+            dietTags: dietTags ?? undefined,
+            flavorTags: flavorTags ?? undefined,
+            mainIngredients: mainIngredients ?? undefined,
+            techniques: techniques ?? undefined,
             ingredients: {
-              create: recipe.ingredients?.map((i: string) =>
+              create: ingredients?.map((i: string) =>
                 ingredientStringToCreatePayload(i)
               )
             },
             instructions: {
-              create: recipe.instructions?.map((i: string) => ({
+              create: instructions?.map((i: string) => ({
                 description: i
               }))
             }
@@ -174,6 +188,7 @@ export class ChatsAccess extends DataAccess {
             description: recipe.description,
             prepMinutes: recipe.prepMinutes,
             cookMinutes: recipe.cookMinutes,
+            servings: recipe.servings,
             user: {
               connect: {
                 id: userId

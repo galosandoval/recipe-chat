@@ -5,22 +5,6 @@ import { match as matchLocale } from '@formatjs/intl-localematcher'
 import { LOCALE_COOKIE_NAME } from '~/lib/locale'
 
 export function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname
-
-  // Backward compat: redirect /en/... or /es/... to clean path
-  for (const locale of i18n.locales) {
-    if (pathname === `/${locale}`) {
-      const url = req.nextUrl.clone()
-      url.pathname = '/'
-      return NextResponse.redirect(url, 301)
-    }
-    if (pathname.startsWith(`/${locale}/`)) {
-      const url = req.nextUrl.clone()
-      url.pathname = pathname.slice(`/${locale}`.length) || '/'
-      return NextResponse.redirect(url, 301)
-    }
-  }
-
   // If cookie already set and valid, pass through
   const existingCookie = req.cookies.get(LOCALE_COOKIE_NAME)?.value
   if (existingCookie && (i18n.locales as readonly string[]).includes(existingCookie)) {

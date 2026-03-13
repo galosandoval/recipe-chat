@@ -43,7 +43,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 In a dedicated terminal:
 
 ```bash
-npm run stripe:listen
+bun run stripe:listen
 ```
 
 This runs `stripe listen --forward-to localhost:3000/api/webhooks/stripe`.
@@ -55,7 +55,7 @@ On first run, it prints a webhook signing secret (`whsec_...`). Copy it into `ST
 In a separate terminal:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Both processes must be running for webhooks to work.
@@ -76,7 +76,7 @@ Use any future expiry date, any 3-digit CVC, and any billing ZIP.
 After a test checkout, confirm the data was written:
 
 ```bash
-npm run studio
+bun run studio
 ```
 
 Open the `User` table in Prisma Studio and check:

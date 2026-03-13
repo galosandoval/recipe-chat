@@ -9,6 +9,7 @@ import {
   EditIcon,
   EllipsisVerticalIcon,
   ListTodoIcon,
+  MessageSquareIcon,
   PackageIcon,
   TrashIcon
 } from 'lucide-react'
@@ -23,33 +24,49 @@ import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
 export const Navbar = () => {
-  const { data } = useSession()
   const pathname = usePathname()
   const slug = useRecipeSlug()
 
-  let navbar = <RoutesNavbar />
-  if (!data) {
-    navbar = <PublicNavbar />
-  } else if (pathname === `/recipes/${slug}`) {
+  if (pathname === `/recipes/${slug}`) {
     return <RecipeByIdNavbar />
   }
 
   return (
     <div className='w-full'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
-        <div className='glass-element from-background to-background/30 text-foreground w-full border-b border-muted-foreground/20 bg-gradient-to-b sm:rounded-md sm:border'>
-          {navbar}
+        <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border'>
+          <AppHeader />
         </div>
       </div>
     </div>
   )
 }
 
-function PublicNavbar() {
+export const BottomNav = () => {
+  const { data } = useSession()
+  const pathname = usePathname()
+  const slug = useRecipeSlug()
+
+  if (!data || pathname === `/recipes/${slug}`) {
+    return null
+  }
+
+  return (
+    <div className='w-full'>
+      <div className='mx-auto flex w-full max-w-2xl justify-center sm:pb-3'>
+        <div className='glass-element from-background/30 to-background text-foreground border-muted-foreground/20 w-full border-t bg-gradient-to-t sm:rounded-md sm:border'>
+          <BottomNavTabs />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AppHeader() {
   const t = useTranslations()
 
   return (
-    <nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4 py-2'>
+    <nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4 py-1'>
       <div></div>
       <h1 className='text-base'>{t.nav.appName}</h1>
       <div className='justify-self-end'>
@@ -115,52 +132,51 @@ export function RecipeByIdDropdownMenu() {
   )
 }
 
-const MENU_ITEMS = [
+const NAV_ITEMS = [
+  {
+    value: '/chat',
+    icon: <MessageSquareIcon />,
+    label: 'chat'
+  },
   {
     value: '/recipes',
-    icon: <CookingPotIcon size='1rem' />,
+    icon: <CookingPotIcon />,
     label: 'recipes'
   },
   {
     value: '/list',
-    icon: <ListTodoIcon size='1rem' />,
+    icon: <ListTodoIcon />,
     label: 'list'
   },
   {
     value: '/pantry',
-    icon: <PackageIcon size='1rem' />,
+    icon: <PackageIcon />,
     label: 'pantry'
   }
 ] as const
 
-function RoutesNavbar() {
+function BottomNavTabs() {
   const pathname = usePathname()
   const t = useTranslations()
   const isActive = (path: string) => pathname.includes(path)
   return (
-    <div className='flex w-full flex-col items-center'>
-      <div className='text-foreground my-1 text-sm font-bold'>RecipeChat</div>
-      <nav className='top-5 mx-auto flex w-full justify-between gap-2 overflow-hidden px-3 py-1.5'>
-        {MENU_ITEMS.map((item) => (
-          <NavigationButton
-            href={item.value}
-            className={cn(
-              'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex flex-1 items-center justify-center gap-1 rounded-md transition-colors duration-75 active:scale-[99%]',
-              isActive(item.value) &&
-                'bg-accent text-accent-foreground/75 rounded-md'
-            )}
-            as={Button}
-            variant={isActive(item.value) ? 'default' : 'outline'}
-            key={item.value}
-          >
-            {item.icon}
-            <span className='text-sm'>{t.nav[item.label]}</span>
-          </NavigationButton>
-        ))}
-        <div>
-          <NavDropdownMenu />
-        </div>
-      </nav>
-    </div>
+    <nav className='mx-auto flex w-full justify-between gap-2 overflow-hidden px-3 py-1.5'>
+      {NAV_ITEMS.map((item) => (
+        <NavigationButton
+          href={item.value}
+          className={cn(
+            'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
+            isActive(item.value) &&
+              'bg-accent text-accent-foreground/75 rounded-md'
+          )}
+          as={Button}
+          variant={isActive(item.value) ? 'default' : 'outline'}
+          key={item.value}
+        >
+          {item.icon}
+          <span className='text-xs'>{t.nav[item.label]}</span>
+        </NavigationButton>
+      ))}
+    </nav>
   )
 }

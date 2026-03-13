@@ -23,7 +23,7 @@ import type { RecipeByIdData } from '~/hooks/use-recipe'
 import { useRecipe } from '~/hooks/use-recipe'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
-export default function RecipeById() {
+export function RecipeById() {
   useNoSleep()
   const { data: recipe } = useRecipe()
 
@@ -31,7 +31,7 @@ export default function RecipeById() {
 
   return (
     <div className='relative mx-auto flex max-w-2xl flex-col'>
-      <FoundRecipe data={recipe} />
+      <Recipe data={recipe} />
     </div>
   )
 }
@@ -42,8 +42,8 @@ const observerOptions: IntersectionObserverInit = {
   threshold: Array.from({ length: 100 }, (_, i) => i / 100)
 }
 
-function FoundRecipe({ data }: { data: RecipeByIdData }) {
-  const { ingredients, instructions, notes, name, imgUrl } = data
+function Recipe({ data }: { data: RecipeByIdData }) {
+  const { ingredients, instructions, notes, name } = data
   const containerRef = useRef<HTMLDivElement>(null)
   const [startRef, startObservation] = useObervationObserver(observerOptions)
   const [endRef, endObservation] = useObervationObserver(observerOptions)
@@ -64,7 +64,7 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
 
       <div>
         {data?.imgUrl && (
-          <StickyHeader visible={isPastHero} name={name} imgUrl={imgUrl} />
+          <StickyHeader visible={isPastHero} name={name} />
         )}
         <div className='mx-auto flex flex-col items-center px-3 pb-4'>
           <div className='bg-background flex flex-col'>
@@ -90,11 +90,9 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
 function StickyHeader({
   name,
   visible,
-  imgUrl
 }: {
   name: string
-  visible: boolean
-  imgUrl?: string | null
+    visible: boolean
 }) {
   return (
     <div
@@ -139,7 +137,7 @@ function RecipeImgButtonAndMetaData() {
   if (!data) return null
   return (
     <>
-      <StickyHeader imgUrl={data.imgUrl} name={data.name} visible={true} />
+      <StickyHeader name={data.name} visible={true} />
       <div className='px-3'>
         <Card
           className='m-3 mx-auto mt-4 max-w-sm'
@@ -229,6 +227,7 @@ function RecipeInfo() {
     description,
     cookMinutes,
     prepMinutes,
+    servings,
     imgUrl
   } = data
 
@@ -244,7 +243,7 @@ function RecipeInfo() {
       )}
       {prepMinutes != null && cookMinutes != null && (
         <div className='flex justify-center'>
-          <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} />
+          <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} servings={servings} />
         </div>
       )}
       {description && (

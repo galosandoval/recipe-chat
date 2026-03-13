@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useMemo } from 'react'
+import type { Locale } from '~/i18n-config'
 import type { getTranslations } from '~/lib/get-translations'
 
 export type AwaitedTranslations = Awaited<ReturnType<typeof getTranslations>>
@@ -196,12 +197,12 @@ export const useTranslations = (): Translations => {
   }, [ctx.translations])
 }
 
-export const useLocale = (): string => {
+export const useLocale = (): Locale => {
   const ctx = useContext(TranslationsContext)
 
   if (!ctx) {
     throw new Error('useLocale must be used within a TranslationsContext')
   }
 
-  return ctx.locale
+  return ctx.locale as Locale
 }
