@@ -141,19 +141,35 @@ export class ChatsAccess extends DataAccess {
         }
       })
       if (existingRecipe) {
+        const {
+          id: _id,
+          slug: _slug,
+          ingredients,
+          instructions,
+          servings: _servings,
+          dietTags,
+          flavorTags,
+          mainIngredients,
+          techniques,
+          ...recipeData
+        } = recipe
         await tx.recipe.update({
           where: {
             id: recipe.id
           },
           data: {
-            ...recipe,
+            ...recipeData,
+            dietTags: dietTags ?? undefined,
+            flavorTags: flavorTags ?? undefined,
+            mainIngredients: mainIngredients ?? undefined,
+            techniques: techniques ?? undefined,
             ingredients: {
-              create: recipe.ingredients?.map((i: string) =>
+              create: ingredients?.map((i: string) =>
                 ingredientStringToCreatePayload(i)
               )
             },
             instructions: {
-              create: recipe.instructions?.map((i: string) => ({
+              create: instructions?.map((i: string) => ({
                 description: i
               }))
             }

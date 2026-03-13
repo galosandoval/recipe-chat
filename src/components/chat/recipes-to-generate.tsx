@@ -28,21 +28,16 @@ function Recipe({
   recipe: RecipeDTO
   isStreaming: boolean
 }) {
-  const shouldShowGenerateButton =
-    !recipe.ingredients?.length && !recipe.instructions?.length
-
   return (
     <Card className='bg-background'>
       <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
       <div className='flex justify-end pt-2'>
-        {shouldShowGenerateButton && (
-          <GenerateButton
-            disabled={isStreaming}
-            recipeName={recipe.name}
-            recipeDescription={recipe.description ?? ''}
-          />
-        )}
+        <GenerateButton
+          disabled={isStreaming}
+          recipeName={recipe.name}
+          recipeDescription={recipe.description ?? ''}
+        />
       </div>
     </Card>
   )

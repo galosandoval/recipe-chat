@@ -114,6 +114,7 @@ export const useChatAI = () => {
         name: r.name,
         slug: r.slug,
         description: r.description ?? '',
+        servings: null,
         ingredients: r.ingredients,
         instructions: r.instructions,
         prepMinutes: r.prepMinutes,

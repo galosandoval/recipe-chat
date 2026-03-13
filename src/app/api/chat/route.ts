@@ -52,10 +52,12 @@ export async function POST(req: Request) {
   const result = streamObject({
     model: openai('gpt-4o-mini'),
     schema: generatedMessageSchema,
-    messages: messages.map(({ content, role }) => ({
-      content,
-      role
-    })),
+    messages: messages
+      .filter(({ role }) => role !== 'data')
+      .map(({ content, role }) => ({
+        content,
+        role: role as 'system' | 'user' | 'assistant'
+      })),
     system
   })
 
