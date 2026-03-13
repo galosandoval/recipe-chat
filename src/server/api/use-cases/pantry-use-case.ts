@@ -73,11 +73,29 @@ export async function bulkAddToPantry(
 ) {
   const pantryAccess = new PantryAccess(prisma)
   const pantry = await pantryAccess.getOrCreatePantry(userId)
-  const created = []
+  const results = []
   for (const line of rawLines) {
     const trimmed = line.trim()
     if (!trimmed) continue
     const parsed = ingredientStringToCreatePayload(trimmed)
+
+    // Merge with existing pantry item if same itemName + unit
+    if (parsed.itemName && parsed.unit && parsed.quantity != null) {
+      const existing = await pantryAccess.findPantryIngredientByItemAndUnit(
+        pantry.id,
+        parsed.itemName,
+        parsed.unit
+      )
+      if (existing && existing.quantity != null) {
+        const merged = await pantryAccess.updatePantryIngredient(existing.id, {
+          quantity: existing.quantity + parsed.quantity,
+          rawString: `${existing.quantity + parsed.quantity} ${existing.unit} ${existing.itemName}`.trim()
+        })
+        results.push(merged)
+        continue
+      }
+    }
+
     const id = cuid()
     const ing = await pantryAccess.createPantryIngredient({
       id,
@@ -89,7 +107,7 @@ export async function bulkAddToPantry(
       itemName: parsed.itemName,
       preparation: parsed.preparation
     })
-    created.push(ing)
+    results.push(ing)
   }
-  return created
+  return results
 }
