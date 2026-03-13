@@ -24,7 +24,6 @@ import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 
 export const Navbar = () => {
-  const { data } = useSession()
   const pathname = usePathname()
   const slug = useRecipeSlug()
 
@@ -36,7 +35,7 @@ export const Navbar = () => {
     <div className='w-full'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
         <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border'>
-          <Header />
+          <AppHeader />
         </div>
       </div>
     </div>
@@ -63,11 +62,11 @@ export const BottomNav = () => {
   )
 }
 
-function Header() {
+function AppHeader() {
   const t = useTranslations()
 
   return (
-    <nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4 py-2'>
+    <nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4 py-1'>
       <div></div>
       <h1 className='text-base'>{t.nav.appName}</h1>
       <div className='justify-self-end'>
@@ -136,22 +135,22 @@ export function RecipeByIdDropdownMenu() {
 const NAV_ITEMS = [
   {
     value: '/chat',
-    icon: <MessageSquareIcon size='1rem' />,
+    icon: <MessageSquareIcon />,
     label: 'chat'
   },
   {
     value: '/recipes',
-    icon: <CookingPotIcon size='1rem' />,
+    icon: <CookingPotIcon />,
     label: 'recipes'
   },
   {
     value: '/list',
-    icon: <ListTodoIcon size='1rem' />,
+    icon: <ListTodoIcon />,
     label: 'list'
   },
   {
     value: '/pantry',
-    icon: <PackageIcon size='1rem' />,
+    icon: <PackageIcon />,
     label: 'pantry'
   }
 ] as const
@@ -166,7 +165,7 @@ function BottomNavTabs() {
         <NavigationButton
           href={item.value}
           className={cn(
-            'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex flex-1 items-center justify-center gap-1 rounded-md transition-colors duration-75 active:scale-[99%]',
+            'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
             isActive(item.value) &&
               'bg-accent text-accent-foreground/75 rounded-md'
           )}
@@ -175,7 +174,7 @@ function BottomNavTabs() {
           key={item.value}
         >
           {item.icon}
-          <span className='text-sm'>{t.nav[item.label]}</span>
+          <span className='text-xs'>{t.nav[item.label]}</span>
         </NavigationButton>
       ))}
     </nav>
