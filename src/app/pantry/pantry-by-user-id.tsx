@@ -11,14 +11,15 @@ import { ArrowDownIcon, MessageSquareIcon, MinusIcon, PencilIcon, PlusIcon } fro
 import { useAppForm } from '~/hooks/use-app-form'
 import z from 'zod'
 import {
-  getIngredientDisplayText,
-  getIngredientDisplayTextInPreferredUnits,
-  getIngredientDisplayQuantityAndUnit
+  getIngredientDisplayText
 } from '~/lib/ingredient-display'
+import {
+  UnitBadge,
+  getIngredientItemDisplay
+} from '~/components/ingredient-item-display'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { BulkAddPantry } from './bulk-add-pantry'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
-import { Badge as BadgeUI } from '~/components/ui/badge'
 import { Button } from '~/components/button'
 import { toast } from '~/components/toast'
 import { DrawerDialog } from '~/components/drawer-dialog'
@@ -138,7 +139,7 @@ function PantryRow({
   }) => void
 }) {
   const t = useTranslations()
-  const display = getIngredientDisplayQuantityAndUnit(
+  const { display } = getIngredientItemDisplay(
     displayIngredient,
     preferredWeightUnit,
     preferredVolumeUnit
@@ -148,9 +149,13 @@ function PantryRow({
   )
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingRef = useRef<{ quantity: number; unit: string; unitType: 'volume' | 'weight' | 'count' } | null>(null)
+  const localQuantityRef = useRef<number | null>(null)
 
   const displayQuantity = display?.displayQuantity
   useEffect(() => {
+    // Don't sync from server while user is actively adjusting quantity
+    if (pendingRef.current) return
+    localQuantityRef.current = null
     if (displayQuantity != null) setInputValue(String(displayQuantity))
   }, [displayQuantity])
 
@@ -162,6 +167,7 @@ function PantryRow({
     const pending = pendingRef.current
     if (pending) {
       pendingRef.current = null
+      localQuantityRef.current = null
       updateItem({
         ingredientId: ingredient.id,
         data: {
@@ -203,6 +209,7 @@ function PantryRow({
 
   const persistQuantity = (qty: number) => {
     if (!display || qty < min) return
+    localQuantityRef.current = qty
     optimisticUpdateQuantity(ingredient.id, {
       quantity: qty,
       unit: display.displayUnit,
@@ -215,7 +222,7 @@ function PantryRow({
 
   const handleDecrease = () => {
     if (!display) return
-    const current = display.displayQuantity
+    const current = localQuantityRef.current ?? display.displayQuantity
     const next = Math.max(min, Math.round((current - step) * 1000) / 1000)
     if (next !== current) {
       setInputValue(String(next))
@@ -225,7 +232,7 @@ function PantryRow({
 
   const handleIncrease = () => {
     if (!display) return
-    const current = display.displayQuantity
+    const current = localQuantityRef.current ?? display.displayQuantity
     const next = Math.round((current + step) * 1000) / 1000
     setInputValue(String(next))
     persistQuantity(next)
@@ -295,9 +302,7 @@ function PantryRow({
           onBlur={handleInputBlur}
           className='text-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none h-8 w-16 shrink-0 border px-2 text-center text-sm'
         />
-        <BadgeUI variant='outline' className='h-8 shrink-0 px-2 text-xs'>
-          {display.displayUnit}
-        </BadgeUI>
+        <UnitBadge unit={display.displayUnit} className='h-8 shrink-0 px-2 text-xs' />
         <Button
           variant='outline'
           size='icon'
@@ -437,13 +442,11 @@ function PantryList({
   }
   const displayText = (ing: Ingredient) => {
     const displayIng = getDisplayIngredient(ing)
-    return (
-      getIngredientDisplayTextInPreferredUnits(
-        displayIng,
-        preferredWeightUnit,
-        preferredVolumeUnit
-      ) || getIngredientDisplayText(displayIng)
-    )
+    return getIngredientItemDisplay(
+      displayIng,
+      preferredWeightUnit,
+      preferredVolumeUnit
+    ).displayText
   }
   const sorted = [...ingredients].sort((a, b) =>
     displayText(a).localeCompare(displayText(b))
