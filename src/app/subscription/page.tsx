@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTranslations, useLocale } from '~/hooks/use-translations'
@@ -9,28 +9,20 @@ import { toast } from '~/components/toast'
 import { CheckIcon } from 'lucide-react'
 import { Button } from '~/components/button'
 import { formatTierPrice } from '~/lib/stripe-config'
+import type { Locale } from '~/i18n-config'
 
 const TIERS = ['FREE', 'STARTER', 'PREMIUM'] as const
 type Tier = (typeof TIERS)[number]
 
 const TIER_ORDER: Record<Tier, number> = { FREE: 0, STARTER: 1, PREMIUM: 2 }
 
-function useRidirectIfNotLoggedIn() {
-  const router = useRouter()
-  const session = useSession()
-
-  if (!session.data) {
-    // router.
-  }
-}
-
 export default function SubscriptionPage() {
   const t = useTranslations()
   const session = useSession()
   const searchParams = useSearchParams()
   const lang = useLocale()
-  const localeMap: Record<string, string> = { en: 'en-US', es: 'es-MX' }
-  const locale = localeMap[lang] ?? 'en-US'
+  const localeMap: Record<Locale, string> = { en: 'en-US', es: 'es-MX' }
+  const locale = localeMap[lang]
 
   const { data: info, isLoading } = api.subscription.getInfo.useQuery(undefined, {
     enabled: !!session.data

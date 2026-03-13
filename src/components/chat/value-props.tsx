@@ -153,7 +153,7 @@ function Auth() {
           />
           <LoginDrawerDialog
             trigger={
-              <Button variant='link' className='text-foreground'>
+              <Button variant='link' className='text-foreground text-xs'>
                 {t.nav.menu.login}
               </Button>
             }

@@ -43,7 +43,7 @@ const observerOptions: IntersectionObserverInit = {
 }
 
 function FoundRecipe({ data }: { data: RecipeByIdData }) {
-  const { ingredients, instructions, notes, name, imgUrl } = data
+  const { ingredients, instructions, notes, name } = data
   const containerRef = useRef<HTMLDivElement>(null)
   const [startRef, startObservation] = useObervationObserver(observerOptions)
   const [endRef, endObservation] = useObervationObserver(observerOptions)
@@ -64,7 +64,7 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
 
       <div>
         {data?.imgUrl && (
-          <StickyHeader visible={isPastHero} name={name} imgUrl={imgUrl} />
+          <StickyHeader visible={isPastHero} name={name} />
         )}
         <div className='mx-auto flex flex-col items-center px-3 pb-4'>
           <div className='bg-background flex flex-col'>
@@ -90,11 +90,9 @@ function FoundRecipe({ data }: { data: RecipeByIdData }) {
 function StickyHeader({
   name,
   visible,
-  imgUrl
 }: {
   name: string
-  visible: boolean
-  imgUrl?: string | null
+    visible: boolean
 }) {
   return (
     <div
@@ -139,7 +137,7 @@ function RecipeImgButtonAndMetaData() {
   if (!data) return null
   return (
     <>
-      <StickyHeader imgUrl={data.imgUrl} name={data.name} visible={true} />
+      <StickyHeader name={data.name} visible={true} />
       <div className='px-3'>
         <Card
           className='m-3 mx-auto mt-4 max-w-sm'
