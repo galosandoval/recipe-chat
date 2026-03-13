@@ -29,7 +29,7 @@ function Recipe({
   isStreaming: boolean
 }) {
   const shouldShowGenerateButton =
-    recipe.ingredients?.length === 0 && recipe.instructions?.length === 0
+    !recipe.ingredients?.length && !recipe.instructions?.length
 
   return (
     <Card className='bg-background'>
