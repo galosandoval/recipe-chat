@@ -8,17 +8,11 @@ export const generatedRecipeSchema = z.object({
   // Single-recipe fields (optional here; enforce in parent when recipes.length === 1)
   servings: z
     .number()
-    .int()
-    .positive()
-    .optional()
     .nullable()
     .describe('Number of servings. Required when only one recipe is returned.'),
 
   prepMinutes: z
     .number()
-    .int()
-    .positive()
-    .optional()
     .nullable()
     .describe(
       'Preparation time in minutes. Required when only one recipe is returned.'
@@ -26,8 +20,6 @@ export const generatedRecipeSchema = z.object({
 
   cookMinutes: z
     .number()
-    .int()
-    .optional()
     .nullable()
     .describe(
       'Cook time in minutes. Required when only one recipe is returned.'
@@ -36,47 +28,45 @@ export const generatedRecipeSchema = z.object({
   // Facets / tags you actually persist
   cuisine: z
     .string()
-    .optional()
     .nullable()
     .describe('Primary cuisine, e.g., "mexican", "thai".'),
 
   course: z
     .string()
-    .optional()
     .nullable()
     .describe('Course, e.g., "main", "side", "dessert".'),
 
   dietTags: z
     .array(z.string())
-    .optional()
+    .nullable()
     .describe('Dietary tags, e.g., ["vegan", "gluten-free"].'),
 
   flavorTags: z
     .array(z.string())
-    .optional()
+    .nullable()
     .describe('Flavor profile tags, e.g., ["spicy", "umami"].'),
 
   mainIngredients: z
     .array(z.string())
-    .optional()
+    .nullable()
     .describe('Key ingredients, e.g., ["chicken", "chickpeas"].'),
 
   techniques: z
     .array(z.string())
-    .optional()
+    .nullable()
     .describe('Cooking techniques, e.g., ["grill", "braise"].'),
 
   // Payload for the full single-recipe view
   ingredients: z
     .array(z.string())
-    .optional()
+    .nullable()
     .describe(
       'Ingredient lines like "1 cup basmati rice, rinsed". Required when only one recipe is returned.'
     ),
 
   instructions: z
     .array(z.string())
-    .optional()
+    .nullable()
     .describe(
       'Numbered, concise imperative steps. Required when only one recipe is returned.'
     )
