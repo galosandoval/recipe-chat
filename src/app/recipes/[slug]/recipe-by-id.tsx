@@ -31,7 +31,7 @@ export function RecipeById() {
 
   return (
     <div className='relative mx-auto flex max-w-2xl flex-col'>
-      <FoundRecipe data={recipe} />
+      <Recipe data={recipe} />
     </div>
   )
 }
@@ -42,7 +42,7 @@ const observerOptions: IntersectionObserverInit = {
   threshold: Array.from({ length: 100 }, (_, i) => i / 100)
 }
 
-function FoundRecipe({ data }: { data: RecipeByIdData }) {
+function Recipe({ data }: { data: RecipeByIdData }) {
   const { ingredients, instructions, notes, name } = data
   const containerRef = useRef<HTMLDivElement>(null)
   const [startRef, startObservation] = useObervationObserver(observerOptions)
