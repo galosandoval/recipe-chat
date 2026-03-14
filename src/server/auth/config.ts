@@ -3,6 +3,7 @@ import { compare } from 'bcryptjs'
 import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '~/server/db'
 import { z } from 'zod'
+import type { SubscriptionTier } from '@prisma/client'
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -45,7 +46,7 @@ export const authConfig = {
         session.user.id = token.id as string
         session.user.listId = token.listId as string
         session.user.subscriptionTier =
-          (token.subscriptionTier as string) ?? 'FREE'
+          (token.subscriptionTier as SubscriptionTier) ?? 'FREE'
       }
 
       return session
@@ -121,7 +122,7 @@ declare module 'next-auth' {
     user: {
       id: string
       listId: string
-      subscriptionTier: string
+      subscriptionTier: SubscriptionTier
     } & DefaultSession['user']
   }
 }

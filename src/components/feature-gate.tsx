@@ -1,44 +1,48 @@
 'use client'
 
-import type { Feature } from '@prisma/client'
-import React from 'react'
+import type { SubscriptionTier } from '@prisma/client'
+import type { ReactNode } from 'react'
+import { useSession } from 'next-auth/react'
+import {
+  hasFeatureAccess,
+  hasTierAccess,
+  type GatedFeature
+} from '~/lib/tier-config'
 
-interface FeatureGateProps {
-  feature: Feature
-  children: React.ReactNode
-  fallback?: React.ReactNode
-  userFeatures?: Feature[]
+export function useFeatureAccess(feature: GatedFeature) {
+  const { data: session } = useSession()
+  const userTier = (session?.user?.subscriptionTier ?? 'FREE') as SubscriptionTier
+  return hasFeatureAccess(userTier, feature)
 }
 
-/**
- * Simple FeatureGate component that checks if a user has access to a feature
- * based on their onboarding array
- */
+export function useTierAccess(requiredTier: SubscriptionTier) {
+  const { data: session } = useSession()
+  const userTier = (session?.user?.subscriptionTier ?? 'FREE') as SubscriptionTier
+  return hasTierAccess(userTier, requiredTier)
+}
+
 export function FeatureGate({
   feature,
   children,
-  fallback,
-  userFeatures = []
-}: FeatureGateProps) {
-  const hasFeature = userFeatures.includes(feature)
-
-  if (hasFeature) {
-    return <>{children}</>
-  }
-
-  if (fallback) {
-    return <>{fallback}</>
-  }
-
-  return null
+  fallback = null
+}: {
+  feature: GatedFeature
+  children: ReactNode
+  fallback?: ReactNode
+}) {
+  const hasAccess = useFeatureAccess(feature)
+  return hasAccess ? <>{children}</> : <>{fallback}</>
 }
 
-/**
- * Hook for checking feature access
- */
-export function useFeatureAccess(
-  feature: Feature,
-  userFeatures: Feature[] = []
-) {
-  return userFeatures.includes(feature)
+export function TierGate({
+  requiredTier,
+  children,
+  fallback = null
+}: {
+  requiredTier: SubscriptionTier
+  children: ReactNode
+  fallback?: ReactNode
+}) {
+  const hasAccess = useTierAccess(requiredTier)
+  return hasAccess ? <>{children}</> : <>{fallback}</>
 }
