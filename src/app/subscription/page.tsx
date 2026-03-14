@@ -24,9 +24,12 @@ export default function SubscriptionPage() {
   const localeMap: Record<Locale, string> = { en: 'en-US', es: 'es-MX' }
   const locale = localeMap[lang]
 
-  const { data: info, isLoading } = api.subscription.getInfo.useQuery(undefined, {
-    enabled: !!session.data
-  })
+  const { data: info, isLoading } = api.subscription.getInfo.useQuery(
+    undefined,
+    {
+      enabled: !!session.data
+    }
+  )
 
   const checkout = api.subscription.createCheckout.useMutation({
     onSuccess: (data) => {
@@ -70,19 +73,28 @@ export default function SubscriptionPage() {
     {
       tier: 'FREE',
       name: t.subscription.free,
-      price: t.subscription.replace('pricePerMonth', formatTierPrice('FREE', locale)),
+      price: t.subscription.replace(
+        'pricePerMonth',
+        formatTierPrice('FREE', locale)
+      ),
       features: t.subscription.freeFeatures.split(', ')
     },
     {
       tier: 'STARTER',
       name: t.subscription.starter,
-      price: t.subscription.replace('pricePerMonth', formatTierPrice('STARTER', locale)),
+      price: t.subscription.replace(
+        'pricePerMonth',
+        formatTierPrice('STARTER', locale)
+      ),
       features: t.subscription.starterFeatures.split(', ')
     },
     {
       tier: 'PREMIUM',
       name: t.subscription.premium,
-      price: t.subscription.replace('pricePerMonth', formatTierPrice('PREMIUM', locale)),
+      price: t.subscription.replace(
+        'pricePerMonth',
+        formatTierPrice('PREMIUM', locale)
+      ),
       features: t.subscription.premiumFeatures.split(', ')
     }
   ]
@@ -91,7 +103,8 @@ export default function SubscriptionPage() {
     <main className='mx-auto w-full max-w-3xl px-4 py-8'>
       <h1 className='mb-2 text-2xl font-bold'>{t.subscription.title}</h1>
       <p className='text-muted-foreground mb-6'>
-        {t.subscription.currentPlan}: {tiers.find((t) => t.tier === currentTier)?.name}
+        {t.subscription.currentPlan}:{' '}
+        {tiers.find((t) => t.tier === currentTier)?.name}
       </p>
 
       {info?.subscriptionStatus === 'PAST_DUE' && (
@@ -133,7 +146,9 @@ export default function SubscriptionPage() {
                     variant='outline'
                     className='w-full'
                     onClick={() => portal.mutate()}
-                    disabled={portal.status === 'pending' || currentTier === 'FREE'}
+                    disabled={
+                      portal.status === 'pending' || currentTier === 'FREE'
+                    }
                   >
                     {t.subscription.downgrade}
                   </Button>

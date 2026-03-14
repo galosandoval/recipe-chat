@@ -89,7 +89,8 @@ export async function bulkAddToPantry(
       if (existing && existing.quantity != null) {
         const merged = await pantryAccess.updatePantryIngredient(existing.id, {
           quantity: existing.quantity + parsed.quantity,
-          rawString: `${existing.quantity + parsed.quantity} ${existing.unit} ${existing.itemName}`.trim()
+          rawString:
+            `${existing.quantity + parsed.quantity} ${existing.unit} ${existing.itemName}`.trim()
         })
         results.push(merged)
         continue

@@ -63,9 +63,7 @@ function Recipe({ data }: { data: RecipeByIdData }) {
       <ImageWithTitleAndDescription data={data} translateY={translateY} />
 
       <div>
-        {data?.imgUrl && (
-          <StickyHeader visible={isPastHero} name={name} />
-        )}
+        {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
         <div className='mx-auto flex flex-col items-center px-3 pb-4'>
           <div className='bg-background flex flex-col'>
             <IngredientsCheckList ingredients={ingredients} />
@@ -87,13 +85,7 @@ function Recipe({ data }: { data: RecipeByIdData }) {
   )
 }
 
-function StickyHeader({
-  name,
-  visible,
-}: {
-  name: string
-    visible: boolean
-}) {
+function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
   return (
     <div
       className={cn(
@@ -243,7 +235,11 @@ function RecipeInfo() {
       )}
       {prepMinutes != null && cookMinutes != null && (
         <div className='flex justify-center'>
-          <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} servings={servings} />
+          <NewRecipeTime
+            prepMinutes={prepMinutes}
+            cookMinutes={cookMinutes}
+            servings={servings}
+          />
         </div>
       )}
       {description && (

@@ -41,7 +41,9 @@ const transformMessagesToChatStore = (data: MessageWithRecipesDTO[]) => {
         techniques: r.recipe.techniques?.map((t) => t ?? '') ?? [],
         slug: r.recipe.slug ?? '',
         ingredients:
-          r.recipe.ingredients?.map((ingredient) => getIngredientDisplayText(ingredient)) ?? [],
+          r.recipe.ingredients?.map((ingredient) =>
+            getIngredientDisplayText(ingredient)
+          ) ?? [],
         instructions:
           r.recipe.instructions?.map(
             (instruction) => instruction.description
@@ -185,7 +187,8 @@ export const useChatAI = () => {
           techniques: recipe?.techniques?.map((t) => t ?? '') ?? [],
           saved: false
         })),
-        toolInvocations: toolInvocations as MessageWithRecipes['toolInvocations']
+        toolInvocations:
+          toolInvocations as MessageWithRecipes['toolInvocations']
       }
       const updated = [...messages]
       updated[updated.length - 1] = updatedMessage

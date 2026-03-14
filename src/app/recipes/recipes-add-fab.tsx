@@ -7,10 +7,7 @@ import { useChatStore } from '~/stores/chat-store'
 import { ChatPanel } from '~/components/chat-panel'
 import { ParseAndAddRecipeDialogs } from '~/app/navbar/settings-dropdown-menu'
 import { FloatingActionButton } from '~/components/floating-action-button'
-import {
-  DropdownMenu,
-  type MenuItemProps
-} from '~/components/dropdown-menu'
+import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
 
 /**
  * Floating action button to add a recipe from a chat

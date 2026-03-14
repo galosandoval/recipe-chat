@@ -14,7 +14,10 @@ export const useChatDrawerStore = create<ChatDrawerStore>((set) => ({
   isOpen: false,
   context: { page: 'recipes' },
   open: (context) =>
-    set((s) => ({ isOpen: true, ...(context ? { context } : { context: s.context }) })),
+    set((s) => ({
+      isOpen: true,
+      ...(context ? { context } : { context: s.context })
+    })),
   close: () => set({ isOpen: false }),
   toggle: (context) =>
     set((s) => ({

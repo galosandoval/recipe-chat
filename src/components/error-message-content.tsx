@@ -3,7 +3,11 @@ import {
   ErrorMessage as _ErrorMessage
 } from '@hookform/error-message'
 import { AlertCircleIcon } from 'lucide-react'
-import { type FieldErrors, type FieldName, type FieldValues } from 'react-hook-form'
+import {
+  type FieldErrors,
+  type FieldName,
+  type FieldValues
+} from 'react-hook-form'
 
 export type ErrorMessageProps<T extends FieldValues> = {
   errors: Partial<FieldErrors<T>>

@@ -19,9 +19,7 @@ export function BulkAddPantry() {
       setText('')
       setOpen(false)
       toast.success(
-        created.length === 1
-          ? '1 item added'
-          : `${created.length} items added`
+        created.length === 1 ? '1 item added' : `${created.length} items added`
       )
     },
     onError: (err) => toast.error(err.message)
@@ -41,11 +39,7 @@ export function BulkAddPantry() {
 
   if (!open) {
     return (
-      <Button
-        variant='outline'
-        size='sm'
-        onClick={() => setOpen(true)}
-      >
+      <Button variant='outline' size='sm' onClick={() => setOpen(true)}>
         {t.pantry.bulkAdd}
       </Button>
     )
@@ -57,7 +51,7 @@ export function BulkAddPantry() {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder={t.pantry.bulkAddPlaceholder}
-        className='text-foreground placeholder:text-muted-foreground min-h-[80px] w-full resize-y rounded border border-input bg-transparent px-3 py-2 text-sm'
+        className='text-foreground placeholder:text-muted-foreground border-input min-h-[80px] w-full resize-y rounded border bg-transparent px-3 py-2 text-sm'
         rows={4}
       />
       <div className='flex gap-2'>

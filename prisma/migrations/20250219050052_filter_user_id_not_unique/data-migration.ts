@@ -11,11 +11,11 @@ async function main() {
     async (tx) => {
       const users = await tx.user.findMany()
       for (const user of users) {
-         await tx.filter.deleteMany({
-           where: {
-             userId: user.id
-           }
-         })
+        await tx.filter.deleteMany({
+          where: {
+            userId: user.id
+          }
+        })
 
         await tx.user.update({
           where: { id: user.id },

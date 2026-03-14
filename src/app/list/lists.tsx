@@ -57,8 +57,11 @@ function ListByRecipeId({
   const { mutate: checkIngredient } = useCheckListItem()
 
   const displayText = (i: Ingredient) =>
-    getIngredientDisplayTextInPreferredUnits(i, preferredWeight, preferredVolume) ||
-    getIngredientDisplayText(i)
+    getIngredientDisplayTextInPreferredUnits(
+      i,
+      preferredWeight,
+      preferredVolume
+    ) || getIngredientDisplayText(i)
 
   const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
     if (i.recipeId === null) {
@@ -97,9 +100,7 @@ function ListByRecipeId({
 
           <div className='flex flex-col gap-2'>
             {b
-              .toSorted((a, b) =>
-                displayText(a).localeCompare(displayText(b))
-              )
+              .toSorted((a, b) => displayText(a).localeCompare(displayText(b)))
               .map((i) => (
                 <Togglebox
                   key={i.id}

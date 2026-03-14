@@ -54,7 +54,10 @@ export function LoginDrawerDialog({
       isLoading={isLoading}
       submitIcon={<KeyRoundIcon />}
     >
-      <LoginForm onSuccess={() => onOpenChange?.(false)} onLoadingChange={setIsLoading} />
+      <LoginForm
+        onSuccess={() => onOpenChange?.(false)}
+        onLoadingChange={setIsLoading}
+      />
     </DrawerDialog>
   )
 }

@@ -208,7 +208,9 @@ function PreferredUnitsDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={t.nav.menu.preferredUnits}
-      description={t.pantry.preferredWeightUnit + ' / ' + t.pantry.preferredVolumeUnit}
+      description={
+        t.pantry.preferredWeightUnit + ' / ' + t.pantry.preferredVolumeUnit
+      }
       cancelText={t.common.cancel}
       submitText={t.common.save}
       formId='preferred-units-form'

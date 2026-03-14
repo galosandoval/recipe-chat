@@ -1,11 +1,6 @@
 'use client'
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef
-} from 'react'
+import { createContext, useContext, useEffect, useRef } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { cn } from '~/lib/utils'
 import { Button } from './button'

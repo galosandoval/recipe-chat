@@ -17,7 +17,9 @@ export const buildSystemPrompt = ({
   let contextBlock = ''
   if (context?.page === 'recipe-detail') {
     const r = context.recipe
-    const parts = [`The user is viewing a specific recipe: "${r.name}" (id: ${r.id}).`]
+    const parts = [
+      `The user is viewing a specific recipe: "${r.name}" (id: ${r.id}).`
+    ]
     if (r.description) parts.push(`Description: ${r.description}`)
     if (r.ingredients.length > 0)
       parts.push(`Ingredients: ${r.ingredients.join(', ')}`)

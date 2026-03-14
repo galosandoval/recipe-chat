@@ -88,7 +88,9 @@ export class RecipesAccess extends DataAccess {
           create: recipe.instructions.map((i) => ({ description: i }))
         },
         ingredients: {
-          create: recipe.ingredients.map((i) => ingredientStringToCreatePayload(i))
+          create: recipe.ingredients.map((i) =>
+            ingredientStringToCreatePayload(i)
+          )
         }
       },
       include: {

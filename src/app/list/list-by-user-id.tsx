@@ -81,4 +81,3 @@ function EmptyList() {
     </div>
   )
 }
-

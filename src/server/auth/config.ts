@@ -44,7 +44,8 @@ export const authConfig = {
       if (token?.id) {
         session.user.id = token.id as string
         session.user.listId = token.listId as string
-        session.user.subscriptionTier = (token.subscriptionTier as string) ?? 'FREE'
+        session.user.subscriptionTier =
+          (token.subscriptionTier as string) ?? 'FREE'
       }
 
       return session

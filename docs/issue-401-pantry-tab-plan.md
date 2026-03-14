@@ -33,16 +33,16 @@ Use this as the source of truth for what exists in the codebase when continuing 
 
 ### Key files to know
 
-| Area              | Path |
-|-------------------|------|
-| Pantry list/row   | `src/app/[lang]/pantry/pantry-by-user-id.tsx` |
-| Add one           | `src/app/[lang]/pantry/add-to-pantry-form.tsx` |
-| Bulk add          | `src/app/[lang]/pantry/bulk-add-pantry.tsx` |
-| Parsing           | `src/lib/parse-ingredient.ts` (`parseIngredientName`, `ingredientStringToCreatePayload`) |
-| Display/convert   | `src/lib/ingredient-display.ts`, `src/lib/unit-conversion.ts` |
-| Pantry API        | `src/server/api/routers/pantry-router.ts`, `use-cases/pantry-use-case.ts` |
-| Settings units    | `src/app/[lang]/navbar/settings-dropdown-menu.tsx` (PreferredUnitsDialog) |
-| Chat + pantry     | `src/constants/chat.ts`, `src/app/api/chat/route.ts`, `src/app/[lang]/chat/chat.tsx` |
+| Area            | Path                                                                                     |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| Pantry list/row | `src/app/[lang]/pantry/pantry-by-user-id.tsx`                                            |
+| Add one         | `src/app/[lang]/pantry/add-to-pantry-form.tsx`                                           |
+| Bulk add        | `src/app/[lang]/pantry/bulk-add-pantry.tsx`                                              |
+| Parsing         | `src/lib/parse-ingredient.ts` (`parseIngredientName`, `ingredientStringToCreatePayload`) |
+| Display/convert | `src/lib/ingredient-display.ts`, `src/lib/unit-conversion.ts`                            |
+| Pantry API      | `src/server/api/routers/pantry-router.ts`, `use-cases/pantry-use-case.ts`                |
+| Settings units  | `src/app/[lang]/navbar/settings-dropdown-menu.tsx` (PreferredUnitsDialog)                |
+| Chat + pantry   | `src/constants/chat.ts`, `src/app/api/chat/route.ts`, `src/app/[lang]/chat/chat.tsx`     |
 
 ---
 

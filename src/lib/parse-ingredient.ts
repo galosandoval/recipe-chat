@@ -76,11 +76,40 @@ const UNIT_MAP = new Map<string, { unit: string; unitType: UnitType }>([
 ])
 
 const PREPARATION_WORDS = new Set([
-  'minced', 'sliced', 'diced', 'chopped', 'grated', 'toasted', 'crushed', 'dried', 'fresh',
-  'ground', 'peeled', 'julienned', 'cubed', 'shredded', 'crumbled', 'melted', 'softened',
-  'beaten', 'whipped', 'rinsed', 'drained', 'divided', 'optional', 'thawed', 'frozen',
-  'warm', 'cooled', 'room temperature', 'finely', 'roughly', 'thinly', 'coarsely',
-  'boneless', 'skinless'
+  'minced',
+  'sliced',
+  'diced',
+  'chopped',
+  'grated',
+  'toasted',
+  'crushed',
+  'dried',
+  'fresh',
+  'ground',
+  'peeled',
+  'julienned',
+  'cubed',
+  'shredded',
+  'crumbled',
+  'melted',
+  'softened',
+  'beaten',
+  'whipped',
+  'rinsed',
+  'drained',
+  'divided',
+  'optional',
+  'thawed',
+  'frozen',
+  'warm',
+  'cooled',
+  'room temperature',
+  'finely',
+  'roughly',
+  'thinly',
+  'coarsely',
+  'boneless',
+  'skinless'
 ])
 
 export interface ParsedIngredient {
@@ -123,7 +152,8 @@ export function parseIngredientName(name: string): ParsedIngredient {
       rest = rest.slice(qtyThenUnit[0]!.length).trim()
     }
   }
-  const unitThenQty = !result.quantity && rest.match(/^([a-zA-Z]+)\s*(\d+(?:\.\d+)?)(?=\s|$)/i)
+  const unitThenQty =
+    !result.quantity && rest.match(/^([a-zA-Z]+)\s*(\d+(?:\.\d+)?)(?=\s|$)/i)
   if (unitThenQty) {
     const unitKey = unitThenQty[1]!.toLowerCase()
     const mapped = UNIT_MAP.get(unitKey)
@@ -136,8 +166,10 @@ export function parseIngredientName(name: string): ParsedIngredient {
   }
 
   // Optional leading quantity (with space): "1 1/2", "2.5", or "1/2" (fraction only)
-  const qtyMatch = !result.quantity && rest.match(/^(\d+(?:\.\d+)?(?:\s+\d+\/\d+)?)\s+/)
-  const fractionOnlyMatch = !result.quantity && !qtyMatch && rest.match(/^(\d+\/\d+)\s+/)
+  const qtyMatch =
+    !result.quantity && rest.match(/^(\d+(?:\.\d+)?(?:\s+\d+\/\d+)?)\s+/)
+  const fractionOnlyMatch =
+    !result.quantity && !qtyMatch && rest.match(/^(\d+\/\d+)\s+/)
   if (qtyMatch) {
     const qtyStr = qtyMatch[1]!
     const simple = qtyStr.replace(/\s+(\d+)\/(\d+)/, (_, n, d) =>
@@ -152,7 +184,9 @@ export function parseIngredientName(name: string): ParsedIngredient {
   }
 
   // Optional unit (single word or "fl oz")
-  const unitMatch = rest.match(/^(fl\s+oz|fluid\s+ounce|fluid\s+ounces|[a-zA-Z]+)\s+/i)
+  const unitMatch = rest.match(
+    /^(fl\s+oz|fluid\s+ounce|fluid\s+ounces|[a-zA-Z]+)\s+/i
+  )
   if (unitMatch) {
     const unitKey = unitMatch[1]!.toLowerCase().replace(/\s+/g, ' ')
     const mapped = UNIT_MAP.get(unitKey)
@@ -167,7 +201,10 @@ export function parseIngredientName(name: string): ParsedIngredient {
   if (!rest) return result
 
   // Split by comma; last segment might be preparation
-  const parts = rest.split(',').map((p) => p.trim()).filter(Boolean)
+  const parts = rest
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean)
   const trailing = parts.length > 1 ? parts[parts.length - 1]! : null
   // When trailing is a known preparation word, use it and main = rest minus that; otherwise keep full remainder as main
   let main: string
@@ -192,7 +229,9 @@ export function parseIngredientName(name: string): ParsedIngredient {
     }
   }
   if (prepFound.length > 0) {
-    result.preparation = [result.preparation, ...prepFound].filter(Boolean).join(', ')
+    result.preparation = [result.preparation, ...prepFound]
+      .filter(Boolean)
+      .join(', ')
     main = mainWords.slice(i).join(' ').trim()
   }
 

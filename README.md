@@ -17,7 +17,9 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
 ## Start database
+
 Make sure env variables are set in .env
+
 ```bash
 ./start-database.sh
 bun run push
@@ -49,14 +51,12 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-
 ## Migration scripts
-`
-// Add saved column to recipes
+
+`// Add saved column to recipes
 bun run data-migration:add-saved-column
 // Create many-to-many table for recipes and messages
 bun run data-migration:create-many-recipes-to-many-messages-table
 // Resets to initial filters for each user
 bun run data-migration:filter-user-id-not-unique
-//
-`
+//`

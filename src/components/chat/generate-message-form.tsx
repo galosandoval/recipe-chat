@@ -21,7 +21,13 @@ import { slugify } from '~/lib/utils'
 import type { GeneratedRecipe } from '~/schemas/messages-schema'
 
 function extractRecipesFromToolInvocations(
-  toolInvocations: Array<{ toolName: string; args?: Record<string, unknown>; result?: unknown }> | undefined
+  toolInvocations:
+    | Array<{
+        toolName: string
+        args?: Record<string, unknown>
+        result?: unknown
+      }>
+    | undefined
 ): GeneratedRecipe[] {
   if (!toolInvocations) return []
   const generateCall = toolInvocations.find(
@@ -69,9 +75,21 @@ function useRecipeChat() {
     onFinish(message) {
       setIsStreaming(false)
       const recipes = extractRecipesFromToolInvocations(
-        message.toolInvocations as Array<{ toolName: string; args?: Record<string, unknown>; result?: unknown }> | undefined
+        message.toolInvocations as
+          | Array<{
+              toolName: string
+              args?: Record<string, unknown>
+              result?: unknown
+            }>
+          | undefined
       )
-      onFinishMessage(message.content, recipes, message.toolInvocations as Array<{ toolName: string; result?: unknown }> | undefined)
+      onFinishMessage(
+        message.content,
+        recipes,
+        message.toolInvocations as
+          | Array<{ toolName: string; result?: unknown }>
+          | undefined
+      )
     }
   })
 
@@ -87,7 +105,13 @@ function useRecipeChat() {
       const lastMsg = chatMessages[chatMessages.length - 1]
       if (lastMsg.role === 'assistant') {
         const recipes = extractRecipesFromToolInvocations(
-          lastMsg.toolInvocations as Array<{ toolName: string; args?: Record<string, unknown>; result?: unknown }> | undefined
+          lastMsg.toolInvocations as
+            | Array<{
+                toolName: string
+                args?: Record<string, unknown>
+                result?: unknown
+              }>
+            | undefined
         )
         const storeMessages = useChatStore.getState().messages
         const existingIdx = storeMessages.findIndex((m) => m.id === lastMsg.id)
@@ -117,7 +141,8 @@ function useRecipeChat() {
             techniques: r.techniques?.map((t) => t ?? '') ?? [],
             saved: false
           })),
-          toolInvocations: lastMsg.toolInvocations as MessageWithRecipes['toolInvocations']
+          toolInvocations:
+            lastMsg.toolInvocations as MessageWithRecipes['toolInvocations']
         }
 
         if (existingIdx >= 0) {

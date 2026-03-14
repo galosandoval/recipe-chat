@@ -62,9 +62,18 @@ export function IngredientItemDisplay({
   )
 }
 
-export function UnitBadge({ unit, className }: { unit: string; className?: string }) {
+export function UnitBadge({
+  unit,
+  className
+}: {
+  unit: string
+  className?: string
+}) {
   return (
-    <Badge variant='outline' className={className ?? 'shrink-0 px-1.5 py-0 text-xs'}>
+    <Badge
+      variant='outline'
+      className={className ?? 'shrink-0 px-1.5 py-0 text-xs'}
+    >
       {unit}
     </Badge>
   )

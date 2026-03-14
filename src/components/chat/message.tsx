@@ -133,7 +133,7 @@ export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
   )
 
   return (
-    <div className='flex flex-col items-center self-start gap-2'>
+    <div className='flex flex-col items-center gap-2 self-start'>
       <div className='mx-auto w-full'>
         <ChatMessage content={message.content} icon={<BotMessageSquareIcon />}>
           <>
@@ -150,7 +150,13 @@ export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
         <ToolResultAppMessage
           key={t.toolCallId ?? i}
           toolName={t.toolName}
-          result={t.result as { success: boolean; recipeName?: string; error?: string }}
+          result={
+            t.result as {
+              success: boolean
+              recipeName?: string
+              error?: string
+            }
+          }
         />
       ))}
     </div>

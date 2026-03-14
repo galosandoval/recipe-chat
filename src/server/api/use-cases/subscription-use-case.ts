@@ -17,7 +17,8 @@ export async function createCheckoutSession(
   if (info.subscriptionStatus === 'ACTIVE') {
     throw new TRPCError({
       code: 'BAD_REQUEST',
-      message: 'You already have an active subscription. Use the billing portal to manage it.'
+      message:
+        'You already have an active subscription. Use the billing portal to manage it.'
     })
   }
 
@@ -54,7 +55,10 @@ export async function createCheckoutSession(
   return { url: session.url }
 }
 
-export async function createPortalSession(userId: string, prisma: PrismaClient) {
+export async function createPortalSession(
+  userId: string,
+  prisma: PrismaClient
+) {
   const access = new SubscriptionAccess(prisma)
   const info = await access.getSubscriptionInfo(userId)
 
@@ -73,7 +77,10 @@ export async function createPortalSession(userId: string, prisma: PrismaClient) 
   return { url: session.url }
 }
 
-export async function getSubscriptionInfo(userId: string, prisma: PrismaClient) {
+export async function getSubscriptionInfo(
+  userId: string,
+  prisma: PrismaClient
+) {
   const access = new SubscriptionAccess(prisma)
   return await access.getSubscriptionInfo(userId)
 }

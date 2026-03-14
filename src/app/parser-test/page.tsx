@@ -17,7 +17,8 @@ export default async function ParserTestPage() {
         </h1>
         <p className='text-muted-foreground mb-4 text-sm'>
           All your ingredients with parsed fields. Open DevTools → Network, find
-          the <code className='rounded bg-muted px-1'>getParsedIngredients</code>{' '}
+          the{' '}
+          <code className='bg-muted rounded px-1'>getParsedIngredients</code>{' '}
           request to see the raw JSON.
         </p>
         <ParserTestClient />

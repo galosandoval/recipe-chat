@@ -205,10 +205,16 @@ export function aggregateIngredients(
         preferredWeightUnit,
         preferredVolumeUnit
       )
-      displayText = preferred || [v.quantity, v.ing.unit, v.ing.itemName].filter(Boolean).join(' ')
+      displayText =
+        preferred ||
+        [v.quantity, v.ing.unit, v.ing.itemName].filter(Boolean).join(' ')
     } else {
       displayText = getIngredientDisplayText(v.ing)
     }
-    return { displayText, ingredientIds: v.ids, checked: v.checked.every(Boolean) }
+    return {
+      displayText,
+      ingredientIds: v.ids,
+      checked: v.checked.every(Boolean)
+    }
   })
 }

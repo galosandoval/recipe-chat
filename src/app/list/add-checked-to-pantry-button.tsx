@@ -20,9 +20,9 @@ export function AddCheckedToPantryButton({ data }: { data: Ingredient[] }) {
 
   const handleClick = async () => {
     const checked = data.filter((i) => i.checked)
-    const rawLines = checked.map(
-      (i) => getIngredientDisplayText(i) || i.rawString || ''
-    ).filter(Boolean)
+    const rawLines = checked
+      .map((i) => getIngredientDisplayText(i) || i.rawString || '')
+      .filter(Boolean)
 
     if (rawLines.length === 0) return
 

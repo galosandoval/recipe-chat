@@ -47,7 +47,10 @@ function NewChatFab() {
   }
 
   return (
-    <FloatingActionButton onClick={handleStartNewChat} className={cn('bottom-36', isHomePath && 'bottom-20')}>
+    <FloatingActionButton
+      onClick={handleStartNewChat}
+      className={cn('bottom-36', isHomePath && 'bottom-20')}
+    >
       <PlusIcon />
     </FloatingActionButton>
   )

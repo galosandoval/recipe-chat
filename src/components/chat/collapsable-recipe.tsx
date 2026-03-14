@@ -174,8 +174,12 @@ function Times({
   servings?: number | null
 }) {
   const t = useTranslations()
-  const formattedPrepMinutes = prepMinutes ? formatTimeFromMinutes(prepMinutes, t) : null
-  const formattedCookMinutes = cookMinutes ? formatTimeFromMinutes(cookMinutes, t) : null
+  const formattedPrepMinutes = prepMinutes
+    ? formatTimeFromMinutes(prepMinutes, t)
+    : null
+  const formattedCookMinutes = cookMinutes
+    ? formatTimeFromMinutes(cookMinutes, t)
+    : null
   if (!prepMinutes && !cookMinutes && !servings) return null
   return (
     <div className='text-foreground mb-2 flex items-center gap-2 self-center text-sm'>

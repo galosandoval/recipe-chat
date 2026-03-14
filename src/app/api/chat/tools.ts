@@ -7,10 +7,14 @@ import { RecipesAccess } from '~/server/api/data-access/recipes-access'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { slugify } from '~/lib/utils'
 
-export function getTools(context: ChatContext | undefined, prisma: PrismaClient) {
+export function getTools(
+  context: ChatContext | undefined,
+  prisma: PrismaClient
+) {
   const baseTools = {
     generateRecipes: tool({
-      description: 'Generate recipe suggestions for the user. Use this whenever suggesting recipes.',
+      description:
+        'Generate recipe suggestions for the user. Use this whenever suggesting recipes.',
       parameters: z.object({
         recipes: z.array(generatedRecipeSchema)
       })
@@ -25,18 +29,43 @@ export function getTools(context: ChatContext | undefined, prisma: PrismaClient)
   return {
     ...baseTools,
     editRecipe: tool({
-      description: 'Edit the recipe the user is currently viewing. Use when the user asks to change the name, description, notes, prep/cook time, ingredients, or instructions.',
+      description:
+        'Edit the recipe the user is currently viewing. Use when the user asks to change the name, description, notes, prep/cook time, ingredients, or instructions.',
       parameters: z.object({
         recipeId: z.string().describe('The ID of the recipe to edit'),
         newName: z.string().optional().describe('New recipe name'),
-        newDescription: z.string().optional().describe('New recipe description'),
+        newDescription: z
+          .string()
+          .optional()
+          .describe('New recipe description'),
         newNotes: z.string().optional().describe('New recipe notes'),
-        newPrepMinutes: z.number().optional().describe('New prep time in minutes'),
-        newCookMinutes: z.number().optional().describe('New cook time in minutes'),
-        newIngredients: z.array(z.string()).optional().describe('Complete list of ingredients (replaces existing)'),
-        newInstructions: z.array(z.string()).optional().describe('Complete list of instructions (replaces existing)')
+        newPrepMinutes: z
+          .number()
+          .optional()
+          .describe('New prep time in minutes'),
+        newCookMinutes: z
+          .number()
+          .optional()
+          .describe('New cook time in minutes'),
+        newIngredients: z
+          .array(z.string())
+          .optional()
+          .describe('Complete list of ingredients (replaces existing)'),
+        newInstructions: z
+          .array(z.string())
+          .optional()
+          .describe('Complete list of instructions (replaces existing)')
       }),
-      async execute({ recipeId: id, newName, newDescription, newNotes, newPrepMinutes, newCookMinutes, newIngredients, newInstructions }) {
+      async execute({
+        recipeId: id,
+        newName,
+        newDescription,
+        newNotes,
+        newPrepMinutes,
+        newCookMinutes,
+        newIngredients,
+        newInstructions
+      }) {
         const recipesAccess = new RecipesAccess(prisma)
         const recipe = await recipesAccess.getRecipeById(id)
         if (!recipe) {
@@ -54,10 +83,16 @@ export function getTools(context: ChatContext | undefined, prisma: PrismaClient)
         if (newNotes !== undefined) {
           data.notes = newNotes
         }
-        if (newPrepMinutes !== undefined && newPrepMinutes !== recipe.prepMinutes) {
+        if (
+          newPrepMinutes !== undefined &&
+          newPrepMinutes !== recipe.prepMinutes
+        ) {
           data.prepMinutes = newPrepMinutes
         }
-        if (newCookMinutes !== undefined && newCookMinutes !== recipe.cookMinutes) {
+        if (
+          newCookMinutes !== undefined &&
+          newCookMinutes !== recipe.cookMinutes
+        ) {
           data.cookMinutes = newCookMinutes
         }
 
@@ -96,7 +131,8 @@ export function getTools(context: ChatContext | undefined, prisma: PrismaClient)
       }
     }),
     addNote: tool({
-      description: 'Add or update notes on the recipe the user is currently viewing.',
+      description:
+        'Add or update notes on the recipe the user is currently viewing.',
       parameters: z.object({
         recipeId: z.string().describe('The ID of the recipe'),
         notes: z.string().describe('The notes to set on the recipe')

@@ -21,7 +21,10 @@ function useContextWelcome() {
 
   const description =
     context.page === 'recipe-detail'
-      ? t.valueProps.welcome.recipeDetail.replace('description', context.recipe.name)
+      ? t.valueProps.welcome.recipeDetail.replace(
+          'description',
+          context.recipe.name
+        )
       : welcome.description
 
   return {

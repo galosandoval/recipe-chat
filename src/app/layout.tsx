@@ -34,7 +34,11 @@ export default async function RootLayout({
     >
       <body className='h-svh overflow-hidden'>
         <div className='mx-auto flex h-full w-full max-w-2xl flex-col'>
-          <Providers session={session} translations={translations} locale={locale}>
+          <Providers
+            session={session}
+            translations={translations}
+            locale={locale}
+          >
             <ErrorBoundary>
               <header className='sticky top-0 z-30'>
                 <Navbar />

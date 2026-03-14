@@ -55,11 +55,7 @@ function Chat({ messages }: { messages: MessageWithRecipes[] }) {
   return <ScreenLoader />
 }
 
-function Messages({
-  data
-}: {
-  data: MessageWithRecipes[]
-}) {
+function Messages({ data }: { data: MessageWithRecipes[] }) {
   const isStreaming = useChatStore((s) => s.isStreaming)
 
   return (

@@ -16,7 +16,13 @@ export const loginSchema = (t: any) =>
   })
 type LoginSchemaType = z.infer<ReturnType<typeof loginSchema>>
 
-export function LoginForm({ onSuccess, onLoadingChange }: { onSuccess: () => void; onLoadingChange?: (loading: boolean) => void }) {
+export function LoginForm({
+  onSuccess,
+  onLoadingChange
+}: {
+  onSuccess: () => void
+  onLoadingChange?: (loading: boolean) => void
+}) {
   const t = useTranslations()
   const searchParams = useSearchParams()
   const router = useRouter()

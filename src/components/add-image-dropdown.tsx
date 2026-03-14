@@ -6,7 +6,13 @@ import { toast } from './toast'
 import { type ChangeEvent } from 'react'
 import { BlobAccessError, type PutBlobResult } from '@vercel/blob'
 import { Button } from './button'
-import { CameraIcon, CheckIcon, DownloadIcon, ImageIcon, SaveIcon } from 'lucide-react'
+import {
+  CameraIcon,
+  CheckIcon,
+  DownloadIcon,
+  ImageIcon,
+  SaveIcon
+} from 'lucide-react'
 import { Dialog } from './dialog'
 import Image from 'next/image'
 import { DropdownMenu, type MenuItemProps } from './dropdown-menu'
@@ -140,7 +146,7 @@ export function AddImageDropdown({ recipeId }: { recipeId: string }) {
             <ImageIcon />
             {String(
               t.recipes.byId[
-              uploadImageButtonLabel as keyof typeof t.recipes.byId
+                uploadImageButtonLabel as keyof typeof t.recipes.byId
               ]
             )}
           </Button>
@@ -196,7 +202,9 @@ function UnsplashDialog({
         if (photos) {
           const selectedPhoto = photos.find((p) => p.id === selectedPhotoId)
           if (selectedPhoto) {
-            triggerDownload({ downloadLocations: [selectedPhoto.links.download_location] })
+            triggerDownload({
+              downloadLocations: [selectedPhoto.links.download_location]
+            })
           }
         }
       },
@@ -263,7 +271,7 @@ function UnsplashImages({
   photos: Basic[]
   selectedPhotoId: string
   onSelect: (id: string) => void
-  }) {
+}) {
   const displayPhotos = photos.slice(0, 4)
 
   return (
@@ -300,8 +308,8 @@ function UnsplashPhotoCard({
         className={cn(
           'relative overflow-hidden rounded-md ring-2 transition-all',
           isSelected
-            ? 'ring-primary ring-offset-2 ring-offset-background'
-            : 'ring-transparent hover:ring-muted-foreground/30'
+            ? 'ring-primary ring-offset-background ring-offset-2'
+            : 'hover:ring-muted-foreground/30 ring-transparent'
         )}
       >
         <Image
@@ -310,7 +318,7 @@ function UnsplashPhotoCard({
           width={300}
           height={200}
           sizes='(max-width: 768px) 50vw, 300px'
-          className='aspect-[3/2] object-cover w-full'
+          className='aspect-[3/2] w-full object-cover'
         />
         {isSelected && (
           <div className='bg-primary text-primary-foreground absolute top-2 right-2 rounded-full p-1'>
