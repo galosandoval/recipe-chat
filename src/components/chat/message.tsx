@@ -6,7 +6,7 @@ import { RecipesToGenerate } from './recipes-to-generate'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useChatStore } from '~/stores/chat-store'
-import { GenerateStatusAppMessage } from './app-message'
+import { GenerateStatusAppMessage, ToolResultAppMessage } from './app-message'
 import { Avatar } from './avatar'
 
 export const Message = function Message({
@@ -40,7 +40,7 @@ function UserMessage({
   const foundMessage = allRecipes.find((r) =>
     message.content.includes(`${t.chat.generateRecipe} ${r.name}`)
   )
-  const isStreaming = !!useChatStore((state) => state.stream)
+  const isStreaming = useChatStore((state) => state.isStreaming)
 
   if (foundMessage) {
     return (
@@ -127,8 +127,13 @@ function Bubble({
 }
 
 export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
+  // Extract tool results for editRecipe/addNote
+  const actionResults = message.toolInvocations?.filter(
+    (t) => (t.toolName === 'editRecipe' || t.toolName === 'addNote') && t.result
+  )
+
   return (
-    <div className='flex flex-col items-center self-start'>
+    <div className='flex flex-col items-center self-start gap-2'>
       <div className='mx-auto w-full'>
         <ChatMessage content={message.content} icon={<BotMessageSquareIcon />}>
           <>
@@ -141,6 +146,13 @@ export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
           </>
         </ChatMessage>
       </div>
+      {actionResults?.map((t, i) => (
+        <ToolResultAppMessage
+          key={t.toolCallId ?? i}
+          toolName={t.toolName}
+          result={t.result as { success: boolean; recipeName?: string; error?: string }}
+        />
+      ))}
     </div>
   )
 }

@@ -17,14 +17,17 @@ export const buildSystemPrompt = ({
   let contextBlock = ''
   if (context?.page === 'recipe-detail') {
     const r = context.recipe
-    const parts = [`The user is viewing a specific recipe: "${r.name}".`]
+    const parts = [`The user is viewing a specific recipe: "${r.name}" (id: ${r.id}).`]
     if (r.description) parts.push(`Description: ${r.description}`)
     if (r.ingredients.length > 0)
       parts.push(`Ingredients: ${r.ingredients.join(', ')}`)
     if (r.cuisine) parts.push(`Cuisine: ${r.cuisine}`)
     if (r.course) parts.push(`Course: ${r.course}`)
     parts.push(
-      'Answer questions about this recipe — substitutions, technique tips, scaling, nutrition, pairings, etc.'
+      'Answer questions about this recipe — substitutions, technique tips, scaling, nutrition, pairings, etc.',
+      'Use the editRecipe tool when the user asks to modify the recipe (change name, description, ingredients, instructions, prep/cook time).',
+      'Use the addNote tool when the user asks to add or update notes on this recipe.',
+      `Always pass recipeId: "${r.id}" when calling editRecipe or addNote.`
     )
     contextBlock = parts.join('\n')
   } else if (context?.page === 'list') {
@@ -39,9 +42,9 @@ export const buildSystemPrompt = ({
 You are a recipe assistant.
 
 Goals
-- Return a helpful message + 0–5 recipes.
+- Use the generateRecipes tool when suggesting recipes. Always put recipes in the tool call, never in plain text.
 - If >1 recipe: name + 1–2 sentence description only.
-- If exactly 1 recipe: include fields required by the schema.
+- If exactly 1 recipe: include all fields (ingredients, instructions, prep/cook time, etc.).
 
 Guidelines
 ${
@@ -57,7 +60,6 @@ ${
 }
 ${contextBlock ? `\n${contextBlock}\n` : ''}- Vary cuisines unless constrained by filters or an explicit user preference.
 - Avoid duplicates and avoid already-saved items (see "Saved" below).
-- When responding with one recipe, include all the fields required by the schema.
 
 Style
 - Ingredient line: "qty unit ingredient, note".

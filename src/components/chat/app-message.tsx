@@ -1,4 +1,4 @@
-import { CheckCircleIcon } from 'lucide-react'
+import { CheckCircleIcon, AlertCircleIcon } from 'lucide-react'
 import { LoadingSpinner } from '~/components/loaders/loading-spinner'
 import { useTranslations } from '~/hooks/use-translations'
 
@@ -31,4 +31,33 @@ export function GenerateStatusAppMessage({
     ? t.chat.replace('generatingRecipe', recipeName)
     : t.chat.replace('generatedRecipe', recipeName)
   return <AppMessage label={label} icon={icon} />
+}
+
+export function ToolResultAppMessage({
+  toolName,
+  result
+}: {
+  toolName: string
+  result: { success: boolean; recipeName?: string; error?: string }
+}) {
+  if (!result.success) {
+    return (
+      <AppMessage
+        label={result.error ?? 'Something went wrong'}
+        icon={<AlertCircleIcon className='text-destructive size-5' />}
+      />
+    )
+  }
+
+  const label =
+    toolName === 'editRecipe'
+      ? `Updated recipe: ${result.recipeName ?? ''}`
+      : `Added note to: ${result.recipeName ?? ''}`
+
+  return (
+    <AppMessage
+      label={label}
+      icon={<CheckCircleIcon className='text-success size-5' />}
+    />
+  )
 }

@@ -1,10 +1,11 @@
-import { streamObject } from 'ai'
+import { streamText } from 'ai'
 import { openai } from '@ai-sdk/openai'
-import { chatParams, generatedMessageSchema } from '~/schemas/chats-schema'
+import { chatParams } from '~/schemas/chats-schema'
 import { buildSystemPrompt } from '~/constants/chat'
 import { prisma } from '~/server/db'
 import { compactTitles } from '~/lib/compact-title'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
+import { getTools } from './tools'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
@@ -49,17 +50,20 @@ export async function POST(req: Request) {
     context
   })
 
-  const result = streamObject({
+  const tools = getTools(context, prisma)
+
+  const result = streamText({
     model: openai('gpt-4o-mini'),
-    schema: generatedMessageSchema,
     messages: messages
       .filter(({ role }) => role !== 'data')
       .map(({ content, role }) => ({
         content,
         role: role as 'system' | 'user' | 'assistant'
       })),
-    system
+    system,
+    tools,
+    maxSteps: 2
   })
 
-  return result.toTextStreamResponse()
+  return result.toDataStreamResponse()
 }

@@ -18,8 +18,7 @@ import { useChatStore } from '~/stores/chat-store'
 export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   const t = useTranslations()
   const [isOpen, setIsOpen] = useState(true)
-  const stream = useChatStore((state) => state.stream)
-  const isStreaming = !!stream
+  const isStreaming = useChatStore((state) => state.isStreaming)
 
   if (!recipe) {
     return null
@@ -83,7 +82,7 @@ function ActionButton({
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
-  const isStreaming = !!useChatStore((state) => state.stream)
+  const isStreaming = useChatStore((state) => state.isStreaming)
   const isUpsertingMessages = utils.chats.upsert.isMutating()
 
   const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({

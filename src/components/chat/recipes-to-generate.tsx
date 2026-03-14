@@ -10,7 +10,7 @@ import { STREAM_TIMEOUT } from '~/constants/chat'
 import { SendIcon } from 'lucide-react'
 
 export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
-  const isStreaming = !!useChatStore((state) => state.stream)
+  const isStreaming = useChatStore((state) => state.isStreaming)
 
   return (
     <div className='grid grid-cols-1 items-stretch gap-2 pt-3 sm:grid-cols-2'>
@@ -53,11 +53,11 @@ function GenerateButton({
   recipeDescription: string
 }) {
   const t = useTranslations()
-  const { triggerAISubmission, messages, setStream } = useChatStore()
+  const { triggerAISubmission, messages, setIsStreaming } = useChatStore()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const generateRecipe = async (name: string, description: string) => {
-    setStream({ content: '', recipes: [] })
+    setIsStreaming(true)
     triggerAISubmission([
       ...messages,
       userMessageDTO(
@@ -66,7 +66,7 @@ function GenerateButton({
       )
     ])
     timeoutRef.current = setTimeout(() => {
-      setStream(null)
+      setIsStreaming(false)
       timeoutRef.current = null
     }, STREAM_TIMEOUT)
   }

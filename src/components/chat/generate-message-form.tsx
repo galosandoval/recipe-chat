@@ -2,15 +2,11 @@
 
 import { useTranslations } from '~/hooks/use-translations'
 import { useChatStore } from '~/stores/chat-store'
-import { experimental_useObject as useObject } from '@ai-sdk/react'
-import {
-  generatedMessageSchema,
-  type MessageWithRecipes
-} from '~/schemas/chats-schema'
+import { useChat } from '@ai-sdk/react'
+import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { useChatAI } from '~/hooks/use-chat-ai'
 import { useEffect, useRef } from 'react'
 import { userMessageDTO } from '~/lib/user-message-dto'
-import type { GeneratedRecipe } from '~/schemas/messages-schema'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
@@ -20,53 +16,147 @@ import { Input } from '~/components/ui/input'
 import { BottomBar } from '~/components/bottom-bar'
 import { toast } from '~/components/toast'
 import { SendIcon, StopCircleIcon } from 'lucide-react'
+import { cuid } from '~/lib/createId'
+import { slugify } from '~/lib/utils'
+import type { GeneratedRecipe } from '~/schemas/messages-schema'
+
+function extractRecipesFromToolInvocations(
+  toolInvocations: Array<{ toolName: string; args?: Record<string, unknown>; result?: unknown }> | undefined
+): GeneratedRecipe[] {
+  if (!toolInvocations) return []
+  const generateCall = toolInvocations.find(
+    (t) => t.toolName === 'generateRecipes' && 'args' in t
+  )
+  if (!generateCall?.args) return []
+  const args = generateCall.args as { recipes?: GeneratedRecipe[] }
+  return args.recipes ?? []
+}
 
 function useRecipeChat() {
   const userId = useUserId()
-  const { setInput, setStream } = useChatStore()
+  const { setInput, setIsStreaming, addMessage } = useChatStore()
   const { onFinishMessage, createUserMessage } = useChatAI()
-  const {
-    object,
-    stop: aiStop,
-    submit: aiSubmit
-  } = useObject({
-    api: '/api/chat',
-    schema: generatedMessageSchema,
-    onError(error) {
-      if (error?.stack) toast.error(error.stack)
-      if (error) toast.error(error.message)
-      setStream({ content: '', recipes: [] })
-    },
-    onFinish: onFinishMessage
-  })
   const utils = api.useUtils()
 
-  // Enhanced AI submit function
+  const {
+    messages: chatMessages,
+    append,
+    stop: aiStop,
+    status,
+    setMessages: setAiMessages
+  } = useChat({
+    api: '/api/chat',
+    id: 'recipe-chat',
+    maxSteps: 2,
+    experimental_prepareRequestBody({ messages }) {
+      const filters = utils.filters.getByUserId.getData({ userId })
+      const context = useChatDrawerStore.getState().context
+      return {
+        messages: messages.map((m) => ({
+          content: m.content,
+          role: m.role,
+          id: m.id
+        })),
+        filters: selectActiveFilters(filters ?? []).map((f) => f.name),
+        userId: userId || undefined,
+        context
+      }
+    },
+    onError(error) {
+      toast.error(error.message)
+      setIsStreaming(false)
+    },
+    onFinish(message) {
+      setIsStreaming(false)
+      const recipes = extractRecipesFromToolInvocations(
+        message.toolInvocations as Array<{ toolName: string; args?: Record<string, unknown>; result?: unknown }> | undefined
+      )
+      onFinishMessage(message.content, recipes, message.toolInvocations as Array<{ toolName: string; result?: unknown }> | undefined)
+    }
+  })
+
+  // Sync streaming status
+  useEffect(() => {
+    const streaming = status === 'streaming' || status === 'submitted'
+    setIsStreaming(streaming)
+  }, [status, setIsStreaming])
+
+  // Sync last streaming message to store for rendering
+  useEffect(() => {
+    if (status === 'streaming' && chatMessages.length > 0) {
+      const lastMsg = chatMessages[chatMessages.length - 1]
+      if (lastMsg.role === 'assistant') {
+        const recipes = extractRecipesFromToolInvocations(
+          lastMsg.toolInvocations as Array<{ toolName: string; args?: Record<string, unknown>; result?: unknown }> | undefined
+        )
+        const storeMessages = useChatStore.getState().messages
+        const existingIdx = storeMessages.findIndex((m) => m.id === lastMsg.id)
+
+        const messageWithRecipes: MessageWithRecipes = {
+          id: lastMsg.id,
+          content: lastMsg.content,
+          role: 'assistant',
+          chatId: useChatStore.getState().chatId,
+          createdAt: lastMsg.createdAt ?? new Date(),
+          updatedAt: new Date(),
+          recipes: recipes.map((r) => ({
+            id: cuid(),
+            name: r.name ?? '',
+            slug: r.name ? slugify(r.name) : cuid(),
+            description: r.description ?? '',
+            ingredients: r.ingredients?.map((i) => i ?? '') ?? [],
+            instructions: r.instructions?.map((i) => i ?? '') ?? [],
+            prepMinutes: r.prepMinutes ?? null,
+            cookMinutes: r.cookMinutes ?? null,
+            servings: r.servings ?? null,
+            course: r.course ?? null,
+            cuisine: r.cuisine ?? null,
+            dietTags: r.dietTags?.map((t) => t ?? '') ?? [],
+            flavorTags: r.flavorTags?.map((t) => t ?? '') ?? [],
+            mainIngredients: r.mainIngredients?.map((i) => i ?? '') ?? [],
+            techniques: r.techniques?.map((t) => t ?? '') ?? [],
+            saved: false
+          })),
+          toolInvocations: lastMsg.toolInvocations as MessageWithRecipes['toolInvocations']
+        }
+
+        if (existingIdx >= 0) {
+          const updated = [...storeMessages]
+          updated[existingIdx] = messageWithRecipes
+          useChatStore.setState({ messages: updated })
+        } else {
+          addMessage(messageWithRecipes)
+        }
+      }
+    }
+  }, [status, chatMessages, addMessage])
+
   const handleAISubmit = (messages: MessageWithRecipes[]) => {
     const lastMessage = messages.at(-1)
-    if (lastMessage) {
-      createUserMessage(lastMessage)
-    }
-    const filters = utils.filters.getByUserId.getData({ userId })
-    const context = useChatDrawerStore.getState().context
+    if (!lastMessage) return
+
+    createUserMessage(lastMessage)
     setInput('')
-    aiSubmit({
-      messages,
-      filters: selectActiveFilters(filters ?? []).map((f) => f.name),
-      userId: userId || undefined,
-      context
+
+    // Sync prior messages (all except the last user message) into useChat
+    const priorMessages = messages.slice(0, -1)
+    setAiMessages(
+      priorMessages.map((m) => ({
+        id: m.id,
+        content: m.content,
+        role: m.role as 'user' | 'assistant' | 'system',
+        createdAt: m.createdAt
+      }))
+    )
+
+    // Append the new user message — this triggers the API call
+    append({
+      id: lastMessage.id,
+      content: lastMessage.content,
+      role: 'user',
+      createdAt: lastMessage.createdAt
     })
   }
-
-  // Handle streaming updates (just update the display)
-  useEffect(() => {
-    if (object && object.content) {
-      setStream({
-        content: object.content ?? '',
-        recipes: (object.recipes ?? []).filter(Boolean) as GeneratedRecipe[]
-      })
-    }
-  }, [object, setStream])
 
   return {
     handleAISubmit,
@@ -77,9 +167,8 @@ function useRecipeChat() {
 const STREAM_TIMEOUT = 30000 // 30 seconds
 
 export function GenerateMessageForm() {
-  const { input, handleInputChange, messages, chatId, reset, stream } =
+  const { input, handleInputChange, messages, chatId, reset, isStreaming } =
     useChatStore()
-  const isStreaming = stream !== null
   const { handleAISubmit, stop: aiStop } = useRecipeChat()
   const t = useTranslations()
   const streamTimeout = useRef<NodeJS.Timeout | null>(null)

@@ -35,8 +35,7 @@ function useContextWelcome() {
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const { messages, reset, triggerAISubmission } = useChatStore()
-  const stream = useChatStore((state) => state.stream)
-  const isStreaming = !!stream
+  const isStreaming = useChatStore((state) => state.isStreaming)
   const session = useSession()
   const welcome = useContextWelcome()
 
@@ -61,8 +60,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
     <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
       <div
         className={cn(
-          'flex w-full flex-1 flex-col items-center justify-center pt-20 sm:pt-24',
-          !session.data && 'pt-14'
+          'flex w-full flex-1 flex-col items-center justify-center pt-3'
         )}
       >
         <ValuePropsHeader
