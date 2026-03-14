@@ -3,7 +3,6 @@
 import { useEffect } from 'react'
 import { MessageSquareIcon, PlusIcon, XIcon } from 'lucide-react'
 import { Drawer as DrawerPrimitive } from 'vaul'
-import { cn } from '~/lib/utils'
 import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 import type { ChatContext } from '~/schemas/chats-schema'
 import { useChatStore } from '~/stores/chat-store'
@@ -11,6 +10,7 @@ import { Interface } from '~/components/chat/interface'
 import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
 import { GenerateMessageForm } from '~/components/chat/generate-message-form'
 import { Button } from '~/components/button'
+import { FloatingActionButton } from '~/components/floating-action-button'
 
 export function ChatPanel() {
   const { isOpen, close, context } = useChatDrawerStore()
@@ -26,9 +26,9 @@ export function ChatPanel() {
     context.page === 'recipe-detail' ? context.recipe.name : 'Chat'
 
   const handleStartNewChat = () => {
-    const { setChatId, setStream, setMessages } = useChatStore.getState()
+    const { setChatId, setIsStreaming, setMessages } = useChatStore.getState()
     setChatId('')
-    setStream(null)
+    setIsStreaming(false)
     setMessages([])
   }
 
@@ -97,15 +97,8 @@ export function ChatFab({
   const { toggle } = useChatDrawerStore()
 
   return (
-    <Button
-      onClick={() => toggle(context)}
-      size='icon'
-      className={cn(
-        'fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full shadow-lg sm:bottom-6 sm:right-6',
-        className
-      )}
-    >
+    <FloatingActionButton onClick={() => toggle(context)} className={className}>
       <MessageSquareIcon />
-    </Button>
+    </FloatingActionButton>
   )
 }

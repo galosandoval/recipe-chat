@@ -6,20 +6,23 @@ import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 import { useChatStore } from '~/stores/chat-store'
 import { ChatPanel } from '~/components/chat-panel'
 import { ParseAndAddRecipeDialogs } from '~/app/navbar/settings-dropdown-menu'
-import { Button } from '~/components/button'
+import { FloatingActionButton } from '~/components/floating-action-button'
 import {
   DropdownMenu,
   type MenuItemProps
 } from '~/components/dropdown-menu'
 
+/**
+ * Floating action button to add a recipe from a chat
+ */
 export function RecipesAddFab() {
   const { open } = useChatDrawerStore()
   const [isAddFromUrlOpen, setIsAddFromUrlOpen] = useState(false)
 
   const handleAddWithChat = () => {
-    const { setChatId, setStream, setMessages } = useChatStore.getState()
+    const { setChatId, setIsStreaming, setMessages } = useChatStore.getState()
     setChatId('')
-    setStream(null)
+    setIsStreaming(false)
     setMessages([])
     open({ page: 'recipes' })
   }
@@ -42,12 +45,9 @@ export function RecipesAddFab() {
       <DropdownMenu
         items={items}
         trigger={
-          <Button
-            size='icon'
-            className='fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full shadow-lg sm:bottom-6 sm:right-6'
-          >
+          <FloatingActionButton>
             <PlusIcon />
-          </Button>
+          </FloatingActionButton>
         }
       />
       <ParseAndAddRecipeDialogs
