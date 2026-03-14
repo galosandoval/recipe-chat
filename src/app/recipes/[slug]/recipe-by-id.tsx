@@ -85,7 +85,13 @@ function Recipe({ data }: { data: RecipeByIdData }) {
   )
 }
 
-function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
+function StickyHeader({
+  name,
+  visible,
+}: {
+  name: string
+  visible: boolean
+}) {
   return (
     <div
       className={cn(
@@ -318,7 +324,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
           disabled={!form.formState.isDirty || !form.formState.isValid}
           isLoading={isPending}
           type='submit'
-          className='self-end'
+          className='self-start'
           icon={<PencilIcon />}
         >
           {t.recipes.byId.updateNotes}
