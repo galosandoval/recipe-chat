@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, useContext } from 'react'
 import type { Locale } from '~/i18n-config'
 import type { getTranslations } from '~/lib/get-translations'
 
@@ -191,10 +191,8 @@ export const useTranslations = (): Translations => {
     throw new Error('useTranslations must be used within a TranslationsContext')
   }
 
-  return useMemo(() => {
-    const translationClass = new TranslationClass(ctx.translations)
-    return translationClass.createEnhanced()
-  }, [ctx.translations])
+  const translationClass = new TranslationClass(ctx.translations)
+  return translationClass.createEnhanced()
 }
 
 export const useLocale = (): Locale => {
