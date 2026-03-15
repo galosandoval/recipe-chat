@@ -3,7 +3,7 @@ import { PantryAccess } from '~/server/api/data-access/pantry-access'
 import { cuid } from '~/lib/createId'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 
-export async function getPantryByUserId(userId: string, prisma: PrismaClient) {
+export async function getPantryByUserId(userId: string, prisma?: PrismaClient) {
   const pantryAccess = new PantryAccess(prisma)
   return pantryAccess.getPantryByUserId(userId)
 }

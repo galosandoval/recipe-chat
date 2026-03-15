@@ -4,7 +4,7 @@ import { FiltersAccess } from '~/server/api/data-access/filters-access'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { cuid } from '~/lib/createId'
 
-export async function getTasteProfile(userId: string, prisma: PrismaClient) {
+export async function getTasteProfile(userId: string, prisma?: PrismaClient) {
   const access = new TasteProfileAccess(prisma)
   return await access.getByUserId(userId)
 }
