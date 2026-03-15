@@ -8,6 +8,7 @@ import { api } from '~/trpc/react'
 import { useChatStore } from '~/stores/chat-store'
 import { GenerateStatusAppMessage, ToolResultAppMessage } from './app-message'
 import { Avatar } from './avatar'
+import { AssistantMessageLoader } from '~/components/loaders/assistant-message'
 
 export const Message = function Message({
   message,
@@ -127,6 +128,10 @@ function Bubble({
 }
 
 export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
+  if (!message.content) {
+    return <AssistantMessageLoader />
+  }
+
   // Extract tool results for editRecipe/addNote
   const actionResults = message.toolInvocations?.filter(
     (t) => (t.toolName === 'editRecipe' || t.toolName === 'addNote') && t.result
