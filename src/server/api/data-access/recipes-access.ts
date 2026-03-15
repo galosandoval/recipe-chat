@@ -32,7 +32,7 @@ export class RecipesAccess extends DataAccess {
     })
   }
 
-  async getGeneratedRecipeNames(userId: string, limit = 50) {
+  async getRecipeNamesByUserId(userId: string, limit = 50) {
     const recipes = await this.prisma.recipe.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -152,6 +152,50 @@ export class RecipesAccess extends DataAccess {
             description: instruction
           }))
         }
+      }
+    })
+  }
+
+  async upsertRecipeWithIngredientsAndInstructions(
+    id: string,
+    data: {
+      name: string
+      userId: string
+      ingredients: string[]
+      instructions: string[]
+      prepMinutes?: number | null
+      cookMinutes?: number | null
+      cuisine?: string
+      course?: string
+      dietTags?: string[]
+      flavorTags?: string[]
+      mainIngredients?: string[]
+      techniques?: string[]
+    }
+  ) {
+    const { ingredients, instructions, name, userId, ...rest } = data
+    const ingredientData = ingredients.map((line) =>
+      ingredientStringToCreatePayload(line)
+    )
+    const instructionData = instructions.map((instruction) => ({
+      description: instruction
+    }))
+
+    return await this.prisma.recipe.upsert({
+      where: { id },
+      update: {
+        ...rest,
+        ingredients: { create: ingredientData },
+        instructions: { create: instructionData }
+      },
+      create: {
+        id,
+        name,
+        slug: slugify(name),
+        ...rest,
+        user: { connect: { id: userId } },
+        ingredients: { create: ingredientData },
+        instructions: { create: instructionData }
       }
     })
   }

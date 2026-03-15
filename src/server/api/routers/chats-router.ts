@@ -40,6 +40,6 @@ export const chatsRouter = createTRPCRouter({
   generated: protectedProcedure
     .input(generatedSchema)
     .mutation(async ({ ctx, input }) => {
-      return generated(ctx.prisma, input)
+      return generated(ctx.prisma, input, ctx.session.user.id)
     })
 })

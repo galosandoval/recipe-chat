@@ -63,10 +63,22 @@ export async function upsertChat(
  * Processes a generated recipe by updating the recipe with ingredients and instructions,
  * creating associated messages, and establishing the recipe-message relationship
  */
-export async function generated(prisma: PrismaClient, data: Generated) {
+export async function generated(
+  prisma: PrismaClient,
+  data: Generated,
+  userId: string
+) {
   const { prompt, generated } = data
-  const { id, ingredients, content, instructions, messageId, chatId, ...rest } =
-    generated
+  const {
+    id,
+    name,
+    ingredients,
+    content,
+    instructions,
+    messageId,
+    chatId,
+    ...rest
+  } = generated
 
   await prisma.$transaction(async (tx) => {
     const recipesAccess = new RecipesAccess(tx as PrismaClient)
@@ -75,9 +87,11 @@ export async function generated(prisma: PrismaClient, data: Generated) {
       tx as PrismaClient
     )
 
-    // Update recipe with ingredients and instructions
-    await recipesAccess.updateRecipeWithIngredientsAndInstructions(id, {
+    // Upsert recipe — create if it doesn't exist yet, update if it does
+    await recipesAccess.upsertRecipeWithIngredientsAndInstructions(id, {
       ...rest,
+      name,
+      userId,
       ingredients,
       instructions
     })

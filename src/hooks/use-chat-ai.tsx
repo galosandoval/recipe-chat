@@ -241,7 +241,7 @@ export const useChatAI = () => {
   })
 
   // when user clicks recipe to generate, don't create a new recipe, just update the existing one
-  const handleGenerated = () => {
+  const handleGenerated = (recipeId: string) => {
     const messagesToAdd = useChatStore.getState().messages
     const promptMessage = messagesToAdd?.at(-2)
     const generatedMessage = messagesToAdd?.at(-1)
@@ -249,12 +249,13 @@ export const useChatAI = () => {
     if (!generatedMessage || !chatId || !promptMessage) {
       return
     }
-    const { id, ingredients, instructions, ...rest } =
+    const { name, ingredients, instructions, ...rest } =
       generatedMessage.recipes[0]
 
     const data = {
       generated: {
-        id,
+        id: recipeId,
+        name,
         ingredients,
         instructions,
         // if 0, set to null
@@ -290,7 +291,7 @@ export const useChatAI = () => {
 
     // path when user clicks generate recipe, updates the existing recipe on clicked message
     if (foundRecipe) {
-      handleGenerated()
+      handleGenerated(foundRecipe.id)
     } else {
       handleUpsertChat()
     }

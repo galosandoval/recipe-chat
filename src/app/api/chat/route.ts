@@ -7,7 +7,7 @@ import { compactTitles } from '~/lib/compact-title'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { getTools } from './tools'
 import { getTasteProfile } from '~/server/api/use-cases/taste-profile-use-case'
-import { getGeneratedRecipeNames } from '~/server/api/use-cases/recipes-use-case'
+import { getRecipeNamesByUserId } from '~/server/api/use-cases/recipes-use-case'
 import { getPantryByUserId } from '~/server/api/use-cases/pantry-use-case'
 
 // Allow streaming responses up to 30 seconds
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
   let recipesNames: string[] = []
   if (userId) {
-    const names = await getGeneratedRecipeNames(userId)
+    const names = await getRecipeNamesByUserId(userId)
     recipesNames = compactTitles(names)
   }
 
