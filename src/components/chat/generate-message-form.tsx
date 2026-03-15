@@ -58,11 +58,13 @@ function useRecipeChat() {
       const filters = utils.filters.getByUserId.getData({ userId })
       const context = useChatDrawerStore.getState().context
       return {
-        messages: messages.map((m) => ({
-          content: m.content,
-          role: m.role,
-          id: m.id
-        })),
+        messages: messages
+          .filter((m) => m.content.length > 0)
+          .map((m) => ({
+            content: m.content,
+            role: m.role,
+            id: m.id
+          })),
         filters: selectActiveFilters(filters ?? []).map((f) => f.name),
         userId: userId || undefined,
         context

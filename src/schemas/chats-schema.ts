@@ -138,6 +138,7 @@ export const generatedSchema = z.object({
   generated: z.object({
     content: z.string(),
     id: z.string(),
+    name: z.string(),
     ingredients: z.array(z.string()),
     instructions: z.array(z.string()),
     prepMinutes: z.number().optional().nullable(),
