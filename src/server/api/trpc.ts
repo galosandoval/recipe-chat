@@ -8,11 +8,13 @@
  */
 
 import { initTRPC, TRPCError } from '@trpc/server'
+import type { SubscriptionTier } from '@prisma/client'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 
 import { auth } from '~/server/auth'
 import { prisma } from '~/server/db'
+import { hasTierAccess } from '~/lib/tier-config'
 
 /**
  * 1. CONTEXT
@@ -30,7 +32,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth()
 
   return {
-    prisma,
+    prisma: prisma,
     session,
     ...opts
   }
@@ -132,3 +134,23 @@ export const protectedProcedure = t.procedure
       }
     })
   })
+
+function tierMiddleware(requiredTier: SubscriptionTier) {
+  return t.middleware(({ ctx, next }) => {
+    const userTier = ctx.session?.user?.subscriptionTier ?? 'FREE'
+    if (!hasTierAccess(userTier as SubscriptionTier, requiredTier)) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: `This feature requires a ${requiredTier} subscription`
+      })
+    }
+    return next()
+  })
+}
+
+export const starterProcedure = protectedProcedure.use(
+  tierMiddleware('STARTER')
+)
+export const premiumProcedure = protectedProcedure.use(
+  tierMiddleware('PREMIUM')
+)

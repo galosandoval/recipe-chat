@@ -13,8 +13,8 @@ Guide for running Stripe subscriptions locally.
 
 In the [Stripe Dashboard](https://dashboard.stripe.com/test/products) (test mode), create two products with **monthly recurring** prices:
 
-| Product | Price |
-|---------|-------|
+| Product | Price    |
+| ------- | -------- |
 | Starter | $1/month |
 | Premium | $3/month |
 
@@ -64,9 +64,9 @@ Both processes must be running for webhooks to work.
 
 ### Test cards
 
-| Card Number | Scenario |
-|-------------|----------|
-| `4242 4242 4242 4242` | Successful payment |
+| Card Number           | Scenario                        |
+| --------------------- | ------------------------------- |
+| `4242 4242 4242 4242` | Successful payment              |
 | `4000 0000 0000 0341` | Payment failure (card declined) |
 
 Use any future expiry date, any 3-digit CVC, and any billing ZIP.

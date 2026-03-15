@@ -4,6 +4,14 @@ import type { UpdateRecipe } from '~/schemas/recipes-schema'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 
+export async function getGeneratedRecipeNames(
+  userId: string,
+  prisma?: PrismaClient
+) {
+  const access = new RecipesAccess(prisma)
+  return await access.getGeneratedRecipeNames(userId)
+}
+
 export async function editRecipe(recipe: UpdateRecipe, prisma: PrismaClient) {
   const { id, ingredients, newIngredients, instructions, newInstructions } =
     recipe

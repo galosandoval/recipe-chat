@@ -5,6 +5,7 @@ import { Form } from '../form/form'
 import { FormInput } from '../form/form-input'
 import { useRouter } from 'next/navigation'
 import { useAppForm } from '~/hooks/use-app-form'
+import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { toast } from '../toast'
 import { signUpSchema, type SignUpSchema } from '~/schemas/sign-up-schema'
@@ -32,21 +33,26 @@ export function SignUp({
   const form = useAppForm(signUpSchema, {
     defaultValues: { email: '', password: '', confirm: '' }
   })
+  const [isSigningIn, setIsSigningIn] = useState(false)
 
   const { mutate, isPending } = api.users.signUp.useMutation({
     onSuccess: async ({}, { email, password }) => {
-      const response = await signIn('credentials', {
-        email,
-        password,
-        redirect: false
-      })
-      const lastMessage = useChatStore.getState().messages.at(-1)
-      if (lastMessage) {
-        onSignUpSuccess(lastMessage)
-      } else if (response?.ok) {
-        router.push('/chat')
-
-        toast.success(t.auth.signUpSuccess)
+      setIsSigningIn(true)
+      try {
+        const response = await signIn('credentials', {
+          email,
+          password,
+          redirect: false
+        })
+        const lastMessage = useChatStore.getState().messages.at(-1)
+        if (lastMessage) {
+          await onSignUpSuccess(lastMessage)
+        } else if (response?.ok) {
+          router.push('/chat')
+          toast.success(t.auth.signUpSuccess)
+        }
+      } finally {
+        setIsSigningIn(false)
       }
     },
     onError: (error) => {
@@ -112,7 +118,7 @@ export function SignUp({
       formId='signUp'
       open={open}
       onOpenChange={onOpenChange}
-      isLoading={isPending}
+      isLoading={isPending || isSigningIn}
       submitIcon={<UserPlusIcon />}
     >
       <Form

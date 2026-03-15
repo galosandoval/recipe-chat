@@ -24,12 +24,7 @@ export const pantryRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id
-      return addIngredientToPantry(
-        userId,
-        input.rawLine,
-        input.id,
-        ctx.prisma
-      )
+      return addIngredientToPantry(userId, input.rawLine, input.id, ctx.prisma)
     }),
 
   update: protectedProcedure
@@ -47,11 +42,7 @@ export const pantryRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return updatePantryIngredient(
-        input.ingredientId,
-        input.data,
-        ctx.prisma
-      )
+      return updatePantryIngredient(input.ingredientId, input.data, ctx.prisma)
     }),
 
   delete: protectedProcedure

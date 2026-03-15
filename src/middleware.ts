@@ -7,7 +7,10 @@ import { LOCALE_COOKIE_NAME } from '~/lib/locale'
 export function middleware(req: NextRequest) {
   // If cookie already set and valid, pass through
   const existingCookie = req.cookies.get(LOCALE_COOKIE_NAME)?.value
-  if (existingCookie && (i18n.locales as readonly string[]).includes(existingCookie)) {
+  if (
+    existingCookie &&
+    (i18n.locales as readonly string[]).includes(existingCookie)
+  ) {
     return NextResponse.next()
   }
 

@@ -4,7 +4,6 @@ import { useTranslations } from '~/hooks/use-translations'
 import { Button } from './button'
 import { darkTheme, lightTheme } from '~/constants/theme'
 
-
 export const ThemeToggle = () => {
   const t = useTranslations()
   const { theme, setTheme } = useTheme()

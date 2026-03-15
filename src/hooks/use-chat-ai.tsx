@@ -4,27 +4,20 @@ import { useChatStore } from '~/stores/chat-store'
 import { cuid } from '~/lib/createId'
 import { useEffect } from 'react'
 import type {
-  Generated,
-  generatedMessageSchema,
   MessageWithRecipes,
   MessageWithRecipesDTO,
   UpsertChatSchema
 } from '~/schemas/chats-schema'
-import { type Experimental_UseObjectHelpers as UseObjectHelpers } from '@ai-sdk/react'
 import { toast } from '~/components/toast'
 import { useFiltersByUserId } from './use-filters-by-user-id'
 import { slugify } from '~/lib/utils'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
-
-type Object = UseObjectHelpers<typeof generatedMessageSchema, string>['object']
-type Error = UseObjectHelpers<typeof generatedMessageSchema, string>['error']
-type OnFinish = { object: Object; error: Error }
+import type { GeneratedRecipe } from '~/schemas/messages-schema'
 
 /**
  * Transforms database message data to the format expected by useChatStore
  */
 const transformMessagesToChatStore = (data: MessageWithRecipesDTO[]) => {
-  console.log('data', data)
   return data.map((message) => ({
     id: message.id,
     content: message.content,
@@ -48,7 +41,9 @@ const transformMessagesToChatStore = (data: MessageWithRecipesDTO[]) => {
         techniques: r.recipe.techniques?.map((t) => t ?? '') ?? [],
         slug: r.recipe.slug ?? '',
         ingredients:
-          r.recipe.ingredients?.map((ingredient) => getIngredientDisplayText(ingredient)) ?? [],
+          r.recipe.ingredients?.map((ingredient) =>
+            getIngredientDisplayText(ingredient)
+          ) ?? [],
         instructions:
           r.recipe.instructions?.map(
             (instruction) => instruction.description
@@ -66,7 +61,7 @@ export const useChatAI = () => {
   const filtersData = filters.data
   const utils = api.useUtils()
 
-  const { addMessage, setMessages, setStream } = useChatStore()
+  const { addMessage, setMessages } = useChatStore()
 
   const filterStrings: string[] = []
   if (filtersData) {
@@ -155,27 +150,26 @@ export const useChatAI = () => {
   }
 
   // Handle AI response completion
-  const handleAIResponse = (aiResponse: OnFinish) => {
-    if (aiResponse.error?.stack) {
-      toast.error(aiResponse.error?.stack)
-      return
+  const handleAIResponse = (
+    content: string,
+    recipes: GeneratedRecipe[],
+    toolInvocations?: Array<{ toolName: string; result?: unknown }>
+  ) => {
+    const { messages, chatId } = useChatStore.getState()
+    const messagesWithRecipes = messages?.flatMap((m) => m.recipes)
+    const recipeNameToId = new Map<string, string>()
+    for (const recipe of messagesWithRecipes) {
+      recipeNameToId.set(recipe.name, recipe.id)
     }
-    if (aiResponse?.object?.content) {
-      // Don't create a new generated recipe if the recipe already exists
-      const { messages, chatId } = useChatStore.getState()
-      const messagesWithRecipes = messages?.flatMap((m) => m.recipes)
-      const recipeNameToId = new Map<string, string>()
-      for (const recipe of messagesWithRecipes) {
-        recipeNameToId.set(recipe.name, recipe.id)
-      }
-      const assistantMessage: MessageWithRecipes = {
-        id: cuid(),
-        content: aiResponse.object.content,
-        role: 'assistant',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        chatId: chatId ?? '',
-        recipes: (aiResponse.object?.recipes ?? []).map((recipe) => ({
+
+    // Check if this assistant message was already added during streaming
+    const lastMessage = messages.at(-1)
+    if (lastMessage?.role === 'assistant') {
+      // Update the existing message with final data
+      const updatedMessage: MessageWithRecipes = {
+        ...lastMessage,
+        content,
+        recipes: recipes.map((recipe) => ({
           id: recipeNameToId.get(recipe?.name ?? '') ?? cuid(),
           name: recipe?.name ?? '',
           slug: recipe?.name ? slugify(recipe.name) : cuid(),
@@ -192,10 +186,44 @@ export const useChatAI = () => {
           mainIngredients: recipe?.mainIngredients?.map((i) => i ?? '') ?? [],
           techniques: recipe?.techniques?.map((t) => t ?? '') ?? [],
           saved: false
-        }))
+        })),
+        toolInvocations:
+          toolInvocations as MessageWithRecipes['toolInvocations']
       }
-      addMessage(assistantMessage)
+      const updated = [...messages]
+      updated[updated.length - 1] = updatedMessage
+      useChatStore.setState({ messages: updated })
+      return
     }
+
+    const assistantMessage: MessageWithRecipes = {
+      id: cuid(),
+      content,
+      role: 'assistant',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      chatId: chatId ?? '',
+      recipes: recipes.map((recipe) => ({
+        id: recipeNameToId.get(recipe?.name ?? '') ?? cuid(),
+        name: recipe?.name ?? '',
+        slug: recipe?.name ? slugify(recipe.name) : cuid(),
+        description: recipe?.description ?? '',
+        ingredients: recipe?.ingredients?.map((i) => i ?? '') ?? [],
+        instructions: recipe?.instructions?.map((i) => i ?? '') ?? [],
+        prepMinutes: recipe?.prepMinutes ?? null,
+        cookMinutes: recipe?.cookMinutes ?? null,
+        servings: recipe?.servings ?? null,
+        course: recipe?.course ?? null,
+        cuisine: recipe?.cuisine ?? null,
+        dietTags: recipe?.dietTags?.map((t) => t ?? '') ?? [],
+        flavorTags: recipe?.flavorTags?.map((t) => t ?? '') ?? [],
+        mainIngredients: recipe?.mainIngredients?.map((i) => i ?? '') ?? [],
+        techniques: recipe?.techniques?.map((t) => t ?? '') ?? [],
+        saved: false
+      })),
+      toolInvocations: toolInvocations as MessageWithRecipes['toolInvocations']
+    }
+    addMessage(assistantMessage)
   }
 
   const { mutate: generated } = api.chats.generated.useMutation({
@@ -224,7 +252,7 @@ export const useChatAI = () => {
     const { id, ingredients, instructions, ...rest } =
       generatedMessage.recipes[0]
 
-    const data: Generated = {
+    const data = {
       generated: {
         id,
         ingredients,
@@ -247,28 +275,25 @@ export const useChatAI = () => {
     generated(data)
   }
 
-  const onFinishMessage = (aiResponse: OnFinish) => {
-    if (aiResponse.error?.stack) {
-      toast.error(aiResponse.error?.stack)
-      return
-    }
+  const onFinishMessage = (
+    content: string,
+    recipes: GeneratedRecipe[],
+    toolInvocations?: Array<{ toolName: string; result?: unknown }>
+  ) => {
     const messages = useChatStore.getState().messages
-    const recipes = messages.flatMap((m) => m.recipes)
-    const userOrAppMessage = messages.at(-1)
-    const assistantMessage = useChatStore.getState().stream
-    const foundRecipe = recipes.find(
-      (r) => r.name === assistantMessage?.recipes?.[0]?.name
+    const existingRecipes = messages.flatMap((m) => m.recipes)
+    const foundRecipe = existingRecipes.find(
+      (r) => r.name === recipes?.[0]?.name
     )
-    if (!userOrAppMessage || !assistantMessage) return
 
-    handleAIResponse(aiResponse)
+    handleAIResponse(content, recipes, toolInvocations)
+
     // path when user clicks generate recipe, updates the existing recipe on clicked message
     if (foundRecipe) {
       handleGenerated()
     } else {
       handleUpsertChat()
     }
-    setStream(null)
   }
 
   useEffect(() => {

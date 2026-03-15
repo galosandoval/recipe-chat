@@ -44,6 +44,7 @@ model User {
     subscriptionTier      SubscriptionTier    @default(FREE)
     subscriptionStatus    SubscriptionStatus?
     currentPeriodEnd      DateTime?
+    tasteProfile          TasteProfile?
     createdAt             DateTime            @default(now())
     updatedAt             DateTime            @updatedAt
 }
@@ -56,6 +57,19 @@ enum Feature {
     chatFilters
     lists
     savedRecipes
+}
+
+model TasteProfile {
+    id                  String   @id @default(cuid())
+    user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId              String   @unique
+    dietaryRestrictions String[] @default([])
+    cuisinePreferences  String[] @default([])
+    cookingSkill        String   // "beginner" | "intermediate" | "advanced"
+    householdSize       Int      @default(2)
+    healthGoals         String[] @default([])
+    createdAt           DateTime @default(now())
+    updatedAt           DateTime @updatedAt
 }
 
 model Chat {

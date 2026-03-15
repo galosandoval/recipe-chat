@@ -6,7 +6,7 @@ import { useNavigationStore } from '~/stores/navigation-store'
 
 export const NavigationHandler = () => {
   const pathname = usePathname()
-  
+
   useEffect(() => {
     const { endNavigation, targetRoute } = useNavigationStore.getState()
     // Reset navigation state when we reach the target route

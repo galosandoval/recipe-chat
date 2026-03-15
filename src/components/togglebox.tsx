@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { cn } from '~/lib/utils'
 import { Checkbox as CheckboxUI } from './ui/checkbox'
 import { Label } from './ui/label'
@@ -12,7 +13,7 @@ export const Togglebox = ({
   checked: boolean
   id: string
   onChange?: (checked: boolean) => void
-  label: string
+  label: ReactNode
   className?: string
 }) => {
   return (

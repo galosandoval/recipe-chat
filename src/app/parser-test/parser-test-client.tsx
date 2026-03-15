@@ -3,7 +3,8 @@
 import { api } from '~/trpc/react'
 
 export function ParserTestClient() {
-  const { data, isLoading, error } = api.ingredients.getParsedIngredients.useQuery()
+  const { data, isLoading, error } =
+    api.ingredients.getParsedIngredients.useQuery()
 
   if (isLoading) return <p className='text-muted-foreground'>Loading…</p>
   if (error) return <p className='text-destructive'>Error: {error.message}</p>

@@ -16,7 +16,10 @@ export const TIER_PRICES: Record<SubscriptionTier, number> = {
   PREMIUM: 300
 }
 
-export function formatTierPrice(tier: SubscriptionTier, locale: string): string {
+export function formatTierPrice(
+  tier: SubscriptionTier,
+  locale: string
+): string {
   const cents = TIER_PRICES[tier]
   const amount = cents / 100
   return new Intl.NumberFormat(locale, {

@@ -10,7 +10,6 @@ import {
   ScrollToBottomButton
 } from '~/components/scroll-to-bottom-button'
 import { useChatStore } from '~/stores/chat-store'
-import { Stream } from './stream'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { Message } from './message'
 
@@ -56,13 +55,8 @@ function Chat({ messages }: { messages: MessageWithRecipes[] }) {
   return <ScreenLoader />
 }
 
-function Messages({
-  data
-}: {
-  data: MessageWithRecipes[]
-}) {
-  const { stream } = useChatStore()
-  const isStreaming = !!stream
+function Messages({ data }: { data: MessageWithRecipes[] }) {
+  const isStreaming = useChatStore((s) => s.isStreaming)
 
   return (
     <div className='bg-background mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-4'>
@@ -76,8 +70,6 @@ function Messages({
 
       {!isStreaming && data.at(-1)?.role === 'user' ? (
         <AssistantMessageLoader />
-      ) : stream ? (
-        <Stream stream={stream} />
       ) : null}
     </div>
   )

@@ -65,7 +65,10 @@ export function getUnitKind(unit: string): UnitKind {
  * Convert quantity in given unit to canonical amount (grams for weight, ml for volume).
  * Count units return the same quantity (no conversion).
  */
-export function toCanonical(quantity: number, unit: string): { amount: number; kind: UnitKind } {
+export function toCanonical(
+  quantity: number,
+  unit: string
+): { amount: number; kind: UnitKind } {
   const u = normalizeUnit(unit)
   const weightFactor = WEIGHT_TO_GRAMS[u]
   if (weightFactor != null) {

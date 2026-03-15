@@ -54,6 +54,20 @@ export class PantryAccess extends DataAccess {
     })
   }
 
+  async findPantryIngredientByItemAndUnit(
+    pantryId: string,
+    itemName: string,
+    unit: string
+  ) {
+    return this.prisma.ingredient.findFirst({
+      where: {
+        pantryId,
+        itemName: { equals: itemName, mode: 'insensitive' },
+        unit: { equals: unit, mode: 'insensitive' }
+      }
+    })
+  }
+
   async deletePantryIngredients(ingredientIds: string[]) {
     await this.prisma.ingredient.deleteMany({
       where: { id: { in: ingredientIds }, pantryId: { not: null } }

@@ -21,6 +21,7 @@
       "editRecipe": "Edit recipe",
       "addRecipe": "Add recipe",
       "preferredUnits": "Preferred units",
+      "tasteProfile": "Taste Profile",
       "subscription": "Subscription"
     },
     "chat": "Chat",
@@ -55,7 +56,8 @@
     "noItems": "No items in your list",
     "addToList": "Add to list",
     "addIngredient": "Add a new ingredient to your list",
-    "removeChecked": "Remove checked"
+    "removeChecked": "Remove checked",
+    "addToPantry": "Add to pantry"
   },
 
   "pantry": {

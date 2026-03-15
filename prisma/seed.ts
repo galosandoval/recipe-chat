@@ -101,8 +101,7 @@ async function main() {
               },
               { rawString: '3 cloves garlic, smashed' },
               {
-                rawString:
-                  '½ shallot, finely minced, about 2 tablespoons'
+                rawString: '½ shallot, finely minced, about 2 tablespoons'
               },
               { rawString: 'Kosher salt' },
               { rawString: 'Freshly ground black pepper' },

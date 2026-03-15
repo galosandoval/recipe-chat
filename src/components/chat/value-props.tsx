@@ -8,9 +8,19 @@ import { useSession } from 'next-auth/react'
 import { useChatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { Button } from '~/components/button'
-import { CornerRightUpIcon, SparklesIcon, UserPlusIcon } from 'lucide-react'
+import {
+  CornerRightUpIcon,
+  PackageIcon,
+  SparklesIcon,
+  UserPlusIcon,
+  UtensilsIcon,
+  PencilIcon
+} from 'lucide-react'
 import { cn } from '~/lib/utils'
 import { useChatDrawerStore } from '~/stores/chat-drawer-store'
+import { api } from '~/trpc/react'
+import Link from 'next/link'
+import { buttonVariants } from '~/components/ui/button'
 
 function useContextWelcome() {
   const t = useTranslations()
@@ -21,7 +31,10 @@ function useContextWelcome() {
 
   const description =
     context.page === 'recipe-detail'
-      ? t.valueProps.welcome.recipeDetail.replace('description', context.recipe.name)
+      ? t.valueProps.welcome.recipeDetail.replace(
+          'description',
+          context.recipe.name
+        )
       : welcome.description
 
   return {
@@ -35,10 +48,10 @@ function useContextWelcome() {
 
 export function ValueProps({ children }: { children: React.ReactNode }) {
   const { messages, reset, triggerAISubmission } = useChatStore()
-  const stream = useChatStore((state) => state.stream)
-  const isStreaming = !!stream
+  const isStreaming = useChatStore((state) => state.isStreaming)
   const session = useSession()
   const welcome = useContextWelcome()
+  const isAuthenticated = session.status === 'authenticated'
 
   const handleFillMessage = (e: MouseEvent<HTMLButtonElement>) => {
     const messageContent = e.currentTarget.innerText
@@ -61,8 +74,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
     <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
       <div
         className={cn(
-          'flex w-full flex-1 flex-col items-center justify-center pt-20 sm:pt-24',
-          !session.data && 'pt-14'
+          'flex w-full flex-1 flex-col items-center justify-center pt-3'
         )}
       >
         <ValuePropsHeader
@@ -109,9 +121,121 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
+      {isAuthenticated && (
+        <ContextSources
+          isStreaming={isStreaming}
+          onFillMessage={handleFillMessage}
+        />
+      )}
+
       {children}
 
+      {isAuthenticated && <TasteProfileSummary />}
+
       <Auth />
+    </div>
+  )
+}
+
+function ContextSources({
+  isStreaming,
+  onFillMessage
+}: {
+  isStreaming: boolean
+  onFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
+}) {
+  return (
+    <div className='flex w-full flex-col pt-2'>
+      <ValuePropsHeader icon={<PackageIcon />} label='Use Context' />
+      <div className='flex w-full flex-col items-center gap-4 px-4'>
+        <Button
+          type='button'
+          variant='outline'
+          className='w-full'
+          onClick={onFillMessage}
+          disabled={isStreaming}
+        >
+          <span>What can I make with what&apos;s in my pantry?</span>
+          <CornerRightUpIcon />
+        </Button>
+        <Button
+          type='button'
+          variant='outline'
+          className='w-full'
+          onClick={onFillMessage}
+          disabled={isStreaming}
+        >
+          <span>Suggest something similar to my saved recipes</span>
+          <CornerRightUpIcon />
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function TasteProfileSummary() {
+  const { data: profile, isLoading } = api.tasteProfile.get.useQuery()
+
+  if (isLoading) return null
+
+  if (!profile) {
+    return (
+      <div className='flex w-full flex-col pt-2'>
+        <ValuePropsHeader icon={<UtensilsIcon />} label='Taste Profile' />
+        <div className='flex flex-col items-center gap-2 px-4'>
+          <p className='text-muted-foreground text-sm'>
+            Take the quiz to personalize your experience.
+          </p>
+          <Link
+            href='/onboarding'
+            className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}
+          >
+            Take the Quiz
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className='flex w-full flex-col pt-2'>
+      <ValuePropsHeader icon={<UtensilsIcon />} label='Your Taste Profile' />
+      <div className='flex flex-col gap-1 px-4'>
+        <ProfileRow label='Skill' value={profile.cookingSkill} />
+        <ProfileRow
+          label='Cuisines'
+          value={profile.cuisinePreferences.join(', ')}
+        />
+        {profile.healthGoals.length > 0 && (
+          <ProfileRow
+            label='Goals'
+            value={profile.healthGoals.join(', ')}
+          />
+        )}
+        <ProfileRow
+          label='Household'
+          value={String(profile.householdSize)}
+        />
+        <Link
+          href='/onboarding'
+          className={cn(
+            buttonVariants({ variant: 'ghost', size: 'sm' }),
+            'mt-1 self-end'
+          )}
+        >
+          <PencilIcon className='h-3 w-3' />
+          Edit Profile
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+function ProfileRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className='flex justify-between text-sm'>
+      <span className='text-muted-foreground'>{label}</span>
+      <span className='text-foreground capitalize'>{value}</span>
     </div>
   )
 }

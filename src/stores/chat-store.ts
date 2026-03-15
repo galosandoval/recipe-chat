@@ -1,8 +1,5 @@
 import { create } from 'zustand'
-import type {
-  GeneratedMessage,
-  MessageWithRecipes
-} from '~/schemas/chats-schema'
+import type { MessageWithRecipes } from '~/schemas/chats-schema'
 
 const CURRENT_CHAT_ID = 'currentChatId'
 
@@ -10,7 +7,7 @@ type ChatStore = {
   // UI State
   messages: MessageWithRecipes[]
   input: string
-  stream: GeneratedMessage | null
+  isStreaming: boolean
   chatId: string
 
   // Actions
@@ -22,7 +19,7 @@ type ChatStore = {
   setChatId: (chatId: string) => void
 
   // Streaming
-  setStream: (stream: GeneratedMessage | null) => void
+  setIsStreaming: (isStreaming: boolean) => void
 
   // AI Submission
   triggerAISubmission: (messages: MessageWithRecipes[]) => void
@@ -34,18 +31,12 @@ type ChatStore = {
 
 const initialMessages: MessageWithRecipes[] = []
 
-// Always return empty string initially to avoid hydration mismatch
-// The actual chatId will be set via setChatId when needed
-const getInitialChatId = (): string => {
-  return ''
-}
-
 export const useChatStore = create<ChatStore>((set, get) => ({
   // Initial state
   messages: initialMessages,
   input: '',
-  stream: null,
-  chatId: getInitialChatId(),
+  isStreaming: false,
+  chatId: '',
 
   // Actions
   setInput: (input: string) => set({ input }),
@@ -86,7 +77,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   // Streaming
-  setStream: (stream: GeneratedMessage | null) => set({ stream }),
+  setIsStreaming: (isStreaming: boolean) => set({ isStreaming }),
 
   // AI Submission - this will be set by SubmitMessageForm
   triggerAISubmission: () => {
@@ -99,7 +90,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set({
       messages: initialMessages,
       input: '',
-      stream: null,
+      isStreaming: false,
       chatId: ''
     })
 }))

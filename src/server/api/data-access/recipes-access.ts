@@ -32,6 +32,16 @@ export class RecipesAccess extends DataAccess {
     })
   }
 
+  async getGeneratedRecipeNames(userId: string, limit = 50) {
+    const recipes = await this.prisma.recipe.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: { name: true }
+    })
+    return recipes.map((r) => r.name)
+  }
+
   async getRecentRecipes(userId: string) {
     return await this.prisma.recipe.findMany({
       where: { userId: { equals: userId }, saved: { equals: true } },
@@ -88,7 +98,9 @@ export class RecipesAccess extends DataAccess {
           create: recipe.instructions.map((i) => ({ description: i }))
         },
         ingredients: {
-          create: recipe.ingredients.map((i) => ingredientStringToCreatePayload(i))
+          create: recipe.ingredients.map((i) =>
+            ingredientStringToCreatePayload(i)
+          )
         }
       },
       include: {

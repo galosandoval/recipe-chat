@@ -255,7 +255,8 @@ function EditForm({
     defaultValues: {
       cookMinutes: cookMinutes ?? 0,
       description: description || '',
-      ingredients: ingredients.map((i) => getIngredientDisplayText(i)).join('\n') || '',
+      ingredients:
+        ingredients.map((i) => getIngredientDisplayText(i)).join('\n') || '',
       instructions: instructions.map((i) => i.description).join('\n') || '',
       name: name || '',
       prepMinutes: prepMinutes ?? 0,

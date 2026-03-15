@@ -63,9 +63,7 @@ function Recipe({ data }: { data: RecipeByIdData }) {
       <ImageWithTitleAndDescription data={data} translateY={translateY} />
 
       <div>
-        {data?.imgUrl && (
-          <StickyHeader visible={isPastHero} name={name} />
-        )}
+        {data?.imgUrl && <StickyHeader visible={isPastHero} name={name} />}
         <div className='mx-auto flex flex-col items-center px-3 pb-4'>
           <div className='bg-background flex flex-col'>
             <IngredientsCheckList ingredients={ingredients} />
@@ -92,7 +90,7 @@ function StickyHeader({
   visible,
 }: {
   name: string
-    visible: boolean
+  visible: boolean
 }) {
   return (
     <div
@@ -243,7 +241,11 @@ function RecipeInfo() {
       )}
       {prepMinutes != null && cookMinutes != null && (
         <div className='flex justify-center'>
-          <NewRecipeTime prepMinutes={prepMinutes} cookMinutes={cookMinutes} servings={servings} />
+          <NewRecipeTime
+            prepMinutes={prepMinutes}
+            cookMinutes={cookMinutes}
+            servings={servings}
+          />
         </div>
       )}
       {description && (
@@ -322,7 +324,7 @@ function Notes({ notes, id }: { notes: string; id: string }) {
           disabled={!form.formState.isDirty || !form.formState.isValid}
           isLoading={isPending}
           type='submit'
-          className='self-end'
+          className='self-start'
           icon={<PencilIcon />}
         >
           {t.recipes.byId.updateNotes}

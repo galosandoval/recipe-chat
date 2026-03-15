@@ -16,7 +16,13 @@ export const loginSchema = (t: any) =>
   })
 type LoginSchemaType = z.infer<ReturnType<typeof loginSchema>>
 
-export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
+export function LoginForm({
+  onSuccess,
+  onLoadingChange
+}: {
+  onSuccess: () => void
+  onLoadingChange?: (loading: boolean) => void
+}) {
   const t = useTranslations()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -29,15 +35,20 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     const path = searchParams.get('callbackUrl') as string | undefined
     const callback = path ? decodeURIComponent(path) : '/chat'
 
-    const response = await signIn('credentials', { redirect: false, ...data })
-    if (response?.ok && !response.error) {
-      router.push(callback)
-      onSuccess()
-    }
-    if (response?.status === 401 || response?.error) {
-      toast.error(t.auth.invalidCreds)
-      form.setError('email', { message: t.auth.invalidCreds })
-      form.setError('password', { message: t.auth.invalidCreds })
+    onLoadingChange?.(true)
+    try {
+      const response = await signIn('credentials', { redirect: false, ...data })
+      if (response?.ok && !response.error) {
+        router.push(callback)
+        onSuccess()
+      }
+      if (response?.status === 401 || response?.error) {
+        toast.error(t.auth.invalidCreds)
+        form.setError('email', { message: t.auth.invalidCreds })
+        form.setError('password', { message: t.auth.invalidCreds })
+      }
+    } finally {
+      onLoadingChange?.(false)
     }
   }
   return (

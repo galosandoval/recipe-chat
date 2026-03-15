@@ -7,18 +7,23 @@ import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 import { useChatStore } from '~/stores/chat-store'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
-import { ArrowDownIcon, MessageSquareIcon, MinusIcon, PencilIcon, PlusIcon } from 'lucide-react'
+import {
+  ArrowDownIcon,
+  MessageSquareIcon,
+  MinusIcon,
+  PencilIcon,
+  PlusIcon
+} from 'lucide-react'
 import { useAppForm } from '~/hooks/use-app-form'
 import z from 'zod'
+import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import {
-  getIngredientDisplayText,
-  getIngredientDisplayTextInPreferredUnits,
-  getIngredientDisplayQuantityAndUnit
-} from '~/lib/ingredient-display'
+  UnitBadge,
+  getIngredientItemDisplay
+} from '~/components/ingredient-item-display'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { BulkAddPantry } from './bulk-add-pantry'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
-import { Badge as BadgeUI } from '~/components/ui/badge'
 import { Button } from '~/components/button'
 import { toast } from '~/components/toast'
 import { DrawerDialog } from '~/components/drawer-dialog'
@@ -52,10 +57,13 @@ export function useAddToPantry() {
         preparation: null,
         rawString: input.rawLine
       }
-      utils.pantry.byUserId.setData({ userId }, {
-        ...prev,
-        ingredients: [...prev.ingredients, optimistic]
-      })
+      utils.pantry.byUserId.setData(
+        { userId },
+        {
+          ...prev,
+          ingredients: [...prev.ingredients, optimistic]
+        }
+      )
       return { prev }
     },
     onSuccess: () => utils.pantry.byUserId.invalidate({ userId }),
@@ -131,14 +139,17 @@ function PantryRow({
       rawString?: string
     }
   }) => void
-  optimisticUpdateQuantity: (ingredientId: string, data: {
-    quantity: number
-    unit: string
-    unitType: 'volume' | 'weight' | 'count'
-  }) => void
+  optimisticUpdateQuantity: (
+    ingredientId: string,
+    data: {
+      quantity: number
+      unit: string
+      unitType: 'volume' | 'weight' | 'count'
+    }
+  ) => void
 }) {
   const t = useTranslations()
-  const display = getIngredientDisplayQuantityAndUnit(
+  const { display } = getIngredientItemDisplay(
     displayIngredient,
     preferredWeightUnit,
     preferredVolumeUnit
@@ -147,10 +158,18 @@ function PantryRow({
     display ? String(display.displayQuantity) : ''
   )
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pendingRef = useRef<{ quantity: number; unit: string; unitType: 'volume' | 'weight' | 'count' } | null>(null)
+  const pendingRef = useRef<{
+    quantity: number
+    unit: string
+    unitType: 'volume' | 'weight' | 'count'
+  } | null>(null)
+  const localQuantityRef = useRef<number | null>(null)
 
   const displayQuantity = display?.displayQuantity
   useEffect(() => {
+    // Don't sync from server while user is actively adjusting quantity
+    if (pendingRef.current) return
+    localQuantityRef.current = null
     if (displayQuantity != null) setInputValue(String(displayQuantity))
   }, [displayQuantity])
 
@@ -162,6 +181,7 @@ function PantryRow({
     const pending = pendingRef.current
     if (pending) {
       pendingRef.current = null
+      localQuantityRef.current = null
       updateItem({
         ingredientId: ingredient.id,
         data: {
@@ -198,24 +218,28 @@ function PantryRow({
     display?.unitType === 'count'
       ? QUANTITY_STEP_COUNT
       : QUANTITY_STEP_WEIGHT_VOLUME
-  const min =
-    display?.unitType === 'count' ? 0 : MIN_WEIGHT_VOLUME
+  const min = display?.unitType === 'count' ? 0 : MIN_WEIGHT_VOLUME
 
   const persistQuantity = (qty: number) => {
     if (!display || qty < min) return
+    localQuantityRef.current = qty
     optimisticUpdateQuantity(ingredient.id, {
       quantity: qty,
       unit: display.displayUnit,
       unitType: display.unitType
     })
-    pendingRef.current = { quantity: qty, unit: display.displayUnit, unitType: display.unitType }
+    pendingRef.current = {
+      quantity: qty,
+      unit: display.displayUnit,
+      unitType: display.unitType
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(flushDebounce, DEBOUNCE_MS)
   }
 
   const handleDecrease = () => {
     if (!display) return
-    const current = display.displayQuantity
+    const current = localQuantityRef.current ?? display.displayQuantity
     const next = Math.max(min, Math.round((current - step) * 1000) / 1000)
     if (next !== current) {
       setInputValue(String(next))
@@ -225,7 +249,7 @@ function PantryRow({
 
   const handleIncrease = () => {
     if (!display) return
-    const current = display.displayQuantity
+    const current = localQuantityRef.current ?? display.displayQuantity
     const next = Math.round((current + step) * 1000) / 1000
     setInputValue(String(next))
     persistQuantity(next)
@@ -254,13 +278,23 @@ function PantryRow({
 
   if (!display) {
     return (
-      <li className='text-foreground flex items-center justify-between gap-2 rounded-md border border-muted/50 bg-muted/20 px-3 py-2'>
+      <li className='text-foreground border-muted/50 bg-muted/20 flex items-center justify-between gap-2 rounded-md border px-3 py-2'>
         <span>{displayText}</span>
         <div className='flex items-center gap-1'>
-          <Button variant='ghost' size='icon' aria-label={t.get('pantry.editItem')} onClick={onEdit}>
+          <Button
+            variant='ghost'
+            size='icon'
+            aria-label={t.get('pantry.editItem')}
+            onClick={onEdit}
+          >
             <PencilIcon className='size-4' />
           </Button>
-          <Button variant='ghost' size='icon' aria-label={t.common.delete} onClick={onDelete}>
+          <Button
+            variant='ghost'
+            size='icon'
+            aria-label={t.common.delete}
+            onClick={onDelete}
+          >
             <span className='text-destructive text-sm'>&times;</span>
           </Button>
         </div>
@@ -270,11 +304,16 @@ function PantryRow({
 
   const itemLabel =
     ingredient.itemName?.trim() ||
-    displayText.replace(new RegExp(`^\\d+(?:\\.\\d+)?\\s*${display.displayUnit}\\s*`, 'i'), '').trim() ||
+    displayText
+      .replace(
+        new RegExp(`^\\d+(?:\\.\\d+)?\\s*${display.displayUnit}\\s*`, 'i'),
+        ''
+      )
+      .trim() ||
     displayText
 
   return (
-    <li className='text-foreground flex flex-wrap items-center justify-between gap-2 rounded-md border border-muted/50 bg-muted/20 px-3 py-2'>
+    <li className='text-foreground border-muted/50 bg-muted/20 flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2'>
       <div className='flex items-center gap-1.5'>
         <Button
           variant='outline'
@@ -293,11 +332,12 @@ function PantryRow({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onBlur={handleInputBlur}
-          className='text-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none h-8 w-16 shrink-0 border px-2 text-center text-sm'
+          className='text-foreground h-8 w-16 shrink-0 [appearance:textfield] border px-2 text-center text-sm [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
         />
-        <BadgeUI variant='outline' className='h-8 shrink-0 px-2 text-xs'>
-          {display.displayUnit}
-        </BadgeUI>
+        <UnitBadge
+          unit={display.displayUnit}
+          className='h-8 shrink-0 px-2 text-xs'
+        />
         <Button
           variant='outline'
           size='icon'
@@ -310,10 +350,20 @@ function PantryRow({
       </div>
       <span className='min-w-0 flex-1 truncate'>{itemLabel}</span>
       <div className='flex items-center gap-1'>
-        <Button variant='ghost' size='icon' aria-label={t.get('pantry.editItem')} onClick={onEdit}>
+        <Button
+          variant='ghost'
+          size='icon'
+          aria-label={t.get('pantry.editItem')}
+          onClick={onEdit}
+        >
           <PencilIcon className='size-4' />
         </Button>
-        <Button variant='ghost' size='icon' aria-label={t.common.delete} onClick={onDelete}>
+        <Button
+          variant='ghost'
+          size='icon'
+          aria-label={t.common.delete}
+          onClick={onDelete}
+        >
           <span className='text-destructive text-sm'>&times;</span>
         </Button>
       </div>
@@ -411,7 +461,12 @@ function PantryList({
         ...old,
         ingredients: old.ingredients.map((ing) =>
           ing.id === ingredientId
-            ? { ...ing, quantity: data.quantity, unit: data.unit, unitType: data.unitType }
+            ? {
+                ...ing,
+                quantity: data.quantity,
+                unit: data.unit,
+                unitType: data.unitType
+              }
             : ing
         )
       }
@@ -423,7 +478,9 @@ function PantryList({
       pendingAddVariables?.rawLine &&
       (ing.quantity == null || ing.unit == null)
     ) {
-      const parsed = ingredientStringToCreatePayload(pendingAddVariables.rawLine)
+      const parsed = ingredientStringToCreatePayload(
+        pendingAddVariables.rawLine
+      )
       return {
         ...ing,
         quantity: parsed.quantity,
@@ -437,13 +494,11 @@ function PantryList({
   }
   const displayText = (ing: Ingredient) => {
     const displayIng = getDisplayIngredient(ing)
-    return (
-      getIngredientDisplayTextInPreferredUnits(
-        displayIng,
-        preferredWeightUnit,
-        preferredVolumeUnit
-      ) || getIngredientDisplayText(displayIng)
-    )
+    return getIngredientItemDisplay(
+      displayIng,
+      preferredWeightUnit,
+      preferredVolumeUnit
+    ).displayText
   }
   const sorted = [...ingredients].sort((a, b) =>
     displayText(a).localeCompare(displayText(b))
@@ -501,7 +556,9 @@ function EditPantryItemDrawer({
     defaultValues: {
       rawString: getIngredientDisplayText(ingredient)
     },
-    values: open ? { rawString: getIngredientDisplayText(ingredient) } : undefined
+    values: open
+      ? { rawString: getIngredientDisplayText(ingredient) }
+      : undefined
   })
 
   const onSubmit = (values: EditPantryItemValues) => {
@@ -528,10 +585,7 @@ function EditPantryItemDrawer({
         formId='edit-pantry-item-form'
         className='flex flex-col gap-4'
       >
-        <FormInput
-          name='rawString'
-          placeholder={t.pantry.addItemPlaceholder}
-        />
+        <FormInput name='rawString' placeholder={t.pantry.addItemPlaceholder} />
       </Form>
     </DrawerDialog>
   )
@@ -542,9 +596,7 @@ function UseInChatButton() {
   const { open } = useChatDrawerStore()
 
   const handleClick = () => {
-    useChatStore
-      .getState()
-      .setInput('What can I make with what I have?')
+    useChatStore.getState().setInput('What can I make with what I have?')
     open({ page: 'pantry' })
   }
 
@@ -569,9 +621,7 @@ function EmptyPantry({ children }: { children: ReactNode }) {
         <AlertDescription>{t.pantry.emptyAlert}</AlertDescription>
       </Alert>
       <div className='flex w-full justify-center'>{children}</div>
-      <p className='text-foreground text-center text-sm'>
-        {t.pantry.addItem}
-      </p>
+      <p className='text-foreground text-center text-sm'>{t.pantry.addItem}</p>
       <Button variant='outline' size='sm' className='mt-1' disabled>
         <MessageSquareIcon className='size-4' />
         {t.pantry.useInChat}
@@ -582,4 +632,3 @@ function EmptyPantry({ children }: { children: ReactNode }) {
     </div>
   )
 }
-

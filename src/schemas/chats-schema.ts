@@ -36,6 +36,7 @@ export const chatContextSchema = z.discriminatedUnion('page', [
   z.object({
     page: z.literal('recipe-detail'),
     recipe: z.object({
+      id: z.string(),
       name: z.string(),
       slug: z.string(),
       description: z.string().nullable(),
@@ -49,8 +50,14 @@ export const chatContextSchema = z.discriminatedUnion('page', [
 ])
 export type ChatContext = z.infer<typeof chatContextSchema>
 
+const chatMessageSchema = z.object({
+  content: z.string().min(1),
+  role: roleSchema,
+  id: z.string().optional()
+})
+
 export const chatParams = z.object({
-  messages: z.array(messageSchema.omit({ createdAt: true, updatedAt: true })),
+  messages: z.array(chatMessageSchema),
   filters: z.array(z.string()),
   userId: userIdSchema.shape.userId.optional(),
   context: chatContextSchema.optional()
@@ -92,8 +99,17 @@ export type RecipeDTO = Pick<
   instructions: string[]
 }
 
+export type ToolInvocation = {
+  toolName: string
+  args?: Record<string, unknown>
+  result?: unknown
+  state?: string
+  toolCallId?: string
+}
+
 export type MessageWithRecipes = Message & {
   recipes: RecipeDTO[]
+  toolInvocations?: ToolInvocation[]
 }
 
 export type MessageWithRecipesDTO = NonNullable<

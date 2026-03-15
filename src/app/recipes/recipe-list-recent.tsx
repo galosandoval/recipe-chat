@@ -11,7 +11,8 @@ export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
   const t = useTranslations()
 
   const { data, status } = api.recipes.recentRecipes.useQuery()
-  const sortedData = data?.toSorted((a, b) => a.name.localeCompare(b.name)) ?? []
+  const sortedData =
+    data?.toSorted((a, b) => a.name.localeCompare(b.name)) ?? []
 
   if (status === 'error') {
     return <div className=''>{t.error.somethingWentWrong}</div>

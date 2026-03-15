@@ -24,6 +24,7 @@ import {
   RulerIcon,
   SettingsIcon,
   SunIcon,
+  UtensilsIcon,
   UserPlusIcon
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -83,6 +84,11 @@ export function NavDropdownMenu() {
   if (isAuthenticated) {
     items.push(
       {
+        icon: <UtensilsIcon />,
+        label: 'nav.menu.tasteProfile',
+        onClick: () => router.push('/onboarding')
+      },
+      {
         icon: <RulerIcon />,
         label: 'nav.menu.preferredUnits',
         onClick: handleTogglePreferredUnits
@@ -136,8 +142,6 @@ export function NavDropdownMenu() {
       space: 'above'
     })
   }
-
-  items.push(useStartNewChatMenuItem())
 
   return (
     <>
@@ -210,7 +214,9 @@ function PreferredUnitsDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={t.nav.menu.preferredUnits}
-      description={t.pantry.preferredWeightUnit + ' / ' + t.pantry.preferredVolumeUnit}
+      description={
+        t.pantry.preferredWeightUnit + ' / ' + t.pantry.preferredVolumeUnit
+      }
       cancelText={t.common.cancel}
       submitText={t.common.save}
       formId='preferred-units-form'
@@ -339,28 +345,5 @@ function useLogoutMenuItem() {
     label: 'nav.menu.logout',
     icon: <LogOutIcon />,
     onClick: handleSignOut
-  })
-}
-
-function useStartNewChatMenuItem() {
-  const { setChatId, setStream, setMessages, messages } = useChatStore()
-
-  const handleStartNewChat = () => {
-    setChatId('')
-    setStream(null)
-    setMessages([])
-  }
-
-  if (messages.length === 0) {
-    return buildMenuItem({
-      slot: null
-    })
-  }
-
-  return buildMenuItem({
-    label: 'nav.menu.startNewChat',
-    icon: <PlusIcon />,
-    onClick: handleStartNewChat,
-    space: 'above'
   })
 }

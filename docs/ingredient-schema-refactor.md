@@ -21,9 +21,9 @@ We use **expand then contract** so we can ship the new fields safely and remove 
 
 ### Summary
 
-| Phase   | Migration        | `name` column   | New columns                    |
-|---------|------------------|-----------------|--------------------------------|
-| Expand  | Add columns only | Kept, unchanged | Added (nullable)               |
-| Contract| Remove legacy    | Dropped         | Remain (primary for display)   |
+| Phase    | Migration        | `name` column   | New columns                  |
+| -------- | ---------------- | --------------- | ---------------------------- |
+| Expand   | Add columns only | Kept, unchanged | Added (nullable)             |
+| Contract | Remove legacy    | Dropped         | Remain (primary for display) |
 
 This keeps the first migration low-risk and makes the removal of `name` an explicit, reversible step once we’re confident in the new schema.

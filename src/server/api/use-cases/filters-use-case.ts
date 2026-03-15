@@ -11,7 +11,10 @@ export async function getAllFilters(userId: string, prisma: PrismaClient) {
   return await filtersDataAccess.getByUserId(userId)
 }
 
-export async function createFilter(input: CreateFilterSchema, prisma: PrismaClient) {
+export async function createFilter(
+  input: CreateFilterSchema,
+  prisma: PrismaClient
+) {
   const filtersDataAccess = new FiltersAccess(prisma)
   return await filtersDataAccess.createFilter(input)
 }

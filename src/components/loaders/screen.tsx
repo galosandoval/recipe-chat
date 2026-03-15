@@ -6,12 +6,12 @@ export function ScreenLoader({ className }: { className?: string }) {
     <div
       className={cn(
         'fixed inset-0 z-50 grid place-items-center',
-        'opacity-0 screen-loader-fade-in backdrop-blur-sm',
+        'screen-loader-fade-in opacity-0 backdrop-blur-sm',
         'pt-[4.8rem]',
         className
       )}
     >
-      <LoadingSpinner className='opacity-0 spinner-fade-in' />
+      <LoadingSpinner className='spinner-fade-in opacity-0' />
     </div>
   )
 }
