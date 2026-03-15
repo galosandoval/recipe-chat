@@ -6,6 +6,7 @@ import { prisma } from '~/server/db'
 import { compactTitles } from '~/lib/compact-title'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { getTools } from './tools'
+import { getTasteProfile } from '~/server/api/use-cases/taste-profile-use-case'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
@@ -43,11 +44,14 @@ export async function POST(req: Request) {
     }
   }
 
+  const tasteProfile = userId ? await getTasteProfile(userId, prisma) : null
+
   const system = buildSystemPrompt({
     filters,
     savedRecipes: recipesNames,
     pantrySummary,
-    context
+    context,
+    tasteProfile
   })
 
   const tools = getTools(context, prisma)

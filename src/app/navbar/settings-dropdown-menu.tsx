@@ -24,6 +24,7 @@ import {
   RulerIcon,
   SettingsIcon,
   SunIcon,
+  UtensilsIcon,
   UserPlusIcon
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -82,6 +83,11 @@ export function NavDropdownMenu() {
 
   if (isAuthenticated) {
     items.push(
+      {
+        icon: <UtensilsIcon />,
+        label: 'nav.menu.tasteProfile',
+        onClick: () => router.push('/onboarding')
+      },
       {
         icon: <RulerIcon />,
         label: 'nav.menu.preferredUnits',

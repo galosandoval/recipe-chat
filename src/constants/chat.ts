@@ -4,12 +4,19 @@ export const buildSystemPrompt = ({
   filters,
   savedRecipes,
   pantrySummary = [],
-  context
+  context,
+  tasteProfile
 }: {
   filters: string[]
   savedRecipes: string[]
   pantrySummary?: string[]
   context?: ChatContext
+  tasteProfile?: {
+    cookingSkill: string
+    householdSize: number
+    cuisinePreferences: string[]
+    healthGoals: string[]
+  } | null
 }) => {
   const hasFilters = (filters?.length ?? 0) > 0
   const hasPantry = (pantrySummary?.length ?? 0) > 0
@@ -60,7 +67,17 @@ ${
     ? `- The user has provided their pantry (ingredients they have on hand). When they ask what to make, what they can cook, or similar, prefer suggesting recipes that use mainly these ingredients. You may mention one or two extra items they might need.`
     : ''
 }
-${contextBlock ? `\n${contextBlock}\n` : ''}- Vary cuisines unless constrained by filters or an explicit user preference.
+${contextBlock ? `\n${contextBlock}\n` : ''}${
+    tasteProfile
+      ? `
+User Profile
+- Cooking skill: ${tasteProfile.cookingSkill} (adjust instruction complexity accordingly)
+- Household size: ${tasteProfile.householdSize} (default servings)
+- Preferred cuisines: ${tasteProfile.cuisinePreferences.join(', ')}
+- Health goals: ${tasteProfile.healthGoals.length > 0 ? tasteProfile.healthGoals.join(', ') : 'none'}
+`
+      : ''
+  }- Vary cuisines unless constrained by filters or an explicit user preference.
 - Avoid duplicates and avoid already-saved items (see "Saved" below).
 
 Style
