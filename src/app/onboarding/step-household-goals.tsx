@@ -70,7 +70,7 @@ export function StepHouseholdGoals({
       <div className='flex flex-col gap-4'>
         <h2 className='text-lg font-semibold'>Health Goals</h2>
         <p className='text-muted-foreground text-sm'>
-          Select any health goals you'd like us to consider (optional).
+          Select any health goals you&apos;d like us to consider (optional).
         </p>
         <div className='flex flex-wrap gap-2'>
           {healthGoalOptions.map((option) => {

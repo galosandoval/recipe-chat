@@ -29,7 +29,7 @@ export function StepDietary({
     <div className='flex flex-col gap-4'>
       <h2 className='text-lg font-semibold'>Dietary Restrictions</h2>
       <p className='text-muted-foreground text-sm'>
-        Select any that apply to you, or choose "None".
+        Select any that apply to you, or choose &ldquo;None&rdquo;.
       </p>
       <div className='flex flex-wrap gap-2'>
         {dietaryRestrictionOptions.map((option) => {

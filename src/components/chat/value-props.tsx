@@ -11,7 +11,6 @@ import { Button } from '~/components/button'
 import {
   CornerRightUpIcon,
   PackageIcon,
-  BookmarkIcon,
   SparklesIcon,
   UserPlusIcon,
   UtensilsIcon,
@@ -156,7 +155,7 @@ function ContextSources({
           onClick={onFillMessage}
           disabled={isStreaming}
         >
-          <span>What can I make with what's in my pantry?</span>
+          <span>What can I make with what&apos;s in my pantry?</span>
           <CornerRightUpIcon />
         </Button>
         <Button
