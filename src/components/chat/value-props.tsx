@@ -32,9 +32,9 @@ function useContextWelcome() {
   const description =
     context.page === 'recipe-detail'
       ? t.valueProps.welcome.recipeDetail.replace(
-          'description',
-          context.recipe.name
-        )
+        'description',
+        context.recipe.name
+      )
       : welcome.description
 
   return {
@@ -74,7 +74,7 @@ export function ValueProps({ children }: { children: React.ReactNode }) {
     <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
       <div
         className={cn(
-          'flex w-full flex-1 flex-col items-center justify-center pt-3'
+          'flex w-full flex-1 flex-col items-center justify-center'
         )}
       >
         <ValuePropsHeader
