@@ -128,7 +128,7 @@ function Bubble({
 }
 
 export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
-  if (!message.content) {
+  if (!message.content && !message.recipes?.length) {
     return <AssistantMessageLoader />
   }
 
