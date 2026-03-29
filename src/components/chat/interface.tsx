@@ -68,7 +68,7 @@ function Messages({ data }: { data: MessageWithRecipes[] }) {
         />
       ))}
 
-      {!isStreaming && data.at(-1)?.role === 'user' ? (
+      {isStreaming && data.at(-1)?.role === 'user' ? (
         <AssistantMessageLoader />
       ) : null}
     </div>
