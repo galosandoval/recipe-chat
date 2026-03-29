@@ -53,7 +53,7 @@ function RecentRecipe({
   return (
     <NavigationButton
       href={`/recipes/${recipe.slug}`}
-      className='bg-secondary flex h-10 w-full gap-2 overflow-hidden rounded-md shadow active:scale-[99%] disabled:cursor-wait disabled:opacity-50'
+      className='bg-accent flex h-10 w-full gap-2 overflow-hidden rounded-md shadow active:scale-[99%] disabled:cursor-wait disabled:opacity-50'
     >
       {recipe.imgUrl ? (
         <div className='aspect-square h-full w-10'>

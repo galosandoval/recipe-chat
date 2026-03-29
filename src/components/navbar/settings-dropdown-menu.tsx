@@ -38,11 +38,11 @@ import {
   recipeUrlSchema,
   type RecipeUrlSchemaType
 } from '~/schemas/recipes-schema'
-import { CreateParsedRecipe } from '../recipes/create-recipe-button'
 import { FormInput } from '~/components/form/form-input'
 import { Button } from '~/components/button'
 import { useAppForm } from '~/hooks/use-app-form'
 import { z } from 'zod'
+import { CreateParsedRecipe } from '~/app/recipes/create-recipe-button'
 
 const preferredUnitsFormSchema = z.object({
   preferredWeightUnit: z.string(),
@@ -196,9 +196,9 @@ function PreferredUnitsDialog({
     values:
       open && user
         ? {
-            preferredWeightUnit: user.preferredWeightUnit ?? '',
-            preferredVolumeUnit: user.preferredVolumeUnit ?? ''
-          }
+          preferredWeightUnit: user.preferredWeightUnit ?? '',
+          preferredVolumeUnit: user.preferredVolumeUnit ?? ''
+        }
         : undefined
   })
 

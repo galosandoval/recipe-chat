@@ -15,10 +15,10 @@ export default async function PantryView() {
 
   return (
     <HydrateClient>
-      <main className='mx-auto w-full overflow-y-auto pb-20'>
+      <main className='mx-auto w-full overflow-y-auto pb-3'>
         <PantryByUserId />
       </main>
-      <ChatFab context={{ page: 'pantry' }} />
+      <ChatFab context={{ page: 'pantry' }} className='bottom-36' />
       <ChatPanel />
     </HydrateClient>
   )

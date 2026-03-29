@@ -20,7 +20,7 @@ import { cuid } from '~/lib/createId'
 import { slugify } from '~/lib/utils'
 import type { GeneratedRecipe } from '~/schemas/messages-schema'
 
-function extractRecipesFromToolInvocations(
+function extractFromToolInvocations(
   toolInvocations:
     | Array<{
         toolName: string
@@ -28,14 +28,17 @@ function extractRecipesFromToolInvocations(
         result?: unknown
       }>
     | undefined
-): GeneratedRecipe[] {
-  if (!toolInvocations) return []
+): { recipes: GeneratedRecipe[]; toolMessage: string } {
+  if (!toolInvocations) return { recipes: [], toolMessage: '' }
   const generateCall = toolInvocations.find(
     (t) => t.toolName === 'generateRecipes' && 'args' in t
   )
-  if (!generateCall?.args) return []
-  const args = generateCall.args as { recipes?: GeneratedRecipe[] }
-  return args.recipes ?? []
+  if (!generateCall?.args) return { recipes: [], toolMessage: '' }
+  const args = generateCall.args as {
+    recipes?: GeneratedRecipe[]
+    message?: string
+  }
+  return { recipes: args.recipes ?? [], toolMessage: args.message ?? '' }
 }
 
 function useRecipeChat() {
@@ -76,7 +79,7 @@ function useRecipeChat() {
     },
     onFinish(message) {
       setIsStreaming(false)
-      const recipes = extractRecipesFromToolInvocations(
+      const { recipes, toolMessage } = extractFromToolInvocations(
         message.toolInvocations as
           | Array<{
               toolName: string
@@ -86,7 +89,7 @@ function useRecipeChat() {
           | undefined
       )
       onFinishMessage(
-        message.content,
+        message.content || toolMessage,
         recipes,
         message.toolInvocations as
           | Array<{ toolName: string; result?: unknown }>
@@ -106,7 +109,7 @@ function useRecipeChat() {
     if (status === 'streaming' && chatMessages.length > 0) {
       const lastMsg = chatMessages[chatMessages.length - 1]
       if (lastMsg.role === 'assistant') {
-        const recipes = extractRecipesFromToolInvocations(
+        const { recipes, toolMessage } = extractFromToolInvocations(
           lastMsg.toolInvocations as
             | Array<{
                 toolName: string
@@ -120,7 +123,7 @@ function useRecipeChat() {
 
         const messageWithRecipes: MessageWithRecipes = {
           id: lastMsg.id,
-          content: lastMsg.content,
+          content: lastMsg.content || toolMessage,
           role: 'assistant',
           chatId: useChatStore.getState().chatId,
           createdAt: lastMsg.createdAt ?? new Date(),

@@ -18,10 +18,10 @@ import { cn } from '~/lib/utils'
 import { Button } from '~/components/button'
 import { NavigationButton } from '~/components/navigation-button'
 import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
-import { EditByIdDrawer } from '../recipes/[slug]/edit-by-id-drawer'
 import { useState } from 'react'
 import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
+import { EditByIdDrawer } from '~/components/navbar/edit-by-id-drawer'
 
 export const Navbar = () => {
   const pathname = usePathname()
@@ -167,7 +167,7 @@ function BottomNavTabs() {
           className={cn(
             'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
             isActive(item.value) &&
-              'bg-accent text-accent-foreground/75 rounded-md'
+            'bg-accent text-accent-foreground/75 rounded-md'
           )}
           as={Button}
           variant={isActive(item.value) ? 'default' : 'outline'}

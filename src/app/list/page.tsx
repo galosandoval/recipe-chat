@@ -16,10 +16,10 @@ export default async function ListView() {
 
   return (
     <HydrateClient>
-      <main className='mx-auto w-full overflow-y-auto pt-4 pb-20'>
+      <main className='mx-auto w-full overflow-y-auto pt-4 pb-3'>
         <ListByUserId />
       </main>
-      <ChatFab context={{ page: 'list' }} />
+      <ChatFab context={{ page: 'list' }} className='bottom-36' />
       <ChatPanel />
     </HydrateClient>
   )

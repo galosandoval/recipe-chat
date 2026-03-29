@@ -25,7 +25,7 @@ export const Togglebox = ({
     >
       <CheckboxUI hidden id={id} checked={checked} onCheckedChange={onChange} />
       <div className='grid gap-1.5 font-normal'>
-        <p className='text-sm leading-none font-medium'>{label}</p>
+        <div className='text-sm leading-none font-medium'>{label}</div>
       </div>
     </Label>
   )
