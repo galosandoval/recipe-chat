@@ -5,7 +5,7 @@ import { LinkIcon, MessageSquareIcon, PlusIcon } from 'lucide-react'
 import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 import { useChatStore } from '~/stores/chat-store'
 import { ChatPanel } from '~/components/chat-panel'
-import { ParseAndAddRecipeDialogs } from '~/app/navbar/settings-dropdown-menu'
+import { ParseAndAddRecipeDialogs } from '~/components/navbar/settings-dropdown-menu'
 import { FloatingActionButton } from '~/components/floating-action-button'
 import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
 

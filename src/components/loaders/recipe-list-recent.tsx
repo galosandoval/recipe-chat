@@ -7,7 +7,7 @@ export function Loader() {
         {cardAmount.map((card, index) => (
           <div
             key={card}
-            className='bg-secondary flex h-10 gap-2 overflow-hidden rounded-md'
+            className='bg-accent flex h-10 gap-2 overflow-hidden rounded-md'
           >
             <div className='bg-primary-content self-center'>
               <svg

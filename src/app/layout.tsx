@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 
 import { auth } from '~/server/auth'
 import { Providers } from '~/components/providers'
-import { Navbar, BottomNav } from '~/app/navbar/navbar'
+import { BottomNav, Navbar } from '~/components/navbar/navbar'
 import { getTranslations } from '~/lib/get-translations'
 import { ErrorBoundary } from '~/components/error-boundary'
 import { AppFooter } from '~/app/app-footer'
