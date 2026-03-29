@@ -16,6 +16,11 @@ export function getTools(
       description:
         'Generate recipe suggestions for the user. Use this whenever suggesting recipes.',
       parameters: z.object({
+        message: z
+          .string()
+          .describe(
+            'A brief intro or context message to display above the recipe cards (e.g. "Here are some options for tonight:").'
+          ),
         recipes: z.array(generatedRecipeSchema)
       })
       // No execute — model fills structured data, client renders it
