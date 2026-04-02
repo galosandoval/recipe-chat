@@ -14,6 +14,7 @@ import { StepCuisines } from './step-cuisines'
 import { StepSkill } from './step-skill'
 import { StepHouseholdGoals } from './step-household-goals'
 import { ArrowLeftIcon, ArrowRightIcon, SkipForwardIcon } from 'lucide-react'
+import { useTranslations } from '~/hooks/use-translations'
 
 const TOTAL_STEPS = 4
 
@@ -25,6 +26,7 @@ const stepFields: (keyof TasteProfileSchema)[][] = [
 ]
 
 export function TasteProfileQuiz() {
+  const t = useTranslations()
   const [step, setStep] = useState(0)
   const router = useRouter()
   const { data: existing } = api.tasteProfile.get.useQuery()
@@ -78,7 +80,7 @@ export function TasteProfileQuiz() {
 
   return (
     <div className='mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-8'>
-      <ProgressBar step={step} total={TOTAL_STEPS} />
+      <ProgressBar step={step} total={TOTAL_STEPS} stepOfLabel={t.onboarding.stepOf} />
 
       <div className='min-h-[300px]'>
         {step === 0 && <StepDietary form={form} />}
@@ -96,7 +98,7 @@ export function TasteProfileQuiz() {
             disabled={isSubmitting}
           >
             <ArrowLeftIcon className='h-4 w-4' />
-            Back
+            {t.onboarding.back}
           </Button>
         ) : (
           <Button
@@ -107,7 +109,7 @@ export function TasteProfileQuiz() {
             isLoading={skip.status === 'pending'}
           >
             <SkipForwardIcon className='h-4 w-4' />
-            Skip
+            {t.onboarding.skip}
           </Button>
         )}
 
@@ -117,7 +119,7 @@ export function TasteProfileQuiz() {
           disabled={isSubmitting}
           isLoading={upsert.status === 'pending'}
         >
-          {step === TOTAL_STEPS - 1 ? 'Finish' : 'Next'}
+          {step === TOTAL_STEPS - 1 ? t.onboarding.finish : t.onboarding.next}
           {step < TOTAL_STEPS - 1 && <ArrowRightIcon className='h-4 w-4' />}
         </Button>
       </div>
@@ -125,13 +127,14 @@ export function TasteProfileQuiz() {
   )
 }
 
-function ProgressBar({ step, total }: { step: number; total: number }) {
+function ProgressBar({ step, total, stepOfLabel }: { step: number; total: number; stepOfLabel: string }) {
   const progress = ((step + 1) / total) * 100
+  const label = stepOfLabel.replace('$1', String(step + 1)).replace('$2', String(total))
 
   return (
     <div className='flex flex-col gap-2'>
       <span className='text-muted-foreground text-sm'>
-        Step {step + 1} of {total}
+        {label}
       </span>
       <div className='bg-muted h-2 w-full overflow-hidden rounded-full'>
         <div

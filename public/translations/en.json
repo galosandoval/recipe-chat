@@ -71,7 +71,12 @@
     "editItem": "Edit item",
     "editItemDescription": "Change the ingredient name and quantity.",
     "preferredWeightUnit": "Weight unit",
-    "preferredVolumeUnit": "Volume unit"
+    "preferredVolumeUnit": "Volume unit",
+    "defaultUnit": "Default",
+    "grams": "g (grams)",
+    "ounces": "oz (ounces)",
+    "milliliters": "ml (milliliters)",
+    "cup": "cup"
   },
 
   "valueProps": {
@@ -83,6 +88,18 @@
     "saveRecipes": "Save recipes",
     "createAccount": "Create account or login",
     "createAccountDescription": "Create an account or login to save your chat history and recipes.",
+    "useContext": "Use Context",
+    "pantryContext": "What can I make with what's in my pantry?",
+    "savedRecipesContext": "Suggest something similar to my saved recipes",
+    "tasteProfile": "Taste Profile",
+    "tasteProfileQuizPrompt": "Take the quiz to personalize your experience.",
+    "takeQuiz": "Take the Quiz",
+    "yourTasteProfile": "Your Taste Profile",
+    "skill": "Skill",
+    "cuisines": "Cuisines",
+    "goals": "Goals",
+    "household": "Household",
+    "editProfile": "Edit Profile",
     "welcome": {
       "recipes": {
         "title": "Recipe Assistant",
@@ -269,6 +286,54 @@
     "hours": "hours",
     "minute": "minute",
     "minutes": "minutes"
+  },
+
+  "loaders": {
+    "cookingPhrases": [
+      "Preheating the oven...",
+      "Chopping onions...",
+      "Mincing garlic...",
+      "Simmering the broth...",
+      "Whisking the batter...",
+      "Kneading the dough...",
+      "Seasoning to taste...",
+      "Sauteing the vegetables...",
+      "Reducing the sauce...",
+      "Folding in the cheese...",
+      "Zesting the lemon...",
+      "Caramelizing the sugar...",
+      "Toasting the spices...",
+      "Blanching the greens...",
+      "Deglazing the pan...",
+      "Basting the roast...",
+      "Proofing the yeast...",
+      "Tempering the chocolate...",
+      "Marinating the protein...",
+      "Plating the dish..."
+    ]
+  },
+
+  "onboarding": {
+    "cookingSkillTitle": "Cooking Skill",
+    "cookingSkillDescription": "How would you describe your cooking experience?",
+    "skillDescriptions": {
+      "beginner": "I follow recipes step by step and stick to simple dishes.",
+      "intermediate": "I can improvise a bit, handle multiple dishes, and try new techniques.",
+      "advanced": "I experiment freely, understand flavor science, and tackle complex recipes."
+    },
+    "householdSizeTitle": "Household Size",
+    "householdSizeDescription": "How many people do you usually cook for?",
+    "healthGoalsTitle": "Health Goals",
+    "healthGoalsDescription": "Select any health goals you'd like us to consider (optional).",
+    "cuisinePreferencesTitle": "Cuisine Preferences",
+    "cuisinePreferencesDescription": "Pick your favorite cuisines (at least one).",
+    "dietaryRestrictionsTitle": "Dietary Restrictions",
+    "dietaryRestrictionsDescription": "Select any that apply to you, or choose \"None\".",
+    "back": "Back",
+    "skip": "Skip",
+    "finish": "Finish",
+    "next": "Next",
+    "stepOf": "Step $1 of $2"
   },
 
   "components": {

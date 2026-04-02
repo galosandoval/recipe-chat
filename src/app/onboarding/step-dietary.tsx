@@ -4,12 +4,14 @@ import type { UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { dietaryRestrictionOptions } from '~/schemas/taste-profile-schema'
 import { cn } from '~/lib/utils'
+import { useTranslations } from '~/hooks/use-translations'
 
 export function StepDietary({
   form
 }: {
   form: UseFormReturn<TasteProfileSchema>
 }) {
+  const t = useTranslations()
   const selected = form.watch('dietaryRestrictions')
 
   const toggle = (value: string) => {
@@ -27,9 +29,9 @@ export function StepDietary({
 
   return (
     <div className='flex flex-col gap-4'>
-      <h2 className='text-lg font-semibold'>Dietary Restrictions</h2>
+      <h2 className='text-lg font-semibold'>{t.onboarding.dietaryRestrictionsTitle}</h2>
       <p className='text-muted-foreground text-sm'>
-        Select any that apply to you, or choose &ldquo;None&rdquo;.
+        {t.onboarding.dietaryRestrictionsDescription}
       </p>
       <div className='flex flex-wrap gap-2'>
         {dietaryRestrictionOptions.map((option) => {
