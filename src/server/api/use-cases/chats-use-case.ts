@@ -87,6 +87,13 @@ export async function generated(
       tx as PrismaClient
     )
 
+    // Ensure the chat exists (handles new chats where chatId was generated client-side)
+    await tx.chat.upsert({
+      where: { id: chatId },
+      update: {},
+      create: { id: chatId, userId }
+    })
+
     // Upsert recipe — create if it doesn't exist yet, update if it does
     await recipesAccess.upsertRecipeWithIngredientsAndInstructions(id, {
       ...rest,

@@ -156,14 +156,17 @@ export const useChatAI = () => {
     toolInvocations?: Array<{ toolName: string; result?: unknown }>
   ) => {
     const { messages, chatId } = useChatStore.getState()
-    const messagesWithRecipes = messages?.flatMap((m) => m.recipes)
+    // Exclude the last assistant message (the streaming one being updated) so that
+    // suggestion card IDs take precedence — those are the IDs persisted to the DB.
+    const lastMessage = messages.at(-1)
+    const messagesToScan =
+      lastMessage?.role === 'assistant' ? messages.slice(0, -1) : messages
     const recipeNameToId = new Map<string, string>()
-    for (const recipe of messagesWithRecipes) {
+    for (const recipe of messagesToScan.flatMap((m) => m.recipes)) {
       recipeNameToId.set(recipe.name, recipe.id)
     }
 
     // Check if this assistant message was already added during streaming
-    const lastMessage = messages.at(-1)
     if (lastMessage?.role === 'assistant') {
       // Update the existing message with final data
       const updatedMessage: MessageWithRecipes = {
@@ -245,9 +248,13 @@ export const useChatAI = () => {
     const messagesToAdd = useChatStore.getState().messages
     const promptMessage = messagesToAdd?.at(-2)
     const generatedMessage = messagesToAdd?.at(-1)
-    const chatId = useChatStore.getState().chatId
-    if (!generatedMessage || !chatId || !promptMessage) {
+    if (!generatedMessage || !promptMessage) {
       return
+    }
+    let chatId = useChatStore.getState().chatId
+    if (!chatId) {
+      chatId = cuid()
+      useChatStore.getState().setChatId(chatId)
     }
     const { name, ingredients, instructions, ...rest } =
       generatedMessage.recipes[0]

@@ -4,7 +4,6 @@ import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
 import { useTranslations } from '~/hooks/use-translations'
-import { api } from '~/trpc/react'
 import { useChatStore } from '~/stores/chat-store'
 import { GenerateStatusAppMessage, ToolResultAppMessage } from './app-message'
 import { Avatar } from './avatar'
@@ -32,11 +31,8 @@ function UserMessage({
   isLastMessage: boolean
 }) {
   const t = useTranslations()
-  const utils = api.useUtils()
-  const chatId = useChatStore((state) => state.chatId)
-  const data = utils.chats.getMessagesById.getData({ chatId: chatId ?? '' })
-  const allRecipes =
-    data?.messages.flatMap((m) => m.recipes)?.flatMap((r) => r.recipe) ?? []
+  const storeMessages = useChatStore((state) => state.messages)
+  const allRecipes = storeMessages.flatMap((m) => m.recipes)
 
   const foundMessage = allRecipes.find((r) =>
     message.content.includes(`${t.chat.generateRecipe} ${r.name}`)
@@ -138,7 +134,7 @@ export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
   )
 
   return (
-    <div className='flex flex-col items-center gap-2 self-start'>
+    <div className='flex flex-col items-center gap-2 self-start w-full'>
       <div className='mx-auto w-full'>
         <ChatMessage content={message.content} icon={<BotMessageSquareIcon />}>
           <>
