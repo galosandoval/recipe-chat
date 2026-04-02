@@ -3,27 +3,27 @@
 import type { UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { cn } from '~/lib/utils'
-
-const skillDescriptions = {
-  beginner: 'I follow recipes step by step and stick to simple dishes.',
-  intermediate:
-    'I can improvise a bit, handle multiple dishes, and try new techniques.',
-  advanced:
-    'I experiment freely, understand flavor science, and tackle complex recipes.'
-} as const
+import { useTranslations } from '~/hooks/use-translations'
 
 export function StepSkill({
   form
 }: {
   form: UseFormReturn<TasteProfileSchema>
 }) {
+  const t = useTranslations()
   const selected = form.watch('cookingSkill')
+
+  const skillDescriptions = {
+    beginner: t.onboarding.skillDescriptions.beginner,
+    intermediate: t.onboarding.skillDescriptions.intermediate,
+    advanced: t.onboarding.skillDescriptions.advanced,
+  } as const
 
   return (
     <div className='flex flex-col gap-4'>
-      <h2 className='text-lg font-semibold'>Cooking Skill</h2>
+      <h2 className='text-lg font-semibold'>{t.onboarding.cookingSkillTitle}</h2>
       <p className='text-muted-foreground text-sm'>
-        How would you describe your cooking experience?
+        {t.onboarding.cookingSkillDescription}
       </p>
       <div className='flex flex-col gap-3'>
         {(

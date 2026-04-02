@@ -4,29 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 
 const ANIMATION_DURATION = 300
 
-const DEFAULT_COOKING_PHRASES = [
-  'Preheating the oven...',
-  'Chopping onions...',
-  'Mincing garlic...',
-  'Simmering the broth...',
-  'Whisking the batter...',
-  'Kneading the dough...',
-  'Seasoning to taste...',
-  'Sauteing the vegetables...',
-  'Reducing the sauce...',
-  'Folding in the cheese...',
-  'Zesting the lemon...',
-  'Caramelizing the sugar...',
-  'Toasting the spices...',
-  'Blanching the greens...',
-  'Deglazing the pan...',
-  'Basting the roast...',
-  'Proofing the yeast...',
-  'Tempering the chocolate...',
-  'Marinating the protein...',
-  'Plating the dish...',
-]
-
 function shuffleArray(arr: string[]) {
   const shuffled = [...arr]
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -37,10 +14,10 @@ function shuffleArray(arr: string[]) {
 }
 
 export function RotatingPhrases({
-  phrases = DEFAULT_COOKING_PHRASES,
+  phrases,
   interval = 2500,
 }: {
-  phrases?: string[]
+  phrases: string[]
   interval?: number
 }) {
   const queueRef = useRef<string[]>([])

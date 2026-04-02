@@ -232,9 +232,9 @@ function PreferredUnitsDialog({
               className='border-input bg-background text-foreground flex h-9 w-full rounded-md border px-3 py-1 text-sm'
               {...form.register('preferredWeightUnit')}
             >
-              <option value=''>Default</option>
-              <option value='g'>g (grams)</option>
-              <option value='oz'>oz (ounces)</option>
+              <option value=''>{t.pantry.defaultUnit}</option>
+              <option value='g'>{t.pantry.grams}</option>
+              <option value='oz'>{t.pantry.ounces}</option>
             </select>
           </div>
           <div className='flex flex-col gap-2'>
@@ -245,9 +245,9 @@ function PreferredUnitsDialog({
               className='border-input bg-background text-foreground flex h-9 w-full rounded-md border px-3 py-1 text-sm'
               {...form.register('preferredVolumeUnit')}
             >
-              <option value=''>Default</option>
-              <option value='ml'>ml (milliliters)</option>
-              <option value='cup'>cup</option>
+              <option value=''>{t.pantry.defaultUnit}</option>
+              <option value='ml'>{t.pantry.milliliters}</option>
+              <option value='cup'>{t.pantry.cup}</option>
             </select>
           </div>
         </div>

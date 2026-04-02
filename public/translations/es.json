@@ -71,7 +71,12 @@
     "editItem": "Editar",
     "editItemDescription": "Cambia el nombre y la cantidad del ingrediente.",
     "preferredWeightUnit": "Unidad de peso",
-    "preferredVolumeUnit": "Unidad de volumen"
+    "preferredVolumeUnit": "Unidad de volumen",
+    "defaultUnit": "Predeterminado",
+    "grams": "g (gramos)",
+    "ounces": "oz (onzas)",
+    "milliliters": "ml (mililitros)",
+    "cup": "taza"
   },
 
   "valueProps": {
@@ -83,6 +88,18 @@
     "saveRecipes": "Guarda tus recetas",
     "createAccount": "Crear cuenta o iniciar sesión",
     "createAccountDescription": "Crea una cuenta o inicia sesión para guardar tu historial de chats y recetas.",
+    "useContext": "Usar Contexto",
+    "pantryContext": "¿Qué puedo hacer con lo que hay en mi despensa?",
+    "savedRecipesContext": "Sugiere algo similar a mis recetas guardadas",
+    "tasteProfile": "Perfil de Sabor",
+    "tasteProfileQuizPrompt": "Toma el cuestionario para personalizar tu experiencia.",
+    "takeQuiz": "Tomar el Cuestionario",
+    "yourTasteProfile": "Tu Perfil de Sabor",
+    "skill": "Habilidad",
+    "cuisines": "Cocinas",
+    "goals": "Objetivos",
+    "household": "Hogar",
+    "editProfile": "Editar Perfil",
     "welcome": {
       "recipes": {
         "title": "Asistente de Recetas",
@@ -271,6 +288,54 @@
     "hours": "horas",
     "minute": "minuto",
     "minutes": "minutos"
+  },
+
+  "loaders": {
+    "cookingPhrases": [
+      "Precalentando el horno...",
+      "Cortando cebollas...",
+      "Picando ajo...",
+      "Hirviendo el caldo...",
+      "Batiendo la mezcla...",
+      "Amasando la masa...",
+      "Sazonando al gusto...",
+      "Salteando las verduras...",
+      "Reduciendo la salsa...",
+      "Incorporando el queso...",
+      "Rallando el limón...",
+      "Caramelizando el azúcar...",
+      "Tostando las especias...",
+      "Blanqueando las verduras...",
+      "Desglasando la sartén...",
+      "Bañando el asado...",
+      "Fermentando la levadura...",
+      "Atemperando el chocolate...",
+      "Marinando la proteína...",
+      "Emplatando el plato..."
+    ]
+  },
+
+  "onboarding": {
+    "cookingSkillTitle": "Habilidad Culinaria",
+    "cookingSkillDescription": "¿Cómo describirías tu experiencia en la cocina?",
+    "skillDescriptions": {
+      "beginner": "Sigo recetas paso a paso y me quedo con platos sencillos.",
+      "intermediate": "Puedo improvisar un poco, manejar varios platos y probar nuevas técnicas.",
+      "advanced": "Experimento libremente, entiendo la ciencia del sabor y afronto recetas complejas."
+    },
+    "householdSizeTitle": "Tamaño del Hogar",
+    "householdSizeDescription": "¿Para cuántas personas sueles cocinar?",
+    "healthGoalsTitle": "Objetivos de Salud",
+    "healthGoalsDescription": "Selecciona los objetivos de salud que quieres que consideremos (opcional).",
+    "cuisinePreferencesTitle": "Preferencias de Cocina",
+    "cuisinePreferencesDescription": "Elige tus cocinas favoritas (al menos una).",
+    "dietaryRestrictionsTitle": "Restricciones Dietéticas",
+    "dietaryRestrictionsDescription": "Selecciona las que te apliquen, o elige \"Ninguna\".",
+    "back": "Atrás",
+    "skip": "Omitir",
+    "finish": "Terminar",
+    "next": "Siguiente",
+    "stepOf": "Paso $1 de $2"
   },
 
   "components": {

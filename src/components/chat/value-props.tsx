@@ -144,9 +144,11 @@ function ContextSources({
   isStreaming: boolean
   onFillMessage: (e: MouseEvent<HTMLButtonElement>) => void
 }) {
+  const t = useTranslations()
+
   return (
     <div className='flex w-full flex-col pt-2'>
-      <ValuePropsHeader icon={<PackageIcon />} label='Use Context' />
+      <ValuePropsHeader icon={<PackageIcon />} label={t.valueProps.useContext} />
       <div className='flex w-full flex-col items-center gap-4 px-4'>
         <Button
           type='button'
@@ -155,7 +157,7 @@ function ContextSources({
           onClick={onFillMessage}
           disabled={isStreaming}
         >
-          <span>What can I make with what&apos;s in my pantry?</span>
+          <span>{t.valueProps.pantryContext}</span>
           <CornerRightUpIcon />
         </Button>
         <Button
@@ -165,7 +167,7 @@ function ContextSources({
           onClick={onFillMessage}
           disabled={isStreaming}
         >
-          <span>Suggest something similar to my saved recipes</span>
+          <span>{t.valueProps.savedRecipesContext}</span>
           <CornerRightUpIcon />
         </Button>
       </div>
@@ -174,6 +176,7 @@ function ContextSources({
 }
 
 function TasteProfileSummary() {
+  const t = useTranslations()
   const { data: profile, isLoading } = api.tasteProfile.get.useQuery()
 
   if (isLoading) return null
@@ -181,16 +184,16 @@ function TasteProfileSummary() {
   if (!profile) {
     return (
       <div className='flex w-full flex-col pt-2'>
-        <ValuePropsHeader icon={<UtensilsIcon />} label='Taste Profile' />
+        <ValuePropsHeader icon={<UtensilsIcon />} label={t.valueProps.tasteProfile} />
         <div className='flex flex-col items-center gap-2 px-4'>
           <p className='text-muted-foreground text-sm'>
-            Take the quiz to personalize your experience.
+            {t.valueProps.tasteProfileQuizPrompt}
           </p>
           <Link
             href='/onboarding'
             className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}
           >
-            Take the Quiz
+            {t.valueProps.takeQuiz}
           </Link>
         </div>
       </div>
@@ -199,21 +202,21 @@ function TasteProfileSummary() {
 
   return (
     <div className='flex w-full flex-col pt-2'>
-      <ValuePropsHeader icon={<UtensilsIcon />} label='Your Taste Profile' />
+      <ValuePropsHeader icon={<UtensilsIcon />} label={t.valueProps.yourTasteProfile} />
       <div className='flex flex-col gap-1 px-4'>
-        <ProfileRow label='Skill' value={profile.cookingSkill} />
+        <ProfileRow label={t.valueProps.skill} value={profile.cookingSkill} />
         <ProfileRow
-          label='Cuisines'
+          label={t.valueProps.cuisines}
           value={profile.cuisinePreferences.join(', ')}
         />
         {profile.healthGoals.length > 0 && (
           <ProfileRow
-            label='Goals'
+            label={t.valueProps.goals}
             value={profile.healthGoals.join(', ')}
           />
         )}
         <ProfileRow
-          label='Household'
+          label={t.valueProps.household}
           value={String(profile.householdSize)}
         />
         <Link
@@ -224,7 +227,7 @@ function TasteProfileSummary() {
           )}
         >
           <PencilIcon className='h-3 w-3' />
-          Edit Profile
+          {t.valueProps.editProfile}
         </Link>
       </div>
     </div>

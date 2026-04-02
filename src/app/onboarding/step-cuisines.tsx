@@ -4,12 +4,14 @@ import type { UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { cuisineOptions } from '~/schemas/taste-profile-schema'
 import { cn } from '~/lib/utils'
+import { useTranslations } from '~/hooks/use-translations'
 
 export function StepCuisines({
   form
 }: {
   form: UseFormReturn<TasteProfileSchema>
 }) {
+  const t = useTranslations()
   const selected = form.watch('cuisinePreferences')
   const error = form.formState.errors.cuisinePreferences?.message
 
@@ -23,9 +25,9 @@ export function StepCuisines({
 
   return (
     <div className='flex flex-col gap-4'>
-      <h2 className='text-lg font-semibold'>Cuisine Preferences</h2>
+      <h2 className='text-lg font-semibold'>{t.onboarding.cuisinePreferencesTitle}</h2>
       <p className='text-muted-foreground text-sm'>
-        Pick your favorite cuisines (at least one).
+        {t.onboarding.cuisinePreferencesDescription}
       </p>
       <div className='grid grid-cols-2 gap-2'>
         {cuisineOptions.map((option) => {

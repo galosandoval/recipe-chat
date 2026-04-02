@@ -6,12 +6,14 @@ import { healthGoalOptions } from '~/schemas/taste-profile-schema'
 import { cn } from '~/lib/utils'
 import { MinusIcon, PlusIcon } from 'lucide-react'
 import { Button } from '~/components/button'
+import { useTranslations } from '~/hooks/use-translations'
 
 export function StepHouseholdGoals({
   form
 }: {
   form: UseFormReturn<TasteProfileSchema>
 }) {
+  const t = useTranslations()
   const householdSize = form.watch('householdSize')
   const selectedGoals = form.watch('healthGoals')
 
@@ -26,9 +28,9 @@ export function StepHouseholdGoals({
   return (
     <div className='flex flex-col gap-6'>
       <div className='flex flex-col gap-4'>
-        <h2 className='text-lg font-semibold'>Household Size</h2>
+        <h2 className='text-lg font-semibold'>{t.onboarding.householdSizeTitle}</h2>
         <p className='text-muted-foreground text-sm'>
-          How many people do you usually cook for?
+          {t.onboarding.householdSizeDescription}
         </p>
         <div className='flex items-center gap-4'>
           <Button
@@ -68,9 +70,9 @@ export function StepHouseholdGoals({
       </div>
 
       <div className='flex flex-col gap-4'>
-        <h2 className='text-lg font-semibold'>Health Goals</h2>
+        <h2 className='text-lg font-semibold'>{t.onboarding.healthGoalsTitle}</h2>
         <p className='text-muted-foreground text-sm'>
-          Select any health goals you&apos;d like us to consider (optional).
+          {t.onboarding.healthGoalsDescription}
         </p>
         <div className='flex flex-wrap gap-2'>
           {healthGoalOptions.map((option) => {
