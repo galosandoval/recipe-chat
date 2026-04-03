@@ -32,7 +32,7 @@ import { useRouter } from 'next/navigation'
 import { darkTheme, lightTheme } from '~/constants/theme'
 import { useState } from 'react'
 import { Dialog } from '~/components/dialog'
-import { Form } from '~/components/form/form'
+import { Form, FormSelect } from '~/components/form/form'
 import { api } from '~/trpc/react'
 import {
   recipeUrlSchema,
@@ -224,32 +224,24 @@ function PreferredUnitsDialog({
     >
       <Form form={form} onSubmit={onSubmit} formId='preferred-units-form'>
         <div className='flex flex-col gap-4 py-2'>
-          <div className='flex flex-col gap-2'>
-            <label className='text-sm font-medium'>
-              {t.pantry.preferredWeightUnit}
-            </label>
-            <select
-              className='border-input bg-background text-foreground flex h-9 w-full rounded-md border px-3 py-1 text-sm'
-              {...form.register('preferredWeightUnit')}
-            >
-              <option value=''>{t.pantry.defaultUnit}</option>
-              <option value='g'>{t.pantry.grams}</option>
-              <option value='oz'>{t.pantry.ounces}</option>
-            </select>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <label className='text-sm font-medium'>
-              {t.pantry.preferredVolumeUnit}
-            </label>
-            <select
-              className='border-input bg-background text-foreground flex h-9 w-full rounded-md border px-3 py-1 text-sm'
-              {...form.register('preferredVolumeUnit')}
-            >
-              <option value=''>{t.pantry.defaultUnit}</option>
-              <option value='ml'>{t.pantry.milliliters}</option>
-              <option value='cup'>{t.pantry.cup}</option>
-            </select>
-          </div>
+          <FormSelect
+            name='preferredWeightUnit'
+            label={t.pantry.preferredWeightUnit}
+            options={[
+              { value: '', label: t.pantry.defaultUnit },
+              { value: 'g', label: t.pantry.grams },
+              { value: 'oz', label: t.pantry.ounces }
+            ]}
+          />
+          <FormSelect
+            name='preferredVolumeUnit'
+            label={t.pantry.preferredVolumeUnit}
+            options={[
+              { value: '', label: t.pantry.defaultUnit },
+              { value: 'ml', label: t.pantry.milliliters },
+              { value: 'cup', label: t.pantry.cup }
+            ]}
+          />
         </div>
       </Form>
     </Dialog>
