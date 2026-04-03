@@ -7,9 +7,9 @@ import {
   type LinkedDataRecipeField
 } from '~/schemas/recipes-schema'
 import { api } from '~/trpc/react'
-import { FormTextarea } from '~/components/form/form'
-import { FormInput } from '~/components/form/form-input'
 import { Form } from '~/components/form/form'
+import { FormTextarea } from '~/components/form/form-textarea'
+import { FormInput } from '~/components/form/form-input'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '~/components/dialog'
 import { PlusIcon } from 'lucide-react'

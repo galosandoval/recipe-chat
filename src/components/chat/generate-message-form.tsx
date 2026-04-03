@@ -60,6 +60,7 @@ function useRecipeChat() {
     experimental_prepareRequestBody({ messages }) {
       const filters = utils.filters.getByUserId.getData({ userId })
       const context = useChatDrawerStore.getState().context
+      const usePantry = useChatStore.getState().usePantry
       return {
         messages: messages
           .filter((m) => m.content.length > 0)
@@ -70,7 +71,8 @@ function useRecipeChat() {
           })),
         filters: selectActiveFilters(filters ?? []).map((f) => f.name),
         userId: userId || undefined,
-        context
+        context,
+        usePantry
       }
     },
     onError(error) {

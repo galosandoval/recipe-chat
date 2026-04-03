@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { ValuePropsHeader } from '../value-props'
 import { useTranslations } from '~/hooks/use-translations'
-import { FunnelIcon, PenSquareIcon, XIcon } from 'lucide-react'
+import { PenSquareIcon, XIcon } from 'lucide-react'
 import { Button } from '~/components/button'
 
 export function FilterHeaderAndEditButton({
@@ -17,18 +16,16 @@ export function FilterHeaderAndEditButton({
 }) {
   const t = useTranslations()
   return (
-    <ValuePropsHeader
-      icon={<FunnelIcon />}
-      label={t.filters.title}
-      description={t.filters.description}
-      actionIcon={
-        <EditButton
-          canDelete={canDelete}
-          onToggleCanDelete={onToggleCanDelete}
-          filterBadgesRef={filterBadgesRef}
-        />
-      }
-    />
+    <div className='flex w-full items-center justify-between px-4 pb-1'>
+      <p className='text-muted-foreground text-xs font-medium uppercase tracking-wide'>
+        {t.filters.title}
+      </p>
+      <EditButton
+        canDelete={canDelete}
+        onToggleCanDelete={onToggleCanDelete}
+        filterBadgesRef={filterBadgesRef}
+      />
+    </div>
   )
 }
 
@@ -74,7 +71,6 @@ function EditButton({
       ref={buttonRef}
       onClick={handleOnClick}
       variant='outline'
-      className='ml-auto'
     >
       <span>{canDelete ? <XIcon size={5} /> : <PenSquareIcon size={5} />}</span>
     </Button>

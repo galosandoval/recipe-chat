@@ -5,7 +5,7 @@ import { useAddToList } from '~/hooks/use-recipe'
 import { api, type RouterInputs } from '~/trpc/react'
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Togglebox } from '~/components/togglebox'
+import { Toggle } from '~/components/toggle'
 import type { Ingredient } from '@prisma/client'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { Button } from '~/components/button'
@@ -171,10 +171,10 @@ function IngredientCheckBox({
     )
   }
   return (
-    <Togglebox
+    <Toggle
       id={ingredient.id.toString()}
-      checked={checked}
-      onChange={handleCheck}
+      pressed={checked}
+      onPressedChange={handleCheck}
       label={displayText}
       key={ingredient.id}
     />

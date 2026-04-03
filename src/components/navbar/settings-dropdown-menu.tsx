@@ -32,7 +32,8 @@ import { useRouter } from 'next/navigation'
 import { darkTheme, lightTheme } from '~/constants/theme'
 import { useState } from 'react'
 import { Dialog } from '~/components/dialog'
-import { Form, FormSelect } from '~/components/form/form'
+import { Form } from '~/components/form/form'
+import { FormSelect } from '~/components/form/form-select'
 import { api } from '~/trpc/react'
 import {
   recipeUrlSchema,

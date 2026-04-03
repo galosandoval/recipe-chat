@@ -16,7 +16,7 @@ export const maxDuration = 30
 export async function POST(req: Request) {
   const request = await req.json()
   const input = chatParams.parse(request)
-  const { filters, messages, userId, context } = input
+  const { filters, messages, userId, context, usePantry } = input
 
   let recipesNames: string[] = []
   if (userId) {
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   }
 
   let pantrySummary: string[] = []
-  if (userId) {
+  if (userId && usePantry) {
     const pantry = await getPantryByUserId(userId)
     if (pantry?.ingredients.length) {
       pantrySummary = pantry.ingredients.map((ing) =>

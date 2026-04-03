@@ -289,7 +289,10 @@ export const useChatAI = () => {
     toolInvocations?: Array<{ toolName: string; result?: unknown }>
   ) => {
     const messages = useChatStore.getState().messages
-    const existingRecipes = messages.flatMap((m) => m.recipes)
+    const lastMessage = messages.at(-1)
+    const messagesToScan =
+      lastMessage?.role === 'assistant' ? messages.slice(0, -1) : messages
+    const existingRecipes = messagesToScan.flatMap((m) => m.recipes)
     const foundRecipe = existingRecipes.find(
       (r) => r.name === recipes?.[0]?.name
     )

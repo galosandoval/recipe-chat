@@ -100,6 +100,9 @@
     "goals": "Goals",
     "household": "Household",
     "editProfile": "Edit Profile",
+    "chatOptions": "Options",
+    "usePantry": "Use my pantry",
+    "dietary": "Dietary",
     "welcome": {
       "recipes": {
         "title": "Recipe Assistant",
@@ -148,6 +151,7 @@
     "minChars3": "Minimum 3 characters",
     "maxChars50": "Maximum 50 characters",
     "add": "Add filter",
+    "addDescription": "Add a keyword to narrow down your recipe suggestions.",
     "noFilters": "No filters found. Add a filter to get started.",
     "nameAlreadyExists": "Filter name already exists",
     "charNotAllowedUnderscore": "Character not allowed: underscore",

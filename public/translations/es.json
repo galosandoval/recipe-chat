@@ -100,6 +100,9 @@
     "goals": "Objetivos",
     "household": "Hogar",
     "editProfile": "Editar Perfil",
+    "chatOptions": "Opciones",
+    "usePantry": "Usar mi despensa",
+    "dietary": "Dietético",
     "welcome": {
       "recipes": {
         "title": "Asistente de Recetas",
@@ -148,6 +151,7 @@
     "minChars3": "Mínimo 3 caracteres",
     "maxChars50": "Máximo 50 caracteres",
     "add": "Agregar filtro",
+    "addDescription": "Agrega una palabra clave para filtrar las sugerencias de recetas.",
     "noFilters": "No se encontraron filtros. Agrega un filtro para empezar.",
     "nameAlreadyExists": "El nombre del filtro ya existe",
     "charNotAllowedUnderscore": "Caracter no permitido: guión bajo",

@@ -8,7 +8,6 @@ import { api } from '~/trpc/react'
 import { cn } from '~/lib/utils'
 import { Badge } from '~/components/badge'
 import { CheckCircleIcon, CircleIcon, XCircleIcon } from 'lucide-react'
-import { middleIndexOfNames } from '~/lib/middle-index-of-names'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { LoadingFilterBadges } from './loading'
 
@@ -27,7 +26,9 @@ export function FilterBadges({
   const t = useTranslations()
   const { mutate: deleteFilter } = useDeleteFilter()
   const { mutate: activateFilter } = useActivateFilter()
-  const { firstHalf, secondHalf } = transform(filters, t)
+  const labeledFilters = labelInitialFilters(filters, t).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  )
 
   const handleRemoveFilter = (id: string) => {
     deleteFilter({ filterId: id })
@@ -54,38 +55,19 @@ export function FilterBadges({
     return <div className='mx-auto'>{t.filters.noFilters}</div>
   }
 
-  if (filters.length === 1) {
-    return (
-      <div className='px-2'>
+  return (
+    <div
+      className='flex flex-wrap gap-2 px-4'
+      ref={containerRef}
+    >
+      {labeledFilters.map((filter) => (
         <FilterBadge
-          key={filters[0].id}
-          filter={filters[0]}
+          key={filter.id}
+          filter={filter}
           canDelete={canDelete}
           onCheck={handleCheck}
           onRemove={handleRemoveFilter}
         />
-      </div>
-    )
-  }
-
-  return (
-    <div
-      className='grid h-20 grid-rows-[min-content] gap-1 overflow-x-scroll px-2'
-      ref={containerRef}
-    >
-      {/* splits in half because I couldn't figure out how to css the exact middle of item size */}
-      {[firstHalf, secondHalf].map((half, idx) => (
-        <div key={idx} className='flex h-fit w-full gap-2'>
-          {half.map((filter) => (
-            <FilterBadge
-              key={filter.id}
-              filter={filter}
-              canDelete={canDelete}
-              onCheck={handleCheck}
-              onRemove={handleRemoveFilter}
-            />
-          ))}
-        </div>
       ))}
     </div>
   )
@@ -229,23 +211,3 @@ function labelInitialFilters(filters: Filter[], t: Translations) {
   })
 }
 
-function transform(filters: Filter[], t: Translations) {
-  if (filters.length === 0) {
-    return {
-      firstHalf: [],
-      secondHalf: []
-    }
-  }
-  const labeledFilters = labelInitialFilters(filters, t)
-
-  const sortedFilters = labeledFilters.sort((a, b) =>
-    a.name.localeCompare(b.name)
-  )
-
-  const index = middleIndexOfNames(sortedFilters)
-
-  return {
-    firstHalf: sortedFilters.slice(0, index),
-    secondHalf: sortedFilters.slice(index)
-  }
-}

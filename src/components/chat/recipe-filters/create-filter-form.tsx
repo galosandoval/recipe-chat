@@ -4,8 +4,6 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { cuid } from '~/lib/createId'
-import { Button } from '~/components/button'
-import { PlusCircleIcon } from 'lucide-react'
 import { Form } from '~/components/form/form'
 import { useAppForm } from '~/hooks/use-app-form'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
@@ -37,29 +35,10 @@ export function CreateFilterForm({ disabled }: { disabled?: boolean }) {
     <Form
       onSubmit={createFilter}
       form={form}
-      className='flex items-center gap-2'
       formId='create-filter-form'
     >
-      <FormContent disabled={disabled || isLoading} />
+      <FormInput name='name' placeholder={t.filters.placeholder} disabled={disabled || isLoading} />
     </Form>
-  )
-}
-
-function FormContent({ disabled }: { disabled?: boolean }) {
-  const t = useTranslations()
-  return (
-    <>
-      <FormInput name='name' placeholder={t.filters.placeholder} />
-      <Button
-        type='submit'
-        variant='outline'
-        className='self-start'
-        disabled={disabled}
-      >
-        <PlusCircleIcon />
-        {t.filters.add}
-      </Button>
-    </>
   )
 }
 

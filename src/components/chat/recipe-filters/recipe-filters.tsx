@@ -7,6 +7,30 @@ import { FilterBadges } from './filter-badges'
 import { FilterHeaderAndEditButton } from './recipe-filters-header-and-edit-button.tsx'
 import { ActiveCount } from './active-count'
 import { CreateFilterForm } from './create-filter-form'
+import { DrawerDialog } from '~/components/drawer-dialog'
+import { Button } from '~/components/button'
+import { PlusCircleIcon } from 'lucide-react'
+
+function CreateFilterDrawer() {
+  const t = useTranslations()
+  return (
+    <DrawerDialog
+      trigger={
+        <Button variant='outline' size='sm'>
+          <PlusCircleIcon />
+          {t.filters.add}
+        </Button>
+      }
+      title={t.filters.add}
+      description={t.filters.addDescription}
+      formId='create-filter-form'
+      submitText={t.filters.add}
+      cancelText={t.common.cancel}
+    >
+      <CreateFilterForm />
+    </DrawerDialog>
+  )
+}
 
 export function FiltersByUser() {
   const { data, status, fetchStatus } = useFiltersByUserId()
@@ -51,7 +75,7 @@ export function FiltersSection({ data }: { data: Filter[] }) {
         />
         <div className='flex w-full flex-col px-4'>
           <ActiveCount data={data ?? []} />
-          <CreateFilterForm />
+          <CreateFilterDrawer />
         </div>
       </div>
     </section>

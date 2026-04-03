@@ -16,6 +16,7 @@ export const buildSystemPrompt = ({
     householdSize: number
     cuisinePreferences: string[]
     healthGoals: string[]
+    dietaryRestrictions: string[]
   } | null
 }) => {
   const hasFilters = (filters?.length ?? 0) > 0
@@ -74,6 +75,7 @@ User Profile
 - Cooking skill: ${tasteProfile.cookingSkill} (adjust instruction complexity accordingly)
 - Household size: ${tasteProfile.householdSize} (default servings)
 - Preferred cuisines: ${tasteProfile.cuisinePreferences.join(', ')}
+- Dietary restrictions (MUST follow — never suggest recipes that violate these): ${tasteProfile.dietaryRestrictions.filter((r) => r !== 'none').join(', ') || 'none'}
 - Health goals: ${tasteProfile.healthGoals.length > 0 ? tasteProfile.healthGoals.join(', ') : 'none'}
 `
       : ''

@@ -8,7 +8,7 @@ import {
 } from '~/lib/ingredient-display'
 import { IngredientItemDisplay } from '~/components/ingredient-item-display'
 import { toast } from '~/components/toast'
-import { Togglebox } from '~/components/togglebox'
+import { Toggle } from '~/components/toggle'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 
@@ -102,9 +102,9 @@ function ListByRecipeId({
             {b
               .toSorted((a, b) => displayText(a).localeCompare(displayText(b)))
               .map((i) => (
-                <Togglebox
+                <Toggle
                   key={i.id}
-                  checked={i.checked}
+                  pressed={i.checked}
                   id={i.id.toString()}
                   label={
                     <IngredientItemDisplay
@@ -113,7 +113,7 @@ function ListByRecipeId({
                       preferredVolumeUnit={preferredVolume}
                     />
                   }
-                  onChange={(checked) => handleCheck(checked as boolean, i.id)}
+                  onPressedChange={(pressed) => handleCheck(pressed as boolean, i.id)}
                 />
               ))}
           </div>
@@ -142,16 +142,16 @@ function ListAll({
   return (
     <div className='flex flex-col gap-2'>
       {aggregated.map((group) => (
-        <Togglebox
+        <Toggle
           key={group.ingredientIds.join(',')}
-          checked={group.checked}
+          pressed={group.checked}
           id={group.ingredientIds.join(',')}
           label={group.displayText}
-          onChange={(checked) =>
+          onPressedChange={(pressed) =>
             checkMany(
               group.ingredientIds.map((id) => ({
                 id,
-                checked
+                checked: pressed
               }))
             )
           }

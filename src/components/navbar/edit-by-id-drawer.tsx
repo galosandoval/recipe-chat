@@ -15,7 +15,8 @@ import {
 } from '~/schemas/recipes-schema'
 import { DrawerDialog } from '~/components/drawer-dialog'
 import { Button } from '~/components/button'
-import { FormTextarea, Form } from '~/components/form/form'
+import { Form } from '~/components/form/form'
+import { FormTextarea } from '~/components/form/form-textarea'
 import { FormInput } from '~/components/form/form-input'
 import { submitEditRecipe } from '~/lib/submit-edit-recipe'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
@@ -188,13 +189,13 @@ function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
   return (
     <div>
       {imgUrl && (
-        <div className='relative w-full' onSubmit={handleFileChange}>
+        <div className='relative mx-auto h-32 w-32' onSubmit={handleFileChange}>
           <Image
-            className='mx-auto rounded'
+            className='rounded object-cover'
             src={imgUrl}
             alt='recipe'
-            width={300}
-            height={300}
+            fill
+            sizes='128px'
           />
           <span className='absolute inset-0 flex flex-col items-center justify-center gap-4 rounded backdrop-blur-sm'>
             <div className='px-5'>
@@ -221,7 +222,7 @@ function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
               >
                 {String(
                   t.recipes.byId[
-                    uploadImgButtonLabel as keyof typeof t.recipes.byId
+                  uploadImgButtonLabel as keyof typeof t.recipes.byId
                   ]
                 )}
               </Button>
