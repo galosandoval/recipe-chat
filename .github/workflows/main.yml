@@ -40,3 +40,24 @@ jobs:
         env:
           DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING }}
           DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL }}
+
+      - name: Run data migrations for new migrations
+        run: |
+          BEFORE="${{ github.event.before }}"
+          # Handle first push or force push (before is all zeros)
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "No previous commit to diff against, skipping data migrations"
+            exit 0
+          fi
+          NEW_DIRS=$(git diff --name-only "$BEFORE" "${{ github.sha }}" \
+            | grep '^prisma/migrations/.*/migration\.sql$' \
+            | sed 's|/migration\.sql||')
+          for DIR in $NEW_DIRS; do
+            if [ -f "$DIR/data-migration.ts" ]; then
+              echo "Running data migration: $DIR/data-migration.ts"
+              bun "$DIR/data-migration.ts"
+            fi
+          done
+        env:
+          DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING }}
+          DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL }}
