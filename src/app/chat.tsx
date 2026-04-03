@@ -7,7 +7,6 @@ import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
 import { GenerateMessageForm } from '~/components/chat/generate-message-form'
 import { FloatingActionButton } from '~/components/floating-action-button'
 import { useChatStore } from '~/stores/chat-store'
-import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 import { usePathname } from 'next/navigation'
 import { cn } from '~/lib/utils'
 

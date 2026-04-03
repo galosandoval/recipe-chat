@@ -9,6 +9,7 @@ type ChatStore = {
   input: string
   isStreaming: boolean
   chatId: string
+  usePantry: boolean
 
   // Actions
   setInput: (input: string) => void
@@ -17,6 +18,7 @@ type ChatStore = {
   setMessages: (messages: MessageWithRecipes[]) => void
   clearMessages: () => void
   setChatId: (chatId: string) => void
+  setUsePantry: (usePantry: boolean) => void
 
   // Streaming
   setIsStreaming: (isStreaming: boolean) => void
@@ -37,6 +39,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   input: '',
   isStreaming: false,
   chatId: '',
+  usePantry: false,
 
   // Actions
   setInput: (input: string) => set({ input }),
@@ -53,6 +56,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   setMessages: (messages: MessageWithRecipes[]) => set({ messages }),
 
   clearMessages: () => set({ messages: initialMessages }),
+
+  setUsePantry: (usePantry: boolean) => set({ usePantry }),
 
   setChatId: (chatId: string) => {
     set({ chatId })
@@ -91,6 +96,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       messages: initialMessages,
       input: '',
       isStreaming: false,
-      chatId: ''
+      chatId: '',
+      usePantry: false
     })
 }))

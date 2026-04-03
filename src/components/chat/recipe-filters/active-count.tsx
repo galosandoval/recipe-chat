@@ -30,6 +30,9 @@ export function ActiveCount({ data }: { data: Filter[] }) {
       }
     }
   }, [activeFiltersCount])
+
+  if (activeFiltersCount === 0) return null
+
   return (
     <div className='self-start'>
       <small className='text-xs'>{t.filters.active}</small>

@@ -6,12 +6,11 @@ import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 import { ArrowDownIcon } from 'lucide-react'
-import { Label } from '~/components/ui/label'
-import { Checkbox } from '~/components/ui/checkbox'
 import type { CheckedState } from '@radix-ui/react-checkbox'
 import { AddCheckedToPantryButton } from './add-checked-to-pantry-button'
 import { Lists } from './lists'
 import { RemoveCheckedItemsButton } from './remove-checked-items-button'
+import { Toggle } from '~/components/toggle'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -45,14 +44,13 @@ function ListController({ data }: { data: Ingredient[] }) {
     <div className='mx-2 flex flex-col'>
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
-          <Label className=''>
-            <Checkbox
-              onCheckedChange={(checked) => handleToggleByRecipe(checked)}
-              className='toggle'
-              checked={byRecipe}
-            />
-            <span>{t.list.byRecipe}</span>
-          </Label>
+          <Toggle
+            pressed={byRecipe}
+            onPressedChange={(pressed) => handleToggleByRecipe(pressed)}
+            className='toggle'
+            label={t.list.byRecipe}
+            id='byRecipe'
+          />
         </div>
       </div>
       <Lists byRecipe={byRecipe} data={data} />

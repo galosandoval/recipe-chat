@@ -60,7 +60,8 @@ export const chatParams = z.object({
   messages: z.array(chatMessageSchema),
   filters: z.array(z.string()),
   userId: userIdSchema.shape.userId.optional(),
-  context: chatContextSchema.optional()
+  context: chatContextSchema.optional(),
+  usePantry: z.boolean().optional()
 })
 
 export const createOrAddMessages = z.object({
