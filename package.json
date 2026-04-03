@@ -14,6 +14,7 @@
     "seed": "bunx prisma db seed",
     "push": "bunx prisma db push",
     "migrate": "dotenv -e .env.local -- bunx prisma migrate dev",
+    "migrate:prod": "dotenv -e .env.production --  bunx prisma migrate deploy",
     "deploy:prod": "dotenv -e .env.production --  bunx prisma migrate deploy",
     "gen": "bunx prisma generate",
     "migrate-reset": "bunx prisma migrate reset",
