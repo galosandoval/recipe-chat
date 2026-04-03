@@ -35,6 +35,12 @@ jobs:
 
       - run: bun run build
 
+      - name: Resolve failed migration that was already applied to production
+        run: bunx prisma migrate resolve --applied 20251019025207_add_recipes_slug
+        env:
+          DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING }}
+          DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL }}
+
       - name: Apply all pending migrations to the database
         run: bunx prisma migrate deploy
         env:
