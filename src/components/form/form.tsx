@@ -19,6 +19,13 @@ import { FormLabel } from '../ui/form'
 import { FormControl } from '../ui/form'
 import { Togglebox } from '../togglebox'
 import { Textarea } from '../ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../ui/select'
 
 export function Form<T extends FieldValues>({
   children,
@@ -107,6 +114,11 @@ export function FormTextarea<T extends FieldValues>({
   )
 }
 
+// Radix Select does not support value="" on SelectItem, so we use a sentinel
+const EMPTY_SELECT_VALUE = '__empty__'
+const toSelectValue = (v: string) => (v === '' ? EMPTY_SELECT_VALUE : v)
+const fromSelectValue = (v: string) => (v === EMPTY_SELECT_VALUE ? '' : v)
+
 // Select component
 export function FormSelect<T extends FieldValues>({
   name,
@@ -114,14 +126,14 @@ export function FormSelect<T extends FieldValues>({
   description,
   options,
   labelClassName,
-  selectProps
+  placeholder
 }: {
   name: Path<T>
   label: string
   description?: string
   options: { value: string; label: string }[]
   labelClassName?: string
-  selectProps?: React.ComponentProps<'select'>
+  placeholder?: string
 }) {
   return (
     <FormField
@@ -131,13 +143,24 @@ export function FormSelect<T extends FieldValues>({
       labelClassName={labelClassName}
     >
       {(field) => (
-        <select {...selectProps} {...field}>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <Select
+          onValueChange={(v) => field.onChange(fromSelectValue(v))}
+          value={toSelectValue(field.value ?? '')}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem
+                key={option.value}
+                value={toSelectValue(option.value)}
+              >
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       )}
     </FormField>
   )
