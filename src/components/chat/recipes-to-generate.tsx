@@ -11,11 +11,24 @@ import { SendIcon } from 'lucide-react'
 
 export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
   const isStreaming = useChatStore((state) => state.isStreaming)
+  const storeMessages = useChatStore((state) => state.messages)
+
+  const generatedRecipeNames = new Set<string>()
+  for (const msg of storeMessages) {
+    if (msg.recipes.length === 1) {
+      generatedRecipeNames.add(msg.recipes[0].name)
+    }
+  }
 
   return (
     <div className='grid grid-cols-1 items-stretch gap-2 pt-3 sm:grid-cols-2'>
       {recipes.map((r, i) => (
-        <Recipe key={r.name + i} recipe={r} isStreaming={isStreaming} />
+        <Recipe
+          key={r.name + i}
+          recipe={r}
+          isStreaming={isStreaming}
+          isGenerated={generatedRecipeNames.has(r.name)}
+        />
       ))}
     </div>
   )
@@ -23,22 +36,26 @@ export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
 
 function Recipe({
   recipe,
-  isStreaming
+  isStreaming,
+  isGenerated
 }: {
   recipe: RecipeDTO
   isStreaming: boolean
+  isGenerated: boolean
 }) {
   return (
     <Card className='bg-background'>
       <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
-      <div className='flex justify-end pt-2'>
-        <GenerateButton
-          disabled={isStreaming}
-          recipeName={recipe.name}
-          recipeDescription={recipe.description ?? ''}
-        />
-      </div>
+      {!isGenerated && (
+        <div className='flex justify-end pt-2'>
+          <GenerateButton
+            disabled={isStreaming}
+            recipeName={recipe.name}
+            recipeDescription={recipe.description ?? ''}
+          />
+        </div>
+      )}
     </Card>
   )
 }

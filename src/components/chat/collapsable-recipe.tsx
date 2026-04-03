@@ -84,6 +84,7 @@ function ActionButton({
   const utils = api.useUtils()
   const isStreaming = useChatStore((state) => state.isStreaming)
   const isUpsertingMessages = utils.chats.upsert.isMutating()
+  const isSavingGenerated = utils.chats.generated.isMutating()
 
   const { mutate: saveRecipe, isPending } = api.recipes.save.useMutation({
     async onSuccess(_newRecipe, _messageId) {
@@ -123,7 +124,7 @@ function ActionButton({
         className='mt-2'
         variant='outline'
         size='sm'
-        disabled={isStreaming || isUpsertingMessages > 0}
+        disabled={isStreaming || isUpsertingMessages > 0 || isSavingGenerated > 0}
         isLoading={isPending}
         onClick={handleSaveRecipe}
         icon={<SaveIcon className='size-4' />}
@@ -136,7 +137,7 @@ function ActionButton({
       <Button
         variant='outline'
         className='mt-2'
-        disabled={isStreaming || isUpsertingMessages > 0}
+        disabled={isStreaming || isUpsertingMessages > 0 || isSavingGenerated > 0}
         onClick={handleGoToRecipe}
         size='sm'
         icon={<ChefHat className='size-4' />}
