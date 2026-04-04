@@ -5,10 +5,7 @@ import { ScreenLoader } from '~/components/loaders/screen'
 import { FiltersByUser } from './recipe-filters/recipe-filters'
 import { ChatWelcome } from './chat-welcome'
 import { AssistantMessageLoader } from '~/components/loaders/assistant-message'
-import {
-  ScrollToBottomProvider,
-  ScrollToBottomButton
-} from '~/components/scroll-to-bottom-button'
+import { ScrollToBottomProvider } from '~/components/scroll-to-bottom-button'
 import { useChatStore } from '~/stores/chat-store'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { Message } from './message'
@@ -37,7 +34,6 @@ export const Interface = () => {
     <ScrollToBottomProvider>
       <div className='flex flex-1 flex-col gap-4'>
         <Chat messages={messages} />
-        <ScrollToBottomButton />
       </div>
     </ScrollToBottomProvider>
   )

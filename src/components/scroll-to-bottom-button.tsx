@@ -16,11 +16,7 @@ const ScrollToBottomContext = createContext<ScrollToBottomContextValue>({
   atBottom: true
 })
 
-export function ScrollToBottomProvider({
-  children
-}: {
-  children: React.ReactNode
-}) {
+export function ScrollToBottomProvider({ children }: { children: React.ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const atBottomRef = useRef(true)
 
@@ -60,12 +56,15 @@ export function ScrollToBottomProvider({
 
   return (
     <ScrollToBottomContext.Provider value={{ scrollToBottom, atBottom }}>
-      <div
-        ref={containerRef}
-        className='h-full touch-pan-y overflow-y-auto overscroll-contain'
-      >
-        {children}
-        <div ref={sentinelRef} className='h-px' />
+      <div className='relative h-full'>
+        <div
+          ref={containerRef}
+          className='h-full touch-pan-y overflow-y-auto overscroll-contain'
+        >
+          {children}
+          <div ref={sentinelRef} className='h-px' />
+        </div>
+        <ScrollToBottomButton />
       </div>
     </ScrollToBottomContext.Provider>
   )
@@ -75,7 +74,7 @@ export function ScrollToBottomButton() {
   const { scrollToBottom, atBottom } = useContext(ScrollToBottomContext)
 
   return (
-    <div className='sticky bottom-4 z-10 mx-auto w-full max-w-2xl px-3'>
+    <div className='absolute bottom-4 z-10 mx-auto w-full max-w-2xl px-3'>
       <div
         className={cn(
           'w-fit transition-all duration-300',
