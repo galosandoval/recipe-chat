@@ -5,7 +5,7 @@ import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { Button } from '~/components/button'
 import { Card } from '~/components/card'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { STREAM_TIMEOUT } from '~/constants/chat'
 import { SendIcon } from 'lucide-react'
 
@@ -72,6 +72,7 @@ function GenerateButton({
   const t = useTranslations()
   const { triggerAISubmission, messages, setIsStreaming } = useChatStore()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const generateRecipe = async (name: string, description: string) => {
     setIsStreaming(true)
@@ -96,16 +97,18 @@ function GenerateButton({
     }
   }, [])
   const handleGenerate = async () => {
+    setIsLoading(true)
     await generateRecipe(recipeName, recipeDescription)
   }
   return (
     <Button
       size='sm'
       disabled={disabled}
+      isLoading={disabled && isLoading}
       onClick={handleGenerate}
       variant='outline'
+      icon={<SendIcon className='size-4' />}
     >
-      <SendIcon className='size-4' />
       {t.chat.generate}
     </Button>
   )

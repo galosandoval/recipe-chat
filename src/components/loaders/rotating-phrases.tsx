@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const ANIMATION_DURATION = 300
 
@@ -23,7 +23,7 @@ export function RotatingPhrases({
   const queueRef = useRef<string[]>([])
   const lastPhraseRef = useRef('')
 
-  function getNextPhrase() {
+  const getNextPhrase = useCallback(() => {
     if (queueRef.current.length === 0) {
       queueRef.current = shuffleArray(phrases)
       if (queueRef.current[0] === lastPhraseRef.current) {
@@ -35,7 +35,7 @@ export function RotatingPhrases({
     const next = queueRef.current.pop()!
     lastPhraseRef.current = next
     return next
-  }
+  }, [phrases])
 
   const [currentPhrase, setCurrentPhrase] = useState(() => getNextPhrase())
   const [nextPhrase, setNextPhrase] = useState<string | null>(null)
@@ -57,7 +57,7 @@ export function RotatingPhrases({
     }, interval)
 
     return () => clearInterval(timer)
-  }, [interval, phrases])
+  }, [interval, getNextPhrase])
 
   return (
     <div className="relative h-6 overflow-hidden w-full">

@@ -91,7 +91,7 @@ function ListByRecipeId({
   return (
     <div>
       {Object.values(recipeBuckets).map((b) => (
-        <div key={b[0].recipeId} className='pr-4'>
+        <div key={b[0].recipeId} >
           {isSuccess && (
             <h3 className='mt-2 font-bold'>
               {b[0].recipeId ? nameDictionary[b[0].recipeId] : 'Other'}

@@ -3,9 +3,11 @@
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useNavigationStore } from '~/stores/navigation-store'
+import { ScreenLoader } from '~/components/loaders/screen'
 
 export const NavigationHandler = () => {
   const pathname = usePathname()
+  const isNavigating = useNavigationStore((state) => state.isNavigating)
 
   useEffect(() => {
     const { endNavigation, targetRoute } = useNavigationStore.getState()
@@ -19,5 +21,5 @@ export const NavigationHandler = () => {
     }
   }, [pathname])
 
-  return null
+  return isNavigating ? <ScreenLoader /> : null
 }
