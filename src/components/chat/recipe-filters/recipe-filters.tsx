@@ -1,11 +1,9 @@
 import { useRef, useState } from 'react'
-import { type Filter } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { FilterBadges } from './filter-badges'
 import { FilterHeaderAndEditButton } from './recipe-filters-header-and-edit-button.tsx'
-import { ActiveCount } from './active-count'
 import { CreateFilterForm } from './create-filter-form'
 import { DrawerDialog } from '~/components/drawer-dialog'
 import { Button } from '~/components/button'
@@ -43,10 +41,10 @@ export function FiltersByUser() {
     return null
   }
 
-  return <FiltersSection data={data ?? []} />
+  return <FiltersSection />
 }
 
-export function FiltersSection({ data }: { data: Filter[] }) {
+export function FiltersSection() {
   const session = useSession()
 
   const [canDelete, setCanDelete] = useState(false)
@@ -73,8 +71,7 @@ export function FiltersSection({ data }: { data: Filter[] }) {
           containerRef={filterBadgesRef}
           onToggleCanDelete={toggleCanDelete}
         />
-        <div className='flex w-full flex-col px-4'>
-          <ActiveCount data={data ?? []} />
+        <div className='flex w-full flex-col px-4 pt-2'>
           <CreateFilterDrawer />
         </div>
       </div>

@@ -9,7 +9,6 @@ import { useChatStore } from '~/stores/chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { Button } from '~/components/button'
 import {
-  PackageIcon,
   SparklesIcon,
   UserPlusIcon,
   UtensilsIcon,
