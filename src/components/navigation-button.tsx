@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import type { ButtonProps } from './ui/button'
 import { useNavigationStore } from '~/stores/navigation-store'
 import type { ComponentType } from 'react'
@@ -24,6 +24,7 @@ export const NavigationButton = ({
   ...props
 }: NavigationButtonProps) => {
   const router = useRouter()
+  const pathname = usePathname()
   const isNavigating = useNavigationStore((state) => state.isNavigating)
   const startNavigation = useNavigationStore((state) => state.startNavigation)
   const endNavigation = useNavigationStore((state) => state.endNavigation)
@@ -31,15 +32,15 @@ export const NavigationButton = ({
   const handleClick = async () => {
     if (disabled || isNavigating) return
 
+    if (pathname === href) {
+      if (onClick) await onClick()
+      return
+    }
+
     startNavigation(href)
 
     try {
-      // Execute optional pre-navigation callback
-      if (onClick) {
-        await onClick()
-      }
-
-      // Navigate to the new route
+      if (onClick) await onClick()
       router.push(href)
     } catch (error) {
       console.error('Navigation error:', error)

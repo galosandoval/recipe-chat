@@ -8,12 +8,13 @@ import { api } from '~/trpc/react'
 import { cn } from '~/lib/utils'
 import { SignUpDrawerDialog } from '~/components/auth/auth-drawer-dialogs'
 import type { RecipeDTO } from '~/schemas/chats-schema'
-import { useRouter } from 'next/navigation'
+import { useAppRouter } from '~/hooks/use-app-router'
 import { formatTimeFromMinutes } from '~/lib/format-time'
 import { Button } from '~/components/button'
 import { ChefHat, ChevronDownIcon, ClockIcon, SaveIcon } from 'lucide-react'
 import { Card } from '~/components/card'
 import { useChatStore } from '~/stores/chat-store'
+import { useNavigationStore } from '~/stores/navigation-store'
 
 export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   const t = useTranslations()
@@ -78,7 +79,8 @@ function ActionButton({
   id: string
 }) {
   const t = useTranslations()
-  const router = useRouter()
+  const router = useAppRouter()
+  const [isNavigating, setIsNavigating] = useState(false)
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const utils = api.useUtils()
@@ -115,6 +117,7 @@ function ActionButton({
   }
 
   const handleGoToRecipe = () => {
+    setIsNavigating(true)
     router.push(`/recipes/${slug}`)
   }
 
@@ -140,6 +143,7 @@ function ActionButton({
         disabled={isStreaming || isUpsertingMessages > 0 || isSavingGenerated > 0}
         onClick={handleGoToRecipe}
         size='sm'
+        isLoading={isNavigating}
         icon={<ChefHat className='size-4' />}
       >
         {t.chat.toRecipe}
