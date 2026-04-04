@@ -10,18 +10,20 @@ import { Badge } from '~/components/badge'
 import { CheckCircleIcon, CircleIcon, XCircleIcon } from 'lucide-react'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { LoadingFilterBadges } from './loading'
+import { useChatStore } from '~/stores/chat-store'
 
 export function FilterBadges({
-  canDelete,
+  canDelete = false,
   containerRef,
-  onToggleCanDelete
+  onToggleCanDelete = () => { }
 }: {
-  canDelete: boolean
-  containerRef: React.RefObject<HTMLDivElement | null>
-  onToggleCanDelete: () => void
+  canDelete?: boolean
+  containerRef?: React.RefObject<HTMLDivElement | null>
+  onToggleCanDelete?: () => void
 }) {
   const { data, status, fetchStatus } = useFiltersByUserId()
   const filters = data ?? []
+  const chatFilterIds = useChatStore((s) => s.chatFilterIds)
 
   const t = useTranslations()
   const { mutate: deleteFilter } = useDeleteFilter()
@@ -57,7 +59,7 @@ export function FilterBadges({
 
   return (
     <div
-      className='flex flex-wrap gap-2 px-4'
+      className='flex flex-wrap gap-2'
       ref={containerRef}
     >
       {labeledFilters.map((filter) => (
@@ -65,6 +67,7 @@ export function FilterBadges({
           key={filter.id}
           filter={filter}
           canDelete={canDelete}
+          chatFilterIds={chatFilterIds}
           onCheck={handleCheck}
           onRemove={handleRemoveFilter}
         />
@@ -76,15 +79,20 @@ export function FilterBadges({
 function FilterBadge({
   filter,
   canDelete,
+  chatFilterIds,
   onCheck,
   onRemove
 }: {
   filter: Filter
   canDelete: boolean
+  chatFilterIds: string[] | null
   onCheck: (id: string, checked: boolean) => void
   onRemove: (id: string) => void
 }) {
-  const checked = filter.checked && !canDelete
+  const isChecked = chatFilterIds !== null
+    ? chatFilterIds.includes(filter.id)
+    : filter.checked
+  const checked = isChecked && !canDelete
 
   let icon = null
   if (checked) {

@@ -2,7 +2,6 @@
 
 import { useLayoutEffect } from 'react'
 import { ScreenLoader } from '~/components/loaders/screen'
-import { FiltersByUser } from './recipe-filters/recipe-filters'
 import { ChatWelcome } from './chat-welcome'
 import { AssistantMessageLoader } from '~/components/loaders/assistant-message'
 import { ScrollToBottomProvider } from '~/components/scroll-to-bottom-button'
@@ -23,9 +22,7 @@ export const Interface = () => {
   if (isNewChat) {
     return (
       <div className='flex flex-col gap-4'>
-        <ChatWelcome>
-          <FiltersByUser />
-        </ChatWelcome>
+        <ChatWelcome />
       </div>
     )
   }

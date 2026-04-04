@@ -32,7 +32,8 @@ export async function upsertChat(
   chatId: string | undefined,
   messages: z.infer<typeof messagesWithRecipesSchema>,
   prisma: PrismaClient,
-  userId: string
+  userId: string,
+  filterIds?: string[]
 ) {
   const chatsAccess = new ChatsAccess(prisma)
 
@@ -48,7 +49,8 @@ export async function upsertChat(
     // Create new chat with all messages
     const newChat = await chatsAccess.createChatWithMessages({
       userId,
-      messages
+      messages,
+      filterIds
     })
 
     return {

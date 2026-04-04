@@ -12,7 +12,8 @@ import {
   SparklesIcon,
   UserPlusIcon,
   UtensilsIcon,
-  PencilIcon
+  PencilIcon,
+  SettingsIcon
 } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import { useChatDrawerStore } from '~/stores/chat-drawer-store'
@@ -20,6 +21,9 @@ import { api } from '~/trpc/react'
 import Link from 'next/link'
 import { buttonVariants } from '~/components/ui/button'
 import { Toggle } from '~/components/toggle'
+import { FiltersByUser } from './recipe-filters/recipe-filters'
+import { SectionHeader } from './section-header'
+import { Badge } from '../badge'
 
 function useContextWelcome() {
   const t = useTranslations()
@@ -31,9 +35,9 @@ function useContextWelcome() {
   const description =
     context.page === 'recipe-detail'
       ? t.valueProps.welcome.recipeDetail.replace(
-        'description',
-        context.recipe.name
-      )
+          'description',
+          context.recipe.name
+        )
       : welcome.description
 
   return {
@@ -45,7 +49,7 @@ function useContextWelcome() {
   }
 }
 
-export function ChatWelcome({ children }: { children: React.ReactNode }) {
+export function ChatWelcome() {
   const { messages, reset, triggerAISubmission } = useChatStore()
   const isStreaming = useChatStore((state) => state.isStreaming)
   const session = useSession()
@@ -68,7 +72,7 @@ export function ChatWelcome({ children }: { children: React.ReactNode }) {
     <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <SectionHeader
-          icon={<SparklesIcon />}
+          icon={<SparklesIcon size={16} />}
           label={welcome.title}
           description={welcome.description}
         />
@@ -109,7 +113,7 @@ export function ChatWelcome({ children }: { children: React.ReactNode }) {
 
       {isAuthenticated && <ChatOptions />}
 
-      {children}
+      <FiltersByUser />
 
       {isAuthenticated && <TasteProfileSummary />}
 
@@ -135,10 +139,11 @@ function ChatOptions() {
   if ((pantry?.ingredients.length ?? 0) === 0) return null
 
   return (
-    <div className='flex w-full flex-col pt-2'>
-      <p className='text-muted-foreground px-4 pb-2 text-xs font-medium uppercase tracking-wide'>
-        {t.valueProps.chatOptions}
-      </p>
+    <div className='flex w-full flex-col'>
+      <SectionHeader
+        icon={<SettingsIcon size={16} />}
+        label={t.valueProps.chatOptions}
+      />
       <div className='px-4'>
         <Toggle
           pressed={usePantry}
@@ -160,7 +165,10 @@ function TasteProfileSummary() {
   if (!profile) {
     return (
       <div className='flex w-full flex-col pt-2'>
-        <SectionHeader icon={<UtensilsIcon />} label={t.valueProps.tasteProfile} />
+        <SectionHeader
+          icon={<UtensilsIcon size={16} />}
+          label={t.valueProps.tasteProfile}
+        />
         <div className='flex flex-col items-center gap-2 px-4'>
           <p className='text-muted-foreground text-sm'>
             {t.valueProps.tasteProfileQuizPrompt}
@@ -179,26 +187,34 @@ function TasteProfileSummary() {
   const editLink = (
     <Link
       href='/onboarding'
-      className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}
+      className={cn(
+        buttonVariants({
+          variant: 'ghost',
+          size: 'sm',
+          className: 'text-muted-foreground'
+        })
+      )}
     >
       <PencilIcon className='h-4 w-4' />
     </Link>
   )
 
-  const activeDietary = profile.dietaryRestrictions.filter(
-    (r) => r !== 'none'
-  )
+  const activeDietary = profile.dietaryRestrictions.filter((r) => r !== 'none')
 
   return (
     <div className='flex w-full flex-col pt-2'>
       <SectionHeader
-        icon={<UtensilsIcon />}
+        icon={<UtensilsIcon size={16} />}
         label={t.valueProps.yourTasteProfile}
-        actionIcon={editLink}
+        actionComp={editLink}
       />
       <div className='flex flex-col gap-3 px-4'>
         <ProfileRow label={t.valueProps.skill}>
-          <Badge>{profile.cookingSkill}</Badge>
+          <Badge
+            variant='muted'
+            labelClassName='text-xs capitalize'
+            label={profile.cookingSkill}
+          />
         </ProfileRow>
 
         <ProfileRow label={t.valueProps.household}>
@@ -210,7 +226,12 @@ function TasteProfileSummary() {
         <ProfileRow label={t.valueProps.cuisines}>
           <div className='flex flex-wrap justify-end gap-1'>
             {profile.cuisinePreferences.map((c) => (
-              <Badge key={c}>{c}</Badge>
+              <Badge
+                variant='muted'
+                labelClassName='text-xs capitalize'
+                label={c}
+                key={c}
+              />
             ))}
           </div>
         </ProfileRow>
@@ -219,7 +240,12 @@ function TasteProfileSummary() {
           <ProfileRow label={t.valueProps.dietary}>
             <div className='flex flex-wrap justify-end gap-1'>
               {activeDietary.map((r) => (
-                <Badge key={r}>{r}</Badge>
+                <Badge
+                  variant='muted'
+                  labelClassName='text-xs capitalize'
+                  label={r}
+                  key={r}
+                />
               ))}
             </div>
           </ProfileRow>
@@ -229,21 +255,18 @@ function TasteProfileSummary() {
           <ProfileRow label={t.valueProps.goals}>
             <div className='flex flex-wrap justify-end gap-1'>
               {profile.healthGoals.map((g) => (
-                <Badge key={g}>{g}</Badge>
+                <Badge
+                  variant='muted'
+                  labelClassName='text-xs capitalize'
+                  label={g}
+                  key={g}
+                />
               ))}
             </div>
           </ProfileRow>
         )}
       </div>
     </div>
-  )
-}
-
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className='bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs capitalize'>
-      {children}
-    </span>
   )
 }
 
@@ -273,14 +296,12 @@ function Auth() {
     <div className='flex w-full flex-col items-center justify-center'>
       <SectionHeader
         description={t.valueProps.createAccountDescription}
-        icon={<UserPlusIcon />}
+        icon={<UserPlusIcon size={16} />}
         label={t.valueProps.createAccount}
       />
       <div className='flex w-full flex-col px-4'>
         <SignUpDrawerDialog
-          trigger={
-            <Button icon={<UserPlusIcon />}>{t.nav.menu.signUp}</Button>
-          }
+          trigger={<Button icon={<UserPlusIcon />}>{t.nav.menu.signUp}</Button>}
         />
         <LoginDrawerDialog
           trigger={
@@ -291,35 +312,5 @@ function Auth() {
         />
       </div>
     </div>
-  )
-}
-
-export function SectionHeader({
-  label,
-  icon,
-  actionIcon = null,
-  description
-}: {
-  label: string
-  icon: React.ReactNode
-  actionIcon?: React.ReactNode
-  description?: string
-}) {
-  return (
-    <>
-      <div className='grid w-full grid-cols-3 place-items-center px-2'>
-        <span></span>
-        <div className='flex items-center justify-center gap-2 py-2'>
-          {icon}
-          <h2 className='text-foreground whitespace-nowrap text-xl'>{label}</h2>
-        </div>
-        <span className='ml-auto'>{actionIcon}</span>
-      </div>
-      {description && (
-        <div className='flex flex-col gap-4 px-4 pb-2'>
-          <p className='text-muted-foreground text-sm'>{description}</p>
-        </div>
-      )}
-    </>
   )
 }
