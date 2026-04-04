@@ -28,9 +28,9 @@ export const chatsRouter = createTRPCRouter({
   upsert: protectedProcedure
     .input(upsertChatSchema)
     .mutation(async ({ ctx, input }) => {
-      const { chatId, messages } = input
+      const { chatId, messages, filterIds } = input
       const userId = ctx.session.user.id
-      return upsertChat(chatId, messages, ctx.prisma, userId)
+      return upsertChat(chatId, messages, ctx.prisma, userId, filterIds)
     }),
 
   /**

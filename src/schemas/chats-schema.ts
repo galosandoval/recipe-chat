@@ -158,7 +158,8 @@ export type Generated = z.infer<typeof generatedSchema>
 
 export const createChatWithMessagesSchema = z
   .object({
-    messages: messagesWithRecipesSchema
+    messages: messagesWithRecipesSchema,
+    filterIds: z.array(z.string()).optional()
   })
   .merge(userIdSchema)
 export type CreateChatWithMessages = z.infer<

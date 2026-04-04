@@ -57,7 +57,6 @@ export function NavDropdownMenu() {
   const [isChatsOpen, setIsChatsOpen] = useState(false)
   const [isAddRecipeOpen, setIsAddRecipeOpen] = useState(false)
   const [isPreferredUnitsOpen, setIsPreferredUnitsOpen] = useState(false)
-  const { chatId } = useChatStore()
   const pathname = usePathname()
 
   const session = useSession()
@@ -102,14 +101,12 @@ export function NavDropdownMenu() {
     )
   }
 
-  if (!chatId && isAuthenticated) {
+  if (pathname.includes('chat') && isAuthenticated) {
     items.push({
-      slot: (
-        <span onClick={handleToggleDrawer}>
-          <HistoryIcon />
-          {t.nav.menu.chats}
-        </span>
-      )
+      space: 'above',
+      icon: <HistoryIcon />,
+      label: 'nav.menu.chats',
+      onClick: handleToggleDrawer
     })
   }
 
@@ -117,20 +114,14 @@ export function NavDropdownMenu() {
     // auth items
     items.push(
       {
-        slot: (
-          <span onClick={handleToggleLogin}>
-            <KeyRoundIcon />
-            {t.nav.menu.login}
-          </span>
-        )
+        icon: <KeyRoundIcon />,
+        label: 'nav.menu.login',
+        onClick: handleToggleLogin
       },
       {
-        slot: (
-          <span onClick={handleToggleSignUp}>
-            <UserPlusIcon />
-            {t.nav.menu.signUp}
-          </span>
-        )
+        icon: <UserPlusIcon />,
+        label: 'nav.menu.signUp',
+        onClick: handleToggleSignUp
       }
     )
   }

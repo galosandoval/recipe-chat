@@ -59,8 +59,12 @@ function useRecipeChat() {
     maxSteps: 2,
     experimental_prepareRequestBody({ messages }) {
       const filters = utils.filters.getByUserId.getData({ userId })
+      const chatFilterIds = useChatStore.getState().chatFilterIds
       const context = useChatDrawerStore.getState().context
       const usePantry = useChatStore.getState().usePantry
+      const activeFilterNames = chatFilterIds !== null
+        ? (filters ?? []).filter((f) => chatFilterIds.includes(f.id)).map((f) => f.name)
+        : selectActiveFilters(filters ?? []).map((f) => f.name)
       return {
         messages: messages
           .filter((m) => m.content.length > 0)
@@ -69,7 +73,7 @@ function useRecipeChat() {
             role: m.role,
             id: m.id
           })),
-        filters: selectActiveFilters(filters ?? []).map((f) => f.name),
+        filters: activeFilterNames,
         userId: userId || undefined,
         context,
         usePantry

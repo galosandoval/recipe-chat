@@ -1,13 +1,19 @@
 import { useChatStore } from '~/stores/chat-store'
-import { useActiveFiltersByUserId } from '~/hooks/use-filters-by-user-id'
+import { useFiltersByUserId, selectActiveFilters } from '~/hooks/use-filters-by-user-id'
 import { useTranslations } from '~/hooks/use-translations'
 import { PackageIcon } from 'lucide-react'
+import { Badge } from '../badge'
 
 export function BottomActiveFilters() {
-  const { data: activeFilters, status } = useActiveFiltersByUserId()
+  const { data: allFilters, status } = useFiltersByUserId()
+  const chatFilterIds = useChatStore((s) => s.chatFilterIds)
   const t = useTranslations()
   const messages = useChatStore((state) => state.messages)
   const usePantry = useChatStore((state) => state.usePantry)
+
+  const activeFilters = chatFilterIds !== null
+    ? (allFilters ?? []).filter((f) => chatFilterIds.includes(f.id))
+    : selectActiveFilters(allFilters ?? [])
 
   if (status === 'error') {
     return <div>{t.error.somethingWentWrong}</div>
@@ -16,7 +22,7 @@ export function BottomActiveFilters() {
   if (
     messages.length === 0 ||
     status === 'pending' ||
-    (activeFilters?.length === 0 && !usePantry)
+    (activeFilters.length === 0 && !usePantry)
   ) {
     return null
   }
@@ -31,13 +37,12 @@ export function BottomActiveFilters() {
             {t.nav.pantry}
           </div>
         )}
-        {activeFilters?.map((f) => (
-          <div
-            className='bg-secondary text-foreground rounded p-2 py-1 text-xs whitespace-nowrap'
+        {activeFilters.map((f) => (
+          <Badge
             key={f.id}
-          >
-            {f.name}
-          </div>
+            label={f.name}
+            variant='outline'
+          />
         ))}
       </div>
     </div>

@@ -11,7 +11,7 @@ export function Badge({
   isLoading,
   variant
 }: {
-  icon: React.ReactNode
+  icon?: React.ReactNode
   label: string
   onClick?: () => void
   className?: string
@@ -26,12 +26,7 @@ export function Badge({
       onClick={onClick}
     >
       {icon && <div className='size-5'>{icon}</div>}
-      <span
-        className={cn(
-          'text-foreground text-sm whitespace-nowrap',
-          labelClassName
-        )}
-      >
+      <span className={cn('text-sm whitespace-nowrap', labelClassName)}>
         {isLoading ? null : label}
       </span>
     </BadgeUI>

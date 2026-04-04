@@ -9,7 +9,8 @@ import type {
   UpsertChatSchema
 } from '~/schemas/chats-schema'
 import { toast } from '~/components/toast'
-import { useFiltersByUserId } from './use-filters-by-user-id'
+import { useFiltersByUserId, selectActiveFilters } from './use-filters-by-user-id'
+import { useUserId } from './use-user-id'
 import { slugify } from '~/lib/utils'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import type { GeneratedRecipe } from '~/schemas/messages-schema'
@@ -54,12 +55,13 @@ const transformMessagesToChatStore = (data: MessageWithRecipesDTO[]) => {
 }
 
 export const useChatAI = () => {
-  const { chatId, setChatId } = useChatStore()
+  const { chatId, setChatId, setChatFilterIds } = useChatStore()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   const filters = useFiltersByUserId()
   const filtersData = filters.data
   const utils = api.useUtils()
+  const userId = useUserId()
 
   const { addMessage, setMessages } = useChatStore()
 
@@ -124,9 +126,15 @@ export const useChatAI = () => {
       }))
     }))
 
+    const currentChatId = useChatStore.getState().chatId
+    const filterIds = !currentChatId
+      ? selectActiveFilters(utils.filters.getByUserId.getData({ userId }) ?? []).map((f) => f.id)
+      : undefined
+
     upsertChat({
-      chatId: useChatStore.getState().chatId,
-      messages
+      chatId: currentChatId || undefined,
+      messages,
+      filterIds
     })
   }
 
@@ -307,11 +315,17 @@ export const useChatAI = () => {
     }
   }
 
+  // Reset chatFilterIds when switching chats so stale data isn't shown briefly
+  useEffect(() => {
+    setChatFilterIds(null)
+  }, [chatId, setChatFilterIds])
+
   useEffect(() => {
     if (queryStatus === 'success' && data) {
       setMessages(transformMessagesToChatStore(data.messages))
+      setChatFilterIds(data.filterIds ?? [])
     }
-  }, [queryStatus, data, setMessages])
+  }, [queryStatus, data, setMessages, setChatFilterIds])
 
   useEffect(() => {
     if (error && queryStatus === 'error') {

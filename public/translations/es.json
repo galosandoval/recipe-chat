@@ -153,6 +153,8 @@
     "add": "Agregar filtro",
     "addDescription": "Agrega una palabra clave para filtrar las sugerencias de recetas.",
     "noFilters": "No se encontraron filtros. Agrega un filtro para empezar.",
+    "manage": "Administrar filtros",
+    "manageDescription": "Elimina filtros existentes o agrega nuevos.",
     "nameAlreadyExists": "El nombre del filtro ya existe",
     "charNotAllowedUnderscore": "Caracter no permitido: guión bajo",
     "initial": {
