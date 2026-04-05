@@ -143,11 +143,13 @@ export class RecipesAccess extends DataAccess {
       data: {
         ...data,
         ingredients: {
+          deleteMany: {},
           create: data.ingredients.map((line) =>
             ingredientStringToCreatePayload(line)
           )
         },
         instructions: {
+          deleteMany: {},
           create: data.instructions.map((instruction) => ({
             description: instruction
           }))
@@ -185,8 +187,8 @@ export class RecipesAccess extends DataAccess {
       where: { id },
       update: {
         ...rest,
-        ingredients: { create: ingredientData },
-        instructions: { create: instructionData }
+        ingredients: { deleteMany: {}, create: ingredientData },
+        instructions: { deleteMany: {}, create: instructionData }
       },
       create: {
         id,

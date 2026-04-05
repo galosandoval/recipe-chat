@@ -11,6 +11,7 @@ type ChatStore = {
   chatId: string
   usePantry: boolean
   chatFilterIds: string[] | null
+  pendingExpandRecipeId: string | null
 
   // Actions
   setInput: (input: string) => void
@@ -21,6 +22,7 @@ type ChatStore = {
   setChatId: (chatId: string) => void
   setUsePantry: (usePantry: boolean) => void
   setChatFilterIds: (ids: string[] | null) => void
+  setPendingExpandRecipeId: (id: string | null) => void
 
   // Streaming
   setIsStreaming: (isStreaming: boolean) => void
@@ -43,6 +45,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   chatId: '',
   usePantry: false,
   chatFilterIds: null,
+  pendingExpandRecipeId: null,
 
   // Actions
   setInput: (input: string) => set({ input }),
@@ -63,6 +66,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   setUsePantry: (usePantry: boolean) => set({ usePantry }),
 
   setChatFilterIds: (ids) => set({ chatFilterIds: ids }),
+
+  setPendingExpandRecipeId: (id) => set({ pendingExpandRecipeId: id }),
 
   setChatId: (chatId: string) => {
     set({ chatId })
@@ -103,6 +108,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       isStreaming: false,
       chatId: '',
       usePantry: false,
-      chatFilterIds: null
+      chatFilterIds: null,
+      pendingExpandRecipeId: null
     })
 }))
