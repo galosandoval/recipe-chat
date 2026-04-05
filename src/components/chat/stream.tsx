@@ -2,6 +2,7 @@
 
 import { BotMessageSquareIcon } from 'lucide-react'
 import type { GeneratedMessage } from '~/schemas/chats-schema'
+import type { FullRecipe } from '~/schemas/messages-schema'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
 import { ChatMessage } from './message'
@@ -12,20 +13,22 @@ export function Stream({ stream }: { stream: GeneratedMessage }) {
   const isRenderingOneRecipe = stream.recipes?.length === 1
   const isRenderingRecipes = stream.recipes?.length > 1
 
-  const recipe = stream.recipes?.[0]
-  const recipes = stream.recipes
+  const recipe = stream.recipes?.[0] as FullRecipe | undefined
+  const recipes = (stream.recipes ?? []) as FullRecipe[]
 
   return (
     <div className='flex flex-col'>
       <div className='mx-auto w-full'>
         <ChatMessage content={stream.content} icon={<BotMessageSquareIcon />}>
           <>
-            {isRenderingOneRecipe && (
+            {isRenderingOneRecipe && recipe && (
               <CollapsableRecipe
                 recipe={{
                   ...recipe,
                   id: '',
                   saved: false,
+                  name: recipe.name,
+                  servings: recipe.servings ?? null,
                   prepMinutes: recipe.prepMinutes ?? null,
                   cookMinutes: recipe.cookMinutes ?? null,
                   ingredients: recipe.ingredients ?? [],
@@ -46,6 +49,8 @@ export function Stream({ stream }: { stream: GeneratedMessage }) {
                   ...r,
                   id: '',
                   saved: false,
+                  name: r.name,
+                  servings: r.servings ?? null,
                   prepMinutes: r.prepMinutes ?? null,
                   cookMinutes: r.cookMinutes ?? null,
                   ingredients: r.ingredients ?? [],

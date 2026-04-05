@@ -50,6 +50,10 @@ function Chat({ messages }: { messages: MessageWithRecipes[] }) {
 
 function Messages({ data }: { data: MessageWithRecipes[] }) {
   const isStreaming = useChatStore((s) => s.isStreaming)
+  const lastUserMessageIndex = data.reduceRight(
+    (found, msg, j) => (found !== -1 ? found : msg.role === 'user' ? j : -1),
+    -1
+  )
 
   return (
     <div className='bg-background mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-4'>
@@ -57,7 +61,7 @@ function Messages({ data }: { data: MessageWithRecipes[] }) {
         <Message
           message={m}
           key={m?.id || '' + i}
-          isLastMessage={i === data.length - 1}
+          isLastMessage={lastUserMessageIndex === i}
         />
       ))}
 

@@ -13,7 +13,7 @@ import { useFiltersByUserId, selectActiveFilters } from './use-filters-by-user-i
 import { useUserId } from './use-user-id'
 import { slugify } from '~/lib/utils'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
-import type { GeneratedRecipe } from '~/schemas/messages-schema'
+import type { GeneratedRecipe, RecipeDetails } from '~/schemas/messages-schema'
 
 /**
  * Transforms database message data to the format expected by useChatStore
@@ -160,7 +160,7 @@ export const useChatAI = () => {
   // Handle AI response completion
   const handleAIResponse = (
     content: string,
-    recipes: GeneratedRecipe[],
+    recipes: (GeneratedRecipe & Partial<RecipeDetails>)[],
     toolInvocations?: Array<{ toolName: string; result?: unknown }>
   ) => {
     const { messages, chatId } = useChatStore.getState()
@@ -293,7 +293,7 @@ export const useChatAI = () => {
 
   const onFinishMessage = (
     content: string,
-    recipes: GeneratedRecipe[],
+    recipes: (GeneratedRecipe & Partial<RecipeDetails>)[],
     toolInvocations?: Array<{ toolName: string; result?: unknown }>
   ) => {
     const messages = useChatStore.getState().messages

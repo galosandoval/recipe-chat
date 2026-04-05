@@ -18,7 +18,13 @@ import { toast } from '~/components/toast'
 import { SendIcon, StopCircleIcon } from 'lucide-react'
 import { cuid } from '~/lib/createId'
 import { slugify } from '~/lib/utils'
-import type { GeneratedRecipe } from '~/schemas/messages-schema'
+import type {
+  FullRecipe,
+  GeneratedRecipe,
+  RecipeDetails
+} from '~/schemas/messages-schema'
+
+type AnyRecipe = GeneratedRecipe & Partial<RecipeDetails>
 
 function extractFromToolInvocations(
   toolInvocations:
@@ -27,9 +33,48 @@ function extractFromToolInvocations(
         args?: Record<string, unknown>
         result?: unknown
       }>
-    | undefined
-): { recipes: GeneratedRecipe[]; toolMessage: string } {
+    | undefined,
+  isFinal = false
+): { recipes: AnyRecipe[]; toolMessage: string } {
   if (!toolInvocations) return { recipes: [], toolMessage: '' }
+
+  // Handle expandRecipe (single recipe expansion — merges with pending suggestion)
+  const expandCall = toolInvocations.find(
+    (t) => t.toolName === 'expandRecipe' && 'args' in t
+  )
+  if (expandCall?.args) {
+    const args = expandCall.args as { details?: RecipeDetails; message?: string }
+    const d = args.details
+    if (d?.ingredients?.length && d?.instructions?.length) {
+      const store = useChatStore.getState()
+      const existing = store.messages
+        .flatMap((m) => m.recipes)
+        .find((r) => r.id === store.pendingExpandRecipeId)
+      if (isFinal) {
+        store.setPendingExpandRecipeId(null)
+      }
+
+      const merged: FullRecipe = {
+        name: existing?.name ?? '',
+        description: existing?.description ?? '',
+        prepMinutes: existing?.prepMinutes ?? null,
+        cookMinutes: existing?.cookMinutes ?? null,
+        cuisine: existing?.cuisine ?? null,
+        course: existing?.course ?? null,
+        dietTags: existing?.dietTags ?? [],
+        flavorTags: existing?.flavorTags ?? [],
+        mainIngredients: existing?.mainIngredients ?? [],
+        techniques: existing?.techniques ?? [],
+        ingredients: d.ingredients,
+        instructions: d.instructions,
+        servings: d.servings
+      }
+      return { recipes: [merged], toolMessage: args.message ?? '' }
+    }
+    return { recipes: [], toolMessage: (expandCall.args as { message?: string }).message ?? '' }
+  }
+
+  // Handle generateRecipes (multi-recipe suggestions)
   const generateCall = toolInvocations.find(
     (t) => t.toolName === 'generateRecipes' && 'args' in t
   )
@@ -38,7 +83,10 @@ function extractFromToolInvocations(
     recipes?: GeneratedRecipe[]
     message?: string
   }
-  return { recipes: args.recipes ?? [], toolMessage: args.message ?? '' }
+  return {
+    recipes: args.recipes ?? [],
+    toolMessage: args.message ?? ''
+  }
 }
 
 function useRecipeChat() {
@@ -62,9 +110,12 @@ function useRecipeChat() {
       const chatFilterIds = useChatStore.getState().chatFilterIds
       const context = useChatDrawerStore.getState().context
       const usePantry = useChatStore.getState().usePantry
-      const activeFilterNames = chatFilterIds !== null
-        ? (filters ?? []).filter((f) => chatFilterIds.includes(f.id)).map((f) => f.name)
-        : selectActiveFilters(filters ?? []).map((f) => f.name)
+      const activeFilterNames =
+        chatFilterIds !== null
+          ? (filters ?? [])
+              .filter((f) => chatFilterIds.includes(f.id))
+              .map((f) => f.name)
+          : selectActiveFilters(filters ?? []).map((f) => f.name)
       return {
         messages: messages
           .filter((m) => m.content.length > 0)
@@ -92,7 +143,8 @@ function useRecipeChat() {
               args?: Record<string, unknown>
               result?: unknown
             }>
-          | undefined
+          | undefined,
+        true
       )
       onFinishMessage(
         message.content || toolMessage,

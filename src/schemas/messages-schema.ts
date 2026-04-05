@@ -5,25 +5,15 @@ export const generatedRecipeSchema = z.object({
 
   description: z.string().min(1).describe('Short description (1–2 sentences).'),
 
-  // Single-recipe fields (optional here; enforce in parent when recipes.length === 1)
-  servings: z
-    .number()
-    .nullable()
-    .describe('Number of servings. Required when only one recipe is returned.'),
-
   prepMinutes: z
     .number()
-    .nullable()
-    .describe(
-      'Preparation time in minutes. Required when only one recipe is returned.'
-    ),
+    .nullish()
+    .describe('Prep time in minutes.'),
 
   cookMinutes: z
     .number()
-    .nullable()
-    .describe(
-      'Cook time in minutes. Required when only one recipe is returned.'
-    ),
+    .nullish()
+    .describe('Cook time in minutes.'),
 
   // Facets / tags you actually persist
   cuisine: z
@@ -54,22 +44,7 @@ export const generatedRecipeSchema = z.object({
   techniques: z
     .array(z.string())
     .nullable()
-    .describe('Cooking techniques, e.g., ["grill", "braise"].'),
-
-  // Payload for the full single-recipe view
-  ingredients: z
-    .array(z.string())
-    .nullable()
-    .describe(
-      'Ingredient lines like "1 cup basmati rice, rinsed". Required when only one recipe is returned.'
-    ),
-
-  instructions: z
-    .array(z.string())
-    .nullable()
-    .describe(
-      'Numbered, concise imperative steps. Required when only one recipe is returned.'
-    )
+    .describe('Cooking techniques, e.g., ["grill", "braise"].')
 })
 
 export const roleSchema = z.enum(['system', 'user', 'assistant', 'data'])
@@ -86,9 +61,23 @@ export const messagesSchema = z.array(messageSchema)
 
 export type GeneratedRecipe = z.infer<typeof generatedRecipeSchema>
 
+export const recipeDetailsSchema = z.object({
+  ingredients: z.array(z.string()).describe('Full ingredient list.'),
+  instructions: z.array(z.string()).describe('Full step-by-step instructions.'),
+  servings: z.number().describe('Number of servings.')
+})
+
+export type RecipeDetails = z.infer<typeof recipeDetailsSchema>
+
+export const fullRecipeSchema = generatedRecipeSchema.merge(recipeDetailsSchema)
+export type FullRecipe = z.infer<typeof fullRecipeSchema>
+
 export const generatedRecipeWithIdSchema = generatedRecipeSchema.extend({
   id: z.string(),
-  slug: z.string()
+  slug: z.string(),
+  ingredients: z.array(z.string()).nullish(),
+  instructions: z.array(z.string()).nullish(),
+  servings: z.number().nullish()
 })
 
 export type GeneratedMessageWithId = z.infer<typeof generatedRecipeWithIdSchema>

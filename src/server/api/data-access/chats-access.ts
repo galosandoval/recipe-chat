@@ -163,11 +163,13 @@ export class ChatsAccess extends DataAccess {
             mainIngredients: mainIngredients ?? undefined,
             techniques: techniques ?? undefined,
             ingredients: {
+              deleteMany: {},
               create: ingredients?.map((i: string) =>
                 ingredientStringToCreatePayload(i)
               )
             },
             instructions: {
+              deleteMany: {},
               create: instructions?.map((i: string) => ({
                 description: i
               }))

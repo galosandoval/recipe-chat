@@ -40,10 +40,11 @@ function UserMessage({
   const isStreaming = useChatStore((state) => state.isStreaming)
 
   if (foundMessage) {
+    if (isStreaming && isLastMessage) return null
     return (
       <GenerateStatusAppMessage
         recipeName={foundMessage.name}
-        isStreaming={isStreaming && isLastMessage}
+        isStreaming={false}
       />
     )
   }
@@ -134,7 +135,7 @@ export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
   )
 
   return (
-    <div className='flex flex-col items-center gap-2 self-start w-full'>
+    <div className='flex w-full flex-col items-center gap-2 self-start'>
       <div className='mx-auto w-full'>
         <ChatMessage content={message.content} icon={<BotMessageSquareIcon />}>
           <>

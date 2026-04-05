@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { cn } from '~/lib/utils'
 
 const ANIMATION_DURATION = 300
 
@@ -8,14 +9,14 @@ function shuffleArray(arr: string[]) {
   const shuffled = [...arr]
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   return shuffled
 }
 
 export function RotatingPhrases({
   phrases,
-  interval = 2500,
+  interval = 2500
 }: {
   phrases: string[]
   interval?: number
@@ -60,14 +61,17 @@ export function RotatingPhrases({
   }, [interval, getNextPhrase])
 
   return (
-    <div className="relative h-6 overflow-hidden w-full">
+    <div className='relative h-6 w-full overflow-hidden'>
       <span
-        className={`text-muted-foreground absolute inset-0 flex items-center text-sm ${phase === 'transitioning' ? 'phrase-exit' : ''}`}
+        className={cn(
+          'text-muted-foreground absolute inset-0 flex items-center text-sm',
+          phase === 'transitioning' ? 'phrase-exit' : ''
+        )}
       >
         {currentPhrase}
       </span>
       {phase === 'transitioning' && nextPhrase && (
-        <span className="phrase-enter text-muted-foreground absolute inset-0 flex items-center text-sm">
+        <span className='phrase-enter text-muted-foreground absolute inset-0 flex items-center text-sm'>
           {nextPhrase}
         </span>
       )}

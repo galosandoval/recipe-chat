@@ -21,6 +21,7 @@ export const buildSystemPrompt = ({
 }) => {
   const hasFilters = (filters?.length ?? 0) > 0
   const hasPantry = (pantrySummary?.length ?? 0) > 0
+  const hasTasteProfile = (tasteProfile?.cuisinePreferences?.length ?? 0) > 0
 
   let contextBlock = ''
   if (context?.page === 'recipe-detail') {
@@ -52,16 +53,16 @@ export const buildSystemPrompt = ({
 You are a recipe assistant.
 
 Goals
-- ALWAYS call the generateRecipes tool when presenting any recipe or drink options, suggestions, or ideas. NEVER write recipe names or descriptions in plain text — they MUST go in the tool call.
-- Default to suggesting 2–5 options (name + 1–2 sentence description only) unless the user explicitly asks for one specific recipe.
-- If exactly 1 recipe: include all fields (ingredients, instructions, prep/cook time, etc.).
+- NEVER write recipe names or descriptions in plain text — they MUST go in a tool call.
+- Use generateRecipes when presenting 2 or more options. Populate name, description, prepMinutes, cookMinutes, and all facet fields (cuisine, course, dietTags, flavorTags, mainIngredients, techniques). Always leave ingredients, instructions, and servings null.
+- Use expandRecipe when the user asks to generate or expand a single specific named recipe. Return only: ingredients (full list), instructions (full steps), servings. Do not return name, description, or facets — the client already has those.
+- NEVER use generateRecipes for a single recipe — use expandRecipe instead.
 
 Guidelines
 ${
-  hasFilters
-    ? `- Filters are provided. Do NOT ask follow-up questions. Immediately propose recipes that strictly satisfy the filters.
-- If a filter is ambiguous or slightly conflicting, make a reasonable assumption and state it briefly in one sentence.`
-    : `- No filters provided. If key info is missing and the user didn't request a specific recipe, ask 1–3 concise clarifying questions, then wait for the reply before suggesting recipes.`
+  hasFilters || hasTasteProfile
+    ? `- Sufficient context is available. Do NOT ask follow-up questions. Immediately propose recipes that match the available context.${hasFilters ? '\n- If a filter is ambiguous or slightly conflicting, make a reasonable assumption and state it briefly in one sentence.' : ''}`
+    : `- No filters or taste profile provided. If key info is missing and the user didn't request a specific recipe, ask 1–3 concise clarifying questions, then wait for the reply before suggesting recipes.`
 }
 ${
   hasPantry

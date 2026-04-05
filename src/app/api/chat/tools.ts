@@ -1,7 +1,7 @@
 import { tool } from 'ai'
 import { z } from 'zod'
 import { type PrismaClient } from '@prisma/client'
-import { generatedRecipeSchema } from '~/schemas/messages-schema'
+import { generatedRecipeSchema, recipeDetailsSchema } from '~/schemas/messages-schema'
 import type { ChatContext } from '~/schemas/chats-schema'
 import { RecipesAccess } from '~/server/api/data-access/recipes-access'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
@@ -14,7 +14,7 @@ export function getTools(
   const baseTools = {
     generateRecipes: tool({
       description:
-        'Generate recipe suggestions for the user. Use this whenever suggesting recipes.',
+        'Generate 2 or more recipe suggestions. Use this whenever presenting multiple options. Populate name, description, prepMinutes, cookMinutes, and all facet fields. Always leave ingredients, instructions, and servings null.',
       parameters: z.object({
         message: z
           .string()
@@ -24,6 +24,19 @@ export function getTools(
         recipes: z.array(generatedRecipeSchema)
       })
       // No execute — model fills structured data, client renders it
+    }),
+    expandRecipe: tool({
+      description:
+        'Generate full details for a single recipe that was already suggested. Use this — not generateRecipes — when the user asks to generate or expand a specific named recipe suggestion. Return only ingredients, instructions, and servings.',
+      parameters: z.object({
+        message: z
+          .string()
+          .describe(
+            'Brief confirmation message, e.g. "Here is the full recipe for BBQ Chicken Tacos:".'
+          ),
+        details: recipeDetailsSchema
+      })
+      // No execute — client handles merge and rendering
     })
   }
 

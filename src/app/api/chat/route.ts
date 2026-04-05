@@ -59,5 +59,10 @@ export async function POST(req: Request) {
     maxSteps: 2
   })
 
-  return result.toDataStreamResponse()
+  return result.toDataStreamResponse({
+    getErrorMessage: (error) => {
+      console.error('[streamText error]', error)
+      return 'An error occurred.'
+    }
+  })
 }

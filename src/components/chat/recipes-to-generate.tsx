@@ -51,6 +51,7 @@ function Recipe({
         <div className='flex justify-end pt-2'>
           <GenerateButton
             disabled={isStreaming}
+            recipeId={recipe.id}
             recipeName={recipe.name}
             recipeDescription={recipe.description ?? ''}
           />
@@ -62,10 +63,12 @@ function Recipe({
 
 function GenerateButton({
   disabled,
+  recipeId,
   recipeName,
   recipeDescription
 }: {
   disabled: boolean
+  recipeId: string
   recipeName: string
   recipeDescription: string
 }) {
@@ -76,6 +79,7 @@ function GenerateButton({
 
   const generateRecipe = async (name: string, description: string) => {
     setIsStreaming(true)
+    useChatStore.getState().setPendingExpandRecipeId(recipeId)
     triggerAISubmission([
       ...messages,
       userMessageDTO(
