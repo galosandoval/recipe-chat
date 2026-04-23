@@ -297,28 +297,28 @@
   },
 
   "loaders": {
-    "cookingPhrases": [
-      "Precalentando el horno...",
-      "Cortando cebollas...",
-      "Picando ajo...",
-      "Hirviendo el caldo...",
-      "Batiendo la mezcla...",
-      "Amasando la masa...",
-      "Sazonando al gusto...",
-      "Salteando las verduras...",
-      "Reduciendo la salsa...",
-      "Incorporando el queso...",
-      "Rallando el limón...",
-      "Caramelizando el azúcar...",
-      "Tostando las especias...",
-      "Blanqueando las verduras...",
-      "Desglasando la sartén...",
-      "Bañando el asado...",
-      "Fermentando la levadura...",
-      "Atemperando el chocolate...",
-      "Marinando la proteína...",
-      "Emplatando el plato..."
-    ]
+    "cookingPhrases": {
+      "preheatOven": "Precalentando el horno...",
+      "chopOnions": "Cortando cebollas...",
+      "minceGarlic": "Picando ajo...",
+      "simmerBroth": "Hirviendo el caldo...",
+      "whiskBatter": "Batiendo la mezcla...",
+      "kneadDough": "Amasando la masa...",
+      "seasonToTaste": "Sazonando al gusto...",
+      "sauteVegetables": "Salteando las verduras...",
+      "reduceSauce": "Reduciendo la salsa...",
+      "foldInCheese": "Incorporando el queso...",
+      "zestLemon": "Rallando el limón...",
+      "caramelizeSugar": "Caramelizando el azúcar...",
+      "toastSpices": "Tostando las especias...",
+      "blanchGreens": "Blanqueando las verduras...",
+      "deglazePan": "Desglasando la sartén...",
+      "basteRoast": "Bañando el asado...",
+      "proofYeast": "Fermentando la levadura...",
+      "temperChocolate": "Atemperando el chocolate...",
+      "marinateProtein": "Marinando la proteína...",
+      "plateTheDish": "Emplatando el plato..."
+    }
   },
 
   "onboarding": {
