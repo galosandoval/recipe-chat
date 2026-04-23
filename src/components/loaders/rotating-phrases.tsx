@@ -1,92 +1,80 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useTranslations } from '~/hooks/use-translations'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '~/lib/utils'
 
-const ANIMATION_DURATION = 200
+const ANIMATION_DURATION = 300
 
-const PHRASE_KEYS = [
-  'preheatOven',
-  'chopOnions',
-  'minceGarlic',
-  'simmerBroth',
-  'whiskBatter',
-  'kneadDough',
-  'seasonToTaste',
-  'sauteVegetables',
-  'reduceSauce',
-  'foldInCheese',
-  'zestLemon',
-  'caramelizeSugar',
-  'toastSpices',
-  'blanchGreens',
-  'deglazePan',
-  'basteRoast',
-  'proofYeast',
-  'temperChocolate',
-  'marinateProtein',
-  'plateTheDish'
-] as const
-
-type PhraseKey = (typeof PHRASE_KEYS)[number]
-
-function shuffle(arr: readonly PhraseKey[]): PhraseKey[] {
-  const out = [...arr]
-  for (let i = out.length - 1; i > 0; i--) {
+function shuffleArray(arr: string[]) {
+  const shuffled = [...arr]
+  for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[out[i], out[j]] = [out[j], out[i]]
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
-  return out
+  return shuffled
 }
 
-export function RotatingPhrases({ interval = 2500 }: { interval?: number }) {
-  const shuffled = shuffle(PHRASE_KEYS)
-  const t = useTranslations()
-  const [idx, setIdx] = useState(0)
-  const [isAnimating, setIsAnimating] = useState(false)
-  const animTimerRef = useRef<NodeJS.Timeout>(undefined)
+export function RotatingPhrases({
+  phrases,
+  interval = 2500
+}: {
+  phrases: string[]
+  interval?: number
+}) {
+  const queueRef = useRef<string[]>([])
+  const lastPhraseRef = useRef('')
+
+  const getNextPhrase = useCallback(() => {
+    if (queueRef.current.length === 0) {
+      queueRef.current = shuffleArray(phrases)
+      if (queueRef.current[0] === lastPhraseRef.current) {
+        const temp = queueRef.current[0]
+        queueRef.current[0] = queueRef.current[queueRef.current.length - 1]
+        queueRef.current[queueRef.current.length - 1] = temp
+      }
+    }
+    const next = queueRef.current.pop()!
+    lastPhraseRef.current = next
+    return next
+  }, [phrases])
+
+  const [currentPhrase, setCurrentPhrase] = useState(() => getNextPhrase())
+  const [nextPhrase, setNextPhrase] = useState<string | null>(null)
+  const [phase, setPhase] = useState<'showing' | 'transitioning'>('showing')
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setIsAnimating(true)
-      animTimerRef.current = setTimeout(() => {
-        setIsAnimating(false)
-        setIdx((i) => i + 1)
+      const next = getNextPhrase()
+      setNextPhrase(next)
+      setPhase('transitioning')
+
+      const animTimer = setTimeout(() => {
+        setCurrentPhrase(next)
+        setNextPhrase(null)
+        setPhase('showing')
       }, ANIMATION_DURATION)
+
+      return () => clearTimeout(animTimer)
     }, interval)
 
-    return () => {
-      clearInterval(timer)
-      clearTimeout(animTimerRef.current)
-    }
-  }, [interval])
-
-  const current = t.loaders.cookingPhrases[
-    shuffled[idx % shuffled.length]
-  ] as string
-  const next = t.loaders.cookingPhrases[
-    shuffled[(idx + 1) % shuffled.length]
-  ] as string
+    return () => clearInterval(timer)
+  }, [interval, getNextPhrase])
 
   return (
     <div className='relative h-6 w-full overflow-hidden'>
       <span
         className={cn(
-          'text-muted-foreground absolute flex items-center text-sm',
-          isAnimating ? 'animate-exit' : 'translate-y-0 opacity-100'
+          'text-muted-foreground absolute inset-0 flex items-center text-sm',
+          phase === 'transitioning' ? 'phrase-exit' : ''
         )}
       >
-        {current}
+        {currentPhrase}
       </span>
-      <span
-        className={cn(
-          'text-muted-foreground absolute flex items-center text-sm',
-          isAnimating ? 'animate-enter' : 'translate-y-full opacity-0'
-        )}
-      >
-        {next}
-      </span>
+      {phase === 'transitioning' && nextPhrase && (
+        <span className='phrase-enter text-muted-foreground absolute inset-0 flex items-center text-sm'>
+          {nextPhrase}
+        </span>
+      )}
     </div>
   )
 }
