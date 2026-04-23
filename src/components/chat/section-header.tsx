@@ -11,7 +11,7 @@ export function SectionHeader({
 }) {
   return (
     <>
-      <div className='flex w-full justify-between px-4'>
+      <div className='flex w-full justify-between px-4 pb-1'>
         <div className='text-muted-foreground flex items-center justify-center gap-1 pt-2 pb-1'>
           {icon}
           <h2 className='text-xs font-medium tracking-wide uppercase'>
