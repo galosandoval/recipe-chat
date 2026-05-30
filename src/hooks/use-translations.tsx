@@ -120,8 +120,14 @@ class TranslationClass {
     const enhanced = { ...this.translations } as Translations
 
     // Add the root replace method
-    enhanced.replace = this.replace.bind(this)
-    enhanced.get = this.get.bind(this)
+    Object.defineProperty(enhanced, 'replace', {
+      value: this.replace.bind(this),
+      enumerable: false
+    })
+    Object.defineProperty(enhanced, 'get', {
+      value: this.get.bind(this),
+      enumerable: false
+    })
     // Add replace methods to nested objects
     this.addReplaceMethods(enhanced, '', this)
 
@@ -152,15 +158,21 @@ class TranslationClass {
           const copy = { ...value }
           obj[key] = copy
 
-          copy.replace = (subKey: string, ...args: string[]) => {
-            const fullPath = `${currentPath}.${subKey}`
-            return translationClass.replace(fullPath, ...args)
-          }
+          Object.defineProperty(copy, 'replace', {
+            value: (subKey: string, ...args: string[]) => {
+              const fullPath = `${currentPath}.${subKey}`
+              return translationClass.replace(fullPath, ...args)
+            },
+            enumerable: false
+          })
 
-          copy.get = (subKey: string) => {
-            const fullPath = `${currentPath}.${subKey}`
-            return translationClass.get(fullPath)
-          }
+          Object.defineProperty(copy, 'get', {
+            value: (subKey: string) => {
+              const fullPath = `${currentPath}.${subKey}`
+              return translationClass.get(fullPath)
+            },
+            enumerable: false
+          })
 
           // Recursively process deeper nested objects
           this.addReplaceMethods(copy, currentPath, translationClass)
@@ -191,8 +203,7 @@ export const useTranslations = (): Translations => {
     throw new Error('useTranslations must be used within a TranslationsContext')
   }
 
-  const translationClass = new TranslationClass(ctx.translations)
-  return translationClass.createEnhanced()
+  return new TranslationClass(ctx.translations).createEnhanced()
 }
 
 export const useLocale = (): Locale => {

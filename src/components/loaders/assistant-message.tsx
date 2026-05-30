@@ -12,7 +12,7 @@ export function AssistantMessageLoader() {
       <div className='mx-auto flex items-center justify-center gap-2'>
         <LoadingSpinner className='text-primary size-4 shrink-0' />
         <RotatingPhrases
-          phrases={t.loaders.cookingPhrases as unknown as string[]}
+          phrases={Object.values(t.loaders.cookingPhrases) as string[]}
         />
       </div>
     </div>

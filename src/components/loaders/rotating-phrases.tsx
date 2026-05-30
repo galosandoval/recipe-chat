@@ -1,9 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { cn } from '~/lib/utils'
-
-const ANIMATION_DURATION = 300
 
 function shuffleArray(arr: string[]) {
   const shuffled = [...arr]
@@ -24,7 +22,7 @@ export function RotatingPhrases({
   const queueRef = useRef<string[]>([])
   const lastPhraseRef = useRef('')
 
-  const getNextPhrase = useCallback(() => {
+  const getNextPhrase = () => {
     if (queueRef.current.length === 0) {
       queueRef.current = shuffleArray(phrases)
       if (queueRef.current[0] === lastPhraseRef.current) {
@@ -36,42 +34,39 @@ export function RotatingPhrases({
     const next = queueRef.current.pop()!
     lastPhraseRef.current = next
     return next
-  }, [phrases])
+  }
 
   const [currentPhrase, setCurrentPhrase] = useState(() => getNextPhrase())
   const [nextPhrase, setNextPhrase] = useState<string | null>(null)
-  const [phase, setPhase] = useState<'showing' | 'transitioning'>('showing')
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const next = getNextPhrase()
-      setNextPhrase(next)
-      setPhase('transitioning')
-
-      const animTimer = setTimeout(() => {
-        setCurrentPhrase(next)
-        setNextPhrase(null)
-        setPhase('showing')
-      }, ANIMATION_DURATION)
-
-      return () => clearTimeout(animTimer)
+      setNextPhrase(getNextPhrase())
     }, interval)
-
     return () => clearInterval(timer)
   }, [interval, getNextPhrase])
+
+  const handleEnterAnimationEnd = () => {
+    if (nextPhrase === null) return
+    setCurrentPhrase(nextPhrase)
+    setNextPhrase(null)
+  }
 
   return (
     <div className='relative h-6 w-full overflow-hidden'>
       <span
         className={cn(
           'text-muted-foreground absolute inset-0 flex items-center text-sm',
-          phase === 'transitioning' ? 'phrase-exit' : ''
+          nextPhrase && 'phrase-exit'
         )}
       >
         {currentPhrase}
       </span>
-      {phase === 'transitioning' && nextPhrase && (
-        <span className='phrase-enter text-muted-foreground absolute inset-0 flex items-center text-sm'>
+      {nextPhrase && (
+        <span
+          className='text-muted-foreground phrase-enter absolute inset-0 flex items-center text-sm'
+          onAnimationEnd={handleEnterAnimationEnd}
+        >
           {nextPhrase}
         </span>
       )}

@@ -54,6 +54,12 @@ function Messages({ data }: { data: MessageWithRecipes[] }) {
     (found, msg, j) => (found !== -1 ? found : msg.role === 'user' ? j : -1),
     -1
   )
+  const last = data.at(-1)
+  const isLoading =
+    isStreaming &&
+    !!last &&
+    (last.role === 'user' ||
+      (last.role === 'assistant' && !last.content && !last.recipes?.length))
 
   return (
     <div className='bg-background mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-4'>
@@ -65,9 +71,7 @@ function Messages({ data }: { data: MessageWithRecipes[] }) {
         />
       ))}
 
-      {isStreaming && data.at(-1)?.role === 'user' ? (
-        <AssistantMessageLoader />
-      ) : null}
+      {isLoading && <AssistantMessageLoader />}
     </div>
   )
 }

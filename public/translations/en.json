@@ -295,28 +295,28 @@
   },
 
   "loaders": {
-    "cookingPhrases": [
-      "Preheating the oven...",
-      "Chopping onions...",
-      "Mincing garlic...",
-      "Simmering the broth...",
-      "Whisking the batter...",
-      "Kneading the dough...",
-      "Seasoning to taste...",
-      "Sauteing the vegetables...",
-      "Reducing the sauce...",
-      "Folding in the cheese...",
-      "Zesting the lemon...",
-      "Caramelizing the sugar...",
-      "Toasting the spices...",
-      "Blanching the greens...",
-      "Deglazing the pan...",
-      "Basting the roast...",
-      "Proofing the yeast...",
-      "Tempering the chocolate...",
-      "Marinating the protein...",
-      "Plating the dish..."
-    ]
+    "cookingPhrases": {
+      "preheatOven": "Preheating the oven...",
+      "chopOnions": "Chopping onions...",
+      "minceGarlic": "Mincing garlic...",
+      "simmerBroth": "Simmering the broth...",
+      "whiskBatter": "Whisking the batter...",
+      "kneadDough": "Kneading the dough...",
+      "seasonToTaste": "Seasoning to taste...",
+      "sauteVegetables": "Sauteing the vegetables...",
+      "reduceSauce": "Reducing the sauce...",
+      "foldInCheese": "Folding in the cheese...",
+      "zestLemon": "Zesting the lemon...",
+      "caramelizeSugar": "Caramelizing the sugar...",
+      "toastSpices": "Toasting the spices...",
+      "blanchGreens": "Blanching the greens...",
+      "deglazePan": "Deglazing the pan...",
+      "basteRoast": "Basting the roast...",
+      "proofYeast": "Proofing the yeast...",
+      "temperChocolate": "Tempering the chocolate...",
+      "marinateProtein": "Marinating the protein...",
+      "plateTheDish": "Plating the dish..."
+    }
   },
 
   "onboarding": {
