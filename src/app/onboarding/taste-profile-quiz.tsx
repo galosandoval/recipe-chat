@@ -43,7 +43,8 @@ export function TasteProfileQuiz() {
       ? {
           dietaryRestrictions: existing.dietaryRestrictions,
           cuisinePreferences: existing.cuisinePreferences,
-          cookingSkill: existing.cookingSkill as TasteProfileSchema['cookingSkill'],
+          cookingSkill:
+            existing.cookingSkill as TasteProfileSchema['cookingSkill'],
           householdSize: existing.householdSize,
           healthGoals: existing.healthGoals
         }
@@ -80,7 +81,11 @@ export function TasteProfileQuiz() {
 
   return (
     <div className='mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-8'>
-      <ProgressBar step={step} total={TOTAL_STEPS} stepOfLabel={t.onboarding.stepOf} />
+      <ProgressBar
+        step={step}
+        total={TOTAL_STEPS}
+        stepOfLabel={t.onboarding.stepOf}
+      />
 
       <div className='min-h-[300px]'>
         {step === 0 && <StepDietary form={form} />}
@@ -96,8 +101,8 @@ export function TasteProfileQuiz() {
             variant='ghost'
             onClick={handleBack}
             disabled={isSubmitting}
+            icon={<ArrowLeftIcon className='h-4 w-4' />}
           >
-            <ArrowLeftIcon className='h-4 w-4' />
             {t.onboarding.back}
           </Button>
         ) : (
@@ -107,8 +112,8 @@ export function TasteProfileQuiz() {
             onClick={handleSkip}
             disabled={isSubmitting}
             isLoading={skip.status === 'pending'}
+            icon={<SkipForwardIcon className='h-4 w-4' />}
           >
-            <SkipForwardIcon className='h-4 w-4' />
             {t.onboarding.skip}
           </Button>
         )}
@@ -127,15 +132,23 @@ export function TasteProfileQuiz() {
   )
 }
 
-function ProgressBar({ step, total, stepOfLabel }: { step: number; total: number; stepOfLabel: string }) {
+function ProgressBar({
+  step,
+  total,
+  stepOfLabel
+}: {
+  step: number
+  total: number
+  stepOfLabel: string
+}) {
   const progress = ((step + 1) / total) * 100
-  const label = stepOfLabel.replace('$1', String(step + 1)).replace('$2', String(total))
+  const label = stepOfLabel
+    .replace('$1', String(step + 1))
+    .replace('$2', String(total))
 
   return (
     <div className='flex flex-col gap-2'>
-      <span className='text-muted-foreground text-sm'>
-        {label}
-      </span>
+      <span className='text-muted-foreground text-sm'>{label}</span>
       <div className='bg-muted h-2 w-full overflow-hidden rounded-full'>
         <div
           className='bg-primary h-full rounded-full transition-all duration-300'
