@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { cn } from '~/lib/utils'
 
 function shuffleArray(arr: string[]) {
@@ -22,7 +22,7 @@ export function RotatingPhrases({
   const queueRef = useRef<string[]>([])
   const lastPhraseRef = useRef('')
 
-  const getNextPhrase = useCallback(() => {
+  const getNextPhrase = () => {
     if (queueRef.current.length === 0) {
       queueRef.current = shuffleArray(phrases)
       if (queueRef.current[0] === lastPhraseRef.current) {
@@ -34,7 +34,7 @@ export function RotatingPhrases({
     const next = queueRef.current.pop()!
     lastPhraseRef.current = next
     return next
-  }, [phrases])
+  }
 
   const [currentPhrase, setCurrentPhrase] = useState(() => getNextPhrase())
   const [nextPhrase, setNextPhrase] = useState<string | null>(null)
