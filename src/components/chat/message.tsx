@@ -7,7 +7,6 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useChatStore } from '~/stores/chat-store'
 import { GenerateStatusAppMessage, ToolResultAppMessage } from './app-message'
 import { Avatar } from './avatar'
-import { AssistantMessageLoader } from '~/components/loaders/assistant-message'
 
 export const Message = function Message({
   message,
@@ -126,7 +125,7 @@ function Bubble({
 
 export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
   if (!message.content && !message.recipes?.length) {
-    return <AssistantMessageLoader />
+    return null
   }
 
   // Extract tool results for editRecipe/addNote
