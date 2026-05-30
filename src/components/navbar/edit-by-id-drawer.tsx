@@ -1,7 +1,7 @@
 'use client'
 
 import { useAppForm } from '~/hooks/use-app-form'
-import { type ChangeEvent, useState } from 'react'
+import { type ChangeEvent, type SubmitEvent, useState } from 'react'
 import { useTranslations } from '~/hooks/use-translations'
 import Image from 'next/image'
 import { api } from '~/trpc/react'
@@ -140,7 +140,9 @@ function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
     }
   })
 
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: SubmitEvent<HTMLDivElement> | ChangeEvent<HTMLInputElement>
+  ) => {
     if (!event.target.files) return
 
     const fileList = event.target.files
@@ -222,7 +224,7 @@ function UpdateImage({ imgUrl, id }: { imgUrl: string | null; id: string }) {
               >
                 {String(
                   t.recipes.byId[
-                  uploadImgButtonLabel as keyof typeof t.recipes.byId
+                    uploadImgButtonLabel as keyof typeof t.recipes.byId
                   ]
                 )}
               </Button>
