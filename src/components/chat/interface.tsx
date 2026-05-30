@@ -55,7 +55,7 @@ function Messages({ data }: { data: MessageWithRecipes[] }) {
     -1
   )
   const last = data.at(-1)
-  const showLoader =
+  const isLoading =
     isStreaming &&
     !!last &&
     (last.role === 'user' ||
@@ -71,7 +71,7 @@ function Messages({ data }: { data: MessageWithRecipes[] }) {
         />
       ))}
 
-      {showLoader && <AssistantMessageLoader />}
+      {isLoading && <AssistantMessageLoader />}
     </div>
   )
 }
