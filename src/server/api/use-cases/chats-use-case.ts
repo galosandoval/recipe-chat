@@ -7,8 +7,8 @@ import {
   type messagesWithRecipesSchema
 } from '~/schemas/chats-schema'
 import { RecipesAccess } from '../data-access/recipes-access'
-import { RecipeVectorAccess } from '../data-access/recipe-vector-access'
 import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
+import { embedRecipeById } from './embed-recipe-use-case'
 import { MessagesAccess } from '../data-access/messages-access'
 
 async function embedMessageRecipes(
@@ -16,29 +16,9 @@ async function embedMessageRecipes(
   userId: string,
   prisma: PrismaClient
 ) {
-  const vectorAccess = new RecipeVectorAccess(prisma)
   const recipes = messages.flatMap((m) => m.recipes ?? [])
   await Promise.all(
-    recipes.map(async (recipe) => {
-      const signature = vectorAccess.buildSignatureFromRecipe({
-        name: recipe.name,
-        description: recipe.description ?? null,
-        cuisine: recipe.cuisine ?? null,
-        course: recipe.course ?? null,
-        dietTags: recipe.dietTags ?? [],
-        flavorTags: recipe.flavorTags ?? [],
-        mainIngredients: recipe.mainIngredients ?? [],
-        techniques: recipe.techniques ?? []
-      })
-      try {
-        await vectorAccess.upsertEmbedding(recipe.id, userId, signature)
-      } catch (err) {
-        console.error('[recipe-vector] upsertEmbedding failed', {
-          recipeId: recipe.id,
-          err
-        })
-      }
-    })
+    recipes.map((recipe) => embedRecipeById(recipe.id, userId, prisma))
   )
 }
 
@@ -157,25 +137,7 @@ export async function generated(
     await recipesOnMessagesAccess.create(id, messageId)
   })
 
-  const vectorAccess = new RecipeVectorAccess(prisma)
-  const signature = vectorAccess.buildSignatureFromRecipe({
-    name,
-    description: null,
-    cuisine: rest.cuisine ?? null,
-    course: rest.course ?? null,
-    dietTags: rest.dietTags ?? [],
-    flavorTags: rest.flavorTags ?? [],
-    mainIngredients: rest.mainIngredients ?? [],
-    techniques: rest.techniques ?? []
-  })
-  try {
-    await vectorAccess.upsertEmbedding(id, userId, signature)
-  } catch (err) {
-    console.error('[recipe-vector] upsertEmbedding failed', {
-      recipeId: id,
-      err
-    })
-  }
+  await embedRecipeById(id, userId, prisma)
 
   return {
     success: true,
