@@ -173,6 +173,7 @@
     "expand": "Expandir",
     "collapse": "Colapsar",
     "generate": "Generar",
+    "alreadyHave": "Ya tienes algo parecido",
     "save": "Guardar",
     "saveSuccess": "¡Receta guardada!",
     "chats": "Recientes chats",

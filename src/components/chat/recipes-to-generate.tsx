@@ -5,9 +5,13 @@ import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { Button } from '~/components/button'
 import { Card } from '~/components/card'
+import { NavigationButton } from '~/components/navigation-button'
 import { useEffect, useRef, useState } from 'react'
-import { STREAM_TIMEOUT } from '~/constants/chat'
+import { SIMILAR_RECIPE_THRESHOLD, STREAM_TIMEOUT } from '~/constants/chat'
 import { SendIcon } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { api } from '~/trpc/react'
+import { pickSimilarMatch } from './pick-similar-match'
 
 export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
   const isStreaming = useChatStore((state) => state.isStreaming)
@@ -20,6 +24,11 @@ export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
     }
   }
 
+  // This turn's suggestions are persisted + embedded, so a similarity search can
+  // return one of them. Exclude them all by id so we never surface a suggestion
+  // as its own (or a sibling's) "you already have this" match.
+  const currentTurnIds = new Set(recipes.map((r) => r.id))
+
   return (
     <div className='grid grid-cols-1 items-stretch gap-2 pt-3 sm:grid-cols-2'>
       {recipes.map((r, i) => (
@@ -28,6 +37,7 @@ export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
           recipe={r}
           isStreaming={isStreaming}
           isGenerated={generatedRecipeNames.has(r.name)}
+          excludeIds={currentTurnIds}
         />
       ))}
     </div>
@@ -37,16 +47,23 @@ export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
 function Recipe({
   recipe,
   isStreaming,
-  isGenerated
+  isGenerated,
+  excludeIds
 }: {
   recipe: RecipeDTO
   isStreaming: boolean
   isGenerated: boolean
+  excludeIds: Set<string>
 }) {
   return (
     <Card className='bg-background'>
       <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
+      <SimilarRecipe
+        suggestionName={recipe.name}
+        isStreaming={isStreaming}
+        excludeIds={excludeIds}
+      />
       {!isGenerated && (
         <div className='flex justify-end pt-2'>
           <GenerateButton
@@ -58,6 +75,39 @@ function Recipe({
         </div>
       )}
     </Card>
+  )
+}
+
+function SimilarRecipe({
+  suggestionName,
+  isStreaming,
+  excludeIds
+}: {
+  suggestionName: string
+  isStreaming: boolean
+  excludeIds: Set<string>
+}) {
+  const t = useTranslations()
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
+
+  // Non-blocking: errors surface as undefined data and render nothing; a failed
+  // search never prevents the suggestion from rendering.
+  const { data } = api.recipes.searchSimilar.useQuery(
+    { query: suggestionName, limit: 3 },
+    { enabled: isAuthenticated && !isStreaming, retry: false }
+  )
+
+  const match = pickSimilarMatch(data, excludeIds, SIMILAR_RECIPE_THRESHOLD)
+  if (!match) return null
+
+  return (
+    <NavigationButton
+      href={`/recipes/${match.slug}`}
+      className='text-primary mt-1 text-left text-xs underline underline-offset-2'
+    >
+      {t.chat.alreadyHave}: {match.name}
+    </NavigationButton>
   )
 }
 

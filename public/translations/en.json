@@ -173,6 +173,7 @@
     "expand": "Expand",
     "collapse": "Collapse",
     "generate": "Generate",
+    "alreadyHave": "You already have something like this",
     "saveSuccess": "Recipe saved successfully!",
     "chats": "Recent chats",
     "noChats": "No chats found. Start a new chat by asking about a recipe",

@@ -96,3 +96,7 @@ ${hasPantry ? `Pantry (what the user has on hand): ${pantrySummary.slice(0, 80).
 }
 
 export const STREAM_TIMEOUT = 30000
+
+// Minimum cosine similarity (0–1) for surfacing an existing recipe as a
+// near-duplicate of a chat suggestion. Below this, nothing is shown. Tunable.
+export const SIMILAR_RECIPE_THRESHOLD = 0.5
