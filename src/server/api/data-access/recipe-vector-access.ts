@@ -39,8 +39,8 @@ export class RecipeVectorAccess extends DataAccess {
 
     await this.prisma.$executeRawUnsafe(
       `
-      INSERT INTO "RecipeVector" ("recipeId", "userId", "signature", "embedding")
-      VALUES ($1, $2, $3, $4::vector)
+      INSERT INTO "RecipeVector" ("recipeId", "userId", "signature", "embedding", "updatedAt")
+      VALUES ($1, $2, $3, $4::vector, now())
       ON CONFLICT ("recipeId") DO UPDATE
         SET "signature" = EXCLUDED."signature",
             "embedding" = EXCLUDED."embedding",
