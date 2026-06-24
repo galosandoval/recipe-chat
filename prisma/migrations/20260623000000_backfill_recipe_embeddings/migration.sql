@@ -1,0 +1,3 @@
+-- No schema changes. This migration is a marker so CI discovers and runs the
+-- colocated `data-migration.ts`, which backfills RecipeVector embeddings for
+-- recipes that were never embedded. See issue #481.

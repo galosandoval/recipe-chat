@@ -26,14 +26,25 @@ export async function createTestUser() {
 
 export async function createTestRecipe(
   userId: string,
-  overrides: { name?: string } = {}
+  overrides: {
+    name?: string
+    description?: string | null
+    cuisine?: string | null
+    course?: string | null
+    dietTags?: string[]
+    flavorTags?: string[]
+    mainIngredients?: string[]
+    techniques?: string[]
+  } = {}
 ) {
+  const { name, ...rest } = overrides
   const id = randomUUID()
   return testPrisma.recipe.create({
     data: {
-      name: overrides.name ?? 'Test Recipe',
+      name: name ?? 'Test Recipe',
       slug: `recipe-${id}`,
-      userId
+      userId,
+      ...rest
     }
   })
 }

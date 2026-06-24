@@ -4,6 +4,7 @@ import { type PrismaClient } from '@prisma/client'
 import { generatedRecipeSchema, recipeDetailsSchema } from '~/schemas/messages-schema'
 import type { ChatContext } from '~/schemas/chats-schema'
 import { RecipesAccess } from '~/server/api/data-access/recipes-access'
+import { embedRecipeById } from '~/server/api/use-cases/embed-recipe-use-case'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { slugify } from '~/lib/utils'
 
@@ -147,6 +148,14 @@ export function getTools(
         }
 
         const updated = await recipesAccess.getRecipeById(id)
+
+        // Refresh the embedding when a semantic field (name/description) changed
+        // so search reflects the edited recipe. Non-blocking.
+        const semanticChanged = 'name' in data || 'description' in data
+        if (semanticChanged && recipe.userId) {
+          await embedRecipeById(id, recipe.userId, prisma)
+        }
+
         return {
           success: true,
           recipeName: updated?.name ?? recipe.name,
