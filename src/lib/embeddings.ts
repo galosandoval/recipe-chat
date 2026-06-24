@@ -1,7 +1,7 @@
 import { embed } from 'ai'
 import { openai } from '@ai-sdk/openai'
 
-const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? 'text-embedding-3-large'
+const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? 'text-embedding-3-small'
 
 export type RecipeSignatureParts = {
   name: string

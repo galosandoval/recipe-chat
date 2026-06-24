@@ -107,7 +107,12 @@ export const useChatAI = () => {
       role: m.role,
       createdAt: m.createdAt,
       updatedAt: m.updatedAt,
-      recipes: m.recipes.map((r) => ({
+      recipes: m.recipes
+        .filter(
+          (r) =>
+            r.name.trim().length > 0 && (r.description ?? '').trim().length > 0
+        )
+        .map((r) => ({
         id: r.id,
         name: r.name,
         slug: r.slug,
@@ -125,6 +130,16 @@ export const useChatAI = () => {
         techniques: r.techniques
       }))
     }))
+
+    // If after filtering nothing meaningful remains in the assistant message,
+    // skip the save — there's nothing useful to persist.
+    const assistantHasContent = messages.some(
+      (m) =>
+        m.role === 'assistant' && (m.recipes.length > 0 || m.content.length > 0)
+    )
+    if (!assistantHasContent) {
+      return
+    }
 
     const currentChatId = useChatStore.getState().chatId
     const filterIds = !currentChatId

@@ -1,8 +1,31 @@
 import { type Recipe, type PrismaClient } from '@prisma/client'
 import { RecipesAccess } from '../data-access/recipes-access'
-import type { UpdateRecipe } from '~/schemas/recipes-schema'
+import { RecipeVectorAccess } from '../data-access/recipe-vector-access'
+import type { CreateRecipe, UpdateRecipe } from '~/schemas/recipes-schema'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
+
+export async function createRecipeWithEmbedding(
+  recipe: Omit<CreateRecipe, 'messsageId'>,
+  userId: string,
+  prisma: PrismaClient
+) {
+  const recipesAccess = new RecipesAccess(prisma)
+  const created = await recipesAccess.createRecipe(recipe, userId)
+
+  const vectorAccess = new RecipeVectorAccess(prisma)
+  const signature = vectorAccess.buildSignatureFromRecipe(created)
+  try {
+    await vectorAccess.upsertEmbedding(created.id, userId, signature)
+  } catch (err) {
+    console.error('[recipe-vector] upsertEmbedding failed', {
+      recipeId: created.id,
+      err
+    })
+  }
+
+  return created
+}
 
 export async function getRecipeNamesByUserId(
   userId: string,
