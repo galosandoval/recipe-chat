@@ -43,28 +43,40 @@ function extractFromToolInvocations(
     (t) => t.toolName === 'expandRecipe' && 'args' in t
   )
   if (expandCall?.args) {
-    const args = expandCall.args as { details?: RecipeDetails; message?: string }
+    const args = expandCall.args as {
+      recipeName?: string
+      details?: RecipeDetails
+      message?: string
+    }
     const d = args.details
     if (d?.ingredients?.length && d?.instructions?.length) {
       const store = useChatStore.getState()
-      const existing = store.messages
-        .flatMap((m) => m.recipes)
-        .find((r) => r.id === store.pendingExpandRecipeId)
+      const allPriorRecipes = store.messages.flatMap((m) => m.recipes)
+      const existing =
+        (args.recipeName
+          ? allPriorRecipes.find((r) => r.name === args.recipeName)
+          : undefined) ??
+        allPriorRecipes.find((r) => r.id === store.pendingExpandRecipeId)
       if (isFinal) {
         store.setPendingExpandRecipeId(null)
       }
 
+      // No prior recipe to expand — drop the malformed merge and show only the message.
+      if (!existing) {
+        return { recipes: [], toolMessage: args.message ?? '' }
+      }
+
       const merged: FullRecipe = {
-        name: existing?.name ?? '',
-        description: existing?.description ?? '',
-        prepMinutes: existing?.prepMinutes ?? null,
-        cookMinutes: existing?.cookMinutes ?? null,
-        cuisine: existing?.cuisine ?? null,
-        course: existing?.course ?? null,
-        dietTags: existing?.dietTags ?? [],
-        flavorTags: existing?.flavorTags ?? [],
-        mainIngredients: existing?.mainIngredients ?? [],
-        techniques: existing?.techniques ?? [],
+        name: existing.name,
+        description: existing.description ?? '',
+        prepMinutes: existing.prepMinutes ?? null,
+        cookMinutes: existing.cookMinutes ?? null,
+        cuisine: existing.cuisine ?? null,
+        course: existing.course ?? null,
+        dietTags: existing.dietTags ?? [],
+        flavorTags: existing.flavorTags ?? [],
+        mainIngredients: existing.mainIngredients ?? [],
+        techniques: existing.techniques ?? [],
         ingredients: d.ingredients,
         instructions: d.instructions,
         servings: d.servings

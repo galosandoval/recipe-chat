@@ -27,8 +27,14 @@ export function getTools(
     }),
     expandRecipe: tool({
       description:
-        'Generate full details for a single recipe that was already suggested. Use this — not generateRecipes — when the user asks to generate or expand a specific named recipe suggestion. Return only ingredients, instructions, and servings.',
+        'Generate full details for a recipe that was ALREADY presented earlier in this conversation via generateRecipes. Do NOT use for new requests — use generateRecipes instead. Pass recipeName matching the exact name of the prior suggestion. Returns only ingredients, instructions, and servings.',
       parameters: z.object({
+        recipeName: z
+          .string()
+          .min(1)
+          .describe(
+            'The exact name of the previously-suggested recipe being expanded. Must match a name from an earlier generateRecipes call in this conversation.'
+          ),
         message: z
           .string()
           .describe(

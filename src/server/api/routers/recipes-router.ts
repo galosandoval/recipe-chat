@@ -6,7 +6,11 @@ import { del } from '@vercel/blob'
 import { RecipesAccess } from '~/server/api/data-access/recipes-access'
 import { IngredientsAccess } from '~/server/api/data-access/ingredients-access'
 import { InstructionsAccess } from '~/server/api/data-access/instructions-access'
-import { editRecipe, saveRecipe } from '../use-cases/recipes-use-case'
+import {
+  createRecipeWithEmbedding,
+  editRecipe,
+  saveRecipe
+} from '../use-cases/recipes-use-case'
 import { type PrismaClient } from '@prisma/client'
 import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
 import {
@@ -158,17 +162,11 @@ export const recipesRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createRecipeSchema)
     .mutation(async ({ input, ctx }) => {
-      const recipesDataAccess = new RecipesAccess(ctx.prisma)
-
-      const newRecipe = await recipesDataAccess.createRecipe(
+      return await createRecipeWithEmbedding(
         input,
-        ctx.session.user.id
+        ctx.session.user.id,
+        ctx.prisma
       )
-
-      // The recipe is already linked to the message via the messageId field
-      // No need to update the message object
-
-      return newRecipe
     }),
 
   save: protectedProcedure

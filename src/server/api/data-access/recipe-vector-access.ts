@@ -1,0 +1,73 @@
+import { type Recipe } from '@prisma/client'
+import { DataAccess } from './data-access'
+import {
+  buildSignature,
+  embedSignature,
+  type RecipeSignatureParts
+} from '~/lib/embeddings'
+
+type SignatureSource = Pick<
+  Recipe,
+  | 'name'
+  | 'description'
+  | 'cuisine'
+  | 'course'
+  | 'dietTags'
+  | 'flavorTags'
+  | 'mainIngredients'
+  | 'techniques'
+>
+
+export class RecipeVectorAccess extends DataAccess {
+  buildSignatureFromRecipe(recipe: SignatureSource) {
+    const parts: RecipeSignatureParts = {
+      name: recipe.name,
+      description: recipe.description,
+      cuisine: recipe.cuisine,
+      course: recipe.course,
+      dietTags: recipe.dietTags,
+      flavorTags: recipe.flavorTags,
+      mainIngredients: recipe.mainIngredients,
+      techniques: recipe.techniques
+    }
+    return buildSignature(parts)
+  }
+
+  async upsertEmbedding(recipeId: string, userId: string, signature: string) {
+    const vector = await embedSignature(signature)
+    const vectorLiteral = `[${vector.join(',')}]`
+
+    await this.prisma.$executeRawUnsafe(
+      `
+      INSERT INTO "RecipeVector" ("recipeId", "userId", "signature", "embedding")
+      VALUES ($1, $2, $3, $4::vector)
+      ON CONFLICT ("recipeId") DO UPDATE
+        SET "signature" = EXCLUDED."signature",
+            "embedding" = EXCLUDED."embedding",
+            "updatedAt" = now()
+    `,
+      recipeId,
+      userId,
+      signature,
+      vectorLiteral
+    )
+  }
+
+  async searchSimilar(userId: string, embedding: number[], limit: number) {
+    const vectorLiteral = `'[${embedding.join(',')}]'`
+    return await this.prisma.$queryRawUnsafe<
+      Array<{ recipeId: string; cosineSim: number }>
+    >(
+      `
+      SELECT "recipeId",
+             1 - ("embedding" <=> ${vectorLiteral}::vector) AS "cosineSim"
+      FROM "RecipeVector"
+      WHERE "userId" = $1
+      ORDER BY "embedding" <=> ${vectorLiteral}::vector
+      LIMIT $2
+    `,
+      userId,
+      limit
+    )
+  }
+}

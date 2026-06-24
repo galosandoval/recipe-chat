@@ -20,6 +20,8 @@
     "migrate-reset": "bunx prisma migrate reset",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:db:setup": "dotenv -e .env.test.local -- prisma migrate deploy",
+    "test:integration": "jest --runInBand",
     "data-migration:add-saved-column": "tsx ./prisma/migrations/20250730012052_add_saved_column/data-migration.ts",
     "data-migration:create-many-recipes-to-many-messages-table": "tsx ./prisma/migrations/20250730020516_create_many_recipes_to_many_messages_table/data-migration.ts",
     "data-migration:filter-user-id-not-unique": "tsx ./prisma/migrations/20250219050052_filter_user_id_not_unique/data-migration.ts",
