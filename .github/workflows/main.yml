@@ -61,3 +61,6 @@ jobs:
         env:
           DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING }}
           DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL }}
+          # Embedding backfills call OpenAI; without this the embeds fail and are
+          # swallowed, leaving RecipeVector empty while the migration looks applied.
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

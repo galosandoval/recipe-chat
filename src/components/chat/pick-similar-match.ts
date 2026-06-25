@@ -6,18 +6,14 @@ export type SimilarMatch = {
 }
 
 // Picks the best existing recipe to surface as a near-duplicate of a suggestion.
-// Results are already ordered by descending cosineSim, so the first qualifying
-// row wins. The current turn's own suggestions are excluded by id: they get
-// persisted and embedded (see embedMessageRecipes), so a search by one
-// suggestion's name can return itself or a sibling suggestion from the same turn.
+// Results are already ordered by descending cosineSim, so the first row that
+// clears the threshold wins. Search is saved-only, so the current turn's own
+// (unsaved) suggestions can never appear here — no self-match exclusion needed.
 export function pickSimilarMatch(
   results: SimilarMatch[] | undefined,
-  excludeIds: Set<string>,
   threshold: number
 ): SimilarMatch | null {
   if (!results) return null
-  const match = results.find(
-    (r) => r.cosineSim >= threshold && !excludeIds.has(r.id)
-  )
+  const match = results.find((r) => r.cosineSim >= threshold)
   return match ?? null
 }

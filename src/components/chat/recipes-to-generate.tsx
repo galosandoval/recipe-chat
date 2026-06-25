@@ -24,11 +24,6 @@ export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
     }
   }
 
-  // This turn's suggestions are persisted + embedded, so a similarity search can
-  // return one of them. Exclude them all by id so we never surface a suggestion
-  // as its own (or a sibling's) "you already have this" match.
-  const currentTurnIds = new Set(recipes.map((r) => r.id))
-
   return (
     <div className='grid grid-cols-1 items-stretch gap-2 pt-3 sm:grid-cols-2'>
       {recipes.map((r, i) => (
@@ -37,7 +32,6 @@ export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
           recipe={r}
           isStreaming={isStreaming}
           isGenerated={generatedRecipeNames.has(r.name)}
-          excludeIds={currentTurnIds}
         />
       ))}
     </div>
@@ -47,23 +41,17 @@ export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
 function Recipe({
   recipe,
   isStreaming,
-  isGenerated,
-  excludeIds
+  isGenerated
 }: {
   recipe: RecipeDTO
   isStreaming: boolean
   isGenerated: boolean
-  excludeIds: Set<string>
 }) {
   return (
     <Card className='bg-background'>
       <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
-      <SimilarRecipe
-        suggestionName={recipe.name}
-        isStreaming={isStreaming}
-        excludeIds={excludeIds}
-      />
+      <SimilarRecipe suggestionName={recipe.name} isStreaming={isStreaming} />
       {!isGenerated && (
         <div className='flex justify-end pt-2'>
           <GenerateButton
@@ -80,12 +68,10 @@ function Recipe({
 
 function SimilarRecipe({
   suggestionName,
-  isStreaming,
-  excludeIds
+  isStreaming
 }: {
   suggestionName: string
   isStreaming: boolean
-  excludeIds: Set<string>
 }) {
   const t = useTranslations()
   const { status } = useSession()
@@ -98,7 +84,7 @@ function SimilarRecipe({
     { enabled: isAuthenticated && !isStreaming, retry: false }
   )
 
-  const match = pickSimilarMatch(data, excludeIds, SIMILAR_RECIPE_THRESHOLD)
+  const match = pickSimilarMatch(data, SIMILAR_RECIPE_THRESHOLD)
   if (!match) return null
 
   return (
