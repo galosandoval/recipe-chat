@@ -9,8 +9,7 @@ import { InstructionsAccess } from '~/server/api/data-access/instructions-access
 import {
   createRecipeWithEmbedding,
   editRecipe,
-  saveRecipe,
-  searchSimilarRecipes
+  saveRecipe
 } from '../use-cases/recipes-use-case'
 import { type PrismaClient } from '@prisma/client'
 import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
@@ -82,22 +81,6 @@ export const recipesRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       const recipesDataAccess = new RecipesAccess(ctx.prisma)
       return recipesDataAccess.getRecipesByIds(input)
-    }),
-
-  searchSimilar: protectedProcedure
-    .input(
-      z.object({
-        query: z.string().min(1),
-        limit: z.number().min(1).max(50).optional()
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return searchSimilarRecipes(
-        ctx.session.user.id,
-        input.query,
-        input.limit ?? 10,
-        ctx.prisma
-      )
     }),
 
   parseRecipeUrl: protectedProcedure

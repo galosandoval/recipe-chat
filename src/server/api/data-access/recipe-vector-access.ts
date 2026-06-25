@@ -52,26 +52,4 @@ export class RecipeVectorAccess extends DataAccess {
       vectorLiteral
     )
   }
-
-  // Only saved recipes are searchable: unsaved rows are throwaway chat
-  // suggestions (no ingredients/instructions), so surfacing them links to an
-  // empty recipe. Matches how the rest of the app defines "my recipes".
-  async searchSimilar(userId: string, embedding: number[], limit: number) {
-    const vectorLiteral = `'[${embedding.join(',')}]'`
-    return await this.prisma.$queryRawUnsafe<
-      Array<{ recipeId: string; cosineSim: number }>
-    >(
-      `
-      SELECT v."recipeId",
-             1 - (v."embedding" <=> ${vectorLiteral}::vector) AS "cosineSim"
-      FROM "RecipeVector" v
-      JOIN "Recipe" r ON r.id = v."recipeId"
-      WHERE v."userId" = $1 AND r.saved = true
-      ORDER BY v."embedding" <=> ${vectorLiteral}::vector
-      LIMIT $2
-    `,
-      userId,
-      limit
-    )
-  }
 }

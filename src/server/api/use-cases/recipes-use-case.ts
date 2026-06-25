@@ -1,10 +1,8 @@
 import { type Recipe, type PrismaClient } from '@prisma/client'
 import { RecipesAccess } from '../data-access/recipes-access'
-import { RecipeVectorAccess } from '../data-access/recipe-vector-access'
 import type { CreateRecipe, UpdateRecipe } from '~/schemas/recipes-schema'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
-import { embedSignature } from '~/lib/embeddings'
 import { embedRecipeById } from './embed-recipe-use-case'
 
 export async function createRecipeWithEmbedding(
@@ -18,36 +16,6 @@ export async function createRecipeWithEmbedding(
   await embedRecipeById(created.id, userId, prisma)
 
   return created
-}
-
-/**
- * Semantic search over the user's own recipes. Embeds the query with the same
- * model/signature conventions as stored recipes, ranks by cosine similarity, and
- * hydrates the matching recipe rows while preserving the ranking order.
- */
-export async function searchSimilarRecipes(
-  userId: string,
-  query: string,
-  limit: number,
-  prisma: PrismaClient
-) {
-  const embedding = await embedSignature(query)
-  const ranked = await new RecipeVectorAccess(prisma).searchSimilar(
-    userId,
-    embedding,
-    limit
-  )
-
-  const recipes = await new RecipesAccess(prisma).getRecipesByIds(
-    ranked.map((r) => r.recipeId)
-  )
-  const recipeById = new Map(recipes.map((recipe) => [recipe.id, recipe]))
-
-  return ranked.flatMap((result) => {
-    const recipe = recipeById.get(result.recipeId)
-    if (!recipe) return []
-    return [{ ...recipe, cosineSim: Number(result.cosineSim) }]
-  })
 }
 
 export async function getRecipeNamesByUserId(

@@ -5,8 +5,7 @@ export const buildSystemPrompt = ({
   savedRecipes,
   pantrySummary = [],
   context,
-  tasteProfile,
-  similarSaved = []
+  tasteProfile
 }: {
   filters: string[]
   savedRecipes: string[]
@@ -19,21 +18,10 @@ export const buildSystemPrompt = ({
     healthGoals: string[]
     dietaryRestrictions: string[]
   } | null
-  similarSaved?: { name: string; description: string | null }[]
 }) => {
   const hasFilters = (filters?.length ?? 0) > 0
   const hasPantry = (pantrySummary?.length ?? 0) > 0
   const hasTasteProfile = (tasteProfile?.cuisinePreferences?.length ?? 0) > 0
-
-  // Recipes the user already owns that are semantically closest to this request.
-  // Steer the model away from regenerating near-duplicates and toward variations.
-  const similarBlock = similarSaved.length
-    ? `\nThe user already has these saved recipes that closely match this request:\n${similarSaved
-        .map((r) => `- ${r.name}${r.description ? `: ${r.description}` : ''}`)
-        .join(
-          '\n'
-        )}\nDo NOT propose duplicates of these. If the request matches one closely, tell the user they already have it and offer a meaningfully different variation instead.\n`
-    : ''
 
   let contextBlock = ''
   if (context?.page === 'recipe-detail') {
@@ -81,7 +69,7 @@ ${
     ? `- The user has provided their pantry (ingredients they have on hand). When they ask what to make, what they can cook, or similar, prefer suggesting recipes that use mainly these ingredients. You may mention one or two extra items they might need.`
     : ''
 }
-${contextBlock ? `\n${contextBlock}\n` : ''}${similarBlock}${
+${contextBlock ? `\n${contextBlock}\n` : ''}${
     tasteProfile
       ? `
 User Profile
@@ -108,11 +96,3 @@ ${hasPantry ? `Pantry (what the user has on hand): ${pantrySummary.slice(0, 80).
 }
 
 export const STREAM_TIMEOUT = 30000
-
-// Minimum cosine similarity (0–1) for surfacing an existing recipe as a
-// near-duplicate of a chat suggestion. Below this, nothing is shown. Tunable.
-export const SIMILAR_RECIPE_THRESHOLD = 0.5
-
-// How many of the user's closest saved recipes to feed into the chat prompt so
-// the model avoids regenerating near-duplicates and can offer variations.
-export const SIMILAR_RECIPE_RAG_LIMIT = 5
