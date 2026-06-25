@@ -1,16 +1,13 @@
 import { streamText } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { chatParams } from '~/schemas/chats-schema'
-import { buildSystemPrompt, SIMILAR_RECIPE_RAG_LIMIT } from '~/constants/chat'
+import { buildSystemPrompt } from '~/constants/chat'
 import { prisma } from '~/server/db'
 import { compactTitles } from '~/lib/compact-title'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { getTools } from './tools'
 import { getTasteProfile } from '~/server/api/use-cases/taste-profile-use-case'
-import {
-  getRecipeNamesByUserId,
-  searchSimilarRecipes
-} from '~/server/api/use-cases/recipes-use-case'
+import { getRecipeNamesByUserId } from '~/server/api/use-cases/recipes-use-case'
 import { getPantryByUserId } from '~/server/api/use-cases/pantry-use-case'
 
 // Allow streaming responses up to 30 seconds
@@ -39,37 +36,12 @@ export async function POST(req: Request) {
 
   const tasteProfile = userId ? await getTasteProfile(userId) : null
 
-  // Semantic dedup: find the user's saved recipes closest to what they just
-  // asked for, so the model avoids regenerating near-duplicates. Non-blocking —
-  // a search failure must never stop the chat from responding.
-  let similarSaved: { name: string; description: string | null }[] = []
-  const latestUserMessage = [...messages]
-    .reverse()
-    .find((m) => m.role === 'user')
-  if (userId && latestUserMessage?.content) {
-    try {
-      const matches = await searchSimilarRecipes(
-        userId,
-        latestUserMessage.content,
-        SIMILAR_RECIPE_RAG_LIMIT,
-        prisma
-      )
-      similarSaved = matches.map((m) => ({
-        name: m.name,
-        description: m.description
-      }))
-    } catch (error) {
-      console.error('[chat similar-recipe RAG]', error)
-    }
-  }
-
   const system = buildSystemPrompt({
     filters,
     savedRecipes: recipesNames,
     pantrySummary,
     context,
-    tasteProfile,
-    similarSaved
+    tasteProfile
   })
 
   const tools = getTools(context, prisma)
