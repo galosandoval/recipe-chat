@@ -1,4 +1,4 @@
-Be concise yet precise with your text responses. Don't be sycophantic.
+When reporting information to me, be extremely concise and sacrifice grammar for the sake of concision.
 
 ## Agent skills
 

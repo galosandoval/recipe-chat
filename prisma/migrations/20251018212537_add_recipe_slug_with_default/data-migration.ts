@@ -3,12 +3,19 @@ import { slugify } from '~/lib/utils'
 
 const prisma = new PrismaClient()
 
+// The column was added NOT NULL DEFAULT gen_random_uuid()::text, so unprocessed
+// rows still hold a raw UUID. Idempotency guard: only humanize slugs that still
+// match this default — a re-run skips already-humanized or user-edited slugs.
+const UUID_DEFAULT = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 async function main() {
   await prisma.$transaction(
     async (tx) => {
       const recipes = await tx.recipe.findMany()
-      const sorted = recipes.toSorted((a, b) => a.name.localeCompare(b.name))
-      for (const recipe of sorted) {
+      const unprocessed = recipes
+        .filter((recipe) => UUID_DEFAULT.test(recipe.slug))
+        .toSorted((a, b) => a.name.localeCompare(b.name))
+      for (const recipe of unprocessed) {
         const slug = slugify(recipe.name)
         console.log('slug', slug)
 
@@ -19,7 +26,7 @@ async function main() {
           }
         })
       }
-      console.log('updated all recipes')
+      console.log(`Humanized ${unprocessed.length} slug(s).`)
     },
     {
       maxWait: 5000, // Maximum wait time for a connection from the pool (e.g., 5 seconds)

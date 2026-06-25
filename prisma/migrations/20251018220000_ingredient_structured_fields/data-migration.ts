@@ -6,9 +6,12 @@ const prisma = new PrismaClient()
 const BATCH_SIZE = 50
 
 async function main() {
-  // Table still has "name" at migration time; Prisma client no longer does, so use raw query
+  // Table still has "name" at migration time; Prisma client no longer does, so use raw query.
+  // Idempotency guard: only parse ingredients whose structured fields are still
+  // unset (item_name IS NULL) — a re-run skips already-parsed rows and never
+  // clobbers manual edits.
   const ingredients = await prisma.$queryRaw<{ id: string; name: string }[]>`
-    SELECT id, name FROM "Ingredient"
+    SELECT id, name FROM "Ingredient" WHERE item_name IS NULL
   `
 
   let updated = 0

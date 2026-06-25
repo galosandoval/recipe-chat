@@ -5,9 +5,13 @@ import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { Button } from '~/components/button'
 import { Card } from '~/components/card'
+import { NavigationButton } from '~/components/navigation-button'
 import { useEffect, useRef, useState } from 'react'
-import { STREAM_TIMEOUT } from '~/constants/chat'
+import { SIMILAR_RECIPE_THRESHOLD, STREAM_TIMEOUT } from '~/constants/chat'
 import { SendIcon } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { api } from '~/trpc/react'
+import { pickSimilarMatch } from './pick-similar-match'
 
 export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
   const isStreaming = useChatStore((state) => state.isStreaming)
@@ -47,6 +51,7 @@ function Recipe({
     <Card className='bg-background'>
       <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
+      <SimilarRecipe suggestionName={recipe.name} isStreaming={isStreaming} />
       {!isGenerated && (
         <div className='flex justify-end pt-2'>
           <GenerateButton
@@ -58,6 +63,37 @@ function Recipe({
         </div>
       )}
     </Card>
+  )
+}
+
+function SimilarRecipe({
+  suggestionName,
+  isStreaming
+}: {
+  suggestionName: string
+  isStreaming: boolean
+}) {
+  const t = useTranslations()
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
+
+  // Non-blocking: errors surface as undefined data and render nothing; a failed
+  // search never prevents the suggestion from rendering.
+  const { data } = api.recipes.searchSimilar.useQuery(
+    { query: suggestionName, limit: 3 },
+    { enabled: isAuthenticated && !isStreaming, retry: false }
+  )
+
+  const match = pickSimilarMatch(data, SIMILAR_RECIPE_THRESHOLD)
+  if (!match) return null
+
+  return (
+    <NavigationButton
+      href={`/recipes/${match.slug}`}
+      className='text-primary mt-1 text-left text-xs underline underline-offset-2'
+    >
+      {t.chat.alreadyHave}: {match.name}
+    </NavigationButton>
   )
 }
 

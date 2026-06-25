@@ -35,15 +35,19 @@ export async function createTestRecipe(
     flavorTags?: string[]
     mainIngredients?: string[]
     techniques?: string[]
+    saved?: boolean
   } = {}
 ) {
-  const { name, ...rest } = overrides
+  const { name, saved, ...rest } = overrides
   const id = randomUUID()
   return testPrisma.recipe.create({
     data: {
       name: name ?? 'Test Recipe',
       slug: `recipe-${id}`,
       userId,
+      // Search is saved-only; default to a "real" saved recipe so search tests
+      // exercise the realistic path. Pass saved: false to test exclusion.
+      saved: saved ?? true,
       ...rest
     }
   })

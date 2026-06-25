@@ -94,6 +94,24 @@ describe('RecipeVectorAccess.upsertEmbedding + searchSimilar', () => {
     expect(results).toHaveLength(2)
   })
 
+  it('excludes unsaved recipes from search results', async () => {
+    const user = await createTestUser()
+    const saved = await createTestRecipe(user.id, { name: 'Saved' })
+    const unsaved = await createTestRecipe(user.id, {
+      name: 'Unsaved',
+      saved: false
+    })
+
+    mockedEmbed.mockResolvedValue(unitVector(0))
+    await access.upsertEmbedding(saved.id, user.id, 'saved')
+    await access.upsertEmbedding(unsaved.id, user.id, 'unsaved')
+
+    const results = await access.searchSimilar(user.id, unitVector(0), 10)
+
+    expect(results).toHaveLength(1)
+    expect(results[0].recipeId).toBe(saved.id)
+  })
+
   it('only returns vectors belonging to the querying user', async () => {
     const owner = await createTestUser()
     const stranger = await createTestUser()
