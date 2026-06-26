@@ -51,6 +51,63 @@ describe('RecipeVectorAccess.upsertEmbedding', () => {
   })
 })
 
+describe('RecipeVectorAccess.maxSimilarityForEmbeddings', () => {
+  it('returns ~1 for a candidate equal to a saved vector and ~0 for an orthogonal one', async () => {
+    const user = await createTestUser()
+    const recipe = await createTestRecipe(user.id)
+
+    mockedEmbed.mockResolvedValue(unitVector(0))
+    await access.upsertEmbedding(recipe.id, user.id, 'saved signature')
+
+    const [same, orthogonal] = await access.maxSimilarityForEmbeddings(user.id, [
+      unitVector(0),
+      unitVector(1)
+    ])
+
+    expect(same).toBeCloseTo(1, 5)
+    expect(orthogonal).toBeCloseTo(0, 5)
+  })
+
+  it('returns 0 when the user has no saved vectors', async () => {
+    const user = await createTestUser()
+
+    const [sim] = await access.maxSimilarityForEmbeddings(user.id, [
+      unitVector(0)
+    ])
+
+    expect(sim).toBe(0)
+  })
+
+  it("ignores another user's saved recipes", async () => {
+    const owner = await createTestUser()
+    const other = await createTestUser()
+    const otherRecipe = await createTestRecipe(other.id)
+
+    mockedEmbed.mockResolvedValue(unitVector(0))
+    await access.upsertEmbedding(otherRecipe.id, other.id, 'other signature')
+
+    const [sim] = await access.maxSimilarityForEmbeddings(owner.id, [
+      unitVector(0)
+    ])
+
+    expect(sim).toBe(0)
+  })
+
+  it('ignores the caller’s own unsaved recipes', async () => {
+    const user = await createTestUser()
+    const unsaved = await createTestRecipe(user.id, { saved: false })
+
+    mockedEmbed.mockResolvedValue(unitVector(0))
+    await access.upsertEmbedding(unsaved.id, user.id, 'unsaved signature')
+
+    const [sim] = await access.maxSimilarityForEmbeddings(user.id, [
+      unitVector(0)
+    ])
+
+    expect(sim).toBe(0)
+  })
+})
+
 describe('RecipeVectorAccess.buildSignatureFromRecipe', () => {
   it('derives the embedding signature from the recipe facet fields', () => {
     const signature = access.buildSignatureFromRecipe({

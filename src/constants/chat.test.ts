@@ -26,7 +26,7 @@ describe('buildSystemPrompt', () => {
   it('keeps the generate-vs-expand goals and saved/filter blocks', () => {
     const prompt = buildSystemPrompt(baseArgs)
 
-    expect(prompt).toMatch(/generateRecipes/)
+    expect(prompt).toMatch(/generateRecipeOptions/)
     expect(prompt).toMatch(/expandRecipe/)
     expect(prompt).toContain('vegetarian, quick')
     expect(prompt).toContain('Carbonara | Margherita Pizza')

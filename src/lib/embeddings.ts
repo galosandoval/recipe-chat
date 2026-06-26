@@ -1,4 +1,4 @@
-import { embed } from 'ai'
+import { embed, embedMany } from 'ai'
 import { openai } from '@ai-sdk/openai'
 
 const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? 'text-embedding-3-small'
@@ -46,4 +46,20 @@ export async function embedSignature(signature: string): Promise<number[]> {
     value: signature
   })
   return embedding
+}
+
+/**
+ * Embed many signatures in a single round-trip. Order is preserved, so
+ * `result[i]` is the embedding for `signatures[i]`. Used to embed transient
+ * recipe suggestions for server-side de-duplication.
+ */
+export async function embedManySignatures(
+  signatures: string[]
+): Promise<number[][]> {
+  if (signatures.length === 0) return []
+  const { embeddings } = await embedMany({
+    model: openai.embedding(EMBEDDING_MODEL),
+    values: signatures
+  })
+  return embeddings
 }
