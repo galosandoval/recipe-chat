@@ -10,6 +10,7 @@ import {
   roleSchema
 } from '~/schemas/messages-schema'
 import { idSchema, userIdSchema } from '~/schemas/ids-schema'
+import { recipeFacetsSchema } from '~/schemas/recipes-schema'
 
 export const createChatAndRecipeSchema = z.object({
   recipe: z.object({
@@ -61,7 +62,9 @@ export const chatParams = z.object({
   filters: z.array(z.string()),
   userId: userIdSchema.shape.userId.optional(),
   context: chatContextSchema.optional(),
-  usePantry: z.boolean().optional()
+  usePantry: z.boolean().optional(),
+  /** When true, force the `expandRecipe` tool — the user clicked Generate on a prior suggestion. */
+  expand: z.boolean().optional()
 })
 
 export const createOrAddMessages = z.object({
@@ -136,23 +139,20 @@ export type UpsertChatSchema = z.infer<typeof upsertChatSchema>
 // Api to use when user clicks on a recipe to generate
 export const generatedSchema = z.object({
   prompt: messageSchema,
-  generated: z.object({
-    content: z.string(),
-    id: z.string(),
-    name: z.string(),
-    ingredients: z.array(z.string()),
-    instructions: z.array(z.string()),
-    prepMinutes: z.number().optional().nullable(),
-    cookMinutes: z.number().optional().nullable(),
-    cuisine: z.string().optional(),
-    course: z.string().optional(),
-    dietTags: z.array(z.string()).optional(),
-    flavorTags: z.array(z.string()).optional(),
-    mainIngredients: z.array(z.string()).optional(),
-    techniques: z.array(z.string()).optional(),
-    messageId: z.string(),
-    chatId: z.string()
-  })
+  generated: z
+    .object({
+      content: z.string(),
+      id: z.string(),
+      name: z.string(),
+      ingredients: z.array(z.string()),
+      instructions: z.array(z.string()),
+      prepMinutes: z.number().optional().nullable(),
+      cookMinutes: z.number().optional().nullable(),
+      servings: z.number().optional().nullable(),
+      messageId: z.string(),
+      chatId: z.string()
+    })
+    .merge(recipeFacetsSchema)
 })
 export type Generated = z.infer<typeof generatedSchema>
 

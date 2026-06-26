@@ -10,13 +10,13 @@ import { getTasteProfile } from '~/server/api/use-cases/taste-profile-use-case'
 import { getRecipeNamesByUserId } from '~/server/api/use-cases/recipes-use-case'
 import { getPantryByUserId } from '~/server/api/use-cases/pantry-use-case'
 
-// Allow streaming responses up to 30 seconds
+/** Allow streaming responses up to 30 seconds. */
 export const maxDuration = 30
 
 export async function POST(req: Request) {
   const request = await req.json()
   const input = chatParams.parse(request)
-  const { filters, messages, userId, context, usePantry } = input
+  const { filters, messages, userId, context, usePantry, expand } = input
 
   let recipesNames: string[] = []
   if (userId) {
@@ -56,6 +56,10 @@ export async function POST(req: Request) {
       })),
     system,
     tools,
+    // When the user clicks Generate on a prior suggestion, force the full-details
+    // tool so ingredients/instructions are always produced (otherwise the model
+    // re-runs generateRecipes and leaves them null).
+    toolChoice: expand ? { type: 'tool', toolName: 'expandRecipe' } : 'auto',
     maxSteps: 2
   })
 

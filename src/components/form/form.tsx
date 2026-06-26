@@ -44,7 +44,7 @@ export function Form<T extends FieldValues>({
   )
 }
 
-// Generic form field component that can be used for any input type
+/** Generic form field component that can be used for any input type. */
 export function FormField<T extends FieldValues>({
   name,
   label,

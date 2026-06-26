@@ -4,6 +4,7 @@ import type { MessagesWithRecipes } from '~/schemas/chats-schema'
 import { DataAccess } from './data-access'
 import type { CreateChatWithMessages } from '~/schemas/chats-schema'
 import { slugify } from '~/lib/utils'
+import { toRecipeWriteData } from '~/schemas/recipes-schema'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 
 export class ChatsAccess extends DataAccess {
@@ -142,26 +143,13 @@ export class ChatsAccess extends DataAccess {
         }
       })
       if (existingRecipe) {
-        const {
-          id,
-          ingredients,
-          instructions,
-          dietTags,
-          flavorTags,
-          mainIngredients,
-          techniques,
-          ...recipeData
-        } = recipe
+        const { id, ingredients, instructions, ...recipeData } = recipe
         await tx.recipe.update({
           where: {
             id
           },
           data: {
-            ...recipeData,
-            dietTags: dietTags ?? undefined,
-            flavorTags: flavorTags ?? undefined,
-            mainIngredients: mainIngredients ?? undefined,
-            techniques: techniques ?? undefined,
+            ...toRecipeWriteData(recipeData),
             ingredients: {
               deleteMany: {},
               create: ingredients?.map((i: string) =>
@@ -188,10 +176,7 @@ export class ChatsAccess extends DataAccess {
             id: recipe.id,
             name: recipe.name,
             slug: slugify(recipe.name),
-            description: recipe.description,
-            prepMinutes: recipe.prepMinutes,
-            cookMinutes: recipe.cookMinutes,
-            servings: recipe.servings,
+            ...toRecipeWriteData(recipe),
             user: {
               connect: {
                 id: userId

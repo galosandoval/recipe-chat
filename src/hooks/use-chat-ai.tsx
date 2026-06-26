@@ -167,12 +167,12 @@ export const useChatAI = () => {
     }
   )
 
-  // Create user message and add to store
+  /** Create a user message and add it to the store. */
   const createUserMessage = (message: MessageWithRecipes) => {
     addMessage(message)
   }
 
-  // Handle AI response completion
+  /** Handle AI response completion. */
   const handleAIResponse = (
     content: string,
     recipes: (GeneratedRecipe & Partial<RecipeDetails>)[],
@@ -282,6 +282,13 @@ export const useChatAI = () => {
     const { name, ingredients, instructions, ...rest } =
       generatedMessage.recipes[0]
 
+    // Don't persist a recipe the model failed to fully generate — an empty
+    // ingredients/instructions list means expandRecipe didn't produce details.
+    if (ingredients.length === 0 || instructions.length === 0) {
+      toast.error('Recipe generation incomplete — please try again.')
+      return
+    }
+
     const data = {
       generated: {
         id: recipeId,
@@ -291,6 +298,13 @@ export const useChatAI = () => {
         // if 0, set to null
         prepMinutes: rest.prepMinutes || null,
         cookMinutes: rest.cookMinutes || null,
+        servings: rest.servings ?? null,
+        cuisine: rest.cuisine,
+        course: rest.course,
+        dietTags: rest.dietTags,
+        flavorTags: rest.flavorTags,
+        mainIngredients: rest.mainIngredients,
+        techniques: rest.techniques,
         messageId: generatedMessage.id,
         content: generatedMessage.content,
         chatId

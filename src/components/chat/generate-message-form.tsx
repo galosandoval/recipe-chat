@@ -139,7 +139,8 @@ function useRecipeChat() {
         filters: activeFilterNames,
         userId: userId || undefined,
         context,
-        usePantry
+        usePantry,
+        expand: useChatStore.getState().pendingExpandRecipeId !== null
       }
     },
     onError(error) {
