@@ -6,7 +6,7 @@ import type { getTranslations } from '~/lib/get-translations'
 
 export type AwaitedTranslations = Awaited<ReturnType<typeof getTranslations>>
 
-// Type utility to extract all possible nested key paths
+/** Type utility to extract all possible nested key paths. */
 type PathsToStringProps<T> = T extends string
   ? ''
   : T extends object
@@ -23,7 +23,7 @@ type PathsToStringProps<T> = T extends string
       }[keyof T]
     : never
 
-// Flatten the union type to get all possible paths
+/** Flatten the union type to get all possible paths. */
 type Flatten<T> = T extends infer U ? U : never
 export type AllPaths<T> = Flatten<PathsToStringProps<T>>
 
@@ -36,7 +36,7 @@ type TranslationMethods<T> = {
   get(path: string): string
 }
 
-// Enhanced translations type that adds replace methods to nested objects
+/** Enhanced translations type that adds replace methods to nested objects. */
 export type Translations<T = AwaitedTranslations> = {
   [K in keyof T]: T[K] extends string
     ? T[K]

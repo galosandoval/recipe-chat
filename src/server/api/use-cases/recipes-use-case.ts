@@ -26,8 +26,10 @@ export async function getRecipeNamesByUserId(
   return await access.getRecipeNamesByUserId(userId)
 }
 
-// Recipe fields that feed the embedding signature. Editing any of these makes
-// the stored vector stale, so the recipe must be re-embedded.
+/**
+ * Recipe fields that feed the embedding signature. Editing any of these makes
+ * the stored vector stale, so the recipe must be re-embedded.
+ */
 const SEMANTIC_FIELDS = new Set<keyof Recipe>([
   'name',
   'description',

@@ -2,7 +2,7 @@ import type { FieldValues, Path } from 'react-hook-form'
 import { Input } from '../ui/input'
 import { FormField } from './form'
 
-// Specific input components for common field types
+/** Specific input component for common field types. */
 export function FormInput<T extends FieldValues>({
   name,
   label,

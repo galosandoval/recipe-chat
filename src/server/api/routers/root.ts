@@ -26,7 +26,7 @@ export const appRouter = createTRPCRouter({
   tasteProfile: tasteProfileRouter
 })
 
-// export type definition of API
+/** Export type definition of the API. */
 export type AppRouter = typeof appRouter
 
 export const createCaller = createCallerFactory(appRouter)

@@ -167,12 +167,12 @@ export const useChatAI = () => {
     }
   )
 
-  // Create user message and add to store
+  /** Create a user message and add it to the store. */
   const createUserMessage = (message: MessageWithRecipes) => {
     addMessage(message)
   }
 
-  // Handle AI response completion
+  /** Handle AI response completion. */
   const handleAIResponse = (
     content: string,
     recipes: (GeneratedRecipe & Partial<RecipeDetails>)[],

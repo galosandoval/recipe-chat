@@ -10,7 +10,7 @@ import { getTasteProfile } from '~/server/api/use-cases/taste-profile-use-case'
 import { getRecipeNamesByUserId } from '~/server/api/use-cases/recipes-use-case'
 import { getPantryByUserId } from '~/server/api/use-cases/pantry-use-case'
 
-// Allow streaming responses up to 30 seconds
+/** Allow streaming responses up to 30 seconds. */
 export const maxDuration = 30
 
 export async function POST(req: Request) {

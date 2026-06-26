@@ -45,8 +45,10 @@ export type LinkedDataRecipeField = {
   parsingType: 'linkedData'
 }
 
-// Single canonical declaration of the 6 recipe facet fields. Composed into every
-// input schema so adding/renaming a facet happens in exactly one place.
+/**
+ * Single canonical declaration of the 6 recipe facet fields. Composed into every
+ * input schema so adding/renaming a facet happens in exactly one place.
+ */
 export const recipeFacetsSchema = z.object({
   cuisine: z.string().nullish(),
   course: z.string().nullish(),
@@ -56,15 +58,17 @@ export const recipeFacetsSchema = z.object({
   techniques: z.array(z.string()).nullish()
 })
 
-// Single source of truth for the recipe scalar columns that get forgotten per
-// write-site. `.parse()` does two jobs at once: it strips unknown keys (identity
-// fields id/slug/name, relations, and non-columns like url/messageId), and it
-// normalizes null -> undefined so Prisma skips any field the caller didn't supply
-// (no clobbering an existing value with null on update; arrays keep their DB
-// default on create). name/slug are intentionally excluded — every write site sets
-// those explicitly, so they're never the forgotten ones.
 const nullishToUndefined = <T>(v: T | null | undefined) => v ?? undefined
 
+/**
+ * Single source of truth for the recipe scalar columns that get forgotten per
+ * write-site. `.parse()` does two jobs at once: it strips unknown keys (identity
+ * fields id/slug/name, relations, and non-columns like url/messageId), and it
+ * normalizes null -> undefined so Prisma skips any field the caller didn't supply
+ * (no clobbering an existing value with null on update; arrays keep their DB
+ * default on create). name/slug are intentionally excluded — every write site sets
+ * those explicitly, so they're never the forgotten ones.
+ */
 const recipeWriteDataSchema = z.object({
   description: z.string().nullish().transform(nullishToUndefined),
   imgUrl: z.string().nullish().transform(nullishToUndefined),
@@ -81,9 +85,11 @@ const recipeWriteDataSchema = z.object({
   techniques: z.array(z.string()).nullish().transform(nullishToUndefined)
 })
 
-// The recipe-like input every DB write site maps from — derived from the schema
-// so the facet list stays single-sourced (data-access methods type their payloads
-// against this instead of re-listing facets).
+/**
+ * The recipe-like input every DB write site maps from — derived from the schema
+ * so the facet list stays single-sourced (data-access methods type their payloads
+ * against this instead of re-listing facets).
+ */
 export type RecipeWriteInput = z.input<typeof recipeWriteDataSchema>
 
 export const toRecipeWriteData = (r: RecipeWriteInput) =>
