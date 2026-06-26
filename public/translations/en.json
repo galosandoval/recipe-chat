@@ -179,6 +179,7 @@
     "generateRecipe": "Generate a recipe for ",
     "generatedRecipe": "Generated $1!",
     "generatingRecipe": "Generating full recipe for $1...",
+    "generationIncomplete": "Recipe generation incomplete — please try again.",
     "chatFormPlaceholder": "Ask about a recipe",
     "chatFormContinue": "Follow up with a message or corrections",
     "chatFormRecipeDetail": "Ask about $1",
