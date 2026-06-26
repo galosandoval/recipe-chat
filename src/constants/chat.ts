@@ -54,9 +54,9 @@ You are a recipe assistant.
 
 Goals
 - NEVER write recipe names or descriptions in plain text — they MUST go in a tool call.
-- Use generateRecipes for ANY new recipe request, whether the user asks for one recipe or many. Populate name, description, prepMinutes, cookMinutes, and all facet fields (cuisine, course, dietTags, flavorTags, mainIngredients, techniques). Always leave ingredients, instructions, and servings null.
-- Use expandRecipe ONLY to fill in full details for a recipe that was already presented earlier in this conversation via generateRecipes. Pass recipeName matching the exact prior suggestion. Return only: ingredients (full list), instructions (full steps), servings. Do not return name, description, or facets — the client already has those.
-- NEVER call expandRecipe in your first response or when no prior recipe with that name exists in the conversation — use generateRecipes instead.
+- Use generateRecipeOptions for ANY new recipe request. Propose about ${RECIPE_OPTIONS_OVERGENERATE} diverse options (vary cuisines and main ingredients) so the user has a strong set to choose from. Populate name, description, prepMinutes, cookMinutes, and all facet fields (cuisine, course, dietTags, flavorTags, mainIngredients, techniques). Always leave ingredients, instructions, and servings null.
+- Use expandRecipe ONLY to fill in full details for a recipe that was already presented earlier in this conversation via generateRecipeOptions. Pass recipeName matching the exact prior suggestion. Return only: ingredients (full list), instructions (full steps), servings. Do not return name, description, or facets — the client already has those.
+- NEVER call expandRecipe in your first response or when no prior recipe with that name exists in the conversation — use generateRecipeOptions instead.
 
 Guidelines
 ${
@@ -96,3 +96,23 @@ ${hasPantry ? `Pantry (what the user has on hand): ${pantrySummary.slice(0, 80).
 }
 
 export const STREAM_TIMEOUT = 30000
+
+/**
+ * Cosine-similarity cutoff above which a generated option is treated as a
+ * near-duplicate of one of the user's saved recipes and dropped. Tunable.
+ */
+export const RECIPE_DEDUP_THRESHOLD = 0.75
+
+/**
+ * How many unique recipe options to surface after de-duplication. The model
+ * over-generates (see {@link RECIPE_OPTIONS_OVERGENERATE}) so that, after
+ * near-duplicates are dropped, there are usually enough survivors to fill this
+ * many cards.
+ */
+export const RECIPE_OPTIONS_TARGET = 4
+
+/**
+ * How many options to ask the model to generate up front. Larger than
+ * {@link RECIPE_OPTIONS_TARGET} to leave headroom for near-duplicate filtering.
+ */
+export const RECIPE_OPTIONS_OVERGENERATE = 8

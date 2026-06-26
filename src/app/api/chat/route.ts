@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     tasteProfile
   })
 
-  const tools = getTools(context, prisma)
+  const tools = getTools(context, prisma, userId)
 
   const result = streamText({
     model: openai('gpt-4o-mini'),
@@ -58,9 +58,12 @@ export async function POST(req: Request) {
     tools,
     // When the user clicks Generate on a prior suggestion, force the full-details
     // tool so ingredients/instructions are always produced (otherwise the model
-    // re-runs generateRecipes and leaves them null).
+    // re-runs generateRecipeOptions and leaves them null).
     toolChoice: expand ? { type: 'tool', toolName: 'expandRecipe' } : 'auto',
-    maxSteps: 2
+    // The options turn stops after generateRecipeOptions' execute returns — no
+    // second LLM round-trip re-sending the system prompt. Recipe-detail tools
+    // (editRecipe/addNote) and the forced expand turn keep their 2-step flow.
+    maxSteps: context?.page === 'recipe-detail' || expand ? 2 : 1
   })
 
   return result.toDataStreamResponse({

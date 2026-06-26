@@ -9,6 +9,7 @@ import type {
   UpsertChatSchema
 } from '~/schemas/chats-schema'
 import { toast } from '~/components/toast'
+import { useTranslations } from '~/hooks/use-translations'
 import { useFiltersByUserId, selectActiveFilters } from './use-filters-by-user-id'
 import { useUserId } from './use-user-id'
 import { slugify } from '~/lib/utils'
@@ -55,6 +56,7 @@ const transformMessagesToChatStore = (data: MessageWithRecipesDTO[]) => {
 }
 
 export const useChatAI = () => {
+  const t = useTranslations()
   const { chatId, setChatId, setChatFilterIds } = useChatStore()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
@@ -285,7 +287,7 @@ export const useChatAI = () => {
     // Don't persist a recipe the model failed to fully generate — an empty
     // ingredients/instructions list means expandRecipe didn't produce details.
     if (ingredients.length === 0 || instructions.length === 0) {
-      toast.error('Recipe generation incomplete — please try again.')
+      toast.error(t.chat.generationIncomplete)
       return
     }
 

@@ -180,6 +180,7 @@
     "generateRecipe": "Generar una receta para ",
     "generatedRecipe": "¡$1 generada!",
     "generatingRecipe": "Generando receta completa para $1...",
+    "generationIncomplete": "La generación de la receta está incompleta. Vuelve a intentarlo.",
     "chatFormPlaceholder": "Pregunta sobre una receta",
     "chatFormContinue": "Sigue con un mensaje o correcciones",
     "chatFormRecipeDetail": "Pregunta sobre $1",

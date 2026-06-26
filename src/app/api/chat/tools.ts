@@ -5,17 +5,19 @@ import { generatedRecipeSchema, recipeDetailsSchema } from '~/schemas/messages-s
 import type { ChatContext } from '~/schemas/chats-schema'
 import { RecipesAccess } from '~/server/api/data-access/recipes-access'
 import { embedRecipeById } from '~/server/api/use-cases/embed-recipe-use-case'
+import { dedupeRecipeOptions } from '~/server/api/use-cases/dedupe-recipe-options-use-case'
+import { RECIPE_OPTIONS_OVERGENERATE } from '~/constants/chat'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { slugify } from '~/lib/utils'
 
 export function getTools(
   context: ChatContext | undefined,
-  prisma: PrismaClient
+  prisma: PrismaClient,
+  userId?: string
 ) {
   const baseTools = {
-    generateRecipes: tool({
-      description:
-        'Generate 2 or more recipe suggestions. Use this whenever presenting multiple options. Populate name, description, prepMinutes, cookMinutes, and all facet fields. Always leave ingredients, instructions, and servings null.',
+    generateRecipeOptions: tool({
+      description: `Generate recipe suggestions for a new request. Propose about ${RECIPE_OPTIONS_OVERGENERATE} diverse options. Populate name, description, prepMinutes, cookMinutes, and all facet fields. Always leave ingredients, instructions, and servings null.`,
       parameters: z.object({
         message: z
           .string()
@@ -23,18 +25,24 @@ export function getTools(
             'A brief intro or context message to display above the recipe cards (e.g. "Here are some options for tonight:").'
           ),
         recipes: z.array(generatedRecipeSchema)
-      })
-      // No execute — model fills structured data, client renders it
+      }),
+      // Server-side execute de-duplicates the over-generated options against the
+      // user's saved recipes (embeddings, off the LLM) and returns the unique
+      // survivors the client renders. Fail-open — see dedupeRecipeOptions.
+      async execute({ message, recipes }) {
+        const unique = await dedupeRecipeOptions(userId, recipes, prisma)
+        return { message, recipes: unique }
+      }
     }),
     expandRecipe: tool({
       description:
-        'Generate full details for a recipe that was ALREADY presented earlier in this conversation via generateRecipes. Do NOT use for new requests — use generateRecipes instead. Pass recipeName matching the exact name of the prior suggestion. Returns only ingredients, instructions, and servings.',
+        'Generate full details for a recipe that was ALREADY presented earlier in this conversation via generateRecipeOptions. Do NOT use for new requests — use generateRecipeOptions instead. Pass recipeName matching the exact name of the prior suggestion. Returns only ingredients, instructions, and servings.',
       parameters: z.object({
         recipeName: z
           .string()
           .min(1)
           .describe(
-            'The exact name of the previously-suggested recipe being expanded. Must match a name from an earlier generateRecipes call in this conversation.'
+            'The exact name of the previously-suggested recipe being expanded. Must match a name from an earlier generateRecipeOptions call in this conversation.'
           ),
         message: z
           .string()

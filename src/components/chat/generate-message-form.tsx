@@ -18,88 +18,7 @@ import { toast } from '~/components/toast'
 import { SendIcon, StopCircleIcon } from 'lucide-react'
 import { cuid } from '~/lib/createId'
 import { slugify } from '~/lib/utils'
-import type {
-  FullRecipe,
-  GeneratedRecipe,
-  RecipeDetails
-} from '~/schemas/messages-schema'
-
-type AnyRecipe = GeneratedRecipe & Partial<RecipeDetails>
-
-function extractFromToolInvocations(
-  toolInvocations:
-    | Array<{
-        toolName: string
-        args?: Record<string, unknown>
-        result?: unknown
-      }>
-    | undefined,
-  isFinal = false
-): { recipes: AnyRecipe[]; toolMessage: string } {
-  if (!toolInvocations) return { recipes: [], toolMessage: '' }
-
-  // Handle expandRecipe (single recipe expansion — merges with pending suggestion)
-  const expandCall = toolInvocations.find(
-    (t) => t.toolName === 'expandRecipe' && 'args' in t
-  )
-  if (expandCall?.args) {
-    const args = expandCall.args as {
-      recipeName?: string
-      details?: RecipeDetails
-      message?: string
-    }
-    const d = args.details
-    if (d?.ingredients?.length && d?.instructions?.length) {
-      const store = useChatStore.getState()
-      const allPriorRecipes = store.messages.flatMap((m) => m.recipes)
-      const existing =
-        (args.recipeName
-          ? allPriorRecipes.find((r) => r.name === args.recipeName)
-          : undefined) ??
-        allPriorRecipes.find((r) => r.id === store.pendingExpandRecipeId)
-      if (isFinal) {
-        store.setPendingExpandRecipeId(null)
-      }
-
-      // No prior recipe to expand — drop the malformed merge and show only the message.
-      if (!existing) {
-        return { recipes: [], toolMessage: args.message ?? '' }
-      }
-
-      const merged: FullRecipe = {
-        name: existing.name,
-        description: existing.description ?? '',
-        prepMinutes: existing.prepMinutes ?? null,
-        cookMinutes: existing.cookMinutes ?? null,
-        cuisine: existing.cuisine ?? null,
-        course: existing.course ?? null,
-        dietTags: existing.dietTags ?? [],
-        flavorTags: existing.flavorTags ?? [],
-        mainIngredients: existing.mainIngredients ?? [],
-        techniques: existing.techniques ?? [],
-        ingredients: d.ingredients,
-        instructions: d.instructions,
-        servings: d.servings
-      }
-      return { recipes: [merged], toolMessage: args.message ?? '' }
-    }
-    return { recipes: [], toolMessage: (expandCall.args as { message?: string }).message ?? '' }
-  }
-
-  // Handle generateRecipes (multi-recipe suggestions)
-  const generateCall = toolInvocations.find(
-    (t) => t.toolName === 'generateRecipes' && 'args' in t
-  )
-  if (!generateCall?.args) return { recipes: [], toolMessage: '' }
-  const args = generateCall.args as {
-    recipes?: GeneratedRecipe[]
-    message?: string
-  }
-  return {
-    recipes: args.recipes ?? [],
-    toolMessage: args.message ?? ''
-  }
-}
+import { extractFromToolInvocations } from './extract-tool-invocations'
 
 function useRecipeChat() {
   const userId = useUserId()
@@ -116,7 +35,14 @@ function useRecipeChat() {
   } = useChat({
     api: '/api/chat',
     id: 'recipe-chat',
-    maxSteps: 2,
+    // Single client step. The client never feeds a tool result back to the
+    // model — it renders the result itself (generateRecipeOptions cards, the
+    // expandRecipe merge). With a server-side execute on generateRecipeOptions
+    // the response now carries a tool result + finishReason 'tool-calls'; any
+    // maxSteps > 1 makes useChat auto-submit a continuation, looping /api/chat
+    // and leaving isStreaming stuck true (disabled Generate buttons). The server
+    // route does its own multi-step work (editRecipe confirmation) internally.
+    maxSteps: 1,
     experimental_prepareRequestBody({ messages }) {
       const filters = utils.filters.getByUserId.getData({ userId })
       const chatFilterIds = useChatStore.getState().chatFilterIds
