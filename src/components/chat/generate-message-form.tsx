@@ -35,7 +35,14 @@ function useRecipeChat() {
   } = useChat({
     api: '/api/chat',
     id: 'recipe-chat',
-    maxSteps: 2,
+    // Single client step. The client never feeds a tool result back to the
+    // model — it renders the result itself (generateRecipeOptions cards, the
+    // expandRecipe merge). With a server-side execute on generateRecipeOptions
+    // the response now carries a tool result + finishReason 'tool-calls'; any
+    // maxSteps > 1 makes useChat auto-submit a continuation, looping /api/chat
+    // and leaving isStreaming stuck true (disabled Generate buttons). The server
+    // route does its own multi-step work (editRecipe confirmation) internally.
+    maxSteps: 1,
     experimental_prepareRequestBody({ messages }) {
       const filters = utils.filters.getByUserId.getData({ userId })
       const chatFilterIds = useChatStore.getState().chatFilterIds
