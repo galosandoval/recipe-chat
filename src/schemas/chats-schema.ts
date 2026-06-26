@@ -62,7 +62,9 @@ export const chatParams = z.object({
   filters: z.array(z.string()),
   userId: userIdSchema.shape.userId.optional(),
   context: chatContextSchema.optional(),
-  usePantry: z.boolean().optional()
+  usePantry: z.boolean().optional(),
+  /** When true, force the `expandRecipe` tool — the user clicked Generate on a prior suggestion. */
+  expand: z.boolean().optional()
 })
 
 export const createOrAddMessages = z.object({
