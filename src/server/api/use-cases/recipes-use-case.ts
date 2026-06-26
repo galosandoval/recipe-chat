@@ -74,6 +74,20 @@ export async function editRecipe(
 }
 
 // Helper functions
+function arraysEqual(
+  a: string[],
+  b: string[] | null | undefined
+): boolean {
+  if (!b || a.length !== b.length) {
+    return false
+  }
+  return a.every((value, i) => value === b[i])
+}
+
+// Edits are a selective field-diff (only changed `new*` fields are written and
+// reported as changed for the re-embed check), so this path intentionally does NOT
+// go through `toRecipeWriteData` — which builds a full write payload. A new facet
+// must therefore be added here too, in addition to the shared mapper.
 async function updateRecipeFields(
   id: string,
   recipe: UpdateRecipe,
@@ -90,7 +104,19 @@ async function updateRecipeFields(
     newName,
     name,
     newNotes,
-    notes
+    notes,
+    newCuisine,
+    cuisine,
+    newCourse,
+    course,
+    newDietTags,
+    dietTags,
+    newFlavorTags,
+    flavorTags,
+    newMainIngredients,
+    mainIngredients,
+    newTechniques,
+    techniques
   } = recipe
 
   if (newPrepMinutes && newPrepMinutes !== prepMinutes) {
@@ -107,6 +133,24 @@ async function updateRecipeFields(
   }
   if (newNotes && newNotes !== notes) {
     data.notes = newNotes
+  }
+  if (newCuisine && newCuisine !== cuisine) {
+    data.cuisine = newCuisine
+  }
+  if (newCourse && newCourse !== course) {
+    data.course = newCourse
+  }
+  if (newDietTags && !arraysEqual(newDietTags, dietTags)) {
+    data.dietTags = newDietTags
+  }
+  if (newFlavorTags && !arraysEqual(newFlavorTags, flavorTags)) {
+    data.flavorTags = newFlavorTags
+  }
+  if (newMainIngredients && !arraysEqual(newMainIngredients, mainIngredients)) {
+    data.mainIngredients = newMainIngredients
+  }
+  if (newTechniques && !arraysEqual(newTechniques, techniques)) {
+    data.techniques = newTechniques
   }
 
   const changedFields = Object.keys(data) as Array<keyof Recipe>

@@ -291,6 +291,13 @@ export const useChatAI = () => {
         // if 0, set to null
         prepMinutes: rest.prepMinutes || null,
         cookMinutes: rest.cookMinutes || null,
+        servings: rest.servings ?? null,
+        cuisine: rest.cuisine,
+        course: rest.course,
+        dietTags: rest.dietTags,
+        flavorTags: rest.flavorTags,
+        mainIngredients: rest.mainIngredients,
+        techniques: rest.techniques,
         messageId: generatedMessage.id,
         content: generatedMessage.content,
         chatId

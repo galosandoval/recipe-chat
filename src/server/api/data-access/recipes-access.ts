@@ -1,7 +1,8 @@
 import { prisma } from '~/server/db'
 import { type Prisma, type Recipe } from '@prisma/client'
 import { DataAccess } from './data-access'
-import type { CreateRecipe } from '~/schemas/recipes-schema'
+import type { CreateRecipe, RecipeWriteInput } from '~/schemas/recipes-schema'
+import { toRecipeWriteData } from '~/schemas/recipes-schema'
 import { slugify } from '~/lib/utils'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 
@@ -91,9 +92,10 @@ export class RecipesAccess extends DataAccess {
   async createRecipe(recipe: Omit<CreateRecipe, 'messsageId'>, userId: string) {
     return await prisma.recipe.create({
       data: {
-        ...recipe,
-        user: { connect: { id: userId } },
+        name: recipe.name,
         slug: slugify(recipe.name),
+        ...toRecipeWriteData(recipe),
+        user: { connect: { id: userId } },
         instructions: {
           create: recipe.instructions.map((i) => ({ description: i }))
         },
@@ -134,23 +136,22 @@ export class RecipesAccess extends DataAccess {
     data: {
       ingredients: string[]
       instructions: string[]
-      prepMinutes?: number | null
-      cookMinutes?: number | null
-    }
+    } & RecipeWriteInput
   ) {
+    const { ingredients, instructions, ...rest } = data
     return await this.prisma.recipe.update({
       where: { id },
       data: {
-        ...data,
+        ...toRecipeWriteData(rest),
         ingredients: {
           deleteMany: {},
-          create: data.ingredients.map((line) =>
+          create: ingredients.map((line) =>
             ingredientStringToCreatePayload(line)
           )
         },
         instructions: {
           deleteMany: {},
-          create: data.instructions.map((instruction) => ({
+          create: instructions.map((instruction) => ({
             description: instruction
           }))
         }
@@ -165,17 +166,10 @@ export class RecipesAccess extends DataAccess {
       userId: string
       ingredients: string[]
       instructions: string[]
-      prepMinutes?: number | null
-      cookMinutes?: number | null
-      cuisine?: string
-      course?: string
-      dietTags?: string[]
-      flavorTags?: string[]
-      mainIngredients?: string[]
-      techniques?: string[]
-    }
+    } & RecipeWriteInput
   ) {
     const { ingredients, instructions, name, userId, ...rest } = data
+    const writeData = toRecipeWriteData(rest)
     const ingredientData = ingredients.map((line) =>
       ingredientStringToCreatePayload(line)
     )
@@ -186,7 +180,7 @@ export class RecipesAccess extends DataAccess {
     return await this.prisma.recipe.upsert({
       where: { id },
       update: {
-        ...rest,
+        ...writeData,
         ingredients: { deleteMany: {}, create: ingredientData },
         instructions: { deleteMany: {}, create: instructionData }
       },
@@ -194,7 +188,7 @@ export class RecipesAccess extends DataAccess {
         id,
         name,
         slug: slugify(name),
-        ...rest,
+        ...writeData,
         user: { connect: { id: userId } },
         ingredients: { create: ingredientData },
         instructions: { create: instructionData }
