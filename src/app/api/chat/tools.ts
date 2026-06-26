@@ -6,6 +6,7 @@ import type { ChatContext } from '~/schemas/chats-schema'
 import { RecipesAccess } from '~/server/api/data-access/recipes-access'
 import { embedRecipeById } from '~/server/api/use-cases/embed-recipe-use-case'
 import { dedupeRecipeOptions } from '~/server/api/use-cases/dedupe-recipe-options-use-case'
+import { RECIPE_OPTIONS_OVERGENERATE } from '~/constants/chat'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { slugify } from '~/lib/utils'
 
@@ -16,8 +17,7 @@ export function getTools(
 ) {
   const baseTools = {
     generateRecipeOptions: tool({
-      description:
-        'Generate recipe suggestions for a new request. Propose about 6 diverse options. Populate name, description, prepMinutes, cookMinutes, and all facet fields. Always leave ingredients, instructions, and servings null.',
+      description: `Generate recipe suggestions for a new request. Propose about ${RECIPE_OPTIONS_OVERGENERATE} diverse options. Populate name, description, prepMinutes, cookMinutes, and all facet fields. Always leave ingredients, instructions, and servings null.`,
       parameters: z.object({
         message: z
           .string()

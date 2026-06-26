@@ -84,6 +84,16 @@ describe('dedupeRecipeOptions', () => {
     expect(result).toHaveLength(3)
   })
 
+  it('caps survivors at the default target (4) when none are dropped', async () => {
+    const user = await createTestUser()
+    const candidates = [1, 2, 3, 4, 5, 6].map((n) => makeRecipe(`Recipe ${n}`))
+    mockedEmbedMany.mockResolvedValue(candidates.map((_, i) => unitVector(i)))
+
+    const result = await dedupeRecipeOptions(user.id, candidates, testPrisma)
+
+    expect(result).toHaveLength(4)
+  })
+
   it('returns the first N unfiltered when there is no userId (anonymous)', async () => {
     const candidates = [1, 2, 3, 4, 5].map((n) => makeRecipe(`Recipe ${n}`))
 
