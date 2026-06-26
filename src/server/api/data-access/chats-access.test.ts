@@ -75,39 +75,6 @@ describe('createRecipesForMessage facet persistence', () => {
     expect(row?.servings).toBe(4)
   })
 
-  it('skips a message whose id already exists rather than throwing or duplicating recipe joins', async () => {
-    const user = await createTestUser()
-
-    const chat = await access.createChatWithMessages({
-      userId: user.id,
-      messages: [messageWith('msg-1', [recipeWithFacets()])]
-    })
-
-    // Re-save msg-1 (already persisted) alongside a genuinely new message.
-    await expect(
-      access.addMessages(
-        chat.id,
-        [
-          messageWith('msg-1', [recipeWithFacets()]),
-          messageWith('msg-2', [])
-        ],
-        user.id
-      )
-    ).resolves.not.toThrow()
-
-    const messages = await testPrisma.message.findMany({
-      where: { chatId: chat.id },
-      orderBy: { id: 'asc' }
-    })
-    expect(messages.map((m) => m.id)).toEqual(['msg-1', 'msg-2'])
-
-    // The re-saved message must not have gained a second recipe-join row.
-    const joins = await testPrisma.recipesOnMessages.findMany({
-      where: { messageId: 'msg-1' }
-    })
-    expect(joins).toHaveLength(1)
-  })
-
   it('does not wipe facets when the same recipe is re-saved (UPDATE branch)', async () => {
     const user = await createTestUser()
 

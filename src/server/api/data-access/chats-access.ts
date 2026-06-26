@@ -105,18 +105,6 @@ export class ChatsAccess extends DataAccess {
   ) {
     await this.transaction(async (tx) => {
       for (const message of messages) {
-        // Idempotent on the client-generated id: a message that was already
-        // persisted (e.g. a retried mutation, or the same turn saved twice) is
-        // skipped rather than re-created, which would throw a unique-constraint
-        // error and would also duplicate its recipe-join rows.
-        const existing = await tx.message.findUnique({
-          where: { id: message.id },
-          select: { id: true }
-        })
-        if (existing) {
-          continue
-        }
-
         const newMessage = await tx.message.create({
           data: {
             content: message.content,
