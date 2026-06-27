@@ -158,11 +158,11 @@
     "nameAlreadyExists": "Filter name already exists",
     "charNotAllowedUnderscore": "Character not allowed: underscore",
     "initial": {
-      "vegetarian": "Vegetarian",
-      "vegan": "Vegan",
-      "gluten-free": "Gluten-free",
       "under-30-minutes": "Under 30 minutes",
-      "weeknight-friendly": "Weeknight-friendly"
+      "weeknight-friendly": "Weeknight-friendly",
+      "one-pot": "One-pot",
+      "budget-friendly": "Budget-friendly",
+      "kid-friendly": "Kid-friendly"
     }
   },
 

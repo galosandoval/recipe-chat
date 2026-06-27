@@ -158,11 +158,11 @@
     "nameAlreadyExists": "El nombre del filtro ya existe",
     "charNotAllowedUnderscore": "Caracter no permitido: guión bajo",
     "initial": {
-      "vegetarian": "Vegetariano",
-      "vegan": "Vegano",
-      "gluten-free": "Sin gluten",
       "under-30-minutes": "Menos de 30 minutos",
-      "weeknight-friendly": "Para semana"
+      "weeknight-friendly": "Para semana",
+      "one-pot": "De una olla",
+      "budget-friendly": "Económico",
+      "kid-friendly": "Para niños"
     }
   },
 
