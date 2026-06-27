@@ -18,6 +18,7 @@ import { StepReview } from './step-review'
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  CheckIcon,
   Loader2Icon,
   SkipForwardIcon
 } from 'lucide-react'
@@ -228,9 +229,15 @@ function NavButtons({
         onClick={onNext}
         disabled={isSubmitting}
         isLoading={isFinishing}
+        icon={
+          isLastStep ? (
+            <CheckIcon className='h-4 w-4' />
+          ) : (
+            <ArrowRightIcon className='h-4 w-4' />
+          )
+        }
       >
         {isLastStep ? t.onboarding.finish : t.onboarding.next}
-        {!isLastStep && <ArrowRightIcon className='h-4 w-4' />}
       </Button>
     </div>
   )
