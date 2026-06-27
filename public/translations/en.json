@@ -336,6 +336,18 @@
     "cuisinePreferencesDescription": "Pick your favorite cuisines (at least one).",
     "dietaryRestrictionsTitle": "Dietary Restrictions",
     "dietaryRestrictionsDescription": "Select any that apply to you, or choose \"None\".",
+    "reviewTitle": "Review Your Taste Profile",
+    "reviewDescription": "Check everything looks right before finishing.",
+    "reviewLabels": {
+      "dietaryRestrictions": "Dietary restrictions",
+      "cuisinePreferences": "Cuisines",
+      "cookingSkill": "Cooking skill",
+      "householdSize": "Household size",
+      "healthGoals": "Health goals"
+    },
+    "noneSelected": "None",
+    "edit": "Edit",
+    "loading": "Loading your taste profile…",
     "back": "Back",
     "skip": "Skip",
     "finish": "Finish",

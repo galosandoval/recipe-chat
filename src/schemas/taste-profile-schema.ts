@@ -49,3 +49,12 @@ export const tasteProfileSchema = z.object({
 })
 
 export type TasteProfileSchema = z.infer<typeof tasteProfileSchema>
+
+/** Single source of truth for a fresh taste profile (new users, loading fallback). */
+export const tasteProfileDefaults: TasteProfileSchema = {
+  dietaryRestrictions: [],
+  cuisinePreferences: [],
+  cookingSkill: 'intermediate',
+  householdSize: 2,
+  healthGoals: []
+}

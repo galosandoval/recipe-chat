@@ -3,7 +3,7 @@
 import type { UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { dietaryRestrictionOptions } from '~/schemas/taste-profile-schema'
-import { cn } from '~/lib/utils'
+import { OptionToggle } from './option-toggle'
 import { useTranslations } from '~/hooks/use-translations'
 
 export function StepDietary({
@@ -34,24 +34,15 @@ export function StepDietary({
         {t.onboarding.dietaryRestrictionsDescription}
       </p>
       <div className='flex flex-wrap gap-2'>
-        {dietaryRestrictionOptions.map((option) => {
-          const isSelected = selected.includes(option)
-          return (
-            <button
-              key={option}
-              type='button'
-              onClick={() => toggle(option)}
-              className={cn(
-                'rounded-full border px-4 py-2 text-sm capitalize transition-colors',
-                isSelected
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-background text-foreground hover:bg-muted border-border'
-              )}
-            >
-              {option}
-            </button>
-          )
-        })}
+        {dietaryRestrictionOptions.map((option) => (
+          <OptionToggle
+            key={option}
+            pressed={selected.includes(option)}
+            onPressedChange={() => toggle(option)}
+          >
+            {option}
+          </OptionToggle>
+        ))}
       </div>
     </div>
   )

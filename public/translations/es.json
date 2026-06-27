@@ -338,6 +338,18 @@
     "cuisinePreferencesDescription": "Elige tus cocinas favoritas (al menos una).",
     "dietaryRestrictionsTitle": "Restricciones Dietéticas",
     "dietaryRestrictionsDescription": "Selecciona las que te apliquen, o elige \"Ninguna\".",
+    "reviewTitle": "Revisa Tu Perfil de Sabor",
+    "reviewDescription": "Verifica que todo esté bien antes de terminar.",
+    "reviewLabels": {
+      "dietaryRestrictions": "Restricciones dietéticas",
+      "cuisinePreferences": "Cocinas",
+      "cookingSkill": "Habilidad culinaria",
+      "householdSize": "Tamaño del hogar",
+      "healthGoals": "Objetivos de salud"
+    },
+    "noneSelected": "Ninguno",
+    "edit": "Editar",
+    "loading": "Cargando tu perfil de sabor…",
     "back": "Atrás",
     "skip": "Omitir",
     "finish": "Terminar",
