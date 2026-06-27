@@ -1,6 +1,6 @@
 'use client'
 
-import type { UseFormReturn } from 'react-hook-form'
+import { useWatch, type UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { cuisineOptions } from '~/schemas/taste-profile-schema'
 import { OptionToggle } from './option-toggle'
@@ -12,7 +12,7 @@ export function StepCuisines({
   form: UseFormReturn<TasteProfileSchema>
 }) {
   const t = useTranslations()
-  const selected = form.watch('cuisinePreferences')
+  const selected = useWatch({ control: form.control, name: 'cuisinePreferences' })
   const error = form.formState.errors.cuisinePreferences?.message
 
   const toggle = (value: string) => {

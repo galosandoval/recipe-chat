@@ -14,7 +14,8 @@ export function StepReview({
   goToStep: (step: number) => void
 }) {
   const t = useTranslations()
-  const values = form.watch()
+  // Snapshot of current values; the review step reads them once on mount.
+  const values = form.getValues()
 
   const list = (items: string[]) =>
     items.length > 0 ? items.join(', ') : t.onboarding.noneSelected

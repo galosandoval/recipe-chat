@@ -97,11 +97,18 @@ function TasteProfileForm({
     defaultValues: toDefaultValues(initialProfile)
   })
 
+  const utils = api.useUtils()
   const upsert = api.tasteProfile.upsert.useMutation({
-    onSuccess: () => router.push('/chat')
+    onSuccess: async () => {
+      await utils.tasteProfile.get.invalidate()
+      router.push('/chat')
+    }
   })
   const skip = api.tasteProfile.skip.useMutation({
-    onSuccess: () => router.push('/chat')
+    onSuccess: async () => {
+      await utils.tasteProfile.get.invalidate()
+      router.push('/chat')
+    }
   })
 
   const goToStep = (next: number) => {

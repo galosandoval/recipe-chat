@@ -1,6 +1,6 @@
 'use client'
 
-import type { UseFormReturn } from 'react-hook-form'
+import { useWatch, type UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { OptionToggle } from './option-toggle'
 import { useTranslations } from '~/hooks/use-translations'
@@ -11,7 +11,7 @@ export function StepSkill({
   form: UseFormReturn<TasteProfileSchema>
 }) {
   const t = useTranslations()
-  const selected = form.watch('cookingSkill')
+  const selected = useWatch({ control: form.control, name: 'cookingSkill' })
 
   const skillDescriptions = {
     beginner: t.onboarding.skillDescriptions.beginner,

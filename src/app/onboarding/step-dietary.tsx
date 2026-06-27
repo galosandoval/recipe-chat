@@ -1,6 +1,6 @@
 'use client'
 
-import type { UseFormReturn } from 'react-hook-form'
+import { useWatch, type UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { dietaryRestrictionOptions } from '~/schemas/taste-profile-schema'
 import { OptionToggle } from './option-toggle'
@@ -12,7 +12,7 @@ export function StepDietary({
   form: UseFormReturn<TasteProfileSchema>
 }) {
   const t = useTranslations()
-  const selected = form.watch('dietaryRestrictions')
+  const selected = useWatch({ control: form.control, name: 'dietaryRestrictions' })
 
   const toggle = (value: string) => {
     const current = form.getValues('dietaryRestrictions')
