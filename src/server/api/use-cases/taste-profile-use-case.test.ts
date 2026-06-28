@@ -44,4 +44,24 @@ describe('upsertTasteProfile', () => {
     })
     expect(filters).toEqual([])
   })
+
+  it('leaves a pre-existing checked filter untouched when saving a profile', async () => {
+    const user = await createTestUser()
+    // A filter the user manages themselves; its name happens to match a
+    // dietary restriction the old sync would have unchecked.
+    const filter = await testPrisma.filter.create({
+      data: { name: 'vegan', checked: true, userId: user.id }
+    })
+
+    await upsertTasteProfile(
+      user.id,
+      { ...tasteProfileDefaults, dietaryRestrictions: [] },
+      testPrisma
+    )
+
+    const filters = await testPrisma.filter.findMany({
+      where: { userId: user.id }
+    })
+    expect(filters).toEqual([filter])
+  })
 })
