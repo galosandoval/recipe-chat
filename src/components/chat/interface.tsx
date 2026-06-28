@@ -8,7 +8,7 @@ import { ScrollToBottomProvider } from '~/components/scroll-to-bottom-button'
 import { useChatStore } from '~/stores/chat-store'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { Message } from './message'
-import { AnimatePresence } from 'motion/react'
+import { AnimatePresence } from '~/components/motion/animate-presence'
 
 export const Interface = () => {
   const { messages, reset, chatId } = useChatStore()

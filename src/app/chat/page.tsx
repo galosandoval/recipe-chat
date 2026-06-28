@@ -18,10 +18,14 @@ export default async function ChatPage() {
     redirect('/onboarding')
   }
 
-  // Seed the taste-profile query into the RSC cache so <ChatWelcome>'s summary
-  // renders from hydrated data on first paint instead of firing its own client
-  // request and flashing a loading state in after the page mounts.
-  await api.tasteProfile.get.prefetch()
+  // Seed the taste-profile and filters queries into the RSC cache so
+  // <ChatWelcome>'s summary and filters sections render from hydrated data on
+  // first paint instead of firing their own client requests and flashing
+  // loading states in (staggered) after the page mounts.
+  await Promise.all([
+    api.tasteProfile.get.prefetch(),
+    api.filters.getByUserId.prefetch({ userId: session.user.id })
+  ])
 
   return (
     <HydrateClient>

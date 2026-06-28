@@ -20,12 +20,12 @@ const DropdownMenuOpenContext = React.createContext(false)
  * Radix DropdownMenu root that also exposes its open state on
  * {@link DropdownMenuOpenContext}. Same controlled/uncontrolled API as Radix.
  */
-const DropdownMenu = ({
+function DropdownMenu({
   open,
   defaultOpen,
   onOpenChange,
   ...props
-}: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Root>) => {
+}: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Root>) {
   const [isOpen, setOpen] = useControllableOpen({
     open,
     defaultOpen,

@@ -26,12 +26,12 @@ const DialogOpenContext = React.createContext(false)
  * {@link DialogOpenContext}. Supports the same controlled/uncontrolled API, so
  * call sites are unchanged.
  */
-const Dialog = ({
+function Dialog({
   open,
   defaultOpen,
   onOpenChange,
   ...props
-}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>) => {
+}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>) {
   const [isOpen, setOpen] = useControllableOpen({
     open,
     defaultOpen,
