@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { useWatch, type UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { cuisineOptions } from '~/schemas/taste-profile-schema'
 import { OptionToggle } from './option-toggle'
+import { CustomOptionAdd } from './custom-option-add'
 import { useTranslations } from '~/hooks/use-translations'
 
 export function StepCuisines({
@@ -13,7 +15,11 @@ export function StepCuisines({
 }) {
   const t = useTranslations()
   const selected = useWatch({ control: form.control, name: 'cuisinePreferences' })
-  const error = form.formState.errors.cuisinePreferences?.message
+  // Custom values the user typed in, kept so deselected ones stay reselectable.
+  const presets: readonly string[] = cuisineOptions
+  const [customOptions, setCustomOptions] = useState<string[]>(() =>
+    form.getValues('cuisinePreferences').filter((v) => !presets.includes(v))
+  )
 
   const toggle = (value: string) => {
     const current = form.getValues('cuisinePreferences')
@@ -23,6 +29,11 @@ export function StepCuisines({
     form.setValue('cuisinePreferences', next, { shouldValidate: true })
   }
 
+  const addCustom = (value: string) => {
+    setCustomOptions((prev) => (prev.includes(value) ? prev : [...prev, value]))
+    toggle(value)
+  }
+
   return (
     <div className='flex flex-col gap-4'>
       <h2 className='text-lg font-semibold'>{t.onboarding.cuisinePreferencesTitle}</h2>
@@ -30,7 +41,7 @@ export function StepCuisines({
         {t.onboarding.cuisinePreferencesDescription}
       </p>
       <div className='grid grid-cols-2 gap-2'>
-        {cuisineOptions.map((option) => (
+        {[...cuisineOptions, ...customOptions].map((option) => (
           <OptionToggle
             key={option}
             shape='block'
@@ -41,7 +52,12 @@ export function StepCuisines({
           </OptionToggle>
         ))}
       </div>
-      {error && <p className='text-destructive text-sm'>{error}</p>}
+      <CustomOptionAdd
+        existing={[...cuisineOptions, ...customOptions]}
+        onAdd={addCustom}
+        label={t.onboarding.cuisineCustomLabel}
+        placeholder={t.onboarding.cuisineCustomPlaceholder}
+      />
     </div>
   )
 }

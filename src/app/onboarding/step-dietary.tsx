@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { useWatch, type UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { dietaryRestrictionOptions } from '~/schemas/taste-profile-schema'
 import { OptionToggle } from './option-toggle'
+import { CustomOptionAdd } from './custom-option-add'
 import { useTranslations } from '~/hooks/use-translations'
 
 export function StepDietary({
@@ -13,18 +15,23 @@ export function StepDietary({
 }) {
   const t = useTranslations()
   const selected = useWatch({ control: form.control, name: 'dietaryRestrictions' })
+  // Custom values the user typed in, kept so deselected ones stay reselectable.
+  const presets: readonly string[] = dietaryRestrictionOptions
+  const [customOptions, setCustomOptions] = useState<string[]>(() =>
+    form.getValues('dietaryRestrictions').filter((v) => !presets.includes(v))
+  )
 
   const toggle = (value: string) => {
     const current = form.getValues('dietaryRestrictions')
-    if (value === 'none') {
-      form.setValue('dietaryRestrictions', ['none'], { shouldValidate: true })
-      return
-    }
-    const withoutNone = current.filter((v) => v !== 'none')
-    const next = withoutNone.includes(value)
-      ? withoutNone.filter((v) => v !== value)
-      : [...withoutNone, value]
+    const next = current.includes(value)
+      ? current.filter((v) => v !== value)
+      : [...current, value]
     form.setValue('dietaryRestrictions', next, { shouldValidate: true })
+  }
+
+  const addCustom = (value: string) => {
+    setCustomOptions((prev) => (prev.includes(value) ? prev : [...prev, value]))
+    toggle(value)
   }
 
   return (
@@ -34,7 +41,7 @@ export function StepDietary({
         {t.onboarding.dietaryRestrictionsDescription}
       </p>
       <div className='flex flex-wrap gap-2'>
-        {dietaryRestrictionOptions.map((option) => (
+        {[...dietaryRestrictionOptions, ...customOptions].map((option) => (
           <OptionToggle
             key={option}
             pressed={selected.includes(option)}
@@ -44,6 +51,12 @@ export function StepDietary({
           </OptionToggle>
         ))}
       </div>
+      <CustomOptionAdd
+        existing={[...dietaryRestrictionOptions, ...customOptions]}
+        onAdd={addCustom}
+        label={t.onboarding.dietaryCustomLabel}
+        placeholder={t.onboarding.dietaryCustomPlaceholder}
+      />
     </div>
   )
 }

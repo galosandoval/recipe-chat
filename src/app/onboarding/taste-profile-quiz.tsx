@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useFormState, type UseFormReturn } from 'react-hook-form'
 import { useAppForm } from '~/hooks/use-app-form'
 import {
   tasteProfileSchema,
@@ -72,7 +73,9 @@ function toDefaultValues(existing: ExistingProfile): TasteProfileSchema {
     }
   }
   return {
-    dietaryRestrictions: existing.dietaryRestrictions,
+    // Legacy profiles may still contain 'none'; strip it so it's never shown
+    // as a custom chip or re-submitted — an empty array means "no restrictions".
+    dietaryRestrictions: existing.dietaryRestrictions.filter((r) => r !== 'none'),
     cuisinePreferences: existing.cuisinePreferences,
     cookingSkill: existing.cookingSkill as TasteProfileSchema['cookingSkill'],
     householdSize: existing.householdSize,
@@ -164,6 +167,8 @@ function TasteProfileForm({
         </div>
       </div>
 
+      <StepError form={form} fields={stepFields[step]} />
+
       <NavButtons
         isFirstStep={step === 0}
         isLastStep={isLastStep}
@@ -175,6 +180,29 @@ function TasteProfileForm({
         onNext={handleNext}
       />
     </div>
+  )
+}
+
+/**
+ * Shared validation feedback for the current step. Surfaces the first error
+ * among the step's fields so a failed Next is never silent, and announces it to
+ * assistive tech. Clears automatically once the offending field revalidates.
+ */
+function StepError({
+  form,
+  fields
+}: {
+  form: UseFormReturn<TasteProfileSchema>
+  fields: (keyof TasteProfileSchema)[]
+}) {
+  const { errors } = useFormState({ control: form.control })
+  const message = fields.map((field) => errors[field]?.message).find(Boolean)
+  if (!message) return null
+
+  return (
+    <p role='alert' aria-live='polite' className='text-destructive text-sm'>
+      {String(message)}
+    </p>
   )
 }
 

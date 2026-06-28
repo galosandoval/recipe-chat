@@ -31,4 +31,52 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('vegetarian, quick')
     expect(prompt).toContain('Carbonara | Margherita Pizza')
   })
+
+  describe('hasTasteProfile gate', () => {
+    const defaultProfile = {
+      cookingSkill: 'intermediate',
+      householdSize: 2,
+      cuisinePreferences: [] as string[],
+      healthGoals: [] as string[],
+      dietaryRestrictions: [] as string[]
+    }
+
+    const sufficientContext = /Sufficient context is available/i
+
+    it('treats a profile with dietary restrictions but no cuisines as present', () => {
+      const prompt = buildSystemPrompt({
+        filters: [],
+        savedRecipes: [],
+        tasteProfile: { ...defaultProfile, dietaryRestrictions: ['vegan'] }
+      })
+      expect(prompt).toMatch(sufficientContext)
+    })
+
+    it('treats a non-default cooking skill as a present profile', () => {
+      const prompt = buildSystemPrompt({
+        filters: [],
+        savedRecipes: [],
+        tasteProfile: { ...defaultProfile, cookingSkill: 'advanced' }
+      })
+      expect(prompt).toMatch(sufficientContext)
+    })
+
+    it('does not count a legacy-only "none" dietary restriction as present', () => {
+      const prompt = buildSystemPrompt({
+        filters: [],
+        savedRecipes: [],
+        tasteProfile: { ...defaultProfile, dietaryRestrictions: ['none'] }
+      })
+      expect(prompt).not.toMatch(sufficientContext)
+    })
+
+    it('treats an all-default empty profile as absent', () => {
+      const prompt = buildSystemPrompt({
+        filters: [],
+        savedRecipes: [],
+        tasteProfile: defaultProfile
+      })
+      expect(prompt).not.toMatch(sufficientContext)
+    })
+  })
 })
