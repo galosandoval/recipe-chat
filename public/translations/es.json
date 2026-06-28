@@ -158,11 +158,11 @@
     "nameAlreadyExists": "El nombre del filtro ya existe",
     "charNotAllowedUnderscore": "Caracter no permitido: guión bajo",
     "initial": {
-      "vegetarian": "Vegetariano",
-      "vegan": "Vegano",
-      "gluten-free": "Sin gluten",
       "under-30-minutes": "Menos de 30 minutos",
-      "weeknight-friendly": "Para semana"
+      "weeknight-friendly": "Para semana",
+      "one-pot": "De una olla",
+      "budget-friendly": "Económico",
+      "kid-friendly": "Para niños"
     }
   },
 
@@ -335,9 +335,26 @@
     "healthGoalsTitle": "Objetivos de Salud",
     "healthGoalsDescription": "Selecciona los objetivos de salud que quieres que consideremos (opcional).",
     "cuisinePreferencesTitle": "Preferencias de Cocina",
-    "cuisinePreferencesDescription": "Elige tus cocinas favoritas (al menos una).",
+    "cuisinePreferencesDescription": "Elige tus cocinas favoritas, o déjalo en blanco si no tienes preferencia.",
     "dietaryRestrictionsTitle": "Restricciones Dietéticas",
-    "dietaryRestrictionsDescription": "Selecciona las que te apliquen, o elige \"Ninguna\".",
+    "dietaryRestrictionsDescription": "Selecciona las que te apliquen, o déjalo en blanco si no tienes restricciones.",
+    "add": "Agregar",
+    "dietaryCustomLabel": "Agrega una restricción dietética personalizada",
+    "dietaryCustomPlaceholder": "p. ej. Pescetariano",
+    "cuisineCustomLabel": "Agrega una cocina personalizada",
+    "cuisineCustomPlaceholder": "p. ej. vietnamita",
+    "reviewTitle": "Revisa Tu Perfil de Sabor",
+    "reviewDescription": "Verifica que todo esté bien antes de terminar.",
+    "reviewLabels": {
+      "dietaryRestrictions": "Restricciones dietéticas",
+      "cuisinePreferences": "Cocinas",
+      "cookingSkill": "Habilidad culinaria",
+      "householdSize": "Tamaño del hogar",
+      "healthGoals": "Objetivos de salud"
+    },
+    "noneSelected": "Ninguno",
+    "edit": "Editar",
+    "loading": "Cargando tu perfil de sabor…",
     "back": "Atrás",
     "skip": "Omitir",
     "finish": "Terminar",

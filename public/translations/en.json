@@ -158,11 +158,11 @@
     "nameAlreadyExists": "Filter name already exists",
     "charNotAllowedUnderscore": "Character not allowed: underscore",
     "initial": {
-      "vegetarian": "Vegetarian",
-      "vegan": "Vegan",
-      "gluten-free": "Gluten-free",
       "under-30-minutes": "Under 30 minutes",
-      "weeknight-friendly": "Weeknight-friendly"
+      "weeknight-friendly": "Weeknight-friendly",
+      "one-pot": "One-pot",
+      "budget-friendly": "Budget-friendly",
+      "kid-friendly": "Kid-friendly"
     }
   },
 
@@ -333,9 +333,26 @@
     "healthGoalsTitle": "Health Goals",
     "healthGoalsDescription": "Select any health goals you'd like us to consider (optional).",
     "cuisinePreferencesTitle": "Cuisine Preferences",
-    "cuisinePreferencesDescription": "Pick your favorite cuisines (at least one).",
+    "cuisinePreferencesDescription": "Pick your favorite cuisines, or leave blank if you have no preference.",
     "dietaryRestrictionsTitle": "Dietary Restrictions",
-    "dietaryRestrictionsDescription": "Select any that apply to you, or choose \"None\".",
+    "dietaryRestrictionsDescription": "Select any that apply, or leave blank if you have no restrictions.",
+    "add": "Add",
+    "dietaryCustomLabel": "Add a custom dietary restriction",
+    "dietaryCustomPlaceholder": "e.g. Pescatarian",
+    "cuisineCustomLabel": "Add a custom cuisine",
+    "cuisineCustomPlaceholder": "e.g. Vietnamese",
+    "reviewTitle": "Review Your Taste Profile",
+    "reviewDescription": "Check everything looks right before finishing.",
+    "reviewLabels": {
+      "dietaryRestrictions": "Dietary restrictions",
+      "cuisinePreferences": "Cuisines",
+      "cookingSkill": "Cooking skill",
+      "householdSize": "Household size",
+      "healthGoals": "Health goals"
+    },
+    "noneSelected": "None",
+    "edit": "Edit",
+    "loading": "Loading your taste profile…",
     "back": "Back",
     "skip": "Skip",
     "finish": "Finish",

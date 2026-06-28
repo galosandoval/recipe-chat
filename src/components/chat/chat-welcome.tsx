@@ -69,7 +69,7 @@ export function ChatWelcome() {
   }
 
   return (
-    <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2'>
+    <div className='mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-2 py-2'>
       <div className='flex w-full flex-1 flex-col items-center justify-center'>
         <SectionHeader
           icon={<SparklesIcon size={16} />}

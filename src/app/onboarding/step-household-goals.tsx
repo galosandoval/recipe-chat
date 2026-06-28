@@ -1,9 +1,9 @@
 'use client'
 
-import type { UseFormReturn } from 'react-hook-form'
+import { useWatch, type UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
 import { healthGoalOptions } from '~/schemas/taste-profile-schema'
-import { cn } from '~/lib/utils'
+import { OptionToggle } from './option-toggle'
 import { MinusIcon, PlusIcon } from 'lucide-react'
 import { Button } from '~/components/button'
 import { useTranslations } from '~/hooks/use-translations'
@@ -14,8 +14,8 @@ export function StepHouseholdGoals({
   form: UseFormReturn<TasteProfileSchema>
 }) {
   const t = useTranslations()
-  const householdSize = form.watch('householdSize')
-  const selectedGoals = form.watch('healthGoals')
+  const householdSize = useWatch({ control: form.control, name: 'householdSize' })
+  const selectedGoals = useWatch({ control: form.control, name: 'healthGoals' })
 
   const toggleGoal = (value: string) => {
     const current = form.getValues('healthGoals')
@@ -75,24 +75,15 @@ export function StepHouseholdGoals({
           {t.onboarding.healthGoalsDescription}
         </p>
         <div className='flex flex-wrap gap-2'>
-          {healthGoalOptions.map((option) => {
-            const isSelected = selectedGoals.includes(option)
-            return (
-              <button
-                key={option}
-                type='button'
-                onClick={() => toggleGoal(option)}
-                className={cn(
-                  'rounded-full border px-4 py-2 text-sm capitalize transition-colors',
-                  isSelected
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-background text-foreground hover:bg-muted border-border'
-                )}
-              >
-                {option}
-              </button>
-            )
-          })}
+          {healthGoalOptions.map((option) => (
+            <OptionToggle
+              key={option}
+              pressed={selectedGoals.includes(option)}
+              onPressedChange={() => toggleGoal(option)}
+            >
+              {option}
+            </OptionToggle>
+          ))}
         </div>
       </div>
     </div>

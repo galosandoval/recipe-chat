@@ -1,8 +1,8 @@
 'use client'
 
-import type { UseFormReturn } from 'react-hook-form'
+import { useWatch, type UseFormReturn } from 'react-hook-form'
 import type { TasteProfileSchema } from '~/schemas/taste-profile-schema'
-import { cn } from '~/lib/utils'
+import { OptionToggle } from './option-toggle'
 import { useTranslations } from '~/hooks/use-translations'
 
 export function StepSkill({
@@ -11,7 +11,7 @@ export function StepSkill({
   form: UseFormReturn<TasteProfileSchema>
 }) {
   const t = useTranslations()
-  const selected = form.watch('cookingSkill')
+  const selected = useWatch({ control: form.control, name: 'cookingSkill' })
 
   const skillDescriptions = {
     beginner: t.onboarding.skillDescriptions.beginner,
@@ -31,34 +31,21 @@ export function StepSkill({
             keyof typeof skillDescriptions,
             string
           ][]
-        ).map(([level, description]) => {
-          const isSelected = selected === level
-          return (
-            <button
-              key={level}
-              type='button'
-              onClick={() =>
-                form.setValue('cookingSkill', level, { shouldValidate: true })
-              }
-              className={cn(
-                'flex flex-col items-start rounded-lg border p-4 text-left transition-colors',
-                isSelected
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-background text-foreground hover:bg-muted border-border'
-              )}
-            >
-              <span className='text-sm font-medium capitalize'>{level}</span>
-              <span
-                className={cn(
-                  'text-xs',
-                  isSelected ? 'text-primary-foreground/80' : 'text-muted-foreground'
-                )}
-              >
-                {description}
-              </span>
-            </button>
-          )
-        })}
+        ).map(([level, description]) => (
+          <OptionToggle
+            key={level}
+            shape='card'
+            pressed={selected === level}
+            onPressedChange={() =>
+              form.setValue('cookingSkill', level, { shouldValidate: true })
+            }
+          >
+            <span className='text-sm font-medium capitalize'>{level}</span>
+            <span className='text-muted-foreground group-data-[state=on]:text-primary-foreground/80 text-xs'>
+              {description}
+            </span>
+          </OptionToggle>
+        ))}
       </div>
     </div>
   )

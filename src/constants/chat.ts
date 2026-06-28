@@ -21,7 +21,16 @@ export const buildSystemPrompt = ({
 }) => {
   const hasFilters = (filters?.length ?? 0) > 0
   const hasPantry = (pantrySummary?.length ?? 0) > 0
-  const hasTasteProfile = (tasteProfile?.cuisinePreferences?.length ?? 0) > 0
+  // Cuisine is optional, so a profile counts as present when any meaningful
+  // field is set — not just cuisines.
+  const hasTasteProfile = tasteProfile
+    ? (tasteProfile.dietaryRestrictions?.filter((r) => r !== 'none').length ??
+        0) > 0 ||
+      (tasteProfile.cuisinePreferences?.length ?? 0) > 0 ||
+      (tasteProfile.healthGoals?.length ?? 0) > 0 ||
+      tasteProfile.cookingSkill !== 'intermediate' ||
+      tasteProfile.householdSize !== 2
+    : false
 
   let contextBlock = ''
   if (context?.page === 'recipe-detail') {
