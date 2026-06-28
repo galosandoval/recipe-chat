@@ -1,15 +1,13 @@
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import {
-  createFilter,
-  deleteFilter,
   getAllFilters,
+  saveFilters,
   updateFilterCheckStatus
 } from '~/server/api/use-cases/filters-use-case'
 import {
   checkFilterSchema,
-  createFilterSchema,
-  deleteFilterSchema,
-  getFiltersByUserIdSchema
+  getFiltersByUserIdSchema,
+  saveFiltersSchema
 } from '~/schemas/filters-schema'
 
 export const filtersRouter = createTRPCRouter({
@@ -19,27 +17,18 @@ export const filtersRouter = createTRPCRouter({
       return await getAllFilters(input.userId, ctx.prisma)
     }),
 
-  create: protectedProcedure
-    .input(createFilterSchema.omit({ userId: true }))
-    .mutation(async ({ input, ctx }) => {
-      return await createFilter(
-        {
-          ...input,
-          userId: ctx.session.user.id
-        },
-        ctx.prisma
-      )
-    }),
-
-  delete: protectedProcedure
-    .input(deleteFilterSchema)
-    .mutation(async ({ ctx, input }) => {
-      return await deleteFilter(input, ctx.prisma)
-    }),
-
   check: protectedProcedure
     .input(checkFilterSchema)
     .mutation(async ({ ctx, input }) => {
       return await updateFilterCheckStatus(input, ctx.prisma)
+    }),
+
+  save: protectedProcedure
+    .input(saveFiltersSchema)
+    .mutation(async ({ ctx, input }) => {
+      return await saveFilters(
+        { ...input, userId: ctx.session.user.id },
+        ctx.prisma
+      )
     })
 })

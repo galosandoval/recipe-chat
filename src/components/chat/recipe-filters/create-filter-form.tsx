@@ -1,91 +1,57 @@
 import z from 'zod'
-import { toast } from '~/components/toast'
+import { PlusIcon } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
-import { useUserId } from '~/hooks/use-user-id'
-import { api } from '~/trpc/react'
-import { cuid } from '~/lib/createId'
+import { Button } from '~/components/button'
 import { Form } from '~/components/form/form'
 import { useAppForm } from '~/hooks/use-app-form'
-import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { FormInput } from '~/components/form/form-input'
 
-export function CreateFilterForm({ disabled }: { disabled?: boolean }) {
-  const { mutate } = useCreateFilter()
-  const { data: filters, isLoading } = useFiltersByUserId()
+/**
+ * Bottom-of-dialog input for staging a brand-new filter. Validates the name and
+ * rejects duplicates against the current draft, then hands the trimmed name to
+ * the parent via `onAdd` — no network call happens here.
+ */
+export function CreateFilterForm({
+  existingNames,
+  onAdd,
+  disabled
+}: {
+  existingNames: string[]
+  onAdd: (name: string) => void
+  disabled?: boolean
+}) {
   const t = useTranslations()
   const form = useAppForm(createFilterSchema, {
     defaultValues: { name: '' }
   })
 
-  const createFilter = (data: CreateFilter) => {
-    if (!filters) return
-
-    const id = cuid()
-    if (filters.some((filter) => filter.name === data.name)) {
+  const addFilter = (data: CreateFilter) => {
+    const name = data.name.trim()
+    const isDuplicate = existingNames.some(
+      (existing) => existing.toLowerCase() === name.toLowerCase()
+    )
+    if (isDuplicate) {
       form.setError('name', { message: t.filters.nameAlreadyExists })
       return
     }
-    mutate({
-      name: data.name,
-      filterId: id
-    })
+    onAdd(name)
+    form.reset()
   }
 
   return (
-    <Form
-      onSubmit={createFilter}
-      form={form}
-      formId='create-filter-form'
-    >
-      <FormInput name='name' placeholder={t.filters.placeholder} disabled={disabled || isLoading} />
+    <Form onSubmit={addFilter} form={form} formId='create-filter-form'>
+      <div className='flex items-start gap-2'>
+        <FormInput
+          name='name'
+          placeholder={t.filters.placeholder}
+          disabled={disabled}
+        />
+        <Button type='submit' disabled={disabled} icon={<PlusIcon />}>
+          {t.filters.add}
+        </Button>
+      </div>
     </Form>
   )
-}
-
-function useCreateFilter() {
-  const userId = useUserId()
-  const utils = api.useUtils()
-  const { mutate } = api.filters.create.useMutation({
-    onMutate: async (input) => {
-      await utils.filters.getByUserId.cancel({ userId })
-
-      const previousFilters = utils.filters.getByUserId.getData({ userId })
-
-      if (!previousFilters) return previousFilters
-
-      utils.filters.getByUserId.setData({ userId }, (old) => {
-        if (!old) return old
-
-        return [
-          ...old,
-          {
-            ...input,
-            userId,
-            checked: true,
-            id: input.filterId,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }
-        ]
-      })
-
-      return { previousFilters }
-    },
-
-    onSuccess: async () => {
-      await utils.filters.getByUserId.invalidate({ userId })
-    },
-
-    onError: (error, _, ctx) => {
-      const previousFilters = ctx?.previousFilters
-      if (previousFilters) {
-        utils.filters.getByUserId.setData({ userId }, previousFilters)
-      }
-      toast.error(error.message)
-    }
-  })
-
-  return { mutate }
 }
 
 export const createFilterSchema = z.object({

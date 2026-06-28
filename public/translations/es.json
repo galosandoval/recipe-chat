@@ -155,6 +155,10 @@
     "noFilters": "No se encontraron filtros. Agrega un filtro para empezar.",
     "manage": "Administrar filtros",
     "manageDescription": "Elimina filtros existentes o agrega nuevos.",
+    "discardTitle": "¿Descartar cambios?",
+    "discardDescription": "Tienes cambios de filtros sin guardar. ¿Descartarlos y cerrar?",
+    "discardConfirm": "Descartar",
+    "discardKeep": "Seguir editando",
     "nameAlreadyExists": "El nombre del filtro ya existe",
     "charNotAllowedUnderscore": "Caracter no permitido: guión bajo",
     "initial": {
