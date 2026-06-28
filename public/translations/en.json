@@ -325,6 +325,8 @@
   },
 
   "onboarding": {
+    "title": "Your Taste Profile",
+    "description": "Tell us how you like to cook so we can tailor recipes to you.",
     "cookingSkillTitle": "Cooking Skill",
     "cookingSkillDescription": "How would you describe your cooking experience?",
     "skillDescriptions": {

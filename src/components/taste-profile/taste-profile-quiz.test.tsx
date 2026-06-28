@@ -4,16 +4,11 @@ import { renderWithTranslations, en } from '~/lib/test-translations'
 import { TasteProfileQuiz } from './taste-profile-quiz'
 
 const mockUpsertMutate = jest.fn()
-const mockSkipMutate = jest.fn()
-const mockPush = jest.fn()
+const mockOnComplete = jest.fn()
 const mockQuery: { data: unknown; isPending: boolean } = {
   data: null,
   isPending: false
 }
-
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush })
-}))
 
 jest.mock('~/trpc/react', () => ({
   api: {
@@ -26,15 +21,6 @@ jest.mock('~/trpc/react', () => ({
         useMutation: (opts: { onSuccess?: () => void }) => ({
           mutate: (v: unknown) => {
             mockUpsertMutate(v)
-            opts?.onSuccess?.()
-          },
-          status: 'idle'
-        })
-      },
-      skip: {
-        useMutation: (opts: { onSuccess?: () => void }) => ({
-          mutate: () => {
-            mockSkipMutate()
             opts?.onSuccess?.()
           },
           status: 'idle'
@@ -60,7 +46,7 @@ function buildProfile(overrides: Record<string, unknown> = {}) {
 }
 
 function renderQuiz() {
-  return renderWithTranslations(<TasteProfileQuiz />)
+  return renderWithTranslations(<TasteProfileQuiz onComplete={mockOnComplete} />)
 }
 
 const clickButton = (name: RegExp) =>
@@ -145,7 +131,7 @@ describe('TasteProfileQuiz', () => {
       householdSize: 2,
       healthGoals: []
     })
-    expect(mockPush).toHaveBeenCalledWith('/chat')
+    expect(mockOnComplete).toHaveBeenCalledTimes(1)
   })
 
   it('no longer offers a "None" dietary option', () => {

@@ -44,6 +44,8 @@ import { Button } from '~/components/button'
 import { useAppForm } from '~/hooks/use-app-form'
 import { z } from 'zod'
 import { CreateParsedRecipe } from '~/app/recipes/create-recipe-button'
+import { TasteProfileDrawer } from '~/components/taste-profile/taste-profile-drawer'
+import { useTasteProfileDrawerStore } from '~/stores/taste-profile-drawer-store'
 
 const preferredUnitsFormSchema = z.object({
   preferredWeightUnit: z.string(),
@@ -61,6 +63,7 @@ export function NavDropdownMenu() {
 
   const session = useSession()
   const router = useRouter()
+  const openTasteProfile = useTasteProfileDrawerStore((s) => s.open)
 
   const handleToggleSignUp = () => {
     setIsSignUpOpen((state) => !state)
@@ -86,7 +89,7 @@ export function NavDropdownMenu() {
       {
         icon: <UtensilsIcon />,
         label: 'nav.menu.tasteProfile',
-        onClick: () => router.push('/onboarding')
+        onClick: openTasteProfile
       },
       {
         icon: <RulerIcon />,
@@ -160,6 +163,7 @@ export function NavDropdownMenu() {
         open={isPreferredUnitsOpen}
         onOpenChange={setIsPreferredUnitsOpen}
       />
+      <TasteProfileDrawer />
     </>
   )
 }
