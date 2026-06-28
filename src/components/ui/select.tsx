@@ -2,9 +2,11 @@
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
+import { motion } from "motion/react"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "~/lib/utils"
+import { durations, ease, popoverVariants } from "~/components/motion/transitions"
 
 const Select = SelectPrimitive.Root
 
@@ -71,29 +73,34 @@ const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >(({ className, children, position = "popper", ...props }, ref) => (
+  // Radix Select has no `forceMount` escape hatch in this version, so it owns
+  // mount/unmount: the popover plays its fade+scale entrance each time Radix
+  // mounts it, and closing degrades to an instant unmount (no exit animation).
   <SelectPrimitive.Portal>
-    <SelectPrimitive.Content
-      ref={ref}
-      className={cn(
-        "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-select-content-transform-origin]",
-        position === "popper" &&
-          "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
-        className
-      )}
-      position={position}
-      {...props}
-    >
-      <SelectScrollUpButton />
-      <SelectPrimitive.Viewport
+    <SelectPrimitive.Content asChild position={position} {...props}>
+      <motion.div
+        ref={ref}
         className={cn(
-          "p-1",
-          position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] origin-[--radix-select-content-transform-origin] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+          className
         )}
+        variants={popoverVariants}
+        initial="closed"
+        animate="open"
+        transition={{ duration: durations.fast, ease }}
       >
-        {children}
-      </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
+        <SelectScrollUpButton />
+        <SelectPrimitive.Viewport
+          className={cn(
+            "p-1",
+            position === "popper" &&
+              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          )}
+        >
+          {children}
+        </SelectPrimitive.Viewport>
+        <SelectScrollDownButton />
+      </motion.div>
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ))

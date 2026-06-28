@@ -5,6 +5,12 @@ import { Drawer as DrawerPrimitive } from 'vaul'
 
 import { cn } from '~/lib/utils'
 
+/**
+ * Vaul drawer root. Per issue #500, the open/close transition stays Vaul-native:
+ * Vaul drives it through the same drag transform it uses for drag-to-dismiss, so
+ * layering Motion on top would fight those transforms. Vaul already animates
+ * enter/exit cleanly, so we keep it native rather than forcing Motion in.
+ */
 const Drawer = ({
   shouldScaleBackground = true,
   ...props

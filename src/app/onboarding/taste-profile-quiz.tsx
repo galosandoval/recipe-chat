@@ -23,8 +23,8 @@ import {
   Loader2Icon,
   SkipForwardIcon
 } from 'lucide-react'
-import { cn } from '~/lib/utils'
 import { useTranslations } from '~/hooks/use-translations'
+import { StepTransition } from '~/components/motion/step-transition'
 
 const TOTAL_STEPS = 5
 
@@ -150,21 +150,13 @@ function TasteProfileForm({
       />
 
       <div className='min-h-[300px] overflow-hidden'>
-        <div
-          key={step}
-          className={cn(
-            'animate-in fade-in motion-reduce:animate-none',
-            direction === 'forward'
-              ? 'slide-in-from-right-6'
-              : 'slide-in-from-left-6'
-          )}
-        >
+        <StepTransition stepKey={step} direction={direction}>
           {step === 0 && <StepDietary form={form} />}
           {step === 1 && <StepCuisines form={form} />}
           {step === 2 && <StepSkill form={form} />}
           {step === 3 && <StepHouseholdGoals form={form} />}
           {step === 4 && <StepReview form={form} goToStep={goToStep} />}
-        </div>
+        </StepTransition>
       </div>
 
       <StepError form={form} fields={stepFields[step]} />

@@ -7,6 +7,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useChatStore } from '~/stores/chat-store'
 import { GenerateStatusAppMessage, ToolResultAppMessage } from './app-message'
 import { Avatar } from './avatar'
+import { FadeIn } from '~/components/motion/fade-in'
 
 export const Message = function Message({
   message,
@@ -41,14 +42,16 @@ function UserMessage({
   if (foundMessage) {
     if (isStreaming && isLastMessage) return null
     return (
-      <GenerateStatusAppMessage
-        recipeName={foundMessage.name}
-        isStreaming={false}
-      />
+      <FadeIn>
+        <GenerateStatusAppMessage
+          recipeName={foundMessage.name}
+          isStreaming={false}
+        />
+      </FadeIn>
     )
   }
   return (
-    <div className='flex flex-col items-center self-end'>
+    <FadeIn className='flex flex-col items-center self-end'>
       <div className='mx-auto w-full'>
         <ChatMessage
           content={message.content}
@@ -56,7 +59,7 @@ function UserMessage({
           isUserMessage
         />
       </div>
-    </div>
+    </FadeIn>
   )
 }
 
@@ -134,7 +137,7 @@ export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
   )
 
   return (
-    <div className='flex w-full flex-col items-center gap-2 self-start'>
+    <FadeIn className='flex w-full flex-col items-center gap-2 self-start'>
       <div className='mx-auto w-full'>
         <ChatMessage content={message.content} icon={<BotMessageSquareIcon />}>
           <>
@@ -160,6 +163,6 @@ export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
           }
         />
       ))}
-    </div>
+    </FadeIn>
   )
 }

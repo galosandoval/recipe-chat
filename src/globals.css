@@ -2,10 +2,6 @@
 /*
   ---break---
 */
-@plugin 'tailwindcss-animate';
-/*
-  ---break---
-*/
 @custom-variant dark (&:is(.dark *));
 /*
   This prevents zooming in on Safari when focusing on input fields for mobile.
