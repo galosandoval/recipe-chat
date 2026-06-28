@@ -99,7 +99,7 @@ describe('TasteProfileDrawer', () => {
     renderWithTranslations(<TasteProfileDrawer />)
     await screen.findByText(en.onboarding.dietaryRestrictionsTitle)
     expect(
-      screen.queryByRole('button', { name: en.onboarding.skip })
+      screen.queryByRole('button', { name: /^skip$/i })
     ).not.toBeInTheDocument()
   })
 
