@@ -8,6 +8,7 @@ import { ScrollToBottomProvider } from '~/components/scroll-to-bottom-button'
 import { useChatStore } from '~/stores/chat-store'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { Message } from './message'
+import { AnimatePresence } from 'motion/react'
 
 export const Interface = () => {
   const { messages, reset, chatId } = useChatStore()
@@ -63,13 +64,20 @@ function Messages({ data }: { data: MessageWithRecipes[] }) {
 
   return (
     <div className='bg-background mx-auto flex max-w-3xl flex-col gap-4 px-3 pt-4 pb-4'>
-      {data.map((m, i) => (
-        <Message
-          message={m}
-          key={m?.id || '' + i}
-          isLastMessage={lastUserMessageIndex === i}
-        />
-      ))}
+      {/* `initial={false}` makes messages already present on mount appear
+          instantly; only messages added afterward fade-and-rise in, so the
+          animation reads as "new" rather than firing on every re-render. Each
+          `Message` wraps its own output in `FadeIn`, so a message that renders
+          nothing stays absent (no empty flex gap). */}
+      <AnimatePresence initial={false}>
+        {data.map((m, i) => (
+          <Message
+            message={m}
+            key={m?.id || '' + i}
+            isLastMessage={lastUserMessageIndex === i}
+          />
+        ))}
+      </AnimatePresence>
 
       {isLoading && <AssistantMessageLoader />}
     </div>

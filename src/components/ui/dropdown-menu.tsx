@@ -2,11 +2,46 @@
 
 import * as React from 'react'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
+import { AnimatePresence, motion } from 'motion/react'
 import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react'
 
 import { cn } from '~/lib/utils'
+import { useControllableOpen } from '~/components/motion/use-controllable-open'
+import {
+  durations,
+  ease,
+  popoverVariants
+} from '~/components/motion/transitions'
 
-const DropdownMenu = DropdownMenuPrimitive.Root
+/** Publishes the menu's open state so {@link DropdownMenuContent} can drive `AnimatePresence`. */
+const DropdownMenuOpenContext = React.createContext(false)
+
+/**
+ * Radix DropdownMenu root that also exposes its open state on
+ * {@link DropdownMenuOpenContext}. Same controlled/uncontrolled API as Radix.
+ */
+const DropdownMenu = ({
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Root>) => {
+  const [isOpen, setOpen] = useControllableOpen({
+    open,
+    defaultOpen,
+    onOpenChange
+  })
+
+  return (
+    <DropdownMenuOpenContext.Provider value={isOpen}>
+      <DropdownMenuPrimitive.Root
+        open={isOpen}
+        onOpenChange={setOpen}
+        {...props}
+      />
+    </DropdownMenuOpenContext.Provider>
+  )
+}
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
 
@@ -47,7 +82,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-[--radix-dropdown-menu-content-transform-origin] overflow-hidden rounded-md border p-1 shadow-lg',
+      'bg-popover text-popover-foreground z-50 min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg',
       className
     )}
     {...props}
@@ -59,20 +94,39 @@ DropdownMenuSubContent.displayName =
 const DropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
-  <DropdownMenuPrimitive.Portal>
-    <DropdownMenuPrimitive.Content
-      ref={ref}
-      sideOffset={sideOffset}
-      className={cn(
-        'bg-popover text-popover-foreground z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-dropdown-menu-content-transform-origin]',
-        className
+>(({ className, sideOffset = 4, children, ...props }, ref) => {
+  const open = React.useContext(DropdownMenuOpenContext)
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <DropdownMenuPrimitive.Portal forceMount key='dropdown'>
+          <DropdownMenuPrimitive.Content
+            asChild
+            forceMount
+            sideOffset={sideOffset}
+            {...props}
+          >
+            <motion.div
+              ref={ref}
+              className={cn(
+                'bg-popover text-popover-foreground z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[8rem] origin-[--radix-dropdown-menu-content-transform-origin] overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md',
+                className
+              )}
+              variants={popoverVariants}
+              initial='closed'
+              animate='open'
+              exit='closed'
+              transition={{ duration: durations.fast, ease }}
+            >
+              {children}
+            </motion.div>
+          </DropdownMenuPrimitive.Content>
+        </DropdownMenuPrimitive.Portal>
       )}
-      {...props}
-    />
-  </DropdownMenuPrimitive.Portal>
-))
+    </AnimatePresence>
+  )
+})
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName
 
 const DropdownMenuItem = React.forwardRef<

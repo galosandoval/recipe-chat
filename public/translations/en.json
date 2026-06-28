@@ -155,6 +155,10 @@
     "noFilters": "No filters found. Add a filter to get started.",
     "manage": "Manage filters",
     "manageDescription": "Remove existing filters or add new ones.",
+    "discardTitle": "Discard changes?",
+    "discardDescription": "You have unsaved filter changes. Discard them and close?",
+    "discardConfirm": "Discard",
+    "discardKeep": "Keep editing",
     "nameAlreadyExists": "Filter name already exists",
     "charNotAllowedUnderscore": "Character not allowed: underscore",
     "initial": {

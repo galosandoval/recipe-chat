@@ -14,6 +14,7 @@ import type { Locale } from '~/i18n-config'
 import { ThemeProvider } from './theme-provider'
 import { Toaster } from 'sonner'
 import { NavigationHandler } from './navigation-handler'
+import { MotionConfig } from 'motion/react'
 
 export const Providers = ({
   children,
@@ -38,10 +39,14 @@ export const Providers = ({
             enableSystem
             disableTransitionOnChange
           >
-            <NavigationHandler />
-            {children}
-            <Toaster position='top-right' />
-            <Analytics />
+            {/* `reducedMotion="user"` honors the OS setting app-wide, so every
+                Motion animation degrades to opacity-only/instant when requested. */}
+            <MotionConfig reducedMotion='user'>
+              <NavigationHandler />
+              {children}
+              <Toaster position='top-right' />
+              <Analytics />
+            </MotionConfig>
           </ThemeProvider>
           {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </SessionProvider>
