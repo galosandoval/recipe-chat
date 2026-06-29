@@ -1,5 +1,38 @@
 import { TextEncoder, TextDecoder } from 'node:util'
 
+// Backend integration suites (src/server/api/**) hit a real Postgres DB. Jest
+// runs test files in parallel workers by default, so their concurrent writes and
+// truncates against the shared DB deadlock (40P01) or clobber each other's rows.
+// Serialize every DB-touching test behind one cross-worker advisory lock so even
+// a bare `npx jest` (full parallel run) is safe; non-DB unit suites stay parallel
+// because the lock module is only loaded for tests under src/server/api/.
+// The lock's own meta-test drives acquire/release itself, so it opts out of the
+// auto-serialization that would otherwise double-acquire the same session.
+const isIntegrationTest = () => {
+  const path = (expect.getState().testPath ?? '').replace(/\\/g, '/')
+  return (
+    path.includes('/server/api/') && !path.endsWith('/test-db-lock.test.ts')
+  )
+}
+
+beforeEach(async () => {
+  if (!isIntegrationTest()) return
+  const { acquireDbSerialLock } = await import('~/server/api/test-db-lock')
+  await acquireDbSerialLock()
+})
+
+afterEach(async () => {
+  if (!isIntegrationTest()) return
+  const { releaseDbSerialLock } = await import('~/server/api/test-db-lock')
+  await releaseDbSerialLock()
+})
+
+afterAll(async () => {
+  if (!isIntegrationTest()) return
+  const { disconnectDbSerialLock } = await import('~/server/api/test-db-lock')
+  await disconnectDbSerialLock()
+})
+
 // Motion animations are no-ops under test: jsdom has no real animation timing,
 // so we render `motion.*` elements as plain DOM and let `AnimatePresence` render
 // its children directly. Presence is driven by the `open && ...` guards in the
