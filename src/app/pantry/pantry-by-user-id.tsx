@@ -75,7 +75,7 @@ export function PantryByUserId() {
   }
 
   return (
-    <div className='mx-2 flex flex-col gap-4'>
+    <div className='mx-2 flex flex-col gap-4 py-3'>
       <div className='flex flex-wrap items-center gap-2'>
         <BulkAddPantry />
         <ManagePantryDialog
