@@ -150,6 +150,14 @@ jobs:
       - name: Apply migrations to the service database
         run: bunx prisma migrate deploy
 
+      - name: Fetch coding standards
+        # Single source of truth: the coding-standard rules live in the public
+        # skills repo (symlinked into ~/.claude/rules locally). CI can't resolve
+        # that symlink, so shallow-clone the repo and point the agent at rules/
+        # via STANDARDS_DIR. Cloned under RUNNER_TEMP so the files never enter
+        # the repo tree or a commit.
+        run: git clone --depth 1 https://github.com/galosandoval/skills.git "${RUNNER_TEMP}/skills"
+
       - name: Run implementation agent
         id: implement
         env:
@@ -159,6 +167,8 @@ jobs:
           # The agent writes pr_description.txt / failure_reason.txt here, outside
           # the repo, so they never land in a commit.
           OUTPUT_DIR: ${{ runner.temp }}
+          # Coding-standard rules cloned by the "Fetch coding standards" step.
+          STANDARDS_DIR: ${{ runner.temp }}/skills/rules
           # App/suite paths the agent may exercise during TDD.
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

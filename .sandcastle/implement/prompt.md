@@ -36,6 +36,14 @@ parts. **Tests are colocated** — the test file sits directly beside the prod
 file (no `__tests__/` directories). Read the colocated tests around the code
 you'll touch; they show the established patterns to follow.
 
+# CODING STANDARDS
+
+If `{{STANDARDS_DIR}}` is non-empty and exists, read the markdown files in it
+before writing code and conform to the ones relevant to the languages you're
+changing (each file's `paths` frontmatter says which files it governs). They are
+the project owner's TypeScript / React / Prisma conventions — treat them as
+binding. If `{{STANDARDS_DIR}}` is empty or missing, proceed without it.
+
 # DATABASE
 
 A Postgres + pgvector database is already running and migrated. The integration

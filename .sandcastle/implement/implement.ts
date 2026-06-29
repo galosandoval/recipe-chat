@@ -14,6 +14,11 @@ const ISSUE_NUMBER = required('ISSUE_NUMBER')
 const ISSUE_TITLE = required('ISSUE_TITLE')
 const BRANCH = required('BRANCH')
 
+// Absolute path to the coding-standard rules (the skills repo's rules/, cloned
+// by the workflow). Optional: empty on a local run, in which case the prompt
+// skips the standards step. Lives outside the repo so it never enters a commit.
+const STANDARDS_DIR = process.env.STANDARDS_DIR ?? ''
+
 // Written outside the repo so the agent's description never lands in a commit.
 // The workflow reads it back and prepends `Closes #N` for the PR body.
 const OUTPUT_DIR = process.env.OUTPUT_DIR ?? os.tmpdir()
@@ -38,7 +43,8 @@ const result = await sandcastle.run({
     ISSUE_NUMBER,
     ISSUE_TITLE,
     BRANCH,
-    PR_DESCRIPTION_FILE
+    PR_DESCRIPTION_FILE,
+    STANDARDS_DIR
   },
   // Runaway guard. Sandcastle's claudeCode does not expose Claude's `--max-turns`
   // flag, so the hard caps are wall-clock: this idle timeout (no output for N
