@@ -6,17 +6,64 @@ name: Agent — Implement
 # against a Postgres + pgvector service DB, does red-green-refactor, runs the
 # repo's quality gate, commits when green, and opens a draft PR linked to the
 # issue. No Docker, no GHCR image, no ANTHROPIC_API_KEY.
+#
+# Slice 3 (#511): a `preflight` job refuses non-leaf / already-PR'd issues
+# *before* any branch or PR work, and the `implement` job runs only when
+# pre-flight passes. Failure / zero-commit handling and the `always()` clear of
+# `agent:in-progress` live in the implement job.
 
 on:
   issues:
     types: [labeled]
 
 jobs:
-  implement:
+  preflight:
     # Run only for the go/spend label, and only when the maintainer added it.
     # The repo is public, so an unguarded trigger would let anyone spend the
-    # maintainer's subscription. A skipped job is the "does nothing" no-op.
+    # maintainer's subscription. A skipped job is the "does nothing" no-op, and
+    # because `implement` needs this job, skipping here skips the whole run.
     if: github.event.label.name == 'agent:implement' && github.actor == 'galosandoval'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Surfaces the refusal verdict to the implement job's `if`.
+    outputs:
+      refused: ${{ steps.preflight.outputs.refused }}
+    env:
+      # AGENT_PAT so the label swap + comment fire downstream events like the
+      # rest of the pipeline (GITHUB_TOKEN-driven label events don't).
+      GH_TOKEN: ${{ secrets.AGENT_PAT }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Pre-flight refusal gate
+        id: preflight
+        # Refuses (remove agent:implement, add agent:blocked, comment) when the
+        # issue is a PRD, a native sub-issue, or already has an open PR, and
+        # sets `refused=true/false`. No branch/PR is created on refusal.
+        run: bun .sandcastle/implement/run-preflight.ts
+
+      - name: Mark blocked if pre-flight itself errored
+        if: failure()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --remove-label "agent:implement" \
+            --add-label "agent:blocked" || true
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$(printf '`agent:implement` pre-flight check failed to run.\n\n**Run:** %s\n\nRe-add `agent:implement` to retry.' "$RUN_URL")" || true
+
+  implement:
+    needs: preflight
+    # Only proceed when pre-flight ran and explicitly passed. A skipped pre-flight
+    # (wrong label/actor) leaves `refused` empty, so this stays skipped too.
+    if: needs.preflight.outputs.refused == 'false'
     runs-on: ubuntu-latest
     # Hard wall-clock cap on the whole run (runaway guard #1).
     timeout-minutes: 45
