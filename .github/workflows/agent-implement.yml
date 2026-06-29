@@ -1,0 +1,79 @@
+name: Agent — Implement
+
+# Slice 2a: the thinnest end-to-end path. Adding `agent:implement` to a leaf
+# issue fires this workflow, which runs a no-op agent, makes one trivial commit,
+# and opens a draft PR linked to the issue. Proves the trigger, auth, branch/push,
+# PR creation, and label state machine before any real agent logic exists (#509).
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  implement:
+    # Run only for the go/spend label, and only when the maintainer added it.
+    # The repo is public, so an unguarded trigger would let anyone spend the
+    # maintainer's subscription. A skipped job is the "does nothing" no-op.
+    if: github.event.label.name == 'agent:implement' && github.actor == 'galosandoval'
+    runs-on: ubuntu-latest
+
+    env:
+      # AGENT_PAT (not GITHUB_TOKEN): GitHub does not fire downstream workflows
+      # from GITHUB_TOKEN-driven label events, and pushing under
+      # .github/workflows/ needs the PAT's `workflow` scope.
+      GH_TOKEN: ${{ secrets.AGENT_PAT }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      ISSUE_TITLE: ${{ github.event.issue.title }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.AGENT_PAT }}
+          fetch-depth: 0
+
+      - name: Start — remove agent:implement, add agent:in-progress
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --remove-label "agent:implement" \
+            --add-label "agent:in-progress"
+
+      - name: Compute branch name
+        id: branch
+        run: |
+          slug=$(printf '%s' "$ISSUE_TITLE" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' \
+            | cut -c1-50 \
+            | sed -E 's/-+$//')
+          echo "name=agent/issue-${ISSUE_NUMBER}-${slug}" >> "$GITHUB_OUTPUT"
+
+      - name: No-op agent — trivial commit
+        run: |
+          git config user.name "claude-code[bot]"
+          git config user.email "claude-code[bot]@users.noreply.github.com"
+          git checkout -b "${{ steps.branch.outputs.name }}"
+          mkdir -p .agent
+          printf 'No-op agent placeholder for issue #%s.\n' "$ISSUE_NUMBER" \
+            > ".agent/issue-${ISSUE_NUMBER}.md"
+          git add -A
+          git commit -m "chore: agent placeholder for #${ISSUE_NUMBER}"
+
+      - name: Push branch
+        run: git push -u origin "${{ steps.branch.outputs.name }}"
+
+      - name: Open draft PR
+        run: |
+          body=$(printf 'Closes #%s\n\nNo-op agent placeholder (slice 2a — workflow plumbing only).' "$ISSUE_NUMBER")
+          gh pr create --draft --repo "$GITHUB_REPOSITORY" \
+            --base main \
+            --head "${{ steps.branch.outputs.name }}" \
+            --title "$ISSUE_TITLE" \
+            --body "$body"
+
+      - name: Always — clear agent:in-progress
+        if: always()
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --remove-label "agent:in-progress" || true
