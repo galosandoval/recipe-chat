@@ -8,9 +8,9 @@ import { useChatStore } from '~/stores/chat-store'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 import {
-  ArrowDownIcon,
   MessageSquareIcon,
   MinusIcon,
+  PackageIcon,
   PencilIcon,
   PlusIcon
 } from 'lucide-react'
@@ -23,7 +23,6 @@ import {
 } from '~/components/ingredient-item-display'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { BulkAddPantry } from './bulk-add-pantry'
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { Button } from '~/components/button'
 import { toast } from '~/components/toast'
 import { DrawerDialog } from '~/components/drawer-dialog'
@@ -612,22 +611,20 @@ function EmptyPantry({ children }: { children: ReactNode }) {
   const t = useTranslations()
 
   return (
-    <div className='flex min-h-full flex-col items-center justify-center gap-4 px-4'>
-      <h1 className='text-foreground text-center text-2xl font-bold'>
-        {t.pantry.noItems}
-      </h1>
-      <Alert className='mx-4'>
-        <AlertTitle>{t.pantry.noItems}</AlertTitle>
-        <AlertDescription>{t.pantry.emptyAlert}</AlertDescription>
-      </Alert>
-      <div className='flex w-full justify-center'>{children}</div>
-      <p className='text-foreground text-center text-sm'>{t.pantry.addItem}</p>
-      <Button variant='outline' size='sm' className='mt-1' disabled>
-        <MessageSquareIcon className='size-4' />
-        {t.pantry.useInChat}
-      </Button>
-      <div className='text-primary animate-bounce'>
-        <ArrowDownIcon className='size-4' />
+    <div className='flex min-h-[60vh] items-center justify-center px-4'>
+      <div className='flex max-w-md flex-col items-center gap-4 text-center'>
+        <div className='text-muted-foreground'>
+          <PackageIcon size={80} />
+        </div>
+        <div className='space-y-2'>
+          <h3 className='text-foreground text-xl font-semibold'>
+            {t.pantry.noItems}
+          </h3>
+          <p className='text-muted-foreground text-sm leading-relaxed'>
+            {t.pantry.emptyDescription}
+          </p>
+        </div>
+        <div className='mt-2 flex w-full justify-center'>{children}</div>
       </div>
     </div>
   )
