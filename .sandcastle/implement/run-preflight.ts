@@ -16,41 +16,41 @@ import {
 const ISSUE_NUMBER = required('ISSUE_NUMBER')
 const REPO = required('GITHUB_REPOSITORY')
 
-const issue = JSON.parse(
-  gh([
-    'issue',
-    'view',
-    ISSUE_NUMBER,
-    '--repo',
-    REPO,
-    '--json',
-    'parent,subIssues'
-  ])
-) as {
+const issue = ghJson<{
   parent: { number: number } | null
   subIssues: { totalCount: number }
-}
+}>([
+  'issue',
+  'view',
+  ISSUE_NUMBER,
+  '--repo',
+  REPO,
+  '--json',
+  'parent,subIssues'
+])
 
 const subIssueCount = issue.subIssues?.totalCount ?? 0
 const parentNumber = issue.parent?.number ?? null
 
-// GitHub recognises closing keywords in a PR's body; list every open PR and
-// keep the ones that close this issue. `--limit` is generous so a busy repo
-// doesn't silently truncate the scan.
-const openPullRequests = JSON.parse(
-  gh([
-    'pr',
-    'list',
-    '--repo',
-    REPO,
-    '--state',
-    'open',
-    '--limit',
-    '200',
-    '--json',
-    'number,title,body,url'
-  ])
-) as Array<{ number: number; title: string; body: string | null; url: string }>
+/**
+ * Every open PR in the repo, scanned below for closing keywords that target
+ * this issue. GitHub recognises closing keywords in a PR's body.
+ */
+const openPullRequests = ghJson<
+  Array<{ number: number; title: string; body: string | null; url: string }>
+>([
+  'pr',
+  'list',
+  '--repo',
+  REPO,
+  '--state',
+  'open',
+  // Generous so a busy repo doesn't silently truncate the scan.
+  '--limit',
+  '200',
+  '--json',
+  'number,title,body,url'
+])
 
 const issueNumber = Number(ISSUE_NUMBER)
 const linkingPullRequests: LinkingPullRequest[] = openPullRequests
@@ -96,11 +96,16 @@ if (verdict.refused) {
   console.log(`Pre-flight passed for #${ISSUE_NUMBER}.`)
 }
 
-function gh(args: string[]): string {
+function gh(args: string[]) {
   return execFileSync('gh', args, { encoding: 'utf8' })
 }
 
-function setOutput(name: string, value: string): void {
+/** Run `gh` and parse its stdout as JSON, typed by the caller via `T`. */
+function ghJson<T>(args: string[]): T {
+  return JSON.parse(gh(args)) as T
+}
+
+function setOutput(name: string, value: string) {
   const file = process.env.GITHUB_OUTPUT
   if (!file) {
     console.warn(`GITHUB_OUTPUT unset; would have written ${name}=${value}`)
@@ -109,7 +114,7 @@ function setOutput(name: string, value: string): void {
   fs.appendFileSync(file, `${name}=${value}\n`)
 }
 
-function required(name: string): string {
+function required(name: string) {
   const value = process.env[name]
   if (!value) {
     console.error(`Missing required env var: ${name}`)

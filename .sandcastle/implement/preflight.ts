@@ -27,7 +27,7 @@ export type PreflightVerdict =
   | { refused: false }
   | { refused: true; reason: string }
 
-// GitHub's issue-closing keywords (every accepted tense/plural form).
+/** GitHub's issue-closing keywords (every accepted tense/plural form). */
 const CLOSING_KEYWORD =
   /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\b[:\s]+#(\d+)/gi
 

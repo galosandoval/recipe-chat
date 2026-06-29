@@ -14,13 +14,18 @@ const ISSUE_NUMBER = required('ISSUE_NUMBER')
 const ISSUE_TITLE = required('ISSUE_TITLE')
 const BRANCH = required('BRANCH')
 
-// Absolute path to the coding-standard rules (the skills repo's rules/, cloned
-// by the workflow). Optional: empty on a local run, in which case the prompt
-// skips the standards step. Lives outside the repo so it never enters a commit.
+/**
+ * Absolute path to the coding-standard rules (the skills repo's rules/, cloned
+ * by the workflow). Optional: empty on a local run, in which case the prompt
+ * skips the standards step. Lives outside the repo so it never enters a commit.
+ */
 const STANDARDS_DIR = process.env.STANDARDS_DIR ?? ''
 
-// Written outside the repo so the agent's description never lands in a commit.
-// The workflow reads it back and prepends `Closes #N` for the PR body.
+/**
+ * Directory for agent outputs the PR needs but a commit must not contain (the
+ * PR description, failure reason). Lives outside the repo so they never land in
+ * a commit; the workflow reads them back.
+ */
 const OUTPUT_DIR = process.env.OUTPUT_DIR ?? os.tmpdir()
 const PR_DESCRIPTION_FILE = path.join(OUTPUT_DIR, 'pr_description.txt')
 
