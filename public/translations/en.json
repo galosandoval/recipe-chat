@@ -56,12 +56,14 @@
     "noItems": "No items in your list",
     "addToList": "Add to list",
     "addIngredient": "Add a new ingredient to your list",
+    "addFirstItem": "Add an item",
     "removeChecked": "Remove checked",
     "addToPantry": "Add to pantry"
   },
 
   "pantry": {
     "noItems": "No items in your pantry",
+    "emptyDescription": "Add the ingredients you have on hand to keep track of your kitchen.",
     "emptyAlert": "Add ingredients below or use bulk paste to get started. Use in chat will be available once you have items.",
     "addItem": "Add pantry item",
     "addItemPlaceholder": "e.g. 2 kg chicken breast",
