@@ -231,7 +231,11 @@ export function ManagePantryDialog({
         open={open}
         onOpenChange={handleOpenChange}
         trigger={
-          <Button variant='outline' size='sm' aria-label={t.pantry.managePantry}>
+          <Button
+            variant='outline'
+            size='sm'
+            aria-label={t.pantry.managePantry}
+          >
             <PencilIcon className='size-4' />
             {t.pantry.managePantry}
           </Button>

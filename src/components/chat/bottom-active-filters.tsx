@@ -1,5 +1,8 @@
 import { useChatStore } from '~/stores/chat-store'
-import { useFiltersByUserId, selectActiveFilters } from '~/hooks/use-filters-by-user-id'
+import {
+  useFiltersByUserId,
+  selectActiveFilters
+} from '~/hooks/use-filters-by-user-id'
 import { useTranslations } from '~/hooks/use-translations'
 import { PackageIcon } from 'lucide-react'
 import { Badge } from '../badge'
@@ -11,9 +14,10 @@ export function BottomActiveFilters() {
   const messages = useChatStore((state) => state.messages)
   const usePantry = useChatStore((state) => state.usePantry)
 
-  const activeFilters = chatFilterIds !== null
-    ? (allFilters ?? []).filter((f) => chatFilterIds.includes(f.id))
-    : selectActiveFilters(allFilters ?? [])
+  const activeFilters =
+    chatFilterIds !== null
+      ? (allFilters ?? []).filter((f) => chatFilterIds.includes(f.id))
+      : selectActiveFilters(allFilters ?? [])
 
   if (status === 'error') {
     return <div>{t.error.somethingWentWrong}</div>
@@ -38,11 +42,7 @@ export function BottomActiveFilters() {
           </div>
         )}
         {activeFilters.map((f) => (
-          <Badge
-            key={f.id}
-            label={f.name}
-            variant='outline'
-          />
+          <Badge key={f.id} label={f.name} variant='outline' />
         ))}
       </div>
     </div>

@@ -12,6 +12,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
     "seed": "bunx prisma db seed",
     "push": "bunx prisma db push",
     "migrate": "dotenv -e .env.local -- bunx prisma migrate dev",

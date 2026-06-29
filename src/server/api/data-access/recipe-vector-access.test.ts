@@ -44,7 +44,10 @@ describe('RecipeVectorAccess.upsertEmbedding', () => {
 
     const rows = await testPrisma.$queryRawUnsafe<
       Array<{ recipeId: string; signature: string }>
-    >('SELECT "recipeId", "signature" FROM "RecipeVector" WHERE "recipeId" = $1', recipe.id)
+    >(
+      'SELECT "recipeId", "signature" FROM "RecipeVector" WHERE "recipeId" = $1',
+      recipe.id
+    )
 
     expect(rows).toHaveLength(1)
     expect(rows[0].signature).toBe('second signature')
@@ -59,10 +62,10 @@ describe('RecipeVectorAccess.maxSimilarityForEmbeddings', () => {
     mockedEmbed.mockResolvedValue(unitVector(0))
     await access.upsertEmbedding(recipe.id, user.id, 'saved signature')
 
-    const [same, orthogonal] = await access.maxSimilarityForEmbeddings(user.id, [
-      unitVector(0),
-      unitVector(1)
-    ])
+    const [same, orthogonal] = await access.maxSimilarityForEmbeddings(
+      user.id,
+      [unitVector(0), unitVector(1)]
+    )
 
     expect(same).toBeCloseTo(1, 5)
     expect(orthogonal).toBeCloseTo(0, 5)

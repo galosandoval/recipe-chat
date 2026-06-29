@@ -10,7 +10,11 @@ import en from '../../public/translations/en.json'
  * itself (e.g. injecting a form harness); otherwise reach for
  * {@link renderWithTranslations}.
  */
-export function TranslationsTestProvider({ children }: { children: ReactNode }) {
+export function TranslationsTestProvider({
+  children
+}: {
+  children: ReactNode
+}) {
   return (
     <TranslationsContext.Provider
       value={{ translations: en as never, locale: 'en' }}

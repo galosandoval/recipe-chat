@@ -3,11 +3,7 @@
  */
 import { ChatsAccess } from '~/server/api/data-access/chats-access'
 import type { MessagesWithRecipes } from '~/schemas/chats-schema'
-import {
-  testPrisma,
-  truncateAll,
-  createTestUser
-} from '~/server/api/test-db'
+import { testPrisma, truncateAll, createTestUser } from '~/server/api/test-db'
 
 const access = new ChatsAccess(testPrisma)
 

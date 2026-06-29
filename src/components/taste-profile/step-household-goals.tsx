@@ -14,7 +14,10 @@ export function StepHouseholdGoals({
   form: UseFormReturn<TasteProfileSchema>
 }) {
   const t = useTranslations()
-  const householdSize = useWatch({ control: form.control, name: 'householdSize' })
+  const householdSize = useWatch({
+    control: form.control,
+    name: 'householdSize'
+  })
   const selectedGoals = useWatch({ control: form.control, name: 'healthGoals' })
 
   const toggleGoal = (value: string) => {
@@ -28,7 +31,9 @@ export function StepHouseholdGoals({
   return (
     <div className='flex flex-col gap-6'>
       <div className='flex flex-col gap-4'>
-        <h2 className='text-lg font-semibold'>{t.onboarding.householdSizeTitle}</h2>
+        <h2 className='text-lg font-semibold'>
+          {t.onboarding.householdSizeTitle}
+        </h2>
         <p className='text-muted-foreground text-sm'>
           {t.onboarding.householdSizeDescription}
         </p>
@@ -38,11 +43,9 @@ export function StepHouseholdGoals({
             variant='outline'
             size='icon'
             onClick={() =>
-              form.setValue(
-                'householdSize',
-                Math.max(1, householdSize - 1),
-                { shouldValidate: true }
-              )
+              form.setValue('householdSize', Math.max(1, householdSize - 1), {
+                shouldValidate: true
+              })
             }
             disabled={householdSize <= 1}
           >
@@ -56,11 +59,9 @@ export function StepHouseholdGoals({
             variant='outline'
             size='icon'
             onClick={() =>
-              form.setValue(
-                'householdSize',
-                Math.min(10, householdSize + 1),
-                { shouldValidate: true }
-              )
+              form.setValue('householdSize', Math.min(10, householdSize + 1), {
+                shouldValidate: true
+              })
             }
             disabled={householdSize >= 10}
           >
@@ -70,7 +71,9 @@ export function StepHouseholdGoals({
       </div>
 
       <div className='flex flex-col gap-4'>
-        <h2 className='text-lg font-semibold'>{t.onboarding.healthGoalsTitle}</h2>
+        <h2 className='text-lg font-semibold'>
+          {t.onboarding.healthGoalsTitle}
+        </h2>
         <p className='text-muted-foreground text-sm'>
           {t.onboarding.healthGoalsDescription}
         </p>

@@ -10,7 +10,10 @@ import type {
 } from '~/schemas/chats-schema'
 import { toast } from '~/components/toast'
 import { useTranslations } from '~/hooks/use-translations'
-import { useFiltersByUserId, selectActiveFilters } from './use-filters-by-user-id'
+import {
+  useFiltersByUserId,
+  selectActiveFilters
+} from './use-filters-by-user-id'
 import { useUserId } from './use-user-id'
 import { slugify } from '~/lib/utils'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
@@ -115,22 +118,22 @@ export const useChatAI = () => {
             r.name.trim().length > 0 && (r.description ?? '').trim().length > 0
         )
         .map((r) => ({
-        id: r.id,
-        name: r.name,
-        slug: r.slug,
-        description: r.description ?? '',
-        servings: r.servings ?? null,
-        ingredients: r.ingredients,
-        instructions: r.instructions,
-        prepMinutes: r.prepMinutes,
-        cookMinutes: r.cookMinutes,
-        cuisine: r.cuisine,
-        course: r.course,
-        dietTags: r.dietTags,
-        flavorTags: r.flavorTags,
-        mainIngredients: r.mainIngredients,
-        techniques: r.techniques
-      }))
+          id: r.id,
+          name: r.name,
+          slug: r.slug,
+          description: r.description ?? '',
+          servings: r.servings ?? null,
+          ingredients: r.ingredients,
+          instructions: r.instructions,
+          prepMinutes: r.prepMinutes,
+          cookMinutes: r.cookMinutes,
+          cuisine: r.cuisine,
+          course: r.course,
+          dietTags: r.dietTags,
+          flavorTags: r.flavorTags,
+          mainIngredients: r.mainIngredients,
+          techniques: r.techniques
+        }))
     }))
 
     // If after filtering nothing meaningful remains in the assistant message,
@@ -145,7 +148,9 @@ export const useChatAI = () => {
 
     const currentChatId = useChatStore.getState().chatId
     const filterIds = !currentChatId
-      ? selectActiveFilters(utils.filters.getByUserId.getData({ userId }) ?? []).map((f) => f.id)
+      ? selectActiveFilters(
+          utils.filters.getByUserId.getData({ userId }) ?? []
+        ).map((f) => f.id)
       : undefined
 
     upsertChat({

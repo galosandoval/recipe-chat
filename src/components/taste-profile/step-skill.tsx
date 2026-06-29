@@ -16,12 +16,14 @@ export function StepSkill({
   const skillDescriptions = {
     beginner: t.onboarding.skillDescriptions.beginner,
     intermediate: t.onboarding.skillDescriptions.intermediate,
-    advanced: t.onboarding.skillDescriptions.advanced,
+    advanced: t.onboarding.skillDescriptions.advanced
   } as const
 
   return (
     <div className='flex flex-col gap-4'>
-      <h2 className='text-lg font-semibold'>{t.onboarding.cookingSkillTitle}</h2>
+      <h2 className='text-lg font-semibold'>
+        {t.onboarding.cookingSkillTitle}
+      </h2>
       <p className='text-muted-foreground text-sm'>
         {t.onboarding.cookingSkillDescription}
       </p>

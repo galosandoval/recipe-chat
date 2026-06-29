@@ -11,13 +11,15 @@ import {
 
 export function useFeatureAccess(feature: GatedFeature) {
   const { data: session } = useSession()
-  const userTier = (session?.user?.subscriptionTier ?? 'FREE') as SubscriptionTier
+  const userTier = (session?.user?.subscriptionTier ??
+    'FREE') as SubscriptionTier
   return hasFeatureAccess(userTier, feature)
 }
 
 export function useTierAccess(requiredTier: SubscriptionTier) {
   const { data: session } = useSession()
-  const userTier = (session?.user?.subscriptionTier ?? 'FREE') as SubscriptionTier
+  const userTier = (session?.user?.subscriptionTier ??
+    'FREE') as SubscriptionTier
   return hasTierAccess(userTier, requiredTier)
 }
 

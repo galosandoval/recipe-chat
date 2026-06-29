@@ -1,7 +1,10 @@
 import { tool } from 'ai'
 import { z } from 'zod'
 import { type PrismaClient } from '@prisma/client'
-import { generatedRecipeSchema, recipeDetailsSchema } from '~/schemas/messages-schema'
+import {
+  generatedRecipeSchema,
+  recipeDetailsSchema
+} from '~/schemas/messages-schema'
 import type { ChatContext } from '~/schemas/chats-schema'
 import { RecipesAccess } from '~/server/api/data-access/recipes-access'
 import { embedRecipeById } from '~/server/api/use-cases/embed-recipe-use-case'

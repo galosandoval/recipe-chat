@@ -38,8 +38,9 @@ async function main() {
   }
 
   const all = findDataMigrations(MIGRATIONS_DIR)
-  const appliedRows =
-    await prisma.$queryRaw<{ name: string }[]>`SELECT name FROM "_data_migrations"`
+  const appliedRows = await prisma.$queryRaw<
+    { name: string }[]
+  >`SELECT name FROM "_data_migrations"`
   const applied = new Set(appliedRows.map((row) => row.name))
   const pending = all.filter((name) => !applied.has(name))
 

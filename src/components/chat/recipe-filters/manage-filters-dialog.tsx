@@ -89,7 +89,9 @@ export function ManageFiltersDialog() {
       return
     }
     save(
-      { filters: values.filters.map((f) => ({ id: f.id, name: f.name.trim() })) },
+      {
+        filters: values.filters.map((f) => ({ id: f.id, name: f.name.trim() }))
+      },
       { onSuccess: () => setOpen(false) }
     )
   }

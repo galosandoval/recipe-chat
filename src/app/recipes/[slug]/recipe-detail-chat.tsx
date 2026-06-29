@@ -11,19 +11,19 @@ export function RecipeDetailChat() {
   const context: ChatContext = !recipe
     ? { page: 'recipes' }
     : {
-      page: 'recipe-detail',
-      recipe: {
-        id: recipe.id,
-        name: recipe.name,
-        slug: recipe.slug,
-        description: recipe.description,
-        ingredients: recipe.ingredients.map((ing) =>
-          getIngredientDisplayText(ing)
-        ),
-        cuisine: recipe.cuisine,
-        course: recipe.course
+        page: 'recipe-detail',
+        recipe: {
+          id: recipe.id,
+          name: recipe.name,
+          slug: recipe.slug,
+          description: recipe.description,
+          ingredients: recipe.ingredients.map((ing) =>
+            getIngredientDisplayText(ing)
+          ),
+          cuisine: recipe.cuisine,
+          course: recipe.course
+        }
       }
-    }
 
   return (
     <>

@@ -46,7 +46,9 @@ function buildProfile(overrides: Record<string, unknown> = {}) {
 }
 
 function renderQuiz() {
-  return renderWithTranslations(<TasteProfileQuiz onComplete={mockOnComplete} />)
+  return renderWithTranslations(
+    <TasteProfileQuiz onComplete={mockOnComplete} />
+  )
 }
 
 const clickButton = (name: RegExp) =>

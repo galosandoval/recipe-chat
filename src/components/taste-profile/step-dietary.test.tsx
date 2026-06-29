@@ -1,9 +1,6 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import {
-  TranslationsTestProvider,
-  en
-} from '~/lib/test-translations'
+import { TranslationsTestProvider, en } from '~/lib/test-translations'
 import { useAppForm } from '~/hooks/use-app-form'
 import {
   tasteProfileSchema,
@@ -12,11 +9,7 @@ import {
 } from '~/schemas/taste-profile-schema'
 import { StepDietary } from './step-dietary'
 
-function Harness({
-  initial
-}: {
-  initial?: Partial<TasteProfileSchema>
-}) {
+function Harness({ initial }: { initial?: Partial<TasteProfileSchema> }) {
   const form = useAppForm(tasteProfileSchema, {
     defaultValues: { ...tasteProfileDefaults, ...initial }
   })
@@ -27,9 +20,9 @@ function Harness({
   )
 }
 
-const customInput = () => screen.getByLabelText(en.onboarding.dietaryCustomLabel)
-const addButton = () =>
-  screen.getByRole('button', { name: en.onboarding.add })
+const customInput = () =>
+  screen.getByLabelText(en.onboarding.dietaryCustomLabel)
+const addButton = () => screen.getByRole('button', { name: en.onboarding.add })
 
 describe('StepDietary', () => {
   it('renders no "None" preset', () => {

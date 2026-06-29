@@ -192,9 +192,9 @@ function PreferredUnitsDialog({
     values:
       open && user
         ? {
-          preferredWeightUnit: user.preferredWeightUnit ?? '',
-          preferredVolumeUnit: user.preferredVolumeUnit ?? ''
-        }
+            preferredWeightUnit: user.preferredWeightUnit ?? '',
+            preferredVolumeUnit: user.preferredVolumeUnit ?? ''
+          }
         : undefined
   })
 
