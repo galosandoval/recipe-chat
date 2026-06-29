@@ -1,9 +1,11 @@
 name: Agent — Implement
 
-# Slice 2a: the thinnest end-to-end path. Adding `agent:implement` to a leaf
-# issue fires this workflow, which runs a no-op agent, makes one trivial commit,
-# and opens a draft PR linked to the issue. Proves the trigger, auth, branch/push,
-# PR creation, and label state machine before any real agent logic exists (#509).
+# Slice 2b (#510): the real test-driven implementation agent. Adding
+# `agent:implement` to a leaf issue fires this workflow, which runs Claude via
+# Sandcastle (`noSandbox()` — the ephemeral runner is the isolation boundary)
+# against a Postgres + pgvector service DB, does red-green-refactor, runs the
+# repo's quality gate, commits when green, and opens a draft PR linked to the
+# issue. No Docker, no GHCR image, no ANTHROPIC_API_KEY.
 
 on:
   issues:
@@ -16,6 +18,25 @@ jobs:
     # maintainer's subscription. A skipped job is the "does nothing" no-op.
     if: github.event.label.name == 'agent:implement' && github.actor == 'galosandoval'
     runs-on: ubuntu-latest
+    # Hard wall-clock cap on the whole run (runaway guard #1).
+    timeout-minutes: 45
+
+    services:
+      # Same image/env pattern as .github/workflows/test.yml, so the agent can
+      # run the full integration suite during TDD.
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: recipe_chat_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     env:
       # AGENT_PAT (not GITHUB_TOKEN): GitHub does not fire downstream workflows
@@ -24,6 +45,10 @@ jobs:
       GH_TOKEN: ${{ secrets.AGENT_PAT }}
       ISSUE_NUMBER: ${{ github.event.issue.number }}
       ISSUE_TITLE: ${{ github.event.issue.title }}
+      # The integration suite + any TDD against the DB connect here; the
+      # pgvector extension + HNSW index are created by `prisma migrate deploy`.
+      DATABASE_PRISMA_URL: postgresql://postgres:postgres@localhost:5432/recipe_chat_test
+      DATABASE_URL_NON_POOLING: postgresql://postgres:postgres@localhost:5432/recipe_chat_test
 
     steps:
       - name: Checkout main
@@ -37,6 +62,7 @@ jobs:
         run: |
           gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
             --remove-label "agent:implement" \
+            --remove-label "agent:blocked" \
             --add-label "agent:in-progress"
 
       - name: Compute branch name
@@ -49,28 +75,84 @@ jobs:
             | sed -E 's/-+$//')
           echo "name=agent/issue-${ISSUE_NUMBER}-${slug}" >> "$GITHUB_OUTPUT"
 
-      - name: No-op agent — trivial commit
+      - name: Create branch
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
         run: |
           git config user.name "claude-code[bot]"
           git config user.email "claude-code[bot]@users.noreply.github.com"
-          git checkout -b "${{ steps.branch.outputs.name }}"
-          mkdir -p .agent
-          printf 'No-op agent placeholder for issue #%s.\n' "$ISSUE_NUMBER" \
-            > ".agent/issue-${ISSUE_NUMBER}.md"
-          git add -A
-          git commit -m "chore: agent placeholder for #${ISSUE_NUMBER}"
+          git checkout -b "$BRANCH"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install Claude Code CLI
+        run: bun install -g @anthropic-ai/claude-code
+
+      - name: Generate Prisma client
+        run: bunx prisma generate
+
+      - name: Apply migrations to the service database
+        run: bunx prisma migrate deploy
+
+      - name: Run implementation agent
+        id: implement
+        env:
+          # Subscription / flat-rate token — not ANTHROPIC_API_KEY.
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+          # The agent writes pr_description.txt / failure_reason.txt here, outside
+          # the repo, so they never land in a commit.
+          OUTPUT_DIR: ${{ runner.temp }}
+          # App/suite paths the agent may exercise during TDD.
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: bun .sandcastle/implement/implement.ts
 
       - name: Push branch
-        run: git push -u origin "${{ steps.branch.outputs.name }}"
+        if: success()
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: git push -u origin "$BRANCH"
 
       - name: Open draft PR
+        if: success()
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
         run: |
-          body=$(printf 'Closes #%s\n\nNo-op agent placeholder (slice 2a — workflow plumbing only).' "$ISSUE_NUMBER")
+          # PR body = agent-written description with `Closes #N` prepended so the
+          # PR links the issue and merging auto-closes it.
+          body_file="${RUNNER_TEMP}/pr_body.txt"
+          {
+            printf 'Closes #%s\n\n' "$ISSUE_NUMBER"
+            cat "${RUNNER_TEMP}/pr_description.txt"
+          } > "$body_file"
           gh pr create --draft --repo "$GITHUB_REPOSITORY" \
             --base main \
-            --head "${{ steps.branch.outputs.name }}" \
+            --head "$BRANCH" \
             --title "$ISSUE_TITLE" \
-            --body "$body"
+            --body-file "$body_file"
+
+      - name: Mark blocked on failure
+        if: failure()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          reason="(no reason file written — see the workflow logs)"
+          if [ -f "${RUNNER_TEMP}/failure_reason.txt" ]; then
+            reason=$(cat "${RUNNER_TEMP}/failure_reason.txt")
+          fi
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --add-label "agent:blocked" || true
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$(printf '`agent:implement` run failed.\n\n**Reason:** %s\n\n**Run:** %s\n\nRe-add `agent:implement` to retry.' "$reason" "$RUN_URL")" || true
 
       - name: Always — clear agent:in-progress
         if: always()
