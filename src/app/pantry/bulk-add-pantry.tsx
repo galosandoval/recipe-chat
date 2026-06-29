@@ -6,6 +6,7 @@ import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { Button } from '~/components/button'
 import { toast } from '~/components/toast'
+import { ClipboardPasteIcon } from 'lucide-react'
 
 export function BulkAddPantry() {
   const t = useTranslations()
@@ -39,7 +40,12 @@ export function BulkAddPantry() {
 
   if (!open) {
     return (
-      <Button variant='outline' size='sm' onClick={() => setOpen(true)}>
+      <Button
+        icon={<ClipboardPasteIcon className='size-4' />}
+        variant='outline'
+        size='sm'
+        onClick={() => setOpen(true)}
+      >
         {t.pantry.bulkAdd}
       </Button>
     )
@@ -60,7 +66,7 @@ export function BulkAddPantry() {
           onClick={handleSubmit}
           disabled={isPending || !text.trim()}
         >
-          {isPending ? 'Adding…' : 'Add all'}
+          {isPending ? t.pantry.bulkAdding : t.pantry.bulkAddAll}
         </Button>
         <Button size='sm' variant='ghost' onClick={() => setOpen(false)}>
           {t.common.cancel}

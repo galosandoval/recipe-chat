@@ -28,8 +28,8 @@ export function Dialog({
   open,
   onOpenChange
 }: {
-  cancelText: string
-  submitText: string
+  cancelText?: string
+  submitText?: string
   children?: React.ReactNode
   title: string
   description: string
@@ -43,6 +43,9 @@ export function Dialog({
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }) {
+  // A footer-less dialog (no cancel/submit text) lets a consumer supply its own
+  // controls in `children` — e.g. the taste-profile quiz's own wizard nav.
+  const isDisplayingFooter = cancelText || submitText
   return (
     <DialogUI open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
@@ -54,23 +57,29 @@ export function Dialog({
           </DialogDescription>
         </DialogHeader>
         {children}
-        <DialogFooter className='flex flex-row justify-between'>
-          <DialogClose asChild>
-            <Button variant='outline' icon={<XIcon className='h-4 w-4' />}>
-              {cancelText}
-            </Button>
-          </DialogClose>
-          <Button
-            type={primaryButtonType}
-            form={formId}
-            isLoading={isLoading}
-            disabled={isDisabled}
-            onClick={onClickConfirm}
-            icon={submitIcon}
-          >
-            {submitText}
-          </Button>
-        </DialogFooter>
+        {isDisplayingFooter && (
+          <DialogFooter className='flex flex-row justify-between'>
+            {cancelText && (
+              <DialogClose asChild>
+                <Button variant='outline' icon={<XIcon className='h-4 w-4' />}>
+                  {cancelText}
+                </Button>
+              </DialogClose>
+            )}
+            {submitText && (
+              <Button
+                type={primaryButtonType}
+                form={formId}
+                isLoading={isLoading}
+                disabled={isDisabled}
+                onClick={onClickConfirm}
+                icon={submitIcon}
+              >
+                {submitText}
+              </Button>
+            )}
+          </DialogFooter>
+        )}
       </DialogContent>
     </DialogUI>
   )

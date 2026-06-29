@@ -56,17 +56,21 @@
     "noItems": "No hay elementos en tu lista",
     "addToList": "Agregar a tu lista",
     "addIngredient": "Agregar un nuevo ingrediente a tu lista",
+    "addFirstItem": "Agregar un elemento",
     "removeChecked": "Eliminar seleccionados",
     "addToPantry": "Agregar a despensa"
   },
 
   "pantry": {
     "noItems": "No hay nada en tu despensa",
+    "emptyDescription": "Agrega los ingredientes que tienes a la mano para llevar el control de tu cocina.",
     "emptyAlert": "Agrega ingredientes abajo o pega una lista para empezar. Usar en chat estará disponible cuando tengas elementos.",
     "addItem": "Agregar a la despensa",
     "addItemPlaceholder": "ej. 2 kg pechuga de pollo",
     "bulkAdd": "Pegar lista",
     "bulkAddPlaceholder": "Un ingrediente por línea",
+    "bulkAddAll": "Agregar todo",
+    "bulkAdding": "Agregando…",
     "useInChat": "Usar en chat",
     "editItem": "Editar",
     "editItemDescription": "Cambia el nombre y la cantidad del ingrediente.",
@@ -76,7 +80,18 @@
     "grams": "g (gramos)",
     "ounces": "oz (onzas)",
     "milliliters": "ml (mililitros)",
-    "cup": "taza"
+    "cup": "taza",
+    "managePantry": "Editar despensa",
+    "managePantryDescription": "Ajusta cantidades, unidades y nombres. Guarda para aplicar los cambios.",
+    "itemName": "Nombre del elemento",
+    "removeItem": "Quitar elemento",
+    "volume": "Volumen",
+    "weight": "Peso",
+    "count": "Unidades",
+    "discardTitle": "¿Descartar cambios?",
+    "discardDescription": "Tienes cambios sin guardar en la despensa. ¿Descartarlos y cerrar?",
+    "discardConfirm": "Descartar",
+    "discardKeep": "Seguir editando"
   },
 
   "valueProps": {
@@ -327,6 +342,8 @@
   },
 
   "onboarding": {
+    "title": "Tu perfil de sabor",
+    "description": "Cuéntanos cómo te gusta cocinar para adaptar las recetas a ti.",
     "cookingSkillTitle": "Habilidad Culinaria",
     "cookingSkillDescription": "¿Cómo describirías tu experiencia en la cocina?",
     "skillDescriptions": {
@@ -360,7 +377,6 @@
     "edit": "Editar",
     "loading": "Cargando tu perfil de sabor…",
     "back": "Atrás",
-    "skip": "Omitir",
     "finish": "Terminar",
     "next": "Siguiente",
     "stepOf": "Paso $1 de $2"

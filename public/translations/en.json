@@ -56,17 +56,21 @@
     "noItems": "No items in your list",
     "addToList": "Add to list",
     "addIngredient": "Add a new ingredient to your list",
+    "addFirstItem": "Add an item",
     "removeChecked": "Remove checked",
     "addToPantry": "Add to pantry"
   },
 
   "pantry": {
     "noItems": "No items in your pantry",
+    "emptyDescription": "Add the ingredients you have on hand to keep track of your kitchen.",
     "emptyAlert": "Add ingredients below or use bulk paste to get started. Use in chat will be available once you have items.",
     "addItem": "Add pantry item",
     "addItemPlaceholder": "e.g. 2 kg chicken breast",
     "bulkAdd": "Paste list",
     "bulkAddPlaceholder": "Paste one ingredient per line",
+    "bulkAddAll": "Add all",
+    "bulkAdding": "Adding…",
     "useInChat": "Use in chat",
     "editItem": "Edit item",
     "editItemDescription": "Change the ingredient name and quantity.",
@@ -76,7 +80,18 @@
     "grams": "g (grams)",
     "ounces": "oz (ounces)",
     "milliliters": "ml (milliliters)",
-    "cup": "cup"
+    "cup": "cup",
+    "managePantry": "Edit pantry",
+    "managePantryDescription": "Adjust quantities, units, and names. Save to apply your changes.",
+    "itemName": "Item name",
+    "removeItem": "Remove item",
+    "volume": "Volume",
+    "weight": "Weight",
+    "count": "Count",
+    "discardTitle": "Discard changes?",
+    "discardDescription": "You have unsaved pantry changes. Discard them and close?",
+    "discardConfirm": "Discard",
+    "discardKeep": "Keep editing"
   },
 
   "valueProps": {
@@ -325,6 +340,8 @@
   },
 
   "onboarding": {
+    "title": "Your Taste Profile",
+    "description": "Tell us how you like to cook so we can tailor recipes to you.",
     "cookingSkillTitle": "Cooking Skill",
     "cookingSkillDescription": "How would you describe your cooking experience?",
     "skillDescriptions": {
@@ -358,7 +375,6 @@
     "edit": "Edit",
     "loading": "Loading your taste profile…",
     "back": "Back",
-    "skip": "Skip",
     "finish": "Finish",
     "next": "Next",
     "stepOf": "Step $1 of $2"

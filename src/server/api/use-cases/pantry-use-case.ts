@@ -58,6 +58,57 @@ export async function updatePantryIngredient(
   return pantryAccess.updatePantryIngredient(ingredientId, updateData)
 }
 
+type PantryUpdateData = {
+  rawString?: string
+  quantity?: number | null
+  unit?: string | null
+  unitType?: 'volume' | 'weight' | 'count' | null
+  itemName?: string | null
+  preparation?: string | null
+}
+
+/**
+ * Commits a staged pantry edit in one pass: deletes the removed ingredients,
+ * then applies each row's change. A `rawString` change is re-parsed (rename
+ * path); a structured change writes the fields directly and composes a fresh
+ * `rawString` so list/pantry display stays in sync even without preferred units.
+ */
+export async function bulkUpdatePantry(
+  updates: { ingredientId: string; data: PantryUpdateData }[],
+  deletedIds: string[],
+  prisma: PrismaClient
+) {
+  const pantryAccess = new PantryAccess(prisma)
+  if (deletedIds.length > 0) {
+    await pantryAccess.deletePantryIngredients(deletedIds)
+  }
+  for (const { ingredientId, data } of updates) {
+    if (data.rawString !== undefined && data.rawString.trim() !== '') {
+      const parsed = ingredientStringToCreatePayload(data.rawString.trim())
+      await pantryAccess.updatePantryIngredient(ingredientId, {
+        rawString: parsed.rawString ?? data.rawString.trim(),
+        quantity: parsed.quantity,
+        unit: parsed.unit,
+        unitType: parsed.unitType,
+        itemName: parsed.itemName,
+        preparation: parsed.preparation
+      })
+      continue
+    }
+    const composed = [data.quantity, data.unit, data.itemName]
+      .filter((part) => part != null && part !== '')
+      .join(' ')
+      .trim()
+    await pantryAccess.updatePantryIngredient(ingredientId, {
+      quantity: data.quantity ?? null,
+      unit: data.unit ?? null,
+      unitType: data.unitType ?? null,
+      itemName: data.itemName ?? null,
+      rawString: composed
+    })
+  }
+}
+
 export async function deletePantryIngredient(
   ingredientId: string,
   prisma: PrismaClient

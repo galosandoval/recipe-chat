@@ -40,6 +40,7 @@ export function AddToListForm() {
       <BottomBar>
         <div className='flex w-full'>
           <FormInput
+            id='add-to-list-input'
             name='newIngredientName'
             placeholder={t.list.addToList}
             className='bg-background/75 focus:bg-background w-full'

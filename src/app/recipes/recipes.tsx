@@ -11,7 +11,13 @@ import { RecipeFallbackIconLg } from '~/components/icons'
 import { NavigationButton } from '~/components/navigation-button'
 import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
-import { BotIcon, SearchIcon, XCircleIcon } from 'lucide-react'
+import {
+  BotIcon,
+  CookingPot,
+  MessageSquareIcon,
+  SearchIcon,
+  XCircleIcon
+} from 'lucide-react'
 import { useNavigationStore } from '~/stores/navigation-store'
 import { useRecipesStore } from '~/stores/recipes-store'
 import { useDebounce } from '~/hooks/use-recipe'
@@ -28,9 +34,9 @@ export function Recipes({
 }) {
   const hasPagesAndItems = recipes.length > 0
   return (
-    <div className='mx-auto w-full max-w-4xl px-3 pb-4'>
+    <div className='mx-auto flex w-full max-w-4xl flex-1 flex-col px-3 pb-4'>
       {hasPagesAndItems ? <RecentRecipes hasSearch={!!search} /> : null}
-      <Header />
+      <Header hasRecipes={recipes.length > 0} />
       <RecipeCards recipes={recipes} search={search} />
 
       {fetchStatus === 'fetching' && (
@@ -42,7 +48,7 @@ export function Recipes({
   )
 }
 
-function Header() {
+function Header({ hasRecipes }: { hasRecipes: boolean }) {
   const t = useTranslations()
   const inputRef = useRef<HTMLInputElement>(null)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -82,6 +88,10 @@ function Header() {
     if (!search) setIsExpanded(false)
   }
 
+  if (!hasRecipes) {
+    return null
+  }
+
   if (isExpanded) {
     return (
       <div className='flex items-center gap-2 pt-3 pb-1'>
@@ -109,9 +119,12 @@ function Header() {
 
   return (
     <div className='flex items-center justify-between pt-3 pb-1'>
-      <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
+      <h2 className='text-muted-foreground flex gap-1 text-sm font-bold'>
+        <CookingPot className='size-4' />
+        {t.recipes.your}
+      </h2>
       <Button type='button' variant='ghost' size='icon' onClick={handleOpen}>
-        <SearchIcon className='h-4 w-4' />
+        <SearchIcon className='text-muted-foreground h-4 w-4' />
       </Button>
     </div>
   )
@@ -160,7 +173,7 @@ function EmptyList() {
   const t = useTranslations()
   const openChat = useChatDrawerStore((s) => s.open)
   return (
-    <div className='col-span-2 flex min-h-[60vh] items-center justify-center sm:col-span-4'>
+    <div className='col-span-2 flex min-h-[60vh] flex-1 items-center justify-center sm:col-span-4'>
       <div className='flex max-w-md flex-col items-center gap-4 text-center'>
         <div className='text-muted-foreground'>
           <BotIcon size={80} />
@@ -173,7 +186,12 @@ function EmptyList() {
             {t.recipes.noRecipes.empty.description}
           </p>
         </div>
-        <Button variant='default' className='mt-2' onClick={() => openChat()}>
+        <Button
+          icon={<MessageSquareIcon className='size-4' />}
+          variant='default'
+          className='mt-2'
+          onClick={() => openChat()}
+        >
           {t.recipes.noRecipes.empty.link}
         </Button>
       </div>
@@ -184,7 +202,7 @@ function EmptyList() {
 function NoneFound() {
   const t = useTranslations()
   return (
-    <div className='col-span-2 flex min-h-[60vh] items-center justify-center sm:col-span-4'>
+    <div className='col-span-2 flex min-h-[60vh] flex-1 items-center justify-center sm:col-span-4'>
       <div className='flex max-w-md flex-col items-center gap-4 text-center'>
         <div className='text-muted-foreground/50'>
           <RecipeFallbackIconLg />

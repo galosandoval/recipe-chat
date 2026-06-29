@@ -5,12 +5,13 @@ import { type Ingredient } from '@prisma/client'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
-import { ArrowDownIcon } from 'lucide-react'
+import { PlusIcon, ShoppingCartIcon } from 'lucide-react'
 import type { CheckedState } from '@radix-ui/react-checkbox'
 import { AddCheckedToPantryButton } from './add-checked-to-pantry-button'
 import { Lists } from './lists'
 import { RemoveCheckedItemsButton } from './remove-checked-items-button'
 import { Toggle } from '~/components/toggle'
+import { Button } from '~/components/button'
 
 export function ListByUserId() {
   const userId = useUserId()
@@ -65,16 +66,34 @@ function ListController({ data }: { data: Ingredient[] }) {
 function EmptyList() {
   const t = useTranslations()
 
+  const focusFooterInput = () => {
+    const input = document.getElementById('add-to-list-input')
+    input?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    input?.focus()
+  }
+
   return (
-    <div className='flex min-h-full flex-col items-center justify-center gap-4 px-4'>
-      <h1 className='text-foreground text-center text-2xl font-bold'>
-        {t.list.noItems}
-      </h1>
-      <p className='text-foreground text-center text-sm'>
-        {t.list.addIngredient}
-      </p>
-      <div className='text-primary animate-bounce'>
-        <ArrowDownIcon className='size-4' />
+    <div className='flex min-h-[60vh] flex-1 items-center justify-center px-4'>
+      <div className='flex max-w-md flex-col items-center gap-4 text-center'>
+        <div className='text-muted-foreground'>
+          <ShoppingCartIcon size={80} />
+        </div>
+        <div className='space-y-2'>
+          <h3 className='text-foreground text-xl font-semibold'>
+            {t.list.noItems}
+          </h3>
+          <p className='text-muted-foreground text-sm leading-relaxed'>
+            {t.list.addIngredient}
+          </p>
+        </div>
+        <Button
+          icon={<PlusIcon className='size-4' />}
+          variant='default'
+          className='mt-2'
+          onClick={focusFooterInput}
+        >
+          {t.list.addFirstItem}
+        </Button>
       </div>
     </div>
   )

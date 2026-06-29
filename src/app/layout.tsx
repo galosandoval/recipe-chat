@@ -9,6 +9,7 @@ import { Providers } from '~/components/providers'
 import { BottomNav, Navbar } from '~/components/navbar/navbar'
 import { getTranslations } from '~/lib/get-translations'
 import { ErrorBoundary } from '~/components/error-boundary'
+import { RouteTransition } from '~/components/motion/route-transition'
 import { AppFooter } from '~/app/app-footer'
 import { LOCALE_COOKIE_NAME, getLocaleFromCookie } from '~/lib/locale'
 
@@ -44,7 +45,7 @@ export default async function RootLayout({
                 <Navbar />
               </header>
               <main className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
-                {children}
+                <RouteTransition>{children}</RouteTransition>
               </main>
               <AppFooter />
               <BottomNav />

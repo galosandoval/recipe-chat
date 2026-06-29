@@ -15,11 +15,9 @@ import {
   PencilIcon,
   SettingsIcon
 } from 'lucide-react'
-import { cn } from '~/lib/utils'
 import { useChatDrawerStore } from '~/stores/chat-drawer-store'
+import { useTasteProfileDrawerStore } from '~/stores/taste-profile-drawer-store'
 import { api } from '~/trpc/react'
-import Link from 'next/link'
-import { buttonVariants } from '~/components/ui/button'
 import { Toggle } from '~/components/toggle'
 import { FiltersByUser } from './recipe-filters/recipe-filters'
 import { SectionHeader } from './section-header'
@@ -159,6 +157,7 @@ function ChatOptions() {
 function TasteProfileSummary() {
   const t = useTranslations()
   const { data: profile, isLoading } = api.tasteProfile.get.useQuery()
+  const openTasteProfile = useTasteProfileDrawerStore((s) => s.open)
 
   if (isLoading) return null
 
@@ -173,30 +172,27 @@ function TasteProfileSummary() {
           <p className='text-muted-foreground text-sm'>
             {t.valueProps.tasteProfileQuizPrompt}
           </p>
-          <Link
-            href='/onboarding'
-            className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}
+          <Button
+            variant='outline'
+            className='w-full'
+            onClick={openTasteProfile}
           >
             {t.valueProps.takeQuiz}
-          </Link>
+          </Button>
         </div>
       </div>
     )
   }
 
   const editLink = (
-    <Link
-      href='/onboarding'
-      className={cn(
-        buttonVariants({
-          variant: 'ghost',
-          size: 'sm',
-          className: 'text-muted-foreground'
-        })
-      )}
+    <Button
+      variant='ghost'
+      size='sm'
+      className='text-muted-foreground'
+      onClick={openTasteProfile}
     >
       <PencilIcon className='h-4 w-4' />
-    </Link>
+    </Button>
   )
 
   const activeDietary = profile.dietaryRestrictions.filter((r) => r !== 'none')
@@ -223,18 +219,20 @@ function TasteProfileSummary() {
           </span>
         </ProfileRow>
 
-        <ProfileRow label={t.valueProps.cuisines}>
-          <div className='flex flex-wrap justify-end gap-1'>
-            {profile.cuisinePreferences.map((c) => (
-              <Badge
-                variant='muted'
-                labelClassName='text-xs capitalize'
-                label={c}
-                key={c}
-              />
-            ))}
-          </div>
-        </ProfileRow>
+        {profile.cuisinePreferences.length > 0 && (
+          <ProfileRow label={t.valueProps.cuisines}>
+            <div className='flex flex-wrap justify-end gap-1'>
+              {profile.cuisinePreferences.map((c) => (
+                <Badge
+                  variant='muted'
+                  labelClassName='text-xs capitalize'
+                  label={c}
+                  key={c}
+                />
+              ))}
+            </div>
+          </ProfileRow>
+        )}
 
         {activeDietary.length > 0 && (
           <ProfileRow label={t.valueProps.dietary}>
