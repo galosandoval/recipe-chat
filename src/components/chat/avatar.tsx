@@ -16,7 +16,9 @@ export function Avatar({
             isUserMessage && 'bg-primary/20'
           )}
         />
-        <span className='grid size-6 place-items-center relative z-10'>{icon}</span>
+        <span className='relative z-10 grid size-6 place-items-center'>
+          {icon}
+        </span>
       </span>
     </div>
   )

@@ -14,7 +14,10 @@ export function StepCuisines({
   form: UseFormReturn<TasteProfileSchema>
 }) {
   const t = useTranslations()
-  const selected = useWatch({ control: form.control, name: 'cuisinePreferences' })
+  const selected = useWatch({
+    control: form.control,
+    name: 'cuisinePreferences'
+  })
   // Custom values the user typed in, kept so deselected ones stay reselectable.
   const presets: readonly string[] = cuisineOptions
   const [customOptions, setCustomOptions] = useState<string[]>(() =>
@@ -36,7 +39,9 @@ export function StepCuisines({
 
   return (
     <div className='flex flex-col gap-4'>
-      <h2 className='text-lg font-semibold'>{t.onboarding.cuisinePreferencesTitle}</h2>
+      <h2 className='text-lg font-semibold'>
+        {t.onboarding.cuisinePreferencesTitle}
+      </h2>
       <p className='text-muted-foreground text-sm'>
         {t.onboarding.cuisinePreferencesDescription}
       </p>

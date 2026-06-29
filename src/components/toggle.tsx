@@ -26,7 +26,7 @@ export function Toggle({
         className
       )}
     >
-      <div className='w-full font-normal flex justify-between items-center gap-2'>
+      <div className='flex w-full items-center justify-between gap-2 font-normal'>
         <div className='text-sm leading-none font-medium'>{label}</div>
         {pressed ? <CircleCheckIcon /> : <CircleIcon />}
       </div>

@@ -16,7 +16,11 @@ const ScrollToBottomContext = createContext<ScrollToBottomContextValue>({
   atBottom: true
 })
 
-export function ScrollToBottomProvider({ children }: { children: React.ReactNode }) {
+export function ScrollToBottomProvider({
+  children
+}: {
+  children: React.ReactNode
+}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const atBottomRef = useRef(true)
 

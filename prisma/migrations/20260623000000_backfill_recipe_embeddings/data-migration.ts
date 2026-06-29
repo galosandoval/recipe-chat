@@ -22,7 +22,9 @@ async function main() {
   // embedRecipeById swallows OpenAI errors (non-blocking by design), so without a
   // key the backfill writes zero vectors yet still "succeeds". Fail fast instead.
   if (!process.env.OPENAI_API_KEY) {
-    console.error('OPENAI_API_KEY is not set — backfill cannot embed. Aborting.')
+    console.error(
+      'OPENAI_API_KEY is not set — backfill cannot embed. Aborting.'
+    )
     process.exit(1)
   }
 

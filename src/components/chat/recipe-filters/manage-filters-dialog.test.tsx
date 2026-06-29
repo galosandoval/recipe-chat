@@ -33,10 +33,7 @@ jest.mock('~/trpc/react', () => ({
       save: {
         useMutation: (opts: { onSuccess?: () => void }) => ({
           isPending: false,
-          mutate: (
-            vars: unknown,
-            callOpts?: { onSuccess?: () => void }
-          ) => {
+          mutate: (vars: unknown, callOpts?: { onSuccess?: () => void }) => {
             mockSave(vars)
             opts?.onSuccess?.()
             callOpts?.onSuccess?.()

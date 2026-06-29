@@ -86,13 +86,7 @@ function Recipe({ data }: { data: RecipeByIdData }) {
   )
 }
 
-function StickyHeader({
-  name,
-  visible,
-}: {
-  name: string
-  visible: boolean
-}) {
+function StickyHeader({ name, visible }: { name: string; visible: boolean }) {
   return (
     <div
       className={cn(
@@ -250,9 +244,7 @@ function RecipeInfo() {
         </div>
       )}
       {description && (
-        <p className={cn('bg-transparent px-3 text-sm pt-2')}>
-          {description}
-        </p>
+        <p className={cn('bg-transparent px-3 pt-2 text-sm')}>{description}</p>
       )}
     </>
   )

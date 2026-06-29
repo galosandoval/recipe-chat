@@ -12,21 +12,13 @@ export function RecipeTime({
   return (
     <div className='my-2 flex'>
       <div className='place-items-center px-2 py-2'>
-        <div className='text-sm'>
-          {t.recipes.prepTime}
-        </div>
-        <div className='text-sm whitespace-normal'>
-          {prepTime}
-        </div>
+        <div className='text-sm'>{t.recipes.prepTime}</div>
+        <div className='text-sm whitespace-normal'>{prepTime}</div>
       </div>
 
       <div className='place-items-center px-2 py-2'>
-        <div className='text-sm'>
-          {t.recipes.cookTime}
-        </div>
-        <div className='text-sm whitespace-normal'>
-          {cookTime}
-        </div>
+        <div className='text-sm'>{t.recipes.cookTime}</div>
+        <div className='text-sm whitespace-normal'>{cookTime}</div>
       </div>
     </div>
   )
@@ -45,29 +37,21 @@ export function NewRecipeTime({
   return (
     <div className='flex'>
       <div className='place-items-center px-2 py-2'>
-        <div className='text-sm'>
-          {t.recipes.prepTime}
-        </div>
+        <div className='text-sm'>{t.recipes.prepTime}</div>
         <div className='text-sm whitespace-normal'>
           {formatTimeFromMinutes(prepMinutes, t)}
         </div>
       </div>
       <div className='place-items-center px-2 py-2'>
-        <div className='text-sm'>
-          {t.recipes.cookTime}
-        </div>
+        <div className='text-sm'>{t.recipes.cookTime}</div>
         <div className='text-sm whitespace-normal'>
           {formatTimeFromMinutes(cookMinutes, t)}
         </div>
       </div>
       {servings != null && (
         <div className='place-items-center px-2 py-2'>
-          <div className='text-sm'>
-            {t.recipes.servings}
-          </div>
-          <div className='text-sm whitespace-normal'>
-            {servings}
-          </div>
+          <div className='text-sm'>{t.recipes.servings}</div>
+          <div className='text-sm whitespace-normal'>{servings}</div>
         </div>
       )}
     </div>

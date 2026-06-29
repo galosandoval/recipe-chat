@@ -126,7 +126,9 @@ function ActionButton({
         className='mt-2'
         variant='outline'
         size='sm'
-        disabled={isStreaming || isUpsertingMessages > 0 || isSavingGenerated > 0}
+        disabled={
+          isStreaming || isUpsertingMessages > 0 || isSavingGenerated > 0
+        }
         isLoading={isPending}
         onClick={handleSaveRecipe}
         icon={<SaveIcon className='size-4' />}
@@ -139,7 +141,9 @@ function ActionButton({
       <Button
         variant='outline'
         className='mt-2'
-        disabled={isStreaming || isUpsertingMessages > 0 || isSavingGenerated > 0}
+        disabled={
+          isStreaming || isUpsertingMessages > 0 || isSavingGenerated > 0
+        }
         onClick={handleGoToRecipe}
         size='sm'
         isLoading={isNavigating}

@@ -61,7 +61,10 @@ export function TasteProfileQuiz({ onComplete }: { onComplete: () => void }) {
   }
 
   return (
-    <TasteProfileForm initialProfile={existing ?? null} onComplete={onComplete} />
+    <TasteProfileForm
+      initialProfile={existing ?? null}
+      onComplete={onComplete}
+    />
   )
 }
 
@@ -79,7 +82,9 @@ function toDefaultValues(existing: ExistingProfile): TasteProfileSchema {
   return {
     // Legacy profiles may still contain 'none'; strip it so it's never shown
     // as a custom chip or re-submitted — an empty array means "no restrictions".
-    dietaryRestrictions: existing.dietaryRestrictions.filter((r) => r !== 'none'),
+    dietaryRestrictions: existing.dietaryRestrictions.filter(
+      (r) => r !== 'none'
+    ),
     cuisinePreferences: existing.cuisinePreferences,
     cookingSkill: existing.cookingSkill as TasteProfileSchema['cookingSkill'],
     householdSize: existing.householdSize,

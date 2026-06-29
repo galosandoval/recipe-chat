@@ -55,7 +55,11 @@ describe('editRecipe facet edits', () => {
     const user = await createTestUser()
     const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
 
-    await editRecipe(editFor(recipe, { newCuisine: 'italian' }), user.id, testPrisma)
+    await editRecipe(
+      editFor(recipe, { newCuisine: 'italian' }),
+      user.id,
+      testPrisma
+    )
 
     const row = await testPrisma.recipe.findUnique({ where: { id: recipe.id } })
     expect(row?.cuisine).toBe('italian')

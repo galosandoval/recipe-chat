@@ -1,0 +1,22 @@
+# Build output / generated
+.next/
+out/
+build/
+coverage/
+tsconfig.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Database
+prisma/db.sqlite
+prisma/backups/
+
+# Lockfiles
+bun.lock
+bun.lockb
+package-lock.json
+yarn.lock
+
+# Misc generated
+**/parser-test/ingredients.json

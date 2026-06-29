@@ -5,15 +5,9 @@ export const generatedRecipeSchema = z.object({
 
   description: z.string().min(1).describe('Short description (1–2 sentences).'),
 
-  prepMinutes: z
-    .number()
-    .nullish()
-    .describe('Prep time in minutes.'),
+  prepMinutes: z.number().nullish().describe('Prep time in minutes.'),
 
-  cookMinutes: z
-    .number()
-    .nullish()
-    .describe('Cook time in minutes.'),
+  cookMinutes: z.number().nullish().describe('Cook time in minutes.'),
 
   // Facets / tags you actually persist
   cuisine: z

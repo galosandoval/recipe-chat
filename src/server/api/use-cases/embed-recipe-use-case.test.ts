@@ -56,7 +56,9 @@ describe('embedRecipeById', () => {
 
     expect(rows).toHaveLength(1)
     expect(rows[0].userId).toBe(user.id)
-    expect(rows[0].signature).toBe(vectorAccess.buildSignatureFromRecipe(recipe))
+    expect(rows[0].signature).toBe(
+      vectorAccess.buildSignatureFromRecipe(recipe)
+    )
   })
 
   it('updates the existing vector in place when re-invoked, not duplicating', async () => {

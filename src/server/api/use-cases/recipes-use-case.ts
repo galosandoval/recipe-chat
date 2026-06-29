@@ -50,7 +50,11 @@ export async function editRecipe(
     recipe
   const { slug, changedFields } = await prisma.$transaction(async (tx) => {
     const recipesDataAccess = new RecipesAccess(tx as PrismaClient)
-    const changedFields = await updateRecipeFields(id, recipe, recipesDataAccess)
+    const changedFields = await updateRecipeFields(
+      id,
+      recipe,
+      recipesDataAccess
+    )
     await handleIngredients(id, ingredients, newIngredients, recipesDataAccess)
     await handleInstructions(
       id,
@@ -76,10 +80,7 @@ export async function editRecipe(
 }
 
 // Helper functions
-function arraysEqual(
-  a: string[],
-  b: string[] | null | undefined
-): boolean {
+function arraysEqual(a: string[], b: string[] | null | undefined): boolean {
   if (!b || a.length !== b.length) {
     return false
   }

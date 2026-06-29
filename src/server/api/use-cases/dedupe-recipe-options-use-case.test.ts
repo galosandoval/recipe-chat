@@ -3,10 +3,7 @@
  */
 import { dedupeRecipeOptions } from '~/server/api/use-cases/dedupe-recipe-options-use-case'
 import { RecipeVectorAccess } from '~/server/api/data-access/recipe-vector-access'
-import {
-  embedSignature,
-  embedManySignatures
-} from '~/lib/embeddings'
+import { embedSignature, embedManySignatures } from '~/lib/embeddings'
 import {
   testPrisma,
   truncateAll,
@@ -97,9 +94,18 @@ describe('dedupeRecipeOptions', () => {
   it('returns the first N unfiltered when there is no userId (anonymous)', async () => {
     const candidates = [1, 2, 3, 4, 5].map((n) => makeRecipe(`Recipe ${n}`))
 
-    const result = await dedupeRecipeOptions(undefined, candidates, testPrisma, 3)
+    const result = await dedupeRecipeOptions(
+      undefined,
+      candidates,
+      testPrisma,
+      3
+    )
 
-    expect(result.map((r) => r.name)).toEqual(['Recipe 1', 'Recipe 2', 'Recipe 3'])
+    expect(result.map((r) => r.name)).toEqual([
+      'Recipe 1',
+      'Recipe 2',
+      'Recipe 3'
+    ])
     expect(mockedEmbedMany).not.toHaveBeenCalled()
   })
 
@@ -110,6 +116,10 @@ describe('dedupeRecipeOptions', () => {
 
     const result = await dedupeRecipeOptions(user.id, candidates, testPrisma, 3)
 
-    expect(result.map((r) => r.name)).toEqual(['Recipe 1', 'Recipe 2', 'Recipe 3'])
+    expect(result.map((r) => r.name)).toEqual([
+      'Recipe 1',
+      'Recipe 2',
+      'Recipe 3'
+    ])
   })
 })

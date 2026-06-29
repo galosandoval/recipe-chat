@@ -64,9 +64,8 @@ function FilterBadge({
   chatFilterIds: string[] | null
   onCheck: (id: string, checked: boolean) => void
 }) {
-  const checked = chatFilterIds !== null
-    ? chatFilterIds.includes(filter.id)
-    : filter.checked
+  const checked =
+    chatFilterIds !== null ? chatFilterIds.includes(filter.id) : filter.checked
 
   const icon = checked ? (
     <CheckCircleIcon className='size-5' />
@@ -144,4 +143,3 @@ function labelInitialFilters(filters: Filter[], t: Translations) {
     return { ...f, name: label }
   })
 }
-

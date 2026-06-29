@@ -59,7 +59,11 @@ export class ChatsAccess extends DataAccess {
   /**
    * Creates a new chat with messages and their associated recipes
    */
-  async createChatWithMessages({ userId, messages, filterIds }: CreateChatWithMessages) {
+  async createChatWithMessages({
+    userId,
+    messages,
+    filterIds
+  }: CreateChatWithMessages) {
     return this.transaction(async (tx) => {
       // Create the chat
       const newChat = await tx.chat.create({
