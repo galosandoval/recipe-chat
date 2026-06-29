@@ -36,27 +36,35 @@ const MIN_FRACTION = 0.25
 
 type PantryUnitType = 'volume' | 'weight' | 'count'
 
-/** Curated, singular units offered in the unit dropdown, grouped by kind. */
-const UNIT_OPTIONS: { value: string; unitType: PantryUnitType }[] = [
-  { value: 'tsp', unitType: 'volume' },
-  { value: 'tbsp', unitType: 'volume' },
-  { value: 'cup', unitType: 'volume' },
-  { value: 'fl oz', unitType: 'volume' },
-  { value: 'ml', unitType: 'volume' },
-  { value: 'l', unitType: 'volume' },
-  { value: 'pinch', unitType: 'volume' },
-  { value: 'g', unitType: 'weight' },
-  { value: 'kg', unitType: 'weight' },
-  { value: 'oz', unitType: 'weight' },
-  { value: 'lb', unitType: 'weight' },
-  { value: 'clove', unitType: 'count' },
-  { value: 'piece', unitType: 'count' },
-  { value: 'slice', unitType: 'count' },
-  { value: 'can', unitType: 'count' },
-  { value: 'bunch', unitType: 'count' },
-  { value: 'sprig', unitType: 'count' },
-  { value: 'head', unitType: 'count' },
-  { value: 'stalk', unitType: 'count' }
+/**
+ * Curated, singular units offered in the unit dropdown, grouped by kind.
+ * `labelKey` maps to a `pantry.units.*` translation for the displayed label.
+ */
+const UNIT_OPTIONS: {
+  value: string
+  unitType: PantryUnitType
+  labelKey: string
+}[] = [
+  { value: 'tsp', unitType: 'volume', labelKey: 'tsp' },
+  { value: 'tbsp', unitType: 'volume', labelKey: 'tbsp' },
+  { value: 'cup', unitType: 'volume', labelKey: 'cup' },
+  { value: 'fl oz', unitType: 'volume', labelKey: 'flOz' },
+  { value: 'ml', unitType: 'volume', labelKey: 'ml' },
+  { value: 'l', unitType: 'volume', labelKey: 'l' },
+  { value: 'pinch', unitType: 'volume', labelKey: 'pinch' },
+  { value: 'g', unitType: 'weight', labelKey: 'g' },
+  { value: 'kg', unitType: 'weight', labelKey: 'kg' },
+  { value: 'oz', unitType: 'weight', labelKey: 'oz' },
+  { value: 'lb', unitType: 'weight', labelKey: 'lb' },
+  { value: 'clove', unitType: 'count', labelKey: 'clove' },
+  { value: 'piece', unitType: 'count', labelKey: 'piece' },
+  { value: 'slice', unitType: 'count', labelKey: 'slice' },
+  { value: 'can', unitType: 'count', labelKey: 'can' },
+  { value: 'jar', unitType: 'count', labelKey: 'jar' },
+  { value: 'bunch', unitType: 'count', labelKey: 'bunch' },
+  { value: 'sprig', unitType: 'count', labelKey: 'sprig' },
+  { value: 'head', unitType: 'count', labelKey: 'head' },
+  { value: 'stalk', unitType: 'count', labelKey: 'stalk' }
 ]
 
 const unitTypeOf = (unit: string): PantryUnitType | null =>
@@ -402,7 +410,7 @@ function UnitSelect({
           <SelectTrigger className='h-8 w-24 shrink-0 text-xs'>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className='max-h-64'>
             {!hasOption && currentUnit ? (
               <SelectItem value={currentUnit}>{currentUnit}</SelectItem>
             ) : null}
@@ -413,7 +421,7 @@ function UnitSelect({
                   (option) => option.unitType === group.kind
                 ).map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.value}
+                    {t.pantry.units.get(option.labelKey)}
                   </SelectItem>
                 ))}
               </SelectGroup>
