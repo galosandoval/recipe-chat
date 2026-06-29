@@ -76,7 +76,18 @@
     "grams": "g (grams)",
     "ounces": "oz (ounces)",
     "milliliters": "ml (milliliters)",
-    "cup": "cup"
+    "cup": "cup",
+    "managePantry": "Edit pantry",
+    "managePantryDescription": "Adjust quantities, units, and names. Save to apply your changes.",
+    "itemName": "Item name",
+    "removeItem": "Remove item",
+    "volume": "Volume",
+    "weight": "Weight",
+    "count": "Count",
+    "discardTitle": "Discard changes?",
+    "discardDescription": "You have unsaved pantry changes. Discard them and close?",
+    "discardConfirm": "Discard",
+    "discardKeep": "Keep editing"
   },
 
   "valueProps": {

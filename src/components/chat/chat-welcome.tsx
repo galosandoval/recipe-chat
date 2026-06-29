@@ -223,18 +223,20 @@ function TasteProfileSummary() {
           </span>
         </ProfileRow>
 
-        <ProfileRow label={t.valueProps.cuisines}>
-          <div className='flex flex-wrap justify-end gap-1'>
-            {profile.cuisinePreferences.map((c) => (
-              <Badge
-                variant='muted'
-                labelClassName='text-xs capitalize'
-                label={c}
-                key={c}
-              />
-            ))}
-          </div>
-        </ProfileRow>
+        {profile.cuisinePreferences.length > 0 && (
+          <ProfileRow label={t.valueProps.cuisines}>
+            <div className='flex flex-wrap justify-end gap-1'>
+              {profile.cuisinePreferences.map((c) => (
+                <Badge
+                  variant='muted'
+                  labelClassName='text-xs capitalize'
+                  label={c}
+                  key={c}
+                />
+              ))}
+            </div>
+          </ProfileRow>
+        )}
 
         {activeDietary.length > 0 && (
           <ProfileRow label={t.valueProps.dietary}>

@@ -3,10 +3,20 @@ import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import {
   addIngredientToPantry,
   bulkAddToPantry,
+  bulkUpdatePantry,
   deletePantryIngredient,
   getPantryByUserId,
   updatePantryIngredient
 } from '../use-cases/pantry-use-case'
+
+const pantryUpdateData = z.object({
+  rawString: z.string().optional(),
+  quantity: z.number().nullable().optional(),
+  unit: z.string().nullable().optional(),
+  unitType: z.enum(['volume', 'weight', 'count']).nullable().optional(),
+  itemName: z.string().nullable().optional(),
+  preparation: z.string().nullable().optional()
+})
 
 export const pantryRouter = createTRPCRouter({
   byUserId: protectedProcedure
@@ -31,18 +41,24 @@ export const pantryRouter = createTRPCRouter({
     .input(
       z.object({
         ingredientId: z.string(),
-        data: z.object({
-          rawString: z.string().optional(),
-          quantity: z.number().nullable().optional(),
-          unit: z.string().nullable().optional(),
-          unitType: z.enum(['volume', 'weight', 'count']).nullable().optional(),
-          itemName: z.string().nullable().optional(),
-          preparation: z.string().nullable().optional()
-        })
+        data: pantryUpdateData
       })
     )
     .mutation(async ({ ctx, input }) => {
       return updatePantryIngredient(input.ingredientId, input.data, ctx.prisma)
+    }),
+
+  bulkUpdate: protectedProcedure
+    .input(
+      z.object({
+        updates: z.array(
+          z.object({ ingredientId: z.string(), data: pantryUpdateData })
+        ),
+        deletedIds: z.array(z.string())
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return bulkUpdatePantry(input.updates, input.deletedIds, ctx.prisma)
     }),
 
   delete: protectedProcedure

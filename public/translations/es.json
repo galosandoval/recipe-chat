@@ -76,7 +76,18 @@
     "grams": "g (gramos)",
     "ounces": "oz (onzas)",
     "milliliters": "ml (mililitros)",
-    "cup": "taza"
+    "cup": "taza",
+    "managePantry": "Editar despensa",
+    "managePantryDescription": "Ajusta cantidades, unidades y nombres. Guarda para aplicar los cambios.",
+    "itemName": "Nombre del elemento",
+    "removeItem": "Quitar elemento",
+    "volume": "Volumen",
+    "weight": "Peso",
+    "count": "Unidades",
+    "discardTitle": "¿Descartar cambios?",
+    "discardDescription": "Tienes cambios sin guardar en la despensa. ¿Descartarlos y cerrar?",
+    "discardConfirm": "Descartar",
+    "discardKeep": "Seguir editando"
   },
 
   "valueProps": {
