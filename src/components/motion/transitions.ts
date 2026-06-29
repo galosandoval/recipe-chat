@@ -40,8 +40,8 @@ export const popoverVariants: Variants = {
   open: { opacity: 1, scale: 1 }
 }
 
-/** Content entrance (chat messages, onboarding): fade + gentle rise. */
+/** Content entrance (chat message bubbles): fade + rise. */
 export const fadeRiseVariants: Variants = {
-  hidden: { opacity: 0, y: 8 },
+  hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0 }
 }
