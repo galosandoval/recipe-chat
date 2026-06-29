@@ -3,8 +3,6 @@
 import { type ReactNode } from 'react'
 import type { Ingredient } from '@prisma/client'
 import { useTranslations } from '~/hooks/use-translations'
-import { useChatDrawerStore } from '~/stores/chat-drawer-store'
-import { useChatStore } from '~/stores/chat-store'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
 import { ArrowDownIcon, MessageSquareIcon } from 'lucide-react'
