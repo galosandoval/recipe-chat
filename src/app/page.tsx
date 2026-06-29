@@ -1,18 +1,13 @@
 import { redirect } from 'next/navigation'
 import { auth } from '~/server/auth'
-import { prisma } from '~/server/db'
 import { Chat } from './chat'
 
 export default async function Home() {
   const session = await auth()
+  // First-run onboarding is now an in-app overlay (auto-opened by
+  // TasteProfileDrawer), so authed users go straight to chat regardless of
+  // whether they've completed their taste profile yet.
   if (session?.user) {
-    const tasteProfile = await prisma.tasteProfile.findUnique({
-      where: { userId: session.user.id },
-      select: { id: true }
-    })
-    if (!tasteProfile) {
-      redirect('/onboarding')
-    }
     redirect('/chat')
   }
 

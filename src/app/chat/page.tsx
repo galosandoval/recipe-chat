@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { auth } from '~/server/auth'
-import { prisma } from '~/server/db'
 import { HydrateClient, api } from '~/trpc/server'
 import { Chat } from '../chat'
 
@@ -10,14 +9,9 @@ export default async function ChatPage() {
     return redirect('/')
   }
 
-  const tasteProfile = await prisma.tasteProfile.findUnique({
-    where: { userId: session.user.id },
-    select: { id: true }
-  })
-  if (!tasteProfile) {
-    redirect('/onboarding')
-  }
-
+  // No profile redirect: first-run onboarding is an in-app overlay now. The
+  // taste-profile prefetch seeds `tasteProfile.get` (which returns null for a
+  // brand-new user), and TasteProfileDrawer auto-opens the quiz from that.
   // Seed the taste-profile and filters queries into the RSC cache so
   // <ChatWelcome>'s summary and filters sections render from hydrated data on
   // first paint instead of firing their own client requests and flashing

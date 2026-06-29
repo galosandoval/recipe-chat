@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useFormState, type UseFormReturn } from 'react-hook-form'
 import { useAppForm } from '~/hooks/use-app-form'
 import {
@@ -20,8 +19,7 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   CheckIcon,
-  Loader2Icon,
-  SkipForwardIcon
+  Loader2Icon
 } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
 import { StepTransition } from '~/components/motion/step-transition'
@@ -42,8 +40,12 @@ type ExistingProfile = RouterOutputs['tasteProfile']['get']
 /**
  * Outer container: fetches the existing profile and shows a loader until the
  * query settles, so the inner form only ever mounts with stable initial data.
+ *
+ * @param onComplete - Called after the profile is successfully saved on Finish.
+ *   The host (e.g. `TasteProfileDrawer`) uses it to close the overlay; the quiz
+ *   itself no longer navigates.
  */
-export function TasteProfileQuiz() {
+export function TasteProfileQuiz({ onComplete }: { onComplete: () => void }) {
   const t = useTranslations()
   const { data: existing, isPending } = api.tasteProfile.get.useQuery()
 
@@ -58,7 +60,9 @@ export function TasteProfileQuiz() {
     )
   }
 
-  return <TasteProfileForm initialProfile={existing ?? null} />
+  return (
+    <TasteProfileForm initialProfile={existing ?? null} onComplete={onComplete} />
+  )
 }
 
 /** Build stable initial form values from an existing profile (or shared defaults). */
@@ -88,14 +92,15 @@ function toDefaultValues(existing: ExistingProfile): TasteProfileSchema {
  * prop, so selections are never reset out from under the user.
  */
 function TasteProfileForm({
-  initialProfile
+  initialProfile,
+  onComplete
 }: {
   initialProfile: ExistingProfile
+  onComplete: () => void
 }) {
   const t = useTranslations()
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState<'forward' | 'back'>('forward')
-  const router = useRouter()
 
   const form = useAppForm(tasteProfileSchema, {
     defaultValues: toDefaultValues(initialProfile)
@@ -105,13 +110,7 @@ function TasteProfileForm({
   const upsert = api.tasteProfile.upsert.useMutation({
     onSuccess: async () => {
       await utils.tasteProfile.get.invalidate()
-      router.push('/chat')
-    }
-  })
-  const skip = api.tasteProfile.skip.useMutation({
-    onSuccess: async () => {
-      await utils.tasteProfile.get.invalidate()
-      router.push('/chat')
+      onComplete()
     }
   })
 
@@ -134,11 +133,7 @@ function TasteProfileForm({
     if (step > 0) goToStep(step - 1)
   }
 
-  const handleSkip = () => {
-    skip.mutate()
-  }
-
-  const isSubmitting = upsert.status === 'pending' || skip.status === 'pending'
+  const isSubmitting = upsert.status === 'pending'
   const isLastStep = step === TOTAL_STEPS - 1
 
   return (
@@ -165,10 +160,8 @@ function TasteProfileForm({
         isFirstStep={step === 0}
         isLastStep={isLastStep}
         isSubmitting={isSubmitting}
-        isSkipping={skip.status === 'pending'}
         isFinishing={upsert.status === 'pending'}
         onBack={handleBack}
-        onSkip={handleSkip}
         onNext={handleNext}
       />
     </div>
@@ -202,19 +195,15 @@ function NavButtons({
   isFirstStep,
   isLastStep,
   isSubmitting,
-  isSkipping,
   isFinishing,
   onBack,
-  onSkip,
   onNext
 }: {
   isFirstStep: boolean
   isLastStep: boolean
   isSubmitting: boolean
-  isSkipping: boolean
   isFinishing: boolean
   onBack: () => void
-  onSkip: () => void
   onNext: () => void
 }) {
   const t = useTranslations()
@@ -222,16 +211,9 @@ function NavButtons({
   return (
     <div className='flex items-center justify-between gap-2'>
       {isFirstStep ? (
-        <Button
-          type='button'
-          variant='ghost'
-          onClick={onSkip}
-          disabled={isSubmitting}
-          isLoading={isSkipping}
-          icon={<SkipForwardIcon className='h-4 w-4' />}
-        >
-          {t.onboarding.skip}
-        </Button>
+        // Spacer keeps Next right-aligned on the first step, where there's no
+        // Back. Dismissing the drawer — not a button — is the way out now.
+        <span />
       ) : (
         <Button
           type='button'

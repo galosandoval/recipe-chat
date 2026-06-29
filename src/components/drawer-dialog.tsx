@@ -21,15 +21,20 @@ export function DrawerDialog({
   description: string
   trigger?: React.ReactNode
   children: React.ReactNode
-  cancelText: string
-  submitText: string
+  /**
+   * Cancel/submit text drive the built-in footer. Omit both to render a
+   * footer-less shell whose `children` supply their own controls (e.g. a
+   * multi-step wizard with its own Back/Next/Finish nav).
+   */
+  cancelText?: string
+  submitText?: string
   isLoading?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
   /**
    * The id of the form to submit if the children are a form
    */
-  formId: string
+  formId?: string
   submitIcon?: React.ReactNode
 }) {
   const isDesktop = useMediaQuery('(min-width: 768px)')

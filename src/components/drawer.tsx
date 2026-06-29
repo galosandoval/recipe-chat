@@ -31,7 +31,7 @@ export const Drawer = ({
   title: string
   description?: string
   trigger?: React.ReactNode
-  formId: string
+  formId?: string
   className?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void

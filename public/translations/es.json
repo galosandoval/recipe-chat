@@ -342,6 +342,8 @@
   },
 
   "onboarding": {
+    "title": "Tu perfil de sabor",
+    "description": "Cuéntanos cómo te gusta cocinar para adaptar las recetas a ti.",
     "cookingSkillTitle": "Habilidad Culinaria",
     "cookingSkillDescription": "¿Cómo describirías tu experiencia en la cocina?",
     "skillDescriptions": {
@@ -375,7 +377,6 @@
     "edit": "Editar",
     "loading": "Cargando tu perfil de sabor…",
     "back": "Atrás",
-    "skip": "Omitir",
     "finish": "Terminar",
     "next": "Siguiente",
     "stepOf": "Paso $1 de $2"
