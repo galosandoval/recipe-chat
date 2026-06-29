@@ -5,7 +5,7 @@ import { type Ingredient } from '@prisma/client'
 import { useTranslations } from '~/hooks/use-translations'
 import { api } from '~/trpc/react'
 import { useUserId } from '~/hooks/use-user-id'
-import { ShoppingCartIcon } from 'lucide-react'
+import { PlusIcon, ShoppingCartIcon } from 'lucide-react'
 import type { CheckedState } from '@radix-ui/react-checkbox'
 import { AddCheckedToPantryButton } from './add-checked-to-pantry-button'
 import { Lists } from './lists'
@@ -73,7 +73,7 @@ function EmptyList() {
   }
 
   return (
-    <div className='flex min-h-[60vh] items-center justify-center px-4'>
+    <div className='flex min-h-[60vh] flex-1 items-center justify-center px-4'>
       <div className='flex max-w-md flex-col items-center gap-4 text-center'>
         <div className='text-muted-foreground'>
           <ShoppingCartIcon size={80} />
@@ -86,7 +86,12 @@ function EmptyList() {
             {t.list.addIngredient}
           </p>
         </div>
-        <Button variant='default' className='mt-2' onClick={focusFooterInput}>
+        <Button
+          icon={<PlusIcon className='size-4' />}
+          variant='default'
+          className='mt-2'
+          onClick={focusFooterInput}
+        >
           {t.list.addFirstItem}
         </Button>
       </div>

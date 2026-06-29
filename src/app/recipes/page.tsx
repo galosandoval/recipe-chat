@@ -20,9 +20,9 @@ export default async function RecipesView() {
 
   return (
     <HydrateClient>
-      <main className='mx-auto w-full pt-3 sm:pt-4'>
+      <div className='mx-auto flex min-h-0 w-full flex-1 flex-col pt-3 sm:pt-4'>
         <InfiniteRecipes />
-      </main>
+      </div>
       <RecipesAddFab />
     </HydrateClient>
   )

@@ -69,6 +69,8 @@
     "addItemPlaceholder": "e.g. 2 kg chicken breast",
     "bulkAdd": "Paste list",
     "bulkAddPlaceholder": "Paste one ingredient per line",
+    "bulkAddAll": "Add all",
+    "bulkAdding": "Adding…",
     "useInChat": "Use in chat",
     "editItem": "Edit item",
     "editItemDescription": "Change the ingredient name and quantity.",

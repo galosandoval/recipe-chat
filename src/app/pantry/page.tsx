@@ -15,9 +15,9 @@ export default async function PantryView() {
 
   return (
     <HydrateClient>
-      <main className='mx-auto w-full overflow-y-auto pb-3'>
+      <div className='mx-auto flex min-h-0 w-full flex-1 flex-col overflow-y-auto pb-3'>
         <PantryByUserId />
-      </main>
+      </div>
       <ChatFab context={{ page: 'pantry' }} className='bottom-36' />
       <ChatPanel />
     </HydrateClient>

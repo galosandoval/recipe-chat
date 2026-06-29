@@ -66,7 +66,7 @@ export function BulkAddPantry() {
           onClick={handleSubmit}
           disabled={isPending || !text.trim()}
         >
-          {isPending ? 'Adding…' : 'Add all'}
+          {isPending ? t.pantry.bulkAdding : t.pantry.bulkAddAll}
         </Button>
         <Button size='sm' variant='ghost' onClick={() => setOpen(false)}>
           {t.common.cancel}

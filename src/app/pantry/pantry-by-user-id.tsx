@@ -161,7 +161,7 @@ function EmptyPantry({ children }: { children: ReactNode }) {
   const t = useTranslations()
 
   return (
-    <div className='flex min-h-[60vh] items-center justify-center px-4'>
+    <div className='flex min-h-[60vh] flex-1 items-center justify-center px-4'>
       <div className='flex max-w-md flex-col items-center gap-4 text-center'>
         <div className='text-muted-foreground'>
           <PackageIcon size={80} />

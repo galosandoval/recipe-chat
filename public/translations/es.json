@@ -69,6 +69,8 @@
     "addItemPlaceholder": "ej. 2 kg pechuga de pollo",
     "bulkAdd": "Pegar lista",
     "bulkAddPlaceholder": "Un ingrediente por línea",
+    "bulkAddAll": "Agregar todo",
+    "bulkAdding": "Agregando…",
     "useInChat": "Usar en chat",
     "editItem": "Editar",
     "editItemDescription": "Cambia el nombre y la cantidad del ingrediente.",
