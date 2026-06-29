@@ -13,6 +13,7 @@ import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import {
   BotIcon,
+  CookingPot,
   MessageSquareIcon,
   SearchIcon,
   XCircleIcon
@@ -118,9 +119,12 @@ function Header({ hasRecipes }: { hasRecipes: boolean }) {
 
   return (
     <div className='flex items-center justify-between pt-3 pb-1'>
-      <h2 className='text-foreground text-sm font-bold'>{t.recipes.your}</h2>
+      <h2 className='text-muted-foreground flex gap-1 text-sm font-bold'>
+        <CookingPot className='size-4' />
+        {t.recipes.your}
+      </h2>
       <Button type='button' variant='ghost' size='icon' onClick={handleOpen}>
-        <SearchIcon className='h-4 w-4' />
+        <SearchIcon className='text-muted-foreground h-4 w-4' />
       </Button>
     </div>
   )

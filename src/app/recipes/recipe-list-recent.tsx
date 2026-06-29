@@ -6,6 +6,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { RecipeFallbackIconSm } from '~/components/icons'
 import Image from 'next/image'
 import { NavigationButton } from '~/components/navigation-button'
+import { ClockIcon } from 'lucide-react'
 
 export function RecentRecipes({ hasSearch }: { hasSearch: boolean }) {
   const t = useTranslations()
@@ -83,7 +84,10 @@ function Container({ children }: { children: React.ReactNode }) {
 
   return (
     <div className='col-span-2 w-full sm:col-span-4'>
-      <h2 className='text-foreground text-sm font-bold'>{t.recipes.recent}</h2>
+      <h2 className='text-muted-foreground flex items-center gap-1 pb-2 text-sm font-bold'>
+        <ClockIcon className='size-4' />
+        {t.recipes.recent}
+      </h2>
 
       {children}
     </div>
