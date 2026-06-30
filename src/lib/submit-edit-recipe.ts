@@ -15,7 +15,11 @@ export const submitEditRecipe = (
     prepMinutes,
     notes,
     ingredients,
-    instructions
+    instructions,
+    cuisine,
+    course,
+    dietTags,
+    flavorTags
   } = recipe
   const newIngredients = values.ingredients
     .split('\n')
@@ -88,6 +92,14 @@ export const submitEditRecipe = (
     name: name || '',
     description: description || '',
     notes,
-    newNotes: values.notes
+    newNotes: values.notes,
+    newCuisine: values.cuisine,
+    newCourse: values.course,
+    newDietTags: values.dietTags,
+    newFlavorTags: values.flavorTags,
+    cuisine: cuisine ?? undefined,
+    course: course ?? undefined,
+    dietTags: dietTags ?? undefined,
+    flavorTags: flavorTags ?? undefined
   }
 }

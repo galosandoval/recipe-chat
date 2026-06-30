@@ -1,10 +1,9 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { type Instruction } from '@prisma/client'
 import { api } from '~/trpc/react'
 import { useAppForm } from '~/hooks/use-app-form'
-import { z } from 'zod'
 import { useTranslations } from '~/hooks/use-translations'
 import Image from 'next/image'
 import { useNoSleep } from '~/hooks/use-no-sleep'
@@ -16,13 +15,25 @@ import { GlassElement } from '~/components/glass-element'
 import { NewRecipeTime, RecipeTime } from './recipe-time'
 import { Button } from '~/components/button'
 import { Card } from '~/components/card'
+import { Dialog } from '~/components/dialog'
 import { Form } from '~/components/form/form'
+import { FormInput } from '~/components/form/form-input'
 import { FormTextarea } from '~/components/form/form-textarea'
-import { PencilIcon } from 'lucide-react'
+import { FloatingActionButton } from '~/components/floating-action-button'
+import { PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import { AddImageDropdown } from '~/components/add-image-dropdown'
 import type { RecipeByIdData } from '~/hooks/use-recipe'
 import { useRecipe } from '~/hooks/use-recipe'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
+import { submitEditRecipe } from '~/lib/submit-edit-recipe'
+import type { EditRecipeFormValues } from '~/schemas/recipes-schema'
+import {
+  recipeEditSchema,
+  toRecipeEditDefaults,
+  type RecipeEditValues
+} from './recipe-edit-schema'
+import { RecipeFacetBadges, RecipeFacetsFields } from './recipe-facets'
+import { UpdateImage } from './update-recipe-image'
 
 export function RecipeById() {
   useNoSleep()
@@ -37,13 +48,30 @@ export function RecipeById() {
   )
 }
 
+function Recipe({ data }: { data: RecipeByIdData }) {
+  const [isEditing, setIsEditing] = useState(false)
+
+  if (isEditing) {
+    return <RecipeEditMode data={data} onClose={() => setIsEditing(false)} />
+  }
+
+  return <RecipeReadView data={data} onEdit={() => setIsEditing(true)} />
+}
+
 const observerOptions: IntersectionObserverInit = {
   root: null,
   rootMargin: '0px',
   threshold: Array.from({ length: 100 }, (_, i) => i / 100)
 }
 
-function Recipe({ data }: { data: RecipeByIdData }) {
+function RecipeReadView({
+  data,
+  onEdit
+}: {
+  data: RecipeByIdData
+  onEdit: () => void
+}) {
+  const t = useTranslations()
   const { ingredients, instructions, notes, name } = data
   const containerRef = useRef<HTMLDivElement>(null)
   const [startRef, startObservation] = useObervationObserver(observerOptions)
@@ -71,7 +99,7 @@ function Recipe({ data }: { data: RecipeByIdData }) {
             <div className='pt-4'>
               <Instructions instructions={instructions} />
             </div>
-            <Notes notes={notes} id={data.id} />
+            <NotesDisplay notes={notes} />
           </div>
         </div>
       </div>
@@ -82,6 +110,10 @@ function Recipe({ data }: { data: RecipeByIdData }) {
           containerRef={containerRef}
         />
       ) : null}
+
+      <FloatingActionButton aria-label={t.recipes.byId.edit} onClick={onEdit}>
+        <PencilIcon />
+      </FloatingActionButton>
     </>
   )
 }
@@ -116,18 +148,19 @@ function ImageWithTitleAndDescription({
   return (
     <>
       {data.imgUrl ? (
-        <RecipeMetaDataWithImage url={data.imgUrl} translateY={translateY} />
+        <RecipeMetaDataWithImage
+          data={data}
+          url={data.imgUrl}
+          translateY={translateY}
+        />
       ) : (
-        <RecipeImgButtonAndMetaData />
+        <RecipeImgButtonAndMetaData data={data} />
       )}
     </>
   )
 }
 
-function RecipeImgButtonAndMetaData() {
-  const { data } = useRecipe()
-
-  if (!data) return null
+function RecipeImgButtonAndMetaData({ data }: { data: RecipeByIdData }) {
   return (
     <>
       <StickyHeader name={data.name} visible={true} />
@@ -137,7 +170,7 @@ function RecipeImgButtonAndMetaData() {
           contentClassName='flex flex-col items-center justify-center'
         >
           <AddImageDropdown recipeId={data.id} />
-          <RecipeInfo />
+          <RecipeInfo data={data} />
         </Card>
       </div>
     </>
@@ -145,16 +178,18 @@ function RecipeImgButtonAndMetaData() {
 }
 
 function RecipeMetaDataWithImage({
+  data,
   url,
   translateY
 }: {
+  data: RecipeByIdData
   url: string
   translateY: string
 }) {
   return (
     <div>
       <ImageWithAspectRatio url={url} translateY={translateY} />
-      <GlassMetadata />
+      <GlassMetadata data={data} />
     </div>
   )
 }
@@ -195,24 +230,18 @@ function ImageWithAspectRatio({
   )
 }
 
-function GlassMetadata() {
+function GlassMetadata({ data }: { data: RecipeByIdData }) {
   return (
     <div className='bottom-0 z-0 flex h-svh w-full flex-col justify-end'>
       <div className='h-full flex-1'></div>
       <GlassElement className='to-background/90 sticky top-14 h-full flex-1 bg-gradient-to-b py-4'>
-        <RecipeInfo />
+        <RecipeInfo data={data} />
       </GlassElement>
     </div>
   )
 }
 
-function RecipeInfo() {
-  const utils = api.useUtils()
-  const slug = useRecipeSlug()
-  const data = utils.recipes.bySlug.getData({ slug })
-
-  if (!data) return null
-
+function RecipeInfo({ data }: { data: RecipeByIdData }) {
   const {
     name,
     prepTime,
@@ -243,6 +272,9 @@ function RecipeInfo() {
           />
         </div>
       )}
+
+      <RecipeFacetBadges data={data} />
+
       {description && (
         <p className={cn('bg-transparent px-3 pt-2 text-sm')}>{description}</p>
       )}
@@ -272,57 +304,142 @@ function Instructions({ instructions }: { instructions: Instruction[] }) {
   )
 }
 
-const addNotesSchema = z.object({
-  notes: z.string()
-})
-type AddNotes = z.infer<typeof addNotesSchema>
-
-function Notes({ notes, id }: { notes: string; id: string }) {
+function NotesDisplay({ notes }: { notes: string }) {
   const t = useTranslations()
-  const utils = api.useUtils()
-  const slug = useRecipeSlug()
-  const { mutate, isPending, variables } = api.recipes.addNotes.useMutation({
-    onSettled: () => utils.recipes.bySlug.invalidate({ slug })
-  })
 
-  const form = useAppForm(addNotesSchema, {
-    defaultValues: { notes: '' },
-    values: {
-      // optimistic update
-      notes: isPending ? variables?.notes : notes
-    }
-  })
-
-  const onSubmit = (values: AddNotes) => {
-    if (isPending) return
-    mutate({ id, notes: values.notes })
-  }
+  if (!notes) return null
 
   return (
     <div className='pt-3'>
+      <h2 className='text-foreground/90 mb-2 text-lg font-bold'>
+        {t.recipes.notes}
+      </h2>
+      <p className='bg-transparent text-sm whitespace-pre-line'>{notes}</p>
+    </div>
+  )
+}
+
+const EDIT_FORM_ID = 'recipe-edit-form'
+
+function RecipeEditMode({
+  data,
+  onClose
+}: {
+  data: RecipeByIdData
+  onClose: () => void
+}) {
+  const t = useTranslations()
+  const utils = api.useUtils()
+  const slug = useRecipeSlug()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+
+  const { mutate: editRecipe, isPending } = api.recipes.edit.useMutation({
+    onSuccess: async (newSlug) => {
+      await utils.recipes.bySlug.invalidate({ slug: newSlug ?? slug })
+      onClose()
+    }
+  })
+
+  const form = useAppForm(recipeEditSchema, {
+    defaultValues: toRecipeEditDefaults(data)
+  })
+  // Read during render so react-hook-form subscribes the flag and keeps the
+  // dirty guard (and discard prompt) reactive to staged edits.
+  const isDirty = form.formState.isDirty
+
+  const onSubmit = (values: RecipeEditValues) => {
+    if (isPending) return
+    const editValues: EditRecipeFormValues = {
+      name: values.name,
+      description: values.description,
+      ingredients: values.ingredients,
+      instructions: values.instructions,
+      prepMinutes: values.prepMinutes,
+      cookMinutes: values.cookMinutes,
+      notes: values.notes,
+      cuisine: values.cuisine,
+      course: values.course,
+      dietTags: values.dietTags.map((tag) => tag.value.trim()).filter(Boolean),
+      flavorTags: values.flavorTags
+        .map((tag) => tag.value.trim())
+        .filter(Boolean)
+    }
+    editRecipe(submitEditRecipe(data, editValues))
+  }
+
+  const handleCancel = () => {
+    if (isDirty) {
+      setConfirmOpen(true)
+      return
+    }
+    onClose()
+  }
+
+  const confirmDiscard = () => {
+    setConfirmOpen(false)
+    onClose()
+  }
+
+  return (
+    <div className='mx-auto flex w-full max-w-2xl flex-col gap-4 px-3 pt-16 pb-10'>
       <Form
-        formId='add-notes-form'
+        formId={EDIT_FORM_ID}
         form={form}
         onSubmit={onSubmit}
-        className='flex flex-col gap-2'
+        className='flex flex-col gap-4'
       >
+        <UpdateImage imgUrl={data.imgUrl} id={data.id} />
+        <FormInput name='name' label={t.recipes.name} />
+        <div className='flex justify-between gap-2'>
+          <FormInput
+            type='number'
+            name='prepMinutes'
+            label={t.recipes.prepTime}
+          />
+          <FormInput
+            type='number'
+            name='cookMinutes'
+            label={t.recipes.cookTime}
+          />
+        </div>
+        <RecipeFacetsFields form={form} />
+        <FormTextarea name='description' label={t.recipes.description} />
         <FormTextarea
-          label='Notes'
-          labelClassName='text-foreground/90 mb-2 text-lg font-bold'
-          placeholder={t.recipes.byId.placeholder}
-          name='notes'
-          className='resize-none placeholder:text-sm'
+          name='ingredients'
+          label={t.recipes.ingredients}
+          className='min-h-40'
         />
-        <Button
-          disabled={!form.formState.isDirty || !form.formState.isValid}
-          isLoading={isPending}
-          type='submit'
-          className='self-start'
-          icon={<PencilIcon />}
-        >
-          {t.recipes.byId.updateNotes}
-        </Button>
+        <FormTextarea
+          name='instructions'
+          label={t.recipes.instructions}
+          className='min-h-40'
+        />
+        <FormTextarea name='notes' label={t.recipes.notes} />
+        <div className='flex justify-between gap-2'>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={handleCancel}
+            icon={<XIcon className='h-4 w-4' />}
+          >
+            {t.recipes.byId.cancel}
+          </Button>
+          <Button type='submit' isLoading={isPending} icon={<SaveIcon />}>
+            {t.recipes.byId.save}
+          </Button>
+        </div>
       </Form>
+
+      <Dialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title={t.recipes.byId.discardTitle}
+        description={t.recipes.byId.discardDescription}
+        cancelText={t.recipes.byId.discardKeep}
+        submitText={t.recipes.byId.discardConfirm}
+        primaryButtonType='button'
+        onClickConfirm={confirmDiscard}
+      />
     </div>
   )
 }
