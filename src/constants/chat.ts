@@ -52,7 +52,7 @@ export const buildSystemPrompt = ({
     contextBlock = parts.join('\n')
   } else if (context?.page === 'list') {
     contextBlock =
-      'The user is on their grocery list page. Help with grocery planning, meal prep, and shopping tips.'
+      'The user is on their shopping list page. Help with meal prep, planning, and shopping tips.'
   } else if (context?.page === 'pantry') {
     contextBlock =
       'The user is on their pantry page. Prefer suggesting recipes that use mainly their pantry ingredients.'
