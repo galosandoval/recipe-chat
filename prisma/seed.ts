@@ -24,8 +24,13 @@ async function main() {
   const hashedPassword = await hash(SEED_USER.password, 10)
 
   const alice = await prisma.user.upsert({
-    where: { id: '1' },
-    update: {},
+    // Key on the real unique field, not a synthetic id, so re-seeding an
+    // existing DB updates Alice instead of colliding on the username constraint.
+    where: { username: SEED_USER.email },
+    // Refresh the login credential on every run — a stale hash breaks the e2e
+    // auth fixture. Relations stay on the create branch: the e2e DB is reset
+    // before seeding (see e2e/global-setup.ts), so create always runs there.
+    update: { password: hashedPassword },
     create: {
       username: SEED_USER.email,
       firstName: 'Alice',
