@@ -48,3 +48,11 @@ next-env.d.ts
 .vscode
 
 .claude/worktrees
+
+# playwright e2e (artifacts + the auth storageState are regenerated each run;
+# the committed proof under .agent/verify/ is intentionally NOT ignored)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/e2e/.auth/

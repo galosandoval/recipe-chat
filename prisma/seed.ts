@@ -1,17 +1,44 @@
 import { PrismaClient } from '@prisma/client'
+import { hash } from 'bcryptjs'
 import { slugify } from '~/lib/utils'
 
 const prisma = new PrismaClient()
 
+/**
+ * Seed credentials. The plaintext password is what the e2e auth fixture and a
+ * human typing into the login form use; it is bcrypt-hashed below so the
+ * Credentials provider's `compare()` succeeds (the login flow never sees
+ * plaintext in the DB). Not exported — this module runs `main()` as an import
+ * side effect, so it can't be safely imported; `e2e/auth.setup.ts` keeps its
+ * own copy of these values in sync.
+ */
+const SEED_USER = {
+  email: 'alice@prisma.io',
+  password: 'Admin@123'
+}
+
 async function main() {
+  // Hash like real signup (`createUser` uses `hash(password, 10)`) so the
+  // seeded user can authenticate through the Credentials provider; a plaintext
+  // password would fail `compare()` and make the seeded login unusable.
+  const hashedPassword = await hash(SEED_USER.password, 10)
+
   const alice = await prisma.user.upsert({
     where: { id: '1' },
     update: {},
     create: {
-      username: 'alice@prisma.io',
+      username: SEED_USER.email,
       firstName: 'Alice',
       lastName: 'Prisma',
-      password: 'Admin@123',
+      password: hashedPassword,
+      // Real signup creates an empty list; the session callback reads
+      // `user.list.id`, so the seeded user needs one too.
+      list: { create: {} },
+
+      // The taste-profile onboarding drawer auto-opens for any authenticated
+      // user whose `tasteProfile` is null, covering the page. Seed a profile so
+      // the e2e specs land on an unobstructed app instead of the onboarding quiz.
+      tasteProfile: { create: { cookingSkill: 'intermediate' } },
 
       recipes: {
         create: {
@@ -19,11 +46,18 @@ async function main() {
           author: 'gordon ramsay',
           address: 'https://www.gordonramsay.com/gr/recipes/mushroomtoast/',
           name: 'CREAMY MUSHROOM TOAST WITH SOFT EGG & GRUYÈRE',
+          // `getInfiniteRecipes` (the /recipes list) filters `saved: true`; the
+          // schema defaults `saved` to false, so the e2e recipes spec only sees
+          // this recipe when it's explicitly saved.
+          saved: true,
           description:
             'A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner.',
 
+          // Unsplash, not the original source host: `images.unsplash.com` is
+          // allowlisted in `next.config.mjs` `remotePatterns`, so `next/image`
+          // renders it. An unconfigured host throws and trips the error boundary.
           imgUrl:
-            'https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage192072050-50-Mushroomtoast.jpg',
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836',
           ingredients: {
             create: [
               { rawString: '2 tablespoons unsalted butter, more as needed' },

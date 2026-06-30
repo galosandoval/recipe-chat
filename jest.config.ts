@@ -17,6 +17,9 @@ const config: Config = {
   },
   // Ignore nested worktree copies so Haste doesn't see duplicate package.json.
   modulePathIgnorePatterns: ['<rootDir>/.claude/worktrees/'],
+  // Playwright specs under e2e/ also match *.spec.ts; they are run by Playwright
+  // (`bun run test:e2e`), never Jest. Keep them out of the unit/integration gate.
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/e2e/'],
   // Only treat *.test/*.spec files as suites, so test helpers can live in
   // __tests__ dirs without being mistaken for empty test files.
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],

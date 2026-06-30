@@ -23,6 +23,62 @@ The pipeline state machine uses these labels (created in this slice):
 
 `ready-for-agent` (pre-existing) stays as the upstream human-triage state and costs nothing.
 
+## End-to-end harness + verify phase (#523)
+
+The pipeline gains a **Playwright e2e harness** and the agent's **verify phase**.
+
+### Playwright harness
+
+- `playwright.config.ts` (repo root) boots the built app via its `webServer`
+  block (`bun run build && bun run start`), points `baseURL` at it, and captures
+  screenshots/trace/video as proof.
+- Specs live in a top-level **`e2e/`** directory. This is a deliberate,
+  documented exception to the repo's "tests are colocated, no `__tests__/`"
+  convention — e2e specs span features and don't belong beside a single prod
+  file. Unit/integration tests stay colocated.
+- `e2e/auth.setup.ts` logs in once as the seeded user (`alice@prisma.io`) and
+  saves a `storageState` every spec reuses, so no spec re-scripts login/boot.
+- Run locally with `bun run test:e2e` (or `bun run test:e2e:ui`). It is **not**
+  part of the default `bun run test` gate, so the unit/integration gate and the
+  agent's per-commit loop stay fast and never boot a browser. Jest is configured
+  to ignore `e2e/` (its specs also match `*.spec.ts`).
+- The seeded user's password is bcrypt-hashed in `prisma/seed.ts` (and the user
+  gets an empty `list`), so the seeded login works through the real Credentials
+  provider. Both the agent verify phase and the PR `e2e` job seed the DB before
+  the browser run (`bun run seed`).
+
+### Agent verify phase
+
+Appended to the existing `implement` job (no new job/workflow/label/secret).
+After the green-gate commits and before the draft PR:
+
+1. The agent (see `prompt.md`'s VERIFY section) judges UI-verifiability from the
+   acceptance criteria.
+2. If UI-verifiable: writes a durable `e2e/` spec, re-seeds, runs
+   `bun run test:e2e`, captures screenshots into `.agent/verify/issue-<N>/`, and
+   commits the spec + PNGs. The PNGs are committed on purpose so they get raw
+   URLs and render inline on the issue.
+3. Writes a verify report to `OUTPUT_DIR/verify_report.md` (outside the repo,
+   like `pr_description.txt`).
+
+The workflow then pushes the branch and runs `post-verify.ts`, which builds one
+issue comment (report + inline screenshots + run link via the pure
+`verify-comment.ts` helper) and posts it with `gh issue comment`. Verify is
+**best-effort**: a failed boot/browser run never fails the run or loses the green
+implement commits; the comment says verification couldn't complete and why.
+
+> **Trade-off:** committed PNGs under `.agent/verify/issue-<N>/` merge into
+> `main` unless stripped before merge — clearly named and outside the app bundle
+> so they're trivial to drop in a squash. The `e2e/` spec is meant to stay.
+
+### PR e2e gate
+
+`.github/workflows/test.yml` adds a `changes` job (dorny/paths-filter) and an
+`e2e` job that runs **only when backend code changed** (`src/server/**`,
+`prisma/**`, `e2e/**`, `playwright.config.*`). Docs/config/pure-styling PRs skip
+it. The `e2e` job needs `NEXTAUTH_SECRET` + `OPENAI_API_KEY` (already required
+secrets) to boot the app; a real misconfig fails it loudly.
+
 ## Required repo secrets
 
 Set these under **Settings → Secrets and variables → Actions → Repository secrets**.
