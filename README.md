@@ -52,7 +52,7 @@ bun install
 Set the environment variables in `.env` (database URLs, OpenAI key, NextAuth secret, Stripe keys), then bring up the database and dev server:
 
 ```bash
-./start-database.sh   # local Postgres in Docker
+./scripts/start-database.sh   # local Postgres in Docker
 bun run push          # sync the Prisma schema
 bun run dev           # http://localhost:3000
 ```

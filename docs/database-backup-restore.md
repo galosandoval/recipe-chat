@@ -28,7 +28,7 @@ Use the actual database name from your `DATABASE_URL` (e.g. `recipe-chat-v1` ins
 ```bash
 docker stop recipe-chat-postgres
 docker rm recipe-chat-postgres
-./start-database.sh
+./scripts/start-database.sh
 ```
 
 Wait a few seconds for Postgres to be ready.
