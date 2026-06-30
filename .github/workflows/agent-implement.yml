@@ -150,6 +150,17 @@ jobs:
       - name: Apply migrations to the service database
         run: bunx prisma migrate deploy
 
+      - name: Seed the database
+        # The verify phase logs in as the seeded user and asserts populated
+        # state; migrate deploy does not seed, so do it here (same user as the
+        # PR e2e job). Best-effort, like verify itself — never block the run.
+        run: bun run seed || true
+
+      - name: Install Playwright browser
+        # Chromium only, with its OS deps, for the agent's verify phase. Headless
+        # and self-contained on the runner — no Docker, no external browser.
+        run: bunx playwright install --with-deps chromium
+
       - name: Fetch coding standards
         # Single source of truth: the coding-standard rules live in the public
         # skills repo (symlinked into ~/.claude/rules locally). CI can't resolve
@@ -179,6 +190,19 @@ jobs:
         env:
           BRANCH: ${{ steps.branch.outputs.name }}
         run: git push -u origin "$BRANCH"
+
+      - name: Post verify proof to issue
+        # Runs after "Push branch" so the raw URLs resolve against the pushed
+        # branch. Reads the agent's verify report (OUTPUT_DIR) and the committed
+        # screenshots under .agent/verify/issue-<N>/ and posts one issue comment
+        # with the report + PNGs inline. Best-effort: a missing report posts a
+        # "couldn't verify" note rather than failing the run.
+        if: success()
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+          OUTPUT_DIR: ${{ runner.temp }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bun .sandcastle/implement/post-verify-comment.ts || true
 
       - name: Open draft PR
         if: success()
