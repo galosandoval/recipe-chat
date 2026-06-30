@@ -41,6 +41,10 @@ async function main() {
           author: 'gordon ramsay',
           address: 'https://www.gordonramsay.com/gr/recipes/mushroomtoast/',
           name: 'CREAMY MUSHROOM TOAST WITH SOFT EGG & GRUYÈRE',
+          // `getInfiniteRecipes` (the /recipes list) filters `saved: true`; the
+          // schema defaults `saved` to false, so the e2e recipes spec only sees
+          // this recipe when it's explicitly saved.
+          saved: true,
           description:
             'A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner.',
 

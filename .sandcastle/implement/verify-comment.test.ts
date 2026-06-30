@@ -1,29 +1,7 @@
 /**
  * @jest-environment node
  */
-import { buildVerifyComment, rawUrl } from './verify-comment'
-
-describe('rawUrl', () => {
-  it('builds a raw.githubusercontent.com URL preserving path slashes', () => {
-    expect(
-      rawUrl('galosandoval/recipe-chat', 'main', '.agent/verify/issue-5/a.png')
-    ).toBe(
-      'https://raw.githubusercontent.com/galosandoval/recipe-chat/main/.agent/verify/issue-5/a.png'
-    )
-  })
-
-  it('percent-encodes segments but keeps slashes (agent branch names)', () => {
-    expect(
-      rawUrl(
-        'galosandoval/recipe-chat',
-        'agent/issue-5-add thing',
-        '.agent/verify/issue-5/final state.png'
-      )
-    ).toBe(
-      'https://raw.githubusercontent.com/galosandoval/recipe-chat/agent/issue-5-add%20thing/.agent/verify/issue-5/final%20state.png'
-    )
-  })
-})
+import { buildVerifyComment } from './verify-comment'
 
 describe('buildVerifyComment', () => {
   const base = {
@@ -44,6 +22,17 @@ describe('buildVerifyComment', () => {
     )
     expect(body).toContain('### Screenshots')
     expect(body).toContain('[View the workflow run](')
+  })
+
+  it('percent-encodes branch and filename segments but keeps slashes', () => {
+    const body = buildVerifyComment({
+      ...base,
+      branch: 'agent/issue-5-add thing',
+      screenshots: ['.agent/verify/issue-5/final state.png']
+    })
+    expect(body).toContain(
+      '![final state.png](https://raw.githubusercontent.com/galosandoval/recipe-chat/agent/issue-5-add%20thing/.agent/verify/issue-5/final%20state.png)'
+    )
   })
 
   it('omits the screenshots section when there are none (non-UI / skipped)', () => {
