@@ -7,10 +7,8 @@
     "decrease": "Decrease",
     "increase": "Increase"
   },
-
   "nav": {
     "appName": "RecipeChat",
-
     "menu": {
       "signUp": "Sign up",
       "login": "Login",
@@ -26,13 +24,12 @@
     },
     "chat": "Chat",
     "list": "List",
+    "lists": "Lists",
     "pantry": "Pantry",
     "recipes": "Recipes",
     "settings": "Settings"
   },
-
   "required": "Required",
-
   "auth": {
     "signUp": "Sign up",
     "signUpGoogle": "Sign up with Google",
@@ -50,7 +47,6 @@
     "signUpDescription": "Join RecipeChat and discover your next favorite meal! Get personalized recipe recommendations, save your favorites, and chat with AI to find the perfect dish for any occasion.",
     "loginDescription": "Welcome back to RecipeChat! Continue exploring delicious recipes, access your saved favorites, and get instant cooking inspiration."
   },
-
   "list": {
     "byRecipe": "By recipe",
     "noItems": "No items in your list",
@@ -60,7 +56,6 @@
     "removeChecked": "Remove checked",
     "addToPantry": "Add to pantry"
   },
-
   "pantry": {
     "noItems": "No items in your pantry",
     "emptyDescription": "Add the ingredients you have on hand to keep track of your kitchen.",
@@ -115,7 +110,6 @@
     "discardConfirm": "Discard",
     "discardKeep": "Keep editing"
   },
-
   "valueProps": {
     "title": "Examples",
     "description": "Here are some examples of what you can ask. Select one to get started.",
@@ -171,14 +165,12 @@
       }
     }
   },
-
   "capabilities": {
     "title": "Capabilities",
     "firstDescription": "Remembers previous messages in the same chat",
     "secondDescription": "Provide follow-up corrections",
     "thirdDescription": "Save generated recipes to your account"
   },
-
   "filters": {
     "title": "Filters",
     "description": "Filters are used to narrow down the recipes you want to generate. Choose from the list below or create a new one.",
@@ -206,7 +198,6 @@
       "kid-friendly": "Kid-friendly"
     }
   },
-
   "chat": {
     "signUpToSave": "Sign up to save recipes",
     "signUpToSaveDescription": "Save your generated recipes, chat history and more.",
@@ -230,7 +221,6 @@
       "title": "Recent chats"
     }
   },
-
   "recipes": {
     "noRecipes": {
       "empty": {
@@ -294,7 +284,6 @@
       }
     }
   },
-
   "subscription": {
     "title": "Subscription",
     "currentPlan": "Current plan",
@@ -314,28 +303,26 @@
     "starterFeatures": "Unlimited saved recipes, Full chat history, Aisle-sorted shopping lists, Staples management, Cook mode, Recipe remixing",
     "premiumFeatures": "Everything in Starter, 7-day meal planning, Fridge-first recipe suggestions, Multi-user household sync, Customizable video editing, Private clubs and groups, Direct-to-cart grocery integration, Nutrition sync with Apple Health and Google Fit, Priority support"
   },
-
   "error": {
     "error": "Error: ",
     "somethingWentWrong": "Something went wrong.",
     "saveRecipe": "Error saving recipe.",
     "invalidUrl": "Invalid url"
   },
-
-  "loading": { "screen": "Loading...", "loggingIn": "Logging in..." },
-
+  "loading": {
+    "screen": "Loading...",
+    "loggingIn": "Logging in..."
+  },
   "toast": {
     "signUp": "Please sign up to save recipes.",
     "loginSuccess": "Welcome! Here's the recipe you saved:"
   },
-
   "time": {
     "hour": "hour",
     "hours": "hours",
     "minute": "minute",
     "minutes": "minutes"
   },
-
   "loaders": {
     "cookingPhrases": {
       "preheatOven": "Preheating the oven...",
@@ -360,7 +347,6 @@
       "plateTheDish": "Plating the dish..."
     }
   },
-
   "onboarding": {
     "title": "Your Taste Profile",
     "description": "Tell us how you like to cook so we can tailor recipes to you.",
@@ -401,12 +387,10 @@
     "next": "Next",
     "stepOf": "Step $1 of $2"
   },
-
   "components": {
     "avatars": {
       "assistant": "AI"
     },
-
     "dropdownMenus": {
       "settings": "Settings",
       "logOut": "Log out",

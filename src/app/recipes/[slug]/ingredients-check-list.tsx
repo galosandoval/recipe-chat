@@ -104,7 +104,7 @@ export function IngredientsCheckList({
   }
 
   const handleGoToList = () => {
-    router.push('/list')
+    router.push('/lists')
   }
 
   useEffect(() => {
