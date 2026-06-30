@@ -1,62 +1,104 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# RecipeChat
 
-## Getting Started
+A conversational recipe assistant. You chat with it the way you'd chat with a cook — "something with the chicken thighs in my fridge, not too spicy" — and it streams back tailored recipe options, expands any of them into full ingredients and instructions, and helps you carry them through to a shopping list and pantry.
 
-First, run the development server:
+The interesting part isn't the chat. It's everything wired up behind it: a tool-calling LLM grounded in the user's saved recipes, taste profile, and pantry; a pgvector layer that de-duplicates suggestions semantically rather than by string match; and a tiered subscription model — all on a strictly layered, fully-typed stack.
+
+## What it does
+
+- **Grounded recipe generation** — the model is given the user's saved recipe titles, dietary filters, taste profile, and (optionally) current pantry contents as system context, then proposes diverse options via a constrained tool call. A second tool expands a chosen suggestion into full ingredients, instructions, and servings.
+- **Semantic de-duplication** — newly generated options are embedded and compared against the user's existing recipes in Postgres (pgvector), so the LLM over-generates and the server returns only the genuinely novel survivors. Runs entirely off the model, fails open.
+- **Pantry & shopping lists** — structured ingredients (quantity / unit / name) flow from recipes into a checkable list and a persistent pantry, with unit conversion and preferred-unit display.
+- **Taste profile** — per-user preferences that further condition generation.
+- **Subscriptions** — FREE / STARTER / PREMIUM tiers gated by feature, backed by Stripe with webhook-driven status sync.
+- **Internationalization** — locale negotiation and translated UI.
+
+## Architecture
+
+End-to-end type safety from the database to the React component, with a deliberate separation of concerns on the server.
+
+| Layer | Tech |
+|---|---|
+| Framework | Next.js 15 (App Router), React 19 |
+| Language | TypeScript, strict |
+| API | tRPC 11 over React Query |
+| Streaming AI | Vercel AI SDK + OpenAI (chat tool-calling & embeddings) |
+| Data | PostgreSQL + Prisma 6, pgvector for embeddings |
+| Auth | NextAuth (Auth.js) v5 |
+| Payments | Stripe |
+| UI | Tailwind 4, Radix primitives, Motion |
+| State | Zustand + React Query |
+| Validation | Zod (shared client/server schemas) |
+| Tests | Jest (unit + integration), colocated |
+
+The server is split into three layers, each calling only the one below it:
+
+```
+routers/         tRPC procedures — auth, input validation (Zod), response shaping
+  └─ use-cases/      business logic — orchestration, the LLM/embedding workflows
+       └─ data-access/   Prisma queries — the only layer that touches the DB
+```
+
+The streaming chat endpoint (`src/app/api/chat/route.ts`) lives outside tRPC because it returns a token stream, but reuses the same use-cases.
+
+## Getting started
+
+Requires Node 22 and [Bun](https://bun.sh).
 
 ```bash
+bun install
+```
+
+Set the environment variables in `.env` (database URLs, OpenAI key, NextAuth secret, Stripe keys), then bring up the database and dev server:
+
+```bash
+./start-database.sh   # local Postgres in Docker
+bun run push          # sync the Prisma schema
+bun run dev           # http://localhost:3000
+```
+
+### Stripe (local)
+
+Subscriptions need the Stripe CLI forwarding webhooks. Run two terminals:
+
+```bash
+bun run stripe:listen   # forwards webhooks to /api/webhooks/stripe
 bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Full setup — env vars, test cards, troubleshooting — is in [docs/stripe-local-setup.md](docs/stripe-local-setup.md).
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Start database
-
-Make sure env variables are set in .env
+## Development
 
 ```bash
-./start-database.sh
-bun run push
+bun run typecheck         # tsc --noEmit
+bun run lint              # next lint
+bun run test              # full suite
+bun run test:unit         # everything except the DB-backed suites
+bun run test:integration  # tRPC routers against a real test DB
+bun run studio            # Prisma Studio
 ```
 
-## Stripe (local development)
+Integration tests run against a dedicated database; set it up once with `bun run test:db:setup` (reads `.env.test.local`).
 
-To test subscriptions locally, run two terminals:
+## Database & migrations
+
+Schema lives in [`prisma/schema.prisma`](prisma/schema.prisma).
 
 ```bash
-bun run stripe:listen   # Terminal 1 — forwards Stripe webhooks
-bun run dev             # Terminal 2 — starts the dev server
+bun run migrate        # create + apply a migration locally
+bun run migrate:prod   # deploy migrations to production
 ```
 
-See [docs/stripe-local-setup.md](docs/stripe-local-setup.md) for full setup instructions (env vars, test cards, troubleshooting).
+Some migrations ship a companion **data migration** (a `data-migration.ts` beside the schema migration) for backfilling existing rows — embeddings, structured ingredient fields, recipe slugs, and so on. They're exposed as `data-migration:*` scripts in `package.json` and discovered/run in order by `prisma/run-data-migrations.ts`.
 
-## Learn More
+## Repo conventions
 
-To learn more about Next.js, take a look at the following resources:
+- **Colocated tests** — test files sit beside the code they cover (no `__tests__` dirs).
+- **Layered server** — routers never query the DB directly; they go through a use-case.
+- **Shared schemas** — Zod schemas in `src/schemas` are the single source of truth for client and server.
+- Project context and architectural decisions are documented under [`docs/`](docs/).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-## Migration scripts
-
-`// Add saved column to recipes
-bun run data-migration:add-saved-column
-// Create many-to-many table for recipes and messages
-bun run data-migration:create-many-recipes-to-many-messages-table
-// Resets to initial filters for each user
-bun run data-migration:filter-user-id-not-unique
-//`
+See [LICENSE.txt](LICENSE.txt).
