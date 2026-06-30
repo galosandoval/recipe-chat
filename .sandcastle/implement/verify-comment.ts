@@ -26,7 +26,7 @@ export interface VerifyCommentInput {
  * renders inline in the issue comment. Each path/branch segment is
  * percent-encoded while the slashes are preserved.
  */
-export function rawUrl(repo: string, branch: string, filePath: string): string {
+function rawUrl(repo: string, branch: string, filePath: string): string {
   const encode = (segmented: string) =>
     segmented.split('/').map(encodeURIComponent).join('/')
   return `https://raw.githubusercontent.com/${repo}/${encode(branch)}/${encode(filePath)}`

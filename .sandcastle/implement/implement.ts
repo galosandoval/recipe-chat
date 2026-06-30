@@ -30,13 +30,16 @@ const OUTPUT_DIR = process.env.OUTPUT_DIR ?? os.tmpdir()
 const PR_DESCRIPTION_FILE = path.join(OUTPUT_DIR, 'pr_description.txt')
 
 /**
- * Verify-phase outputs (#523), passed to the prompt like PR_DESCRIPTION_FILE.
- * VERIFY_REPORT_FILE lives in OUTPUT_DIR (outside the repo — never committed);
- * the workflow's post-verify step reads it back. SCREENSHOTS_DIR is a
- * repo-relative path the agent commits PNGs into, so they get raw URLs for
- * inline rendering in the issue comment.
+ * Verify-phase report (#523), passed to the prompt like PR_DESCRIPTION_FILE.
+ * Lives in OUTPUT_DIR (outside the repo — never committed); the workflow's
+ * post-verify step reads it back.
  */
 const VERIFY_REPORT_FILE = path.join(OUTPUT_DIR, 'verify_report.md')
+
+/**
+ * Verify-phase screenshots dir (#523), a repo-relative path the agent commits
+ * PNGs into, so they get raw URLs for inline rendering in the issue comment.
+ */
 const SCREENSHOTS_DIR = `.agent/verify/issue-${ISSUE_NUMBER}`
 
 const result = await sandcastle.run({

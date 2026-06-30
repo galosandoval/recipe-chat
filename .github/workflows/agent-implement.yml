@@ -179,6 +179,10 @@ jobs:
           # App/suite paths the agent may exercise during TDD.
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # The verify phase boots the same `next start` production build, so
+          # Auth.js would reject the untrusted host and break the e2e login the
+          # same way the PR e2e gate would. Trust the host explicitly here too.
+          AUTH_TRUST_HOST: true
         run: bun .sandcastle/implement/implement.ts
 
       - name: Push branch

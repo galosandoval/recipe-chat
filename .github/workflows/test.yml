@@ -108,6 +108,11 @@ jobs:
       # e2e job loudly (unlike the agent's best-effort verify phase).
       NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # `next start` (production) makes Auth.js reject any request whose host
+      # isn't trusted, so every /api/auth/session call 500s and the auth fixture
+      # never reaches /chat. Dev and Vercel auto-trust the host; a bare runner
+      # does not — opt in explicitly so the e2e login works.
+      AUTH_TRUST_HOST: true
 
     steps:
       - name: Checkout repo
