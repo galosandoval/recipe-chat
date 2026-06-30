@@ -75,3 +75,9 @@ _Avoid_: plan, level
 **Onboarding Step**:
 A discrete milestone in the new-user onboarding tour that has been completed (e.g. first generated chat, first saved recipe). Distinct from tier-gated features.
 _Avoid_: feature, tour step, flag
+
+## Testing conventions
+
+Unit and integration tests are **colocated** — the test file sits directly beside the prod file it covers (no `__tests__/` directories). Backend/Node tests carry the `@jest-environment node` docblock.
+
+**Exception — `e2e/`**: end-to-end Playwright specs live in a top-level `e2e/` directory, not beside a prod file, because they span features rather than covering one module. They run via `bun run test:e2e` and are **not** part of the default `bun run test` gate. See `docs/agents/e2e-and-verify.md`.
