@@ -150,6 +150,13 @@ jobs:
       - name: Apply migrations to the service database
         run: bunx prisma migrate deploy
 
+      - name: Install Playwright browser
+        # The agent's VERIFY phase runs `bun run test:e2e` (headless Chromium)
+        # against the booted app. Install the browser + OS deps here so the
+        # agent doesn't need sudo. --with-deps is a no-op on an already-set-up
+        # runner but keeps this self-contained (no Docker, no browser service).
+        run: bunx playwright install --with-deps chromium
+
       - name: Fetch coding standards
         # Single source of truth: the coding-standard rules live in the public
         # skills repo (symlinked into ~/.claude/rules locally). CI can't resolve
@@ -172,13 +179,33 @@ jobs:
           # App/suite paths the agent may exercise during TDD.
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # The verify phase boots the same `next start` production build, so
+          # Auth.js would reject the untrusted host and break the e2e login the
+          # same way the PR e2e gate would. Trust the host explicitly here too.
+          AUTH_TRUST_HOST: true
         run: bun .sandcastle/implement/implement.ts
 
       - name: Push branch
+        id: push_branch
         if: success()
         env:
           BRANCH: ${{ steps.branch.outputs.name }}
         run: git push -u origin "$BRANCH"
+
+      - name: Post verify proof to the issue
+        # Runs whenever the branch was pushed (so raw.githubusercontent URLs
+        # resolve), regardless of any later step's status: read the agent's
+        # verify report, enumerate the committed screenshots under
+        # .agent/verify/issue-<N>/, and post one issue comment with the report +
+        # inline images + a run link. Best-effort — the script swallows errors,
+        # and the agent's verify phase never fails its step, so a verify hiccup
+        # still yields a comment and never loses the green implement commits.
+        if: steps.push_branch.outcome == 'success'
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+          OUTPUT_DIR: ${{ runner.temp }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bun .sandcastle/implement/post-verify.ts
 
       - name: Open draft PR
         if: success()

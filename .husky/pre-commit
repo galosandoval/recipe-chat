@@ -1,0 +1,6 @@
+# Format staged files (prettier --write via lint-staged), then typecheck the
+# project. Keeps formatting/type errors out of commits — including the agent's
+# per-commit loop — before the green gate even runs. Deliberately omits tests
+# (CI/agent gate holds those) to keep commits fast.
+bunx lint-staged
+bun run typecheck

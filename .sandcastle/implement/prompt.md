@@ -82,6 +82,56 @@ Make one or more commits on `{{BRANCH}}` with conventional-commit messages
 (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`). Keep commits
 focused. Do not amend or force-push; just add commits.
 
+# VERIFY — prove it works (best-effort, never blocks the PR)
+
+After your green-gate commits, prove the change actually works for a user. This
+runs on top of the project's Playwright e2e harness (`playwright.config.ts`, the
+`e2e/` directory, the shared auth fixture in `e2e/auth.setup.ts`, and the
+`bun run test:e2e` script). The database is already seeded with the user
+`alice@prisma.io` (one recipe), so login and populated-state assertions are
+deterministic — do **not** re-script login or app boot; reuse the fixture.
+
+**1. Judge UI-verifiability.** From the issue's acceptance criteria, decide
+whether the change is observable in the running app (a screen renders, an
+interaction works). Backend-only / infra / tooling changes are **not**
+UI-verifiable.
+
+**2a. If it IS UI-verifiable** — write a durable spec, run it, capture proof:
+
+- Add or extend a spec under `e2e/` (e.g. `e2e/<feature>.spec.ts`) that drives
+  the issue's user flow through the real app and asserts on what the user sees
+  (never on internal state). This is a real regression test that stays in the
+  repo — part of your TDD, not a throwaway script. It reuses the authenticated
+  `storageState` from the `chromium` project, so it starts already logged in.
+- In the spec, capture a screenshot of the final working state of each
+  user-facing acceptance criterion (and a failure-state shot if you hit one)
+  with `await page.screenshot({ path: '{{SCREENSHOTS_DIR}}/<criterion>.png' })`.
+  Use the exact directory `{{SCREENSHOTS_DIR}}` — the workflow reads PNGs there.
+- Re-seed the database with `bun run seed` immediately before running the
+  browser (your integration tests during the gate truncate the tables, so the
+  seeded user must be restored), then run `bun run test:e2e` (Playwright boots
+  the built app via its `webServer` against the seeded DB). Fix the spec until
+  it passes.
+- **Commit** the new/updated `e2e/` spec **and** the PNGs under
+  `{{SCREENSHOTS_DIR}}` onto `{{BRANCH}}` (the screenshots are committed on
+  purpose so they get raw URLs and render inline on the issue).
+
+**2b. If it is NOT UI-verifiable** — skip the browser work entirely. Write no
+spec and no screenshots. Say so in the report (verified via the unit/integration
+suite, not the UI).
+
+**3. Never let verify fail the run.** Verify is best-effort. If the app won't
+boot or `test:e2e` errors, do not fail — capture whatever evidence you can
+(including a failure-state screenshot / the Playwright trace), and explain the
+problem in the report. Your green implement commits stand regardless.
+
+**4. Write the verify report.** Write a short markdown report to the absolute
+path `{{VERIFY_REPORT_FILE}}`. **Do not commit this file** — it lives outside the
+repo and the workflow posts it as a comment on the issue. Cover: whether the
+change was UI-verifiable, what user flow you checked (tie each screenshot to an
+acceptance criterion), the verdict (verified / couldn't verify and why), and the
+name of the e2e spec you added. If you captured no screenshots, say why.
+
 # FINAL STEP — write the PR description
 
 As the very last thing, write a short PR description (plain markdown) to the
