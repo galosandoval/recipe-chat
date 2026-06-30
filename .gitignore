@@ -48,3 +48,13 @@ next-env.d.ts
 .vscode
 
 .claude/worktrees
+
+# playwright e2e (#523)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+# the authenticated session fixture: regenerated each run, holds session cookies
+e2e/.auth/
+# local verify-phase screenshots; the agent commits .agent/verify/issue-<N>/ only
+.agent/verify/local/

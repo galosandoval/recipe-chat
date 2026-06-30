@@ -25,6 +25,8 @@
     "test:unit": "bunx jest --testPathIgnorePatterns node_modules src/server/api",
     "test:integration": "bunx jest src/server/api",
     "test:watch": "bunx jest --watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "test:db:setup": "dotenv -e .env.test.local -- prisma migrate deploy",
     "data-migration:add-saved-column": "tsx ./prisma/migrations/20250730012052_add_saved_column/data-migration.ts",
     "data-migration:create-many-recipes-to-many-messages-table": "tsx ./prisma/migrations/20250730020516_create_many_recipes_to_many_messages_table/data-migration.ts",
@@ -89,6 +91,7 @@
   "devDependencies": {
     "@ai-hero/sandcastle": "0.10.0",
     "@hookform/resolvers": "^3.10.0",
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
