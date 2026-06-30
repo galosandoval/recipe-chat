@@ -43,7 +43,7 @@ export function ListsView() {
 
   return (
     <>
-      <div className='mx-auto flex min-h-0 w-full flex-1 flex-col overflow-y-auto pt-4 pb-3'>
+      <div className='mx-auto flex min-h-0 w-full flex-1 flex-col pt-4 pb-3'>
         <div
           role='tablist'
           aria-label={t.nav.lists}
