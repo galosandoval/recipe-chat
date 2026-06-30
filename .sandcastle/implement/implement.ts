@@ -29,6 +29,15 @@ const STANDARDS_DIR = process.env.STANDARDS_DIR ?? ''
 const OUTPUT_DIR = process.env.OUTPUT_DIR ?? os.tmpdir()
 const PR_DESCRIPTION_FILE = path.join(OUTPUT_DIR, 'pr_description.txt')
 
+/**
+ * Verify-phase report (#523): the agent's markdown verdict on whether the change
+ * was proven in the browser. Written here, outside the repo, like the PR
+ * description; the workflow reads it back and posts it on the issue alongside the
+ * committed screenshots. Best-effort — a run with green implement commits still
+ * succeeds even if verify wrote nothing.
+ */
+const VERIFY_REPORT_FILE = path.join(OUTPUT_DIR, 'verify_report.txt')
+
 const result = await sandcastle.run({
   name: `implement-#${ISSUE_NUMBER}`,
   agent: sandcastle.claudeCode('claude-opus-4-8', {
@@ -49,6 +58,7 @@ const result = await sandcastle.run({
     ISSUE_TITLE,
     BRANCH,
     PR_DESCRIPTION_FILE,
+    VERIFY_REPORT_FILE,
     STANDARDS_DIR
   },
   // Runaway guard. Sandcastle's claudeCode does not expose Claude's `--max-turns`
