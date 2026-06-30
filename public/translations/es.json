@@ -7,10 +7,8 @@
     "decrease": "Disminuir",
     "increase": "Aumentar"
   },
-
   "nav": {
     "appName": "RecipeChat",
-
     "menu": {
       "signUp": "Registro",
       "login": "Inicio",
@@ -26,13 +24,12 @@
     },
     "chat": "Chat",
     "list": "Lista",
+    "lists": "Listas",
     "pantry": "Despensa",
     "recipes": "Recetas",
     "settings": "Ajustes"
   },
-
   "required": "Requerido",
-
   "auth": {
     "signUp": "Registro",
     "signUpGoogle": "Registrarse con Google",
@@ -50,7 +47,6 @@
     "signUpDescription": "Únete a RecipeChat y descubre tu próxima comida favorita! Obtén recomendaciones de recetas personalizadas, guarda tus favoritos y chatea con IA para encontrar el plato perfecto para cualquier ocasión.",
     "loginDescription": "Bienvenido de nuevo a RecipeChat! Continúa explorando deliciosas recetas, accede a tus favoritos guardados y obtén inspiración instantánea para cocinar."
   },
-
   "list": {
     "byRecipe": "Por receta",
     "noItems": "No hay elementos en tu lista",
@@ -60,7 +56,6 @@
     "removeChecked": "Eliminar seleccionados",
     "addToPantry": "Agregar a despensa"
   },
-
   "pantry": {
     "noItems": "No hay nada en tu despensa",
     "emptyDescription": "Agrega los ingredientes que tienes a la mano para llevar el control de tu cocina.",
@@ -115,7 +110,6 @@
     "discardConfirm": "Descartar",
     "discardKeep": "Seguir editando"
   },
-
   "valueProps": {
     "title": "Ejemplos",
     "description": "Aquí hay algunos ejemplos de lo que puedes preguntar. Selecciona uno para empezar.",
@@ -171,14 +165,12 @@
       }
     }
   },
-
   "capabilities": {
     "title": "Funciones",
     "firstDescription": "Recuerda que ecribiste en este chat",
     "secondDescription": "Permite corregir tu receta",
     "thirdDescription": "Guarda tus recetas"
   },
-
   "filters": {
     "title": "Filtros",
     "description": "Los filtros se utilizan para reducir las recetas que se generan. Puedes agregar múltiples filtros a tu chat.",
@@ -206,7 +198,6 @@
       "kid-friendly": "Para niños"
     }
   },
-
   "chat": {
     "signUpToSave": "Regístrate para guardar recetas",
     "signUpToSaveDescription": "Guarda tus recetas generadas, historial de chats y más.",
@@ -231,7 +222,6 @@
       "title": "Recientes chats"
     }
   },
-
   "recipes": {
     "noRecipes": {
       "empty": {
@@ -296,7 +286,6 @@
       }
     }
   },
-
   "subscription": {
     "title": "Suscripción",
     "currentPlan": "Plan actual",
@@ -316,28 +305,26 @@
     "starterFeatures": "Recetas guardadas ilimitadas, Historial de chat completo, Listas de compras organizadas por pasillo, Gestión de productos básicos, Modo cocina, Remix de recetas",
     "premiumFeatures": "Todo en Starter, Planificación de comidas de 7 días, Sugerencias basadas en lo que tienes, Sincronización para el hogar, Edición de video personalizable, Clubes y grupos privados, Integración directa con supermercados, Sincronización nutricional con Apple Health y Google Fit, Soporte prioritario"
   },
-
   "error": {
     "error": "Error: ",
     "somethingWentWrong": "Algo salió mal.",
     "saveRecipe": "Error al guardar la receta.",
     "invalidUrl": "URL inválida"
   },
-
-  "loading": { "screen": "Cargando...", "loggingIn": "Iniciando sesión..." },
-
+  "loading": {
+    "screen": "Cargando...",
+    "loggingIn": "Iniciando sesión..."
+  },
   "toast": {
     "signUp": "Registrate y guarda tus recetas.",
     "loginSuccess": "¡Bienvenido! Aquí tienes la receta que guardaste:"
   },
-
   "time": {
     "hour": "hora",
     "hours": "horas",
     "minute": "minuto",
     "minutes": "minutos"
   },
-
   "loaders": {
     "cookingPhrases": {
       "preheatOven": "Precalentando el horno...",
@@ -362,7 +349,6 @@
       "plateTheDish": "Emplatando el plato..."
     }
   },
-
   "onboarding": {
     "title": "Tu perfil de sabor",
     "description": "Cuéntanos cómo te gusta cocinar para adaptar las recetas a ti.",
@@ -403,12 +389,10 @@
     "next": "Siguiente",
     "stepOf": "Paso $1 de $2"
   },
-
   "components": {
     "avatars": {
       "assistant": "IA"
     },
-
     "dropdownMenus": {
       "settings": "Ajustes",
       "logOut": "Cerrar sesión",
