@@ -34,7 +34,7 @@ DB_USER="${DB_USER:-postgres}"
 DB_NAME="${DB_NAME:-recipe-chat}"
 
 if ! docker ps -q -f name="$DB_CONTAINER_NAME" | grep -q .; then
-  echo "Container $DB_CONTAINER_NAME is not running. Start it first with ./start-database.sh"
+  echo "Container $DB_CONTAINER_NAME is not running. Start it first with ./scripts/start-database.sh"
   exit 1
 fi
 
