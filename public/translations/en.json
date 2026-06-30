@@ -157,7 +157,7 @@
       },
       "list": {
         "title": "List Assistant",
-        "description": "I can help you organize your grocery list and suggest what to buy.",
+        "description": "I can help you organize your shopping list and suggest what to buy.",
         "firstButton": "What am I missing for a balanced meal?",
         "secondButton": "Organize my list by aisle",
         "thirdButton": "Suggest a recipe from my list items"
@@ -224,7 +224,7 @@
     "chatFormPlaceholder": "Ask about a recipe",
     "chatFormContinue": "Follow up with a message or corrections",
     "chatFormRecipeDetail": "Ask about $1",
-    "chatFormList": "Ask about your grocery list",
+    "chatFormList": "Ask about your shopping list",
     "chatFormPantry": "What can I make with what I have?",
     "chatsDrawer": {
       "title": "Recent chats"
