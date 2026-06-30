@@ -24,8 +24,13 @@ async function main() {
   const hashedPassword = await hash(SEED_USER.password, 10)
 
   const alice = await prisma.user.upsert({
-    where: { id: '1' },
-    update: {},
+    // Key on the real unique field, not a synthetic id, so re-seeding an
+    // existing DB updates Alice instead of colliding on the username constraint.
+    where: { username: SEED_USER.email },
+    // Refresh the login credential on every run — a stale hash breaks the e2e
+    // auth fixture. Relations stay on the create branch: the e2e DB is reset
+    // before seeding (see e2e/global-setup.ts), so create always runs there.
+    update: { password: hashedPassword },
     create: {
       username: SEED_USER.email,
       firstName: 'Alice',
@@ -34,6 +39,11 @@ async function main() {
       // Real signup creates an empty list; the session callback reads
       // `user.list.id`, so the seeded user needs one too.
       list: { create: {} },
+
+      // The taste-profile onboarding drawer auto-opens for any authenticated
+      // user whose `tasteProfile` is null, covering the page. Seed a profile so
+      // the e2e specs land on an unobstructed app instead of the onboarding quiz.
+      tasteProfile: { create: { cookingSkill: 'intermediate' } },
 
       recipes: {
         create: {
@@ -48,8 +58,11 @@ async function main() {
           description:
             'A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner.',
 
+          // Unsplash, not the original source host: `images.unsplash.com` is
+          // allowlisted in `next.config.mjs` `remotePatterns`, so `next/image`
+          // renders it. An unconfigured host throws and trips the error boundary.
           imgUrl:
-            'https://www.gordonramsay.com/assets/Uploads/_resampled/CroppedFocusedImage192072050-50-Mushroomtoast.jpg',
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836',
           ingredients: {
             create: [
               { rawString: '2 tablespoons unsalted butter, more as needed' },

@@ -4,6 +4,7 @@ import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 import * as sandcastle from '@ai-hero/sandcastle'
 import { noSandbox } from '@ai-hero/sandcastle/sandboxes/no-sandbox'
+import { captureTranscript, lastSessionFilePath } from './transcript'
 
 // Orchestrator for the `agent:implement` pipeline (#510). Runs Claude directly
 // on the ephemeral CI runner via Sandcastle's `noSandbox()` — the runner is the
@@ -42,34 +43,59 @@ const VERIFY_REPORT_FILE = path.join(OUTPUT_DIR, 'verify_report.md')
  */
 const SCREENSHOTS_DIR = `.agent/verify/issue-${ISSUE_NUMBER}`
 
-const result = await sandcastle.run({
-  name: `implement-#${ISSUE_NUMBER}`,
-  agent: sandcastle.claudeCode('claude-opus-4-8', {
-    env: {
-      // Subscription / flat-rate token — never ANTHROPIC_API_KEY (metered).
-      CLAUDE_CODE_OAUTH_TOKEN: required('CLAUDE_CODE_OAUTH_TOKEN')
-    }
-  }),
-  // noSandbox runs the agent in-place on the checked-out repo, so it commits
-  // directly onto BRANCH (default branchStrategy "head"). The commit-count
-  // check below relies on that — revisit it if this ever moves to docker().
-  sandbox: noSandbox(),
-  logging: { type: 'stdout' },
-  // Resolved against process.cwd() (the repo root, where the workflow invokes us).
-  promptFile: '.sandcastle/implement/prompt.md',
-  promptArgs: {
-    ISSUE_NUMBER,
-    ISSUE_TITLE,
-    BRANCH,
-    PR_DESCRIPTION_FILE,
-    STANDARDS_DIR,
-    VERIFY_REPORT_FILE,
-    SCREENSHOTS_DIR
-  },
-  // Runaway guard. Sandcastle's claudeCode does not expose Claude's `--max-turns`
-  // flag, so the hard caps are wall-clock: this idle timeout (no output for N
-  // seconds → fail) plus the workflow's `timeout-minutes: 45`.
-  idleTimeoutSeconds: 900
+/**
+ * Where the agent's full Claude Code session transcript is copied for the
+ * workflow to upload as an audit artifact (#532). Lives in OUTPUT_DIR (outside
+ * the repo tree) so it never lands in a commit, like pr_description.txt.
+ */
+const TRANSCRIPT_FILE = path.join(OUTPUT_DIR, 'transcript.jsonl')
+
+/** Claude Code's session store: `$HOME/.claude/projects/<encoded-cwd>/<id>.jsonl`. */
+const PROJECTS_DIR = path.join(os.homedir(), '.claude', 'projects')
+
+let result: sandcastle.RunResult
+try {
+  result = await sandcastle.run({
+    name: `implement-#${ISSUE_NUMBER}`,
+    agent: sandcastle.claudeCode('claude-opus-4-8', {
+      env: {
+        // Subscription / flat-rate token — never ANTHROPIC_API_KEY (metered).
+        CLAUDE_CODE_OAUTH_TOKEN: required('CLAUDE_CODE_OAUTH_TOKEN')
+      }
+    }),
+    // noSandbox runs the agent in-place on the checked-out repo, so it commits
+    // directly onto BRANCH (default branchStrategy "head"). The commit-count
+    // check below relies on that — revisit it if this ever moves to docker().
+    sandbox: noSandbox(),
+    logging: { type: 'stdout' },
+    // Resolved against process.cwd() (the repo root, where the workflow invokes us).
+    promptFile: '.sandcastle/implement/prompt.md',
+    promptArgs: {
+      ISSUE_NUMBER,
+      ISSUE_TITLE,
+      BRANCH,
+      PR_DESCRIPTION_FILE,
+      STANDARDS_DIR,
+      VERIFY_REPORT_FILE,
+      SCREENSHOTS_DIR
+    },
+    // Runaway guard. Sandcastle's claudeCode does not expose Claude's `--max-turns`
+    // flag, so the hard caps are wall-clock: this idle timeout (no output for N
+    // seconds → fail) plus the workflow's `timeout-minutes: 45`.
+    idleTimeoutSeconds: 900
+  })
+} catch (error) {
+  // Capture the transcript even when the run fails, so blocked runs stay
+  // auditable. Best-effort: it must never mask the original failure.
+  captureTranscript({ projectsDir: PROJECTS_DIR, destPath: TRANSCRIPT_FILE })
+  throw error
+}
+
+// Copy the agent's session transcript out for the workflow to upload (#532).
+captureTranscript({
+  sessionFilePath: lastSessionFilePath(result),
+  projectsDir: PROJECTS_DIR,
+  destPath: TRANSCRIPT_FILE
 })
 
 // The agent commits its own TDD work; a zero-commit run is a failure, not a PR.

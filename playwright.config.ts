@@ -27,6 +27,9 @@ const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`
 
 export default defineConfig({
   testDir: './e2e',
+  // Resets + reseeds the dedicated e2e DB before anything runs (local only; CI
+  // preps its service DB with explicit steps). See e2e/global-setup.ts.
+  globalSetup: './e2e/global-setup.ts',
   // Build/boot/browser is slow; give specs room but keep a hard ceiling.
   timeout: 60_000,
   expect: { timeout: 10_000 },

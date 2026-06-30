@@ -19,8 +19,11 @@ const SEED_USER = {
 setup('authenticate', async ({ page }) => {
   await page.goto('/')
 
-  // Open the login drawer/dialog from the landing page, then submit the form.
-  await page.getByRole('button', { name: 'Login' }).first().click()
+  // Login lives in the navbar's settings dropdown (the only banner button for an
+  // anonymous user), not as a top-level button. Open it, then pick "Login" to
+  // bring up the dialog and submit the form.
+  await page.getByRole('banner').getByRole('button').click()
+  await page.getByRole('menuitem', { name: 'Login' }).click()
   const dialog = page.getByRole('dialog')
   await dialog.getByLabel('Email').fill(SEED_USER.email)
   await dialog.getByLabel('Password').fill(SEED_USER.password)
