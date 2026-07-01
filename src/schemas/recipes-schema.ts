@@ -192,7 +192,11 @@ export const editRecipeFormValues = z.object({
   description: z.string(),
   prepMinutes: z.number(),
   cookMinutes: z.number(),
-  notes: z.string()
+  notes: z.string(),
+  cuisine: z.string(),
+  course: z.string(),
+  dietTags: z.array(z.string()),
+  flavorTags: z.array(z.string())
 })
 
 export type EditRecipeFormValues = z.infer<typeof editRecipeFormValues>

@@ -6,7 +6,6 @@ import { NavDropdownMenu } from './settings-dropdown-menu'
 import {
   ArrowBigLeft,
   CookingPotIcon,
-  EditIcon,
   EllipsisVerticalIcon,
   ListTodoIcon,
   MessageSquareIcon,
@@ -20,7 +19,6 @@ import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
 import { useState } from 'react'
 import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
-import { EditByIdDrawer } from '~/components/navbar/edit-by-id-drawer'
 
 export const Navbar = () => {
   const pathname = usePathname()
@@ -97,14 +95,8 @@ function RecipeByIdNavbar() {
 
 export function RecipeByIdDropdownMenu() {
   const t = useTranslations()
-  const [openEditDrawer, setOpenEditDrawer] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const items: MenuItemProps[] = [
-    {
-      label: 'nav.menu.editRecipe',
-      onClick: () => setOpenEditDrawer(true),
-      icon: <EditIcon />
-    },
     {
       label: 'recipes.delete',
       onClick: () => setOpenDeleteDialog(true),
@@ -122,7 +114,6 @@ export function RecipeByIdDropdownMenu() {
           </Button>
         }
       />
-      <EditByIdDrawer open={openEditDrawer} onOpenChange={setOpenEditDrawer} />
       <DeleteRecipeDialog
         open={openDeleteDialog}
         onOpenChange={setOpenDeleteDialog}
