@@ -111,7 +111,12 @@ function RecipeReadView({
         />
       ) : null}
 
-      <FloatingActionButton aria-label={t.recipes.byId.edit} onClick={onEdit}>
+      {/* Sits above the recipe chat-assistant FAB (which pins to bottom-3). */}
+      <FloatingActionButton
+        aria-label={t.recipes.byId.edit}
+        onClick={onEdit}
+        className='bottom-24 sm:bottom-24'
+      >
         <PencilIcon />
       </FloatingActionButton>
     </>
