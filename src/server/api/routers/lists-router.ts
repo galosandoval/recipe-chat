@@ -5,6 +5,7 @@ import {
   clearCheckedIngredientsFromList,
   getListByUserId,
   updateIngredientCheckStatus,
+  updateIngredientQuantities,
   updateManyIngredientsCheckStatus,
   upsertList
 } from '../use-cases/lists-use-case'
@@ -68,6 +69,13 @@ export const listsRouter = createTRPCRouter({
         input,
         ctx.prisma
       )
+      return { count: transaction.length }
+    }),
+
+  setQuantities: protectedProcedure
+    .input(z.array(z.object({ id: z.string(), quantity: z.number().min(0) })))
+    .mutation(async ({ ctx, input }) => {
+      const transaction = await updateIngredientQuantities(input, ctx.prisma)
       return { count: transaction.length }
     }),
 

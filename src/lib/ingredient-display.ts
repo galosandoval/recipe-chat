@@ -7,6 +7,15 @@ import {
 } from '~/lib/unit-conversion'
 
 /**
+ * Phrases that mark an ingredient as unmeasured — "to taste", garnishes,
+ * optional, and serving-only items. These are never quantity-summed so the
+ * shopping list keeps them as a single advisory line rather than inventing a
+ * nonsensical total (e.g. "3 to taste salt").
+ */
+const UNMEASURED_PATTERN =
+  /\b(to taste|optional|for garnish|as garnish|as needed|as required|as desired|for serving|to serve|for dusting|for sprinkling|for drizzling)\b/i
+
+/**
  * Shape accepted for display (Prisma Ingredient or DTO with optional structured fields).
  */
 export type IngredientDisplaySource = {
@@ -150,71 +159,173 @@ export function getIngredientDisplayQuantityAndUnit(
 export type AggregatedIngredient = {
   displayText: string
   ingredientIds: string[]
+  /** Distinct recipe ids that contributed to this line, in first-seen order. */
+  recipeIds: string[]
   checked: boolean
+  /** Merged total in {@link unit}; null for unmeasured (to taste/optional) lines. */
+  quantity: number | null
+  /** Display unit for {@link quantity}; null when unmeasured. */
+  unit: string | null
+  itemName: string | null
+  /** True for "to taste"/optional/garnish lines that are never quantity-summed. */
+  unmeasured: boolean
 }
 
-type IngredientForAggregation = IngredientDisplaySource & {
+type IngredientForAggregation = IngredientDisplaySourceWithUnitType & {
   id: string
   checked?: boolean
+  recipeId?: string | null
 }
 
 /**
- * Groups ingredients by (itemName, unit) and sums quantity for aggregation.
- * Ingredients without itemName/unit are kept as single-item groups.
+ * True when an ingredient should not be quantity-summed: it carries an
+ * unmeasured phrase ("to taste", "optional", garnish, serving-only) or lacks a
+ * usable quantity/unit pair.
+ */
+function isUnmeasuredIngredient(ing: IngredientForAggregation): boolean {
+  const haystack = `${ing.rawString ?? ''} ${ing.preparation ?? ''} ${ing.itemName ?? ''}`
+  if (UNMEASURED_PATTERN.test(haystack)) return true
+  return ing.quantity == null || !ing.unit?.trim()
+}
+
+type AggregationGroup = {
+  /** Sum of canonical amounts (grams/ml for weight/volume, raw qty for count). */
+  canonical: number
+  ids: string[]
+  recipeIds: string[]
+  checked: boolean[]
+  ing: IngredientForAggregation
+  kind: UnitKind
+  unmeasured: boolean
+}
+
+/**
+ * Computes the grouping key for an ingredient. Measured weight/volume items
+ * merge across compatible units of the same kind (so cups + tablespoons
+ * combine); count units only merge when the unit string matches; unmeasured
+ * items merge by item name; the rest stay individual.
+ */
+function aggregationKey(
+  ing: IngredientForAggregation,
+  unmeasured: boolean,
+  kind: UnitKind
+): string {
+  const item = ing.itemName?.trim().toLowerCase()
+  if (unmeasured) {
+    return item ? `__unmeasured__${item}` : `__single__${ing.id}`
+  }
+  if (!item) return `__single__${ing.id}`
+  if (kind === 'count') {
+    return `${item}|count|${ing.unit?.trim().toLowerCase()}`
+  }
+  return `${item}|${kind}`
+}
+
+function roundQuantity(value: number): number {
+  return value >= 1
+    ? Math.round(value * 100) / 100
+    : Math.round(value * 1000) / 1000
+}
+
+/**
+ * Groups shopping-list ingredients into merged lines: same item with compatible
+ * units are summed (converting between units of the same kind where needed),
+ * recipe sources are tracked, and unmeasured items ("to taste", optional,
+ * garnish) are kept as advisory lines that are never summed.
  */
 export function aggregateIngredients(
   ingredients: IngredientForAggregation[],
   preferredWeightUnit?: string | null,
   preferredVolumeUnit?: string | null
 ): AggregatedIngredient[] {
-  const byKey = new Map<
-    string,
-    {
-      quantity: number
-      ids: string[]
-      checked: boolean[]
-      ing: IngredientForAggregation
-    }
-  >()
+  const byKey = new Map<string, AggregationGroup>()
+
   for (const ing of ingredients) {
-    const item = ing.itemName?.trim()
+    const unmeasured = isUnmeasuredIngredient(ing)
     const unit = ing.unit?.trim()
-    const qty = ing.quantity
-    const canMerge = item && unit && qty != null
-    const key = canMerge ? `${item}|${unit}` : `__single__${ing.id}`
+    const kind: UnitKind =
+      ing.unitType === 'weight'
+        ? 'weight'
+        : ing.unitType === 'volume'
+          ? 'volume'
+          : unit
+            ? getUnitKind(unit)
+            : 'count'
+    const key = aggregationKey(ing, unmeasured, kind)
+    const canonical =
+      !unmeasured && unit && ing.quantity != null
+        ? toCanonical(ing.quantity, unit).amount
+        : 0
+
     const existing = byKey.get(key)
     if (existing) {
-      existing.quantity += qty ?? 0
+      existing.canonical += canonical
       existing.ids.push(ing.id)
       existing.checked.push(ing.checked ?? false)
+      if (ing.recipeId && !existing.recipeIds.includes(ing.recipeId)) {
+        existing.recipeIds.push(ing.recipeId)
+      }
     } else {
       byKey.set(key, {
-        quantity: qty ?? 0,
+        canonical,
         ids: [ing.id],
+        recipeIds: ing.recipeId ? [ing.recipeId] : [],
         checked: [ing.checked ?? false],
-        ing
+        ing,
+        kind,
+        unmeasured
       })
     }
   }
-  return Array.from(byKey.values()).map((v) => {
-    let displayText: string
-    if (v.ing.itemName && v.ing.unit && v.quantity > 0) {
-      const aggregatedIng = { ...v.ing, quantity: v.quantity }
-      const preferred = getIngredientDisplayTextInPreferredUnits(
-        aggregatedIng,
-        preferredWeightUnit,
-        preferredVolumeUnit
-      )
-      displayText =
-        preferred ||
-        [v.quantity, v.ing.unit, v.ing.itemName].filter(Boolean).join(' ')
-    } else {
-      displayText = getIngredientDisplayText(v.ing)
-    }
+
+  return Array.from(byKey.values()).map((group) =>
+    buildAggregatedIngredient(group, preferredWeightUnit, preferredVolumeUnit)
+  )
+}
+
+function buildAggregatedIngredient(
+  group: AggregationGroup,
+  preferredWeightUnit?: string | null,
+  preferredVolumeUnit?: string | null
+): AggregatedIngredient {
+  const base = {
+    ingredientIds: group.ids,
+    recipeIds: group.recipeIds,
+    checked: group.checked.every(Boolean)
+  }
+
+  if (group.unmeasured) {
     return {
-      displayText,
-      ingredientIds: v.ids,
-      checked: v.checked.every(Boolean)
+      ...base,
+      displayText: getIngredientDisplayText(group.ing),
+      quantity: null,
+      unit: null,
+      itemName: group.ing.itemName?.trim() ?? null,
+      unmeasured: true
     }
-  })
+  }
+
+  const preferred =
+    group.kind === 'weight'
+      ? preferredWeightUnit
+      : group.kind === 'volume'
+        ? preferredVolumeUnit
+        : null
+  const displayUnit = preferred?.trim() || (group.ing.unit?.trim() ?? '')
+  const quantity = roundQuantity(
+    fromCanonical(group.canonical, displayUnit, group.kind)
+  )
+  const itemName = group.ing.itemName?.trim() ?? null
+  const displayText =
+    [quantity, displayUnit, itemName].filter(Boolean).join(' ') ||
+    getIngredientDisplayText(group.ing)
+
+  return {
+    ...base,
+    displayText,
+    quantity,
+    unit: displayUnit || null,
+    itemName,
+    unmeasured: false
+  }
 }

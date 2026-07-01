@@ -54,7 +54,8 @@
     "addIngredient": "Add a new ingredient to your list",
     "addFirstItem": "Add an item",
     "removeChecked": "Remove checked",
-    "addToPantry": "Add to pantry"
+    "addToPantry": "Add to pantry",
+    "adjustQuantity": "Adjust quantity of $1"
   },
   "pantry": {
     "noItems": "No items in your pantry",

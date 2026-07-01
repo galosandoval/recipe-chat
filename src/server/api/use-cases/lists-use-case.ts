@@ -78,6 +78,25 @@ export async function updateManyIngredientsCheckStatus(
   )
 }
 
+/**
+ * Persists manually adjusted shopping-list quantities. Used when a user edits a
+ * merged line's total: the client scales each contributing ingredient and sends
+ * the resulting per-ingredient quantities here.
+ */
+export async function updateIngredientQuantities(
+  ingredients: { id: string; quantity: number }[],
+  prisma: PrismaClient
+) {
+  return prisma.$transaction(
+    ingredients.map(({ id, quantity }) =>
+      prisma.ingredient.update({
+        where: { id },
+        data: { quantity }
+      })
+    )
+  )
+}
+
 export async function clearCheckedIngredientsFromList(
   ingredients: IngredientInput[],
   userId: string,
