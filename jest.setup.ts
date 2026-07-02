@@ -1,18 +1,20 @@
 import { TextEncoder, TextDecoder } from 'node:util'
 
-// Backend integration suites (src/server/api/**) hit a real Postgres DB. Jest
-// runs test files in parallel workers by default, so their concurrent writes and
-// truncates against the shared DB deadlock (40P01) or clobber each other's rows.
-// Serialize every DB-touching test behind one cross-worker advisory lock so even
-// a bare `npx jest` (full parallel run) is safe; non-DB unit suites stay parallel
-// because the lock module is only loaded for tests under src/server/api/.
-// The lock's own meta-test drives acquire/release itself, so it opts out of the
-// auto-serialization that would otherwise double-acquire the same session.
+// Backend integration suites hit a real Postgres DB — the use-case/data-access
+// layer under src/server/api/** and the route-handler tests under src/app/api/**
+// (e.g. the chat tools). Jest runs test files in parallel workers by default, so
+// their concurrent writes and truncates against the shared DB deadlock (40P01)
+// or clobber each other's rows. Serialize every DB-touching test behind one
+// cross-worker advisory lock so even a bare `npx jest` (full parallel run) is
+// safe; non-DB unit suites stay parallel because the lock module is only loaded
+// for tests under those backend paths. The lock's own meta-test drives
+// acquire/release itself, so it opts out of the auto-serialization that would
+// otherwise double-acquire the same session.
 const isIntegrationTest = () => {
   const path = (expect.getState().testPath ?? '').replace(/\\/g, '/')
-  return (
-    path.includes('/server/api/') && !path.endsWith('/test-db-lock.test.ts')
-  )
+  const isBackendPath =
+    path.includes('/server/api/') || path.includes('/app/api/')
+  return isBackendPath && !path.endsWith('/test-db-lock.test.ts')
 }
 
 beforeEach(async () => {
