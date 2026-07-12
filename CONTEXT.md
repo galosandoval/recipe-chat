@@ -27,12 +27,16 @@ _Avoid_: step, direction
 ## Chat
 
 **Chat**:
-One ongoing conversation between a user and the recipe assistant. Holds the messages and any active filters.
+One ongoing conversation between a user and the recipe assistant. Holds the messages and any active filters. Scoped to a Chat Context — a user can have many chats, but only one is resumable per context at a time.
 _Avoid_: conversation, thread, session
 
 **Message**:
 A single turn in a chat, authored by the user, the assistant, the system, or carrying data.
 _Avoid_: turn, reply
+
+**Chat Context**:
+The page-specific scope a Chat belongs to and the payload sent with every assistant request to shape its prompt — one of `recipes`, `recipe-detail` (+ full recipe snapshot: name, description, ingredients, cuisine, course), `list`, `pantry`. Both what a chat is persisted/resumed under and what the assistant is told.
+_Avoid_: scope, page
 
 ## Collections
 
