@@ -116,10 +116,20 @@ function useRecipeChat() {
             | undefined
         )
         const storeMessages = useChatStore.getState().messages
-        const existingIdx = storeMessages.findIndex((m) => m.id === lastMsg.id)
+        const storeLastMessage = storeMessages.at(-1)
+        // A multi-step tool turn (editRecipe/addNote: tool call, then confirmation
+        // text) surfaces as separate AI SDK message ids per step. Once the store's
+        // last message is this turn's in-progress assistant reply, keep updating
+        // that same entry rather than keying off the incoming step's id — otherwise
+        // the empty-content tool-call step is left behind as an orphaned message.
+        const isContinuingAssistantTurn = storeLastMessage?.role === 'assistant'
+        const id = isContinuingAssistantTurn ? storeLastMessage.id : lastMsg.id
+        const existingIdx = isContinuingAssistantTurn
+          ? storeMessages.length - 1
+          : -1
 
         const messageWithRecipes: MessageWithRecipes = {
-          id: lastMsg.id,
+          id,
           content: lastMsg.content || toolMessage,
           role: 'assistant',
           chatId: useChatStore.getState().chatId,

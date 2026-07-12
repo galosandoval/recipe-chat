@@ -332,6 +332,19 @@ export const useChatAI = () => {
     recipes: (GeneratedRecipe & Partial<RecipeDetails>)[],
     toolInvocations?: Array<{ toolName: string; result?: unknown }>
   ) => {
+    // editRecipe/addNote write straight to Prisma from the server-side tool
+    // execute, bypassing the api.recipes.edit mutation (and its onSuccess
+    // invalidate) that the in-page edit form relies on. Invalidate here so the
+    // recipe-detail view picks up the change instead of showing stale data.
+    const recipeMutated = toolInvocations?.some(
+      (t) =>
+        (t.toolName === 'editRecipe' || t.toolName === 'addNote') &&
+        (t.result as { success?: boolean } | undefined)?.success
+    )
+    if (recipeMutated) {
+      utils.recipes.invalidate()
+    }
+
     const messages = useChatStore.getState().messages
     const lastMessage = messages.at(-1)
     const messagesToScan =
