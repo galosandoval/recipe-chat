@@ -69,7 +69,7 @@ try {
     sandbox: noSandbox(),
     logging: { type: 'stdout' },
     // Resolved against process.cwd() (the repo root, where the workflow invokes us).
-    promptFile: '.sandcastle/implement/prompt.md',
+    promptFile: 'agent/implement/prompt.md',
     promptArgs: {
       ISSUE_NUMBER,
       ISSUE_TITLE,
