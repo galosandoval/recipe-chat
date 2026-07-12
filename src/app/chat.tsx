@@ -7,12 +7,18 @@ import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
 import { GenerateMessageForm } from '~/components/chat/generate-message-form'
 import { FloatingActionButton } from '~/components/floating-action-button'
 import { useChatStore } from '~/stores/chat-store'
+import { useChatDrawerStore } from '~/stores/chat-drawer-store'
 import { usePathname } from 'next/navigation'
 import { cn } from '~/lib/utils'
 
 export function Chat() {
   useEffect(() => {
     useChatStore.getState().initializeFromStorage()
+    // useChatDrawerStore's context is global and otherwise only set by
+    // route-specific ChatFab instances (recipe-detail, lists). Without this,
+    // arriving here after visiting one of those pages leaves this page
+    // showing that page's stale context (e.g. a prior recipe's suggestions).
+    useChatDrawerStore.getState().setContext({ page: 'recipes' })
   }, [])
 
   return (
