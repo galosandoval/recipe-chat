@@ -21,7 +21,9 @@ The pipeline state machine uses these labels (created in this slice):
 - `agent:in-progress` — set while the agent runs; always cleared on completion.
 - `agent:blocked` — run refused or failed; see the issue comment for the reason.
 
-`ready-for-agent` (pre-existing) stays as the upstream human-triage state and costs nothing.
+`ready-for-agent` / `ready-for-human` (pre-existing) are the upstream triage labels. On a
+successful run, `ready-for-agent` is swapped for `ready-for-human` when the draft PR opens,
+signaling the issue now needs human review/merge.
 
 ## End-to-end harness + verify phase (#523)
 
@@ -56,20 +58,26 @@ After the green-gate commits and before the draft PR:
    acceptance criteria.
 2. If UI-verifiable: writes a durable `e2e/` spec, re-seeds, runs
    `bun run test:e2e`, captures screenshots into `.agent/verify/issue-<N>/`, and
-   commits the spec + PNGs. The PNGs are committed on purpose so they get raw
-   URLs and render inline on the issue.
+   commits the spec + PNGs. The PNGs are committed on purpose so they get a raw
+   URL to render inline in the PR comment (see below) — they don't stay
+   committed past that.
 3. Writes a verify report to `OUTPUT_DIR/verify_report.md` (outside the repo,
    like `pr_description.txt`).
 
-The workflow then pushes the branch and runs `post-verify.ts`, which builds one
-issue comment (report + inline screenshots + run link via the pure
-`verify-comment.ts` helper) and posts it with `gh issue comment`. Verify is
-**best-effort**: a failed boot/browser run never fails the run or loses the green
-implement commits; the comment says verification couldn't complete and why.
+The workflow pushes the branch (capturing that push's commit SHA), opens the
+draft PR, then runs `post-verify.ts`, which builds one **PR** comment (report +
+inline screenshots + run link via the pure `verify-comment.ts` helper) and
+posts it with `gh pr comment` — not on the issue, since the issue already links
+the PR via `Closes #N`. Verify is **best-effort**: a failed boot/browser run
+never fails the run or loses the green implement commits; the comment says
+verification couldn't complete and why.
 
-> **Trade-off:** committed PNGs under `.agent/verify/issue-<N>/` merge into
-> `main` unless stripped before merge — clearly named and outside the app bundle
-> so they're trivial to drop in a squash. The `e2e/` spec is meant to stay.
+Screenshot URLs are pinned to the push commit's **SHA**, not the branch name.
+Immediately after the comment step, a "Strip verify screenshots off the branch
+tip" step removes `.agent/verify/issue-<N>/` in a follow-up commit and pushes
+it. Because the PR comment's URLs are SHA-pinned, the images keep rendering
+even though the branch tip (and eventually `main`) no longer carries the PNGs.
+The `e2e/` spec itself is not stripped — it's meant to stay.
 
 ### PR e2e gate
 

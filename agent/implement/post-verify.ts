@@ -5,19 +5,26 @@ import { execFileSync } from 'node:child_process'
 import { buildVerifyComment } from './verify-comment'
 
 /**
- * IO entry point for the verify phase's "post proof to the issue" step (#523).
- * Runs *after* the branch is pushed (so raw URLs resolve): reads the agent's
- * verify report, enumerates the committed screenshots under
- * `.agent/verify/issue-<N>/`, builds the comment via the pure
- * `buildVerifyComment` helper, and posts it with `gh issue comment`.
+ * IO entry point for the verify phase's "post proof to the PR" step (#523).
+ * Runs *after* the draft PR is opened (so there is a PR to comment on, and the
+ * push commit's raw URLs resolve): reads the agent's verify report,
+ * enumerates the committed screenshots under `.agent/verify/issue-<N>/`,
+ * builds the comment via the pure `buildVerifyComment` helper, and posts it
+ * with `gh pr comment`. The issue itself is left alone — it already links the
+ * PR via `Closes #N`.
  *
  * Best-effort by contract: verify never blocks the PR, so any failure here is
- * logged and swallowed (exit 0) rather than failing the run.
+ * logged and swallowed (exit 0) rather than failing the run. The workflow
+ * strips `.agent/verify/issue-<N>/` off the branch tip in a follow-up commit
+ * regardless of whether this comment posts — the raw URLs are pinned to
+ * `SHA` (the commit that still has the files), not the branch name, so they
+ * keep resolving after the strip.
  */
 
 const ISSUE_NUMBER = required('ISSUE_NUMBER')
 const REPO = required('GITHUB_REPOSITORY')
-const BRANCH = required('BRANCH')
+const PR_NUMBER = required('PR_NUMBER')
+const SHA = required('SHA')
 const RUN_URL = process.env.RUN_URL ?? ''
 
 const OUTPUT_DIR = process.env.OUTPUT_DIR ?? os.tmpdir()
@@ -35,7 +42,7 @@ try {
   const body = buildVerifyComment({
     report,
     repo: REPO,
-    branch: BRANCH,
+    ref: SHA,
     screenshots,
     runUrl: RUN_URL
   })
@@ -43,17 +50,9 @@ try {
   const bodyFile = path.join(OUTPUT_DIR, 'verify_comment.md')
   fs.writeFileSync(bodyFile, body)
 
-  gh([
-    'issue',
-    'comment',
-    ISSUE_NUMBER,
-    '--repo',
-    REPO,
-    '--body-file',
-    bodyFile
-  ])
+  gh(['pr', 'comment', PR_NUMBER, '--repo', REPO, '--body-file', bodyFile])
   console.log(
-    `Posted verify comment to #${ISSUE_NUMBER} (${screenshots.length} screenshot(s)).`
+    `Posted verify comment to PR #${PR_NUMBER} (${screenshots.length} screenshot(s)).`
   )
 } catch (error) {
   // Never fail the run over the comment — implement commits already landed.

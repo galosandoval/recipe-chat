@@ -214,25 +214,13 @@ jobs:
         if: success()
         env:
           BRANCH: ${{ steps.branch.outputs.name }}
-        run: git push -u origin "$BRANCH"
-
-      - name: Post verify proof to the issue
-        # Runs whenever the branch was pushed (so raw.githubusercontent URLs
-        # resolve), regardless of any later step's status: read the agent's
-        # verify report, enumerate the committed screenshots under
-        # .agent/verify/issue-<N>/, and post one issue comment with the report +
-        # inline images + a run link. Best-effort — the script swallows errors,
-        # and the agent's verify phase never fails its step, so a verify hiccup
-        # still yields a comment and never loses the green implement commits.
-        if: steps.push_branch.outcome == 'success'
-        env:
-          BRANCH: ${{ steps.branch.outputs.name }}
-          OUTPUT_DIR: ${{ runner.temp }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: bun agent/implement/post-verify.ts
+        run: |
+          git push -u origin "$BRANCH"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Open draft PR
-        if: success()
+        id: open_pr
+        if: steps.push_branch.outcome == 'success'
         env:
           BRANCH: ${{ steps.branch.outputs.name }}
         run: |
@@ -243,11 +231,54 @@ jobs:
             printf 'Closes #%s\n\n' "$ISSUE_NUMBER"
             cat "${RUNNER_TEMP}/pr_description.txt"
           } > "$body_file"
-          gh pr create --draft --repo "$GITHUB_REPOSITORY" \
+          url=$(gh pr create --draft --repo "$GITHUB_REPOSITORY" \
             --base main \
             --head "$BRANCH" \
             --title "$ISSUE_TITLE" \
-            --body-file "$body_file"
+            --body-file "$body_file")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "number=$(basename "$url")" >> "$GITHUB_OUTPUT"
+
+      - name: PR opened — swap ready-for-agent for ready-for-human
+        if: steps.open_pr.outcome == 'success'
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --remove-label "ready-for-agent" \
+            --add-label "ready-for-human" || true
+
+      - name: Post verify proof to the PR
+        # Runs once the draft PR exists (so there's a PR to comment on) and the
+        # push commit's raw.githubusercontent URLs resolve: read the agent's
+        # verify report, enumerate the committed screenshots under
+        # .agent/verify/issue-<N>/, and post one PR comment with the report +
+        # inline images + a run link. Best-effort — the script swallows errors,
+        # and the agent's verify phase never fails its step, so a verify hiccup
+        # still yields a comment and never loses the green implement commits.
+        if: steps.open_pr.outcome == 'success'
+        env:
+          PR_NUMBER: ${{ steps.open_pr.outputs.number }}
+          SHA: ${{ steps.push_branch.outputs.sha }}
+          OUTPUT_DIR: ${{ runner.temp }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bun agent/implement/post-verify.ts
+
+      - name: Strip verify screenshots off the branch tip
+        # The PR comment's images are pinned to the push commit SHA above, so
+        # they keep rendering even after this follow-up commit removes the
+        # PNGs — the branch tip (and eventually main) never carries them.
+        # Runs regardless of whether the comment itself posted (best-effort,
+        # decoupled by the SHA pin) — only skipped if no PR exists to comment
+        # on in the first place.
+        if: steps.open_pr.outcome == 'success'
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          dir=".agent/verify/issue-${ISSUE_NUMBER}"
+          if [ -d "$dir" ] && [ -n "$(ls -A "$dir" 2>/dev/null)" ]; then
+            git rm -rf "$dir"
+            git commit -m "chore: drop verify screenshots (posted to PR)"
+            git push origin "$BRANCH"
+          fi
 
       - name: Mark blocked on failure
         if: failure()

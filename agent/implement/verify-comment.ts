@@ -10,43 +10,47 @@ export interface VerifyCommentInput {
   report: string
   /** `owner/repo`, e.g. `galosandoval/recipe-chat`. */
   repo: string
-  /** Branch the screenshots were committed to (raw URLs resolve against it). */
-  branch: string
+  /**
+   * Commit SHA the screenshots were pushed at. Pinned to the commit (not the
+   * branch name) so the raw URLs keep resolving after a later commit strips
+   * the screenshots off the branch tip.
+   */
+  ref: string
   /**
    * Repo-relative paths of the committed screenshots, e.g.
    * `.agent/verify/issue-5/recipes.png`. Empty for non-UI / skipped runs.
    */
   screenshots: string[]
-  /** URL of the workflow run, linked so the issue jumps to the full logs. */
+  /** URL of the workflow run, linked so the PR comment jumps to the full logs. */
   runUrl: string
 }
 
 /**
  * Builds a `raw.githubusercontent.com` URL for a committed file so the image
- * renders inline in the issue comment. Each path/branch segment is
- * percent-encoded while the slashes are preserved.
+ * renders inline in the PR comment. Each path/ref segment is percent-encoded
+ * while the slashes are preserved.
  */
-function rawUrl(repo: string, branch: string, filePath: string): string {
+function rawUrl(repo: string, ref: string, filePath: string): string {
   const encode = (segmented: string) =>
     segmented.split('/').map(encodeURIComponent).join('/')
-  return `https://raw.githubusercontent.com/${repo}/${encode(branch)}/${encode(filePath)}`
+  return `https://raw.githubusercontent.com/${repo}/${encode(ref)}/${encode(filePath)}`
 }
 
 /**
- * Assembles the full issue-comment body: the agent's verify report, an inline
- * image for each committed screenshot (raw URLs against `branch`), and a link
+ * Assembles the full PR-comment body: the agent's verify report, an inline
+ * image for each committed screenshot (raw URLs pinned to `ref`), and a link
  * to the workflow run. With no screenshots (non-UI / skipped / failed-capture
  * runs) the report and run link stand alone.
  */
 export function buildVerifyComment(input: VerifyCommentInput): string {
-  const { report, repo, branch, screenshots, runUrl } = input
+  const { report, repo, ref, screenshots, runUrl } = input
 
   const parts = [report.trim() || '_No verify report was produced._']
 
   if (screenshots.length > 0) {
     const images = screenshots.map((file) => {
       const name = file.split('/').pop() ?? file
-      return `![${name}](${rawUrl(repo, branch, file)})`
+      return `![${name}](${rawUrl(repo, ref, file)})`
     })
     parts.push(`### Screenshots\n\n${images.join('\n\n')}`)
   }

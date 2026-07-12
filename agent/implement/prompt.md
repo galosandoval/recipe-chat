@@ -114,7 +114,8 @@ UI-verifiable.
   it passes.
 - **Commit** the new/updated `e2e/` spec **and** the PNGs under
   `{{SCREENSHOTS_DIR}}` onto `{{BRANCH}}` (the screenshots are committed on
-  purpose so they get raw URLs and render inline on the issue).
+  purpose so they get a raw URL and render inline on the PR — the workflow
+  strips them off the branch tip in a follow-up commit after posting).
 
 **2b. If it is NOT UI-verifiable** — skip the browser work entirely. Write no
 spec and no screenshots. Say so in the report (verified via the unit/integration
@@ -127,7 +128,7 @@ problem in the report. Your green implement commits stand regardless.
 
 **4. Write the verify report.** Write a short markdown report to the absolute
 path `{{VERIFY_REPORT_FILE}}`. **Do not commit this file** — it lives outside the
-repo and the workflow posts it as a comment on the issue. Cover: whether the
+repo and the workflow posts it as a comment on the PR. Cover: whether the
 change was UI-verifiable, what user flow you checked (tie each screenshot to an
 acceptance criterion), the verdict (verified / couldn't verify and why), and the
 name of the e2e spec you added. If you captured no screenshots, say why.
