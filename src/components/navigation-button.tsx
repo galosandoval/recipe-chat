@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import type { ButtonProps } from './ui/button'
-import { useNavigationStore } from '~/stores/navigation-store'
+import { useNavigationStore } from './navigation-store'
 import type { ComponentType } from 'react'
 
 interface NavigationButtonProps extends Omit<ButtonProps, 'onClick'> {

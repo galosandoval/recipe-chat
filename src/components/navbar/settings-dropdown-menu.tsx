@@ -4,7 +4,7 @@ import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
 import { ChatsDrawer } from '~/components/chats-drawer'
-import { useChatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/components/chat/chat-store'
 import {
   LoginDrawerDialog,
   SignUpDrawerDialog
@@ -45,7 +45,7 @@ import { useAppForm } from '~/hooks/use-app-form'
 import { z } from 'zod'
 import { CreateParsedRecipe } from '~/app/recipes/create-recipe-button'
 import { TasteProfileDrawer } from '~/components/taste-profile/taste-profile-drawer'
-import { useTasteProfileDrawerStore } from '~/stores/taste-profile-drawer-store'
+import { useTasteProfileDrawerStore } from '~/components/taste-profile/taste-profile-drawer-store'
 
 const preferredUnitsFormSchema = z.object({
   preferredWeightUnit: z.string(),

@@ -13,7 +13,7 @@ import { formatTimeFromMinutes } from '~/lib/format-time'
 import { Button } from '~/components/button'
 import { ChefHat, ChevronDownIcon, ClockIcon, SaveIcon } from 'lucide-react'
 import { Card } from '~/components/card'
-import { useChatStore } from '~/stores/chat-store'
+import { useChatStore } from './chat-store'
 
 export function CollapsableRecipe({ recipe }: { recipe: RecipeDTO }) {
   const t = useTranslations()

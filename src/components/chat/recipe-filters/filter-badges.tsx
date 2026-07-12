@@ -10,7 +10,7 @@ import { Badge } from '~/components/badge'
 import { CheckCircleIcon, CircleIcon } from 'lucide-react'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { LoadingFilterBadges } from './loading'
-import { useChatStore } from '~/stores/chat-store'
+import { useChatStore } from '../chat-store'
 
 export function FilterBadges() {
   const { data, status, fetchStatus } = useFiltersByUserId()

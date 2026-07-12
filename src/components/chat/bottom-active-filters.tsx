@@ -1,4 +1,4 @@
-import { useChatStore } from '~/stores/chat-store'
+import { useChatStore } from './chat-store'
 import {
   useFiltersByUserId,
   selectActiveFilters

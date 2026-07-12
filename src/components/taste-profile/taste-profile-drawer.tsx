@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { api } from '~/trpc/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { DrawerDialog } from '~/components/drawer-dialog'
-import { useTasteProfileDrawerStore } from '~/stores/taste-profile-drawer-store'
+import { useTasteProfileDrawerStore } from './taste-profile-drawer-store'
 import { TasteProfileQuiz } from './taste-profile-quiz'
 
 /**

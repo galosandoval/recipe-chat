@@ -1,6 +1,6 @@
 import { useSession } from 'next-auth/react'
 import { api } from '~/trpc/react'
-import { useChatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/components/chat/chat-store'
 import { cuid } from '~/lib/createId'
 import { useEffect } from 'react'
 import type {
