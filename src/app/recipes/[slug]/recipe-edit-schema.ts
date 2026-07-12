@@ -2,6 +2,7 @@ import { z } from 'zod'
 import type { RecipeByIdData } from '~/hooks/use-recipe'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { cuid } from '~/lib/createId'
+import { editRecipeFormValues } from '~/schemas/recipes-schema'
 
 /**
  * A single staged diet/flavor tag row. The `id` is a stable client key so
@@ -11,23 +12,19 @@ const tagDraftSchema = z.object({ id: z.string(), value: z.string() })
 export type TagDraft = z.infer<typeof tagDraftSchema>
 
 /**
- * The page-level draft for inline recipe editing. Ingredients and instructions
- * stay as newline-joined text (matching the existing edit transform), while the
- * four editable Facets are staged here so one Save commits everything together.
+ * The page-level draft for inline recipe editing, derived from the router's
+ * {@link editRecipeFormValues} so the shared fields can't drift. Ingredients and
+ * instructions stay as newline-joined text (matching the existing edit
+ * transform); diet/flavor tags are re-shaped into {@link TagDraft} rows so
+ * `useFieldArray` has a stable key per row.
  */
-export const recipeEditSchema = z.object({
-  name: z.string().min(1),
-  description: z.string(),
-  prepMinutes: z.number(),
-  cookMinutes: z.number(),
-  ingredients: z.string(),
-  instructions: z.string(),
-  notes: z.string(),
-  cuisine: z.string(),
-  course: z.string(),
-  dietTags: z.array(tagDraftSchema),
-  flavorTags: z.array(tagDraftSchema)
-})
+export const recipeEditSchema = editRecipeFormValues
+  .omit({ name: true, dietTags: true, flavorTags: true })
+  .extend({
+    name: z.string().min(1),
+    dietTags: z.array(tagDraftSchema),
+    flavorTags: z.array(tagDraftSchema)
+  })
 
 export type RecipeEditValues = z.infer<typeof recipeEditSchema>
 

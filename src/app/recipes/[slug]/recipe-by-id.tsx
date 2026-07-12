@@ -20,7 +20,7 @@ import { Form } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
 import { FormTextarea } from '~/components/form/form-textarea'
 import { FloatingActionButton } from '~/components/floating-action-button'
-import { PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { AlertCircleIcon, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import { AddImageDropdown } from '~/components/add-image-dropdown'
 import type { RecipeByIdData } from '~/hooks/use-recipe'
 import { useRecipe } from '~/hooks/use-recipe'
@@ -115,7 +115,7 @@ function RecipeReadView({
       <FloatingActionButton
         aria-label={t.recipes.byId.edit}
         onClick={onEdit}
-        className='bottom-24 sm:bottom-24'
+        className='bottom-20 sm:bottom-20'
       >
         <PencilIcon />
       </FloatingActionButton>
@@ -355,15 +355,7 @@ function RecipeEditMode({
   const onSubmit = (values: RecipeEditValues) => {
     if (isPending) return
     const editValues: EditRecipeFormValues = {
-      name: values.name,
-      description: values.description,
-      ingredients: values.ingredients,
-      instructions: values.instructions,
-      prepMinutes: values.prepMinutes,
-      cookMinutes: values.cookMinutes,
-      notes: values.notes,
-      cuisine: values.cuisine,
-      course: values.course,
+      ...values,
       dietTags: values.dietTags.map((tag) => tag.value.trim()).filter(Boolean),
       flavorTags: values.flavorTags
         .map((tag) => tag.value.trim())
@@ -442,6 +434,7 @@ function RecipeEditMode({
         description={t.recipes.byId.discardDescription}
         cancelText={t.recipes.byId.discardKeep}
         submitText={t.recipes.byId.discardConfirm}
+        submitIcon={<AlertCircleIcon className='size-4' />}
         primaryButtonType='button'
         onClickConfirm={confirmDiscard}
       />

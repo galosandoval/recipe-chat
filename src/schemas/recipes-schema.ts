@@ -201,13 +201,14 @@ export const editRecipeFormValues = z.object({
 
 export type EditRecipeFormValues = z.infer<typeof editRecipeFormValues>
 
-export const createRecipeFormSchema = z.object({
-  name: z.string().min(1),
-  description: z.string(),
-  ingredients: z.string(),
-  instructions: z.string(),
-  prepMinutes: z.number(),
-  cookMinutes: z.number()
-})
+export const createRecipeFormSchema = editRecipeFormValues
+  .pick({
+    description: true,
+    ingredients: true,
+    instructions: true,
+    prepMinutes: true,
+    cookMinutes: true
+  })
+  .extend({ name: z.string().min(1) })
 
 export type CreateRecipeFormValues = z.infer<typeof createRecipeFormSchema>
