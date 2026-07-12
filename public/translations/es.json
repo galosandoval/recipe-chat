@@ -54,7 +54,8 @@
     "addIngredient": "Agregar un nuevo ingrediente a tu lista",
     "addFirstItem": "Agregar un elemento",
     "removeChecked": "Eliminar seleccionados",
-    "addToPantry": "Agregar a despensa"
+    "addToPantry": "Agregar a despensa",
+    "adjustQuantity": "Ajustar cantidad de $1"
   },
   "pantry": {
     "noItems": "No hay nada en tu despensa",

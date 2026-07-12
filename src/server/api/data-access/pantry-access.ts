@@ -68,6 +68,25 @@ export class PantryAccess extends DataAccess {
     })
   }
 
+  /**
+   * Finds an existing weight/volume pantry ingredient for the same item and
+   * unit kind (e.g. matches "cup" against "tbsp"), so quantities can be merged
+   * across compatible units instead of only exact unit matches.
+   */
+  async findPantryIngredientByItemAndKind(
+    pantryId: string,
+    itemName: string,
+    unitType: 'weight' | 'volume'
+  ) {
+    return this.prisma.ingredient.findFirst({
+      where: {
+        pantryId,
+        itemName: { equals: itemName, mode: 'insensitive' },
+        unitType
+      }
+    })
+  }
+
   async deletePantryIngredients(ingredientIds: string[]) {
     await this.prisma.ingredient.deleteMany({
       where: { id: { in: ingredientIds }, pantryId: { not: null } }
