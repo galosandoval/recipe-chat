@@ -1,8 +1,8 @@
 name: Agent — Implement
 
 # Slice 2b (#510): the real test-driven implementation agent. Adding
-# `agent:implement` to a leaf issue fires this workflow, which runs Claude via
-# Sandcastle (`noSandbox()` — the ephemeral runner is the isolation boundary)
+# `agent:implement` to a leaf issue fires this workflow, which runs the Claude
+# Code CLI directly (#540 — the ephemeral runner is the isolation boundary)
 # against a Postgres + pgvector service DB, does red-green-refactor, runs the
 # repo's quality gate, commits when green, and opens a draft PR linked to the
 # issue. No Docker, no GHCR image, no ANTHROPIC_API_KEY.
