@@ -14,9 +14,13 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.2.0'
 
       - name: Setup Node
         uses: actions/setup-node@v3
+        with:
+          node-version: 22
 
       - name: Install dependencies
         run: bun install
@@ -36,7 +40,7 @@ jobs:
       - run: bun run build
 
       - name: Apply all pending migrations to the database
-        run: bunx prisma migrate deploy
+        run: bun run migrate:deploy
         env:
           DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING }}
           DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL }}
