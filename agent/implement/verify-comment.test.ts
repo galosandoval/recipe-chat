@@ -7,7 +7,7 @@ describe('buildVerifyComment', () => {
   const base = {
     report: 'Verified the recipes flow.',
     repo: 'galosandoval/recipe-chat',
-    branch: 'agent/issue-5',
+    ref: 'abc1234',
     runUrl: 'https://github.com/galosandoval/recipe-chat/actions/runs/1'
   }
 
@@ -18,20 +18,20 @@ describe('buildVerifyComment', () => {
     })
     expect(body).toContain('Verified the recipes flow.')
     expect(body).toContain(
-      '![recipes.png](https://raw.githubusercontent.com/galosandoval/recipe-chat/agent/issue-5/.agent/verify/issue-5/recipes.png)'
+      '![recipes.png](https://raw.githubusercontent.com/galosandoval/recipe-chat/abc1234/.agent/verify/issue-5/recipes.png)'
     )
     expect(body).toContain('### Screenshots')
     expect(body).toContain('[View the workflow run](')
   })
 
-  it('percent-encodes branch and filename segments but keeps slashes', () => {
+  it('percent-encodes ref and filename segments but keeps slashes', () => {
     const body = buildVerifyComment({
       ...base,
-      branch: 'agent/issue-5-add thing',
+      ref: 'refs/heads/agent/issue-5',
       screenshots: ['.agent/verify/issue-5/final state.png']
     })
     expect(body).toContain(
-      '![final state.png](https://raw.githubusercontent.com/galosandoval/recipe-chat/agent/issue-5-add%20thing/.agent/verify/issue-5/final%20state.png)'
+      '![final state.png](https://raw.githubusercontent.com/galosandoval/recipe-chat/refs/heads/agent/issue-5/.agent/verify/issue-5/final%20state.png)'
     )
   })
 
