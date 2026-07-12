@@ -68,7 +68,7 @@ export const useChatAI = () => {
   const utils = api.useUtils()
   const userId = useUserId()
 
-  const { addMessage, setMessages } = useChatStore()
+  const { addMessage, setMessages, setPendingExpandRecipeId } = useChatStore()
 
   const filterStrings: string[] = []
   if (filtersData) {
@@ -284,7 +284,7 @@ export const useChatAI = () => {
     let chatId = useChatStore.getState().chatId
     if (!chatId) {
       chatId = cuid()
-      useChatStore.getState().setChatId(chatId)
+      setChatId(chatId)
     }
     const { name, ingredients, instructions, ...rest } =
       generatedMessage.recipes[0]
@@ -332,6 +332,24 @@ export const useChatAI = () => {
     recipes: (GeneratedRecipe & Partial<RecipeDetails>)[],
     toolInvocations?: Array<{ toolName: string; result?: unknown }>
   ) => {
+    // A "Generate" click forces the expandRecipe tool. When the model returns
+    // incomplete details (or a name that matches no prior suggestion),
+    // extraction yields no recipe. Drop the dead attempt instead of adding and
+    // persisting a recipe-less assistant bubble — revert the trailing
+    // user-prompt + assistant placeholder so the suggestion card stays
+    // available to retry, and tell the user why nothing rendered.
+    const isExpand = toolInvocations?.some((t) => t.toolName === 'expandRecipe')
+    if (isExpand && recipes.length === 0) {
+      const current = useChatStore.getState().messages
+      let end = current.length
+      if (current[end - 1]?.role === 'assistant') end--
+      if (current[end - 1]?.role === 'user') end--
+      useChatStore.setState({ messages: current.slice(0, end) })
+      setPendingExpandRecipeId(null)
+      toast.error(t.chat.generationIncomplete)
+      return
+    }
+
     const messages = useChatStore.getState().messages
     const lastMessage = messages.at(-1)
     const messagesToScan =

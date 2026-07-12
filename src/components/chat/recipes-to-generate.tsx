@@ -73,13 +73,18 @@ function GenerateButton({
   recipeDescription: string
 }) {
   const t = useTranslations()
-  const { triggerAISubmission, messages, setIsStreaming } = useChatStore()
+  const {
+    triggerAISubmission,
+    messages,
+    setIsStreaming,
+    setPendingExpandRecipeId
+  } = useChatStore()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const generateRecipe = async (name: string, description: string) => {
     setIsStreaming(true)
-    useChatStore.getState().setPendingExpandRecipeId(recipeId)
+    setPendingExpandRecipeId(recipeId)
     triggerAISubmission([
       ...messages,
       userMessageDTO(
