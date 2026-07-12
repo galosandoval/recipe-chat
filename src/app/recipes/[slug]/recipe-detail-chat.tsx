@@ -27,7 +27,7 @@ export function RecipeDetailChat() {
 
   return (
     <>
-      <ChatFab className='bottom-3' context={context} />
+      <ChatFab className='bottom-4' context={context} />
       <ChatPanel />
     </>
   )

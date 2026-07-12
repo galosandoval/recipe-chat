@@ -246,6 +246,10 @@
     "servings": "Servings:",
     "notes": "Notes",
     "step": "Step",
+    "cuisine": "Cuisine",
+    "course": "Course",
+    "dietTags": "Diet tags",
+    "flavorTags": "Flavor tags",
     "paste": "Paste a recipe from the web",
     "addParsed": "Add parsed recipe",
     "addParsedDescription": "Add the recipe we parsed for you. You might need to make some changes to the recipe.",
@@ -278,6 +282,21 @@
       "updateImageSuccess": "Image updated successfully!",
       "noFile": "No file selected",
       "updateNotes": "Update notes",
+      "save": "Save",
+      "cancel": "Cancel",
+      "discardTitle": "Discard changes?",
+      "discardDescription": "You have unsaved changes. Discard them and stop editing?",
+      "discardConfirm": "Discard",
+      "discardKeep": "Keep editing",
+      "facets": {
+        "none": "None",
+        "cuisinePlaceholder": "Select a cuisine",
+        "coursePlaceholder": "Select a course",
+        "addTag": "Add",
+        "dietPlaceholder": "New diet tag",
+        "flavorPlaceholder": "New flavor tag",
+        "noTags": "No tags yet"
+      },
       "delete": {
         "title": "Delete recipe",
         "message": "Are you sure you want to delete this recipe? This action cannot be undone."
