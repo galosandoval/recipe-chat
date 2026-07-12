@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { useNavigationStore } from '~/stores/navigation-store'
+import { useNavigationStore } from './navigation-store'
 import { ScreenLoader } from '~/components/loaders/screen'
 
 export const NavigationHandler = () => {

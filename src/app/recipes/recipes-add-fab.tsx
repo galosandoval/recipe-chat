@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { LinkIcon, MessageSquareIcon, PlusIcon } from 'lucide-react'
-import { useChatDrawerStore } from '~/stores/chat-drawer-store'
-import { useChatStore } from '~/stores/chat-store'
+import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
+import { useChatStore } from '~/components/chat/chat-store'
 import { ChatPanel } from '~/components/chat-panel'
 import { ParseAndAddRecipeDialogs } from '~/components/navbar/settings-dropdown-menu'
 import { FloatingActionButton } from '~/components/floating-action-button'

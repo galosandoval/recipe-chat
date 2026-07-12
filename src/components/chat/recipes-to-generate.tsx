@@ -1,5 +1,5 @@
 import { useTranslations } from '~/hooks/use-translations'
-import { useChatStore } from '~/stores/chat-store'
+import { useChatStore } from './chat-store'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'

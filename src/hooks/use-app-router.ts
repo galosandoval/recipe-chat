@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { useNavigationStore } from '~/stores/navigation-store'
+import { useNavigationStore } from '~/components/navigation-store'
 
 export function useAppRouter() {
   const router = useRouter()

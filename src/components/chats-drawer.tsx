@@ -6,7 +6,7 @@ import { ScreenLoader } from './loaders/screen'
 import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
 import { cn } from '~/lib/utils'
-import { useChatStore } from '~/stores/chat-store'
+import { useChatStore } from '~/components/chat/chat-store'
 import { LoadingSpinner } from './loaders/loading-spinner'
 
 export function ChatsDrawer({

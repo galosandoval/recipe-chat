@@ -18,10 +18,10 @@ import {
   SearchIcon,
   XCircleIcon
 } from 'lucide-react'
-import { useNavigationStore } from '~/stores/navigation-store'
-import { useRecipesStore } from '~/stores/recipes-store'
+import { useNavigationStore } from '~/components/navigation-store'
+import { useRecipesStore } from './recipes-store'
 import { useDebounce } from '~/hooks/use-recipe'
-import { useChatDrawerStore } from '~/stores/chat-drawer-store'
+import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
 
 export function Recipes({
   search,

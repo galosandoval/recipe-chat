@@ -2,7 +2,7 @@ import '@testing-library/jest-dom'
 import { screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { renderWithTranslations, en } from '~/lib/test-translations'
 import { TasteProfileDrawer } from './taste-profile-drawer'
-import { useTasteProfileDrawerStore } from '~/stores/taste-profile-drawer-store'
+import { useTasteProfileDrawerStore } from './taste-profile-drawer-store'
 
 const mockUpsertMutate = jest.fn()
 const mockSkipMutate = jest.fn()

@@ -5,7 +5,7 @@ import {
   SignUpDrawerDialog
 } from '~/components/auth/auth-drawer-dialogs'
 import { useSession } from 'next-auth/react'
-import { useChatStore } from '~/stores/chat-store'
+import { useChatStore } from './chat-store'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { Button } from '~/components/button'
 import {
@@ -15,8 +15,8 @@ import {
   PencilIcon,
   SettingsIcon
 } from 'lucide-react'
-import { useChatDrawerStore } from '~/stores/chat-drawer-store'
-import { useTasteProfileDrawerStore } from '~/stores/taste-profile-drawer-store'
+import { useChatDrawerStore } from './chat-drawer-store'
+import { useTasteProfileDrawerStore } from '~/components/taste-profile/taste-profile-drawer-store'
 import { api } from '~/trpc/react'
 import { Toggle } from '~/components/toggle'
 import { FiltersByUser } from './recipe-filters/recipe-filters'
