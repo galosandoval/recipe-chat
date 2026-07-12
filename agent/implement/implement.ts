@@ -1,19 +1,21 @@
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { execSync } from 'node:child_process'
-import * as sandcastle from '@ai-hero/sandcastle'
-import { noSandbox } from '@ai-hero/sandcastle/sandboxes/no-sandbox'
-import { captureTranscript, lastSessionFilePath } from './transcript'
+import { execSync, spawn } from 'node:child_process'
+import { captureTranscript } from './transcript'
+import { prepareClaudeInvocation } from './claude-invocation'
 
-// Orchestrator for the `agent:implement` pipeline (#510). Runs Claude directly
-// on the ephemeral CI runner via Sandcastle's `noSandbox()` — the runner is the
-// isolation boundary (no Docker, no GHCR image). The workflow owns git/PR; this
-// script owns the agent run and the runaway guards.
+// Orchestrator for the `agent:implement` pipeline (#510). Spawns the Claude
+// Code CLI directly (#540 — no more `@ai-hero/sandcastle`): on CI the
+// ephemeral runner is the isolation boundary, on a local run it's the Docker
+// container. The workflow owns git/PR; this script owns the agent run and the
+// runaway guards.
 
 const ISSUE_NUMBER = required('ISSUE_NUMBER')
 const ISSUE_TITLE = required('ISSUE_TITLE')
 const BRANCH = required('BRANCH')
+/** Subscription / flat-rate token — never `ANTHROPIC_API_KEY` (metered). */
+const CLAUDE_CODE_OAUTH_TOKEN = required('CLAUDE_CODE_OAUTH_TOKEN')
 
 /**
  * Absolute path to the coding-standard rules (the skills repo's rules/, cloned
@@ -53,50 +55,69 @@ const TRANSCRIPT_FILE = path.join(OUTPUT_DIR, 'transcript.jsonl')
 /** Claude Code's session store: `$HOME/.claude/projects/<encoded-cwd>/<id>.jsonl`. */
 const PROJECTS_DIR = path.join(os.homedir(), '.claude', 'projects')
 
-let result: sandcastle.RunResult
+// Resolved against process.cwd() (the repo root, where the workflow invokes us).
+const promptTemplate = fs.readFileSync(
+  path.join('agent', 'implement', 'prompt.md'),
+  'utf8'
+)
+
+const { args, prompt } = prepareClaudeInvocation({
+  promptTemplate,
+  issueNumber: ISSUE_NUMBER,
+  issueTitle: ISSUE_TITLE,
+  branch: BRANCH,
+  prDescriptionFile: PR_DESCRIPTION_FILE,
+  standardsDir: STANDARDS_DIR,
+  verifyReportFile: VERIFY_REPORT_FILE,
+  screenshotsDir: SCREENSHOTS_DIR
+})
+
+// Never let the child fall through to a metered API key, even if the
+// invoking shell happens to have one set — auth must be OAuth-only.
+const childEnv = { ...process.env, CLAUDE_CODE_OAUTH_TOKEN }
+delete (childEnv as Record<string, unknown>).ANTHROPIC_API_KEY
+
+/** Bounded tail of the CLI's combined stdout/stderr, kept only for the
+ *  failure-reason file — the full output already streams live to this
+ *  process's own stdout/stderr for the CI job log. */
+const TAIL_BYTES = 4000
+let outputTail = ''
+function captureTail(chunk: Buffer) {
+  outputTail = (outputTail + chunk.toString('utf8')).slice(-TAIL_BYTES)
+}
+
+// Runs in-place on the checked-out repo, so it commits directly onto BRANCH —
+// the commit-count check below relies on that.
+let exitCode: number
 try {
-  result = await sandcastle.run({
-    name: `implement-#${ISSUE_NUMBER}`,
-    agent: sandcastle.claudeCode('claude-opus-4-8', {
-      env: {
-        // Subscription / flat-rate token — never ANTHROPIC_API_KEY (metered).
-        CLAUDE_CODE_OAUTH_TOKEN: required('CLAUDE_CODE_OAUTH_TOKEN')
-      }
-    }),
-    // noSandbox runs the agent in-place on the checked-out repo, so it commits
-    // directly onto BRANCH (default branchStrategy "head"). The commit-count
-    // check below relies on that — revisit it if this ever moves to docker().
-    sandbox: noSandbox(),
-    logging: { type: 'stdout' },
-    // Resolved against process.cwd() (the repo root, where the workflow invokes us).
-    promptFile: 'agent/implement/prompt.md',
-    promptArgs: {
-      ISSUE_NUMBER,
-      ISSUE_TITLE,
-      BRANCH,
-      PR_DESCRIPTION_FILE,
-      STANDARDS_DIR,
-      VERIFY_REPORT_FILE,
-      SCREENSHOTS_DIR
-    },
-    // Runaway guard. Sandcastle's claudeCode does not expose Claude's `--max-turns`
-    // flag, so the hard caps are wall-clock: this idle timeout (no output for N
-    // seconds → fail) plus the workflow's `timeout-minutes: 45`.
-    idleTimeoutSeconds: 900
+  exitCode = await new Promise<number>((resolve, reject) => {
+    const child = spawn('claude', [...args, prompt], { env: childEnv })
+    child.stdout.on('data', (chunk: Buffer) => {
+      process.stdout.write(chunk)
+      captureTail(chunk)
+    })
+    child.stderr.on('data', (chunk: Buffer) => {
+      process.stderr.write(chunk)
+      captureTail(chunk)
+    })
+    child.on('error', reject)
+    child.on('close', (code) => resolve(code ?? 1))
   })
 } catch (error) {
-  // Capture the transcript even when the run fails, so blocked runs stay
-  // auditable. Best-effort: it must never mask the original failure.
+  // Capture the transcript even when the CLI fails to start, so blocked runs
+  // stay auditable. Best-effort: it must never mask the original failure.
   captureTranscript({ projectsDir: PROJECTS_DIR, destPath: TRANSCRIPT_FILE })
-  throw error
+  fail(`Failed to start the Claude CLI: ${String(error)}`)
 }
 
 // Copy the agent's session transcript out for the workflow to upload (#532).
-captureTranscript({
-  sessionFilePath: lastSessionFilePath(result),
-  projectsDir: PROJECTS_DIR,
-  destPath: TRANSCRIPT_FILE
-})
+// Best-effort; there's exactly one session per run, so the newest-JSONL scan
+// inside captureTranscript resolves it unambiguously.
+captureTranscript({ projectsDir: PROJECTS_DIR, destPath: TRANSCRIPT_FILE })
+
+if (exitCode !== 0) {
+  fail(`Claude CLI exited with status ${exitCode}.\n\n${outputTail}`)
+}
 
 // The agent commits its own TDD work; a zero-commit run is a failure, not a PR.
 const commitsAhead = Number(
@@ -119,7 +140,6 @@ if (!fileHasContent(PR_DESCRIPTION_FILE)) {
 }
 
 console.log(`\n${commitsAhead} commit(s) on ${BRANCH} this run.`)
-console.log(`  commits captured by sandcastle: ${result.commits.length}`)
 
 function required(name: string): string {
   const value = process.env[name]

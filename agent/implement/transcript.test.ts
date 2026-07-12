@@ -4,11 +4,7 @@
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import {
-  captureTranscript,
-  findNewestSessionFile,
-  lastSessionFilePath
-} from './transcript'
+import { captureTranscript, findNewestSessionFile } from './transcript'
 
 let workdir: string
 
@@ -68,62 +64,13 @@ describe('findNewestSessionFile', () => {
   })
 })
 
-describe('lastSessionFilePath', () => {
-  it('returns the last iteration with a session file path', () => {
-    expect(
-      lastSessionFilePath({
-        iterations: [
-          { sessionFilePath: '/a.jsonl' },
-          { sessionFilePath: '/b.jsonl' },
-          {}
-        ]
-      })
-    ).toBe('/b.jsonl')
-  })
-
-  it('returns undefined when no iteration captured a session', () => {
-    expect(lastSessionFilePath({ iterations: [{}, {}] })).toBeUndefined()
-    expect(lastSessionFilePath({ iterations: [] })).toBeUndefined()
-  })
-})
-
 describe('captureTranscript', () => {
-  it('copies the given session file to the destination', () => {
-    const projectsDir = path.join(workdir, 'projects')
-    const session = writeSession(projectsDir, '-repo', 'sess')
-    const dest = path.join(workdir, 'transcript.jsonl')
-
-    expect(
-      captureTranscript({
-        sessionFilePath: session,
-        projectsDir,
-        destPath: dest
-      })
-    ).toBe(true)
-    expect(fs.readFileSync(dest, 'utf8')).toBe(fs.readFileSync(session, 'utf8'))
-  })
-
-  it('falls back to the newest session when no path is given', () => {
+  it('copies the newest session under projectsDir to the destination', () => {
     const projectsDir = path.join(workdir, 'projects')
     const session = writeSession(projectsDir, '-repo', 'sess')
     const dest = path.join(workdir, 'transcript.jsonl')
 
     expect(captureTranscript({ projectsDir, destPath: dest })).toBe(true)
-    expect(fs.readFileSync(dest, 'utf8')).toBe(fs.readFileSync(session, 'utf8'))
-  })
-
-  it('falls back to the scan when the given path does not exist', () => {
-    const projectsDir = path.join(workdir, 'projects')
-    const session = writeSession(projectsDir, '-repo', 'sess')
-    const dest = path.join(workdir, 'transcript.jsonl')
-
-    expect(
-      captureTranscript({
-        sessionFilePath: path.join(workdir, 'gone.jsonl'),
-        projectsDir,
-        destPath: dest
-      })
-    ).toBe(true)
     expect(fs.readFileSync(dest, 'utf8')).toBe(fs.readFileSync(session, 'utf8'))
   })
 
@@ -140,17 +87,11 @@ describe('captureTranscript', () => {
 
   it('never throws when the destination is unwritable', () => {
     const projectsDir = path.join(workdir, 'projects')
-    const session = writeSession(projectsDir, '-repo', 'sess')
+    writeSession(projectsDir, '-repo', 'sess')
     // A directory path as destination makes copyFileSync throw internally.
     const dest = path.join(workdir, 'a-directory')
     fs.mkdirSync(dest)
 
-    expect(
-      captureTranscript({
-        sessionFilePath: session,
-        projectsDir,
-        destPath: dest
-      })
-    ).toBe(false)
+    expect(captureTranscript({ projectsDir, destPath: dest })).toBe(false)
   })
 })
