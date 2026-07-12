@@ -118,6 +118,37 @@ if (typeof globalThis.TextDecoder === 'undefined') {
   globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder
 }
 
+// jsdom does not implement IntersectionObserver, which the recipe detail page's
+// parallax/scroll observers construct in an effect. Provide an inert stub so
+// those components mount under test without throwing.
+if (typeof globalThis.IntersectionObserver === 'undefined') {
+  class MockIntersectionObserver implements IntersectionObserver {
+    readonly root = null
+    readonly rootMargin = ''
+    readonly thresholds: ReadonlyArray<number> = []
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords(): IntersectionObserverEntry[] {
+      return []
+    }
+  }
+  globalThis.IntersectionObserver =
+    MockIntersectionObserver as unknown as typeof IntersectionObserver
+}
+
+// jsdom does not implement ResizeObserver, which Radix primitives (Select, etc.)
+// construct internally. Provide an inert stub so they mount under test.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  class MockResizeObserver implements ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  globalThis.ResizeObserver =
+    MockResizeObserver as unknown as typeof ResizeObserver
+}
+
 // jsdom does not implement matchMedia, which `useMediaQuery` (and anything built
 // on DrawerDialog) calls. Default to a desktop match so responsive components
 // render their desktop branch under test.

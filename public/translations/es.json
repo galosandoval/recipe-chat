@@ -247,6 +247,10 @@
     "servings": "Porciones:",
     "notes": "Notas",
     "step": "Paso",
+    "cuisine": "Cocina",
+    "course": "Plato",
+    "dietTags": "Etiquetas de dieta",
+    "flavorTags": "Etiquetas de sabor",
     "paste": "Pegar una receta de la web",
     "addParsed": "Agregar receta parseada",
     "addParsedDescription": "Agrega la receta que parseamos para ti. Quizás necesites hacer algunos cambios a la receta.",
@@ -280,6 +284,21 @@
       "updateImageSuccess": "¡Imagen actualizada!",
       "noFile": "No hay archivo seleccionado",
       "updateNotes": "Actualizar notas",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "discardTitle": "¿Descartar cambios?",
+      "discardDescription": "Tienes cambios sin guardar. ¿Descartarlos y dejar de editar?",
+      "discardConfirm": "Descartar",
+      "discardKeep": "Seguir editando",
+      "facets": {
+        "none": "Ninguno",
+        "cuisinePlaceholder": "Selecciona una cocina",
+        "coursePlaceholder": "Selecciona un plato",
+        "addTag": "Agregar",
+        "dietPlaceholder": "Nueva etiqueta de dieta",
+        "flavorPlaceholder": "Nueva etiqueta de sabor",
+        "noTags": "Sin etiquetas aún"
+      },
       "delete": {
         "title": "Borrar receta",
         "message": "¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer."
