@@ -47,7 +47,7 @@ jobs:
         # Refuses (remove agent:implement, add agent:blocked, comment) when the
         # issue is a PRD, a native sub-issue, or already has an open PR, and
         # sets `refused=true/false`. No branch/PR is created on refusal.
-        run: bun .sandcastle/implement/run-preflight.ts
+        run: bun agent/implement/run-preflight.ts
 
       - name: Mark blocked if pre-flight itself errored
         if: failure()
@@ -183,7 +183,7 @@ jobs:
           # Auth.js would reject the untrusted host and break the e2e login the
           # same way the PR e2e gate would. Trust the host explicitly here too.
           AUTH_TRUST_HOST: true
-        run: bun .sandcastle/implement/implement.ts
+        run: bun agent/implement/implement.ts
 
       - name: Upload agent transcript
         # Observability (#532): the agent's full Claude Code session record —
@@ -220,7 +220,7 @@ jobs:
           BRANCH: ${{ steps.branch.outputs.name }}
           OUTPUT_DIR: ${{ runner.temp }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: bun .sandcastle/implement/post-verify.ts
+        run: bun agent/implement/post-verify.ts
 
       - name: Open draft PR
         if: success()

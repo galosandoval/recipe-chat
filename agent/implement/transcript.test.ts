@@ -21,7 +21,11 @@ afterEach(() => {
 })
 
 /** Write a JSONL session file under `projectsDir/<encoded-cwd>/<id>.jsonl`. */
-function writeSession(projectsDir: string, encoded: string, id: string): string {
+function writeSession(
+  projectsDir: string,
+  encoded: string,
+  id: string
+): string {
   const dir = path.join(projectsDir, encoded)
   fs.mkdirSync(dir, { recursive: true })
   const file = path.join(dir, `${id}.jsonl`)
@@ -90,7 +94,11 @@ describe('captureTranscript', () => {
     const dest = path.join(workdir, 'transcript.jsonl')
 
     expect(
-      captureTranscript({ sessionFilePath: session, projectsDir, destPath: dest })
+      captureTranscript({
+        sessionFilePath: session,
+        projectsDir,
+        destPath: dest
+      })
     ).toBe(true)
     expect(fs.readFileSync(dest, 'utf8')).toBe(fs.readFileSync(session, 'utf8'))
   })
@@ -138,7 +146,11 @@ describe('captureTranscript', () => {
     fs.mkdirSync(dest)
 
     expect(
-      captureTranscript({ sessionFilePath: session, projectsDir, destPath: dest })
+      captureTranscript({
+        sessionFilePath: session,
+        projectsDir,
+        destPath: dest
+      })
     ).toBe(false)
   })
 })
