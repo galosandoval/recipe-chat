@@ -4,7 +4,14 @@ import { useRef, useState } from 'react'
 import { z } from 'zod'
 import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 import type { Control, UseFormReturn } from 'react-hook-form'
-import { MinusIcon, PencilIcon, PlusIcon, SaveIcon, XIcon } from 'lucide-react'
+import {
+  AlertCircleIcon,
+  MinusIcon,
+  PencilIcon,
+  PlusIcon,
+  SaveIcon,
+  XIcon
+} from 'lucide-react'
 import type { Ingredient } from '@prisma/client'
 import { DrawerDialog } from '~/components/drawer-dialog'
 import { Dialog } from '~/components/dialog'
@@ -272,6 +279,7 @@ export function ManagePantryDialog({
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         title={t.pantry.discardTitle}
+        submitIcon={<AlertCircleIcon className='size-4' />}
         description={t.pantry.discardDescription}
         cancelText={t.pantry.discardKeep}
         submitText={t.pantry.discardConfirm}
