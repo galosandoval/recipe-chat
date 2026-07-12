@@ -41,6 +41,8 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.2.0'
 
       - name: Pre-flight refusal gate
         id: preflight
@@ -132,6 +134,8 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.2.0'
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -145,10 +149,15 @@ jobs:
         run: bun install -g @anthropic-ai/claude-code
 
       - name: Generate Prisma client
-        run: bunx prisma generate
+        run: bun run gen
 
       - name: Apply migrations to the service database
-        run: bunx prisma migrate deploy
+        run: bun run migrate:deploy
+
+      - name: Seed the database
+        # The prompt tells the agent the DB is already seeded with the user
+        # `alice@prisma.io` (verify phase re-seeds after the gate truncates it).
+        run: bun run seed
 
       - name: Install Playwright browser
         # The agent's VERIFY phase runs `bun run test:e2e` (headless Chromium)

@@ -38,6 +38,8 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.2.0'
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -48,10 +50,10 @@ jobs:
         run: bun install
 
       - name: Generate Prisma client
-        run: bunx prisma generate
+        run: bun run gen
 
       - name: Apply migrations to the test database
-        run: bunx prisma migrate deploy
+        run: bun run migrate:deploy
 
       - name: Run tests
         run: bun run test:integration
@@ -120,6 +122,8 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.2.0'
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -130,10 +134,10 @@ jobs:
         run: bun install
 
       - name: Generate Prisma client
-        run: bunx prisma generate
+        run: bun run gen
 
       - name: Apply migrations to the test database
-        run: bunx prisma migrate deploy
+        run: bun run migrate:deploy
 
       - name: Seed the database
         # The auth fixture logs in as the seeded user; login + populated-state
