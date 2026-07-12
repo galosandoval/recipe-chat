@@ -21,7 +21,9 @@ The pipeline state machine uses these labels (created in this slice):
 - `agent:in-progress` — set while the agent runs; always cleared on completion.
 - `agent:blocked` — run refused or failed; see the issue comment for the reason.
 
-`ready-for-agent` (pre-existing) stays as the upstream human-triage state and costs nothing.
+`ready-for-agent` / `ready-for-human` (pre-existing) are the upstream triage labels. On a
+successful run, `ready-for-agent` is swapped for `ready-for-human` when the draft PR opens,
+signaling the issue now needs human review/merge.
 
 ## End-to-end harness + verify phase (#523)
 

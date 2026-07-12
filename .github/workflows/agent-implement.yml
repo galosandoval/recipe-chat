@@ -249,6 +249,13 @@ jobs:
             --title "$ISSUE_TITLE" \
             --body-file "$body_file"
 
+      - name: PR opened — swap ready-for-agent for ready-for-human
+        if: success()
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --remove-label "ready-for-agent" \
+            --add-label "ready-for-human" || true
+
       - name: Mark blocked on failure
         if: failure()
         env:
