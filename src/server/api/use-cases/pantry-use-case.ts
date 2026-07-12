@@ -2,6 +2,8 @@ import { type PrismaClient } from '@prisma/client'
 import { PantryAccess } from '~/server/api/data-access/pantry-access'
 import { cuid } from '~/lib/createId'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
+import { toCanonical, fromCanonical } from '~/lib/unit-conversion'
+import { roundQuantity } from '~/lib/ingredient-display'
 
 export async function getPantryByUserId(userId: string, prisma?: PrismaClient) {
   const pantryAccess = new PantryAccess(prisma)
@@ -130,18 +132,36 @@ export async function bulkAddToPantry(
     if (!trimmed) continue
     const parsed = ingredientStringToCreatePayload(trimmed)
 
-    // Merge with existing pantry item if same itemName + unit
+    // Merge with an existing pantry item of the same item name and unit kind,
+    // converting units so e.g. 1 tbsp merges into an existing 1 cup.
     if (parsed.itemName && parsed.unit && parsed.quantity != null) {
-      const existing = await pantryAccess.findPantryIngredientByItemAndUnit(
-        pantry.id,
-        parsed.itemName,
-        parsed.unit
-      )
-      if (existing && existing.quantity != null) {
+      const existing =
+        parsed.unitType === 'weight' || parsed.unitType === 'volume'
+          ? await pantryAccess.findPantryIngredientByItemAndKind(
+              pantry.id,
+              parsed.itemName,
+              parsed.unitType
+            )
+          : await pantryAccess.findPantryIngredientByItemAndUnit(
+              pantry.id,
+              parsed.itemName,
+              parsed.unit
+            )
+      if (existing && existing.quantity != null && existing.unit) {
+        const mergedCanonical =
+          toCanonical(existing.quantity, existing.unit).amount +
+          toCanonical(parsed.quantity, parsed.unit).amount
+        const mergedQuantity = roundQuantity(
+          fromCanonical(
+            mergedCanonical,
+            existing.unit,
+            existing.unitType ?? 'count'
+          )
+        )
         const merged = await pantryAccess.updatePantryIngredient(existing.id, {
-          quantity: existing.quantity + parsed.quantity,
+          quantity: mergedQuantity,
           rawString:
-            `${existing.quantity + parsed.quantity} ${existing.unit} ${existing.itemName}`.trim()
+            `${mergedQuantity} ${existing.unit} ${existing.itemName}`.trim()
         })
         results.push(merged)
         continue

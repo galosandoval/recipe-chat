@@ -42,6 +42,18 @@ describe('aggregateIngredients', () => {
     expect(result[0].ingredientIds).toEqual(['1', '2'])
   })
 
+  it('merges compatible weight units by converting (grams into kg)', () => {
+    const result = aggregateIngredients([
+      ing({ id: '1', quantity: 500, unit: 'g', itemName: 'sugar' }),
+      ing({ id: '2', quantity: 1, unit: 'kg', itemName: 'sugar' })
+    ])
+
+    expect(result).toHaveLength(1)
+    expect(result[0].unit).toBe('g')
+    expect(result[0].quantity).toBeCloseTo(1500, 1)
+    expect(result[0].ingredientIds).toEqual(['1', '2'])
+  })
+
   it('does not merge the same item across incompatible kinds (volume vs weight)', () => {
     const result = aggregateIngredients([
       ing({ id: '1', quantity: 1, unit: 'cup', itemName: 'sugar' }),

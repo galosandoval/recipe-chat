@@ -34,7 +34,7 @@ export type IngredientDisplaySourceWithUnitType = IngredientDisplaySource & {
  * Returns the best display string for an ingredient: rawString when present,
  * otherwise formatted from structured fields, otherwise empty string.
  */
-export function getIngredientDisplayText(ing: IngredientDisplaySource): string {
+export function getIngredientDisplayText(ing: IngredientDisplaySource) {
   if (ing.rawString?.trim()) return ing.rawString.trim()
   const qty = ing.quantity
   const unit = ing.unit?.trim()
@@ -58,7 +58,7 @@ export function getIngredientDisplayTextInPreferredUnits(
   ing: IngredientDisplaySourceWithUnitType,
   preferredWeightUnit: string | null | undefined,
   preferredVolumeUnit: string | null | undefined
-): string {
+) {
   const qty = ing.quantity
   const unit = ing.unit?.trim()
   const item = ing.itemName?.trim()
@@ -209,7 +209,7 @@ function aggregationKey(
   ing: IngredientForAggregation,
   unmeasured: boolean,
   kind: UnitKind
-): string {
+) {
   const item = ing.itemName?.trim().toLowerCase()
   if (unmeasured) {
     return item ? `__unmeasured__${item}` : `__single__${ing.id}`
@@ -221,7 +221,7 @@ function aggregationKey(
   return `${item}|${kind}`
 }
 
-function roundQuantity(value: number): number {
+export function roundQuantity(value: number) {
   return value >= 1
     ? Math.round(value * 100) / 100
     : Math.round(value * 1000) / 1000
