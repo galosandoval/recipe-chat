@@ -29,8 +29,9 @@ async function openRecipeChat(page: import('@playwright/test').Page) {
   await page.getByText(SEEDED_RECIPE, { exact: false }).first().click()
   await page.waitForURL(/\/recipes\/.+/)
 
-  // The recipe-detail page mounts a single floating chat button (ChatFab).
-  await page.locator('button.rounded-full.h-12.w-12').first().click()
+  // The recipe-detail page also mounts an Edit FAB with the same shape/classes,
+  // so target the chat button by its accessible name rather than a CSS locator.
+  await page.getByRole('button', { name: 'Open chat' }).click()
 
   const input = page.getByPlaceholder(/Ask about/i)
   await expect(input).toBeVisible()

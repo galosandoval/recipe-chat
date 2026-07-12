@@ -97,7 +97,11 @@ export function ChatFab({
   const { toggle } = useChatDrawerStore()
 
   return (
-    <FloatingActionButton onClick={() => toggle(context)} className={className}>
+    <FloatingActionButton
+      aria-label='Open chat'
+      onClick={() => toggle(context)}
+      className={className}
+    >
       <MessageSquareIcon />
     </FloatingActionButton>
   )
