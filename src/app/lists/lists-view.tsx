@@ -73,7 +73,7 @@ export function ListsView() {
         </div>
         {activeTab === 'list' ? <ListByUserId /> : <PantryByUserId />}
       </div>
-      <ChatFab context={{ page: activeTab }} className='bottom-36' />
+      <ChatFab context={{ page: activeTab }} />
     </>
   )
 }

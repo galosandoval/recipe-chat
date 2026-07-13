@@ -5,11 +5,9 @@ import { PlusIcon } from 'lucide-react'
 import { Interface } from '~/components/chat/interface'
 import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
 import { GenerateMessageForm } from '~/components/chat/generate-message-form'
-import { FloatingActionButton } from '~/components/floating-action-button'
+import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
 import { useChatStore } from '~/components/chat/chat-store'
 import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
-import { usePathname } from 'next/navigation'
-import { cn } from '~/lib/utils'
 
 export function Chat() {
   useEffect(() => {
@@ -39,24 +37,29 @@ function NewChatFab() {
   const chatId = useChatStore((s) => s.chatId)
   const messages = useChatStore((s) => s.messages)
   const isNewChat = !chatId && messages.length === 0
-  const pathname = usePathname()
 
+  // The existing `isNewChat` guard is unchanged: on a fresh chat this component
+  // unmounts its inner FAB, which unregisters it from the stack. No other file
+  // needs a matching edit for the survivors to reflow.
   if (isNewChat) return null
-  const isHomePath = pathname === '/'
 
-  const handleStartNewChat = () => {
-    const { setChatId, setIsStreaming, setMessages } = useChatStore.getState()
-    setChatId('')
-    setIsStreaming(false)
-    setMessages([])
-  }
+  return <RegisteredNewChatFab />
+}
 
-  return (
-    <FloatingActionButton
-      onClick={handleStartNewChat}
-      className={cn('bottom-36', isHomePath && 'bottom-20')}
-    >
-      <PlusIcon />
-    </FloatingActionButton>
-  )
+function RegisteredNewChatFab() {
+  // No aria-label: the pre-migration FAB had none, and this feature deliberately
+  // keeps each migrated FAB's accessible name unchanged.
+  useRegisterFab({
+    id: 'new-chat',
+    priority: 0,
+    icon: <PlusIcon />,
+    onClick: () => {
+      const { setChatId, setIsStreaming, setMessages } = useChatStore.getState()
+      setChatId('')
+      setIsStreaming(false)
+      setMessages([])
+    }
+  })
+
+  return null
 }

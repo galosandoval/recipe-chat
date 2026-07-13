@@ -11,6 +11,7 @@ import { getTranslations } from '~/lib/get-translations'
 import { ErrorBoundary } from '~/components/error-boundary'
 import { RouteTransition } from '~/components/motion/route-transition'
 import { AppFooter } from '~/app/app-footer'
+import { FabStack } from '~/components/fab-stack/fab-stack'
 import { LOCALE_COOKIE_NAME, getLocaleFromCookie } from '~/lib/locale'
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default async function RootLayout({
               </main>
               <AppFooter />
               <BottomNav />
+              <FabStack />
             </ErrorBoundary>
           </Providers>
         </div>

@@ -1,6 +1,7 @@
 import { render, type RenderOptions } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { TranslationsContext } from '~/hooks/use-translations'
+import { FabStack } from '~/components/fab-stack/fab-stack'
 import en from '../../public/translations/en.json'
 
 /**
@@ -20,6 +21,9 @@ export function TranslationsTestProvider({
       value={{ translations: en as never, locale: 'en' }}
     >
       {children}
+      {/* Mounted like the real root layout so FABs registered via
+          `useRegisterFab` render (and stay assertable) under test. */}
+      <FabStack />
     </TranslationsContext.Provider>
   )
 }
