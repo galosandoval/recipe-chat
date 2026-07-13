@@ -7,7 +7,8 @@ let searchParamsValue = new URLSearchParams()
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ replace: mockReplace }),
-  useSearchParams: () => searchParamsValue
+  useSearchParams: () => searchParamsValue,
+  usePathname: () => '/lists'
 }))
 
 jest.mock('~/app/list/list-by-user-id', () => ({

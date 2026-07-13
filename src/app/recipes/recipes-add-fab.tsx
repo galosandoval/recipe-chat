@@ -7,6 +7,7 @@ import { useChatStore } from '~/components/chat/chat-store'
 import { ChatPanel } from '~/components/chat-panel'
 import { ParseAndAddRecipeDialogs } from '~/components/navbar/settings-dropdown-menu'
 import { FloatingActionButton } from '~/components/floating-action-button'
+import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
 import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
 
 /**
@@ -37,8 +38,14 @@ export function RecipesAddFab() {
     }
   ]
 
-  return (
-    <>
+  // The add-recipe FAB is a dropdown trigger, not a plain icon+click button, so
+  // it registers via `render` — the stack still owns its position, but the
+  // registration supplies the whole anchored trigger. No aria-label: the
+  // pre-migration FAB had none, and migration keeps the accessible name as-is.
+  useRegisterFab({
+    id: 'recipes-add',
+    priority: 0,
+    render: () => (
       <DropdownMenu
         items={items}
         trigger={
@@ -47,6 +54,11 @@ export function RecipesAddFab() {
           </FloatingActionButton>
         }
       />
+    )
+  })
+
+  return (
+    <>
       <ParseAndAddRecipeDialogs
         open={isAddFromUrlOpen}
         onOpenChange={setIsAddFromUrlOpen}

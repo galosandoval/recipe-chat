@@ -15,7 +15,8 @@ jest.mock('~/hooks/use-recipe', () => ({
 }))
 
 jest.mock('next/navigation', () => ({
-  useParams: () => ({ slug: 'pasta' })
+  useParams: () => ({ slug: 'pasta' }),
+  usePathname: () => '/recipes/pasta'
 }))
 
 // Heavy read-view children are exercised by their own suites; stub them so this

@@ -10,7 +10,7 @@ import { Interface } from '~/components/chat/interface'
 import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
 import { GenerateMessageForm } from '~/components/chat/generate-message-form'
 import { Button } from '~/components/button'
-import { FloatingActionButton } from '~/components/floating-action-button'
+import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
 
 export function ChatPanel() {
   const { isOpen, close, context } = useChatDrawerStore()
@@ -87,22 +87,21 @@ export function ChatPanel() {
   )
 }
 
-export function ChatFab({
-  className,
-  context
-}: {
-  className?: string
-  context?: ChatContext
-}) {
+/**
+ * Registers the chat-drawer FAB. Priority 0 keeps it closest to the thumb, below
+ * any other FAB the page registers (e.g. the Recipe detail Edit FAB). Renders
+ * nothing itself — {@link FabStack} owns the button.
+ */
+export function ChatFab({ context }: { context?: ChatContext }) {
   const { toggle } = useChatDrawerStore()
 
-  return (
-    <FloatingActionButton
-      aria-label='Open chat'
-      onClick={() => toggle(context)}
-      className={className}
-    >
-      <MessageSquareIcon />
-    </FloatingActionButton>
-  )
+  useRegisterFab({
+    id: 'chat-drawer',
+    priority: 0,
+    ariaLabel: 'Open chat',
+    icon: <MessageSquareIcon />,
+    onClick: () => toggle(context)
+  })
+
+  return null
 }

@@ -19,7 +19,7 @@ import { Dialog } from '~/components/dialog'
 import { Form } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
 import { FormTextarea } from '~/components/form/form-textarea'
-import { FloatingActionButton } from '~/components/floating-action-button'
+import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
 import { AlertCircleIcon, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import { AddImageDropdown } from '~/components/add-image-dropdown'
 import type { RecipeByIdData } from '~/hooks/use-recipe'
@@ -87,6 +87,17 @@ function RecipeReadView({
   const isPastHero =
     Math.abs(startObservation?.boundingClientRect?.y ?? 0) >= containerHeight
 
+  // Priority 1 sits the Edit FAB above the recipe chat-assistant FAB (priority 0,
+  // closest to the thumb) — the FAB stack derives that order from priority, so no
+  // `bottom-*` offset is hardcoded here anymore.
+  useRegisterFab({
+    id: 'recipe-edit',
+    priority: 1,
+    ariaLabel: t.recipes.byId.edit,
+    icon: <PencilIcon />,
+    onClick: onEdit
+  })
+
   return (
     <>
       <ImageWithTitleAndDescription data={data} translateY={translateY} />
@@ -110,15 +121,6 @@ function RecipeReadView({
           containerRef={containerRef}
         />
       ) : null}
-
-      {/* Sits above the recipe chat-assistant FAB (which pins to bottom-3). */}
-      <FloatingActionButton
-        aria-label={t.recipes.byId.edit}
-        onClick={onEdit}
-        className='bottom-20 sm:bottom-20'
-      >
-        <PencilIcon />
-      </FloatingActionButton>
     </>
   )
 }

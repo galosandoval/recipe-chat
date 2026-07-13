@@ -25,10 +25,41 @@ async function addListItem(page: Page, text: string) {
   await expect(input).toHaveValue('')
 }
 
+/**
+ * Clears any pre-existing list items before the test's assertions run.
+ *
+ * The DB is only reseeded once per CI run (`global-setup.ts`), not between a
+ * Playwright retry of this same test. If a prior attempt got far enough to
+ * persist a mutation (e.g. the manual quantity edit below) before failing,
+ * the retry would otherwise start from that leftover state instead of the
+ * empty list the assertions assume.
+ */
+async function resetList(page: Page) {
+  await page.goto('/lists?tab=list')
+
+  const noItems = page.getByText('No items in your list')
+  if (await noItems.isVisible().catch(() => false)) return
+
+  // The `byRecipe` view toggle is also a pressed/unpressed button; exclude it
+  // so only per-item toggles get checked.
+  const itemToggles = page.locator('button[aria-pressed]:not(#byRecipe)')
+  const count = await itemToggles.count()
+  for (let i = 0; i < count; i++) {
+    await itemToggles.nth(i).click()
+  }
+
+  await Promise.all([
+    page.waitForResponse((res) => res.url().includes('lists.clear')),
+    page.getByRole('button', { name: /remove checked/i }).click()
+  ])
+
+  await expect(noItems).toBeVisible()
+}
+
 test('merges ingredients across units, keeps "to taste" separate, and edits totals', async ({
   page
 }) => {
-  await page.goto('/lists?tab=list')
+  await resetList(page)
 
   // Three "flour" lines in compatible volume units. With smart aggregation they
   // collapse into a single merged line (1 cup + 2 cups + 4 tbsp).
