@@ -18,6 +18,12 @@ export interface ClaudeInvocationInput {
   standardsDir: string
   verifyReportFile: string
   screenshotsDir: string
+  /** Local-only (#541): headless `--print` text output is silent until the
+   *  whole session ends, which starves a local idle-timeout of any signal to
+   *  watch. Switches to `stream-json` + `--verbose` so activity streams
+   *  incrementally instead. Omitted/false in CI, which keeps its args
+   *  byte-identical to before this option existed. */
+  streamOutput?: boolean
 }
 
 export interface ClaudeInvocation {
@@ -69,6 +75,15 @@ export function prepareClaudeInvocation(
     // hang the run.
     '--dangerously-skip-permissions'
   ]
+
+  if (input.streamOutput) {
+    args.push(
+      '--output-format',
+      'stream-json',
+      '--verbose',
+      '--include-partial-messages'
+    )
+  }
 
   return { args, prompt }
 }

@@ -69,7 +69,9 @@ const { args, prompt } = prepareClaudeInvocation({
   prDescriptionFile: PR_DESCRIPTION_FILE,
   standardsDir: STANDARDS_DIR,
   verifyReportFile: VERIFY_REPORT_FILE,
-  screenshotsDir: SCREENSHOTS_DIR
+  screenshotsDir: SCREENSHOTS_DIR,
+  // Local-only (#541); unset in CI, so CI's args stay exactly as before.
+  streamOutput: process.env.AGENT_STREAM_OUTPUT === 'true'
 })
 
 // Never let the child fall through to a metered API key, even if the

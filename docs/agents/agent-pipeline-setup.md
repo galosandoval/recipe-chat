@@ -87,6 +87,72 @@ The `e2e/` spec itself is not stripped — it's meant to stay.
 it. The `e2e` job needs `NEXTAUTH_SECRET` + `OPENAI_API_KEY` (already required
 secrets) to boot the app; a real misconfig fails it loudly.
 
+## Local Docker rehearsal (`agent:local`, #541)
+
+`bun run agent:local -- <issue-number>` runs the whole `agent:implement`
+pipeline locally inside Docker — a faithful CI rehearsal (full quality gate +
+verify/e2e) fully isolated from the host, with no GitHub side effects. See
+`agent/local/run.sh` (host-side orchestration) and `agent/local/entrypoint.sh`
+(the in-container flow) for the mechanics; this section covers maintainer
+setup.
+
+### What it does
+
+1. Reads the issue's title via `gh` (using the maintainer's own already-logged-in
+   token — no new secret to provision, and it's never used to push).
+2. Brings up an ephemeral `pgvector/pgvector:pg16` service, created fresh and
+   torn down every run.
+3. Clones the host repo's **git history only** (never the working tree) into
+   the container, checks out `main`, and cuts `agent/local-<timestamp>`.
+4. Runs the shared setup (#539: `bun run gen && bun run migrate:deploy && bun
+run seed`) and the shared orchestrator (#540: `agent/implement/implement.ts`)
+   with the full quality gate plus the verify/e2e phase.
+5. Pushes the resulting branch back into the host repo's `.git` and tears the
+   database down. The host's working tree and current branch are never
+   touched — only a new branch ref appears, for you to inspect with
+   `git log agent/local-<timestamp>`.
+
+No draft PR, no label changes, no `gh pr create` / `gh issue edit` — the
+agent's own prompt already forbids opening a PR or closing the issue, and the
+local scripts never call any GitHub write command either.
+
+### Setup
+
+- **Docker** (with Compose v2) running locally.
+- **`CLAUDE_CODE_OAUTH_TOKEN`** exported in your shell (same subscription
+  token as the CI secret — run `claude setup-token`).
+- **`gh auth login`** done on the host (its token is forwarded in for reads
+  only; see "How local `gh` reads work" below).
+- **`NEXTAUTH_SECRET`** / **`OPENAI_API_KEY`** — picked up from your shell env
+  if exported, otherwise pulled straight out of the repo's local `.env` (the
+  rest of `.env` — prod DB URL, Stripe keys — is never sourced or forwarded).
+- **Coding standards** — if `~/Projects/skills/rules` exists (this repo's
+  convention, see `docs/agents/domain.md`), it's mounted read-only and the
+  agent conforms to it, same as CI. Absent, the prompt's standards step is
+  skipped, same as CI's empty-`STANDARDS_DIR` case. Override the path with
+  `LOCAL_STANDARDS_DIR`.
+- **Runaway guards** — `--max-turns 150` (shared with CI) plus a local
+  45-minute wall-clock cap and a 10-minute idle cap (`LOCAL_WALL_CLOCK_MINUTES`
+  / `LOCAL_IDLE_MINUTES`), since there's no GitHub Actions workflow timeout to
+  fall back on locally.
+
+### How local `gh` reads work
+
+`gh` has no true anonymous mode — even public-repo reads need a token. Rather
+than provision a separate secret for local-only use, `run.sh` forwards the
+maintainer's own `gh auth token` into the container as `GH_TOKEN`. It's used
+exclusively for reads (the issue view at the top of the run, and whatever the
+agent itself reads via `gh` while exploring): nothing in the local scripts or
+the agent's prompt ever calls a `gh` write command, so despite the token
+technically being able to push, the local rehearsal never does.
+
+### CI is unchanged
+
+None of the above touches CI: `.github/workflows/agent-implement.yml` still
+installs tools per step, no Docker, no published image, same `AGENT_PAT` /
+`CLAUDE_CODE_OAUTH_TOKEN` secrets. `agent/local/` exists only for this local
+path.
+
 ## Required repo secrets
 
 Set these under **Settings → Secrets and variables → Actions → Repository secrets**.
