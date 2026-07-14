@@ -7,6 +7,7 @@ import { api } from '~/trpc/react'
 import { Drawer } from './drawer'
 import { cn } from '~/lib/utils'
 import { useChatStore } from '~/components/chat/chat-store'
+import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
 import { LoadingSpinner } from './loaders/loading-spinner'
 
 export function ChatsDrawer({
@@ -36,12 +37,15 @@ export function ChatsDrawer({
 
 const useGetChats = () => {
   const { status: authStatus, data } = useSession()
+  const context = useChatDrawerStore((s) => s.context)
 
   const isAuthenticated = authStatus === 'authenticated'
 
   return {
+    // Scoped to the current Chat Context — the drawer is a browse-history view
+    // for the page the user opened it from, not all contexts.
     ...api.chats.getChats.useQuery(
-      { userId: data?.user.id || '' },
+      { userId: data?.user.id || '', context },
 
       {
         enabled: isAuthenticated

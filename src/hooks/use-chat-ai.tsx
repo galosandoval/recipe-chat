@@ -1,6 +1,7 @@
 import { useSession } from 'next-auth/react'
 import { api } from '~/trpc/react'
 import { useChatStore } from '~/components/chat/chat-store'
+import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
 import { cuid } from '~/lib/createId'
 import { useEffect } from 'react'
 import type {
@@ -60,7 +61,7 @@ const transformMessagesToChatStore = (data: MessageWithRecipesDTO[]) => {
 
 export const useChatAI = () => {
   const t = useTranslations()
-  const { chatId, setChatId, setChatFilterIds } = useChatStore()
+  const { chatId, setChatId, setChatFilterIds, setUsePantry } = useChatStore()
   const { status: authStatus } = useSession()
   const isAuthenticated = authStatus === 'authenticated'
   const filters = useFiltersByUserId()
@@ -156,7 +157,8 @@ export const useChatAI = () => {
     upsertChat({
       chatId: currentChatId || undefined,
       messages,
-      filterIds
+      filterIds,
+      context: useChatDrawerStore.getState().context
     })
   }
 
@@ -268,8 +270,15 @@ export const useChatAI = () => {
         toast.error(error.message)
       }
     },
-    onSuccess: () => {
-      utils.chats.getMessagesById.invalidate({ chatId: chatId ?? '' })
+    onSuccess: (data) => {
+      // The server may have swapped to a new chat (stale-swap) — adopt whatever
+      // effective chatId it returns rather than trusting the pre-minted cuid.
+      if (data.chatId) {
+        setChatId(data.chatId)
+      }
+      utils.chats.getMessagesById.invalidate({
+        chatId: data.chatId ?? chatId ?? ''
+      })
     }
   })
 
@@ -322,7 +331,8 @@ export const useChatAI = () => {
         createdAt: promptMessage.createdAt,
         updatedAt: promptMessage.updatedAt,
         role: promptMessage.role
-      }
+      },
+      context: useChatDrawerStore.getState().context
     }
     generated(data)
   }
@@ -382,10 +392,13 @@ export const useChatAI = () => {
     }
   }
 
-  // Reset chatFilterIds when switching chats so stale data isn't shown briefly
+  // Reset per-chat state when switching chats so it doesn't bleed across
+  // contexts/chats. chatFilterIds is reloaded from server data below; usePantry
+  // isn't persisted, so it simply clears to false on every switch.
   useEffect(() => {
     setChatFilterIds(null)
-  }, [chatId, setChatFilterIds])
+    setUsePantry(false)
+  }, [chatId, setChatFilterIds, setUsePantry])
 
   useEffect(() => {
     if (queryStatus === 'success' && data) {
