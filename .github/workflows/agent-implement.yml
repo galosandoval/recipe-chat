@@ -146,7 +146,15 @@ jobs:
         run: bun install
 
       - name: Install Claude Code CLI
-        run: bun install -g @anthropic-ai/claude-code
+        # bun's global installs skip lifecycle scripts (`--trust` only affects
+        # a project's package.json, not `-g`), so the postinstall that fetches
+        # the real platform-native binary must run explicitly — otherwise
+        # `claude` is left as a stub that fails to spawn (ENOEXEC). Same fix
+        # as agent/local/Dockerfile.
+        run: |
+          bun install -g @anthropic-ai/claude-code
+          bun_install_dir="$(dirname "$(bun pm -g bin)")"
+          node "${bun_install_dir}/install/global/node_modules/@anthropic-ai/claude-code/install.cjs"
 
       - name: Generate Prisma client
         run: bun run gen
