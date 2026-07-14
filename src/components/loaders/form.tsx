@@ -93,7 +93,7 @@ export function FormLoader() {
       </label>
       <div className='flex flex-col gap-3 p-5'>
         <div
-          className='bg-secondary h-4 w-4/5 animate-pulse rounded'
+          className='bg-secondary h-4 animate-pulse rounded'
           style={{ animationDuration: '1s', animationDelay: '1s' }}
         ></div>
         <div
@@ -102,11 +102,11 @@ export function FormLoader() {
         ></div>
         <div className='h-1'></div>
         <div
-          className='bg-secondary h-4 w-4/5 animate-pulse rounded'
+          className='bg-secondary h-4 animate-pulse rounded'
           style={{ animationDuration: '1s', animationDelay: '1s' }}
         ></div>
         <div
-          className='bg-secondary h-4 w-4/5 animate-pulse rounded'
+          className='bg-secondary h-4 animate-pulse rounded'
           style={{ animationDuration: '1s', animationDelay: '1s' }}
         ></div>
         <div
@@ -115,7 +115,7 @@ export function FormLoader() {
         ></div>
         <div className='h-1'></div>
         <div
-          className='bg-secondary h-4 w-4/5 animate-pulse rounded'
+          className='bg-secondary h-4 animate-pulse rounded'
           style={{ animationDuration: '1s', animationDelay: '1s' }}
         ></div>
         <div
@@ -124,7 +124,7 @@ export function FormLoader() {
         ></div>
         <div className='h-1'></div>
         <div
-          className='bg-secondary h-4 w-4/5 animate-pulse rounded'
+          className='bg-secondary h-4 animate-pulse rounded'
           style={{ animationDuration: '1s', animationDelay: '1s' }}
         ></div>
         <div

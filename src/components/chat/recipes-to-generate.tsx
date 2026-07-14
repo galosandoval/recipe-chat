@@ -44,11 +44,11 @@ function Recipe({
   isGenerated: boolean
 }) {
   return (
-    <Card className='bg-background'>
+    <Card className='bg-background' contentClassName='flex flex-col h-full'>
       <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
       {!isGenerated && (
-        <div className='flex justify-end pt-2'>
+        <div className='mt-auto flex justify-end self-end pt-2'>
           <GenerateButton
             disabled={isStreaming}
             recipeId={recipe.id}

@@ -74,5 +74,30 @@ describe('prepareClaudeInvocation', () => {
         '--dangerously-skip-permissions'
       ])
     })
+
+    it('leaves the arg vector unchanged when streamOutput is omitted', () => {
+      const { args } = prepareClaudeInvocation(baseInput())
+
+      expect(args).not.toContain('--output-format')
+    })
+
+    it('appends the streaming flags when streamOutput is set', () => {
+      const { args } = prepareClaudeInvocation(
+        baseInput({ streamOutput: true })
+      )
+
+      expect(args).toEqual([
+        '--print',
+        '--model',
+        'claude-opus-4-8',
+        '--max-turns',
+        '150',
+        '--dangerously-skip-permissions',
+        '--output-format',
+        'stream-json',
+        '--verbose',
+        '--include-partial-messages'
+      ])
+    })
   })
 })

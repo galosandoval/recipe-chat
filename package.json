@@ -6,6 +6,7 @@
     "node": "22.x"
   },
   "scripts": {
+    "agent:local": "bash agent/local/run.sh",
     "dev": "next dev",
     "studio": "bunx prisma studio",
     "studio:prod": "dotenv -e .env.production --  bunx prisma studio",

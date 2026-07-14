@@ -42,7 +42,7 @@ function ListController({ data }: { data: Ingredient[] }) {
   }
 
   return (
-    <div className='mx-2 flex flex-col'>
+    <div className='mx-2 flex flex-col py-3'>
       <div className='mb-2 flex items-end justify-between'>
         <div className='form-control'>
           <Toggle
@@ -55,7 +55,7 @@ function ListController({ data }: { data: Ingredient[] }) {
         </div>
       </div>
       <Lists byRecipe={byRecipe} data={data} />
-      <div className='w-full pt-2'>
+      <div className='flex w-full gap-2 pt-2'>
         <RemoveCheckedItemsButton data={data} />
         <AddCheckedToPantryButton data={data} />
       </div>

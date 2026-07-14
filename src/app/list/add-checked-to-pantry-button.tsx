@@ -41,7 +41,7 @@ export function AddCheckedToPantryButton({ data }: { data: Ingredient[] }) {
   return (
     <Button
       disabled={noneChecked || isAdding || isClearing}
-      className='mt-2 w-full'
+      className='w-full'
       onClick={handleClick}
       variant='outline'
       icon={<ArchiveIcon />}

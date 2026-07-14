@@ -88,7 +88,7 @@ export function ChatMessage({
   return (
     <div
       className={cn(
-        'flex w-full justify-start gap-2 self-center',
+        'flex justify-start gap-2 self-center',
         isUserMessage && 'justify-end'
       )}
     >
@@ -109,7 +109,7 @@ function Bubble({
   return (
     <div
       className={cn(
-        'bg-accent flex w-4/5 flex-col rounded-md p-3 pb-4 sm:w-3/4',
+        'bg-accent flex flex-col rounded-md p-3 pb-4 sm:w-3/4',
         isUserMessage && 'bg-primary'
       )}
     >
