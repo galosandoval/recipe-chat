@@ -107,6 +107,13 @@ ${hasPantry ? `Pantry (what the user has on hand): ${pantrySummary.slice(0, 80).
 export const STREAM_TIMEOUT = 30000
 
 /**
+ * How long a chat stays resumable after its last activity. A chat idle longer
+ * than this is never auto-resumed on entry, and sending to it transparently
+ * starts a new chat instead. Plain constant — deliberately not configurable.
+ */
+export const CHAT_FRESHNESS_MS = 2 * 60 * 60 * 1000
+
+/**
  * Cosine-similarity cutoff above which a generated option is treated as a
  * near-duplicate of one of the user's saved recipes and dropped. Tunable.
  */
