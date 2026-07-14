@@ -6,6 +6,8 @@
  * this module only computes what to spawn with.
  */
 
+import { MAX_TURNS, MODEL } from './run-policy'
+
 export interface ClaudeInvocationInput {
   /** Raw contents of `prompt.md`, with `{{PLACEHOLDER}}` tokens to render. */
   promptTemplate: string
@@ -35,11 +37,6 @@ export interface ClaudeInvocation {
   prompt: string
 }
 
-const CLAUDE_MODEL = 'claude-opus-4-8'
-/** Fast-loop backstop; layered on top of the idle timeout and (in CI) the
- *  workflow's wall-clock timeout — see `implement.ts`. */
-const MAX_TURNS = '150'
-
 /**
  * Renders `input.promptTemplate`'s `{{PLACEHOLDER}}` tokens against `input`'s
  * named fields and assembles the headless Claude CLI argument vector.
@@ -64,9 +61,9 @@ export function prepareClaudeInvocation(
   const args = [
     '--print',
     '--model',
-    CLAUDE_MODEL,
+    MODEL,
     '--max-turns',
-    MAX_TURNS,
+    String(MAX_TURNS),
     // Safe because the containment boundary is the environment, not this
     // flag: locally the agent runs inside a Docker container with no access
     // to the host, and in CI it runs on a disposable, credential-scoped

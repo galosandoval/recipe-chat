@@ -5,6 +5,7 @@ import {
   prepareClaudeInvocation,
   type ClaudeInvocationInput
 } from './claude-invocation'
+import { MAX_TURNS, MODEL } from './run-policy'
 
 function baseInput(
   overrides: Partial<ClaudeInvocationInput> = {}
@@ -68,11 +69,20 @@ describe('prepareClaudeInvocation', () => {
       expect(args).toEqual([
         '--print',
         '--model',
-        'claude-opus-4-8',
+        MODEL,
         '--max-turns',
-        '150',
+        String(MAX_TURNS),
         '--dangerously-skip-permissions'
       ])
+    })
+
+    it('sources the model and max-turns flags from the run-policy contract', () => {
+      const { args } = prepareClaudeInvocation(baseInput())
+      const modelValue = args[args.indexOf('--model') + 1]
+      const maxTurnsValue = args[args.indexOf('--max-turns') + 1]
+
+      expect(modelValue).toBe(MODEL)
+      expect(maxTurnsValue).toBe(String(MAX_TURNS))
     })
 
     it('leaves the arg vector unchanged when streamOutput is omitted', () => {
@@ -89,9 +99,9 @@ describe('prepareClaudeInvocation', () => {
       expect(args).toEqual([
         '--print',
         '--model',
-        'claude-opus-4-8',
+        MODEL,
         '--max-turns',
-        '150',
+        String(MAX_TURNS),
         '--dangerously-skip-permissions',
         '--output-format',
         'stream-json',

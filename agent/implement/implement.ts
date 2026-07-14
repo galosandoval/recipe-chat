@@ -4,6 +4,7 @@ import * as path from 'node:path'
 import { execSync, spawn } from 'node:child_process'
 import { captureTranscript } from './transcript'
 import { prepareClaudeInvocation } from './claude-invocation'
+import { findMissingEnvVars, resolveIdleMs } from './run-policy'
 
 // Orchestrator for the `agent:implement` pipeline (#510). Spawns the Claude
 // Code CLI directly (#540 — no more `@ai-hero/sandcastle`): on CI the
@@ -11,11 +12,20 @@ import { prepareClaudeInvocation } from './claude-invocation'
 // container. The workflow owns git/PR; this script owns the agent run and the
 // runaway guards.
 
-const ISSUE_NUMBER = required('ISSUE_NUMBER')
-const ISSUE_TITLE = required('ISSUE_TITLE')
-const BRANCH = required('BRANCH')
+// Validate the whole contract-required env up front, before the Claude CLI
+// spawns, so a missing var fails immediately naming every offender instead of
+// spending tokens on a doomed run (#556).
+const missingEnv = findMissingEnvVars(process.env)
+if (missingEnv.length > 0) {
+  console.error(`Missing required env var(s): ${missingEnv.join(', ')}`)
+  process.exit(1)
+}
+
+const ISSUE_NUMBER = process.env.ISSUE_NUMBER as string
+const ISSUE_TITLE = process.env.ISSUE_TITLE as string
+const BRANCH = process.env.BRANCH as string
 /** Subscription / flat-rate token — never `ANTHROPIC_API_KEY` (metered). */
-const CLAUDE_CODE_OAUTH_TOKEN = required('CLAUDE_CODE_OAUTH_TOKEN')
+const CLAUDE_CODE_OAUTH_TOKEN = process.env.CLAUDE_CODE_OAUTH_TOKEN as string
 
 /**
  * Absolute path to the coding-standard rules (the skills repo's rules/, cloned
@@ -70,8 +80,11 @@ const { args, prompt } = prepareClaudeInvocation({
   standardsDir: STANDARDS_DIR,
   verifyReportFile: VERIFY_REPORT_FILE,
   screenshotsDir: SCREENSHOTS_DIR,
-  // Local-only (#541); unset in CI, so CI's args stay exactly as before.
-  streamOutput: process.env.AGENT_STREAM_OUTPUT === 'true'
+  // Always stream (#556): the orchestrator's idle guard below watches the
+  // CLI's output for a heartbeat, and `--print` text stays silent until the
+  // session ends. Streaming gives both adapters — CI and the local rehearsal —
+  // the same incremental signal; the local supervisor pretty-prints it.
+  streamOutput: true
 })
 
 // Never let the child fall through to a metered API key, even if the
@@ -88,22 +101,52 @@ function captureTail(chunk: Buffer) {
   outputTail = (outputTail + chunk.toString('utf8')).slice(-TAIL_BYTES)
 }
 
+// Idle runaway guard (#556): kill a stuck run once its output goes quiet for
+// the contract's idle budget (env-overridable), so a hung agent dies in minutes
+// in either adapter instead of burning the whole wall clock. Owned here because
+// the orchestrator owns the spawned CLI's stdout/stderr; the streaming above
+// keeps a healthy run's heartbeat flowing so the guard never trips on it.
+const IDLE_MS = resolveIdleMs(process.env)
+const IDLE_CHECK_INTERVAL_MS = 15_000
+let idleKilled = false
+
 // Runs in-place on the checked-out repo, so it commits directly onto BRANCH —
 // the commit-count check below relies on that.
 let exitCode: number
 try {
   exitCode = await new Promise<number>((resolve, reject) => {
     const child = spawn('claude', [...args, prompt], { env: childEnv })
+    let lastActivity = Date.now()
+    const markActive = () => {
+      lastActivity = Date.now()
+    }
     child.stdout.on('data', (chunk: Buffer) => {
       process.stdout.write(chunk)
       captureTail(chunk)
+      markActive()
     })
     child.stderr.on('data', (chunk: Buffer) => {
       process.stderr.write(chunk)
       captureTail(chunk)
+      markActive()
     })
-    child.on('error', reject)
-    child.on('close', (code) => resolve(code ?? 1))
+    const idleTimer = setInterval(() => {
+      if (Date.now() - lastActivity > IDLE_MS) {
+        idleKilled = true
+        console.error(
+          `\nFAILED: idle guard tripped after ${Math.round(IDLE_MS / 60_000)} minute(s) — killing the agent.`
+        )
+        child.kill('SIGKILL')
+      }
+    }, IDLE_CHECK_INTERVAL_MS)
+    child.on('error', (error) => {
+      clearInterval(idleTimer)
+      reject(error)
+    })
+    child.on('close', (code) => {
+      clearInterval(idleTimer)
+      resolve(code ?? 1)
+    })
   })
 } catch (error) {
   // Capture the transcript even when the CLI fails to start, so blocked runs
@@ -116,6 +159,12 @@ try {
 // Best-effort; there's exactly one session per run, so the newest-JSONL scan
 // inside captureTranscript resolves it unambiguously.
 captureTranscript({ projectsDir: PROJECTS_DIR, destPath: TRANSCRIPT_FILE })
+
+if (idleKilled) {
+  fail(
+    `Agent idle for over ${Math.round(IDLE_MS / 60_000)} minute(s) — killed by the idle guard.\n\n${outputTail}`
+  )
+}
 
 if (exitCode !== 0) {
   fail(`Claude CLI exited with status ${exitCode}.\n\n${outputTail}`)
@@ -142,15 +191,6 @@ if (!fileHasContent(PR_DESCRIPTION_FILE)) {
 }
 
 console.log(`\n${commitsAhead} commit(s) on ${BRANCH} this run.`)
-
-function required(name: string): string {
-  const value = process.env[name]
-  if (!value) {
-    console.error(`Missing required env var: ${name}`)
-    process.exit(1)
-  }
-  return value
-}
 
 function fileHasContent(file: string): boolean {
   try {
