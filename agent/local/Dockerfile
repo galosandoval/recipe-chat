@@ -30,14 +30,19 @@ ENV PATH="${BUN_INSTALL}/bin:${PATH}"
 RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.2.0" \
   && chmod -R a+rX "${BUN_INSTALL}"
 
-# Claude Code CLI — same install command as the `agent:implement` workflow.
-# bun's global installs never run dependency lifecycle scripts (`--trust`
-# only affects a project's package.json, not `-g`), so the postinstall that
-# fetches the real platform-native binary has to be run explicitly — without
-# it `claude` is left as a tiny stub that errors on invocation.
-RUN bun install -g @anthropic-ai/claude-code \
+# Claude Code CLI, pinned to the version the run-policy contract declares (#556)
+# — read straight from the module so the local image and CI's workflow install
+# step can never freeze at different versions. bun's global installs never run
+# dependency lifecycle scripts (`--trust` only affects a project's
+# package.json, not `-g`), so the postinstall that fetches the real
+# platform-native binary has to be run explicitly — without it `claude` is left
+# as a tiny stub that errors on invocation.
+COPY agent/implement/run-policy.ts /tmp/run-policy.ts
+RUN CLAUDE_CODE_CLI_VERSION="$(bun /tmp/run-policy.ts cli-version)" \
+  && bun install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_CLI_VERSION}" \
   && node "${BUN_INSTALL}/install/global/node_modules/@anthropic-ai/claude-code/install.cjs" \
-  && chmod -R a+rX "${BUN_INSTALL}"
+  && chmod -R a+rX "${BUN_INSTALL}" \
+  && rm /tmp/run-policy.ts
 # bun/bunx/claude resolve via /usr/local/bin regardless of PATH policy
 # (sudo's secure_path included), since dropping to the unprivileged user
 # below goes through `sudo`, which doesn't honor the custom PATH set above.
@@ -66,7 +71,6 @@ RUN useradd -m -s /bin/bash agent \
 RUN sudo -H -u agent bash -c 'cd /build && bunx playwright install chromium'
 
 COPY agent/local/entrypoint.sh /usr/local/bin/agent-local-entrypoint
-COPY agent/local/run-with-guards.ts /usr/local/bin/run-with-guards.ts
 RUN chmod +x /usr/local/bin/agent-local-entrypoint
 
 WORKDIR /workdir

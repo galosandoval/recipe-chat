@@ -55,10 +55,6 @@ else
 fi
 
 export ISSUE_NUMBER ISSUE_TITLE BRANCH CLAUDE_CODE_OAUTH_TOKEN
-# Headless `--print` text output is silent until the whole session ends,
-# which would starve the idle guard below of any signal — switch to
-# streaming JSON locally only (implement.ts / claude-invocation.ts, #541).
-export AGENT_STREAM_OUTPUT=true
 
 # Everything above runs as root (simplest for the bind-mounted-.git push
 # below). Claude Code CLI itself refuses `--dangerously-skip-permissions` as
@@ -76,10 +72,13 @@ echo "==> Ensuring the Playwright browser matches this checkout's pinned version
 sudo -H -u agent bash -c "cd '$WORKDIR' && bunx playwright install chromium"
 
 echo "==> Running the implementation agent (shared orchestrator, #540)"
+# Derive the sudo --preserve-env allowlist from the run-policy contract (#556)
+# so adding an env var can never silently strip it from the local agent.
+PRESERVE_ENV="$(bun agent/implement/run-policy.ts env-list)"
 set +e
 sudo -H -u agent \
-  --preserve-env=ISSUE_NUMBER,ISSUE_TITLE,BRANCH,CLAUDE_CODE_OAUTH_TOKEN,STANDARDS_DIR,OUTPUT_DIR,DATABASE_PRISMA_URL,DATABASE_URL_NON_POOLING,NEXTAUTH_SECRET,OPENAI_API_KEY,AUTH_TRUST_HOST,GH_TOKEN,AGENT_STREAM_OUTPUT \
-  bash -c "cd '$WORKDIR' && bun /usr/local/bin/run-with-guards.ts"
+  --preserve-env="$PRESERVE_ENV" \
+  bash -c "cd '$WORKDIR' && bun agent/local/run-with-guards.ts"
 AGENT_EXIT_CODE=$?
 set -e
 

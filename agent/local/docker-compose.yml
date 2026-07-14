@@ -35,8 +35,11 @@ services:
       DATABASE_URL_NON_POOLING: postgresql://postgres:postgres@db:5432/recipe_chat_test
       HOST_REPO_DIR: /host-repo
       STANDARDS_DIR: /standards
-      LOCAL_WALL_CLOCK_MINUTES: ${LOCAL_WALL_CLOCK_MINUTES:-45}
-      LOCAL_IDLE_MINUTES: ${LOCAL_IDLE_MINUTES:-10}
+      # Guard budgets default in the run-policy contract (#556); these only pass
+      # a maintainer's override through — empty when unset, which the contract's
+      # resolver treats as "use the default". No idle/wall-clock number restated.
+      LOCAL_WALL_CLOCK_MINUTES: ${LOCAL_WALL_CLOCK_MINUTES:-}
+      LOCAL_IDLE_MINUTES: ${LOCAL_IDLE_MINUTES:-}
     volumes:
       # Only the git object/ref database — never the host's working tree, so
       # the container has no visibility into uncommitted changes, .env files,

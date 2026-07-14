@@ -67,7 +67,9 @@ jobs:
     # (wrong label/actor) leaves `refused` empty, so this stays skipped too.
     if: needs.preflight.outputs.refused == 'false'
     runs-on: ubuntu-latest
-    # Hard wall-clock cap on the whole run (runaway guard #1).
+    # Hard wall-clock cap on the whole run (runaway guard #1). The idle guard
+    # (#556) lives in the orchestrator (agent/implement/implement.ts) so it
+    # protects CI too, killing a hung run in minutes instead of at this cap.
     timeout-minutes: 45
 
     services:
@@ -146,13 +148,16 @@ jobs:
         run: bun install
 
       - name: Install Claude Code CLI
-        # bun's global installs skip lifecycle scripts (`--trust` only affects
-        # a project's package.json, not `-g`), so the postinstall that fetches
-        # the real platform-native binary must run explicitly — otherwise
-        # `claude` is left as a stub that fails to spawn (ENOEXEC). Same fix
-        # as agent/local/Dockerfile.
+        # Pinned to the version the run-policy contract declares (#556), read
+        # straight from the module so this step and agent/local/Dockerfile can
+        # never freeze at different CLI versions. bun's global installs skip
+        # lifecycle scripts (`--trust` only affects a project's package.json,
+        # not `-g`), so the postinstall that fetches the real platform-native
+        # binary must run explicitly — otherwise `claude` is left as a stub that
+        # fails to spawn (ENOEXEC).
         run: |
-          bun install -g @anthropic-ai/claude-code
+          version="$(bun agent/implement/run-policy.ts cli-version)"
+          bun install -g "@anthropic-ai/claude-code@${version}"
           bun_install_dir="$(dirname "$(bun pm -g bin)")"
           node "${bun_install_dir}/install/global/node_modules/@anthropic-ai/claude-code/install.cjs"
 

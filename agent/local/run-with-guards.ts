@@ -1,34 +1,31 @@
 import { spawn } from 'node:child_process'
+import { resolveWallClockMs } from '../implement/run-policy'
 
 /**
- * Local-only runaway guards for `agent:local` (#541): a wall-clock cap and an
- * idle cap on top of `implement.ts`'s own `--max-turns` cap. CI already has
- * an equivalent wall-clock via the workflow's `timeout-minutes: 45`; a local
- * run has no workflow wrapping it, so this process supervises the same two
- * failure modes (a slow-but-still-working run, and a fully stuck one)
- * itself. Not unit-tested — a thin IO/process wrapper, verified by running,
- * matching how the repo treats the rest of its agent-pipeline IO scripts.
+ * Local-only wall-clock guard for `agent:local` (#541, #556): a hard cap on the
+ * whole run on top of `implement.ts`'s own `--max-turns` cap and the idle guard
+ * the orchestrator now owns (#556 — so both adapters share it). CI already has
+ * an equivalent wall-clock via the workflow's `timeout-minutes`; a local run has
+ * no workflow wrapping it, so this process supervises the slow-but-still-working
+ * failure mode itself. The budget comes from the run-policy contract
+ * (env-overridable). Not unit-tested — a thin IO/process wrapper, verified by
+ * running, matching how the repo treats the rest of its agent-pipeline IO
+ * scripts.
  */
 
-const WALL_CLOCK_MS =
-  Number(process.env.LOCAL_WALL_CLOCK_MINUTES ?? '45') * 60_000
-const IDLE_MS = Number(process.env.LOCAL_IDLE_MINUTES ?? '30') * 60_000
-const IDLE_CHECK_INTERVAL_MS = 15_000
+const WALL_CLOCK_MS = resolveWallClockMs(process.env)
 
 const child = spawn('bun', ['agent/implement/implement.ts'], {
   stdio: ['inherit', 'pipe', 'pipe']
 })
 
-let lastActivity = Date.now()
-
-// implement.ts sets AGENT_STREAM_OUTPUT (below), which switches the CLI to
-// `--output-format stream-json`: one JSON event per line instead of a single
-// blob printed at the very end. Pretty-print the events worth showing;
-// anything unrecognized still passes through raw rather than getting
-// swallowed, so a schema drift degrades to noisier output, never to silence.
+// implement.ts streams the CLI as `--output-format stream-json` (#556): one
+// JSON event per line instead of a single blob printed at the very end.
+// Pretty-print the events worth showing; anything unrecognized still passes
+// through raw rather than getting swallowed, so a schema drift degrades to
+// noisier output, never to silence.
 let stdoutBuffer = ''
 child.stdout.on('data', (chunk: Buffer) => {
-  lastActivity = Date.now()
   stdoutBuffer += chunk.toString('utf8')
   const lines = stdoutBuffer.split('\n')
   stdoutBuffer = lines.pop() ?? ''
@@ -36,7 +33,6 @@ child.stdout.on('data', (chunk: Buffer) => {
 })
 child.stderr.on('data', (chunk: Buffer) => {
   process.stderr.write(chunk)
-  lastActivity = Date.now()
 })
 
 function printStreamEvent(line: string) {
@@ -90,17 +86,12 @@ const wallClockTimer = setTimeout(
   () => killForTimeout('wall-clock', WALL_CLOCK_MS),
   WALL_CLOCK_MS
 )
-const idleInterval = setInterval(() => {
-  const idleFor = Date.now() - lastActivity
-  if (idleFor > IDLE_MS) killForTimeout('idle', IDLE_MS)
-}, IDLE_CHECK_INTERVAL_MS)
 
 const exitCode: number = await new Promise((resolve) => {
   child.on('close', (code) => resolve(code ?? 1))
 })
 
 clearTimeout(wallClockTimer)
-clearInterval(idleInterval)
 
 // A guard kill still exits non-zero via the child's own SIGKILL exit code,
 // but make the reason unambiguous in the log regardless of that exit code.
