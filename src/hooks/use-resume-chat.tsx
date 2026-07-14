@@ -16,11 +16,13 @@ import type { ChatContext } from '~/schemas/chats-schema'
  */
 export function useResumeChat(context: ChatContext) {
   const setChatId = useChatStore((s) => s.setChatId)
+  const clearMessages = useChatStore((s) => s.clearMessages)
   const setContext = useChatDrawerStore((s) => s.setContext)
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
+  const recipeId = context.page === 'recipe-detail' ? context.recipe.id : null
 
-  const { data } = api.chats.getResumableChat.useQuery(
+  const { data, isSuccess } = api.chats.getResumableChat.useQuery(
     { context },
     {
       enabled: isAuthenticated,
@@ -29,11 +31,24 @@ export function useResumeChat(context: ChatContext) {
     }
   )
 
+  // Keep the global chats-drawer filter synced to this page's context.
   useEffect(() => {
     setContext(context)
   }, [context, setContext])
 
+  // On entering/switching context, start from a clean slate so a prior
+  // context's conversation never bleeds in. Keyed on the scope (page +
+  // recipeId), not the context object or chatId, so a same-context re-render
+  // (e.g. the recipe refetching after an edit) never wipes an active chat.
   useEffect(() => {
+    setChatId('')
+    clearMessages()
+  }, [context.page, recipeId, setChatId, clearMessages])
+
+  // Adopt the context's resumable chat once resolved; a blank result stays a
+  // fresh chat (messages already cleared above).
+  useEffect(() => {
+    if (!isSuccess) return
     setChatId(data?.id ?? '')
-  }, [data, setChatId])
+  }, [isSuccess, data, setChatId])
 }
