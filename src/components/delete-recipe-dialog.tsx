@@ -1,6 +1,6 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { Dialog } from './dialog'
-import { useRecipe, useDeleteRecipe } from '~/hooks/use-recipe'
+import { useRecipeFromCache, useDeleteRecipe } from '~/hooks/use-recipe'
 
 export function DeleteRecipeDialog({
   open,
@@ -11,7 +11,7 @@ export function DeleteRecipeDialog({
 }) {
   const t = useTranslations()
   const { mutate: deleteRecipe, status: deleteStatus } = useDeleteRecipe()
-  const { data: recipe } = useRecipe()
+  const { data: recipe } = useRecipeFromCache()
 
   if (!recipe) return null
 
