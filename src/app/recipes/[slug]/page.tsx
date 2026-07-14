@@ -1,7 +1,8 @@
-import { api, HydrateClient } from '~/trpc/server'
+import { api } from '~/trpc/server'
 import { RecipeById } from './recipe-by-id'
 import { notFound } from 'next/navigation'
 import { RecipeDetailChat } from './recipe-detail-chat'
+import { RecipeInitialDataProvider } from '~/hooks/use-recipe'
 
 export async function generateMetadata({
   params
@@ -26,15 +27,21 @@ export default async function RecipeByIdPage({
 }) {
   const { slug } = await params
 
-  // Prefetch data into React Query cache
-  await api.recipes.bySlug.prefetch({ slug })
+  // Fetch on the server (authenticated RSC context) and hand the recipe to the
+  // client tree as seeded query data. This replaces a `prefetch`/hydrate flow
+  // whose client `useSuspenseQuery` still refetched during SSR without the
+  // session cookie, throwing a swallowed `UNAUTHORIZED` on every load (#545).
+  const recipe = await api.recipes.bySlug({ slug })
+  if (!recipe) {
+    return notFound()
+  }
 
   return (
-    <HydrateClient>
+    <RecipeInitialDataProvider slug={slug} recipe={recipe}>
       <div className='min-h-svh w-full'>
         <RecipeById />
       </div>
       <RecipeDetailChat />
-    </HydrateClient>
+    </RecipeInitialDataProvider>
   )
 }
