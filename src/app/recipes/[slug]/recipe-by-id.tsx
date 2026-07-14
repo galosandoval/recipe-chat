@@ -221,7 +221,7 @@ function ImageWithAspectRatio({
           }}
         />
       </div>
-      <div className='relative h-[45svh] w-full rotate-180'>
+      <div className='relative h-[45svh] w-full -scale-x-100 rotate-180'>
         <Image
           className='object-cover'
           sizes='100vw'
