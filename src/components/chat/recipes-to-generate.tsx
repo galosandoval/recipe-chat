@@ -1,16 +1,14 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { useChatStore } from './chat-store'
+import { useChatSessionContext } from './use-chat-session'
 import type { RecipeDTO } from '~/schemas/chats-schema'
-import { userMessageDTO } from '~/lib/user-message-dto'
-import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { Button } from '~/components/button'
 import { Card } from '~/components/card'
-import { useEffect, useRef, useState } from 'react'
-import { STREAM_TIMEOUT } from '~/constants/chat'
+import { useState } from 'react'
 import { SendIcon } from 'lucide-react'
 
 export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
-  const isStreaming = useChatStore((state) => state.isStreaming)
+  const { isStreaming } = useChatSessionContext()
   const storeMessages = useChatStore((state) => state.messages)
 
   const generatedRecipeNames = new Set<string>()
@@ -73,41 +71,12 @@ function GenerateButton({
   recipeDescription: string
 }) {
   const t = useTranslations()
-  const {
-    triggerAISubmission,
-    messages,
-    setIsStreaming,
-    setPendingExpandRecipeId
-  } = useChatStore()
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const { generateRecipe } = useChatSessionContext()
   const [isLoading, setIsLoading] = useState(false)
 
-  const generateRecipe = async (name: string, description: string) => {
-    setIsStreaming(true)
-    setPendingExpandRecipeId(recipeId)
-    triggerAISubmission([
-      ...messages,
-      userMessageDTO(
-        buildGenerateRecipeContent(t.chat.generateRecipe, name, description),
-        useChatStore.getState().chatId
-      )
-    ])
-    timeoutRef.current = setTimeout(() => {
-      setIsStreaming(false)
-      timeoutRef.current = null
-    }, STREAM_TIMEOUT)
-  }
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-        timeoutRef.current = null
-      }
-    }
-  }, [])
-  const handleGenerate = async () => {
+  const handleGenerate = () => {
     setIsLoading(true)
-    await generateRecipe(recipeName, recipeDescription)
+    generateRecipe(recipeId, recipeName, recipeDescription)
   }
   return (
     <Button
