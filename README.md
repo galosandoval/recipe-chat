@@ -17,19 +17,19 @@ The interesting part isn't the chat. It's everything wired up behind it: a tool-
 
 End-to-end type safety from the database to the React component, with a deliberate separation of concerns on the server.
 
-| Layer | Tech |
-|---|---|
-| Framework | Next.js 15 (App Router), React 19 |
-| Language | TypeScript, strict |
-| API | tRPC 11 over React Query |
+| Layer        | Tech                                                    |
+| ------------ | ------------------------------------------------------- |
+| Framework    | Next.js 15 (App Router), React 19                       |
+| Language     | TypeScript, strict                                      |
+| API          | tRPC 11 over React Query                                |
 | Streaming AI | Vercel AI SDK + OpenAI (chat tool-calling & embeddings) |
-| Data | PostgreSQL + Prisma 6, pgvector for embeddings |
-| Auth | NextAuth (Auth.js) v5 |
-| Payments | Stripe |
-| UI | Tailwind 4, Radix primitives, Motion |
-| State | Zustand + React Query |
-| Validation | Zod (shared client/server schemas) |
-| Tests | Jest (unit + integration), colocated |
+| Data         | PostgreSQL + Prisma 6, pgvector for embeddings          |
+| Auth         | NextAuth (Auth.js) v5                                   |
+| Payments     | Stripe                                                  |
+| UI           | Tailwind 4, Radix primitives, Motion                    |
+| State        | Zustand + React Query                                   |
+| Validation   | Zod (shared client/server schemas)                      |
+| Tests        | Jest (unit + integration), colocated                    |
 
 The server is split into three layers, each calling only the one below it:
 

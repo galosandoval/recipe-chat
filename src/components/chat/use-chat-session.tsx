@@ -17,7 +17,7 @@ import { cuid } from '~/lib/createId'
 import { userMessageDTO } from '~/lib/user-message-dto'
 import { buildGenerateRecipeContent } from '~/lib/build-generate-recipe-content'
 import { STREAM_TIMEOUT } from '~/constants/chat'
-import { getIngredientDisplayText } from '~/lib/ingredient-display'
+import { transformStoredMessages } from './recipe-dto'
 import { extractFromToolInvocations } from './extract-tool-invocations'
 import {
   buildUpsertMessages,
@@ -31,7 +31,6 @@ import {
 } from './chat-turn'
 import type {
   MessageWithRecipes,
-  MessageWithRecipesDTO,
   UpsertChatSchema
 } from '~/schemas/chats-schema'
 import type { GeneratedRecipe, RecipeDetails } from '~/schemas/messages-schema'
@@ -51,45 +50,6 @@ export type ChatSession = {
   generateRecipe: (recipeId: string, name: string, description: string) => void
   /** Stop the in-flight stream. */
   stop: () => void
-}
-
-/** Transforms database message data to the shape the chat store renders. */
-function transformMessagesToChatStore(
-  data: MessageWithRecipesDTO[]
-): MessageWithRecipes[] {
-  return data.map((message) => ({
-    id: message.id,
-    content: message.content,
-    role: message.role,
-    chatId: message.chatId,
-    createdAt: message.createdAt,
-    updatedAt: message.updatedAt,
-    recipes:
-      message.recipes?.map((r) => ({
-        id: r.recipe.id,
-        name: r.recipe.name,
-        description: r.recipe.description ?? null,
-        prepMinutes: r.recipe.prepMinutes ?? null,
-        cookMinutes: r.recipe.cookMinutes ?? null,
-        servings: r.recipe.servings ?? null,
-        cuisine: r.recipe.cuisine ?? null,
-        course: r.recipe.course ?? null,
-        dietTags: r.recipe.dietTags?.map((t) => t ?? '') ?? [],
-        flavorTags: r.recipe.flavorTags?.map((t) => t ?? '') ?? [],
-        mainIngredients: r.recipe.mainIngredients?.map((i) => i ?? '') ?? [],
-        techniques: r.recipe.techniques?.map((t) => t ?? '') ?? [],
-        slug: r.recipe.slug ?? '',
-        ingredients:
-          r.recipe.ingredients?.map((ingredient) =>
-            getIngredientDisplayText(ingredient)
-          ) ?? [],
-        instructions:
-          r.recipe.instructions?.map(
-            (instruction) => instruction.description
-          ) ?? [],
-        saved: r.recipe.saved ?? false
-      })) ?? []
-  }))
 }
 
 /**
@@ -400,7 +360,7 @@ export function useChatSession(options?: {
 
   useEffect(() => {
     if (queryStatus === 'success' && data) {
-      setMessages(transformMessagesToChatStore(data.messages))
+      setMessages(transformStoredMessages(data.messages))
       setChatFilterIds(data.filterIds ?? [])
     }
   }, [queryStatus, data, setMessages, setChatFilterIds])

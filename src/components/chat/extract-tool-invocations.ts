@@ -1,3 +1,4 @@
+import { facetDefaults } from './recipe-dto'
 import type {
   FullRecipe,
   GeneratedRecipe,
@@ -102,12 +103,7 @@ export function extractFromToolInvocations(
         description: existing.description ?? '',
         prepMinutes: existing.prepMinutes ?? null,
         cookMinutes: existing.cookMinutes ?? null,
-        cuisine: existing.cuisine ?? null,
-        course: existing.course ?? null,
-        dietTags: existing.dietTags ?? [],
-        flavorTags: existing.flavorTags ?? [],
-        mainIngredients: existing.mainIngredients ?? [],
-        techniques: existing.techniques ?? [],
+        ...facetDefaults(existing),
         ingredients: d.ingredients,
         instructions: d.instructions,
         servings: d.servings

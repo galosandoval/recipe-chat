@@ -6,7 +6,6 @@ import {
   priorRecipes,
   reconcileAssistantMessage,
   rollbackExpand,
-  toRecipeDTOs,
   turnHasContentToPersist
 } from './chat-turn'
 import type { MessageWithRecipes, RecipeDTO } from '~/schemas/chats-schema'
@@ -63,23 +62,6 @@ describe('priorRecipes', () => {
     ]
 
     expect(priorRecipes(messages).map((r) => r.id)).toEqual(['card-id'])
-  })
-})
-
-describe('toRecipeDTOs', () => {
-  it('preserves the prior card id for a matching name', () => {
-    const prior = [recipe({ name: 'Curry', id: 'card-id' })]
-    const [dto] = toRecipeDTOs(
-      [{ name: 'Curry', description: 'now expanded' }],
-      prior
-    )
-    expect(dto.id).toBe('card-id')
-  })
-
-  it('mints a fresh id for a brand-new recipe', () => {
-    const [dto] = toRecipeDTOs([{ name: 'New Dish', description: 'x' }], [])
-    expect(dto.id).toBeTruthy()
-    expect(dto.name).toBe('New Dish')
   })
 })
 
