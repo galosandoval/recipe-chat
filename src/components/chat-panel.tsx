@@ -9,6 +9,7 @@ import { useChatStore } from '~/components/chat/chat-store'
 import { Interface } from '~/components/chat/interface'
 import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
 import { GenerateMessageForm } from '~/components/chat/generate-message-form'
+import { ChatSessionProvider } from '~/components/chat/use-chat-session'
 import { Button } from '~/components/button'
 import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
 
@@ -71,16 +72,18 @@ export function ChatPanel() {
             </div>
           </div>
 
-          <div className='flex min-h-0 flex-1 flex-col'>
-            <div className='min-h-0 flex-1 overflow-y-auto'>
-              <Interface />
-            </div>
+          <ChatSessionProvider>
+            <div className='flex min-h-0 flex-1 flex-col'>
+              <div className='min-h-0 flex-1 overflow-y-auto'>
+                <Interface />
+              </div>
 
-            <div className='shrink-0'>
-              <BottomActiveFilters />
-              <GenerateMessageForm />
+              <div className='shrink-0'>
+                <BottomActiveFilters />
+                <GenerateMessageForm />
+              </div>
             </div>
-          </div>
+          </ChatSessionProvider>
         </DrawerPrimitive.Content>
       </DrawerPrimitive.Portal>
     </DrawerPrimitive.Root>
