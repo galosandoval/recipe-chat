@@ -7,11 +7,10 @@ import {
 } from '~/schemas/messages-schema'
 import type { ChatContext } from '~/schemas/chats-schema'
 import { RecipesAccess } from '~/server/api/data-access/recipes-access'
-import { embedRecipeById } from '~/server/api/use-cases/embed-recipe-use-case'
+import { editRecipe } from '~/server/api/use-cases/recipes-use-case'
 import { dedupeRecipeOptions } from '~/server/api/use-cases/dedupe-recipe-options-use-case'
 import { RECIPE_OPTIONS_OVERGENERATE } from '~/constants/chat'
-import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
-import { slugify } from '~/lib/utils'
+import { toEditRecipeInput } from './edit-recipe-input'
 
 export function getTools(
   context: ChatContext | undefined,
@@ -92,85 +91,31 @@ export function getTools(
           .optional()
           .describe('Complete list of instructions (replaces existing)')
       }),
-      async execute({
-        recipeId: id,
-        newName,
-        newDescription,
-        newNotes,
-        newPrepMinutes,
-        newCookMinutes,
-        newIngredients,
-        newInstructions
-      }) {
-        const recipesAccess = new RecipesAccess(prisma)
-        const recipe = await recipesAccess.getRecipeById(id)
+      // Thin adapter: map the tool's parameters onto the editRecipe use-case's
+      // input shape and delegate. The use-case owns the selective diff, the
+      // transaction, and the re-embed policy — identical to the tRPC form edit,
+      // so an assistant edit and a form edit take the same path.
+      async execute({ recipeId: id, ...edits }) {
+        const recipe = await new RecipesAccess(prisma).getRecipeById(id)
         if (!recipe) {
           return { success: false, error: 'Recipe not found' }
         }
 
-        const data: Record<string, unknown> = {}
-        if (newName && newName !== recipe.name) {
-          data.name = newName
-          data.slug = slugify(newName)
-        }
-        if (newDescription && newDescription !== recipe.description) {
-          data.description = newDescription
-        }
-        if (newNotes !== undefined) {
-          data.notes = newNotes
-        }
-        if (
-          newPrepMinutes !== undefined &&
-          newPrepMinutes !== recipe.prepMinutes
-        ) {
-          data.prepMinutes = newPrepMinutes
-        }
-        if (
-          newCookMinutes !== undefined &&
-          newCookMinutes !== recipe.cookMinutes
-        ) {
-          data.cookMinutes = newCookMinutes
+        const ownerId = recipe.userId ?? userId
+        if (!ownerId) {
+          return { success: false, error: 'Recipe not found' }
         }
 
-        if (Object.keys(data).length > 0) {
-          await recipesAccess.updateRecipe(id, data)
-        }
-
-        if (newIngredients) {
-          // Delete all existing ingredients and recreate
-          await prisma.ingredient.deleteMany({ where: { recipeId: id } })
-          await prisma.ingredient.createMany({
-            data: newIngredients.map((ing) => ({
-              ...ingredientStringToCreatePayload(ing),
-              recipeId: id
-            }))
-          })
-        }
-
-        if (newInstructions) {
-          // Delete all existing instructions and recreate
-          await prisma.instruction.deleteMany({ where: { recipeId: id } })
-          await prisma.instruction.createMany({
-            data: newInstructions.map((desc) => ({
-              description: desc,
-              recipeId: id
-            }))
-          })
-        }
-
-        const updated = await recipesAccess.getRecipeById(id)
-
-        // Refresh the embedding when a semantic field (name/description) changed
-        // so search reflects the edited recipe. Non-blocking.
-        const semanticChanged = 'name' in data || 'description' in data
-        if (semanticChanged && recipe.userId) {
-          await embedRecipeById(id, recipe.userId, prisma)
-        }
+        const slug = await editRecipe(
+          toEditRecipeInput(recipe, edits),
+          ownerId,
+          prisma
+        )
 
         return {
           success: true,
-          recipeName: updated?.name ?? recipe.name,
-          slug: updated?.slug ?? recipe.slug
+          recipeName: edits.newName ?? recipe.name,
+          slug
         }
       }
     }),

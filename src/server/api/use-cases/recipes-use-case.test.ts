@@ -95,6 +95,31 @@ describe('editRecipe facet edits', () => {
     expect(row?.notes).toBe('serve hot')
     expect(mockedEmbed).not.toHaveBeenCalled()
   })
+
+  it('rolls back the whole edit — and skips re-embed — when a write inside the transaction fails', async () => {
+    const user = await createTestUser()
+    const recipe = await createTestRecipe(user.id, { name: 'Original' })
+
+    // An instruction update targeting a row that does not exist throws inside
+    // the transaction, so the rename that ran first must roll back too.
+    await expect(
+      editRecipe(
+        editFor(recipe, {
+          newName: 'Renamed',
+          instructions: [
+            { id: 'ghost-instruction', description: 'old', recipeId: recipe.id }
+          ],
+          newInstructions: [{ id: 'ghost-instruction', description: 'new' }]
+        }),
+        user.id,
+        testPrisma
+      )
+    ).rejects.toThrow()
+
+    const row = await testPrisma.recipe.findUnique({ where: { id: recipe.id } })
+    expect(row?.name).toBe('Original')
+    expect(mockedEmbed).not.toHaveBeenCalled()
+  })
 })
 
 describe('createRecipeWithEmbedding facet persistence', () => {

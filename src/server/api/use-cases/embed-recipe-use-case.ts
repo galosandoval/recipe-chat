@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client'
+import { type Recipe, type PrismaClient } from '@prisma/client'
 import { RecipesAccess } from '../data-access/recipes-access'
 import { RecipeVectorAccess } from '../data-access/recipe-vector-access'
 
@@ -26,5 +26,39 @@ export async function embedRecipeById(
     await vectorAccess.upsertEmbedding(recipeId, userId, signature)
   } catch (err) {
     console.error('[recipe-vector] upsertEmbedding failed', { recipeId, err })
+  }
+}
+
+/**
+ * Recipe fields that feed the embedding signature. Editing any of these makes
+ * the stored vector stale. Owned here — the Recipe Vector module — so "which
+ * fields are semantic, and when to re-embed" is written down in exactly one
+ * place and every edit path (form, chat tool) inherits the same policy.
+ */
+const SEMANTIC_FIELDS = new Set<keyof Recipe>([
+  'name',
+  'description',
+  'cuisine',
+  'course',
+  'dietTags',
+  'flavorTags',
+  'mainIngredients',
+  'techniques'
+])
+
+/**
+ * Re-embed the recipe when — and only when — one of the fields the caller's edit
+ * actually wrote is semantic. A notes/timing-only edit skips the needless
+ * re-embed. Fail-open through {@link embedRecipeById}, so a failed embedding
+ * never fails the edit.
+ */
+export async function reembedIfSemanticChange(
+  changedFields: Array<keyof Recipe>,
+  recipeId: string,
+  userId: string,
+  prisma: PrismaClient
+): Promise<void> {
+  if (changedFields.some((field) => SEMANTIC_FIELDS.has(field))) {
+    await embedRecipeById(recipeId, userId, prisma)
   }
 }

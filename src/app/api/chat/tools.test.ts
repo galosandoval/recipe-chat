@@ -80,7 +80,7 @@ describe('getTools context gating', () => {
 })
 
 describe('editRecipe tool', () => {
-  it('renames the recipe and regenerates its slug', async () => {
+  it('renames the recipe, keeping the slug stable like the form path', async () => {
     const user = await createTestUser()
     const recipe = await createTestRecipe(user.id, { name: 'Old Name' })
     const tools = recipeDetailTools(user.id)
@@ -92,14 +92,15 @@ describe('editRecipe tool', () => {
 
     expect(result.success).toBe(true)
     expect(result.recipeName).toBe('Roasted Garlic Soup')
-    // slugify appends a random 6-char suffix, so assert on the stable prefix.
-    expect(result.slug).toMatch(/^roasted-garlic-soup-/)
 
     const updated = await testPrisma.recipe.findUnique({
       where: { id: recipe.id }
     })
     expect(updated?.name).toBe('Roasted Garlic Soup')
-    expect(updated?.slug).toBe(result.slug)
+    // The editRecipe use-case (shared with the tRPC form edit) does not mint a
+    // new slug on rename, so the URL stays stable — the tool inherits that.
+    expect(updated?.slug).toBe(recipe.slug)
+    expect(result.slug).toBe(recipe.slug)
   })
 
   it('replaces the ingredient list wholesale', async () => {

@@ -1,7 +1,10 @@
 /**
  * @jest-environment node
  */
-import { embedRecipeById } from '~/server/api/use-cases/embed-recipe-use-case'
+import {
+  embedRecipeById,
+  reembedIfSemanticChange
+} from '~/server/api/use-cases/embed-recipe-use-case'
 import { RecipeVectorAccess } from '~/server/api/data-access/recipe-vector-access'
 import { embedSignature } from '~/lib/embeddings'
 import {
@@ -106,5 +109,56 @@ describe('embedRecipeById', () => {
     expect(rows).toHaveLength(0)
 
     errorSpy.mockRestore()
+  })
+})
+
+async function vectorRowCount(recipeId: string): Promise<number> {
+  const rows = await testPrisma.$queryRawUnsafe<Array<{ recipeId: string }>>(
+    'SELECT "recipeId" FROM "RecipeVector" WHERE "recipeId" = $1',
+    recipeId
+  )
+  return rows.length
+}
+
+describe('reembedIfSemanticChange (re-embed policy)', () => {
+  it('re-embeds when a semantic field changed', async () => {
+    const user = await createTestUser()
+    const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
+
+    await reembedIfSemanticChange(['cuisine'], recipe.id, user.id, testPrisma)
+
+    expect(await vectorRowCount(recipe.id)).toBe(1)
+  })
+
+  it('re-embeds when an array facet changed', async () => {
+    const user = await createTestUser()
+    const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
+
+    await reembedIfSemanticChange(['dietTags'], recipe.id, user.id, testPrisma)
+
+    expect(await vectorRowCount(recipe.id)).toBe(1)
+  })
+
+  it('does not re-embed when only a non-semantic field changed', async () => {
+    const user = await createTestUser()
+    const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
+
+    await reembedIfSemanticChange(
+      ['notes', 'prepMinutes'],
+      recipe.id,
+      user.id,
+      testPrisma
+    )
+
+    expect(await vectorRowCount(recipe.id)).toBe(0)
+  })
+
+  it('does not re-embed when nothing changed', async () => {
+    const user = await createTestUser()
+    const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
+
+    await reembedIfSemanticChange([], recipe.id, user.id, testPrisma)
+
+    expect(await vectorRowCount(recipe.id)).toBe(0)
   })
 })
