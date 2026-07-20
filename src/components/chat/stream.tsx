@@ -3,6 +3,7 @@
 import { BotMessageSquareIcon } from 'lucide-react'
 import type { GeneratedMessage } from '~/schemas/chats-schema'
 import type { FullRecipe } from '~/schemas/messages-schema'
+import { toRecipeDTOs } from './recipe-dto'
 import { CollapsableRecipe } from './collapsable-recipe'
 import { RecipesToGenerate } from './recipes-to-generate'
 import { ChatMessage } from './message'
@@ -16,55 +17,21 @@ export function Stream({ stream }: { stream: GeneratedMessage }) {
   const recipe = stream.recipes?.[0] as FullRecipe | undefined
   const recipes = (stream.recipes ?? []) as FullRecipe[]
 
+  // Mid-stream cards aren't persisted yet, so they render with empty id/slug.
+  const [oneRecipe] = recipe
+    ? toRecipeDTOs([recipe], { kind: 'placeholder' })
+    : []
+  const recipeDTOs = toRecipeDTOs(recipes, { kind: 'placeholder' })
+
   return (
     <div className='flex flex-col'>
       <div className='mx-auto w-full'>
         <ChatMessage content={stream.content} icon={<BotMessageSquareIcon />}>
           <>
-            {isRenderingOneRecipe && recipe && (
-              <CollapsableRecipe
-                recipe={{
-                  ...recipe,
-                  id: '',
-                  saved: false,
-                  name: recipe.name,
-                  servings: recipe.servings ?? null,
-                  prepMinutes: recipe.prepMinutes ?? null,
-                  cookMinutes: recipe.cookMinutes ?? null,
-                  ingredients: recipe.ingredients ?? [],
-                  instructions: recipe.instructions ?? [],
-                  cuisine: recipe.cuisine ?? null,
-                  course: recipe.course ?? null,
-                  dietTags: recipe.dietTags ?? [],
-                  flavorTags: recipe.flavorTags ?? [],
-                  mainIngredients: recipe.mainIngredients ?? [],
-                  techniques: recipe.techniques ?? [],
-                  slug: ''
-                }}
-              />
+            {isRenderingOneRecipe && oneRecipe && (
+              <CollapsableRecipe recipe={oneRecipe} />
             )}
-            {isRenderingRecipes && (
-              <RecipesToGenerate
-                recipes={recipes.map((r) => ({
-                  ...r,
-                  id: '',
-                  saved: false,
-                  name: r.name,
-                  servings: r.servings ?? null,
-                  prepMinutes: r.prepMinutes ?? null,
-                  cookMinutes: r.cookMinutes ?? null,
-                  ingredients: r.ingredients ?? [],
-                  instructions: r.instructions ?? [],
-                  cuisine: r.cuisine ?? null,
-                  course: r.course ?? null,
-                  dietTags: r.dietTags ?? [],
-                  flavorTags: r.flavorTags ?? [],
-                  mainIngredients: r.mainIngredients ?? [],
-                  techniques: r.techniques ?? [],
-                  slug: ''
-                }))}
-              />
-            )}
+            {isRenderingRecipes && <RecipesToGenerate recipes={recipeDTOs} />}
           </>
         </ChatMessage>
       </div>

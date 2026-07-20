@@ -1,15 +1,7 @@
 import { cuid } from '~/lib/createId'
-import { slugify } from '~/lib/utils'
+import { type AnyRecipe, toRecipeDTOs } from './recipe-dto'
 import type { MessageWithRecipes, RecipeDTO } from '~/schemas/chats-schema'
-import type { GeneratedRecipe, RecipeDetails } from '~/schemas/messages-schema'
 import type { UpsertChatSchema } from '~/schemas/chats-schema'
-
-/**
- * A recipe as it arrives from tool-invocation extraction. Every field is
- * treated as optional here: the model may return a partial recipe mid-stream or
- * on a failed expansion, so these helpers defensively fall back on each field.
- */
-type AnyRecipe = Partial<GeneratedRecipe> & Partial<RecipeDetails>
 
 type ToolInvocationLite = { toolName: string; result?: unknown }
 
@@ -26,38 +18,6 @@ export function priorRecipes(messages: MessageWithRecipes[]): RecipeDTO[] {
 }
 
 /**
- * Convert generated recipes into stored {@link RecipeDTO}s, preserving the id of
- * any prior suggestion card with the same name so saving and navigation keep
- * working after an expansion (the card id wins over a freshly minted one).
- */
-export function toRecipeDTOs(
-  recipes: AnyRecipe[],
-  prior: RecipeDTO[]
-): RecipeDTO[] {
-  const nameToId = new Map<string, string>()
-  for (const r of prior) nameToId.set(r.name, r.id)
-
-  return recipes.map((recipe) => ({
-    id: nameToId.get(recipe?.name ?? '') ?? cuid(),
-    name: recipe?.name ?? '',
-    slug: recipe?.name ? slugify(recipe.name) : cuid(),
-    description: recipe?.description ?? '',
-    ingredients: recipe?.ingredients?.map((i) => i ?? '') ?? [],
-    instructions: recipe?.instructions?.map((i) => i ?? '') ?? [],
-    prepMinutes: recipe?.prepMinutes ?? null,
-    cookMinutes: recipe?.cookMinutes ?? null,
-    servings: recipe?.servings ?? null,
-    course: recipe?.course ?? null,
-    cuisine: recipe?.cuisine ?? null,
-    dietTags: recipe?.dietTags?.map((t) => t ?? '') ?? [],
-    flavorTags: recipe?.flavorTags?.map((t) => t ?? '') ?? [],
-    mainIngredients: recipe?.mainIngredients?.map((i) => i ?? '') ?? [],
-    techniques: recipe?.techniques?.map((t) => t ?? '') ?? [],
-    saved: false
-  }))
-}
-
-/**
  * Reconcile a streamed or finished assistant turn into the messages list. The
  * trailing assistant placeholder — kept last as an invariant — is updated in
  * place (preserving its id); otherwise a new assistant message is appended.
@@ -71,7 +31,10 @@ export function reconcileAssistantMessage(
     chatId: string
   }
 ): MessageWithRecipes[] {
-  const recipes = toRecipeDTOs(input.recipes, priorRecipes(messages))
+  const recipes = toRecipeDTOs(input.recipes, {
+    kind: 'preserve',
+    prior: priorRecipes(messages)
+  })
   const last = messages.at(-1)
 
   if (last?.role === 'assistant') {
