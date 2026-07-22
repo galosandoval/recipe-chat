@@ -22,7 +22,10 @@ test('sends a Message, streams Recipe Options, and expands one on Generate', asy
   test.setTimeout(150_000)
   await page.goto('/chat')
 
-  const input = page.getByPlaceholder(/Ask about a recipe/i)
+  // Placeholder is "Ask about a recipe" for a fresh chat and "Follow up…" if an
+  // earlier spec's chat on this context is still within its freshness window
+  // (#549) — accept either.
+  const input = page.getByPlaceholder(/Ask about a recipe|Follow up/i)
   await expect(input).toBeVisible()
 
   // Be explicit so the model proposes options immediately instead of asking

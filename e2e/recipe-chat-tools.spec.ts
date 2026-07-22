@@ -34,7 +34,10 @@ async function openRecipeChat(page: import('@playwright/test').Page) {
   // so target the chat button by its accessible name rather than a CSS locator.
   await page.getByRole('button', { name: 'Open chat' }).click()
 
-  const input = page.getByPlaceholder(/Ask about/i)
+  // Placeholder is "Ask about <recipe>" for a fresh chat and "Follow up…" once
+  // a chat has messages (fresh vs resumed within the freshness window, #549) —
+  // accept either.
+  const input = page.getByPlaceholder(/Ask about|Follow up/i)
   await expect(input).toBeVisible()
   return input
 }
