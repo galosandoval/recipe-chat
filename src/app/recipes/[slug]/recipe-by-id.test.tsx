@@ -1,17 +1,20 @@
 import '@testing-library/jest-dom'
-import { screen, fireEvent, waitFor } from '@testing-library/react'
+import { screen, fireEvent, waitFor, act, within } from '@testing-library/react'
 import { renderWithTranslations, en } from '~/lib/test-translations'
 import type { RecipeByIdData } from '~/hooks/use-recipe'
 
 const mockEdit = jest.fn()
 const mockInvalidate = jest.fn(() => Promise.resolve())
+const mockDelete = jest.fn()
 
 let recipeData: RecipeByIdData
 
 jest.mock('~/hooks/use-no-sleep', () => ({ useNoSleep: () => {} }))
 
 jest.mock('~/hooks/use-recipe', () => ({
-  useRecipe: () => ({ data: recipeData, isLoading: false, isError: false })
+  useRecipe: () => ({ data: recipeData, isLoading: false, isError: false }),
+  useRecipeFromCache: () => ({ data: recipeData }),
+  useDeleteRecipe: () => ({ mutate: mockDelete, status: 'idle' })
 }))
 
 jest.mock('next/navigation', () => ({
@@ -55,6 +58,7 @@ jest.mock('~/trpc/react', () => ({
 
 // Imported after the mocks so the component picks them up.
 import { RecipeById } from './recipe-by-id'
+import { useRecipeEditStore } from './recipe-edit-store'
 
 function ingredient(id: string, rawString: string) {
   return {
@@ -98,21 +102,27 @@ function makeRecipe(overrides: Partial<RecipeByIdData> = {}): RecipeByIdData {
   } as unknown as RecipeByIdData
 }
 
-const editButton = () =>
-  screen.getByRole('button', { name: en.recipes.byId.edit })
 const saveButton = () =>
   screen.getByRole('button', { name: en.recipes.byId.save })
 const cancelButton = () =>
   screen.getByRole('button', { name: en.recipes.byId.cancel })
+// The edit form is only mounted in edit mode, so its Save FAB is the cleanest
+// "are we editing?" probe (the navbar's edit trigger lives in a separate tree).
+const queryEditForm = () =>
+  screen.queryByRole('button', { name: en.recipes.byId.save })
 
+// Edit mode is toggled from the navbar via the shared store, which renders in a
+// separate subtree; flip the flag directly so this suite can stay focused on the
+// recipe body's read/edit seam.
 function enterEditMode() {
   renderWithTranslations(<RecipeById />)
-  fireEvent.click(editButton())
+  act(() => useRecipeEditStore.getState().setIsEditing(true))
 }
 
 beforeEach(() => {
   jest.clearAllMocks()
   recipeData = makeRecipe()
+  useRecipeEditStore.setState({ isEditing: false })
 })
 
 describe('RecipeById inline edit mode', () => {
@@ -201,7 +211,7 @@ describe('RecipeById inline edit mode', () => {
     })
     fireEvent.click(saveButton())
 
-    await waitFor(() => expect(editButton()).toBeInTheDocument())
+    await waitFor(() => expect(queryEditForm()).not.toBeInTheDocument())
     expect(screen.queryByDisplayValue('Spaghetti')).not.toBeInTheDocument()
   })
 
@@ -218,7 +228,7 @@ describe('RecipeById inline edit mode', () => {
       screen.getByRole('button', { name: en.recipes.byId.discardConfirm })
     )
     expect(mockEdit).not.toHaveBeenCalled()
-    expect(editButton()).toBeInTheDocument()
+    expect(queryEditForm()).not.toBeInTheDocument()
   })
 
   it('exits edit mode without a prompt when nothing changed', () => {
@@ -227,6 +237,23 @@ describe('RecipeById inline edit mode', () => {
     expect(
       screen.queryByText(en.recipes.byId.discardTitle)
     ).not.toBeInTheDocument()
-    expect(editButton()).toBeInTheDocument()
+    expect(queryEditForm()).not.toBeInTheDocument()
+  })
+
+  it('deletes the recipe from the edit form', () => {
+    enterEditMode()
+    // The delete affordance lives on the edit form now (issue #563), not the
+    // read-view options menu.
+    fireEvent.click(screen.getByRole('button', { name: en.recipes.delete }))
+
+    const dialog = screen.getByRole('dialog')
+    expect(
+      within(dialog).getByText(en.recipes.byId.delete.title)
+    ).toBeInTheDocument()
+
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: en.common.delete })
+    )
+    expect(mockDelete).toHaveBeenCalledWith({ id: 'recipe-1' })
   })
 })

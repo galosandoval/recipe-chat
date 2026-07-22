@@ -6,19 +6,16 @@ import { NavDropdownMenu } from './settings-dropdown-menu'
 import {
   ArrowBigLeft,
   CookingPotIcon,
-  EllipsisVerticalIcon,
   ListTodoIcon,
   MessageSquareIcon,
-  TrashIcon
+  PencilIcon
 } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/button'
 import { NavigationButton } from '~/components/navigation-button'
-import { DropdownMenu, type MenuItemProps } from '~/components/dropdown-menu'
-import { useState } from 'react'
-import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
+import { useRecipeEditStore } from '~/app/recipes/[slug]/recipe-edit-store'
 
 export const Navbar = () => {
   const pathname = usePathname()
@@ -87,38 +84,35 @@ function RecipeByIdNavbar() {
           <ArrowBigLeft />
         </Button>
 
-        <RecipeByIdDropdownMenu />
+        <RecipeByIdEditButton />
       </div>
     </nav>
   )
 }
 
-export function RecipeByIdDropdownMenu() {
+/**
+ * The Recipe detail's edit affordance (issue #563): the former options-menu
+ * ellipsis is now a plain Edit icon that flips the shared edit-mode flag. While
+ * editing it hides — the edit form's Cancel/Save FABs and Delete button take
+ * over, so the navbar doesn't duplicate those actions.
+ */
+function RecipeByIdEditButton() {
   const t = useTranslations()
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const items: MenuItemProps[] = [
-    {
-      label: 'recipes.delete',
-      onClick: () => setOpenDeleteDialog(true),
-      icon: <TrashIcon />
-    }
-  ]
+  const isEditing = useRecipeEditStore((s) => s.isEditing)
+  const setIsEditing = useRecipeEditStore((s) => s.setIsEditing)
+
+  if (isEditing) return null
+
   return (
-    <>
-      <DropdownMenu
-        items={items}
-        title={t.nav.settings}
-        trigger={
-          <Button variant='outline' size='icon'>
-            <EllipsisVerticalIcon />
-          </Button>
-        }
-      />
-      <DeleteRecipeDialog
-        open={openDeleteDialog}
-        onOpenChange={setOpenDeleteDialog}
-      />
-    </>
+    <Button
+      variant='outline'
+      className='glass-background'
+      size='icon'
+      aria-label={t.recipes.byId.edit}
+      onClick={() => setIsEditing(true)}
+    >
+      <PencilIcon />
+    </Button>
   )
 }
 
