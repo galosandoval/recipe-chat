@@ -3,7 +3,10 @@ import { RecipesAccess } from '../data-access/recipes-access'
 import type { CreateRecipe, UpdateRecipe } from '~/schemas/recipes-schema'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
-import { embedRecipeById } from './embed-recipe-use-case'
+import {
+  embedRecipeById,
+  reembedIfSemanticChange
+} from './embed-recipe-use-case'
 
 export async function createRecipeWithEmbedding(
   recipe: Omit<CreateRecipe, 'messsageId'>,
@@ -25,21 +28,6 @@ export async function getRecipeNamesByUserId(
   const access = new RecipesAccess(prisma)
   return await access.getRecipeNamesByUserId(userId)
 }
-
-/**
- * Recipe fields that feed the embedding signature. Editing any of these makes
- * the stored vector stale, so the recipe must be re-embedded.
- */
-const SEMANTIC_FIELDS = new Set<keyof Recipe>([
-  'name',
-  'description',
-  'cuisine',
-  'course',
-  'dietTags',
-  'flavorTags',
-  'mainIngredients',
-  'techniques'
-])
 
 export async function editRecipe(
   recipe: UpdateRecipe,
@@ -69,12 +57,9 @@ export async function editRecipe(
     return { slug: foundRecipe.slug, changedFields }
   })
 
-  // Refresh the embedding only when a semantic field actually changed, so a
-  // notes/timing-only edit doesn't pay for a needless re-embed. Runs outside the
-  // transaction (external call) and is non-blocking.
-  if (changedFields.some((field) => SEMANTIC_FIELDS.has(field))) {
-    await embedRecipeById(id, userId, prisma)
-  }
+  // Re-embed policy is owned by the Recipe Vector module; hand it the fields this
+  // edit wrote and let it decide. Runs outside the transaction and is non-blocking.
+  await reembedIfSemanticChange(changedFields, id, userId, prisma)
 
   return slug
 }
