@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { verifyShot } from './verify-shot'
 
 /**
  * Issue #545 — the Recipe detail page threw a swallowed `UNAUTHORIZED` on every
@@ -15,7 +16,7 @@ test('loads the Recipe detail page for an authed user with no UNAUTHORIZED', asy
   page
 }) => {
   const shot = (name: string) =>
-    page.screenshot({ path: `.agent/verify/issue-545/${name}.png` })
+    verifyShot(page, `.agent/verify/issue-545/${name}.png`)
 
   // Collect anything that would signal the #545 fault: a console error naming
   // the auth failure, or a failed `recipes.bySlug` HTTP response.
@@ -30,9 +31,13 @@ test('loads the Recipe detail page for an authed user with no UNAUTHORIZED', asy
     }
   })
 
-  // Find the seeded recipe from the list and capture its detail URL.
+  // Find the seeded recipe from the list and capture its detail URL. It also
+  // appears in the "Recent" strip, so disambiguate with `.first()`.
   await page.goto('/recipes')
-  await page.getByText('CREAMY MUSHROOM TOAST', { exact: false }).click()
+  await page
+    .getByText('CREAMY MUSHROOM TOAST', { exact: false })
+    .first()
+    .click()
   await page.waitForURL(/\/recipes\/.+/)
   const detailUrl = page.url()
 

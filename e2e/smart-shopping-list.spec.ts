@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { verifyShot } from './verify-shot'
 
 /**
  * Smart Shopping List (#417). Drives the real app as the seeded user to prove
@@ -89,7 +90,7 @@ test('merges ingredients across units, keeps "to taste" separate, and edits tota
   await expect(page.getByText('salt to taste', { exact: false })).toBeVisible()
   await expect(page.getByRole('spinbutton', { name: /salt/i })).toHaveCount(0)
 
-  await page.screenshot({ path: `${SCREENSHOT_DIR}/merged-and-edge-cases.png` })
+  await verifyShot(page, `${SCREENSHOT_DIR}/merged-and-edge-cases.png`)
 
   // AC4: manually adjust a merged/measured total and confirm it persists.
   const sugarQty = page.getByRole('spinbutton', { name: /sugar/i })
@@ -104,5 +105,5 @@ test('merges ingredients across units, keeps "to taste" separate, and edits tota
   const sugarAfter = page.getByRole('spinbutton', { name: /sugar/i })
   await expect(sugarAfter).toHaveValue('12')
 
-  await page.screenshot({ path: `${SCREENSHOT_DIR}/manual-adjust.png` })
+  await verifyShot(page, `${SCREENSHOT_DIR}/manual-adjust.png`)
 })
