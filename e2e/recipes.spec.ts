@@ -11,9 +11,9 @@ test('authenticated user sees their seeded recipe on /recipes', async ({
 }) => {
   await page.goto('/recipes')
 
-  // The seeded user (alice@prisma.io) has one recipe; its name renders as a
-  // heading on the recipes grid.
+  // The seeded user (alice@prisma.io) has one recipe; its name renders both in
+  // the main grid and the "Recent" strip, so disambiguate with `.first()`.
   await expect(
-    page.getByText('CREAMY MUSHROOM TOAST', { exact: false })
+    page.getByText('CREAMY MUSHROOM TOAST', { exact: false }).first()
   ).toBeVisible()
 })

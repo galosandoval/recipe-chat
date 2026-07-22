@@ -37,13 +37,21 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  // All specs act on the same single seeded user/recipe, and two specs make a
+  // live LLM call; letting files run in parallel contends on both (DB races,
+  // model rate limits), causing sporadic timeouts. One worker keeps the whole
+  // suite as serial as recipe-chat-tools.spec.ts already requires of itself.
+  workers: 1,
 
   use: {
     baseURL: BASE_URL,
     // Proof is a built-in: capture a screenshot for every test, a trace on the
-    // first retry, and video only when a test fails. Agent specs additionally
-    // take explicit `page.screenshot()` shots into `.agent/verify/issue-<N>/`.
-    screenshot: 'on',
+    // first retry, and video only when a test fails. Screenshots are only
+    // useful when an agent is gathering evidence for a PR, so keep them
+    // CI-only — otherwise every local `bun run test:e2e` litters
+    // test-results/. Agent specs additionally take explicit screenshots via
+    // `verifyShot` (see `e2e/verify-shot.ts`), gated the same way.
+    screenshot: process.env.CI ? 'on' : 'off',
     trace: 'on-first-retry',
     video: 'retain-on-failure'
   },

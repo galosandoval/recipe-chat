@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { verifyShot } from './verify-shot'
 
 /**
  * Issue #526 — inline edit mode on the Recipe detail page plus editable Facets.
@@ -12,11 +13,15 @@ test('inline-edits a Recipe and surfaces its Facets as badges', async ({
   page
 }) => {
   const shot = (name: string) =>
-    page.screenshot({ path: `.agent/verify/issue-526/${name}.png` })
+    verifyShot(page, `.agent/verify/issue-526/${name}.png`)
 
-  // Open the seeded recipe's detail page.
+  // Open the seeded recipe's detail page. It also appears in the "Recent"
+  // strip, so disambiguate with `.first()`.
   await page.goto('/recipes')
-  await page.getByText('CREAMY MUSHROOM TOAST', { exact: false }).click()
+  await page
+    .getByText('CREAMY MUSHROOM TOAST', { exact: false })
+    .first()
+    .click()
   await page.waitForURL(/\/recipes\/.+/)
 
   // Reading view: the inline Edit button is visible; with no Facets yet, no

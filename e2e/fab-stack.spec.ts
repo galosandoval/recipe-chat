@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { verifyShot } from './verify-shot'
 
 /**
  * Issue #542 — shared, animated FAB stack.
@@ -19,11 +20,15 @@ test('stacks the Edit and chat FABs and preserves their click behavior', async (
   page
 }) => {
   const shot = (name: string) =>
-    page.screenshot({ path: `.agent/verify/issue-542/${name}.png` })
+    verifyShot(page, `.agent/verify/issue-542/${name}.png`)
 
-  // Open the seeded recipe's detail page (alice@prisma.io has one recipe).
+  // Open the seeded recipe's detail page (alice@prisma.io has one recipe). The
+  // recipe also appears in the "Recent" strip, so disambiguate with `.first()`.
   await page.goto('/recipes')
-  await page.getByText('CREAMY MUSHROOM TOAST', { exact: false }).click()
+  await page
+    .getByText('CREAMY MUSHROOM TOAST', { exact: false })
+    .first()
+    .click()
   await page.waitForURL(/\/recipes\/.+/)
 
   // Both FABs coexist in the shared stack — no page computes the other's offset.
@@ -42,11 +47,14 @@ test('stacks the Edit and chat FABs and preserves their click behavior', async (
 
   // Wait for the stack's entrance animation (route-transition delay + fade) to
   // settle so the proof shot shows the fully-opaque FABs, not a mid-fade frame.
+  // Poll as a float — a mid-transition sample can land at e.g. 0.999932.
   await expect
     .poll(() =>
-      editFab.evaluate((el) => getComputedStyle(el.parentElement!).opacity)
+      editFab.evaluate((el) =>
+        Number(getComputedStyle(el.parentElement!).opacity)
+      )
     )
-    .toBe('1')
+    .toBeGreaterThan(0.99)
   await shot('stacked-fabs')
 
   // Click behavior is unchanged: the Edit FAB still flips into inline edit mode.

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { verifyShot } from './verify-shot'
 
 /**
  * Issue #458 — AI tool calling: the chat can edit the recipe and add notes when
@@ -54,8 +55,7 @@ test('chat adds a note to the recipe from its detail page', async ({
     timeout: ACTION_TIMEOUT
   })
 
-  await page.screenshot({
-    path: '.agent/verify/issue-458/add-note-confirmation.png',
+  await verifyShot(page, '.agent/verify/issue-458/add-note-confirmation.png', {
     fullPage: true
   })
 })
@@ -72,8 +72,9 @@ test('chat edits the recipe from its detail page', async ({ page }) => {
     timeout: ACTION_TIMEOUT
   })
 
-  await page.screenshot({
-    path: '.agent/verify/issue-458/edit-recipe-confirmation.png',
-    fullPage: true
-  })
+  await verifyShot(
+    page,
+    '.agent/verify/issue-458/edit-recipe-confirmation.png',
+    { fullPage: true }
+  )
 })
