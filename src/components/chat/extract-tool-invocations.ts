@@ -1,4 +1,4 @@
-import { useChatStore } from './chat-store'
+import { facetDefaults } from './recipe-dto'
 import type {
   FullRecipe,
   GeneratedRecipe,
@@ -8,24 +8,69 @@ import type {
 type AnyRecipe = GeneratedRecipe & Partial<RecipeDetails>
 
 /**
+ * A recipe surfaced earlier in the chat (a rendered Recipe Option card or an
+ * already-expanded Recipe), used to resolve which suggestion an `expandRecipe`
+ * call is filling in and to carry its facets into the merge.
+ */
+export type PriorRecipe = {
+  id: string
+  name: string
+  description?: string | null
+  prepMinutes?: number | null
+  cookMinutes?: number | null
+  cuisine?: string | null
+  course?: string | null
+  dietTags?: string[]
+  flavorTags?: string[]
+  mainIngredients?: string[]
+  techniques?: string[]
+}
+
+type ToolInvocationLite = {
+  toolName: string
+  args?: Record<string, unknown>
+  result?: unknown
+}
+
+/**
+ * The recipes and intro message a chat assistant message should render, plus
+ * whether the caller should clear the pending-expand id now that the expand
+ * turn resolved.
+ */
+export type ExtractedTurn = {
+  recipes: AnyRecipe[]
+  toolMessage: string
+  /**
+   * True once an `expandRecipe` call with complete details has been resolved
+   * (whether or not a matching prior suggestion was found) — the caller should
+   * clear the pending-expand id. False while streaming or on incomplete
+   * details, so a retry can still reuse the tapped card.
+   */
+  clearPendingExpandId: boolean
+}
+
+/**
  * Derive the recipes and intro message a chat assistant message should render
- * from its tool invocations. Handles the two recipe tools:
- * - `expandRecipe`: merges the returned details into the matching prior suggestion.
+ * from its tool invocations. Pure — the caller supplies the prior recipes and
+ * the pending-expand id and applies any resulting side effects. Handles the two
+ * recipe tools:
+ * - `expandRecipe`: merges the returned details into the matching prior
+ *   suggestion, resolved by name first, then by the tapped card
+ *   (`pendingExpandRecipeId`) — the tapped card wins over a name lookup miss.
  * - `generateRecipeOptions`: prefers the server-side execute result (the
  *   de-duplicated survivors), falling back to args while streaming or if the
  *   execute failed open.
  */
 export function extractFromToolInvocations(
-  toolInvocations:
-    | Array<{
-        toolName: string
-        args?: Record<string, unknown>
-        result?: unknown
-      }>
-    | undefined,
-  isFinal = false
-): { recipes: AnyRecipe[]; toolMessage: string } {
-  if (!toolInvocations) return { recipes: [], toolMessage: '' }
+  toolInvocations: ToolInvocationLite[] | undefined,
+  context: { priorRecipes: PriorRecipe[]; pendingExpandRecipeId: string | null }
+): ExtractedTurn {
+  const empty: ExtractedTurn = {
+    recipes: [],
+    toolMessage: '',
+    clearPendingExpandId: false
+  }
+  if (!toolInvocations) return empty
 
   // Handle expandRecipe (single recipe expansion — merges with pending suggestion)
   const expandCall = toolInvocations.find(
@@ -37,22 +82,20 @@ export function extractFromToolInvocations(
       details?: RecipeDetails
       message?: string
     }
+    const message = args.message ?? ''
     const d = args.details
     if (d?.ingredients?.length && d?.instructions?.length) {
-      const store = useChatStore.getState()
-      const allPriorRecipes = store.messages.flatMap((m) => m.recipes)
+      const { priorRecipes, pendingExpandRecipeId } = context
       const existing =
         (args.recipeName
-          ? allPriorRecipes.find((r) => r.name === args.recipeName)
+          ? priorRecipes.find((r) => r.name === args.recipeName)
           : undefined) ??
-        allPriorRecipes.find((r) => r.id === store.pendingExpandRecipeId)
-      if (isFinal) {
-        store.setPendingExpandRecipeId(null)
-      }
+        priorRecipes.find((r) => r.id === pendingExpandRecipeId)
 
-      // No prior recipe to expand — drop the malformed merge and show only the message.
+      // No prior recipe to expand — drop the malformed merge and show only the
+      // message. Still clear the pending id: the expand turn is over.
       if (!existing) {
-        return { recipes: [], toolMessage: args.message ?? '' }
+        return { recipes: [], toolMessage: message, clearPendingExpandId: true }
       }
 
       const merged: FullRecipe = {
@@ -60,22 +103,18 @@ export function extractFromToolInvocations(
         description: existing.description ?? '',
         prepMinutes: existing.prepMinutes ?? null,
         cookMinutes: existing.cookMinutes ?? null,
-        cuisine: existing.cuisine ?? null,
-        course: existing.course ?? null,
-        dietTags: existing.dietTags ?? [],
-        flavorTags: existing.flavorTags ?? [],
-        mainIngredients: existing.mainIngredients ?? [],
-        techniques: existing.techniques ?? [],
+        ...facetDefaults(existing),
         ingredients: d.ingredients,
         instructions: d.instructions,
         servings: d.servings
       }
-      return { recipes: [merged], toolMessage: args.message ?? '' }
+      return {
+        recipes: [merged],
+        toolMessage: message,
+        clearPendingExpandId: true
+      }
     }
-    return {
-      recipes: [],
-      toolMessage: (expandCall.args as { message?: string }).message ?? ''
-    }
+    return { recipes: [], toolMessage: message, clearPendingExpandId: false }
   }
 
   // Handle generateRecipeOptions (multi-recipe suggestions). Render cards ONLY
@@ -88,13 +127,14 @@ export function extractFromToolInvocations(
   const generateCall = toolInvocations.find(
     (t) => t.toolName === 'generateRecipeOptions'
   )
-  if (!generateCall) return { recipes: [], toolMessage: '' }
+  if (!generateCall) return empty
   const result = generateCall.result as
     | { recipes?: GeneratedRecipe[]; message?: string }
     | undefined
   const args = generateCall.args as { message?: string } | undefined
   return {
     recipes: result?.recipes ?? [],
-    toolMessage: result?.message ?? args?.message ?? ''
+    toolMessage: result?.message ?? args?.message ?? '',
+    clearPendingExpandId: false
   }
 }

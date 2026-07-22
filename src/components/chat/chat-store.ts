@@ -25,9 +25,6 @@ type ChatStore = {
   // Streaming
   setIsStreaming: (isStreaming: boolean) => void
 
-  // AI Submission
-  triggerAISubmission: (messages: MessageWithRecipes[]) => void
-
   // Utilities
   reset: () => void
 }
@@ -73,12 +70,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   // Streaming
   setIsStreaming: (isStreaming: boolean) => set({ isStreaming }),
-
-  // AI Submission - this will be set by SubmitMessageForm
-  triggerAISubmission: () => {
-    // This will be set by SubmitMessageForm when it mounts
-    console.warn('triggerAISubmission called but not set up yet')
-  },
 
   // Utilities
   reset: () =>

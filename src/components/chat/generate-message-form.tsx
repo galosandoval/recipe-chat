@@ -2,266 +2,28 @@
 
 import { useTranslations } from '~/hooks/use-translations'
 import { useChatStore } from './chat-store'
-import { useChat } from '@ai-sdk/react'
-import type { MessageWithRecipes } from '~/schemas/chats-schema'
-import { useChatAI } from '~/hooks/use-chat-ai'
-import { useEffect, useRef } from 'react'
-import { userMessageDTO } from '~/lib/user-message-dto'
-import { useUserId } from '~/hooks/use-user-id'
-import { api } from '~/trpc/react'
-import { selectActiveFilters } from '~/hooks/use-filters-by-user-id'
+import { useChatSessionContext } from './use-chat-session'
 import { useChatDrawerStore } from './chat-drawer-store'
 import { Button } from '~/components/button'
 import { Input } from '~/components/ui/input'
 import { BottomBar } from '~/components/bottom-bar'
-import { toast } from '~/components/toast'
 import { SendIcon, StopCircleIcon } from 'lucide-react'
-import { cuid } from '~/lib/createId'
-import { slugify } from '~/lib/utils'
-import { extractFromToolInvocations } from './extract-tool-invocations'
-
-function useRecipeChat() {
-  const userId = useUserId()
-  const { setInput, setIsStreaming, addMessage } = useChatStore()
-  const { onFinishMessage, createUserMessage } = useChatAI()
-  const utils = api.useUtils()
-
-  const {
-    messages: chatMessages,
-    append,
-    stop: aiStop,
-    status,
-    setMessages: setAiMessages
-  } = useChat({
-    api: '/api/chat',
-    id: 'recipe-chat',
-    // Single client step. The client never feeds a tool result back to the
-    // model — it renders the result itself (generateRecipeOptions cards, the
-    // expandRecipe merge). With a server-side execute on generateRecipeOptions
-    // the response now carries a tool result + finishReason 'tool-calls'; any
-    // maxSteps > 1 makes useChat auto-submit a continuation, looping /api/chat
-    // and leaving isStreaming stuck true (disabled Generate buttons). The server
-    // route does its own multi-step work (editRecipe confirmation) internally.
-    maxSteps: 1,
-    experimental_prepareRequestBody({ messages }) {
-      const filters = utils.filters.getByUserId.getData({ userId })
-      const chatFilterIds = useChatStore.getState().chatFilterIds
-      const context = useChatDrawerStore.getState().context
-      const usePantry = useChatStore.getState().usePantry
-      const activeFilterNames =
-        chatFilterIds !== null
-          ? (filters ?? [])
-              .filter((f) => chatFilterIds.includes(f.id))
-              .map((f) => f.name)
-          : selectActiveFilters(filters ?? []).map((f) => f.name)
-      return {
-        messages: messages
-          .filter((m) => m.content.length > 0)
-          .map((m) => ({
-            content: m.content,
-            role: m.role,
-            id: m.id
-          })),
-        filters: activeFilterNames,
-        userId: userId || undefined,
-        context,
-        usePantry,
-        expand: useChatStore.getState().pendingExpandRecipeId !== null
-      }
-    },
-    onError(error) {
-      toast.error(error.message)
-      setIsStreaming(false)
-    },
-    onFinish(message) {
-      setIsStreaming(false)
-      const { recipes, toolMessage } = extractFromToolInvocations(
-        message.toolInvocations as
-          | Array<{
-              toolName: string
-              args?: Record<string, unknown>
-              result?: unknown
-            }>
-          | undefined,
-        true
-      )
-      onFinishMessage(
-        message.content || toolMessage,
-        recipes,
-        message.toolInvocations as
-          | Array<{ toolName: string; result?: unknown }>
-          | undefined
-      )
-    }
-  })
-
-  // Sync streaming status
-  useEffect(() => {
-    const streaming = status === 'streaming' || status === 'submitted'
-    setIsStreaming(streaming)
-  }, [status, setIsStreaming])
-
-  // Sync last streaming message to store for rendering
-  useEffect(() => {
-    if (status === 'streaming' && chatMessages.length > 0) {
-      const lastMsg = chatMessages[chatMessages.length - 1]
-      if (lastMsg.role === 'assistant') {
-        const { recipes, toolMessage } = extractFromToolInvocations(
-          lastMsg.toolInvocations as
-            | Array<{
-                toolName: string
-                args?: Record<string, unknown>
-                result?: unknown
-              }>
-            | undefined
-        )
-        const storeMessages = useChatStore.getState().messages
-        const storeLastMessage = storeMessages.at(-1)
-        // A multi-step tool turn (editRecipe/addNote: tool call, then confirmation
-        // text) surfaces as separate AI SDK message ids per step. Once the store's
-        // last message is this turn's in-progress assistant reply, keep updating
-        // that same entry rather than keying off the incoming step's id — otherwise
-        // the empty-content tool-call step is left behind as an orphaned message.
-        const isContinuingAssistantTurn = storeLastMessage?.role === 'assistant'
-        const id = isContinuingAssistantTurn ? storeLastMessage.id : lastMsg.id
-        const existingIdx = isContinuingAssistantTurn
-          ? storeMessages.length - 1
-          : -1
-
-        const messageWithRecipes: MessageWithRecipes = {
-          id,
-          content: lastMsg.content || toolMessage,
-          role: 'assistant',
-          chatId: useChatStore.getState().chatId,
-          createdAt: lastMsg.createdAt ?? new Date(),
-          updatedAt: new Date(),
-          recipes: recipes.map((r) => ({
-            id: cuid(),
-            name: r.name ?? '',
-            slug: r.name ? slugify(r.name) : cuid(),
-            description: r.description ?? '',
-            ingredients: r.ingredients?.map((i) => i ?? '') ?? [],
-            instructions: r.instructions?.map((i) => i ?? '') ?? [],
-            prepMinutes: r.prepMinutes ?? null,
-            cookMinutes: r.cookMinutes ?? null,
-            servings: r.servings ?? null,
-            course: r.course ?? null,
-            cuisine: r.cuisine ?? null,
-            dietTags: r.dietTags?.map((t) => t ?? '') ?? [],
-            flavorTags: r.flavorTags?.map((t) => t ?? '') ?? [],
-            mainIngredients: r.mainIngredients?.map((i) => i ?? '') ?? [],
-            techniques: r.techniques?.map((t) => t ?? '') ?? [],
-            saved: false
-          })),
-          toolInvocations:
-            lastMsg.toolInvocations as MessageWithRecipes['toolInvocations']
-        }
-
-        if (existingIdx >= 0) {
-          const updated = [...storeMessages]
-          updated[existingIdx] = messageWithRecipes
-          useChatStore.setState({ messages: updated })
-        } else {
-          addMessage(messageWithRecipes)
-        }
-      }
-    }
-  }, [status, chatMessages, addMessage])
-
-  const handleAISubmit = (messages: MessageWithRecipes[]) => {
-    const lastMessage = messages.at(-1)
-    if (!lastMessage) return
-
-    createUserMessage(lastMessage)
-    setInput('')
-
-    // Sync prior messages (all except the last user message) into useChat
-    const priorMessages = messages.slice(0, -1)
-    setAiMessages(
-      priorMessages.map((m) => ({
-        id: m.id,
-        content: m.content,
-        role: m.role as 'user' | 'assistant' | 'system',
-        createdAt: m.createdAt
-      }))
-    )
-
-    // Append the new user message — this triggers the API call
-    append({
-      id: lastMessage.id,
-      content: lastMessage.content,
-      role: 'user',
-      createdAt: lastMessage.createdAt
-    })
-  }
-
-  return {
-    handleAISubmit,
-    stop: aiStop
-  }
-}
-
-const STREAM_TIMEOUT = 30000 // 30 seconds
 
 export function GenerateMessageForm() {
-  const { input, handleInputChange, messages, chatId, reset, isStreaming } =
-    useChatStore()
-  const { handleAISubmit, stop: aiStop } = useRecipeChat()
   const t = useTranslations()
-  const streamTimeout = useRef<NodeJS.Timeout | null>(null)
-  const handleAISubmitRef = useRef(handleAISubmit)
+  const input = useChatStore((s) => s.input)
+  const messages = useChatStore((s) => s.messages)
+  const handleInputChange = useChatStore((s) => s.handleInputChange)
+  const { isStreaming, sendMessage, stop } = useChatSessionContext()
 
-  // Keep the ref up-to-date with the latest handler
-  useEffect(() => {
-    handleAISubmitRef.current = handleAISubmit
-  })
-
-  // Set up a stable triggerAISubmission wrapper in the store (once)
-  useEffect(() => {
-    useChatStore.setState({
-      triggerAISubmission: (messages: MessageWithRecipes[]) =>
-        handleAISubmitRef.current(messages)
-    })
-  }, [])
-
-  const enhancedHandleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
-    const userMessage = userMessageDTO(input, chatId)
-
-    const messagesToSubmit: MessageWithRecipes[] = [...messages, userMessage]
-
     if (isStreaming) {
-      aiStop()
-      if (streamTimeout.current) {
-        clearTimeout(streamTimeout.current)
-        streamTimeout.current = null
-      }
+      stop()
     } else if (input.trim()) {
-      handleAISubmit(messagesToSubmit)
-      streamTimeout.current = setTimeout(() => {
-        reset()
-        streamTimeout.current = null
-      }, STREAM_TIMEOUT)
+      sendMessage(input)
     }
   }
-
-  useEffect(() => {
-    return () => {
-      if (streamTimeout.current) {
-        clearTimeout(streamTimeout.current)
-        streamTimeout.current = null
-      }
-    }
-  }, [])
-
-  // Clear timeout when stream finishes
-  useEffect(() => {
-    if (!isStreaming && streamTimeout.current) {
-      clearTimeout(streamTimeout.current)
-      streamTimeout.current = null
-    }
-  }, [isStreaming])
 
   const context = useChatDrawerStore((s) => s.context)
 
@@ -277,7 +39,7 @@ export function GenerateMessageForm() {
   }
 
   return (
-    <form onSubmit={enhancedHandleSubmit}>
+    <form onSubmit={handleSubmit}>
       <BottomBar>
         <div className='flex w-full'>
           <Input

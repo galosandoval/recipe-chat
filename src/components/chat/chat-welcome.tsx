@@ -6,7 +6,7 @@ import {
 } from '~/components/auth/auth-drawer-dialogs'
 import { useSession } from 'next-auth/react'
 import { useChatStore } from './chat-store'
-import { userMessageDTO } from '~/lib/user-message-dto'
+import { useChatSessionContext } from './use-chat-session'
 import { Button } from '~/components/button'
 import {
   SparklesIcon,
@@ -48,8 +48,9 @@ function useContextWelcome() {
 }
 
 export function ChatWelcome() {
-  const { messages, reset, triggerAISubmission } = useChatStore()
-  const isStreaming = useChatStore((state) => state.isStreaming)
+  const messages = useChatStore((state) => state.messages)
+  const reset = useChatStore((state) => state.reset)
+  const { isStreaming, sendMessage } = useChatSessionContext()
   const session = useSession()
   const welcome = useContextWelcome()
   const isAuthenticated = session.status === 'authenticated'
@@ -63,7 +64,7 @@ export function ChatWelcome() {
       reset()
     }
 
-    triggerAISubmission([userMessageDTO(messageContent)])
+    sendMessage(messageContent)
   }
 
   return (
