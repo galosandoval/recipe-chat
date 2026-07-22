@@ -25,6 +25,10 @@ jest.mock('~/components/chat-panel', () => ({
   )
 }))
 
+jest.mock('~/hooks/use-resume-chat', () => ({
+  useResumeChat: () => undefined
+}))
+
 // Imported after the mocks so the component picks them up.
 import { ListsView } from './lists-view'
 

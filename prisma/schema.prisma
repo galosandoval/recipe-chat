@@ -78,8 +78,16 @@ model Chat {
     user      User      @relation(fields: [userId], references: [id])
     messages  Message[]
     filterIds String[]  @default([])
+    // The Chat Context this chat is scoped to. `page` matches the ChatContext
+    // discriminant (recipes | recipe-detail | list | pantry); `recipeId` is only
+    // set for recipe-detail chats and cascades when the recipe is deleted.
+    page      String    @default("recipes")
+    recipe    Recipe?   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+    recipeId  String?
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
+
+    @@index([userId, page, recipeId])
 }
 
 model Filter {
@@ -94,7 +102,7 @@ model Filter {
 
 model Message {
     id        String              @id @default(cuid())
-    chat      Chat                @relation(fields: [chatId], references: [id])
+    chat      Chat                @relation(fields: [chatId], references: [id], onDelete: Cascade)
     chatId    String
     content   String
     role      Role
@@ -146,6 +154,8 @@ model Recipe {
 
     // existing
     messages     RecipesOnMessages[]
+    // recipe-detail chats scoped to this recipe (deleted with the recipe)
+    chats        Chat[]
     saved        Boolean             @default(false)
     notes        String              @default("")
     lastViewedAt DateTime            @default(now())
@@ -180,7 +190,7 @@ model RecipeVector {
 model RecipesOnMessages {
     recipe    Recipe   @relation(fields: [recipeId], references: [id])
     recipeId  String
-    message   Message  @relation(fields: [messageId], references: [id])
+    message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
     messageId String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

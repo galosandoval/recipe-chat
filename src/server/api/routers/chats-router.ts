@@ -4,15 +4,28 @@ import {
   generated,
   getChats,
   getMessagesById,
+  getResumableChat,
   upsertChat
 } from '~/server/api/use-cases/chats-use-case'
-import { generatedSchema, upsertChatSchema } from '~/schemas/chats-schema'
+import {
+  chatContextSchema,
+  generatedSchema,
+  upsertChatSchema
+} from '~/schemas/chats-schema'
 
 export const chatsRouter = createTRPCRouter({
   getChats: protectedProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(
+      z.object({ userId: z.string(), context: chatContextSchema.optional() })
+    )
     .query(async ({ ctx, input }) => {
-      return getChats(input.userId, ctx.prisma)
+      return getChats(input.userId, ctx.prisma, input.context)
+    }),
+
+  getResumableChat: protectedProcedure
+    .input(z.object({ context: chatContextSchema.optional() }))
+    .query(async ({ ctx, input }) => {
+      return getResumableChat(ctx.session.user.id, ctx.prisma, input.context)
     }),
 
   getMessagesById: protectedProcedure
@@ -28,9 +41,16 @@ export const chatsRouter = createTRPCRouter({
   upsert: protectedProcedure
     .input(upsertChatSchema)
     .mutation(async ({ ctx, input }) => {
-      const { chatId, messages, filterIds } = input
+      const { chatId, messages, filterIds, context } = input
       const userId = ctx.session.user.id
-      return upsertChat(chatId, messages, ctx.prisma, userId, filterIds)
+      return upsertChat(
+        chatId,
+        messages,
+        ctx.prisma,
+        userId,
+        context,
+        filterIds
+      )
     }),
 
   /**

@@ -18,7 +18,7 @@
     "format": "prettier --write .",
     "seed": "bunx prisma db seed",
     "push": "bunx prisma db push",
-    "migrate": "dotenv -e .env.local -- bunx prisma migrate dev",
+    "migrate": "bunx prisma migrate dev",
     "migrate:prod": "dotenv -e .env.production --  bunx prisma migrate deploy",
     "deploy:prod": "dotenv -e .env.production --  bunx prisma migrate deploy",
     "migrate:deploy": "bunx prisma migrate deploy",
@@ -37,6 +37,7 @@
     "data-migration:add-recipe-slug-with-default": "tsx ./prisma/migrations/20251018212537_add_recipe_slug_with_default/data-migration.ts",
     "data-migration:ingredient-structured-fields": "bunx tsx ./prisma/migrations/20251018220000_ingredient_structured_fields/data-migration.ts",
     "data-migration:backfill-recipe-embeddings": "bunx tsx ./prisma/migrations/20260623000000_backfill_recipe_embeddings/data-migration.ts",
+    "data-migration:run": "bun prisma/run-data-migrations.ts",
     "data-migration:run:prod": "dotenv -e .env.production -- bun prisma/run-data-migrations.ts",
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe"
   },

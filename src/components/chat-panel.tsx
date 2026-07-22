@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { MessageSquareIcon, PlusIcon, XIcon } from 'lucide-react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
@@ -16,12 +15,6 @@ import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
 export function ChatPanel() {
   const { isOpen, close, context } = useChatDrawerStore()
   const messages = useChatStore((s) => s.messages)
-
-  useEffect(() => {
-    if (isOpen) {
-      useChatStore.getState().initializeFromStorage()
-    }
-  }, [isOpen])
 
   const headerLabel =
     context.page === 'recipe-detail' ? context.recipe.name : 'Chat'

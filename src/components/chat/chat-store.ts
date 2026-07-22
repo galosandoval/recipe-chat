@@ -1,8 +1,6 @@
 import { create } from 'zustand'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 
-const CURRENT_CHAT_ID = 'currentChatId'
-
 type ChatStore = {
   // UI State
   messages: MessageWithRecipes[]
@@ -29,7 +27,6 @@ type ChatStore = {
 
   // Utilities
   reset: () => void
-  initializeFromStorage: () => void
 }
 
 const initialMessages: MessageWithRecipes[] = []
@@ -66,27 +63,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   setPendingExpandRecipeId: (id) => set({ pendingExpandRecipeId: id }),
 
-  setChatId: (chatId: string) => {
-    set({ chatId })
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem(CURRENT_CHAT_ID, JSON.stringify(chatId))
-    }
-  },
-
-  // Initialize chatId from session storage after hydration
-  initializeFromStorage: () => {
-    if (typeof window === 'undefined') return
-
-    try {
-      const stored = sessionStorage.getItem(CURRENT_CHAT_ID)
-      if (stored) {
-        const chatId = JSON.parse(stored)
-        set({ chatId })
-      }
-    } catch {
-      // Ignore errors when reading from session storage
-    }
-  },
+  // The "current chat" is resolved from the server per Chat Context on entry
+  // (see useResumeChat), never cached client-side — a reload re-asks rather than
+  // trusting a stale local guess.
+  setChatId: (chatId: string) => set({ chatId }),
 
   // Streaming
   setIsStreaming: (isStreaming: boolean) => set({ isStreaming }),

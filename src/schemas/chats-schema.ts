@@ -51,6 +51,22 @@ export const chatContextSchema = z.discriminatedUnion('page', [
 ])
 export type ChatContext = z.infer<typeof chatContextSchema>
 
+/**
+ * The persistence/scoping projection of a {@link ChatContext} at the DB boundary:
+ * just the `page` discriminant plus the `recipeId` for recipe-detail chats. The
+ * full recipe snapshot a `recipe-detail` context carries is only used for
+ * prompt-shaping, never persisted.
+ */
+export type ChatScope = { page: ChatContext['page']; recipeId: string | null }
+
+export function chatContextToScope(context?: ChatContext): ChatScope {
+  if (!context) return { page: 'recipes', recipeId: null }
+  if (context.page === 'recipe-detail') {
+    return { page: 'recipe-detail', recipeId: context.recipe.id }
+  }
+  return { page: context.page, recipeId: null }
+}
+
 const chatMessageSchema = z.object({
   content: z.string().min(1),
   role: roleSchema,
@@ -132,7 +148,8 @@ export type MessagesWithRecipes = z.infer<typeof messagesWithRecipesSchema>
 export const upsertChatSchema = z.object({
   chatId: z.string().optional(),
   messages: messagesWithRecipesSchema,
-  filterIds: z.array(idSchema.shape.id).optional()
+  filterIds: z.array(idSchema.shape.id).optional(),
+  context: chatContextSchema.optional()
 })
 export type UpsertChatSchema = z.infer<typeof upsertChatSchema>
 
@@ -152,14 +169,17 @@ export const generatedSchema = z.object({
       messageId: z.string(),
       chatId: z.string()
     })
-    .merge(recipeFacetsSchema)
+    .merge(recipeFacetsSchema),
+  context: chatContextSchema.optional()
 })
 export type Generated = z.infer<typeof generatedSchema>
 
 export const createChatWithMessagesSchema = z
   .object({
     messages: messagesWithRecipesSchema,
-    filterIds: z.array(z.string()).optional()
+    filterIds: z.array(z.string()).optional(),
+    page: z.string().optional(),
+    recipeId: z.string().nullable().optional()
   })
   .merge(userIdSchema)
 export type CreateChatWithMessages = z.infer<

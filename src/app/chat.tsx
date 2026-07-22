@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { PlusIcon } from 'lucide-react'
 import { Interface } from '~/components/chat/interface'
 import { BottomActiveFilters } from '~/components/chat/bottom-active-filters'
@@ -8,17 +7,15 @@ import { GenerateMessageForm } from '~/components/chat/generate-message-form'
 import { ChatSessionProvider } from '~/components/chat/use-chat-session'
 import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
 import { useChatStore } from '~/components/chat/chat-store'
-import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
+import { useResumeChat } from '~/hooks/use-resume-chat'
+import type { ChatContext } from '~/schemas/chats-schema'
+
+const RECIPES_CONTEXT: ChatContext = { page: 'recipes' }
 
 export function Chat() {
-  useEffect(() => {
-    useChatStore.getState().initializeFromStorage()
-    // useChatDrawerStore's context is global and otherwise only set by
-    // route-specific ChatFab instances (recipe-detail, lists). Without this,
-    // arriving here after visiting one of those pages leaves this page
-    // showing that page's stale context (e.g. a prior recipe's suggestions).
-    useChatDrawerStore.getState().setContext({ page: 'recipes' })
-  }, [])
+  // Resolve the general `/chat` context's resumable chat from the server and
+  // keep the chats-drawer filter synced to it.
+  useResumeChat(RECIPES_CONTEXT)
 
   return (
     <ChatSessionProvider>

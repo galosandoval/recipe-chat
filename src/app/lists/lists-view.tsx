@@ -8,6 +8,8 @@ import { cn } from '~/lib/utils'
 import { ChatFab } from '~/components/chat-panel'
 import { ListByUserId } from '~/app/list/list-by-user-id'
 import { PantryByUserId } from '~/app/pantry/pantry-by-user-id'
+import { useResumeChat } from '~/hooks/use-resume-chat'
+import type { ChatContext } from '~/schemas/chats-schema'
 
 type ListsTab = 'list' | 'pantry'
 
@@ -35,6 +37,9 @@ export function ListsView() {
     params.set('tab', tab)
     router.replace(`/lists?${params.toString()}`, { scroll: false })
   }
+
+  const context: ChatContext = { page: activeTab }
+  useResumeChat(context)
 
   const tabs: { value: ListsTab; label: string; icon: ReactNode }[] = [
     { value: 'list', label: t.nav.list, icon: <ListTodoIcon /> },
