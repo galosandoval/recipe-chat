@@ -126,7 +126,8 @@ export function useChatSession(options?: {
     upsertChat({
       chatId: currentChatId || undefined,
       messages: upsertMessages,
-      filterIds
+      filterIds,
+      context: useChatDrawerStore.getState().context
     })
   }
 
@@ -177,7 +178,8 @@ export function useChatSession(options?: {
         createdAt: promptMessage.createdAt,
         updatedAt: promptMessage.updatedAt,
         role: promptMessage.role
-      }
+      },
+      context: useChatDrawerStore.getState().context
     })
   }
 
