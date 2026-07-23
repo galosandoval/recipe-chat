@@ -1,5 +1,8 @@
 import { type Recipe, type PrismaClient } from '@prisma/client'
 import { RecipesAccess } from '../data-access/recipes-access'
+import { IngredientsAccess } from '../data-access/ingredients-access'
+import { InstructionsAccess } from '../data-access/instructions-access'
+import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
 import type { CreateRecipe, UpdateRecipe } from '~/schemas/recipes-schema'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
@@ -21,12 +24,27 @@ export async function createRecipeWithEmbedding(
   return created
 }
 
-export async function getRecipeNamesByUserId(
-  userId: string,
-  prisma?: PrismaClient
-) {
-  const access = new RecipesAccess(prisma)
-  return await access.getRecipeNamesByUserId(userId)
+/**
+ * Deletes a Recipe together with everything that hangs off it — Ingredients,
+ * Instructions, and Message links — in one transaction, so no orphaned rows
+ * survive. Lives beside {@link editRecipe} because both own the Recipe's
+ * lifecycle cascade; a new Recipe relation must be deleted here too.
+ */
+export async function deleteRecipe(id: string, prisma: PrismaClient) {
+  return await prisma.$transaction(async (tx) => {
+    const txClient = tx as PrismaClient
+    const recipesDataAccess = new RecipesAccess(txClient)
+    const ingredientsDataAccess = new IngredientsAccess(txClient)
+    const instructionsDataAccess = new InstructionsAccess(txClient)
+    const recipesOnMessagesDataAccess = new RecipesOnMessagesAccess(txClient)
+
+    await ingredientsDataAccess.deleteIngredientsByRecipeId(id)
+    await instructionsDataAccess.deleteInstructionsByRecipeId(id)
+    await recipesOnMessagesDataAccess.deleteByRecipeId(id)
+    await recipesDataAccess.deleteRecipeById(id)
+
+    return true
+  })
 }
 
 export async function editRecipe(
@@ -226,13 +244,4 @@ async function handleInstructions(
   if (instructionsToUpdate.length > 0) {
     await recipesDataAccess.updateInstructions(instructionsToUpdate)
   }
-}
-
-export async function saveRecipe(
-  data: {
-    id: string
-  },
-  recipesDataAccess: RecipesAccess
-) {
-  await recipesDataAccess.saveRecipe(data)
 }
