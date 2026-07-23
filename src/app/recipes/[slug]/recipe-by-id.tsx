@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { type Instruction } from '@prisma/client'
 import { api } from '~/trpc/react'
 import { useAppForm } from '~/hooks/use-app-form'
@@ -20,7 +20,15 @@ import { Form } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
 import { FormTextarea } from '~/components/form/form-textarea'
 import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
-import { AlertCircleIcon, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import {
+  AlertCircleIcon,
+  Loader2Icon,
+  SaveIcon,
+  TrashIcon,
+  XIcon
+} from 'lucide-react'
+import { FloatingActionButton } from '~/components/floating-action-button'
+import { DeleteRecipeDialog } from '~/components/delete-recipe-dialog'
 import { AddImageDropdown } from '~/components/add-image-dropdown'
 import type { RecipeByIdData } from '~/hooks/use-recipe'
 import { useRecipe } from '~/hooks/use-recipe'
@@ -34,6 +42,7 @@ import {
 } from './recipe-edit-schema'
 import { RecipeFacetBadges, RecipeFacetsFields } from './recipe-facets'
 import { UpdateImage } from './update-recipe-image'
+import { useRecipeEditStore } from './recipe-edit-store'
 
 export function RecipeById() {
   useNoSleep()
@@ -49,13 +58,21 @@ export function RecipeById() {
 }
 
 function Recipe({ data }: { data: RecipeByIdData }) {
-  const [isEditing, setIsEditing] = useState(false)
+  const isEditing = useRecipeEditStore((s) => s.isEditing)
+  const setIsEditing = useRecipeEditStore((s) => s.setIsEditing)
+
+  // The flag lives in a shared store so the Navbar can toggle it. Reset it when
+  // this recipe unmounts (or the slug changes) so a stale `true` from a previous
+  // recipe never drops the next one straight into the edit form.
+  useEffect(() => {
+    return () => setIsEditing(false)
+  }, [setIsEditing, data.id])
 
   if (isEditing) {
     return <RecipeEditMode data={data} onClose={() => setIsEditing(false)} />
   }
 
-  return <RecipeReadView data={data} onEdit={() => setIsEditing(true)} />
+  return <RecipeReadView data={data} />
 }
 
 const observerOptions: IntersectionObserverInit = {
@@ -64,14 +81,7 @@ const observerOptions: IntersectionObserverInit = {
   threshold: Array.from({ length: 100 }, (_, i) => i / 100)
 }
 
-function RecipeReadView({
-  data,
-  onEdit
-}: {
-  data: RecipeByIdData
-  onEdit: () => void
-}) {
-  const t = useTranslations()
+function RecipeReadView({ data }: { data: RecipeByIdData }) {
   const { ingredients, instructions, notes, name } = data
   const containerRef = useRef<HTMLDivElement>(null)
   const [startRef, startObservation] = useObervationObserver(observerOptions)
@@ -86,17 +96,6 @@ function RecipeReadView({
 
   const isPastHero =
     Math.abs(startObservation?.boundingClientRect?.y ?? 0) >= containerHeight
-
-  // Priority 1 sits the Edit FAB above the recipe chat-assistant FAB (priority 0,
-  // closest to the thumb) — the FAB stack derives that order from priority, so no
-  // `bottom-*` offset is hardcoded here anymore.
-  useRegisterFab({
-    id: 'recipe-edit',
-    priority: 1,
-    ariaLabel: t.recipes.byId.edit,
-    icon: <PencilIcon />,
-    onClick: onEdit
-  })
 
   return (
     <>
@@ -339,6 +338,7 @@ function RecipeEditMode({
   const utils = api.useUtils()
   const slug = useRecipeSlug()
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const { mutate: editRecipe, isPending } = api.recipes.edit.useMutation({
     onSuccess: async (newSlug) => {
@@ -379,6 +379,30 @@ function RecipeEditMode({
     onClose()
   }
 
+  // Cancel/Save move onto the FAB stack (issue #563). Cancel sits below Save
+  // (priority 1 vs 2), and Save uses `render` so the FAB can show its pending
+  // spinner and stay disabled mid-submit.
+  useRegisterFab({
+    id: 'recipe-edit-cancel',
+    priority: 1,
+    ariaLabel: t.recipes.byId.cancel,
+    icon: <XIcon />,
+    onClick: handleCancel
+  })
+  useRegisterFab({
+    id: 'recipe-edit-save',
+    priority: 2,
+    render: () => (
+      <FloatingActionButton
+        aria-label={t.recipes.byId.save}
+        disabled={isPending}
+        onClick={form.handleSubmit(onSubmit)}
+      >
+        {isPending ? <Loader2Icon className='animate-spin' /> : <SaveIcon />}
+      </FloatingActionButton>
+    )
+  })
+
   return (
     <div className='mx-auto flex w-full max-w-2xl flex-col gap-4 px-3 pt-16 pb-10'>
       <Form
@@ -414,20 +438,19 @@ function RecipeEditMode({
           className='min-h-40'
         />
         <FormTextarea name='notes' label={t.recipes.notes} />
-        <div className='flex justify-between gap-2'>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={handleCancel}
-            icon={<XIcon className='h-4 w-4' />}
-          >
-            {t.recipes.byId.cancel}
-          </Button>
-          <Button type='submit' isLoading={isPending} icon={<SaveIcon />}>
-            {t.recipes.byId.save}
-          </Button>
-        </div>
+        {/* Delete moved off the read-view options menu onto the edit form
+            (issue #563); Cancel/Save now live on the FAB stack. */}
+        <Button
+          type='button'
+          variant='destructive'
+          onClick={() => setDeleteOpen(true)}
+          icon={<TrashIcon className='h-4 w-4' />}
+        >
+          {t.recipes.delete}
+        </Button>
       </Form>
+
+      <DeleteRecipeDialog open={deleteOpen} onOpenChange={setDeleteOpen} />
 
       <Dialog
         open={confirmOpen}

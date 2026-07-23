@@ -39,6 +39,17 @@ async function openRecipeChat(page: import('@playwright/test').Page) {
   // accept either.
   const input = page.getByPlaceholder(/Ask about|Follow up/i)
   await expect(input).toBeVisible()
+
+  // Another spec may have left a recent conversation on this recipe's chat
+  // (still within the 2h freshness window), which would resume here. Start
+  // fresh so this test's assistant turn isn't steered by unrelated prior
+  // context — mirrors a real user tapping "New chat".
+  const newChatButton = page.getByTitle('New chat')
+  if (await newChatButton.isVisible()) {
+    await newChatButton.click()
+    await expect(input).toBeVisible()
+  }
+
   return input
 }
 

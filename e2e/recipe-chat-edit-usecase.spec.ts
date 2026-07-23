@@ -32,8 +32,21 @@ test('assistant edit of the description lands through the editRecipe use-case', 
   const recipeUrl = page.url()
 
   await page.getByRole('button', { name: 'Open chat' }).click()
-  const input = page.getByPlaceholder(/Ask about/i)
+  // Placeholder is "Ask about <recipe>" for a fresh chat and "Follow up…" once
+  // a chat has messages (fresh vs resumed within the freshness window, #549) —
+  // accept either.
+  const input = page.getByPlaceholder(/Ask about|Follow up/i)
   await expect(input).toBeVisible()
+
+  // Another spec may have left a recent conversation on this recipe's chat
+  // (still within the 2h freshness window), which would resume here. Start
+  // fresh so this test's assistant turn isn't steered by unrelated prior
+  // context — mirrors a real user tapping "New chat".
+  const newChatButton = page.getByTitle('New chat')
+  if (await newChatButton.isVisible()) {
+    await newChatButton.click()
+    await expect(input).toBeVisible()
+  }
 
   await input.fill(`Update this recipe's description to: ${NEW_DESCRIPTION}`)
   // Submit via Enter to avoid clashing with the recipe page's own notes form.
