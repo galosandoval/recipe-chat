@@ -12,13 +12,14 @@ export default async function ChatPage() {
   // No profile redirect: first-run onboarding is an in-app overlay now. The
   // taste-profile prefetch seeds `tasteProfile.get` (which returns null for a
   // brand-new user), and TasteProfileDrawer auto-opens the quiz from that.
-  // Seed the taste-profile and filters queries into the RSC cache so
-  // <ChatWelcome>'s summary and filters sections render from hydrated data on
-  // first paint instead of firing their own client requests and flashing
-  // loading states in (staggered) after the page mounts.
+  // Seed the taste-profile, filters, and pantry queries into the RSC cache so
+  // <ChatWelcome>'s summary, filters, and pantry-toggle sections render from
+  // hydrated data on first paint instead of firing their own client requests
+  // and flashing loading states in (staggered) after the page mounts.
   await Promise.all([
     api.tasteProfile.get.prefetch(),
-    api.filters.getByUserId.prefetch({ userId: session.user.id })
+    api.filters.getByUserId.prefetch({ userId: session.user.id }),
+    api.pantry.byUserId.prefetch({ userId: session.user.id })
   ])
 
   return (
