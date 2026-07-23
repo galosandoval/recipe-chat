@@ -3,10 +3,10 @@
 import { useRecipe } from '~/hooks/use-recipe'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { ChatFab, ChatPanel } from '~/components/chat-panel'
-import { useResumeChat } from '~/hooks/use-resume-chat'
+import { useResumeChat, type ResumeChatSeed } from '~/hooks/use-resume-chat'
 import type { ChatContext } from '~/schemas/chats-schema'
 
-export function RecipeDetailChat() {
+export function RecipeDetailChat({ seed }: { seed?: ResumeChatSeed }) {
   const { data: recipe } = useRecipe()
 
   const context: ChatContext = !recipe
@@ -26,7 +26,7 @@ export function RecipeDetailChat() {
         }
       }
 
-  useResumeChat(context)
+  useResumeChat(context, seed)
 
   return (
     <>
