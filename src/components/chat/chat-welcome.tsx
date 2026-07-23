@@ -215,9 +215,11 @@ function TasteProfileSummary() {
         </ProfileRow>
 
         <ProfileRow label={t.valueProps.household}>
-          <span className='text-foreground text-sm capitalize'>
-            {profile.householdSize}
-          </span>
+          <Badge
+            variant='muted'
+            labelClassName='text-xs capitalize'
+            label={profile.householdSize.toString()}
+          />
         </ProfileRow>
 
         {profile.cuisinePreferences.length > 0 && (

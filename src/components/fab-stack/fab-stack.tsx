@@ -7,6 +7,8 @@ import { AnimatePresence } from '~/components/motion/animate-presence'
 import { durations, ease } from '~/components/motion/transitions'
 import { FloatingActionButton } from '~/components/floating-action-button'
 import { useFabStackStore } from './fab-stack-store'
+import { useChatStore } from '../chat/chat-store'
+import { cn } from '~/lib/utils'
 
 /**
  * The route-entrance delay, mirroring the value {@link FloatingActionButton}
@@ -31,6 +33,7 @@ const ROUTE_ENTRANCE_WINDOW_MS = (ROUTE_ENTRANCE_DELAY + durations.base) * 1000
  */
 export function FabStack() {
   const fabs = useFabStackStore((s) => s.fabs)
+  const messages = useChatStore((s) => s.messages)
   const pathname = usePathname()
 
   // A fresh navigation makes the newly-registered FABs wait for the route
@@ -43,8 +46,15 @@ export function FabStack() {
     return () => clearTimeout(timer)
   }, [pathname])
 
+  const shouldMoveForInput = messages.length > 0 && pathname === '/chat'
+
   return (
-    <div className='fixed right-4 bottom-20 z-40 flex w-fit flex-col-reverse items-end gap-3 sm:right-6 sm:bottom-6'>
+    <div
+      className={cn(
+        'fixed right-4 z-40 flex w-fit flex-col-reverse items-end gap-3 sm:right-6 sm:bottom-6',
+        shouldMoveForInput ? 'bottom-32' : 'bottom-20'
+      )}
+    >
       <AnimatePresence>
         {fabs.map((fab) => (
           <motion.div
