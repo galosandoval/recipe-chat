@@ -3,6 +3,10 @@ import { RecipeById } from './recipe-by-id'
 import { notFound } from 'next/navigation'
 import { RecipeDetailChat } from './recipe-detail-chat'
 import { RecipeInitialDataProvider } from '~/hooks/use-recipe'
+import { auth } from '~/server/auth'
+import { getIngredientDisplayText } from '~/lib/ingredient-display'
+import type { ChatContext } from '~/schemas/chats-schema'
+import type { ResumeChatSeed } from '~/hooks/use-resume-chat'
 
 export async function generateMetadata({
   params
@@ -36,12 +40,40 @@ export default async function RecipeByIdPage({
     return notFound()
   }
 
+  // Resolve this recipe's resumable chat server-side (authenticated users
+  // only, mirroring RecipeDetailChat's client-side `isAuthenticated` guard)
+  // so the chat drawer's resume state is seeded before the client tree
+  // renders instead of racing a client-side fetch.
+  const session = await auth()
+  let chatSeed: ResumeChatSeed | undefined
+  if (session?.user.id) {
+    const context: ChatContext = {
+      page: 'recipe-detail',
+      recipe: {
+        id: recipe.id,
+        name: recipe.name,
+        slug: recipe.slug,
+        description: recipe.description,
+        ingredients: recipe.ingredients.map((ing) =>
+          getIngredientDisplayText(ing)
+        ),
+        cuisine: recipe.cuisine,
+        course: recipe.course
+      }
+    }
+    const resumable = await api.chats.getResumableChat({ context })
+    const messages = resumable
+      ? await api.chats.getMessagesById({ chatId: resumable.id })
+      : null
+    chatSeed = { resumable, messages }
+  }
+
   return (
     <RecipeInitialDataProvider slug={slug} recipe={recipe}>
       <div className='min-h-svh w-full'>
         <RecipeById />
       </div>
-      <RecipeDetailChat />
+      <RecipeDetailChat seed={chatSeed} />
     </RecipeInitialDataProvider>
   )
 }
