@@ -7,15 +7,13 @@ import { GenerateMessageForm } from '~/components/chat/generate-message-form'
 import { ChatSessionProvider } from '~/components/chat/use-chat-session'
 import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
 import { useChatStore } from '~/components/chat/chat-store'
-import { useResumeChat } from '~/hooks/use-resume-chat'
-import type { ChatContext } from '~/schemas/chats-schema'
+import { useResumeChat, type ResumeChatSeed } from '~/hooks/use-resume-chat'
+import { RECIPES_CONTEXT } from '~/schemas/chats-schema'
 
-const RECIPES_CONTEXT: ChatContext = { page: 'recipes' }
-
-export function Chat() {
+export function Chat({ seed }: { seed?: ResumeChatSeed }) {
   // Resolve the general `/chat` context's resumable chat from the server and
   // keep the chats-drawer filter synced to it.
-  useResumeChat(RECIPES_CONTEXT)
+  useResumeChat(RECIPES_CONTEXT, seed)
 
   return (
     <ChatSessionProvider>

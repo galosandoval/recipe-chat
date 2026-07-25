@@ -52,6 +52,14 @@ export const chatContextSchema = z.discriminatedUnion('page', [
 export type ChatContext = z.infer<typeof chatContextSchema>
 
 /**
+ * The Chat Context for the general `/chat` page and the `/recipes` list's
+ * "add with chat" entry point. Shared between server (RSC resume resolution)
+ * and client code so both build the byte-identical context object that
+ * `getResumableChat`/`getMessagesById`'s query keys depend on.
+ */
+export const RECIPES_CONTEXT: ChatContext = { page: 'recipes' }
+
+/**
  * The persistence/scoping projection of a {@link ChatContext} at the DB boundary:
  * just the `page` discriminant plus the `recipeId` for recipe-detail chats. The
  * full recipe snapshot a `recipe-detail` context carries is only used for
