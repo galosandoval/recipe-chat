@@ -8,6 +8,7 @@ const TIER_LEVEL: Record<SubscriptionTier, number> = {
 
 export type GatedFeature =
   | 'recipeRemix'
+  | 'cookMode'
   | 'basicVideo'
   | 'customVideoEditing'
   | 'householdSync'
@@ -15,6 +16,7 @@ export type GatedFeature =
 
 const FEATURE_TIERS: Record<GatedFeature, SubscriptionTier> = {
   recipeRemix: 'STARTER',
+  cookMode: 'STARTER',
   basicVideo: 'STARTER',
   customVideoEditing: 'PREMIUM',
   householdSync: 'PREMIUM',
