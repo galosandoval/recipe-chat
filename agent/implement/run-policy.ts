@@ -10,14 +10,17 @@
  * was dropped in #540; the idle default disagreed 30-vs-10; the CLI froze at
  * different times on each side).
  *
- * Every consumer now derives from here: the orchestrator validates env against
- * {@link findMissingEnvVars} and reads the idle budget from
- * {@link resolveIdleMs}; the local supervisor reads the wall-clock budget from
- * {@link resolveWallClockMs}; the invocation-assembly module sources
- * {@link MODEL} / {@link MAX_TURNS}; and the shell consumers (entrypoint,
- * workflow install step, image build) read {@link PRESERVE_ENV_VARS} and
- * {@link CLAUDE_CODE_CLI_VERSION} through the {@link runPolicyCommand} CLI print
- * mode instead of duplicating them. No IO here — pure values and derivations.
+ * Every consumer now derives from here: `implement.ts` passes {@link
+ * REQUIRED_ENV_VARS} / {@link MODEL} / {@link MAX_TURNS} / {@link
+ * IDLE_MINUTES} into `@galosandoval/shopfloor`'s `runImplementAgent`, which
+ * validates env and resolves the idle budget itself (#576 — no local copy of
+ * that logic); the local supervisor reads the wall-clock budget from
+ * {@link resolveWallClockMs} (the one guard the package doesn't own, since
+ * `runImplementAgent` enforces no wall clock of its own); and the shell
+ * consumers (entrypoint, workflow install step, image build) read {@link
+ * PRESERVE_ENV_VARS} and {@link CLAUDE_CODE_CLI_VERSION} through the {@link
+ * runPolicyCommand} CLI print mode instead of duplicating them. No IO here —
+ * pure values and derivations.
  */
 
 /** Claude model the headless agent runs. */
@@ -48,8 +51,9 @@ export const IDLE_MINUTES = 15
 
 /**
  * Env vars the orchestrator must see, non-empty, before it spends any tokens.
- * A missing one aborts the run at startup naming the var (see
- * {@link findMissingEnvVars}) instead of surfacing mid-run.
+ * Passed as `runPolicy.requiredEnvVars` into `runImplementAgent`, which
+ * aborts the run at startup naming every missing one instead of surfacing
+ * mid-run.
  */
 export const REQUIRED_ENV_VARS = [
   'ISSUE_NUMBER',
@@ -90,16 +94,6 @@ export const PRESERVE_ENV_VARS = [
   ...OPTIONAL_ENV_VARS
 ] as const
 
-/**
- * Names of the required env vars that are absent or empty in `env`, in
- * declaration order. An empty array means the run may proceed.
- */
-export function findMissingEnvVars(
-  env: Record<string, string | undefined>
-): string[] {
-  return REQUIRED_ENV_VARS.filter((name) => !env[name])
-}
-
 /** Parse a minutes override, falling back to `fallbackMinutes` unless it is a positive number. */
 function resolveMinutesMs(
   raw: string | undefined,
@@ -109,11 +103,6 @@ function resolveMinutesMs(
   const minutes =
     Number.isFinite(parsed) && parsed > 0 ? parsed : fallbackMinutes
   return minutes * 60_000
-}
-
-/** Idle budget in ms — the contract default unless `LOCAL_IDLE_MINUTES` overrides it. */
-export function resolveIdleMs(env: Record<string, string | undefined>): number {
-  return resolveMinutesMs(env.LOCAL_IDLE_MINUTES, IDLE_MINUTES)
 }
 
 /** Wall-clock budget in ms — the contract default unless `LOCAL_WALL_CLOCK_MINUTES` overrides it. */
