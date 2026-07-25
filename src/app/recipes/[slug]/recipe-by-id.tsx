@@ -43,6 +43,7 @@ import {
 import { RecipeFacetBadges, RecipeFacetsFields } from './recipe-facets'
 import { UpdateImage } from './update-recipe-image'
 import { useRecipeEditStore } from './recipe-edit-store'
+import { CookMode } from './cook-mode'
 
 export function RecipeById() {
   useNoSleep()
@@ -99,6 +100,7 @@ function RecipeReadView({ data }: { data: RecipeByIdData }) {
 
   return (
     <>
+      <CookMode />
       <ImageWithTitleAndDescription data={data} translateY={translateY} />
 
       <div>

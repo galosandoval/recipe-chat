@@ -33,6 +33,9 @@ jest.mock('~/components/add-image-dropdown', () => ({
 jest.mock('~/components/parallax-container', () => ({
   ParallaxContainer: () => <div data-testid='parallax' />
 }))
+jest.mock('./cook-mode', () => ({
+  CookMode: () => <div data-testid='cook-mode' />
+}))
 jest.mock('./update-recipe-image', () => ({
   UpdateImage: () => <div data-testid='update-image' />
 }))

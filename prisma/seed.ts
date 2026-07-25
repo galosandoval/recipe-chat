@@ -36,6 +36,9 @@ async function main() {
       firstName: 'Alice',
       lastName: 'Prisma',
       password: hashedPassword,
+      // Starter tier so tier-gated features (e.g. Cook Mode, issue #422) are
+      // reachable for the seeded user in dev and the e2e suite.
+      subscriptionTier: 'STARTER',
       // Real signup creates an empty list; the session callback reads
       // `user.list.id`, so the seeded user needs one too.
       list: { create: {} },
