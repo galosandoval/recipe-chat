@@ -30,7 +30,6 @@ import {
  * with access. Screen-wake is already handled by the recipe page's `useNoSleep`.
  */
 export function CookMode() {
-  const hasAccess = useFeatureAccess('cookMode')
   const { data: recipe } = useRecipe()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -38,7 +37,8 @@ export function CookMode() {
 
   return (
     <>
-      {hasAccess && <CookModeFab onOpen={() => setIsOpen(true)} />}
+      {/* TODO: Think about what permission this should be{hasAccess && <CookModeFab onOpen={() => setIsOpen(true)} />} */}
+      <CookModeFab onOpen={() => setIsOpen(true)} />
       {isOpen && (
         <CookModeOverlay recipe={recipe} onExit={() => setIsOpen(false)} />
       )}
