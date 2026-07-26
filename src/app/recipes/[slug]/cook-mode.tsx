@@ -25,8 +25,10 @@ import {
 /**
  * Cook Mode: a full-screen, distraction-free view for cooking a Recipe with
  * large text, step-by-step navigation, per-step timers, and an ingredients
- * overlay. Gated behind the STARTER tier — the trigger only mounts for users
- * with access. Screen-wake is already handled by the recipe page's `useNoSleep`.
+ * overlay. Screen-wake is already handled by the recipe page's `useNoSleep`.
+ *
+ * TODO: not tier-gated yet — every user gets the trigger. Decide which tier
+ * (and permission check) should gate this before launch.
  */
 export function CookMode() {
   const { data: recipe } = useRecipe()
@@ -36,7 +38,6 @@ export function CookMode() {
 
   return (
     <>
-      {/* TODO: Think about what permission this should be{hasAccess && <CookModeFab onOpen={() => setIsOpen(true)} />} */}
       <CookModeFab onOpen={() => setIsOpen(true)} />
       {isOpen && (
         <CookModeOverlay recipe={recipe} onExit={() => setIsOpen(false)} />
