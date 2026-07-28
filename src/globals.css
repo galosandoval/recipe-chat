@@ -27,10 +27,6 @@
   animation: screenLoaderFadeIn 200ms ease-in 200ms forwards;
 }
 
-@utility screen-loader-fade-in {
-  animation: screenLoaderFadeIn 300ms ease-in 500ms forwards;
-}
-
 @keyframes screenLoaderFadeIn {
   to {
     opacity: 1;
