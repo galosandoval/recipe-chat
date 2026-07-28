@@ -6,7 +6,7 @@ export function ScreenLoader({ className }: { className?: string }) {
     <div
       className={cn(
         'fixed inset-0 z-50 grid place-items-center',
-        'screen-loader-fade-in opacity-0 backdrop-blur-sm',
+        'opacity-0',
         'pt-[4.8rem]',
         className
       )}

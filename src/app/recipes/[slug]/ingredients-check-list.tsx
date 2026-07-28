@@ -137,15 +137,15 @@ export function IngredientsCheckList({
         ))}
         <div>
           <Button
-            className={'w-full justify-between gap-2 rounded-md text-base'}
+            className='w-full gap-2 rounded-md text-base'
             variant={addedToList ? 'default' : 'outline'}
             size='lg'
             disabled={!someNotChecked}
             onClick={addedToList ? handleGoToList : handleAddToList}
             isLoading={isPending}
+            icon={addedToList ? <ListChecksIcon /> : <PlusIcon />}
           >
             {addedToList ? t.recipes.byId.goToList : t.recipes.byId.addToList}
-            {addedToList ? <ListChecksIcon /> : <PlusIcon />}
           </Button>
         </div>
       </div>

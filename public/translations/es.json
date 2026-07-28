@@ -268,8 +268,8 @@
       "addImage": "Agregar imagen",
       "editDescription": "Haz cambios a la receta.",
       "saveImage": "Guardar imagen",
-      "goToList": "Ir a lista",
-      "addToList": "Agregar a tu lista",
+      "goToList": "Ir a tu Lista de Compras",
+      "addToList": "Añadir los no marcados a tu Lista de Compras",
       "deselectAll": "Deseleccionar todo",
       "selectAll": "Seleccionar todo",
       "placeholder": "Agrega notas aqui",
@@ -304,6 +304,20 @@
         "title": "Borrar receta",
         "message": "¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer."
       }
+    },
+    "cookMode": {
+      "open": "Modo cocina",
+      "title": "Modo cocina",
+      "exit": "Salir del modo cocina",
+      "stepOf": "Paso $1 de $2",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "done": "Listo",
+      "ingredients": "Ingredientes",
+      "showIngredients": "Mostrar ingredientes",
+      "hideIngredients": "Ocultar ingredientes",
+      "setTimer": "Iniciar temporizador: $1",
+      "timerDone": "Temporizador terminado: $1"
     }
   },
   "subscription": {
