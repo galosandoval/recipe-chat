@@ -1,8 +1,9 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 
+const mockUsePathname = jest.fn(() => '/recipes/pasta')
 jest.mock('next/navigation', () => ({
-  usePathname: () => '/recipes/pasta'
+  usePathname: () => mockUsePathname()
 }))
 
 import { FabStack } from './fab-stack'
@@ -10,6 +11,7 @@ import { useFabStackStore } from './fab-stack-store'
 
 beforeEach(() => {
   useFabStackStore.setState({ fabs: [] })
+  mockUsePathname.mockReturnValue('/recipes/pasta')
 })
 
 describe('FabStack', () => {
@@ -56,6 +58,38 @@ describe('FabStack', () => {
       .getAllByRole('button')
       .map((b) => b.getAttribute('aria-label'))
     expect(labels).toEqual(['Chat', 'Edit'])
+  })
+
+  it('sits at the resting offset on routes without a bottom input footer', () => {
+    mockUsePathname.mockReturnValue('/recipes/pasta')
+    useFabStackStore.getState().register({
+      id: 'chat',
+      priority: 0,
+      ariaLabel: 'Open chat',
+      icon: null,
+      onClick: () => {}
+    })
+    const { container } = render(<FabStack />)
+
+    const column = container.firstElementChild
+    expect(column).toHaveClass('bottom-20')
+    expect(column).not.toHaveClass('bottom-32')
+  })
+
+  it('lifts the FAB column above the sticky lists footer input on mobile', () => {
+    mockUsePathname.mockReturnValue('/lists')
+    useFabStackStore.getState().register({
+      id: 'chat',
+      priority: 0,
+      ariaLabel: 'Open chat',
+      icon: null,
+      onClick: () => {}
+    })
+    const { container } = render(<FabStack />)
+
+    const column = container.firstElementChild
+    expect(column).toHaveClass('bottom-32')
+    expect(column).not.toHaveClass('bottom-20')
   })
 
   it('renders a custom `render` FAB instead of the default button', () => {
