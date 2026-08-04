@@ -1,13 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import type Stripe from 'stripe'
 import { getStripe } from '~/lib/stripe'
 import { prisma } from '~/server/db'
-import {
-  handleSubscriptionCreated,
-  handleSubscriptionUpdated,
-  handleSubscriptionDeleted,
-  handlePaymentFailed
-} from '~/server/api/use-cases/subscription-use-case'
-import type Stripe from 'stripe'
+import { SubscriptionAccess } from '~/server/api/data-access/subscription-access'
+import { handleStripeEvent } from '~/server/api/use-cases/subscription-use-case'
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -17,9 +13,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
   }
 
+  const stripe = getStripe()
+
   let event: Stripe.Event
   try {
-    event = getStripe().webhooks.constructEvent(
+    event = stripe.webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
@@ -27,33 +25,11 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
-  console.log('event.type', event.type)
-  switch (event.type) {
-    case 'customer.subscription.created':
-      await handleSubscriptionCreated(
-        event.data.object as Stripe.Subscription,
-        prisma
-      )
-      break
 
-    case 'customer.subscription.updated':
-      await handleSubscriptionUpdated(
-        event.data.object as Stripe.Subscription,
-        prisma
-      )
-      break
-
-    case 'customer.subscription.deleted':
-      await handleSubscriptionDeleted(
-        event.data.object as Stripe.Subscription,
-        prisma
-      )
-      break
-
-    case 'invoice.payment_failed':
-      await handlePaymentFailed(event.data.object as Stripe.Invoice, prisma)
-      break
-  }
+  await handleStripeEvent(event, {
+    stripe,
+    access: new SubscriptionAccess(prisma)
+  })
 
   return NextResponse.json({ received: true })
 }
