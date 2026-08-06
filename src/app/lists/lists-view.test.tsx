@@ -38,14 +38,14 @@ describe('ListsView', () => {
     searchParamsValue = new URLSearchParams()
   })
 
-  it('renders both List and Pantry tabs', () => {
+  it('renders both Grocery List and Pantry tabs', () => {
     renderWithTranslations(<ListsView />)
 
     expect(screen.getByRole('tab', { name: en.nav.list })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: en.nav.pantry })).toBeInTheDocument()
   })
 
-  it('defaults to the List tab when no tab param is present', () => {
+  it('defaults to the Grocery List tab when no tab param is present', () => {
     renderWithTranslations(<ListsView />)
 
     expect(screen.getByText('list-content')).toBeInTheDocument()

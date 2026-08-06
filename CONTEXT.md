@@ -1,6 +1,6 @@
 # Recipe Chat
 
-An AI recipe assistant: users chat to get recipe ideas, keep the ones they like, turn them into a shopping list, track what's in their pantry, and pay for higher tiers. This glossary is the project's ubiquitous language — the canonical word for each concept, with discouraged synonyms under _Avoid_.
+An AI recipe assistant: users chat to get recipe ideas, keep the ones they like, turn them into a grocery list, track what's in their pantry, and pay for higher tiers. This glossary is the project's ubiquitous language — the canonical word for each concept, with discouraged synonyms under _Avoid_.
 
 ## Recipes
 
@@ -17,7 +17,7 @@ The structured classification of a recipe used to power filtering, dedupe, and s
 _Avoid_: tags, categories, metadata, labels
 
 **Ingredient**:
-A single component of a recipe, shopping list, or pantry — a parsed quantity, unit, and item name derived from a raw string.
+A single component of a recipe, grocery list, or pantry — a parsed quantity, unit, and item name derived from a raw string.
 _Avoid_: item, food
 
 **Instruction**:
@@ -40,11 +40,15 @@ _Avoid_: scope, page
 
 ## Collections
 
-The `/lists` route surfaces this section to users as **Collections** — the Shopping List and Pantry tabs live under it.
+**Collections**:
+What users see for the section holding the Grocery List and the Pantry — where each is a tab.
+_Avoid_: lists, sections
 
-**Shopping List**:
-A user's single list of ingredients they intend to buy. One per user. Labeled "Grocery List" in the UI; "Shopping List" stays the canonical term in code and docs.
-_Avoid_: list, cart, basket
+**Grocery List**:
+A user's single list of ingredients they intend to buy. One per user. Rendered in Spanish as "Lista de Compras".
+_Avoid_: shopping list, list, cart, basket
+
+The code has not caught up yet: the route is `/lists`, and the translation keys, routers, and `ChatContext` page still say `list`/`lists`. Renaming those is follow-up work — until then, treat the identifiers as legacy spellings of these two terms, and write new code with the canonical names.
 
 **Pantry**:
 A user's single collection of ingredients they have on hand, used to bias recipe suggestions toward what they already own. One per user.

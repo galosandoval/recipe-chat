@@ -32,14 +32,14 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('Carbonara | Margherita Pizza')
   })
 
-  it('describes the list page with "shopping list", honoring the glossary', () => {
+  it('describes the list page with "grocery list", honoring the glossary', () => {
     const prompt = buildSystemPrompt({
       ...baseArgs,
       context: { page: 'list' }
     } as PromptArgs)
 
-    expect(prompt).toContain('shopping list page')
-    expect(prompt).not.toMatch(/grocery list/i)
+    expect(prompt).toContain('grocery list page')
+    expect(prompt).not.toMatch(/shopping list/i)
   })
 
   describe('hasTasteProfile gate', () => {
