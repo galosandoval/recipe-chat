@@ -23,8 +23,8 @@
       "subscription": "Subscription"
     },
     "chat": "Chat",
-    "list": "List",
-    "lists": "Lists",
+    "list": "Grocery List",
+    "lists": "Collections",
     "pantry": "Pantry",
     "recipes": "Recipes",
     "settings": "Settings"
@@ -49,9 +49,9 @@
   },
   "list": {
     "byRecipe": "By recipe",
-    "noItems": "No items in your list",
-    "addToList": "Add to list",
-    "addIngredient": "Add a new ingredient to your list",
+    "noItems": "No items in your Grocery List",
+    "addToList": "Add to Grocery List",
+    "addIngredient": "Add a new ingredient to your Grocery List",
     "addFirstItem": "Add an item",
     "removeChecked": "Remove checked",
     "addToPantry": "Add to pantry",
@@ -151,11 +151,11 @@
         "thirdButton": "What sides go well with this?"
       },
       "list": {
-        "title": "List Assistant",
-        "description": "I can help you organize your shopping list and suggest what to buy.",
+        "title": "Grocery List Assistant",
+        "description": "I can help you organize your Grocery List and suggest what to buy.",
         "firstButton": "What am I missing for a balanced meal?",
-        "secondButton": "Organize my list by aisle",
-        "thirdButton": "Suggest a recipe from my list items"
+        "secondButton": "Organize my Grocery List by aisle",
+        "thirdButton": "Suggest a recipe from my Grocery List items"
       },
       "pantry": {
         "title": "Pantry Assistant",
@@ -216,7 +216,7 @@
     "chatFormPlaceholder": "Ask about a recipe",
     "chatFormContinue": "Follow up with a message or corrections",
     "chatFormRecipeDetail": "Ask about $1",
-    "chatFormList": "Ask about your shopping list",
+    "chatFormList": "Ask about your Grocery List",
     "chatFormPantry": "What can I make with what I have?",
     "chatsDrawer": {
       "title": "Recent chats"
@@ -334,7 +334,7 @@
     "canceledMessage": "Checkout was canceled.",
     "pastDueWarning": "Your payment is past due. Please update your payment method.",
     "freeFeatures": "Basic recipe chat, Save up to 10 recipes",
-    "starterFeatures": "Unlimited saved recipes, Full chat history, Aisle-sorted shopping lists, Staples management, Cook mode, Recipe remixing",
+    "starterFeatures": "Unlimited saved recipes, Full chat history, Aisle-sorted Grocery List, Staples management, Cook mode, Recipe remixing",
     "premiumFeatures": "Everything in Starter, 7-day meal planning, Fridge-first recipe suggestions, Multi-user household sync, Customizable video editing, Private clubs and groups, Direct-to-cart grocery integration, Nutrition sync with Apple Health and Google Fit, Priority support"
   },
   "error": {

@@ -40,9 +40,11 @@ _Avoid_: scope, page
 
 ## Collections
 
+The `/lists` route surfaces this section to users as **Collections** — the Shopping List and Pantry tabs live under it.
+
 **Shopping List**:
-A user's single list of ingredients they intend to buy. One per user.
-_Avoid_: grocery list, list, cart, basket
+A user's single list of ingredients they intend to buy. One per user. Labeled "Grocery List" in the UI; "Shopping List" stays the canonical term in code and docs.
+_Avoid_: list, cart, basket
 
 **Pantry**:
 A user's single collection of ingredients they have on hand, used to bias recipe suggestions toward what they already own. One per user.
