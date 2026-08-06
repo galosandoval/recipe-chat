@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ChefHatIcon,
   ChevronLeftIcon,
@@ -24,8 +24,10 @@ import {
 
 /**
  * Cook Mode: a full-screen, distraction-free view for cooking a Recipe with
- * large text, step-by-step navigation, per-step timers, and an ingredients
- * overlay. Screen-wake is already handled by the recipe page's `useNoSleep`.
+ * large text, per-step timers, and an ingredients overlay. Instructions are a
+ * vertical scroll-snap list — the user flicks through them with a thumb and
+ * each Instruction snaps to the top — with Previous/Next as a precise
+ * alternative. Screen-wake is already handled by the recipe page's `useNoSleep`.
  *
  * TODO: not tier-gated yet — every user gets the trigger. Decide which tier
  * (and permission check) should gate this before launch.
@@ -39,6 +41,7 @@ export function CookMode() {
   return (
     <>
       <CookModeFab onOpen={() => setIsOpen(true)} />
+
       {isOpen && (
         <CookModeOverlay recipe={recipe} onExit={() => setIsOpen(false)} />
       )}
@@ -74,12 +77,22 @@ function CookModeOverlay({
   const t = useTranslations()
   const [stepIndex, setStepIndex] = useState(0)
   const [showIngredients, setShowIngredients] = useState(false)
+  const scrollRef = useRef<HTMLOListElement>(null)
+  const stepRefs = useRef<(HTMLElement | null)[]>([])
 
   const total = recipe.instructions.length
-  const step = recipe.instructions[stepIndex]
-  const timers = useMemo(
-    () => parseStepTimers(step?.description ?? ''),
-    [step?.description]
+  useActiveStepOnScroll({ scrollRef, stepRefs, total, setStepIndex })
+
+  const goToStep = useCallback(
+    (index: number) => {
+      const clamped = Math.min(total - 1, Math.max(0, index))
+      setStepIndex(clamped)
+      stepRefs.current[clamped]?.scrollIntoView?.({
+        behavior: 'smooth',
+        block: 'start'
+      })
+    },
+    [total]
   )
 
   const isFirst = stepIndex === 0
@@ -92,7 +105,7 @@ function CookModeOverlay({
       aria-label={t.recipes.cookMode.title}
       className='bg-background fixed inset-0 z-50 flex flex-col'
     >
-      <header className='flex items-center justify-between border-b px-4 py-3'>
+      <header className='flex items-center justify-between gap-3 border-b px-4 py-3'>
         <h2 className='truncate text-lg font-bold'>{recipe.name}</h2>
         <Button
           variant='ghost'
@@ -103,36 +116,37 @@ function CookModeOverlay({
         />
       </header>
 
-      <main className='mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-y-auto px-6 py-8'>
-        <p className='text-muted-foreground mb-6 text-center text-lg font-semibold tracking-wide uppercase'>
-          {t.recipes.cookMode.replace(
-            'stepOf',
-            String(stepIndex + 1),
-            String(total)
-          )}
-        </p>
-        <p className='text-2xl leading-relaxed font-medium sm:text-3xl'>
-          {step?.description}
-        </p>
+      {/* The scroll container is the list itself so each step's `min-h-full`
+          resolves against a definite height. */}
+      <ol
+        ref={scrollRef}
+        className='flex-1 snap-y snap-mandatory overflow-y-auto overscroll-contain'
+      >
+        {recipe.instructions.map((instruction, index) => (
+          <StepSection
+            key={instruction.id}
+            ref={(node) => {
+              stepRefs.current[index] = node
+            }}
+            index={index}
+            total={total}
+            description={instruction.description}
+            isActive={index === stepIndex}
+          />
+        ))}
+      </ol>
 
-        {timers.length > 0 && (
-          <div className='mt-8 flex flex-col gap-3'>
-            {timers.map((timer, index) => (
-              <StepTimerButton key={`${timer.label}-${index}`} timer={timer} />
-            ))}
-          </div>
-        )}
-      </main>
-
-      <footer className='flex items-center justify-between gap-3 border-t px-4 py-4'>
+      <footer className='flex items-center justify-between gap-2 border-t px-3 py-3 sm:gap-3 sm:px-4 sm:py-4'>
         <Button
           variant='outline'
           size='lg'
           disabled={isFirst}
-          onClick={() => setStepIndex((i) => Math.max(0, i - 1))}
+          onClick={() => goToStep(stepIndex - 1)}
           icon={<ChevronLeftIcon />}
         >
-          {t.recipes.cookMode.previous}
+          <span className='sr-only sm:not-sr-only'>
+            {t.recipes.cookMode.previous}
+          </span>
         </Button>
         <Button
           variant='outline'
@@ -140,15 +154,19 @@ function CookModeOverlay({
           onClick={() => setShowIngredients(true)}
           icon={<ListChecksIcon />}
         >
-          {t.recipes.cookMode.showIngredients}
+          <span className='sr-only sm:not-sr-only'>
+            {t.recipes.cookMode.showIngredients}
+          </span>
         </Button>
         <Button
           size='lg'
           disabled={isLast}
-          onClick={() => setStepIndex((i) => Math.min(total - 1, i + 1))}
+          onClick={() => goToStep(stepIndex + 1)}
           icon={<ChevronRightIcon />}
         >
-          {t.recipes.cookMode.next}
+          <span className='sr-only sm:not-sr-only'>
+            {t.recipes.cookMode.next}
+          </span>
         </Button>
       </footer>
 
@@ -160,6 +178,102 @@ function CookModeOverlay({
       )}
     </div>
   )
+}
+
+/**
+ * One Instruction, sized to fill the scroll area so it snaps to the top on its
+ * own. Taller steps (long text plus timers) simply overflow and scroll.
+ */
+function StepSection({
+  ref,
+  index,
+  total,
+  description,
+  isActive
+}: {
+  ref: (node: HTMLLIElement | null) => void
+  index: number
+  total: number
+  description: string
+  isActive: boolean
+}) {
+  const t = useTranslations()
+  const timers = useMemo(() => parseStepTimers(description), [description])
+
+  return (
+    <li
+      ref={ref}
+      data-step-index={index}
+      aria-current={isActive ? 'step' : undefined}
+      className='mx-auto flex min-h-full w-full max-w-2xl snap-start flex-col justify-center px-6 py-8 sm:px-8'
+    >
+      <p className='text-muted-foreground mb-4 text-sm font-semibold tracking-wide uppercase'>
+        {t.recipes.cookMode.replace('stepOf', String(index + 1), String(total))}
+      </p>
+      <p
+        className={`text-2xl leading-relaxed font-medium transition-opacity sm:text-3xl ${
+          isActive ? 'opacity-100' : 'opacity-40'
+        }`}
+      >
+        {description}
+      </p>
+
+      {timers.length > 0 && (
+        <div className='mt-8 flex flex-col gap-3'>
+          {timers.map((timer, timerIndex) => (
+            <StepTimerButton
+              key={`${timer.label}-${timerIndex}`}
+              timer={timer}
+            />
+          ))}
+        </div>
+      )}
+    </li>
+  )
+}
+
+/**
+ * Mirrors the user's scrolling back into `stepIndex` so the highlighted step
+ * and the Previous/Next buttons stay in sync with whatever is on screen.
+ */
+function useActiveStepOnScroll({
+  scrollRef,
+  stepRefs,
+  total,
+  setStepIndex
+}: {
+  scrollRef: React.RefObject<HTMLOListElement | null>
+  stepRefs: React.RefObject<(HTMLElement | null)[]>
+  total: number
+  setStepIndex: (index: number) => void
+}) {
+  useEffect(() => {
+    const root = scrollRef.current
+    if (!root || typeof IntersectionObserver === 'undefined') return
+
+    const ratios = new Array<number>(total).fill(0)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const index = Number(
+            (entry.target as HTMLElement).dataset.stepIndex ?? -1
+          )
+          if (index >= 0) ratios[index] = entry.intersectionRatio
+        }
+        let best = 0
+        for (let i = 1; i < ratios.length; i++) {
+          if (ratios[i] > ratios[best]) best = i
+        }
+        setStepIndex(best)
+      },
+      { root, threshold: [0, 0.25, 0.5, 0.75, 1] }
+    )
+
+    for (const node of stepRefs.current) {
+      if (node) observer.observe(node)
+    }
+    return () => observer.disconnect()
+  }, [scrollRef, stepRefs, total, setStepIndex])
 }
 
 function IngredientsPanel({
