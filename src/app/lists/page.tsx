@@ -19,6 +19,9 @@ export default async function ListsPage() {
 
   return (
     <HydrateClient>
+      {/* Load-bearing: ListByUserId/PantryByUserId call `useSuspenseQuery`,
+          which suspends on the server render pass. Without this boundary that
+          suspension bubbles past the page. */}
       <Suspense>
         <ListsView />
       </Suspense>
