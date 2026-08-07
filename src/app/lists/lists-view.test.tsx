@@ -2,11 +2,17 @@ import '@testing-library/jest-dom'
 import { screen, fireEvent } from '@testing-library/react'
 import { renderWithTranslations, en } from '~/lib/test-translations'
 
-const mockReplace = jest.fn()
 let searchParamsValue = new URLSearchParams()
 
+// Stands in for Next's history sync: `pushState` updates the URL, and Next
+// re-renders consumers of `useSearchParams` from it.
+const mockPushState = jest.fn(
+  (_state: unknown, _title: string, url: string) => {
+    searchParamsValue = new URLSearchParams(url.split('?')[1] ?? '')
+  }
+)
+
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({ replace: mockReplace }),
   useSearchParams: () => searchParamsValue,
   usePathname: () => '/lists'
 }))
@@ -34,8 +40,9 @@ import { ListsView } from './lists-view'
 
 describe('ListsView', () => {
   beforeEach(() => {
-    mockReplace.mockClear()
+    mockPushState.mockClear()
     searchParamsValue = new URLSearchParams()
+    window.history.pushState = mockPushState as unknown as History['pushState']
   })
 
   it('renders both Grocery List and Pantry tabs', () => {
@@ -57,21 +64,34 @@ describe('ListsView', () => {
   })
 
   it('swaps to pantry content on tap and returns to the list', () => {
-    renderWithTranslations(<ListsView />)
+    const { rerender } = renderWithTranslations(<ListsView />)
 
     fireEvent.click(screen.getByRole('tab', { name: en.nav.pantry }))
+    expect(mockPushState).toHaveBeenCalledWith(null, '', '/lists?tab=pantry')
+    rerender(<ListsView />)
     expect(screen.getByText('pantry-content')).toBeInTheDocument()
     expect(screen.queryByText('list-content')).not.toBeInTheDocument()
-    expect(mockReplace).toHaveBeenCalledWith('/lists?tab=pantry', {
-      scroll: false
-    })
 
     fireEvent.click(screen.getByRole('tab', { name: en.nav.list }))
+    expect(mockPushState).toHaveBeenCalledWith(null, '', '/lists?tab=list')
+    rerender(<ListsView />)
     expect(screen.getByText('list-content')).toBeInTheDocument()
     expect(screen.queryByText('pantry-content')).not.toBeInTheDocument()
-    expect(mockReplace).toHaveBeenCalledWith('/lists?tab=list', {
-      scroll: false
-    })
+  })
+
+  it('follows the tab param when history changes (back/forward)', () => {
+    const { rerender } = renderWithTranslations(<ListsView />)
+    expect(screen.getByText('list-content')).toBeInTheDocument()
+
+    // Simulates popping back to an entry whose URL carries `tab=pantry`.
+    searchParamsValue = new URLSearchParams('tab=pantry')
+    rerender(<ListsView />)
+
+    expect(screen.getByText('pantry-content')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: en.nav.pantry })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
   })
 
   it('honors an initial tab=pantry param', () => {
@@ -83,10 +103,11 @@ describe('ListsView', () => {
   })
 
   it('passes the active tab to the chat fab context', () => {
-    renderWithTranslations(<ListsView />)
+    const { rerender } = renderWithTranslations(<ListsView />)
     expect(screen.getByTestId('chat-fab')).toHaveTextContent('list')
 
     fireEvent.click(screen.getByRole('tab', { name: en.nav.pantry }))
+    rerender(<ListsView />)
     expect(screen.getByTestId('chat-fab')).toHaveTextContent('pantry')
   })
 })

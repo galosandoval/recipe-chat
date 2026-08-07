@@ -23,13 +23,13 @@ export function AddToListForm() {
   const form = useAppForm(formSchema, {
     defaultValues: { newIngredientName: '' }
   })
+  const isDisabled = !form.formState.isValid
   const { mutate: addToList } = useAddToList()
   const onSubmitNewIngredient = (values: FormValues) => {
     const newId = cuid()
     addToList({ newIngredientName: values.newIngredientName, id: newId })
     form.reset()
   }
-  const isDisabled = !form.formState.isValid
   return (
     <Form
       className='flex w-full items-center md:rounded-md'
