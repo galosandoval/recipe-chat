@@ -8,7 +8,8 @@ import { verifyShot } from './verify-shot'
  * the STARTER tier in the seed so the gated feature is reachable):
  *
  *  - the STARTER-gated Cook Mode FAB opens a full-screen, distraction-free view;
- *  - previous/next paginate the recipe's instructions;
+ *  - instructions are one snap-scrolling list; previous/next and a plain scroll
+ *    both move the active step;
  *  - a step that mentions a cooking time offers a countdown timer;
  *  - the ingredient list is reachable as an overlay;
  *  - exit returns to the normal recipe view.
@@ -36,20 +37,29 @@ test('cooks a recipe step-by-step in Cook Mode', async ({ page }) => {
   // Full-screen view opens on the first step with large, readable text.
   const cookDialog = page.getByRole('dialog', { name: 'Cook Mode' })
   await expect(cookDialog).toBeVisible()
-  await expect(page.getByText('Step 1 of 3')).toBeVisible()
+  const activeStep = cookDialog.locator('li[aria-current="step"]')
+  await expect(activeStep).toContainText('Step 1 of 3')
   await expect(page.getByRole('button', { name: 'Previous' })).toBeDisabled()
   await shot('cook-mode-open')
 
-  // Step-by-step navigation: advance to step 2 (which mentions "1-2 minutes").
+  // Next advances and snaps step 2 (which mentions "1-2 minutes") to the top.
   await page.getByRole('button', { name: 'Next' }).click()
-  await expect(page.getByText('Step 2 of 3')).toBeVisible()
+  await expect(activeStep).toContainText('Step 2 of 3')
   await shot('step-navigation')
 
+  // Scrolling the list alone moves the active step — no button press needed.
+  await cookDialog.getByRole('list').evaluate((el) => {
+    el.scrollTop = el.scrollHeight
+  })
+  await expect(activeStep).toContainText('Step 3 of 3')
+  await page.getByRole('button', { name: 'Previous' }).click()
+  await expect(activeStep).toContainText('Step 2 of 3')
+
   // Timer integration: the step's cooking time surfaces a countdown control.
-  const setTimer = page.getByRole('button', { name: /Set timer:/ })
+  const setTimer = activeStep.getByRole('button', { name: /Set timer:/ })
   await expect(setTimer).toBeVisible()
   await setTimer.click()
-  await expect(page.getByText('02:00')).toBeVisible()
+  await expect(activeStep.getByText('02:00')).toBeVisible()
   await shot('timer')
 
   // Ingredients accessible as an overlay.

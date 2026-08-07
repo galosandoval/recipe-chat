@@ -80,10 +80,15 @@ function open() {
   fireEvent.click(openButton())
 }
 
+const activeStep = () => screen.getByRole('listitem', { current: 'step' })
+
 beforeEach(() => {
   jest.clearAllMocks()
   recipeData = makeRecipe()
   subscriptionTier = 'STARTER'
+  // jsdom implements neither, and the snap list uses both.
+  Element.prototype.scrollIntoView = jest.fn()
+  window.IntersectionObserver = undefined as never
 })
 
 describe('CookMode gating', () => {
@@ -97,11 +102,21 @@ describe('CookMode gating', () => {
 })
 
 describe('CookMode navigation', () => {
-  it('opens on the first step and steps forward and back', () => {
+  it('renders every step as one scrollable list', () => {
     open()
 
     expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
     expect(screen.getByText('Mix the flour and water.')).toBeInTheDocument()
+    expect(screen.getByText('Step 2 of 2')).toBeInTheDocument()
+    expect(
+      screen.getByText('Simmer for 20 minutes until thick.')
+    ).toBeInTheDocument()
+  })
+
+  it('opens on the first step and steps forward and back', () => {
+    open()
+
+    expect(activeStep()).toHaveTextContent('Mix the flour and water.')
 
     const prev = screen.getByRole('button', {
       name: en.recipes.cookMode.previous
@@ -111,15 +126,24 @@ describe('CookMode navigation', () => {
     fireEvent.click(
       screen.getByRole('button', { name: en.recipes.cookMode.next })
     )
-    expect(screen.getByText('Step 2 of 2')).toBeInTheDocument()
-    expect(
-      screen.getByText('Simmer for 20 minutes until thick.')
-    ).toBeInTheDocument()
+    expect(activeStep()).toHaveTextContent('Simmer for 20 minutes until thick.')
 
     fireEvent.click(
       screen.getByRole('button', { name: en.recipes.cookMode.previous })
     )
-    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
+    expect(activeStep()).toHaveTextContent('Mix the flour and water.')
+  })
+
+  it('scrolls the step into view when Next is pressed', () => {
+    open()
+
+    fireEvent.click(
+      screen.getByRole('button', { name: en.recipes.cookMode.next })
+    )
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start'
+    })
   })
 
   it('exits back to the recipe view', () => {
@@ -128,6 +152,16 @@ describe('CookMode navigation', () => {
       screen.getByRole('button', { name: en.recipes.cookMode.exit })
     )
     expect(screen.queryByText('Step 1 of 2')).not.toBeInTheDocument()
+  })
+
+  it('disables Next on the last step', () => {
+    open()
+    fireEvent.click(
+      screen.getByRole('button', { name: en.recipes.cookMode.next })
+    )
+    expect(
+      screen.getByRole('button', { name: en.recipes.cookMode.next })
+    ).toBeDisabled()
   })
 })
 
@@ -151,9 +185,6 @@ describe('CookMode step timer', () => {
     jest.useFakeTimers()
     open()
 
-    fireEvent.click(
-      screen.getByRole('button', { name: en.recipes.cookMode.next })
-    )
     const start = screen.getByRole('button', { name: 'Set timer: 20 minutes' })
     fireEvent.click(start)
 

@@ -23,8 +23,8 @@
       "subscription": "Suscripción"
     },
     "chat": "Chat",
-    "list": "Lista",
-    "lists": "Listas",
+    "list": "Lista de Compras",
+    "lists": "Colecciones",
     "pantry": "Despensa",
     "recipes": "Recetas",
     "settings": "Ajustes"
@@ -49,9 +49,9 @@
   },
   "list": {
     "byRecipe": "Por receta",
-    "noItems": "No hay elementos en tu lista",
-    "addToList": "Agregar a tu lista",
-    "addIngredient": "Agregar un nuevo ingrediente a tu lista",
+    "noItems": "No hay elementos en tu Lista de Compras",
+    "addToList": "Agregar a tu Lista de Compras",
+    "addIngredient": "Agregar un nuevo ingrediente a tu Lista de Compras",
     "addFirstItem": "Agregar un elemento",
     "removeChecked": "Eliminar seleccionados",
     "addToPantry": "Agregar a despensa",
@@ -151,11 +151,11 @@
         "thirdButton": "¿Qué acompañamientos van bien con esto?"
       },
       "list": {
-        "title": "Asistente de Lista",
-        "description": "Puedo ayudarte a organizar tu lista de compras y sugerir qué comprar.",
+        "title": "Asistente de Lista de Compras",
+        "description": "Puedo ayudarte a organizar tu Lista de Compras y sugerir qué comprar.",
         "firstButton": "¿Qué me falta para una comida balanceada?",
-        "secondButton": "Organiza mi lista por pasillo",
-        "thirdButton": "Sugiere una receta con los ingredientes de mi lista"
+        "secondButton": "Organiza mi Lista de Compras por pasillo",
+        "thirdButton": "Sugiere una receta con los ingredientes de mi Lista de Compras"
       },
       "pantry": {
         "title": "Asistente de Despensa",
@@ -217,7 +217,7 @@
     "chatFormPlaceholder": "Pregunta sobre una receta",
     "chatFormContinue": "Sigue con un mensaje o correcciones",
     "chatFormRecipeDetail": "Pregunta sobre $1",
-    "chatFormList": "Pregunta sobre tu lista de compras",
+    "chatFormList": "Pregunta sobre tu Lista de Compras",
     "chatFormPantry": "Que puedo hacer con lo que tengo?",
     "chatsDrawer": {
       "title": "Recientes chats"
@@ -336,7 +336,7 @@
     "canceledMessage": "El pago fue cancelado.",
     "pastDueWarning": "Tu pago está vencido. Por favor actualiza tu método de pago.",
     "freeFeatures": "Chat de recetas básico, Guarda hasta 10 recetas",
-    "starterFeatures": "Recetas guardadas ilimitadas, Historial de chat completo, Listas de compras organizadas por pasillo, Gestión de productos básicos, Modo cocina, Remix de recetas",
+    "starterFeatures": "Recetas guardadas ilimitadas, Historial de chat completo, Lista de Compras organizada por pasillo, Gestión de productos básicos, Modo cocina, Remix de recetas",
     "premiumFeatures": "Todo en Starter, Planificación de comidas de 7 días, Sugerencias basadas en lo que tienes, Sincronización para el hogar, Edición de video personalizable, Clubes y grupos privados, Integración directa con supermercados, Sincronización nutricional con Apple Health y Google Fit, Soporte prioritario"
   },
   "error": {

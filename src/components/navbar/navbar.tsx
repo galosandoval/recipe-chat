@@ -6,7 +6,7 @@ import { NavDropdownMenu } from './settings-dropdown-menu'
 import {
   ArrowBigLeft,
   CookingPotIcon,
-  ListTodoIcon,
+  LibraryBigIcon,
   MessageSquareIcon,
   PencilIcon
 } from 'lucide-react'
@@ -129,7 +129,7 @@ const NAV_ITEMS = [
   },
   {
     value: '/lists',
-    icon: <ListTodoIcon />,
+    icon: <LibraryBigIcon />,
     label: 'lists'
   }
 ] as const

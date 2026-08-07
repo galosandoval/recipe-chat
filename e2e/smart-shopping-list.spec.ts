@@ -38,7 +38,7 @@ async function addListItem(page: Page, text: string) {
 async function resetList(page: Page) {
   await page.goto('/lists?tab=list')
 
-  const noItems = page.getByText('No items in your list')
+  const noItems = page.getByText('No items in your Grocery List')
   if (await noItems.isVisible().catch(() => false)) return
 
   // The `byRecipe` view toggle is also a pressed/unpressed button; exclude it
