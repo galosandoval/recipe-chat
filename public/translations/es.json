@@ -1,4 +1,8 @@
 {
+  "metadata": {
+    "title": "RecipeChat",
+    "description": "Conversa y resuelve la cena. RecipeChat convierte lo que tienes en el refrigerador en recetas a tu medida, y las lleva hasta tu lista de compras y tu despensa."
+  },
   "common": {
     "cancel": "Cancelar",
     "save": "Guardar",
