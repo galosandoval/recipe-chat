@@ -3,7 +3,8 @@
  */
 import {
   editRecipe,
-  createRecipeWithEmbedding
+  createRecipeWithEmbedding,
+  deleteRecipe
 } from '~/server/api/use-cases/recipes-use-case'
 import type { UpdateRecipe } from '~/schemas/recipes-schema'
 import { embedSignature } from '~/lib/embeddings'
@@ -119,6 +120,47 @@ describe('editRecipe facet edits', () => {
     const row = await testPrisma.recipe.findUnique({ where: { id: recipe.id } })
     expect(row?.name).toBe('Original')
     expect(mockedEmbed).not.toHaveBeenCalled()
+  })
+})
+
+describe('deleteRecipe cascade', () => {
+  it('removes the Recipe and its Ingredients, Instructions, and Message links', async () => {
+    const user = await createTestUser()
+    const recipe = await createTestRecipe(user.id, { name: 'To Delete' })
+
+    // Attach the relations the cascade must clear: Ingredients, Instructions,
+    // and a Message link (which needs a Chat + Message to hang off).
+    await testPrisma.ingredient.create({
+      data: { recipeId: recipe.id, rawString: '2 eggs' }
+    })
+    await testPrisma.instruction.create({
+      data: { recipeId: recipe.id, description: 'Whisk' }
+    })
+    const chat = await testPrisma.chat.create({ data: { userId: user.id } })
+    const message = await testPrisma.message.create({
+      data: { chatId: chat.id, content: 'here it is', role: 'assistant' }
+    })
+    await testPrisma.recipesOnMessages.create({
+      data: { recipeId: recipe.id, messageId: message.id }
+    })
+
+    const result = await deleteRecipe(recipe.id, testPrisma)
+
+    expect(result).toBe(true)
+    expect(
+      await testPrisma.recipe.findUnique({ where: { id: recipe.id } })
+    ).toBeNull()
+    expect(
+      await testPrisma.ingredient.count({ where: { recipeId: recipe.id } })
+    ).toBe(0)
+    expect(
+      await testPrisma.instruction.count({ where: { recipeId: recipe.id } })
+    ).toBe(0)
+    expect(
+      await testPrisma.recipesOnMessages.count({
+        where: { recipeId: recipe.id }
+      })
+    ).toBe(0)
   })
 })
 

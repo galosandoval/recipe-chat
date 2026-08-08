@@ -1,24 +1,19 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import * as cheerio from 'cheerio'
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import { del } from '@vercel/blob'
 import { RecipesAccess } from '~/server/api/data-access/recipes-access'
-import { IngredientsAccess } from '~/server/api/data-access/ingredients-access'
-import { InstructionsAccess } from '~/server/api/data-access/instructions-access'
 import {
   createRecipeWithEmbedding,
-  editRecipe,
-  saveRecipe
+  deleteRecipe,
+  editRecipe
 } from '../use-cases/recipes-use-case'
-import { type PrismaClient } from '@prisma/client'
-import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
 import {
   createRecipeSchema,
   updateRecipeImgUrlSchema,
-  updateRecipeSchema,
-  type LinkedData
+  updateRecipeSchema
 } from '~/schemas/recipes-schema'
+import { parseRecipePage, RecipePageParseError } from '~/lib/parse-recipe-page'
 import { unsplashApi } from '~/lib/unsplash'
 
 export const recipesRouter = createTRPCRouter({
@@ -87,76 +82,20 @@ export const recipesRouter = createTRPCRouter({
     .input(z.string())
     .mutation(async ({ input }) => {
       const response = await fetch(input)
-      const text = await response.text()
+      const html = await response.text()
 
-      const $ = cheerio.load(text)
-      const jsonRaw =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (
-          $("script[type='application/ld+json']")[0] as unknown as {
-            children: { data: string }[]
-          }
-        ).children[0]?.data
-
-      const jsonRawNoSpaces = jsonRaw.replace(/\n/g, '')
-      const parsed = JSON.parse(jsonRawNoSpaces) as LinkedData
-
-      if ('@graph' in parsed) {
-        const recipeField = parsed['@graph'].find((f) => {
-          const field = f['@type']
-          if (Array.isArray(field)) {
-            const asArray = field.find((f) => f === 'Recipe')
-            if (asArray) return true
-          }
-
-          if (typeof field === 'string') {
-            return field === 'Recipe'
-          }
-
-          return false
-        })
-        if (recipeField) {
-          return recipeField
+      try {
+        return parseRecipePage(html)
+      } catch (error) {
+        if (error instanceof RecipePageParseError) {
+          throw new TRPCError({
+            message: error.message,
+            code: 'INTERNAL_SERVER_ERROR',
+            cause: error.cause
+          })
         }
-
-        throw new TRPCError({
-          message: 'Did not find linked data in @graph',
-          code: 'INTERNAL_SERVER_ERROR',
-          cause: parsed
-        })
-      } else if ('@type' in parsed) {
-        const field = parsed['@type']
-        if (Array.isArray(field)) {
-          const asArray = field.find((f) => f === 'Recipe')
-          if (asArray) return parsed
-        }
-
-        if (typeof field === 'string') {
-          return parsed
-        }
-      } else if (Array.isArray(parsed)) {
-        const recipeField = parsed.find((f) => {
-          const field = f['@type']
-          if (Array.isArray(field)) {
-            const asArray = field.find((f) => f === 'Recipe')
-            if (asArray) return true
-          }
-
-          if (typeof field === 'string') {
-            return field === 'Recipe'
-          }
-
-          return false
-        })
-        if (recipeField) {
-          return recipeField
-        }
+        throw error
       }
-      throw new TRPCError({
-        message: 'Did not find linked data',
-        code: 'INTERNAL_SERVER_ERROR',
-        cause: parsed
-      })
     }),
 
   create: protectedProcedure
@@ -177,7 +116,7 @@ export const recipesRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const recipesDataAccess = new RecipesAccess(ctx.prisma)
-      return await saveRecipe(input, recipesDataAccess)
+      await recipesDataAccess.saveRecipe(input)
     }),
 
   updateImgUrl: protectedProcedure
@@ -230,34 +169,7 @@ export const recipesRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.$transaction(async (prisma) => {
-        const recipesDataAccess = new RecipesAccess(prisma as PrismaClient)
-        const ingredientsDataAccess = new IngredientsAccess(
-          prisma as PrismaClient
-        )
-        const instructionsDataAccess = new InstructionsAccess(
-          prisma as PrismaClient
-        )
-        const recipesOnMessagesDataAccess = new RecipesOnMessagesAccess(
-          prisma as PrismaClient
-        )
-        const deleteIngredients =
-          ingredientsDataAccess.deleteIngredientsByRecipeId(input.id)
-
-        const deleteInstructions =
-          instructionsDataAccess.deleteInstructionsByRecipeId(input.id)
-
-        const deleteRecipesOnMessages =
-          recipesOnMessagesDataAccess.deleteByRecipeId(input.id)
-
-        const deleteRecipe = recipesDataAccess.deleteRecipeById(input.id)
-
-        await deleteIngredients
-        await deleteInstructions
-        await deleteRecipesOnMessages
-        await deleteRecipe
-        return true
-      })
+      return await deleteRecipe(input.id, ctx.prisma)
     }),
 
   getPhotoFromTitle: protectedProcedure
