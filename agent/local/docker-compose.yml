@@ -51,3 +51,9 @@ services:
         source: ${STANDARDS_HOST_DIR:?Set STANDARDS_HOST_DIR}
         target: /standards
         read_only: true
+      # The agent's output dir (#566): transcript, PR description, verify report,
+      # and trajectory scorecard. Bind-mounted to a host dir so they survive the
+      # container instead of vanishing when it is removed.
+      - type: bind
+        source: ${HOST_OUTPUT_DIR:?Set HOST_OUTPUT_DIR}
+        target: /workdir/output

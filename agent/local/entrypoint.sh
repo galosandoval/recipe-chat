@@ -102,6 +102,12 @@ if [ -f "${OUTPUT_DIR}/verify_report.md" ]; then
   cat "${OUTPUT_DIR}/verify_report.md"
 fi
 
+# Grade the run's trajectory over the captured transcript (#566). Deterministic,
+# advisory, never-throw — a missing/malformed transcript just prints no
+# scorecard. No PR_NUMBER locally, so it prints rather than posting a comment.
+echo "==> Trajectory scorecard:"
+OUTPUT_DIR="$OUTPUT_DIR" bun agent/implement/run-trajectory-check.ts || true
+
 if [ "$AGENT_EXIT_CODE" -ne 0 ] && [ -f "${OUTPUT_DIR}/failure_reason.txt" ]; then
   echo "==> Failure reason:"
   cat "${OUTPUT_DIR}/failure_reason.txt"

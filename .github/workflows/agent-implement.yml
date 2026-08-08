@@ -275,6 +275,20 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bun agent/implement/post-verify.ts
 
+      - name: Post trajectory scorecard to the PR
+        # Observability (#566): grade the run's own trajectory over the captured
+        # transcript and post the scorecard as a PR comment, alongside the verify
+        # report. Deterministic and advisory — findings never fail the run, and
+        # the runner swallows its own errors, so a malformed/missing transcript
+        # degrades to "no scorecard", never a red build. Runs once the draft PR
+        # exists so there is a PR to comment on.
+        if: steps.open_pr.outcome == 'success'
+        continue-on-error: true
+        env:
+          PR_NUMBER: ${{ steps.open_pr.outputs.number }}
+          OUTPUT_DIR: ${{ runner.temp }}
+        run: bun agent/implement/run-trajectory-check.ts
+
       - name: Strip verify screenshots off the branch tip
         # The PR comment's images are pinned to the push commit SHA above, so
         # they keep rendering even after this follow-up commit removes the
