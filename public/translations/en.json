@@ -59,7 +59,8 @@
     "addFirstItem": "Add an item",
     "removeChecked": "Remove checked",
     "addToPantry": "Add to pantry",
-    "adjustQuantity": "Adjust quantity of $1"
+    "adjustQuantity": "Adjust quantity of $1",
+    "errorLoadingRecipeName": "Error loading recipe name"
   },
   "pantry": {
     "noItems": "No items in your pantry",

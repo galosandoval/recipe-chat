@@ -14,7 +14,8 @@ export default async function ListsPage() {
   // Prefetch BOTH surfaces so switching tabs is instant with no loading flash.
   await Promise.all([
     api.lists.byUserId.prefetch({ userId: session.user.id }),
-    api.pantry.byUserId.prefetch({ userId: session.user.id })
+    api.pantry.byUserId.prefetch({ userId: session.user.id }),
+    api.users.get.prefetch()
   ])
 
   return (
