@@ -12,12 +12,12 @@ import {
   IngredientItemDisplay,
   UnitBadge
 } from '~/components/ingredient-item-display'
-import { Badge } from '~/components/ui/badge'
 import { toast } from '~/components/toast'
 import { Toggle } from '~/components/toggle'
 import { useTranslations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
+import { Skeleton } from '~/components/ui/skeleton'
 
 export function Lists({
   data,
@@ -26,7 +26,7 @@ export function Lists({
   data: Ingredient[]
   byRecipe: boolean
 }) {
-  const { data: user } = api.users.get.useQuery()
+  const [user] = api.users.get.useSuspenseQuery()
   const preferredWeight = user?.preferredWeightUnit ?? null
   const preferredVolume = user?.preferredVolumeUnit ?? null
 
@@ -49,7 +49,7 @@ export function Lists({
   )
 }
 
-type IngredientsByRecipe = Record<string, Ingredient[]>
+type IngredientsByRecipeId = Record<string, Ingredient[]>
 
 function ListByRecipeId({
   data,
@@ -70,23 +70,23 @@ function ListByRecipeId({
       preferredVolume
     ) || getIngredientDisplayText(i)
 
-  const recipeBuckets = data.reduce((buckets: IngredientsByRecipe, i) => {
+  const recipeBuckets = data.reduce((ingredients: IngredientsByRecipeId, i) => {
     if (i.recipeId === null) {
-      if (!('other' in buckets)) {
-        buckets.other = []
+      if (!('other' in ingredients)) {
+        ingredients.other = []
       }
 
-      buckets.other.push(i)
+      ingredients.other.push(i)
     } else {
-      if (!(i.recipeId in buckets)) {
+      if (!(i.recipeId in ingredients)) {
         ids.push(i.recipeId)
-        buckets[i.recipeId] = []
+        ingredients[i.recipeId] = []
       }
 
-      buckets[i.recipeId].push(i)
+      ingredients[i.recipeId].push(i)
     }
 
-    return buckets
+    return ingredients
   }, {})
 
   const { data: nameDictionary, isSuccess } = useRecipeNames(ids)
@@ -97,16 +97,15 @@ function ListByRecipeId({
 
   return (
     <div>
-      {Object.values(recipeBuckets).map((b) => (
-        <div key={b[0].recipeId}>
-          {isSuccess && (
-            <h3 className='mt-2 font-bold'>
-              {b[0].recipeId ? nameDictionary[b[0].recipeId] : 'Other'}
-            </h3>
-          )}
+      {Object.values(recipeBuckets).map((ingredients) => (
+        <div key={ingredients[0].recipeId}>
+          <RecipeTitle
+            ids={ingredients.map((i) => i.recipeId ?? 'other')}
+            ingredients={ingredients}
+          />
 
           <div className='flex flex-col gap-2'>
-            {b
+            {ingredients
               .toSorted((a, b) => displayText(a).localeCompare(displayText(b)))
               .map((i) => (
                 <Toggle
@@ -132,6 +131,37 @@ function ListByRecipeId({
   )
 }
 
+function RecipeTitle({
+  ids,
+  ingredients
+}: {
+  ids: string[]
+  ingredients: IngredientsByRecipeId[string]
+}) {
+  const { data: nameDictionary, status } = useRecipeNames(ids)
+  const t = useTranslations()
+
+  if (status === 'success') {
+    return (
+      <h3 className='mt-2 font-bold'>
+        {ingredients[0].recipeId
+          ? nameDictionary[ingredients[0].recipeId]
+          : 'Other'}
+      </h3>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <h3 className='text-destructive mt-2 font-bold'>
+        {t.list.errorLoadingRecipeName}
+      </h3>
+    )
+  }
+
+  return <Skeleton className='h-4 w-1/3' />
+}
+
 function ListAll({
   data,
   preferredWeight,
@@ -149,9 +179,6 @@ function ListAll({
     preferredVolume
   ).toSorted((a, b) => a.displayText.localeCompare(b.displayText))
 
-  const recipeIds = [...new Set(aggregated.flatMap((g) => g.recipeIds))]
-  const { data: nameDictionary } = useRecipeNames(recipeIds)
-
   const ingredientsById = new Map(data.map((i) => [i.id, i]))
 
   return (
@@ -160,9 +187,6 @@ function ListAll({
         <AggregatedListItem
           key={group.ingredientIds.join(',')}
           group={group}
-          recipeNames={(group.recipeIds ?? [])
-            .map((id) => nameDictionary?.[id])
-            .filter((name): name is string => Boolean(name))}
           onCheck={(pressed) =>
             checkMany(
               group.ingredientIds.map((id) => ({ id, checked: pressed }))
@@ -208,12 +232,10 @@ function scaleGroupQuantities(
 
 function AggregatedListItem({
   group,
-  recipeNames,
   onCheck,
   onAdjust
 }: {
   group: AggregatedIngredient
-  recipeNames: string[]
   onCheck: (pressed: boolean) => void
   onAdjust: (newTotal: number) => void
 }) {
@@ -243,11 +265,6 @@ function AggregatedListItem({
             ) : (
               <span>{group.displayText}</span>
             )}
-            {recipeNames.map((name) => (
-              <Badge key={name} variant='muted' className='px-1.5 py-0 text-xs'>
-                {name}
-              </Badge>
-            ))}
           </span>
         }
         onPressedChange={(pressed) => onCheck(pressed)}

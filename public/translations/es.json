@@ -59,7 +59,8 @@
     "addFirstItem": "Agregar un elemento",
     "removeChecked": "Eliminar seleccionados",
     "addToPantry": "Agregar a despensa",
-    "adjustQuantity": "Ajustar cantidad de $1"
+    "adjustQuantity": "Ajustar cantidad de $1",
+    "errorLoadingRecipeName": "Error al cargar el nombre de la receta"
   },
   "pantry": {
     "noItems": "No hay nada en tu despensa",
