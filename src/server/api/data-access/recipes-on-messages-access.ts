@@ -13,3 +13,5 @@ export class RecipesOnMessagesAccess extends DataAccess {
     })
   }
 }
+
+export const recipesOnMessagesAccess = new RecipesOnMessagesAccess()

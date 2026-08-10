@@ -1,8 +1,7 @@
-import { type PrismaClient } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import type Stripe from 'stripe'
 import {
-  SubscriptionAccess,
+  subscriptionAccess,
   type SubscriptionEventAccess,
   type SubscriptionEventUser
 } from '~/server/api/data-access/subscription-access'
@@ -12,11 +11,9 @@ import { type CreateCheckoutSchema } from '~/schemas/subscription-schema'
 export async function createCheckoutSession(
   userId: string,
   input: CreateCheckoutSchema,
-  prisma: PrismaClient,
   stripe: Stripe
 ) {
-  const access = new SubscriptionAccess(prisma)
-  const info = await access.getSubscriptionInfo(userId)
+  const info = await subscriptionAccess.getSubscriptionInfo(userId)
 
   if (info.subscriptionStatus === 'ACTIVE') {
     throw new TRPCError({
@@ -29,17 +26,12 @@ export async function createCheckoutSession(
   let customerId = info.stripeCustomerId
 
   if (!customerId) {
-    const user = await prisma.user.findUniqueOrThrow({
-      where: { id: userId },
-      select: { username: true }
-    })
-
     const customer = await stripe.customers.create({
-      email: user.username,
+      email: await subscriptionAccess.getUsername(userId),
       metadata: { userId }
     })
 
-    await access.updateStripeCustomerId(userId, customer.id)
+    await subscriptionAccess.updateStripeCustomerId(userId, customer.id)
     customerId = customer.id
   }
 
@@ -59,13 +51,8 @@ export async function createCheckoutSession(
   return { url: session.url }
 }
 
-export async function createPortalSession(
-  userId: string,
-  prisma: PrismaClient,
-  stripe: Stripe
-) {
-  const access = new SubscriptionAccess(prisma)
-  const info = await access.getSubscriptionInfo(userId)
+export async function createPortalSession(userId: string, stripe: Stripe) {
+  const info = await subscriptionAccess.getSubscriptionInfo(userId)
 
   if (!info.stripeCustomerId) {
     throw new TRPCError({
@@ -82,12 +69,8 @@ export async function createPortalSession(
   return { url: session.url }
 }
 
-export async function getSubscriptionInfo(
-  userId: string,
-  prisma: PrismaClient
-) {
-  const access = new SubscriptionAccess(prisma)
-  return await access.getSubscriptionInfo(userId)
+export async function getSubscriptionInfo(userId: string) {
+  return await subscriptionAccess.getSubscriptionInfo(userId)
 }
 
 /** Dependencies the Stripe webhook entry point needs, injected so tests use fakes. */

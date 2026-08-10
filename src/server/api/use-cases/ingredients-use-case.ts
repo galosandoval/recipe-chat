@@ -1,10 +1,5 @@
-import type { PrismaClient } from '@prisma/client'
+import { ingredientsAccess } from '~/server/api/data-access/ingredients-access'
 
-export async function getAllIngredients(userId: string, prisma: PrismaClient) {
-  return prisma.ingredient.findMany({
-    where: {
-      OR: [{ recipe: { userId } }, { list: { userId } }]
-    },
-    orderBy: { id: 'asc' }
-  })
+export async function getAllIngredients(userId: string) {
+  return ingredientsAccess.getAllByUserId(userId)
 }

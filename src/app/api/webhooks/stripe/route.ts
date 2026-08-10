@@ -1,8 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 import { getStripe } from '~/lib/stripe'
-import { prisma } from '~/server/db'
-import { SubscriptionAccess } from '~/server/api/data-access/subscription-access'
+import { subscriptionAccess } from '~/server/api/data-access/subscription-access'
 import { handleStripeEvent } from '~/server/api/use-cases/subscription-use-case'
 
 export async function POST(req: NextRequest) {
@@ -26,10 +25,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
-  await handleStripeEvent(event, {
-    stripe,
-    access: new SubscriptionAccess(prisma)
-  })
+  await handleStripeEvent(event, { stripe, access: subscriptionAccess })
 
   return NextResponse.json({ received: true })
 }

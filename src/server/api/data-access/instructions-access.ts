@@ -5,3 +5,5 @@ export class InstructionsAccess extends DataAccess {
     return await this.prisma.instruction.deleteMany({ where: { recipeId } })
   }
 }
+
+export const instructionsAccess = new InstructionsAccess()

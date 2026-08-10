@@ -9,7 +9,7 @@ import { getStripe } from '~/lib/stripe'
 
 export const subscriptionRouter = createTRPCRouter({
   getInfo: protectedProcedure.query(async ({ ctx }) => {
-    return await getSubscriptionInfo(ctx.session.user.id, ctx.prisma)
+    return await getSubscriptionInfo(ctx.session.user.id)
   }),
 
   createCheckout: protectedProcedure
@@ -18,16 +18,11 @@ export const subscriptionRouter = createTRPCRouter({
       return await createCheckoutSession(
         ctx.session.user.id,
         input,
-        ctx.prisma,
         getStripe()
       )
     }),
 
   createPortalSession: protectedProcedure.mutation(async ({ ctx }) => {
-    return await createPortalSession(
-      ctx.session.user.id,
-      ctx.prisma,
-      getStripe()
-    )
+    return await createPortalSession(ctx.session.user.id, getStripe())
   })
 })

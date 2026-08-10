@@ -1,22 +1,18 @@
-import { type PrismaClient } from '@prisma/client'
-import { PantryAccess } from '~/server/api/data-access/pantry-access'
+import { pantryAccess } from '~/server/api/data-access/pantry-access'
 import { cuid } from '~/lib/createId'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { toCanonical, fromCanonical } from '~/lib/unit-conversion'
 import { roundQuantity } from '~/lib/ingredient-display'
 
-export async function getPantryByUserId(userId: string, prisma?: PrismaClient) {
-  const pantryAccess = new PantryAccess(prisma)
+export async function getPantryByUserId(userId: string) {
   return pantryAccess.getPantryByUserId(userId)
 }
 
 export async function addIngredientToPantry(
   userId: string,
   rawLine: string,
-  newIngredientId: string,
-  prisma: PrismaClient
+  newIngredientId: string
 ) {
-  const pantryAccess = new PantryAccess(prisma)
   const parsed = ingredientStringToCreatePayload(rawLine.trim())
   const pantry = await pantryAccess.getOrCreatePantry(userId)
   return pantryAccess.createPantryIngredient({
@@ -40,10 +36,8 @@ export async function updatePantryIngredient(
     unitType?: 'volume' | 'weight' | 'count' | null
     itemName?: string | null
     preparation?: string | null
-  },
-  prisma: PrismaClient
+  }
 ) {
-  const pantryAccess = new PantryAccess(prisma)
   let updateData = { ...data }
   if (data.rawString !== undefined && data.rawString.trim() !== '') {
     const parsed = ingredientStringToCreatePayload(data.rawString.trim())
@@ -77,10 +71,8 @@ type PantryUpdateData = {
  */
 export async function bulkUpdatePantry(
   updates: { ingredientId: string; data: PantryUpdateData }[],
-  deletedIds: string[],
-  prisma: PrismaClient
+  deletedIds: string[]
 ) {
-  const pantryAccess = new PantryAccess(prisma)
   if (deletedIds.length > 0) {
     await pantryAccess.deletePantryIngredients(deletedIds)
   }
@@ -111,20 +103,11 @@ export async function bulkUpdatePantry(
   }
 }
 
-export async function deletePantryIngredient(
-  ingredientId: string,
-  prisma: PrismaClient
-) {
-  const pantryAccess = new PantryAccess(prisma)
+export async function deletePantryIngredient(ingredientId: string) {
   await pantryAccess.deletePantryIngredients([ingredientId])
 }
 
-export async function bulkAddToPantry(
-  userId: string,
-  rawLines: string[],
-  prisma: PrismaClient
-) {
-  const pantryAccess = new PantryAccess(prisma)
+export async function bulkAddToPantry(userId: string, rawLines: string[]) {
   const pantry = await pantryAccess.getOrCreatePantry(userId)
   const results = []
   for (const line of rawLines) {

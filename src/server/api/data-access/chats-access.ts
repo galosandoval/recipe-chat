@@ -1,7 +1,5 @@
-import { type PrismaClient } from '@prisma/client'
-import type { ITXClientDenyList } from '@prisma/client/runtime/library'
 import type { MessagesWithRecipes } from '~/schemas/chats-schema'
-import { DataAccess } from './data-access'
+import { DataAccess, type Db } from './data-access'
 import type { ChatScope, CreateChatWithMessages } from '~/schemas/chats-schema'
 import { slugify } from '~/lib/utils'
 import { toRecipeWriteData } from '~/schemas/recipes-schema'
@@ -188,18 +186,42 @@ export class ChatsAccess extends DataAccess {
         }
       }
 
-      // Touch the chat so `updatedAt` reflects the new activity — the freshness
-      // rule (auto-resume + stale-swap) reads `updatedAt`, and appending
-      // messages alone doesn't bump it.
-      await tx.chat.update({ where: { id: chatId }, data: {} })
+      // Reflect the new activity in the chat's freshness. See {@link touchChat}.
+      await new ChatsAccess(tx).touchChat(chatId)
     })
+  }
+
+  /**
+   * Creates the chat row for a client-minted id, persisting the Chat Context.
+   * Callers that may be looking at an existing chat check first and
+   * {@link touchChat} instead — the two branches are never the same write.
+   */
+  async createChatShell(chatId: string, userId: string, scope: ChatScope) {
+    return this.prisma.chat.create({
+      data: {
+        id: chatId,
+        userId,
+        page: scope.page,
+        recipeId: scope.recipeId
+      }
+    })
+  }
+
+  /**
+   * Bumps `updatedAt` on a chat without changing a field. The freshness rule
+   * (auto-resume + stale-swap) reads `updatedAt`, and writing a chat's
+   * *messages* doesn't bump it — so every path that adds activity to a chat has
+   * to touch it explicitly. Empty `data` is how Prisma triggers `@updatedAt`.
+   */
+  async touchChat(chatId: string) {
+    return this.prisma.chat.update({ where: { id: chatId }, data: {} })
   }
 
   /**
    * Creates recipes for a specific message
    */
   private async createRecipesForMessage(
-    tx: Omit<PrismaClient, ITXClientDenyList>,
+    tx: Db,
     messageId: string,
     userId: string,
     recipes: MessagesWithRecipes[number]['recipes']
@@ -273,3 +295,5 @@ export class ChatsAccess extends DataAccess {
     }
   }
 }
+
+export const chatsAccess = new ChatsAccess()

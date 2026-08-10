@@ -48,7 +48,7 @@ describe('embedRecipeById', () => {
       techniques: ['Emulsify']
     })
 
-    await embedRecipeById(recipe.id, user.id, testPrisma)
+    await embedRecipeById(recipe.id, user.id)
 
     const rows = await testPrisma.$queryRawUnsafe<
       Array<{ recipeId: string; userId: string; signature: string }>
@@ -68,13 +68,13 @@ describe('embedRecipeById', () => {
     const user = await createTestUser()
     const recipe = await createTestRecipe(user.id, { name: 'First Name' })
 
-    await embedRecipeById(recipe.id, user.id, testPrisma)
+    await embedRecipeById(recipe.id, user.id)
 
     await testPrisma.recipe.update({
       where: { id: recipe.id },
       data: { name: 'Second Name' }
     })
-    await embedRecipeById(recipe.id, user.id, testPrisma)
+    await embedRecipeById(recipe.id, user.id)
 
     const rows = await testPrisma.$queryRawUnsafe<
       Array<{ recipeId: string; signature: string }>
@@ -93,9 +93,7 @@ describe('embedRecipeById', () => {
     mockedEmbed.mockRejectedValue(new Error('OpenAI down'))
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    await expect(
-      embedRecipeById(recipe.id, user.id, testPrisma)
-    ).resolves.toBeUndefined()
+    await expect(embedRecipeById(recipe.id, user.id)).resolves.toBeUndefined()
 
     expect(errorSpy).toHaveBeenCalledWith(
       '[recipe-vector] upsertEmbedding failed',
@@ -125,7 +123,7 @@ describe('reembedIfSemanticChange (re-embed policy)', () => {
     const user = await createTestUser()
     const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
 
-    await reembedIfSemanticChange(['cuisine'], recipe.id, user.id, testPrisma)
+    await reembedIfSemanticChange(['cuisine'], recipe.id, user.id)
 
     expect(await vectorRowCount(recipe.id)).toBe(1)
   })
@@ -134,7 +132,7 @@ describe('reembedIfSemanticChange (re-embed policy)', () => {
     const user = await createTestUser()
     const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
 
-    await reembedIfSemanticChange(['dietTags'], recipe.id, user.id, testPrisma)
+    await reembedIfSemanticChange(['dietTags'], recipe.id, user.id)
 
     expect(await vectorRowCount(recipe.id)).toBe(1)
   })
@@ -143,12 +141,7 @@ describe('reembedIfSemanticChange (re-embed policy)', () => {
     const user = await createTestUser()
     const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
 
-    await reembedIfSemanticChange(
-      ['notes', 'prepMinutes'],
-      recipe.id,
-      user.id,
-      testPrisma
-    )
+    await reembedIfSemanticChange(['notes', 'prepMinutes'], recipe.id, user.id)
 
     expect(await vectorRowCount(recipe.id)).toBe(0)
   })
@@ -157,7 +150,7 @@ describe('reembedIfSemanticChange (re-embed policy)', () => {
     const user = await createTestUser()
     const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
 
-    await reembedIfSemanticChange([], recipe.id, user.id, testPrisma)
+    await reembedIfSemanticChange([], recipe.id, user.id)
 
     expect(await vectorRowCount(recipe.id)).toBe(0)
   })

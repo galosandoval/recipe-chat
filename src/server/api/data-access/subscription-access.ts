@@ -65,6 +65,15 @@ export class SubscriptionAccess
     })
   }
 
+  /** The email Stripe bills to — usernames are email addresses. */
+  async getUsername(userId: string) {
+    const { username } = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { username: true }
+    })
+    return username
+  }
+
   async getSubscriptionInfo(userId: string) {
     return await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
@@ -78,3 +87,5 @@ export class SubscriptionAccess
     })
   }
 }
+
+export const subscriptionAccess = new SubscriptionAccess()

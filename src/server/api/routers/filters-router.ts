@@ -13,22 +13,19 @@ import {
 export const filtersRouter = createTRPCRouter({
   getByUserId: protectedProcedure
     .input(getFiltersByUserIdSchema)
-    .query(async ({ input, ctx }) => {
-      return await getAllFilters(input.userId, ctx.prisma)
+    .query(async ({ input }) => {
+      return await getAllFilters(input.userId)
     }),
 
   check: protectedProcedure
     .input(checkFilterSchema)
-    .mutation(async ({ ctx, input }) => {
-      return await updateFilterCheckStatus(input, ctx.prisma)
+    .mutation(async ({ input }) => {
+      return await updateFilterCheckStatus(input)
     }),
 
   save: protectedProcedure
     .input(saveFiltersSchema)
     .mutation(async ({ ctx, input }) => {
-      return await saveFilters(
-        { ...input, userId: ctx.session.user.id },
-        ctx.prisma
-      )
+      return await saveFilters({ ...input, userId: ctx.session.user.id })
     })
 })

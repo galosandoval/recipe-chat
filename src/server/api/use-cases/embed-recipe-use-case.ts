@@ -1,6 +1,6 @@
-import { type Recipe, type PrismaClient } from '@prisma/client'
-import { RecipesAccess } from '../data-access/recipes-access'
-import { RecipeVectorAccess } from '../data-access/recipe-vector-access'
+import { type Recipe } from '@prisma/client'
+import { recipesAccess } from '../data-access/recipes-access'
+import { recipeVectorAccess } from '../data-access/recipe-vector-access'
 
 /**
  * The single place a recipe gets embedded. Loads the recipe by id, builds its
@@ -9,11 +9,10 @@ import { RecipeVectorAccess } from '../data-access/recipe-vector-access'
  */
 export async function embedRecipeById(
   recipeId: string,
-  userId: string,
-  prisma: PrismaClient
+  userId: string
 ): Promise<void> {
   try {
-    const recipe = await new RecipesAccess(prisma).getRecipeById(recipeId)
+    const recipe = await recipesAccess.getRecipeById(recipeId)
     if (!recipe) {
       console.error('[recipe-vector] embedRecipeById: recipe not found', {
         recipeId
@@ -21,9 +20,8 @@ export async function embedRecipeById(
       return
     }
 
-    const vectorAccess = new RecipeVectorAccess(prisma)
-    const signature = vectorAccess.buildSignatureFromRecipe(recipe)
-    await vectorAccess.upsertEmbedding(recipeId, userId, signature)
+    const signature = recipeVectorAccess.buildSignatureFromRecipe(recipe)
+    await recipeVectorAccess.upsertEmbedding(recipeId, userId, signature)
   } catch (err) {
     console.error('[recipe-vector] upsertEmbedding failed', { recipeId, err })
   }
@@ -55,10 +53,9 @@ const SEMANTIC_FIELDS = new Set<keyof Recipe>([
 export async function reembedIfSemanticChange(
   changedFields: Array<keyof Recipe>,
   recipeId: string,
-  userId: string,
-  prisma: PrismaClient
+  userId: string
 ): Promise<void> {
   if (changedFields.some((field) => SEMANTIC_FIELDS.has(field))) {
-    await embedRecipeById(recipeId, userId, prisma)
+    await embedRecipeById(recipeId, userId)
   }
 }

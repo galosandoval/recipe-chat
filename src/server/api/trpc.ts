@@ -13,7 +13,6 @@ import superjson from 'superjson'
 import { ZodError } from 'zod'
 
 import { auth } from '~/server/auth'
-import { prisma } from '~/server/db'
 import { hasTierAccess } from '~/lib/tier-config'
 
 /**
@@ -21,7 +20,10 @@ import { hasTierAccess } from '~/lib/tier-config'
  *
  * This section defines the "contexts" that are available in the backend API.
  *
- * These allow you to access things when processing a request, like the database, the session, etc.
+ * These allow you to access things when processing a request, like the session.
+ * The database is deliberately absent: the Prisma client is a module singleton,
+ * so the data-access layer reaches it directly instead of every procedure
+ * relaying it (see `data-access/data-access.ts`).
  *
  * This helper generates the "internals" for a tRPC context. The API handler and RSC clients each
  * wrap this and provides the required context.
@@ -32,7 +34,6 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth()
 
   return {
-    prisma,
     session,
     ...opts
   }

@@ -1,5 +1,4 @@
-import { type PrismaClient } from '@prisma/client'
-import { ChatsAccess } from '~/server/api/data-access/chats-access'
+import { chatsAccess, ChatsAccess } from '~/server/api/data-access/chats-access'
 import { type z } from 'zod'
 import {
   chatContextToScope,
@@ -12,6 +11,7 @@ import { RecipesAccess } from '../data-access/recipes-access'
 import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
 import { embedRecipeById } from './embed-recipe-use-case'
 import { MessagesAccess } from '../data-access/messages-access'
+import { transaction } from '../data-access/data-access'
 import { CHAT_FRESHNESS_MS } from '~/constants/chat'
 import { cuid } from '~/lib/createId'
 
@@ -22,25 +22,17 @@ function isFresh(updatedAt: Date) {
 
 async function embedMessageRecipes(
   messages: MessagesWithRecipes,
-  userId: string,
-  prisma: PrismaClient
+  userId: string
 ) {
   const recipes = messages.flatMap((m) => m.recipes ?? [])
-  await Promise.all(
-    recipes.map((recipe) => embedRecipeById(recipe.id, userId, prisma))
-  )
+  await Promise.all(recipes.map((recipe) => embedRecipeById(recipe.id, userId)))
 }
 
 /**
  * Retrieves a user's chats for a single Chat Context (browse-history view — no
  * freshness filtering).
  */
-export async function getChats(
-  userId: string,
-  prisma: PrismaClient,
-  context?: ChatContext
-) {
-  const chatsAccess = new ChatsAccess(prisma)
+export async function getChats(userId: string, context?: ChatContext) {
   return await chatsAccess.getChatsByUserId(userId, chatContextToScope(context))
 }
 
@@ -49,12 +41,7 @@ export async function getChats(
  * that context, but only if it's still within the freshness window. Returns
  * `null` when there's no chat for the context or the most recent one is stale.
  */
-export async function getResumableChat(
-  userId: string,
-  prisma: PrismaClient,
-  context?: ChatContext
-) {
-  const chatsAccess = new ChatsAccess(prisma)
+export async function getResumableChat(userId: string, context?: ChatContext) {
   const chat = await chatsAccess.getMostRecentChat(
     userId,
     chatContextToScope(context)
@@ -66,8 +53,7 @@ export async function getResumableChat(
 /**
  * Retrieves all messages for a specific chat
  */
-export async function getMessagesById(chatId: string, prisma: PrismaClient) {
-  const chatsAccess = new ChatsAccess(prisma)
+export async function getMessagesById(chatId: string) {
   return await chatsAccess.getMessagesByChatId(chatId)
 }
 
@@ -79,10 +65,8 @@ export async function getMessagesById(chatId: string, prisma: PrismaClient) {
  */
 export async function getResumableChatWithMessages(
   userId: string,
-  prisma: PrismaClient,
   context?: ChatContext
 ) {
-  const chatsAccess = new ChatsAccess(prisma)
   const chat = await chatsAccess.getMostRecentChatWithMessages(
     userId,
     chatContextToScope(context)
@@ -104,13 +88,10 @@ export async function getResumableChatWithMessages(
 export async function upsertChat(
   chatId: string | undefined,
   messages: z.infer<typeof messagesWithRecipesSchema>,
-  prisma: PrismaClient,
   userId: string,
   context?: ChatContext,
   filterIds?: string[]
 ) {
-  const chatsAccess = new ChatsAccess(prisma)
-
   if (chatId) {
     // Only append if the target chat still exists and is fresh. A chat that's
     // gone stale is never appended to again — start a new one scoped to the
@@ -119,7 +100,7 @@ export async function upsertChat(
     if (existing && isFresh(existing.updatedAt)) {
       await chatsAccess.addMessages(chatId, messages, userId)
 
-      await embedMessageRecipes(messages, userId, prisma)
+      await embedMessageRecipes(messages, userId)
 
       return {
         success: true,
@@ -138,7 +119,7 @@ export async function upsertChat(
     recipeId: scope.recipeId
   })
 
-  await embedMessageRecipes(messages, userId, prisma)
+  await embedMessageRecipes(messages, userId)
 
   return {
     success: true,
@@ -151,11 +132,7 @@ export async function upsertChat(
  * Processes a generated recipe by updating the recipe with ingredients and instructions,
  * creating associated messages, and establishing the recipe-message relationship
  */
-export async function generated(
-  prisma: PrismaClient,
-  data: Generated,
-  userId: string
-) {
+export async function generated(data: Generated, userId: string) {
   const { prompt, generated } = data
   const {
     id,
@@ -171,29 +148,24 @@ export async function generated(
   // Re-check the requested chat's freshness. If it's gone stale, don't append —
   // start a new chat scoped to the same context. The effective id is returned so
   // the client adopts it instead of trusting its pre-minted cuid.
-  const chatsAccess = new ChatsAccess(prisma)
   const existing = await chatsAccess.getChatById(requestedChatId)
-  const chatId =
-    existing && !isFresh(existing.updatedAt) ? cuid() : requestedChatId
+  const isStale = !!existing && !isFresh(existing.updatedAt)
+  const chatId = isStale ? cuid() : requestedChatId
+  // No row yet for this id: either the client minted it, or we just minted a
+  // replacement for a stale chat.
+  const isNewChat = !existing || isStale
   const scope = chatContextToScope(data.context)
 
-  await prisma.$transaction(async (tx) => {
-    const recipesAccess = new RecipesAccess(tx as PrismaClient)
-    const messagesAccess = new MessagesAccess(tx as PrismaClient)
-    const recipesOnMessagesAccess = new RecipesOnMessagesAccess(
-      tx as PrismaClient
-    )
-
-    // Ensure the chat exists (handles new chats where chatId was generated
-    // client-side), persisting the context when creating.
-    await tx.chat.upsert({
-      where: { id: chatId },
-      update: {},
-      create: { id: chatId, userId, page: scope.page, recipeId: scope.recipeId }
-    })
+  await transaction(async (tx) => {
+    const chats = new ChatsAccess(tx)
+    if (isNewChat) {
+      await chats.createChatShell(chatId, userId, scope)
+    } else {
+      await chats.touchChat(chatId)
+    }
 
     // Upsert recipe — create if it doesn't exist yet, update if it does
-    await recipesAccess.upsertRecipeWithIngredientsAndInstructions(id, {
+    await new RecipesAccess(tx).upsertRecipeWithIngredientsAndInstructions(id, {
       ...rest,
       name,
       userId,
@@ -202,7 +174,7 @@ export async function generated(
     })
 
     // Create messages
-    await messagesAccess.createMessages([
+    await new MessagesAccess(tx).createMessages([
       { ...prompt, role: 'user', chatId },
       {
         content,
@@ -213,10 +185,10 @@ export async function generated(
     ])
 
     // Create recipe-message relationship
-    await recipesOnMessagesAccess.create(id, messageId)
+    await new RecipesOnMessagesAccess(tx).create(id, messageId)
   })
 
-  await embedRecipeById(id, userId, prisma)
+  await embedRecipeById(id, userId)
 
   return {
     success: true,
