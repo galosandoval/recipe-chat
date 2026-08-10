@@ -4,7 +4,9 @@
 import {
   generated,
   getChats,
+  getMessagesById,
   getResumableChat,
+  getResumableChatWithMessages,
   upsertChat
 } from '~/server/api/use-cases/chats-use-case'
 import type {
@@ -213,6 +215,69 @@ describe('getResumableChat()', () => {
 
     const resumable = await getResumableChat(user.id, testPrisma, pantryContext)
     expect(resumable).toBeNull()
+  })
+})
+
+describe('getResumableChatWithMessages()', () => {
+  it('returns the resumable chat and its messages together', async () => {
+    const user = await createTestUser()
+    const created = await upsertChat(
+      undefined,
+      makeMessages(),
+      testPrisma,
+      user.id,
+      listContext
+    )
+
+    const { resumable, messages } = await getResumableChatWithMessages(
+      user.id,
+      testPrisma,
+      listContext
+    )
+    expect(resumable?.id).toBe(created.chatId)
+    expect(messages?.id).toBe(created.chatId)
+    expect(messages?.messages).toHaveLength(2)
+  })
+
+  it('matches getResumableChat + getMessagesById field-for-field', async () => {
+    const user = await createTestUser()
+    await upsertChat(
+      undefined,
+      makeMessages(),
+      testPrisma,
+      user.id,
+      listContext
+    )
+
+    const combined = await getResumableChatWithMessages(
+      user.id,
+      testPrisma,
+      listContext
+    )
+    const resumable = await getResumableChat(user.id, testPrisma, listContext)
+    const messages = await getMessagesById(resumable!.id, testPrisma)
+
+    expect(combined.resumable).toStrictEqual(resumable)
+    expect(combined.messages).toStrictEqual(messages)
+  })
+
+  it('returns nulls when the most recent chat is stale', async () => {
+    const user = await createTestUser()
+    const created = await upsertChat(
+      undefined,
+      makeMessages(),
+      testPrisma,
+      user.id,
+      listContext
+    )
+    await ageChat(created.chatId!)
+
+    const seed = await getResumableChatWithMessages(
+      user.id,
+      testPrisma,
+      listContext
+    )
+    expect(seed).toStrictEqual({ resumable: null, messages: null })
   })
 })
 

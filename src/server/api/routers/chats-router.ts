@@ -5,6 +5,7 @@ import {
   getChats,
   getMessagesById,
   getResumableChat,
+  getResumableChatWithMessages,
   upsertChat
 } from '~/server/api/use-cases/chats-use-case'
 import {
@@ -26,6 +27,21 @@ export const chatsRouter = createTRPCRouter({
     .input(z.object({ context: chatContextSchema.optional() }))
     .query(async ({ ctx, input }) => {
       return getResumableChat(ctx.session.user.id, ctx.prisma, input.context)
+    }),
+
+  /**
+   * Resume state for a Chat Context in one round-trip. Prefer this over
+   * `getResumableChat` + `getMessagesById` when seeding a page's chat surface
+   * server-side (see `app/chat/page.tsx`).
+   */
+  getResumableChatWithMessages: protectedProcedure
+    .input(z.object({ context: chatContextSchema.optional() }))
+    .query(async ({ ctx, input }) => {
+      return getResumableChatWithMessages(
+        ctx.session.user.id,
+        ctx.prisma,
+        input.context
+      )
     }),
 
   getMessagesById: protectedProcedure

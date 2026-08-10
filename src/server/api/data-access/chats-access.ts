@@ -7,6 +7,30 @@ import { slugify } from '~/lib/utils'
 import { toRecipeWriteData } from '~/schemas/recipes-schema'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 
+/**
+ * The message tree a chat surface needs to render a conversation: messages in
+ * send order, each with its fully-hydrated recipes.
+ */
+const messagesInclude = {
+  messages: {
+    orderBy: {
+      createdAt: 'asc'
+    },
+    include: {
+      recipes: {
+        include: {
+          recipe: {
+            include: {
+              ingredients: true,
+              instructions: true
+            }
+          }
+        }
+      }
+    }
+  }
+} as const
+
 export class ChatsAccess extends DataAccess {
   /**
    * Browse-history view for the chats-drawer: every chat for a user within a
@@ -63,26 +87,27 @@ export class ChatsAccess extends DataAccess {
       where: {
         id: chatId
       },
+      include: messagesInclude
+    })
+  }
 
-      include: {
-        messages: {
-          orderBy: {
-            createdAt: 'asc'
-          },
-          include: {
-            recipes: {
-              include: {
-                recipe: {
-                  include: {
-                    ingredients: true,
-                    instructions: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+  /**
+   * {@link getMostRecentChat} with the chat's messages already included, so a
+   * caller that needs both (see `getResumableChatWithMessages`) pays one query
+   * instead of a find-then-find waterfall. The return shape matches
+   * {@link getMessagesByChatId} so the two are interchangeable downstream.
+   */
+  async getMostRecentChatWithMessages(userId: string, scope: ChatScope) {
+    return this.prisma.chat.findFirst({
+      where: {
+        userId,
+        page: scope.page,
+        recipeId: scope.recipeId
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      },
+      include: messagesInclude
     })
   }
 

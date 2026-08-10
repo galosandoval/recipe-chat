@@ -72,6 +72,33 @@ export async function getMessagesById(chatId: string, prisma: PrismaClient) {
 }
 
 /**
+ * A Chat Context's resume state resolved in one call: the resumable chat plus
+ * its messages. Callers always need both together (see {@link ResumeChatSeed}),
+ * and resolving them here collapses what would otherwise be a two-round-trip
+ * waterfall on the pages that seed the client cache.
+ */
+export async function getResumableChatWithMessages(
+  userId: string,
+  prisma: PrismaClient,
+  context?: ChatContext
+) {
+  const chatsAccess = new ChatsAccess(prisma)
+  const chat = await chatsAccess.getMostRecentChatWithMessages(
+    userId,
+    chatContextToScope(context)
+  )
+  if (!chat || !isFresh(chat.updatedAt)) {
+    return { resumable: null, messages: null }
+  }
+
+  // Split the single row back into the two shapes the client seeds under
+  // `chats.getResumableChat` and `chats.getMessagesById`, so a later client
+  // refetch of either key returns the same shape it was seeded with.
+  const { messages, ...resumable } = chat
+  return { resumable, messages: { ...resumable, messages } }
+}
+
+/**
  * Upserts a chat by either adding messages to an existing chat or creating a new one
  */
 export async function upsertChat(
