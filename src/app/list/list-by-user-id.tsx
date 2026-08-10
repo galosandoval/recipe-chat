@@ -23,19 +23,20 @@ export function ListByUserId() {
 function ListController({ data }: { data: Ingredient[] }) {
   const t = useTranslations()
 
-  const [byRecipe, setByRecipe] = useState(() =>
-    typeof window !== 'undefined' && typeof localStorage.byRecipe === 'string'
-      ? (JSON.parse(localStorage.byRecipe) as boolean)
-      : false
-  )
+  // Starts false to match the server render, then syncs from localStorage after
+  // mount — reading storage during render would break hydration.
+  const [byRecipe, setByRecipe] = useState(false)
 
   const handleToggleByRecipe = (e: CheckedState) => {
     setByRecipe(e === true)
+    localStorage.byRecipe = JSON.stringify(e === true)
   }
 
   useEffect(() => {
-    localStorage.byRecipe = JSON.stringify(byRecipe)
-  }, [byRecipe])
+    if (typeof localStorage.byRecipe === 'string') {
+      setByRecipe(JSON.parse(localStorage.byRecipe) as boolean)
+    }
+  }, [])
 
   if (data.length === 0) {
     return <EmptyList />

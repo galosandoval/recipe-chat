@@ -5,6 +5,7 @@ import {
   getSubscriptionInfo
 } from '~/server/api/use-cases/subscription-use-case'
 import { createCheckoutSchema } from '~/schemas/subscription-schema'
+import { getStripe } from '~/lib/stripe'
 
 export const subscriptionRouter = createTRPCRouter({
   getInfo: protectedProcedure.query(async ({ ctx }) => {
@@ -14,10 +15,19 @@ export const subscriptionRouter = createTRPCRouter({
   createCheckout: protectedProcedure
     .input(createCheckoutSchema)
     .mutation(async ({ input, ctx }) => {
-      return await createCheckoutSession(ctx.session.user.id, input, ctx.prisma)
+      return await createCheckoutSession(
+        ctx.session.user.id,
+        input,
+        ctx.prisma,
+        getStripe()
+      )
     }),
 
   createPortalSession: protectedProcedure.mutation(async ({ ctx }) => {
-    return await createPortalSession(ctx.session.user.id, ctx.prisma)
+    return await createPortalSession(
+      ctx.session.user.id,
+      ctx.prisma,
+      getStripe()
+    )
   })
 })

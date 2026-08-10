@@ -43,6 +43,14 @@ OPENAI_API_KEY="$(env_fallback OPENAI_API_KEY)"
 
 HOST_GIT_DIR="$(git -C "$REPO_ROOT" rev-parse --absolute-git-dir)"
 
+# Preserve the container's output dir on the host (#566): the transcript, PR
+# description, verify report, and trajectory scorecard are written under
+# /workdir/output inside the container and vanish with it. Bind-mounting a
+# host dir keeps every run's outputs for inspection. Timestamped so runs never
+# clobber each other; gitignored so they never pollute `git status`.
+HOST_OUTPUT_DIR="$REPO_ROOT/.agent/local/runs/$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$HOST_OUTPUT_DIR"
+
 # Mount the maintainer's local skills rules if present; otherwise mount an
 # empty scratch dir so entrypoint.sh's "non-empty directory" check correctly
 # skips the standards step (docs/agents/domain.md / memory: skills live at
@@ -55,7 +63,7 @@ else
 fi
 
 export ISSUE_NUMBER GH_TOKEN CLAUDE_CODE_OAUTH_TOKEN NEXTAUTH_SECRET OPENAI_API_KEY
-export HOST_GIT_DIR STANDARDS_HOST_DIR
+export HOST_GIT_DIR STANDARDS_HOST_DIR HOST_OUTPUT_DIR
 
 cleanup() {
   echo "==> Tearing down the ephemeral pgvector service"
@@ -65,3 +73,6 @@ trap cleanup EXIT
 
 echo "==> Starting agent:local for issue #${ISSUE_NUMBER}"
 docker compose -f "$COMPOSE_FILE" run --rm --build agent
+
+echo "==> Run outputs preserved on the host at: ${HOST_OUTPUT_DIR}"
+echo "    (transcript.jsonl, pr_description.txt, verify_report.md, trajectory_scorecard.md)"

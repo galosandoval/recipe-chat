@@ -1,15 +1,19 @@
 import { type PrismaClient } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import type Stripe from 'stripe'
-import { SubscriptionAccess } from '~/server/api/data-access/subscription-access'
-import { getStripe } from '~/lib/stripe'
+import {
+  SubscriptionAccess,
+  type SubscriptionEventAccess,
+  type SubscriptionEventUser
+} from '~/server/api/data-access/subscription-access'
 import { PRICE_ID_TO_TIER, TIER_TO_PRICE_ID } from '~/lib/stripe-config'
 import { type CreateCheckoutSchema } from '~/schemas/subscription-schema'
 
 export async function createCheckoutSession(
   userId: string,
   input: CreateCheckoutSchema,
-  prisma: PrismaClient
+  prisma: PrismaClient,
+  stripe: Stripe
 ) {
   const access = new SubscriptionAccess(prisma)
   const info = await access.getSubscriptionInfo(userId)
@@ -30,7 +34,7 @@ export async function createCheckoutSession(
       select: { username: true }
     })
 
-    const customer = await getStripe().customers.create({
+    const customer = await stripe.customers.create({
       email: user.username,
       metadata: { userId }
     })
@@ -44,7 +48,7 @@ export async function createCheckoutSession(
     throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid tier' })
   }
 
-  const session = await getStripe().checkout.sessions.create({
+  const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
@@ -57,7 +61,8 @@ export async function createCheckoutSession(
 
 export async function createPortalSession(
   userId: string,
-  prisma: PrismaClient
+  prisma: PrismaClient,
+  stripe: Stripe
 ) {
   const access = new SubscriptionAccess(prisma)
   const info = await access.getSubscriptionInfo(userId)
@@ -69,7 +74,7 @@ export async function createPortalSession(
     })
   }
 
-  const session = await getStripe().billingPortal.sessions.create({
+  const session = await stripe.billingPortal.sessions.create({
     customer: info.stripeCustomerId,
     return_url: `${process.env.NEXTAUTH_URL}/en/subscription`
   })
@@ -85,6 +90,61 @@ export async function getSubscriptionInfo(
   return await access.getSubscriptionInfo(userId)
 }
 
+/** Dependencies the Stripe webhook entry point needs, injected so tests use fakes. */
+export type StripeEventDeps = {
+  stripe: Stripe
+  access: SubscriptionEventAccess
+}
+
+/**
+ * The outcome of handling one Stripe event, made explicit so unknown customers
+ * and unhandled event types are tested no-ops rather than silent fall-through.
+ */
+export type HandleStripeEventResult =
+  | { status: 'updated'; userId: string }
+  | { status: 'ignored'; reason: 'unhandled_event' | 'unknown_customer' }
+
+/**
+ * The one seam that maps a verified Stripe event to a subscription-state change.
+ * The webhook route verifies the signature and delegates here; everything the
+ * money path does — customer resolution, tier resolution, and the write — lives
+ * behind this entry point so it can be driven by fixture events in tests.
+ */
+export async function handleStripeEvent(
+  event: Stripe.Event,
+  deps: StripeEventDeps
+): Promise<HandleStripeEventResult> {
+  const { access } = deps
+
+  switch (event.type) {
+    case 'customer.subscription.created':
+      return applySubscription(
+        event.data.object as Stripe.Subscription,
+        access,
+        'ACTIVE'
+      )
+
+    case 'customer.subscription.updated':
+      return applySubscription(
+        event.data.object as Stripe.Subscription,
+        access,
+        subscriptionStatusFor(event.data.object as Stripe.Subscription)
+      )
+
+    case 'customer.subscription.deleted':
+      return revokeSubscription(
+        event.data.object as Stripe.Subscription,
+        access
+      )
+
+    case 'invoice.payment_failed':
+      return markPaymentFailed(event.data.object as Stripe.Invoice, access)
+
+    default:
+      return { status: 'ignored', reason: 'unhandled_event' }
+  }
+}
+
 function getFirstItem(subscription: Stripe.Subscription) {
   return subscription.items.data[0]
 }
@@ -95,66 +155,49 @@ function resolveTierFromSubscription(subscription: Stripe.Subscription) {
   return PRICE_ID_TO_TIER[priceId] ?? ('FREE' as const)
 }
 
-export async function handleSubscriptionCreated(
-  subscription: Stripe.Subscription,
-  prisma: PrismaClient
-) {
-  const customerId =
-    typeof subscription.customer === 'string'
-      ? subscription.customer
-      : subscription.customer.id
-
-  const access = new SubscriptionAccess(prisma)
-  const user = await access.getUserByStripeCustomerId(customerId)
-  if (!user) return
-
-  const tier = resolveTierFromSubscription(subscription)
+function periodEndFromSubscription(subscription: Stripe.Subscription) {
   const periodEnd = getFirstItem(subscription)?.current_period_end
-  await access.updateSubscription(user.id, {
-    stripeSubscriptionId: subscription.id,
-    subscriptionTier: tier,
-    subscriptionStatus: 'ACTIVE',
-    currentPeriodEnd: periodEnd ? new Date(periodEnd * 1000) : null
-  })
+  return periodEnd ? new Date(periodEnd * 1000) : null
 }
 
-export async function handleSubscriptionUpdated(
-  subscription: Stripe.Subscription,
-  prisma: PrismaClient
-) {
+function subscriptionStatusFor(subscription: Stripe.Subscription) {
+  return subscription.status === 'active' ? 'ACTIVE' : 'INCOMPLETE'
+}
+
+/** The single customer-to-user resolution shared by every event branch. */
+async function resolveUser(
+  customer: string | { id: string } | null | undefined,
+  access: SubscriptionEventAccess
+): Promise<SubscriptionEventUser | null> {
   const customerId =
-    typeof subscription.customer === 'string'
-      ? subscription.customer
-      : subscription.customer.id
+    typeof customer === 'string' ? customer : (customer?.id ?? null)
+  if (!customerId) return null
+  return access.getUserByStripeCustomerId(customerId)
+}
 
-  const access = new SubscriptionAccess(prisma)
-  const user = await access.getUserByStripeCustomerId(customerId)
-  if (!user) return
-
-  const tier = resolveTierFromSubscription(subscription)
-  const status = subscription.status === 'active' ? 'ACTIVE' : 'INCOMPLETE'
-  const periodEnd = getFirstItem(subscription)?.current_period_end
+async function applySubscription(
+  subscription: Stripe.Subscription,
+  access: SubscriptionEventAccess,
+  status: 'ACTIVE' | 'INCOMPLETE'
+): Promise<HandleStripeEventResult> {
+  const user = await resolveUser(subscription.customer, access)
+  if (!user) return { status: 'ignored', reason: 'unknown_customer' }
 
   await access.updateSubscription(user.id, {
     stripeSubscriptionId: subscription.id,
-    subscriptionTier: tier,
+    subscriptionTier: resolveTierFromSubscription(subscription),
     subscriptionStatus: status,
-    currentPeriodEnd: periodEnd ? new Date(periodEnd * 1000) : null
+    currentPeriodEnd: periodEndFromSubscription(subscription)
   })
+  return { status: 'updated', userId: user.id }
 }
 
-export async function handleSubscriptionDeleted(
+async function revokeSubscription(
   subscription: Stripe.Subscription,
-  prisma: PrismaClient
-) {
-  const customerId =
-    typeof subscription.customer === 'string'
-      ? subscription.customer
-      : subscription.customer.id
-
-  const access = new SubscriptionAccess(prisma)
-  const user = await access.getUserByStripeCustomerId(customerId)
-  if (!user) return
+  access: SubscriptionEventAccess
+): Promise<HandleStripeEventResult> {
+  const user = await resolveUser(subscription.customer, access)
+  if (!user) return { status: 'ignored', reason: 'unknown_customer' }
 
   await access.updateSubscription(user.id, {
     stripeSubscriptionId: null,
@@ -162,25 +205,19 @@ export async function handleSubscriptionDeleted(
     subscriptionStatus: 'CANCELED',
     currentPeriodEnd: null
   })
+  return { status: 'updated', userId: user.id }
 }
 
-export async function handlePaymentFailed(
+async function markPaymentFailed(
   invoice: Stripe.Invoice,
-  prisma: PrismaClient
-) {
-  const customerId =
-    typeof invoice.customer === 'string'
-      ? invoice.customer
-      : invoice.customer?.id
-
-  if (!customerId) return
-
-  const access = new SubscriptionAccess(prisma)
-  const user = await access.getUserByStripeCustomerId(customerId)
-  if (!user) return
+  access: SubscriptionEventAccess
+): Promise<HandleStripeEventResult> {
+  const user = await resolveUser(invoice.customer, access)
+  if (!user) return { status: 'ignored', reason: 'unknown_customer' }
 
   await access.updateSubscription(user.id, {
     subscriptionTier: user.subscriptionTier,
     subscriptionStatus: 'PAST_DUE'
   })
+  return { status: 'updated', userId: user.id }
 }

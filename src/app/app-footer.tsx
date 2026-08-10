@@ -1,6 +1,5 @@
 'use client'
 
-import { Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { AddToListForm } from './list/add-to-list-form'
 import { AddToPantryForm } from './pantry/add-to-pantry-form'
@@ -15,9 +14,7 @@ export function AppFooter() {
 
   return (
     <footer className='sticky bottom-0 z-20 shrink-0'>
-      <Suspense fallback={<AddToListForm />}>
-        <ListsFooter />
-      </Suspense>
+      <ListsFooter />
     </footer>
   )
 }

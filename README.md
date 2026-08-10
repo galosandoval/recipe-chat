@@ -1,6 +1,6 @@
 # RecipeChat
 
-A conversational recipe assistant. You chat with it the way you'd chat with a cook — "something with the chicken thighs in my fridge, not too spicy" — and it streams back tailored recipe options, expands any of them into full ingredients and instructions, and helps you carry them through to a shopping list and pantry.
+A conversational recipe assistant. You chat with it the way you'd chat with a cook — "something with the chicken thighs in my fridge, not too spicy" — and it streams back tailored recipe options, expands any of them into full ingredients and instructions, and helps you carry them through to a grocery list and pantry.
 
 The interesting part isn't the chat. It's everything wired up behind it: a tool-calling LLM grounded in the user's saved recipes, taste profile, and pantry; a pgvector layer that de-duplicates suggestions semantically rather than by string match; and a tiered subscription model — all on a strictly layered, fully-typed stack.
 
@@ -8,7 +8,7 @@ The interesting part isn't the chat. It's everything wired up behind it: a tool-
 
 - **Grounded recipe generation** — the model is given the user's saved recipe titles, dietary filters, taste profile, and (optionally) current pantry contents as system context, then proposes diverse options via a constrained tool call. A second tool expands a chosen suggestion into full ingredients, instructions, and servings.
 - **Semantic de-duplication** — newly generated options are embedded and compared against the user's existing recipes in Postgres (pgvector), so the LLM over-generates and the server returns only the genuinely novel survivors. Runs entirely off the model, fails open.
-- **Pantry & shopping lists** — structured ingredients (quantity / unit / name) flow from recipes into a checkable list and a persistent pantry, with unit conversion and preferred-unit display.
+- **Pantry & grocery list** — structured ingredients (quantity / unit / name) flow from recipes into a checkable grocery list and a persistent pantry, with unit conversion and preferred-unit display.
 - **Taste profile** — per-user preferences that further condition generation.
 - **Subscriptions** — FREE / STARTER / PREMIUM tiers gated by feature, backed by Stripe with webhook-driven status sync.
 - **Internationalization** — locale negotiation and translated UI.

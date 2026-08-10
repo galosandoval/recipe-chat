@@ -60,7 +60,7 @@ export function useAddToPantry() {
 
 export function PantryByUserId() {
   const [pantry] = usePantryData()
-  const { data: user } = api.users.get.useQuery()
+  const [user] = api.users.get.useSuspenseQuery()
   const ingredients = pantry?.ingredients ?? []
   const preferredWeight = user?.preferredWeightUnit ?? null
   const preferredVolume = user?.preferredVolumeUnit ?? null

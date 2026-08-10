@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { type ReactNode } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { ListTodoIcon, PackageIcon } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
@@ -19,23 +19,22 @@ function parseTab(value: string | null): ListsTab {
 
 /**
  * Tab container that co-locates the grocery list and pantry under `/lists`.
- * The active tab is seeded from the `?tab=` search param (refresh/link safe) and
- * mirrored back to the URL on change; switching never leaves the route. The
+ * The `?tab=` search param is the only source of truth (refresh/link safe, and
+ * back/forward moves between tabs); switching never leaves the route. The
  * footer ({@link AppFooter}) and chat assistant context both follow this tab.
  */
 export function ListsView() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const t = useTranslations()
-  const [activeTab, setActiveTab] = useState<ListsTab>(() =>
-    parseTab(searchParams.get('tab'))
-  )
+  const activeTab = parseTab(searchParams.get('tab'))
 
   const handleTabChange = (tab: ListsTab) => {
-    setActiveTab(tab)
     const params = new URLSearchParams(searchParams.toString())
     params.set('tab', tab)
-    router.replace(`/lists?${params.toString()}`, { scroll: false })
+    // Native history API rather than `router.push`: Next syncs `useSearchParams`
+    // synchronously, so the footer input swaps in the same frame as the tab
+    // instead of lagging behind an RSC round trip.
+    window.history.pushState(null, '', `/lists?${params.toString()}`)
   }
 
   const context: ChatContext = { page: activeTab }

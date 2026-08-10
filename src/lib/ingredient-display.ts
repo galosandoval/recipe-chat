@@ -9,7 +9,7 @@ import {
 /**
  * Phrases that mark an ingredient as unmeasured — "to taste", garnishes,
  * optional, and serving-only items. These are never quantity-summed so the
- * shopping list keeps them as a single advisory line rather than inventing a
+ * grocery list keeps them as a single advisory line rather than inventing a
  * nonsensical total (e.g. "3 to taste salt").
  */
 const UNMEASURED_PATTERN =

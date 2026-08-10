@@ -46,7 +46,11 @@ export function FabStack() {
     return () => clearTimeout(timer)
   }, [pathname])
 
-  const shouldMoveForInput = messages.length > 0 && pathname === '/chat'
+  // Lift the column when a sticky bottom input footer would otherwise sit under
+  // the FAB on mobile: the chat composer (once a chat has messages) and the
+  // `/lists` add-item footer (always present on both the list and pantry tabs).
+  const shouldMoveForInput =
+    pathname === '/lists' || (messages.length > 0 && pathname === '/chat')
 
   return (
     <div
