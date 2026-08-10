@@ -43,7 +43,7 @@ const execOptions: ToolExecutionOptions = {
  * accessible. Throws if the gating unexpectedly withheld them.
  */
 function recipeDetailTools(userId?: string) {
-  const tools = getTools(recipeDetailContext, testPrisma, userId)
+  const tools = getTools(recipeDetailContext, userId)
   if (!('editRecipe' in tools)) {
     throw new Error('expected recipe-detail tools to include editRecipe')
   }
@@ -60,20 +60,20 @@ afterAll(async () => {
 
 describe('getTools context gating', () => {
   it('withholds editRecipe/addNote off the recipe-detail page', () => {
-    const tools = getTools({ page: 'recipes' }, testPrisma, 'user-1')
+    const tools = getTools({ page: 'recipes' }, 'user-1')
     expect('generateRecipeOptions' in tools).toBe(true)
     expect('editRecipe' in tools).toBe(false)
     expect('addNote' in tools).toBe(false)
   })
 
   it('exposes editRecipe/addNote on the recipe-detail page', () => {
-    const tools = getTools(recipeDetailContext, testPrisma, 'user-1')
+    const tools = getTools(recipeDetailContext, 'user-1')
     expect('editRecipe' in tools).toBe(true)
     expect('addNote' in tools).toBe(true)
   })
 
   it('withholds recipe-detail tools when no context is provided', () => {
-    const tools = getTools(undefined, testPrisma, 'user-1')
+    const tools = getTools(undefined, 'user-1')
     expect('editRecipe' in tools).toBe(false)
     expect('addNote' in tools).toBe(false)
   })

@@ -21,8 +21,8 @@ const pantryUpdateData = z.object({
 export const pantryRouter = createTRPCRouter({
   byUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return getPantryByUserId(input.userId, ctx.prisma)
+    .query(async ({ input }) => {
+      return getPantryByUserId(input.userId)
     }),
 
   add: protectedProcedure
@@ -34,7 +34,7 @@ export const pantryRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id
-      return addIngredientToPantry(userId, input.rawLine, input.id, ctx.prisma)
+      return addIngredientToPantry(userId, input.rawLine, input.id)
     }),
 
   update: protectedProcedure
@@ -44,8 +44,8 @@ export const pantryRouter = createTRPCRouter({
         data: pantryUpdateData
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      return updatePantryIngredient(input.ingredientId, input.data, ctx.prisma)
+    .mutation(async ({ input }) => {
+      return updatePantryIngredient(input.ingredientId, input.data)
     }),
 
   bulkUpdate: protectedProcedure
@@ -57,14 +57,14 @@ export const pantryRouter = createTRPCRouter({
         deletedIds: z.array(z.string())
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      return bulkUpdatePantry(input.updates, input.deletedIds, ctx.prisma)
+    .mutation(async ({ input }) => {
+      return bulkUpdatePantry(input.updates, input.deletedIds)
     }),
 
   delete: protectedProcedure
     .input(z.object({ ingredientId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      await deletePantryIngredient(input.ingredientId, ctx.prisma)
+    .mutation(async ({ input }) => {
+      await deletePantryIngredient(input.ingredientId)
     }),
 
   bulkAdd: protectedProcedure
@@ -73,8 +73,7 @@ export const pantryRouter = createTRPCRouter({
       const userId = ctx.session.user.id
       return bulkAddToPantry(
         userId,
-        input.rawLines.filter((l) => l.trim().length > 0),
-        ctx.prisma
+        input.rawLines.filter((l) => l.trim().length > 0)
       )
     })
 })

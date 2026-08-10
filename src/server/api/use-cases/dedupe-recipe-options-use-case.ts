@@ -1,6 +1,5 @@
-import { type PrismaClient } from '@prisma/client'
 import { type GeneratedRecipe } from '~/schemas/messages-schema'
-import { RecipeVectorAccess } from '../data-access/recipe-vector-access'
+import { recipeVectorAccess } from '../data-access/recipe-vector-access'
 import { buildSignature, embedManySignatures } from '~/lib/embeddings'
 import { RECIPE_DEDUP_THRESHOLD, RECIPE_OPTIONS_TARGET } from '~/constants/chat'
 
@@ -30,7 +29,6 @@ function signatureForOption(recipe: GeneratedRecipe): string {
 export async function dedupeRecipeOptions(
   userId: string | undefined,
   recipes: GeneratedRecipe[],
-  prisma: PrismaClient,
   target = RECIPE_OPTIONS_TARGET
 ): Promise<GeneratedRecipe[]> {
   if (!userId || recipes.length === 0) {
@@ -38,10 +36,9 @@ export async function dedupeRecipeOptions(
   }
 
   try {
-    const vectorAccess = new RecipeVectorAccess(prisma)
     const signatures = recipes.map(signatureForOption)
     const embeddings = await embedManySignatures(signatures)
-    const similarities = await vectorAccess.maxSimilarityForEmbeddings(
+    const similarities = await recipeVectorAccess.maxSimilarityForEmbeddings(
       userId,
       embeddings
     )

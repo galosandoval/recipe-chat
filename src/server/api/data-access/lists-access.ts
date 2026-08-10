@@ -1,4 +1,4 @@
-import { type List } from '@prisma/client'
+import { type List, type PrismaClient } from '@prisma/client'
 import { DataAccess } from './data-access'
 
 export class ListsAccess extends DataAccess {
@@ -37,4 +37,39 @@ export class ListsAccess extends DataAccess {
       where: { id: { in: ingredientIds } }
     })
   }
+
+  async updateIngredientChecked(ingredientId: string, checked: boolean) {
+    return this.prisma.ingredient.update({
+      where: { id: ingredientId },
+      data: { checked }
+    })
+  }
+
+  /** Check/uncheck many lines atomically, so a partial write can't leave the list half-toggled. */
+  async updateIngredientsChecked(
+    ingredients: { id: string; checked: boolean }[]
+  ) {
+    return (this.prisma as PrismaClient).$transaction(
+      ingredients.map(({ id, checked }) =>
+        this.prisma.ingredient.update({ where: { id }, data: { checked } })
+      )
+    )
+  }
+
+  /**
+   * Persists manually adjusted quantities atomically. Used when a user edits a
+   * merged line's total: the client scales each contributing ingredient and
+   * sends the resulting per-ingredient quantities.
+   */
+  async updateIngredientQuantities(
+    ingredients: { id: string; quantity: number }[]
+  ) {
+    return (this.prisma as PrismaClient).$transaction(
+      ingredients.map(({ id, quantity }) =>
+        this.prisma.ingredient.update({ where: { id }, data: { quantity } })
+      )
+    )
+  }
 }
+
+export const listsAccess = new ListsAccess()

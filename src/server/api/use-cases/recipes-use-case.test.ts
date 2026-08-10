@@ -56,11 +56,7 @@ describe('editRecipe facet edits', () => {
     const user = await createTestUser()
     const recipe = await createTestRecipe(user.id, { name: 'Pasta' })
 
-    await editRecipe(
-      editFor(recipe, { newCuisine: 'italian' }),
-      user.id,
-      testPrisma
-    )
+    await editRecipe(editFor(recipe, { newCuisine: 'italian' }), user.id)
 
     const row = await testPrisma.recipe.findUnique({ where: { id: recipe.id } })
     expect(row?.cuisine).toBe('italian')
@@ -73,8 +69,7 @@ describe('editRecipe facet edits', () => {
 
     await editRecipe(
       editFor(recipe, { newDietTags: ['vegan', 'gluten-free'] }),
-      user.id,
-      testPrisma
+      user.id
     )
 
     const row = await testPrisma.recipe.findUnique({ where: { id: recipe.id } })
@@ -88,8 +83,7 @@ describe('editRecipe facet edits', () => {
 
     await editRecipe(
       editFor(recipe, { notes: '', newNotes: 'serve hot' }),
-      user.id,
-      testPrisma
+      user.id
     )
 
     const row = await testPrisma.recipe.findUnique({ where: { id: recipe.id } })
@@ -112,8 +106,7 @@ describe('editRecipe facet edits', () => {
           ],
           newInstructions: [{ id: 'ghost-instruction', description: 'new' }]
         }),
-        user.id,
-        testPrisma
+        user.id
       )
     ).rejects.toThrow()
 
@@ -144,7 +137,7 @@ describe('deleteRecipe cascade', () => {
       data: { recipeId: recipe.id, messageId: message.id }
     })
 
-    const result = await deleteRecipe(recipe.id, testPrisma)
+    const result = await deleteRecipe(recipe.id)
 
     expect(result).toBe(true)
     expect(
@@ -180,8 +173,7 @@ describe('createRecipeWithEmbedding facet persistence', () => {
         mainIngredients: ['egg', 'pancetta'],
         techniques: ['emulsify']
       },
-      user.id,
-      testPrisma
+      user.id
     )
 
     const row = await testPrisma.recipe.findUnique({

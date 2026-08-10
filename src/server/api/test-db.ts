@@ -2,9 +2,12 @@ import { randomUUID } from 'crypto'
 import { PrismaClient } from '@prisma/client'
 
 /**
- * A dedicated Prisma client for backend integration tests. Reads the connection
- * URL from `.env.test.local` (loaded by next/jest when NODE_ENV=test), so it
- * targets the `recipe-chat-test` database rather than dev data.
+ * A dedicated Prisma client for fixtures and assertions in backend integration
+ * tests. Reads the connection URL from `.env.test.local` (loaded by next/jest
+ * when NODE_ENV=test), so it targets the `recipe-chat-test` database rather than
+ * dev data — as does the app's own singleton, which is what the data-access
+ * layer under test writes through. Kept separate only so suite bookkeeping
+ * (truncate, fixtures) is never confused with the code under test.
  */
 export const testPrisma = new PrismaClient()
 

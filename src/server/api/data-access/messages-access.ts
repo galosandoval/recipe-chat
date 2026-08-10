@@ -37,3 +37,5 @@ export class MessagesAccess extends DataAccess {
     })
   }
 }
+
+export const messagesAccess = new MessagesAccess()

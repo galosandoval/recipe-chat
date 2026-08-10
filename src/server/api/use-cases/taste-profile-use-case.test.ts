@@ -17,11 +17,10 @@ describe('upsertTasteProfile', () => {
   it('persists the taste profile', async () => {
     const user = await createTestUser()
 
-    const profile = await upsertTasteProfile(
-      user.id,
-      { ...tasteProfileDefaults, dietaryRestrictions: ['vegan'] },
-      testPrisma
-    )
+    const profile = await upsertTasteProfile(user.id, {
+      ...tasteProfileDefaults,
+      dietaryRestrictions: ['vegan']
+    })
 
     expect(profile.dietaryRestrictions).toEqual(['vegan'])
   })
@@ -29,15 +28,11 @@ describe('upsertTasteProfile', () => {
   it('does not create or modify any filters when saving dietary restrictions', async () => {
     const user = await createTestUser()
 
-    await upsertTasteProfile(
-      user.id,
-      {
-        ...tasteProfileDefaults,
-        // includes a preset restriction and a custom free-text one
-        dietaryRestrictions: ['vegan', 'Pescatarian']
-      },
-      testPrisma
-    )
+    await upsertTasteProfile(user.id, {
+      ...tasteProfileDefaults,
+      // includes a preset restriction and a custom free-text one
+      dietaryRestrictions: ['vegan', 'Pescatarian']
+    })
 
     const filters = await testPrisma.filter.findMany({
       where: { userId: user.id }
@@ -53,11 +48,10 @@ describe('upsertTasteProfile', () => {
       data: { name: 'vegan', checked: true, userId: user.id }
     })
 
-    await upsertTasteProfile(
-      user.id,
-      { ...tasteProfileDefaults, dietaryRestrictions: [] },
-      testPrisma
-    )
+    await upsertTasteProfile(user.id, {
+      ...tasteProfileDefaults,
+      dietaryRestrictions: []
+    })
 
     const filters = await testPrisma.filter.findMany({
       where: { userId: user.id }

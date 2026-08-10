@@ -1,4 +1,3 @@
-import { prisma } from '~/server/db'
 import { type Prisma, type Recipe } from '@prisma/client'
 import { DataAccess } from './data-access'
 import type { CreateRecipe, RecipeWriteInput } from '~/schemas/recipes-schema'
@@ -90,7 +89,7 @@ export class RecipesAccess extends DataAccess {
   }
 
   async createRecipe(recipe: Omit<CreateRecipe, 'messsageId'>, userId: string) {
-    return await prisma.recipe.create({
+    return await this.prisma.recipe.create({
       data: {
         name: recipe.name,
         slug: slugify(recipe.name),
@@ -273,3 +272,5 @@ export class RecipesAccess extends DataAccess {
     )
   }
 }
+
+export const recipesAccess = new RecipesAccess()

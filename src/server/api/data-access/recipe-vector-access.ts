@@ -87,3 +87,5 @@ export class RecipeVectorAccess extends DataAccess {
     )
   }
 }
+
+export const recipeVectorAccess = new RecipeVectorAccess()

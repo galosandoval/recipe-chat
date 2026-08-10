@@ -42,13 +42,10 @@ describe('updateIngredientQuantities', () => {
       itemName: 'flour'
     })
 
-    await updateIngredientQuantities(
-      [
-        { id: a.id, quantity: 3 },
-        { id: b.id, quantity: 6 }
-      ],
-      testPrisma
-    )
+    await updateIngredientQuantities([
+      { id: a.id, quantity: 3 },
+      { id: b.id, quantity: 6 }
+    ])
 
     const updatedA = await testPrisma.ingredient.findUnique({
       where: { id: a.id }

@@ -60,3 +60,5 @@ export class FiltersAccess extends DataAccess {
     })
   }
 }
+
+export const filtersAccess = new FiltersAccess()

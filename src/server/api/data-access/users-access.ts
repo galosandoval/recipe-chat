@@ -4,6 +4,7 @@ import { DataAccess } from './data-access'
 import { initialFilters } from '~/lib/stock-filters'
 import type { SignUpSchema } from '~/schemas/sign-up-schema'
 import type { CreateChatAndRecipe } from '~/schemas/chats-schema'
+import { slugify } from '~/lib/utils'
 
 export class UsersAccess extends DataAccess {
   async getUserById(id: string) {
@@ -59,37 +60,39 @@ export class UsersAccess extends DataAccess {
     })
   }
 
-  async updateUser(userId: string, input: CreateChatAndRecipe) {
+  /**
+   * Seeds a brand-new chat and its recipe in one nested write, linking the
+   * recipe to the chat's final message. Returns the recipe's slug, which is the
+   * only thing the caller routes on.
+   */
+  async createChatAndRecipe(userId: string, input: CreateChatAndRecipe) {
     const { recipe, messages } = input
     const { ingredients, instructions, ...rest } = recipe
     const messageId = cuid()
-    const chatId = cuid()
+    const slug = slugify(recipe.name)
 
-    return await this.prisma.user.update({
+    await this.prisma.user.update({
       where: { id: userId },
       data: {
         chats: {
           create: {
-            id: chatId,
+            id: cuid(),
             messages: {
               createMany: {
-                data: messages.map((message, i, array) => {
-                  if (i === array.length - 1) {
-                    return {
-                      content: message.content,
-                      role: message.role,
-                      id: messageId
-                    }
-                  }
-
-                  return { content: message.content, role: message.role }
-                })
+                data: messages.map((message, i, array) => ({
+                  content: message.content,
+                  role: message.role,
+                  // Only the last message anchors the recipe link below.
+                  ...(i === array.length - 1 && { id: messageId })
+                }))
               }
             }
           }
         },
         recipes: {
           create: {
+            id: cuid(),
+            slug,
             ingredients: {
               create: ingredients.map((ingredient) => ({
                 rawString: ingredient
@@ -101,17 +104,14 @@ export class UsersAccess extends DataAccess {
               }))
             },
             ...rest,
-            messages: {
-              create: {
-                messageId
-              }
-            }
+            messages: { create: { messageId } }
           }
         }
-      },
-      include: {
-        recipes: true
       }
     })
+
+    return { slug }
   }
 }
+
+export const usersAccess = new UsersAccess()

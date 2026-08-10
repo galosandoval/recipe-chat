@@ -1,8 +1,9 @@
-import { type Recipe, type PrismaClient } from '@prisma/client'
-import { RecipesAccess } from '../data-access/recipes-access'
+import { type Recipe } from '@prisma/client'
+import { RecipesAccess, recipesAccess } from '../data-access/recipes-access'
 import { IngredientsAccess } from '../data-access/ingredients-access'
 import { InstructionsAccess } from '../data-access/instructions-access'
 import { RecipesOnMessagesAccess } from '../data-access/recipes-on-messages-access'
+import { transaction } from '../data-access/data-access'
 import type { CreateRecipe, UpdateRecipe } from '~/schemas/recipes-schema'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
@@ -13,13 +14,11 @@ import {
 
 export async function createRecipeWithEmbedding(
   recipe: Omit<CreateRecipe, 'messsageId'>,
-  userId: string,
-  prisma: PrismaClient
+  userId: string
 ) {
-  const recipesAccess = new RecipesAccess(prisma)
   const created = await recipesAccess.createRecipe(recipe, userId)
 
-  await embedRecipeById(created.id, userId, prisma)
+  await embedRecipeById(created.id, userId)
 
   return created
 }
@@ -30,32 +29,22 @@ export async function createRecipeWithEmbedding(
  * survive. Lives beside {@link editRecipe} because both own the Recipe's
  * lifecycle cascade; a new Recipe relation must be deleted here too.
  */
-export async function deleteRecipe(id: string, prisma: PrismaClient) {
-  return await prisma.$transaction(async (tx) => {
-    const txClient = tx as PrismaClient
-    const recipesDataAccess = new RecipesAccess(txClient)
-    const ingredientsDataAccess = new IngredientsAccess(txClient)
-    const instructionsDataAccess = new InstructionsAccess(txClient)
-    const recipesOnMessagesDataAccess = new RecipesOnMessagesAccess(txClient)
-
-    await ingredientsDataAccess.deleteIngredientsByRecipeId(id)
-    await instructionsDataAccess.deleteInstructionsByRecipeId(id)
-    await recipesOnMessagesDataAccess.deleteByRecipeId(id)
-    await recipesDataAccess.deleteRecipeById(id)
+export async function deleteRecipe(id: string) {
+  return await transaction(async (tx) => {
+    await new IngredientsAccess(tx).deleteIngredientsByRecipeId(id)
+    await new InstructionsAccess(tx).deleteInstructionsByRecipeId(id)
+    await new RecipesOnMessagesAccess(tx).deleteByRecipeId(id)
+    await new RecipesAccess(tx).deleteRecipeById(id)
 
     return true
   })
 }
 
-export async function editRecipe(
-  recipe: UpdateRecipe,
-  userId: string,
-  prisma: PrismaClient
-) {
+export async function editRecipe(recipe: UpdateRecipe, userId: string) {
   const { id, ingredients, newIngredients, instructions, newInstructions } =
     recipe
-  const { slug, changedFields } = await prisma.$transaction(async (tx) => {
-    const recipesDataAccess = new RecipesAccess(tx as PrismaClient)
+  const { slug, changedFields } = await transaction(async (tx) => {
+    const recipesDataAccess = new RecipesAccess(tx)
     const changedFields = await updateRecipeFields(
       id,
       recipe,
@@ -77,7 +66,7 @@ export async function editRecipe(
 
   // Re-embed policy is owned by the Recipe Vector module; hand it the fields this
   // edit wrote and let it decide. Runs outside the transaction and is non-blocking.
-  await reembedIfSemanticChange(changedFields, id, userId, prisma)
+  await reembedIfSemanticChange(changedFields, id, userId)
 
   return slug
 }

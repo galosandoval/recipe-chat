@@ -1,22 +1,17 @@
 import { tool } from 'ai'
 import { z } from 'zod'
-import { type PrismaClient } from '@prisma/client'
 import {
   generatedRecipeSchema,
   recipeDetailsSchema
 } from '~/schemas/messages-schema'
 import type { ChatContext } from '~/schemas/chats-schema'
-import { RecipesAccess } from '~/server/api/data-access/recipes-access'
+import { recipesAccess } from '~/server/api/data-access/recipes-access'
 import { editRecipe } from '~/server/api/use-cases/recipes-use-case'
 import { dedupeRecipeOptions } from '~/server/api/use-cases/dedupe-recipe-options-use-case'
 import { RECIPE_OPTIONS_OVERGENERATE } from '~/constants/chat'
 import { toEditRecipeInput } from './edit-recipe-input'
 
-export function getTools(
-  context: ChatContext | undefined,
-  prisma: PrismaClient,
-  userId?: string
-) {
+export function getTools(context: ChatContext | undefined, userId?: string) {
   const baseTools = {
     generateRecipeOptions: tool({
       description: `Generate recipe suggestions for a new request. Propose about ${RECIPE_OPTIONS_OVERGENERATE} diverse options. Populate name, description, prepMinutes, cookMinutes, and all facet fields. Always leave ingredients, instructions, and servings null.`,
@@ -32,7 +27,7 @@ export function getTools(
       // user's saved recipes (embeddings, off the LLM) and returns the unique
       // survivors the client renders. Fail-open — see dedupeRecipeOptions.
       async execute({ message, recipes }) {
-        const unique = await dedupeRecipeOptions(userId, recipes, prisma)
+        const unique = await dedupeRecipeOptions(userId, recipes)
         return { message, recipes: unique }
       }
     }),
@@ -96,7 +91,7 @@ export function getTools(
       // transaction, and the re-embed policy — identical to the tRPC form edit,
       // so an assistant edit and a form edit take the same path.
       async execute({ recipeId: id, ...edits }) {
-        const recipe = await new RecipesAccess(prisma).getRecipeById(id)
+        const recipe = await recipesAccess.getRecipeById(id)
         if (!recipe) {
           return { success: false, error: 'Recipe not found' }
         }
@@ -106,11 +101,7 @@ export function getTools(
           return { success: false, error: 'Recipe not found' }
         }
 
-        const slug = await editRecipe(
-          toEditRecipeInput(recipe, edits),
-          ownerId,
-          prisma
-        )
+        const slug = await editRecipe(toEditRecipeInput(recipe, edits), ownerId)
 
         return {
           success: true,
@@ -127,7 +118,6 @@ export function getTools(
         notes: z.string().describe('The notes to set on the recipe')
       }),
       async execute({ recipeId: id, notes }) {
-        const recipesAccess = new RecipesAccess(prisma)
         const recipe = await recipesAccess.getRecipeById(id)
         if (!recipe) {
           return { success: false, error: 'Recipe not found' }

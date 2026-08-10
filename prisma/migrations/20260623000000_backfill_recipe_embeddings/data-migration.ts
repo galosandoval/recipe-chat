@@ -39,7 +39,7 @@ async function main() {
     // embedRecipeById is non-blocking: a failed embed is logged and the recipe
     // simply stays missing, so a later re-run retries it.
     await Promise.all(
-      batch.map((recipe) => embedRecipeById(recipe.id, recipe.userId, prisma))
+      batch.map((recipe) => embedRecipeById(recipe.id, recipe.userId))
     )
     processed += batch.length
     console.log(`Embedded ${processed}/${missing.length} recipes…`)

@@ -42,10 +42,10 @@ describe('saveFilters', () => {
     const user = await createTestUser()
     const newId = filterId()
 
-    const result = await saveFilters(
-      { userId: user.id, filters: [{ id: newId, name: 'vegan' }] },
-      testPrisma
-    )
+    const result = await saveFilters({
+      userId: user.id,
+      filters: [{ id: newId, name: 'vegan' }]
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]).toMatchObject({ id: newId, name: 'vegan', checked: true })
@@ -56,10 +56,10 @@ describe('saveFilters', () => {
     const keep = await createFilter(user.id, { name: 'keep' })
     await createFilter(user.id, { name: 'drop' })
 
-    const result = await saveFilters(
-      { userId: user.id, filters: [{ id: keep.id, name: keep.name }] },
-      testPrisma
-    )
+    const result = await saveFilters({
+      userId: user.id,
+      filters: [{ id: keep.id, name: keep.name }]
+    })
 
     expect(result.map((f) => f.name)).toEqual(['keep'])
   })
@@ -68,10 +68,10 @@ describe('saveFilters', () => {
     const user = await createTestUser()
     const filter = await createFilter(user.id, { name: 'vegitarian' })
 
-    const result = await saveFilters(
-      { userId: user.id, filters: [{ id: filter.id, name: 'vegetarian' }] },
-      testPrisma
-    )
+    const result = await saveFilters({
+      userId: user.id,
+      filters: [{ id: filter.id, name: 'vegetarian' }]
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]).toMatchObject({ id: filter.id, name: 'vegetarian' })
@@ -83,16 +83,13 @@ describe('saveFilters', () => {
     await createFilter(user.id, { name: 'remove me' })
     const newId = filterId()
 
-    const result = await saveFilters(
-      {
-        userId: user.id,
-        filters: [
-          { id: rename.id, name: 'new name' },
-          { id: newId, name: 'brand new' }
-        ]
-      },
-      testPrisma
-    )
+    const result = await saveFilters({
+      userId: user.id,
+      filters: [
+        { id: rename.id, name: 'new name' },
+        { id: newId, name: 'brand new' }
+      ]
+    })
 
     expect(byName(result).map((f) => f.name)).toEqual(['brand new', 'new name'])
   })
@@ -102,16 +99,13 @@ describe('saveFilters', () => {
     const a = await createFilter(user.id, { name: 'alpha', checked: false })
     const b = await createFilter(user.id, { name: 'beta', checked: true })
 
-    const result = await saveFilters(
-      {
-        userId: user.id,
-        filters: [
-          { id: a.id, name: a.name },
-          { id: b.id, name: b.name }
-        ]
-      },
-      testPrisma
-    )
+    const result = await saveFilters({
+      userId: user.id,
+      filters: [
+        { id: a.id, name: a.name },
+        { id: b.id, name: b.name }
+      ]
+    })
 
     expect(byName(result)).toMatchObject([
       { id: a.id, name: 'alpha', checked: false },
@@ -126,10 +120,10 @@ describe('saveFilters', () => {
       checked: false
     })
 
-    const result = await saveFilters(
-      { userId: user.id, filters: [{ id: renamed.id, name: 'unchecked new' }] },
-      testPrisma
-    )
+    const result = await saveFilters({
+      userId: user.id,
+      filters: [{ id: renamed.id, name: 'unchecked new' }]
+    })
 
     expect(result[0]).toMatchObject({ name: 'unchecked new', checked: false })
   })
@@ -139,10 +133,10 @@ describe('saveFilters', () => {
     const other = await createTestUser()
     const otherFilter = await createFilter(other.id, { name: 'other filter' })
 
-    await saveFilters(
-      { userId: user.id, filters: [{ id: filterId(), name: 'mine' }] },
-      testPrisma
-    )
+    await saveFilters({
+      userId: user.id,
+      filters: [{ id: filterId(), name: 'mine' }]
+    })
 
     const otherFilters = await testPrisma.filter.findMany({
       where: { userId: other.id }

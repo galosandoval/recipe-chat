@@ -14,3 +14,5 @@ export class TasteProfileAccess extends DataAccess {
     })
   }
 }
+
+export const tasteProfileAccess = new TasteProfileAccess()

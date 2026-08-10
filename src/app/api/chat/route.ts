@@ -2,12 +2,11 @@ import { streamText } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { chatParams } from '~/schemas/chats-schema'
 import { buildSystemPrompt } from '~/constants/chat'
-import { prisma } from '~/server/db'
 import { compactTitles } from '~/lib/compact-title'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
 import { getTools } from './tools'
 import { getTasteProfile } from '~/server/api/use-cases/taste-profile-use-case'
-import { RecipesAccess } from '~/server/api/data-access/recipes-access'
+import { recipesAccess } from '~/server/api/data-access/recipes-access'
 import { getPantryByUserId } from '~/server/api/use-cases/pantry-use-case'
 
 /** Allow streaming responses up to 30 seconds. */
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
 
   let recipesNames: string[] = []
   if (userId) {
-    const names = await new RecipesAccess().getRecipeNamesByUserId(userId)
+    const names = await recipesAccess.getRecipeNamesByUserId(userId)
     recipesNames = compactTitles(names)
   }
 
@@ -44,7 +43,7 @@ export async function POST(req: Request) {
     tasteProfile
   })
 
-  const tools = getTools(context, prisma, userId)
+  const tools = getTools(context, userId)
 
   const result = streamText({
     model: openai('gpt-4o-mini'),

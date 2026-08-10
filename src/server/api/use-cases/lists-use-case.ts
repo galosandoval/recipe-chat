@@ -1,6 +1,6 @@
-import { type PrismaClient } from '@prisma/client'
-import { ListsAccess } from '~/server/api/data-access/lists-access'
+import { ListsAccess, listsAccess } from '~/server/api/data-access/lists-access'
 import { IngredientsAccess } from '~/server/api/data-access/ingredients-access'
+import { transaction } from '~/server/api/data-access/data-access'
 import { ingredientStringToCreatePayload } from '~/lib/parse-ingredient'
 
 interface IngredientInput {
@@ -8,32 +8,23 @@ interface IngredientInput {
   recipeId?: string | null
 }
 
-export async function upsertList(
-  userId: string,
-  ingredientIds: string[],
-  prisma: PrismaClient
-) {
-  const listDataAccess = new ListsAccess(prisma)
-  return listDataAccess.upsertList(userId, ingredientIds)
+export async function upsertList(userId: string, ingredientIds: string[]) {
+  return listsAccess.upsertList(userId, ingredientIds)
 }
 
-export async function getListByUserId(userId: string, prisma: PrismaClient) {
-  const listDataAccess = new ListsAccess(prisma)
-  return listDataAccess.getListByUserId(userId)
+export async function getListByUserId(userId: string) {
+  return listsAccess.getListByUserId(userId)
 }
 
 export async function addIngredientToList(
   userId: string,
   newIngredientName: string,
-  newIngredientId: string,
-  prisma: PrismaClient
+  newIngredientId: string
 ) {
-  return prisma.$transaction(async (tx) => {
-    const ingredientsDataAccess = new IngredientsAccess(tx as PrismaClient)
-    const listDataAccess = new ListsAccess(tx as PrismaClient)
+  return transaction(async (tx) => {
     const parsed = ingredientStringToCreatePayload(newIngredientName)
 
-    const newIngredient = await ingredientsDataAccess.createIngredient({
+    const newIngredient = await new IngredientsAccess(tx).createIngredient({
       id: newIngredientId,
       rawString: parsed.rawString,
       quantity: parsed.quantity,
@@ -47,7 +38,7 @@ export async function addIngredientToList(
       pantryId: null
     })
 
-    return listDataAccess.updateList(userId, {
+    return new ListsAccess(tx).updateList(userId, {
       ingredients: { connect: [{ id: newIngredient.id }] }
     })
   })
@@ -55,27 +46,15 @@ export async function addIngredientToList(
 
 export async function updateIngredientCheckStatus(
   ingredientId: string,
-  checked: boolean,
-  prisma: PrismaClient
+  checked: boolean
 ) {
-  return prisma.ingredient.update({
-    where: { id: ingredientId },
-    data: { checked }
-  })
+  return listsAccess.updateIngredientChecked(ingredientId, checked)
 }
 
 export async function updateManyIngredientsCheckStatus(
-  ingredients: { id: string; checked: boolean }[],
-  prisma: PrismaClient
+  ingredients: { id: string; checked: boolean }[]
 ) {
-  return prisma.$transaction(
-    ingredients.map(({ id, checked }) =>
-      prisma.ingredient.update({
-        where: { id },
-        data: { checked }
-      })
-    )
-  )
+  return listsAccess.updateIngredientsChecked(ingredients)
 }
 
 /**
@@ -84,26 +63,17 @@ export async function updateManyIngredientsCheckStatus(
  * the resulting per-ingredient quantities here.
  */
 export async function updateIngredientQuantities(
-  ingredients: { id: string; quantity: number }[],
-  prisma: PrismaClient
+  ingredients: { id: string; quantity: number }[]
 ) {
-  return prisma.$transaction(
-    ingredients.map(({ id, quantity }) =>
-      prisma.ingredient.update({
-        where: { id },
-        data: { quantity }
-      })
-    )
-  )
+  return listsAccess.updateIngredientQuantities(ingredients)
 }
 
 export async function clearCheckedIngredientsFromList(
   ingredients: IngredientInput[],
-  userId: string,
-  prisma: PrismaClient
+  userId: string
 ) {
-  return prisma.$transaction(async (tx) => {
-    const listDataAccess = new ListsAccess(tx as PrismaClient)
+  return transaction(async (tx) => {
+    const lists = new ListsAccess(tx)
 
     const toDisconnect: IngredientInput[] = []
     const toDelete: IngredientInput[] = []
@@ -117,13 +87,13 @@ export async function clearCheckedIngredientsFromList(
     }
 
     if (toDisconnect.length) {
-      await listDataAccess.updateList(userId, {
+      await lists.updateList(userId, {
         ingredients: { disconnect: toDisconnect.map(({ id }) => ({ id })) }
       })
     }
 
     if (toDelete.length) {
-      await listDataAccess.deleteIngredients(toDelete.map(({ id }) => id))
+      await lists.deleteIngredients(toDelete.map(({ id }) => id))
     }
   })
 }

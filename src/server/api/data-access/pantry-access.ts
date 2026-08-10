@@ -9,6 +9,12 @@ export class PantryAccess extends DataAccess {
     })
   }
 
+  /**
+   * A user's pantry, created on first use. The empty `update` is deliberate:
+   * there is nothing to change on an existing pantry, and unlike a
+   * find-then-create this leans on the `userId` unique constraint so two
+   * concurrent first-adds can't both create one.
+   */
   async getOrCreatePantry(userId: string): Promise<Pantry> {
     return this.prisma.pantry.upsert({
       where: { userId },
@@ -93,3 +99,5 @@ export class PantryAccess extends DataAccess {
     })
   }
 }
+
+export const pantryAccess = new PantryAccess()

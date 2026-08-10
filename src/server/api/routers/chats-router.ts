@@ -5,6 +5,7 @@ import {
   getChats,
   getMessagesById,
   getResumableChat,
+  getResumableChatWithMessages,
   upsertChat
 } from '~/server/api/use-cases/chats-use-case'
 import {
@@ -18,14 +19,25 @@ export const chatsRouter = createTRPCRouter({
     .input(
       z.object({ userId: z.string(), context: chatContextSchema.optional() })
     )
-    .query(async ({ ctx, input }) => {
-      return getChats(input.userId, ctx.prisma, input.context)
+    .query(async ({ input }) => {
+      return getChats(input.userId, input.context)
     }),
 
   getResumableChat: protectedProcedure
     .input(z.object({ context: chatContextSchema.optional() }))
     .query(async ({ ctx, input }) => {
-      return getResumableChat(ctx.session.user.id, ctx.prisma, input.context)
+      return getResumableChat(ctx.session.user.id, input.context)
+    }),
+
+  /**
+   * Resume state for a Chat Context in one round-trip. Prefer this over
+   * `getResumableChat` + `getMessagesById` when seeding a page's chat surface
+   * server-side (see `app/chat/page.tsx`).
+   */
+  getResumableChatWithMessages: protectedProcedure
+    .input(z.object({ context: chatContextSchema.optional() }))
+    .query(async ({ ctx, input }) => {
+      return getResumableChatWithMessages(ctx.session.user.id, input.context)
     }),
 
   getMessagesById: protectedProcedure
@@ -34,8 +46,8 @@ export const chatsRouter = createTRPCRouter({
         chatId: z.string()
       })
     )
-    .query(async ({ ctx, input }) => {
-      return getMessagesById(input.chatId, ctx.prisma)
+    .query(async ({ input }) => {
+      return getMessagesById(input.chatId)
     }),
 
   upsert: protectedProcedure
@@ -43,14 +55,7 @@ export const chatsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { chatId, messages, filterIds, context } = input
       const userId = ctx.session.user.id
-      return upsertChat(
-        chatId,
-        messages,
-        ctx.prisma,
-        userId,
-        context,
-        filterIds
-      )
+      return upsertChat(chatId, messages, userId, context, filterIds)
     }),
 
   /**
@@ -60,6 +65,6 @@ export const chatsRouter = createTRPCRouter({
   generated: protectedProcedure
     .input(generatedSchema)
     .mutation(async ({ ctx, input }) => {
-      return generated(ctx.prisma, input, ctx.session.user.id)
+      return generated(input, ctx.session.user.id)
     })
 })

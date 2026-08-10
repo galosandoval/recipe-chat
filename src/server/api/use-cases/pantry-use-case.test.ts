@@ -16,8 +16,8 @@ describe('bulkAddToPantry', () => {
   it('merges a new item into an existing pantry item across compatible units (tbsp into cup)', async () => {
     const user = await createTestUser()
 
-    await bulkAddToPantry(user.id, ['1 cup honey'], testPrisma)
-    const results = await bulkAddToPantry(user.id, ['1 tbsp honey'], testPrisma)
+    await bulkAddToPantry(user.id, ['1 cup honey'])
+    const results = await bulkAddToPantry(user.id, ['1 tbsp honey'])
 
     const pantry = await testPrisma.pantry.findUnique({
       where: { userId: user.id },
@@ -32,8 +32,8 @@ describe('bulkAddToPantry', () => {
   it('merges compatible weight units (grams into an existing kg item)', async () => {
     const user = await createTestUser()
 
-    await bulkAddToPantry(user.id, ['1 kg sugar'], testPrisma)
-    const results = await bulkAddToPantry(user.id, ['500 g sugar'], testPrisma)
+    await bulkAddToPantry(user.id, ['1 kg sugar'])
+    const results = await bulkAddToPantry(user.id, ['500 g sugar'])
 
     const pantry = await testPrisma.pantry.findUnique({
       where: { userId: user.id },
@@ -47,8 +47,8 @@ describe('bulkAddToPantry', () => {
   it('does not merge count units with different unit strings', async () => {
     const user = await createTestUser()
 
-    await bulkAddToPantry(user.id, ['2 eggs'], testPrisma)
-    await bulkAddToPantry(user.id, ['1 dozen eggs'], testPrisma)
+    await bulkAddToPantry(user.id, ['2 eggs'])
+    await bulkAddToPantry(user.id, ['1 dozen eggs'])
 
     const pantry = await testPrisma.pantry.findUnique({
       where: { userId: user.id },

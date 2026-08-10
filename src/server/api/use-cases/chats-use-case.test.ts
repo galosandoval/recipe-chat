@@ -4,7 +4,9 @@
 import {
   generated,
   getChats,
+  getMessagesById,
   getResumableChat,
+  getResumableChatWithMessages,
   upsertChat
 } from '~/server/api/use-cases/chats-use-case'
 import type {
@@ -101,7 +103,6 @@ describe('upsertChat() context scoping', () => {
     const res = await upsertChat(
       undefined,
       makeMessages(),
-      testPrisma,
       user.id,
       recipeDetailContext(recipe)
     )
@@ -118,7 +119,6 @@ describe('upsertChat() context scoping', () => {
     const created = await upsertChat(
       undefined,
       makeMessages(),
-      testPrisma,
       user.id,
       listContext
     )
@@ -126,7 +126,6 @@ describe('upsertChat() context scoping', () => {
     const res = await upsertChat(
       created.chatId,
       makeMessages(),
-      testPrisma,
       user.id,
       listContext
     )
@@ -143,7 +142,6 @@ describe('upsertChat() context scoping', () => {
     const created = await upsertChat(
       undefined,
       makeMessages(),
-      testPrisma,
       user.id,
       listContext
     )
@@ -152,7 +150,6 @@ describe('upsertChat() context scoping', () => {
     const res = await upsertChat(
       created.chatId,
       makeMessages(),
-      testPrisma,
       user.id,
       listContext
     )
@@ -177,12 +174,11 @@ describe('getResumableChat()', () => {
     const created = await upsertChat(
       undefined,
       makeMessages(),
-      testPrisma,
       user.id,
       listContext
     )
 
-    const resumable = await getResumableChat(user.id, testPrisma, listContext)
+    const resumable = await getResumableChat(user.id, listContext)
     expect(resumable?.id).toBe(created.chatId)
   })
 
@@ -191,28 +187,67 @@ describe('getResumableChat()', () => {
     const created = await upsertChat(
       undefined,
       makeMessages(),
-      testPrisma,
       user.id,
       listContext
     )
     await ageChat(created.chatId!)
 
-    const resumable = await getResumableChat(user.id, testPrisma, listContext)
+    const resumable = await getResumableChat(user.id, listContext)
     expect(resumable).toBeNull()
   })
 
   it('returns null when no chat exists for the context', async () => {
     const user = await createTestUser()
-    await upsertChat(
+    await upsertChat(undefined, makeMessages(), user.id, listContext)
+
+    const resumable = await getResumableChat(user.id, pantryContext)
+    expect(resumable).toBeNull()
+  })
+})
+
+describe('getResumableChatWithMessages()', () => {
+  it('returns the resumable chat and its messages together', async () => {
+    const user = await createTestUser()
+    const created = await upsertChat(
       undefined,
       makeMessages(),
-      testPrisma,
       user.id,
       listContext
     )
 
-    const resumable = await getResumableChat(user.id, testPrisma, pantryContext)
-    expect(resumable).toBeNull()
+    const { resumable, messages } = await getResumableChatWithMessages(
+      user.id,
+      listContext
+    )
+    expect(resumable?.id).toBe(created.chatId)
+    expect(messages?.id).toBe(created.chatId)
+    expect(messages?.messages).toHaveLength(2)
+  })
+
+  it('matches getResumableChat + getMessagesById field-for-field', async () => {
+    const user = await createTestUser()
+    await upsertChat(undefined, makeMessages(), user.id, listContext)
+
+    const combined = await getResumableChatWithMessages(user.id, listContext)
+    const resumable = await getResumableChat(user.id, listContext)
+    const messages = await getMessagesById(resumable!.id)
+
+    expect(combined.resumable).toStrictEqual(resumable)
+    expect(combined.messages).toStrictEqual(messages)
+  })
+
+  it('returns nulls when the most recent chat is stale', async () => {
+    const user = await createTestUser()
+    const created = await upsertChat(
+      undefined,
+      makeMessages(),
+      user.id,
+      listContext
+    )
+    await ageChat(created.chatId!)
+
+    const seed = await getResumableChatWithMessages(user.id, listContext)
+    expect(seed).toStrictEqual({ resumable: null, messages: null })
   })
 })
 
@@ -222,25 +257,18 @@ describe('getChats() context filtering', () => {
     const listChat = await upsertChat(
       undefined,
       makeMessages(),
-      testPrisma,
       user.id,
       listContext
     )
-    await upsertChat(
-      undefined,
-      makeMessages(),
-      testPrisma,
-      user.id,
-      pantryContext
-    )
+    await upsertChat(undefined, makeMessages(), user.id, pantryContext)
     // Age the list chat — browse-history still shows it.
     await ageChat(listChat.chatId!)
 
-    const listChats = await getChats(user.id, testPrisma, listContext)
+    const listChats = await getChats(user.id, listContext)
     expect(listChats).toHaveLength(1)
     expect(listChats[0].id).toBe(listChat.chatId)
 
-    const pantryChats = await getChats(user.id, testPrisma, pantryContext)
+    const pantryChats = await getChats(user.id, pantryContext)
     expect(pantryChats).toHaveLength(1)
     expect(pantryChats[0].page).toBe('pantry')
   })
@@ -286,7 +314,6 @@ describe('generated() context scoping', () => {
     const chatId = 'gen-chat-new'
 
     const res = await generated(
-      testPrisma,
       makeGenerated(chatId, recipeDetailContext(recipe)),
       user.id
     )
@@ -302,14 +329,12 @@ describe('generated() context scoping', () => {
     const seeded = await upsertChat(
       undefined,
       makeMessages(),
-      testPrisma,
       user.id,
       listContext
     )
     await ageChat(seeded.chatId!)
 
     const res = await generated(
-      testPrisma,
       makeGenerated(seeded.chatId!, listContext),
       user.id
     )
@@ -330,7 +355,6 @@ describe('recipe deletion cascade', () => {
     const created = await upsertChat(
       undefined,
       makeMessages(),
-      testPrisma,
       user.id,
       recipeDetailContext(recipe)
     )
@@ -380,7 +404,7 @@ describe('generated()', () => {
       }
     }
 
-    await generated(testPrisma, data, user.id)
+    await generated(data, user.id)
 
     const row = await testPrisma.recipe.findUnique({
       where: { id: 'gen-recipe-1' }

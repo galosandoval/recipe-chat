@@ -23,15 +23,14 @@ export const listsRouter = createTRPCRouter({
       const userId = ctx.session.user.id
       return upsertList(
         userId,
-        input.map((i) => i.id),
-        ctx.prisma
+        input.map((i) => i.id)
       )
     }),
 
   byUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return getListByUserId(input.userId, ctx.prisma)
+    .query(async ({ input }) => {
+      return getListByUserId(input.userId)
     }),
 
   add: protectedProcedure
@@ -43,12 +42,7 @@ export const listsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id
-      return addIngredientToList(
-        userId,
-        input.newIngredientName,
-        input.id,
-        ctx.prisma
-      )
+      return addIngredientToList(userId, input.newIngredientName, input.id)
     }),
 
   check: protectedProcedure
@@ -58,24 +52,21 @@ export const listsRouter = createTRPCRouter({
         checked: z.boolean()
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      return updateIngredientCheckStatus(input.id, input.checked, ctx.prisma)
+    .mutation(async ({ input }) => {
+      return updateIngredientCheckStatus(input.id, input.checked)
     }),
 
   checkMany: protectedProcedure
     .input(z.array(z.object({ id: z.string(), checked: z.boolean() })))
-    .mutation(async ({ ctx, input }) => {
-      const transaction = await updateManyIngredientsCheckStatus(
-        input,
-        ctx.prisma
-      )
+    .mutation(async ({ input }) => {
+      const transaction = await updateManyIngredientsCheckStatus(input)
       return { count: transaction.length }
     }),
 
   setQuantities: protectedProcedure
     .input(z.array(z.object({ id: z.string(), quantity: z.number().min(0) })))
-    .mutation(async ({ ctx, input }) => {
-      const transaction = await updateIngredientQuantities(input, ctx.prisma)
+    .mutation(async ({ input }) => {
+      const transaction = await updateIngredientQuantities(input)
       return { count: transaction.length }
     }),
 
@@ -85,6 +76,6 @@ export const listsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id
-      return clearCheckedIngredientsFromList(input, userId, ctx.prisma)
+      return clearCheckedIngredientsFromList(input, userId)
     })
 })

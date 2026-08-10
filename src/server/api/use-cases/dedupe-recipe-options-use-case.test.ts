@@ -65,7 +65,7 @@ describe('dedupeRecipeOptions', () => {
     const unique = makeRecipe('Fresh Idea')
     mockedEmbedMany.mockResolvedValue([unitVector(0), unitVector(5)])
 
-    const result = await dedupeRecipeOptions(user.id, [dup, unique], testPrisma)
+    const result = await dedupeRecipeOptions(user.id, [dup, unique])
 
     expect(result.map((r) => r.name)).toEqual(['Fresh Idea'])
   })
@@ -76,7 +76,7 @@ describe('dedupeRecipeOptions', () => {
     // All orthogonal to anything saved (none saved here) → all unique.
     mockedEmbedMany.mockResolvedValue(candidates.map((_, i) => unitVector(i)))
 
-    const result = await dedupeRecipeOptions(user.id, candidates, testPrisma, 3)
+    const result = await dedupeRecipeOptions(user.id, candidates, 3)
 
     expect(result).toHaveLength(3)
   })
@@ -86,7 +86,7 @@ describe('dedupeRecipeOptions', () => {
     const candidates = [1, 2, 3, 4, 5, 6].map((n) => makeRecipe(`Recipe ${n}`))
     mockedEmbedMany.mockResolvedValue(candidates.map((_, i) => unitVector(i)))
 
-    const result = await dedupeRecipeOptions(user.id, candidates, testPrisma)
+    const result = await dedupeRecipeOptions(user.id, candidates)
 
     expect(result).toHaveLength(4)
   })
@@ -94,12 +94,7 @@ describe('dedupeRecipeOptions', () => {
   it('returns the first N unfiltered when there is no userId (anonymous)', async () => {
     const candidates = [1, 2, 3, 4, 5].map((n) => makeRecipe(`Recipe ${n}`))
 
-    const result = await dedupeRecipeOptions(
-      undefined,
-      candidates,
-      testPrisma,
-      3
-    )
+    const result = await dedupeRecipeOptions(undefined, candidates, 3)
 
     expect(result.map((r) => r.name)).toEqual([
       'Recipe 1',
@@ -114,7 +109,7 @@ describe('dedupeRecipeOptions', () => {
     const candidates = [1, 2, 3, 4].map((n) => makeRecipe(`Recipe ${n}`))
     mockedEmbedMany.mockRejectedValue(new Error('embedding service down'))
 
-    const result = await dedupeRecipeOptions(user.id, candidates, testPrisma, 3)
+    const result = await dedupeRecipeOptions(user.id, candidates, 3)
 
     expect(result.map((r) => r.name)).toEqual([
       'Recipe 1',
