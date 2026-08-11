@@ -1,10 +1,10 @@
-import { HydrateClient, api } from '~/trpc/server'
+import { api } from '~/trpc/server'
 import InfiniteRecipes from './infinite-recipes'
 import { auth } from '~/server/auth'
 import { redirect } from 'next/navigation'
 import { RecipesAddFab } from './recipes-add-fab'
-
-const RECIPES_PER_PAGE_LIMIT = 10
+import { RecipesInitialDataProvider } from './recipes-initial-data'
+import { RECIPES_PER_PAGE_LIMIT } from './recipes-constants'
 
 export default async function RecipesView() {
   const session = await auth()
@@ -12,18 +12,21 @@ export default async function RecipesView() {
     return redirect('/')
   }
 
-  // Prefetch infinite query data into React Query cache
-  await api.recipes.infiniteRecipes.prefetchInfinite({
+  // Fetch the first page here (authenticated RSC) and seed it into the client
+  // cache during render — `InfiniteRecipes` reads it with
+  // `useSuspenseInfiniteQuery`, which otherwise refetches during the
+  // server-render pass with no session cookie and throws `UNAUTHORIZED` (#590).
+  const firstPage = await api.recipes.infiniteRecipes({
     limit: RECIPES_PER_PAGE_LIMIT,
     search: ''
   })
 
   return (
-    <HydrateClient>
+    <RecipesInitialDataProvider firstPage={firstPage}>
       <div className='mx-auto flex min-h-0 w-full flex-1 flex-col pt-3 sm:pt-4'>
         <InfiniteRecipes />
       </div>
       <RecipesAddFab />
-    </HydrateClient>
+    </RecipesInitialDataProvider>
   )
 }

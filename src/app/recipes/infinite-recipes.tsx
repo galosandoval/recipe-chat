@@ -6,9 +6,7 @@ import { api } from '~/trpc/react'
 import { useInView } from 'react-intersection-observer'
 import { Recipes } from './recipes'
 import { useRecipesStore } from './recipes-store'
-
-/** On a desktop the user sees 12 at most. */
-const RECIPES_PER_PAGE_LIMIT = 12
+import { RECIPES_PER_PAGE_LIMIT } from './recipes-constants'
 
 export default function InfiniteRecipes() {
   const { ref: inViewRef, inView } = useInView()
