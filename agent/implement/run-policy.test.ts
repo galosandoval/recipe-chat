@@ -1,6 +1,8 @@
 /**
  * @jest-environment node
  */
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import {
   CLAUDE_CODE_CLI_VERSION,
   MAX_TURNS,
@@ -8,8 +10,8 @@ import {
   OPTIONAL_ENV_VARS,
   PRESERVE_ENV_VARS,
   REQUIRED_ENV_VARS,
-  resolveWallClockMs,
-  runPolicyCommand
+  runPolicyCommand,
+  WALL_CLOCK_MINUTES
 } from './run-policy'
 
 describe('run-policy contract', () => {
@@ -26,21 +28,39 @@ describe('run-policy contract', () => {
     })
   })
 
-  describe('budget resolution', () => {
-    it('falls back to the contract wall-clock default when unset', () => {
-      expect(resolveWallClockMs({})).toBe(45 * 60_000)
-    })
-
-    it('honors a positive numeric env override', () => {
-      expect(resolveWallClockMs({ LOCAL_WALL_CLOCK_MINUTES: '20' })).toBe(
-        20 * 60_000
+  // Deliberately not a pure unit test: it reads the workflow YAML, because the
+  // invariant it guards spans two files and exists nowhere in TypeScript. The
+  // regex is coupled to the workflow's formatting — a parse miss fails loudly
+  // (no `implement:` block found) rather than passing vacuously.
+  describe('wall-clock budget vs. the implement job cap', () => {
+    // The orchestrator's wall-clock guard has to trip before GitHub's job
+    // timeout, or the abrupt job kill preempts the graceful SIGTERM that
+    // flushes work, writes failure_reason.txt, and leaves a transcript to
+    // upload. Equal values race; this asserts the margin rather than trusting
+    // two numbers in two files to be edited together.
+    it('leaves the orchestrator room to kill the run first', () => {
+      const workflow = readFileSync(
+        join(
+          __dirname,
+          '..',
+          '..',
+          '.github',
+          'workflows',
+          'agent-implement.yml'
+        ),
+        'utf8'
       )
-    })
-
-    it('falls back when the override is empty, non-numeric, or non-positive', () => {
-      expect(resolveWallClockMs({ LOCAL_WALL_CLOCK_MINUTES: '-5' })).toBe(
-        45 * 60_000
+      // Scoped to the `implement:` job's own block — the file-wide maximum
+      // would let a roomy `preflight` cap mask an implement cap sitting at or
+      // below the budget.
+      const implementJob = workflow.match(
+        /^ {2}implement:$([\s\S]*?)(?=^ {2}\S|\Z)/m
       )
+      const implementJobCap = Number(
+        implementJob?.[1].match(/^ {4}timeout-minutes: (\d+)$/m)?.[1]
+      )
+
+      expect(implementJobCap).toBeGreaterThan(WALL_CLOCK_MINUTES)
     })
   })
 

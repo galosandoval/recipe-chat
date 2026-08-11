@@ -51,14 +51,20 @@ HOST_GIT_DIR="$(git -C "$REPO_ROOT" rev-parse --absolute-git-dir)"
 HOST_OUTPUT_DIR="$REPO_ROOT/.agent/local/runs/$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$HOST_OUTPUT_DIR"
 
-# Mount the maintainer's local skills rules if present; otherwise mount an
-# empty scratch dir so entrypoint.sh's "non-empty directory" check correctly
-# skips the standards step (docs/agents/domain.md / memory: skills live at
-# ~/Projects/skills, symlinked into ~/.claude/rules).
-DEFAULT_STANDARDS_DIR="$HOME/Projects/skills/rules"
-if [ -d "${LOCAL_STANDARDS_DIR:-$DEFAULT_STANDARDS_DIR}" ]; then
-  STANDARDS_HOST_DIR="${LOCAL_STANDARDS_DIR:-$DEFAULT_STANDARDS_DIR}"
-else
+# Mount the maintainer's local coding-standards skill if present; otherwise
+# mount an empty scratch dir so entrypoint.sh's "non-empty directory" check
+# correctly skips the standards step (docs/agents/domain.md: skills live at
+# ~/Projects/skills, symlinked into ~/.claude/skills). Kept in step with the
+# workflow's STANDARDS_DIR — these are the same standards by two routes, and
+# when they last drifted apart CI spent months pointed at a dead path.
+#
+# The miss is announced rather than silent: the empty-dir fallback is a legal
+# "skip the standards step", which means a typo'd path degrades to a run with
+# no standards instead of tripping shopfloor's missing-directory refusal.
+DEFAULT_STANDARDS_DIR="$HOME/Projects/skills/skills/personal/coding-standards"
+STANDARDS_HOST_DIR="${LOCAL_STANDARDS_DIR:-$DEFAULT_STANDARDS_DIR}"
+if [ ! -d "$STANDARDS_HOST_DIR" ]; then
+  echo "==> No coding standards at ${STANDARDS_HOST_DIR} — running without them." >&2
   STANDARDS_HOST_DIR="$(mktemp -d)"
 fi
 

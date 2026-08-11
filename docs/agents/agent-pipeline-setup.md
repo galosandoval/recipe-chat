@@ -126,15 +126,16 @@ local scripts never call any GitHub write command either.
 - **`NEXTAUTH_SECRET`** / **`OPENAI_API_KEY`** — picked up from your shell env
   if exported, otherwise pulled straight out of the repo's local `.env` (the
   rest of `.env` — prod DB URL, Stripe keys — is never sourced or forwarded).
-- **Coding standards** — if `~/Projects/skills/rules` exists (this repo's
-  convention, see `docs/agents/domain.md`), it's mounted read-only and the
-  agent conforms to it, same as CI. Absent, the prompt's standards step is
-  skipped, same as CI's empty-`STANDARDS_DIR` case. Override the path with
-  `LOCAL_STANDARDS_DIR`.
-- **Runaway guards** — `--max-turns 150` (shared with CI) plus a local
-  45-minute wall-clock cap and a 10-minute idle cap (`LOCAL_WALL_CLOCK_MINUTES`
-  / `LOCAL_IDLE_MINUTES`), since there's no GitHub Actions workflow timeout to
-  fall back on locally.
+- **Coding standards** — if `~/Projects/skills/skills/personal/coding-standards`
+  exists (this repo's convention, see `docs/agents/domain.md`), it's mounted
+  read-only and the agent conforms to it, same as CI. Absent, `run.sh` says so
+  and the prompt's standards step is skipped, same as CI's
+  empty-`STANDARDS_DIR` case. Override the path with `LOCAL_STANDARDS_DIR`.
+- **Runaway guards** — `--max-turns 150` plus a 45-minute wall-clock cap and a
+  15-minute idle cap (`LOCAL_WALL_CLOCK_MINUTES` / `LOCAL_IDLE_MINUTES`). All
+  three come from the run-policy contract and are enforced by the orchestrator
+  itself, so local and CI run identical guards; the workflow's
+  `timeout-minutes` is only a last-resort cap above them.
 
 ### How local `gh` reads work
 

@@ -1,19 +1,19 @@
+// Local runner for `agent:local` (#541, #556): spawns the orchestrator and
+// pretty-prints its streamed events.
+//
+// It used to own a wall-clock guard of its own, because `runImplementAgent`
+// enforced none and only CI had a ceiling (the workflow's `timeout-minutes`).
+// shopfloor 0.4.0 enforces the budget in-process, honoring the same
+// `LOCAL_WALL_CLOCK_MINUTES` override, so that guard was removed rather than
+// left to double up: an outer `SIGKILL` on the same budget wins the race
+// against the orchestrator's `SIGTERM`-then-wait, which is what lets a looping
+// agent flush uncommitted work and write a failure reason. Both runaway guards
+// now live in one place for both adapters, which was the point of #556.
+//
+// Not unit-tested — a thin IO/process wrapper, verified by running, matching
+// how the repo treats the rest of its agent-pipeline IO scripts.
+
 import { spawn } from 'node:child_process'
-import { resolveWallClockMs } from '../implement/run-policy'
-
-/**
- * Local-only wall-clock guard for `agent:local` (#541, #556): a hard cap on the
- * whole run on top of `implement.ts`'s own `--max-turns` cap and the idle guard
- * the orchestrator now owns (#556 — so both adapters share it). CI already has
- * an equivalent wall-clock via the workflow's `timeout-minutes`; a local run has
- * no workflow wrapping it, so this process supervises the slow-but-still-working
- * failure mode itself. The budget comes from the run-policy contract
- * (env-overridable). Not unit-tested — a thin IO/process wrapper, verified by
- * running, matching how the repo treats the rest of its agent-pipeline IO
- * scripts.
- */
-
-const WALL_CLOCK_MS = resolveWallClockMs(process.env)
 
 const child = spawn('bun', ['agent/implement/implement.ts'], {
   stdio: ['inherit', 'pipe', 'pipe']
@@ -71,32 +71,10 @@ function summarizeStreamEvent(event: any): string | null {
   return null
 }
 
-let killedFor: string | null = null
-
-function killForTimeout(kind: string, ms: number) {
-  if (killedFor) return
-  killedFor = kind
-  console.error(
-    `\nFAILED: local ${kind} guard tripped after ${Math.round(ms / 60_000)} minute(s) — killing the agent.`
-  )
-  child.kill('SIGKILL')
-}
-
-const wallClockTimer = setTimeout(
-  () => killForTimeout('wall-clock', WALL_CLOCK_MS),
-  WALL_CLOCK_MS
-)
-
 const exitCode: number = await new Promise((resolve) => {
   child.on('close', (code) => resolve(code ?? 1))
 })
 
-clearTimeout(wallClockTimer)
-
-// A guard kill still exits non-zero via the child's own SIGKILL exit code,
-// but make the reason unambiguous in the log regardless of that exit code.
-if (killedFor) {
-  console.error(`FAILED: killed by the local ${killedFor} guard.`)
-}
-
-process.exit(killedFor ? 1 : exitCode)
+// A runaway kill surfaces as the orchestrator's own non-zero exit, with the
+// budget that tripped named in its failure output.
+process.exit(exitCode)
