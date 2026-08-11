@@ -50,7 +50,8 @@ A Postgres + pgvector database is already running and migrated. The integration
 suite connects via `DATABASE_PRISMA_URL` / `DATABASE_URL_NON_POOLING` (already
 set in the environment). The Prisma client is generated and all migrations are
 applied. If your change needs a schema change, create the migration with
-`bunx prisma migrate dev --name <name>` (never `db push`), then continue.
+`bunx prisma migrate dev --name <name>` — the schema only ever changes through
+migration history, and `db push` is blocked for you automatically.
 
 # EXECUTION — test-driven
 
@@ -80,7 +81,8 @@ commit when all four pass.
 
 Make one or more commits on `{{BRANCH}}` with conventional-commit messages
 (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`). Keep commits
-focused. Do not amend or force-push; just add commits.
+focused. Branch history is append-only — amend and force-push are blocked for
+you automatically.
 
 # VERIFY — prove it works (best-effort, never blocks the PR)
 
