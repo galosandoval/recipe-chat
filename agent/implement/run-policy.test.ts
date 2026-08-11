@@ -52,14 +52,19 @@ describe('run-policy contract', () => {
       )
       // Scoped to the `implement:` job's own block — the file-wide maximum
       // would let a roomy `preflight` cap mask an implement cap sitting at or
-      // below the budget.
-      const implementJob = workflow.match(
-        /^ {2}implement:$([\s\S]*?)(?=^ {2}\S|\Z)/m
-      )
+      // below the budget. The block runs from `  implement:` to the next
+      // two-space-indented key.
+      const lines = workflow.split('\n')
+      const start = lines.indexOf('  implement:')
+      const rest = lines.slice(start + 1)
+      const end = rest.findIndex((line) => /^ {2}\S/.test(line))
+      const jobBlock = (end === -1 ? rest : rest.slice(0, end)).join('\n')
+
       const implementJobCap = Number(
-        implementJob?.[1].match(/^ {4}timeout-minutes: (\d+)$/m)?.[1]
+        jobBlock.match(/^ {4}timeout-minutes: (\d+)$/m)?.[1]
       )
 
+      expect(start).toBeGreaterThan(-1)
       expect(implementJobCap).toBeGreaterThan(WALL_CLOCK_MINUTES)
     })
   })
