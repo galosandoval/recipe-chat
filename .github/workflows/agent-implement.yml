@@ -67,10 +67,15 @@ jobs:
     # (wrong label/actor) leaves `refused` empty, so this stays skipped too.
     if: needs.preflight.outputs.refused == 'false'
     runs-on: ubuntu-latest
-    # Hard wall-clock cap on the whole run (runaway guard #1). The idle guard
-    # (#556) lives in the orchestrator (agent/implement/implement.ts) so it
-    # protects CI too, killing a hung run in minutes instead of at this cap.
-    timeout-minutes: 45
+    # Last-resort cap on the whole job, deliberately *above* the run policy's
+    # 45-minute wall-clock budget. Both runaway guards now live in the
+    # orchestrator (shopfloor >=0.4.0 enforces wall-clock; the idle guard since
+    # #556), so the in-process guard trips first and gets to SIGTERM the agent,
+    # flush uncommitted work, write failure_reason.txt, and upload the
+    # transcript. An equal cap would race that: GitHub's kill is abrupt and
+    # leaves the issue with no reason comment. This only fires if the
+    # orchestrator itself wedges.
+    timeout-minutes: 55
 
     services:
       # Same image/env pattern as .github/workflows/test.yml, so the agent can
@@ -180,11 +185,11 @@ jobs:
         run: bunx playwright install --with-deps chromium
 
       - name: Fetch coding standards
-        # Single source of truth: the coding-standard rules live in the public
-        # skills repo (symlinked into ~/.claude/rules locally). CI can't resolve
-        # that symlink, so shallow-clone the repo and point the agent at rules/
-        # via STANDARDS_DIR. Cloned under RUNNER_TEMP so the files never enter
-        # the repo tree or a commit.
+        # Single source of truth: the coding standards live in the public skills
+        # repo (symlinked into ~/.claude/skills locally). CI can't resolve that
+        # symlink, so shallow-clone the repo and point the agent at the
+        # coding-standards skill via STANDARDS_DIR. Cloned under RUNNER_TEMP so
+        # the files never enter the repo tree or a commit.
         run: git clone --depth 1 https://github.com/galosandoval/skills.git "${RUNNER_TEMP}/skills"
 
       - name: Run implementation agent
@@ -196,8 +201,15 @@ jobs:
           # The agent writes pr_description.txt / failure_reason.txt here, outside
           # the repo, so they never land in a commit.
           OUTPUT_DIR: ${{ runner.temp }}
-          # Coding-standard rules cloned by the "Fetch coding standards" step.
-          STANDARDS_DIR: ${{ runner.temp }}/skills/rules
+          # The coding-standards skill inside the repo cloned by the "Fetch
+          # coding standards" step. The standards used to live in a top-level
+          # rules/ directory; they moved when they became skills, and this path
+          # pointed at nothing for every run in between — the agent was told to
+          # read an empty directory and silently obliged. shopfloor >=0.5.0
+          # refuses a run whose STANDARDS_DIR does not resolve, so a future move
+          # fails loudly at startup instead of quietly producing unstandardized
+          # work.
+          STANDARDS_DIR: ${{ runner.temp }}/skills/skills/personal/coding-standards
           # App/suite paths the agent may exercise during TDD.
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

@@ -25,9 +25,12 @@ const BRANCH = process.env.BRANCH as string
 const CLAUDE_CODE_OAUTH_TOKEN = process.env.CLAUDE_CODE_OAUTH_TOKEN as string
 
 /**
- * Absolute path to the coding-standard rules (the skills repo's rules/, cloned
- * by the workflow). Optional: empty on a local run, in which case the prompt
- * skips the standards step. Lives outside the repo so it never enters a commit.
+ * Absolute path to the coding-standards skill (the skills repo's
+ * `skills/personal/coding-standards`, cloned by the workflow or mounted by the
+ * local runner). Optional: empty skips the prompt's standards step. A non-empty
+ * path that does not resolve refuses the run (shopfloor >=0.5.0) rather than
+ * pointing the agent at nothing. Lives outside the repo so it never enters a
+ * commit.
  */
 const STANDARDS_DIR = process.env.STANDARDS_DIR ?? ''
 

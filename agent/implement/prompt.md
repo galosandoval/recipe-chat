@@ -38,11 +38,12 @@ you'll touch; they show the established patterns to follow.
 
 # CODING STANDARDS
 
-If `{{STANDARDS_DIR}}` is non-empty and exists, read the markdown files in it
-before writing code and conform to the ones relevant to the languages you're
-changing (each file's `paths` frontmatter says which files it governs). They are
-the project owner's TypeScript / React / Prisma conventions — treat them as
-binding. If `{{STANDARDS_DIR}}` is empty or missing, proceed without it.
+If `{{STANDARDS_DIR}}` is non-empty, read `{{STANDARDS_DIR}}/SKILL.md` before
+writing code. Its table maps each file under `{{STANDARDS_DIR}}/references/` to
+the work it governs — read only the references that apply to the code in front
+of you, not the whole set. They are the project owner's TypeScript / React /
+Prisma conventions; treat them as binding. If `{{STANDARDS_DIR}}` is empty,
+proceed without it.
 
 # DATABASE
 
