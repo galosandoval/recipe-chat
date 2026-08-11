@@ -23,10 +23,6 @@
   backdrop-filter: blur(8px); /* Adjust blur strength as needed */
 }
 
-@utility spinner-fade-in {
-  animation: screenLoaderFadeIn 200ms ease-in 200ms forwards;
-}
-
 @keyframes screenLoaderFadeIn {
   to {
     opacity: 1;
