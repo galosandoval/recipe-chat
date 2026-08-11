@@ -1,12 +1,10 @@
 import 'server-only'
 
-import { createHydrationHelpers } from '@trpc/react-query/rsc'
 import { headers } from 'next/headers'
 import { cache } from 'react'
 
-import { createCaller, type AppRouter } from '~/server/api/routers/root'
+import { createCaller } from '~/server/api/routers/root'
 import { createTRPCContext } from '~/server/api/trpc'
-import { createQueryClient } from './query-client'
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
@@ -21,10 +19,15 @@ const createContext = cache(async () => {
   })
 })
 
-const getQueryClient = cache(createQueryClient)
-const caller = createCaller(createContext)
-
-export const { trpc: api, HydrateClient } = createHydrationHelpers<AppRouter>(
-  caller,
-  getQueryClient
-)
+/**
+ * Server-side caller: `await api.recipes.bySlug({ slug })` returns data directly.
+ *
+ * Deliberately a plain caller rather than `createHydrationHelpers`, so there is
+ * no `prefetch`/`HydrateClient` to reach for. That pattern broke three times the
+ * same way (#545, #590): client components read with `useSuspenseQuery`, which
+ * runs during the server-render pass before hydration warms the cache, so it
+ * refetches over HTTP with no session cookie and `protectedProcedure` answers
+ * `UNAUTHORIZED`. Fetch here, then seed the client cache during render — see
+ * `useSeedQueryCache` and the `*InitialDataProvider` next to each page.
+ */
+export const api = createCaller(createContext)

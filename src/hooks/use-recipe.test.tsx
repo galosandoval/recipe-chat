@@ -1,9 +1,7 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import { Suspense, type ReactNode } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { observable } from '@trpc/server/observable'
-import { api } from '~/trpc/react'
+import { QueryHarness } from '~/lib/query-harness'
 import {
   RecipeInitialDataProvider,
   useRecipe,
@@ -26,13 +24,6 @@ const recipe = {
   instructions: []
 } as unknown as RecipeByIdData
 
-/**
- * Renders `children` against a real React Query cache wired to a tRPC client
- * whose single terminal link records every operation and answers with the
- * canned recipe. `onOp` therefore fires once per genuine `recipes.bySlug`
- * network request — the exact thing #545 was about (an unauthenticated
- * server-render refetch). Seeding should drive that count to zero.
- */
 function Harness({
   children,
   onOp
@@ -40,26 +31,10 @@ function Harness({
   children: ReactNode
   onOp: (path: string) => void
 }) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false, staleTime: 30 * 1000 } }
-  })
-  const trpcClient = api.createClient({
-    links: [
-      () =>
-        ({ op }) =>
-          observable((observer) => {
-            onOp(op.path)
-            observer.next({ result: { data: recipe } })
-            observer.complete()
-          })
-    ]
-  })
   return (
-    <QueryClientProvider client={queryClient}>
-      <api.Provider client={trpcClient} queryClient={queryClient}>
-        {children}
-      </api.Provider>
-    </QueryClientProvider>
+    <QueryHarness onOp={onOp} responses={{ 'recipes.bySlug': recipe }}>
+      {children}
+    </QueryHarness>
   )
 }
 
