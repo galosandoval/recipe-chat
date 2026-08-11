@@ -10,10 +10,10 @@ import { api } from '~/trpc/react'
 import { Form } from '~/components/form/form'
 import { FormTextarea } from '~/components/form/form-textarea'
 import { FormInput } from '~/components/form/form-input'
-import { useRouter } from 'next/navigation'
 import { Dialog } from '~/components/dialog'
 import { PlusIcon } from 'lucide-react'
 import { useAppForm } from '~/hooks/use-app-form'
+import { useAppRouter } from '~/hooks/use-app-router'
 
 export function CreateParsedRecipe({
   data,
@@ -25,7 +25,7 @@ export function CreateParsedRecipe({
   isAddRecipeOpen: boolean
 }) {
   const t = useTranslations()
-  const router = useRouter()
+  const router = useAppRouter()
   const utils = api.useUtils()
   const {
     description,

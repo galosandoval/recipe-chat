@@ -4,7 +4,7 @@ import { useTranslations } from '~/hooks/use-translations'
 import { useAddToList } from '~/hooks/use-recipe'
 import { api, type RouterInputs } from '~/trpc/react'
 import { useEffect, useState, useRef } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { Toggle } from '~/components/toggle'
 import type { Ingredient } from '@prisma/client'
 import { getIngredientDisplayText } from '~/lib/ingredient-display'
@@ -12,6 +12,7 @@ import { Button } from '~/components/button'
 import { ListChecksIcon, PlusIcon } from 'lucide-react'
 import { toast } from '~/components/toast'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
+import { useAppRouter } from '~/hooks/use-app-router'
 
 export function useCheckIngredient() {
   const utils = api.useUtils()
@@ -70,7 +71,7 @@ export function IngredientsCheckList({
   const { mutate, isPending } = useAddToList(slug as string)
   const { mutate: checkIngredient } = useCheckIngredient()
   const [addedToList, setAddedToList] = useState(false)
-  const router = useRouter()
+  const router = useAppRouter()
 
   const handleCheck = (change: { id: string; checked: boolean }) => {
     checkIngredient([{ id: change.id, checked: change.checked }])

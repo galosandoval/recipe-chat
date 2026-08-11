@@ -28,7 +28,6 @@ import {
   UserPlusIcon
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useRouter } from 'next/navigation'
 import { darkTheme, lightTheme } from '~/constants/theme'
 import { useState } from 'react'
 import { Dialog } from '~/components/dialog'
@@ -46,6 +45,7 @@ import { z } from 'zod'
 import { CreateParsedRecipe } from '~/app/recipes/create-recipe-button'
 import { TasteProfileDrawer } from '~/components/taste-profile/taste-profile-drawer'
 import { useTasteProfileDrawerStore } from '~/components/taste-profile/taste-profile-drawer-store'
+import { useAppRouter } from '~/hooks/use-app-router'
 
 const preferredUnitsFormSchema = z.object({
   preferredWeightUnit: z.string(),
@@ -62,7 +62,7 @@ export function NavDropdownMenu() {
   const pathname = usePathname()
 
   const session = useSession()
-  const router = useRouter()
+  const router = useAppRouter()
   const openTasteProfile = useTasteProfileDrawerStore((s) => s.open)
 
   const handleToggleSignUp = () => {

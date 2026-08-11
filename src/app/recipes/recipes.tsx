@@ -18,7 +18,6 @@ import {
   SearchIcon,
   XCircleIcon
 } from 'lucide-react'
-import { useNavigationStore } from '~/components/navigation-store'
 import { useRecipesStore } from './recipes-store'
 import { useDebounce } from '~/hooks/use-recipe'
 import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
@@ -222,9 +221,6 @@ function NoneFound() {
 
 function Card({ data }: { data: Recipe }) {
   const utils = api.useUtils()
-  const isNavigating = useNavigationStore((state) => state.isNavigating)
-  const targetRoute = useNavigationStore((state) => state.targetRoute)
-  const isThisRoute = targetRoute === `/recipes/${data.slug}`
   const { mutate: updateLastViewedAt } =
     api.recipes.updateLastViewedAt.useMutation({
       onSuccess: () => {
@@ -242,7 +238,8 @@ function Card({ data }: { data: Recipe }) {
     <NavigationButton
       href={`/recipes/${data.slug}`}
       onClick={handleOnClick}
-      className='bg-background relative col-span-1 h-60 overflow-hidden rounded-md shadow-xl active:scale-[99%] disabled:cursor-wait disabled:opacity-50'
+      disabled={false}
+      className='bg-background relative col-span-1 h-60 overflow-hidden rounded-md shadow-xl active:scale-[99%]'
     >
       <div className='w-full'>
         {data.imgUrl ? (
@@ -269,13 +266,6 @@ function Card({ data }: { data: Recipe }) {
           {data.name}
         </h3>
       </div>
-
-      {/* Loading overlay */}
-      {isNavigating && isThisRoute && (
-        <div className='absolute inset-0 z-10 flex items-center justify-center bg-black/20'>
-          <LoadingSpinner />
-        </div>
-      )}
     </NavigationButton>
   )
 }

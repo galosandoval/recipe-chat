@@ -3,7 +3,6 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { Form } from '../form/form'
 import { FormInput } from '../form/form-input'
-import { useRouter } from 'next/navigation'
 import { useAppForm } from '~/hooks/use-app-form'
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
@@ -14,6 +13,7 @@ import { useChatStore } from '~/components/chat/chat-store'
 import type { MessageWithRecipes } from '~/schemas/chats-schema'
 import { DrawerDialog } from '../drawer-dialog'
 import { UserPlusIcon } from 'lucide-react'
+import { useAppRouter } from '~/hooks/use-app-router'
 
 export function SignUp({
   trigger,
@@ -29,7 +29,7 @@ export function SignUp({
   onOpenChange?: (open: boolean) => void
 }) {
   const t = useTranslations()
-  const router = useRouter()
+  const router = useAppRouter()
   const form = useAppForm(signUpSchema, {
     defaultValues: { email: '', password: '', confirm: '' }
   })

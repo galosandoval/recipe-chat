@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { toast } from '~/components/toast'
 import { api, type RouterOutputs } from '~/trpc/react'
 import { useSeedQueryCache } from './use-seed-query-cache'
+import { useAppRouter } from './use-app-router'
 
 export function useDebounce(value: string, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -86,7 +87,7 @@ export const useAddToList = (slug: string) => {
 
 export const useDeleteRecipe = () => {
   const utils = api.useUtils()
-  const router = useRouter()
+  const router = useAppRouter()
 
   return api.recipes.delete.useMutation({
     onSuccess: async () => {

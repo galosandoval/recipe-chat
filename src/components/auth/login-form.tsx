@@ -3,11 +3,12 @@
 import { useTranslations } from '~/hooks/use-translations'
 import { Form } from '../form/form'
 import { FormInput } from '../form/form-input'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import { useAppForm } from '~/hooks/use-app-form'
 import { toast } from '../toast'
 import { signIn } from 'next-auth/react'
+import { useAppRouter } from '~/hooks/use-app-router'
 
 export const loginSchema = (t: any) =>
   z.object({
@@ -25,7 +26,7 @@ export function LoginForm({
 }) {
   const t = useTranslations()
   const searchParams = useSearchParams()
-  const router = useRouter()
+  const router = useAppRouter()
 
   const form = useAppForm(loginSchema(t), {
     defaultValues: { email: '', password: '' }

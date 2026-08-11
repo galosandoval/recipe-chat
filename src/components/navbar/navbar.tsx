@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { NavDropdownMenu } from './settings-dropdown-menu'
 import {
   ArrowBigLeft,
@@ -16,6 +16,7 @@ import { Button } from '~/components/button'
 import { NavigationButton } from '~/components/navigation-button'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 import { useRecipeEditStore } from '~/app/recipes/[slug]/recipe-edit-store'
+import { useAppRouter } from '~/hooks/use-app-router'
 
 export const Navbar = () => {
   const pathname = usePathname()
@@ -71,7 +72,7 @@ function AppHeader() {
 }
 
 function RecipeByIdNavbar() {
-  const router = useRouter()
+  const router = useAppRouter()
   return (
     <nav>
       <div className='absolute inset-x-0 top-0 z-30 mx-auto flex w-full max-w-2xl flex-1 justify-between bg-transparent p-3'>

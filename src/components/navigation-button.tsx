@@ -1,9 +1,10 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import type { ButtonProps } from './ui/button'
 import { useNavigationStore } from './navigation-store'
 import type { ComponentType } from 'react'
+import { useAppRouter } from '~/hooks/use-app-router'
 
 interface NavigationButtonProps extends Omit<ButtonProps, 'onClick'> {
   href: string
@@ -23,7 +24,7 @@ export const NavigationButton = ({
   as: Component,
   ...props
 }: NavigationButtonProps) => {
-  const router = useRouter()
+  const router = useAppRouter()
   const pathname = usePathname()
   const isNavigating = useNavigationStore((state) => state.isNavigating)
   const startNavigation = useNavigationStore((state) => state.startNavigation)
@@ -48,17 +49,13 @@ export const NavigationButton = ({
     }
   }
 
-  const finalClassName = `${className} disabled:cursor-wait disabled:opacity-50`
-  const finalDisabled = disabled || isNavigating
-
   // If no custom component, use button as default
   if (!Component) {
     return (
       <button
         type='button'
         onClick={handleClick}
-        disabled={finalDisabled}
-        className={finalClassName}
+        className={className}
         {...props}
       >
         {children}
@@ -68,12 +65,7 @@ export const NavigationButton = ({
 
   // Render custom component with all necessary props
   return (
-    <Component
-      onClick={handleClick}
-      disabled={finalDisabled}
-      className={finalClassName}
-      {...props}
-    >
+    <Component onClick={handleClick} className={className} {...props}>
       {children}
     </Component>
   )
