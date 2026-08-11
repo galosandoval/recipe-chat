@@ -7,9 +7,11 @@ import type { Locale } from '~/i18n-config'
  */
 const dictionaries = {
   en: () =>
-    import('public/translations/en.json').then((module) => module.default),
+    import('../../public/translations/en.json').then(
+      (module) => module.default
+    ),
   es: () =>
-    import('public/translations/es.json').then((module) => module.default)
+    import('../../public/translations/es.json').then((module) => module.default)
 }
 
 export const getTranslations = async (locale: Locale) =>
