@@ -131,6 +131,10 @@ local scripts never call any GitHub write command either.
   under `docs/standards/`, same as CI. Procedure (the skills) arrives separately
   with `bun install`, bundled by `@galosandoval/shopfloor` and loaded through the
   Claude Code CLI's own `--plugin-dir`; there's no directory to clone or mount.
+- **Base branch** — the run branch is cut from `main`, matching CI. Set
+  `BASE_BRANCH` to rehearse from another branch; the container only ever sees
+  committed history, so a change to the pipeline itself has to be committed
+  somewhere before it can be rehearsed.
 - **Runaway guards** — `--max-turns 150` (shared with CI) plus a local
   45-minute wall-clock cap and a 10-minute idle cap (`LOCAL_WALL_CLOCK_MINUTES`
   / `LOCAL_IDLE_MINUTES`), since there's no GitHub Actions workflow timeout to

@@ -53,6 +53,8 @@ mkdir -p "$HOST_OUTPUT_DIR"
 
 export ISSUE_NUMBER GH_TOKEN CLAUDE_CODE_OAUTH_TOKEN NEXTAUTH_SECRET OPENAI_API_KEY
 export HOST_GIT_DIR HOST_OUTPUT_DIR
+# Passed through empty unless set; entrypoint.sh defaults it to main.
+export BASE_BRANCH="${BASE_BRANCH:-}"
 
 cleanup() {
   echo "==> Tearing down the ephemeral pgvector service"

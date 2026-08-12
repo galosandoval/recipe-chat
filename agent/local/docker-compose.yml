@@ -34,6 +34,8 @@ services:
       DATABASE_PRISMA_URL: postgresql://postgres:postgres@db:5432/recipe_chat_test
       DATABASE_URL_NON_POOLING: postgresql://postgres:postgres@db:5432/recipe_chat_test
       HOST_REPO_DIR: /host-repo
+      # Empty unless the maintainer overrides it; entrypoint.sh defaults to main.
+      BASE_BRANCH: ${BASE_BRANCH:-}
       # Guard budgets default in the run-policy contract (#556); these only pass
       # a maintainer's override through — empty when unset, which the contract's
       # resolver treats as "use the default". No idle/wall-clock number restated.

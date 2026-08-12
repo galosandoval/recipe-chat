@@ -19,6 +19,11 @@ REPO="galosandoval/recipe-chat"
 HOST_REPO_DIR="${HOST_REPO_DIR:-/host-repo}"
 WORKDIR="/workdir/repo"
 export OUTPUT_DIR="/workdir/output"
+# Branch the throwaway run branch is cut from. `main` by default, matching CI.
+# Overridable (`BASE_BRANCH`) so a change to the pipeline itself can be
+# rehearsed from the branch carrying it — the container only ever sees
+# committed history, so unmerged harness work is invisible without this.
+BASE_BRANCH="${BASE_BRANCH:-main}"
 
 mkdir -p "$OUTPUT_DIR"
 
@@ -34,7 +39,7 @@ git clone --quiet "$HOST_REPO_DIR" "$WORKDIR"
 cd "$WORKDIR"
 git config user.name "claude-code[local]"
 git config user.email "claude-code-local@users.noreply.github.com"
-git checkout --quiet main
+git checkout --quiet "$BASE_BRANCH"
 git checkout --quiet -b "$BRANCH"
 
 echo "==> Installing dependencies"
@@ -74,7 +79,7 @@ AGENT_EXIT_CODE=$?
 set -e
 
 echo "==> Pushing whatever landed on ${BRANCH} back to the host repo"
-COMMITS_AHEAD="$(git rev-list --count main.."$BRANCH" 2>/dev/null || echo 0)"
+COMMITS_AHEAD="$(git rev-list --count "$BASE_BRANCH".."$BRANCH" 2>/dev/null || echo 0)"
 if [ "$COMMITS_AHEAD" -gt 0 ]; then
   git push "$HOST_REPO_DIR" "$BRANCH":"$BRANCH"
   echo "==> Pushed ${COMMITS_AHEAD} commit(s) to local branch ${BRANCH}"
