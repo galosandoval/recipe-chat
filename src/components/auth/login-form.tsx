@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from '~/hooks/use-translations'
-import { Form } from '../form/form'
+import { AppForm } from '../form/form'
 import { FormInput } from '../form/form-input'
 import { useSearchParams } from 'next/navigation'
 import { z } from 'zod'
@@ -53,7 +53,7 @@ export function LoginForm({
     }
   }
   return (
-    <Form
+    <AppForm
       onSubmit={onSubmit}
       className='flex flex-col gap-3'
       formId='login'
@@ -61,6 +61,6 @@ export function LoginForm({
     >
       <FormInput name='email' label={t.auth.email} />
       <FormInput name='password' type='password' label={t.auth.password} />
-    </Form>
+    </AppForm>
   )
 }

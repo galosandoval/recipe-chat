@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from '~/hooks/use-translations'
-import { Form } from '../form/form'
+import { AppForm } from '../form/form'
 import { FormInput } from '../form/form-input'
 import { useAppForm } from '~/hooks/use-app-form'
 import { useState } from 'react'
@@ -121,7 +121,7 @@ export function SignUp({
       isLoading={isPending || isSigningIn}
       submitIcon={<UserPlusIcon />}
     >
-      <Form
+      <AppForm
         onSubmit={onSubmit}
         className='flex flex-col gap-3'
         formId='signUp'
@@ -134,7 +134,7 @@ export function SignUp({
           name='confirm'
           label={t.auth.confirmPassword}
         />
-      </Form>
+      </AppForm>
     </DrawerDialog>
   )
 }

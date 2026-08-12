@@ -3,7 +3,7 @@ import { CirclePlusIcon } from 'lucide-react'
 import z from 'zod'
 import { useAppForm } from '~/hooks/use-app-form'
 import { BottomBar } from '~/components/bottom-bar'
-import { Form } from '~/components/form/form'
+import { AppForm } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
 import { Button } from '~/components/button'
 import { useTranslations } from '~/hooks/use-translations'
@@ -31,7 +31,7 @@ export function AddToListForm() {
     form.reset()
   }
   return (
-    <Form
+    <AppForm
       className='flex w-full items-center md:rounded-md'
       onSubmit={onSubmitNewIngredient}
       formId='add-ingredient-form'
@@ -52,7 +52,7 @@ export function AddToListForm() {
           </Button>
         </div>
       </BottomBar>
-    </Form>
+    </AppForm>
   )
 }
 

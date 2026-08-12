@@ -9,7 +9,7 @@ import { DrawerDialog } from '~/components/drawer-dialog'
 import { Dialog } from '~/components/dialog'
 import { Button } from '~/components/button'
 import { toast } from '~/components/toast'
-import { Form } from '~/components/form/form'
+import { AppForm } from '~/components/form/form'
 import { useAppForm } from '~/hooks/use-app-form'
 import { useTranslations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
@@ -119,9 +119,13 @@ export function ManageFiltersDialog() {
         cancelText={t.common.cancel}
         isLoading={isPending}
       >
-        <Form form={form} formId={MANAGE_FILTERS_FORM_ID} onSubmit={handleSave}>
+        <AppForm
+          form={form}
+          formId={MANAGE_FILTERS_FORM_ID}
+          onSubmit={handleSave}
+        >
           <FilterDraftList fields={fields} onRemove={remove} />
-        </Form>
+        </AppForm>
         <div className='pt-4'>
           <CreateFilterForm
             existingNames={stagedNames}

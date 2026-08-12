@@ -18,7 +18,7 @@ import { FormItem } from '../ui/form'
 import { FormLabel } from '../ui/form'
 import { FormControl } from '../ui/form'
 
-export function Form<T extends FieldValues>({
+export function AppForm<T extends FieldValues>({
   children,
   className,
   onSubmit,
