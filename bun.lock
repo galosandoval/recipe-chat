@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "recipe-chat",
@@ -1050,7 +1051,7 @@
 
     "functions-have-names": ["functions-have-names@1.2.3", "", {}, "sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ=="],
 
-    "galosandoval-skills": ["galosandoval-skills@git+ssh://github:galosandoval/skills#ed2cc27d6d2ed685712c4d0fe9af0b7e93a9a3b8", {}, "ed2cc27d6d2ed685712c4d0fe9af0b7e93a9a3b8"],
+    "galosandoval-skills": ["galosandoval-skills@github:galosandoval/skills#11b4009", {}, "galosandoval-skills-11b4009", "sha512-hH+wTELr/ag4bIWJhqZQOAydQiV8R6xepO/nt43/Qz9W6WdaBGd50G/Lsi787vXisMsrlS7jNnVLiK4XkJIlew=="],
 
     "geist": ["geist@1.4.2", "", { "peerDependencies": { "next": ">=13.2.0" } }, "sha512-OQUga/KUc8ueijck6EbtT07L4tZ5+TZgjw8PyWfxo16sL5FWk7gNViPNU8hgCFjy6bJi9yuTP+CRpywzaGN8zw=="],
 

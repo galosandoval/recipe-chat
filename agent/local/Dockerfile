@@ -1,7 +1,7 @@
 # Local Docker rehearsal image for `agent:local` (#541) — a faithful CI
 # rehearsal of the `agent:implement` pipeline the maintainer can run against a
 # throwaway branch with no GitHub side effects. Pins the same Node 22 / bun
-# 1.2.0 combination CI's setup-node / oven-sh/setup-bun steps use, and adds
+# 1.3.14 combination CI's setup-node / oven-sh/setup-bun steps use, and adds
 # gh, git, the Claude Code CLI, and a Playwright Chromium browser so the full
 # quality gate plus the verify/e2e phase can run inside the container.
 #
@@ -27,7 +27,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
 # the unprivileged `agent` user below can run it too.
 ENV BUN_INSTALL=/usr/local/share/bun
 ENV PATH="${BUN_INSTALL}/bin:${PATH}"
-RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.2.0" \
+RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.14" \
   && chmod -R a+rX "${BUN_INSTALL}"
 
 # Claude Code CLI, pinned to the version the run-policy contract declares (#556)
