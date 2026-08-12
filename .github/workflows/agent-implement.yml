@@ -67,10 +67,16 @@ jobs:
     # (wrong label/actor) leaves `refused` empty, so this stays skipped too.
     if: needs.preflight.outputs.refused == 'false'
     runs-on: ubuntu-latest
-    # Hard wall-clock cap on the whole run (runaway guard #1). The idle guard
-    # (#556) lives in the orchestrator (agent/implement/implement.ts) so it
-    # protects CI too, killing a hung run in minutes instead of at this cap.
-    timeout-minutes: 45
+    # Backstop cap on the whole job, deliberately above the run-policy's
+    # WALL_CLOCK_MINUTES = 45 (#556). Since shopfloor 0.4.0 that wall-clock
+    # budget is enforced by the orchestrator (SIGTERM, 30s, SIGKILL), and it
+    # covers the agent alone — the setup steps before it and the transcript
+    # upload / failure-reason steps after it are extra. Set equal, GitHub would
+    # kill the job first and the run would lose its own diagnosis; the margin
+    # here is what lets the guard fire and report. The idle guard (#556) lives
+    # in the orchestrator too, killing a hung run in minutes instead of at any
+    # of these caps.
+    timeout-minutes: 60
 
     services:
       # Same image/env pattern as .github/workflows/test.yml, so the agent can
@@ -179,14 +185,6 @@ jobs:
         # runner but keeps this self-contained (no Docker, no browser service).
         run: bunx playwright install --with-deps chromium
 
-      - name: Fetch coding standards
-        # Single source of truth: the coding-standard rules live in the public
-        # skills repo (symlinked into ~/.claude/rules locally). CI can't resolve
-        # that symlink, so shallow-clone the repo and point the agent at rules/
-        # via STANDARDS_DIR. Cloned under RUNNER_TEMP so the files never enter
-        # the repo tree or a commit.
-        run: git clone --depth 1 https://github.com/galosandoval/skills.git "${RUNNER_TEMP}/skills"
-
       - name: Run implementation agent
         id: implement
         env:
@@ -196,8 +194,6 @@ jobs:
           # The agent writes pr_description.txt / failure_reason.txt here, outside
           # the repo, so they never land in a commit.
           OUTPUT_DIR: ${{ runner.temp }}
-          # Coding-standard rules cloned by the "Fetch coding standards" step.
-          STANDARDS_DIR: ${{ runner.temp }}/skills/rules
           # App/suite paths the agent may exercise during TDD.
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

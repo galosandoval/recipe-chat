@@ -38,11 +38,10 @@ you'll touch; they show the established patterns to follow.
 
 # CODING STANDARDS
 
-If `{{STANDARDS_DIR}}` is non-empty and exists, read the markdown files in it
-before writing code and conform to the ones relevant to the languages you're
-changing (each file's `paths` frontmatter says which files it governs). They are
-the project owner's TypeScript / React / Prisma conventions — treat them as
-binding. If `{{STANDARDS_DIR}}` is empty or missing, proceed without it.
+Before writing code, read `CLAUDE.md` at the repo root and the standards docs it
+links under `docs/standards/`. Read only the ones governing the code you're
+changing (the index in `CLAUDE.md` says which is which). They are the project
+owner's TypeScript / React / Prisma conventions — treat them as binding.
 
 # DATABASE
 

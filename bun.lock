@@ -7,7 +7,7 @@
         "@ai-sdk/openai": "^1.3.23",
         "@ai-sdk/react": "^1.2.12",
         "@formatjs/intl-localematcher": "^0.6.1",
-        "@galosandoval/shopfloor": "0.3.0",
+        "@galosandoval/shopfloor": "0.8.0",
         "@hookform/error-message": "^2.0.1",
         "@paralleldrive/cuid2": "^2.2.2",
         "@prisma/client": "^6.18.0",
@@ -234,7 +234,7 @@
 
     "@formatjs/intl-localematcher": ["@formatjs/intl-localematcher@0.6.1", "", { "dependencies": { "tslib": "^2.8.0" } }, "sha512-ePEgLgVCqi2BBFnTMWPfIghu6FkbZnnBVhO2sSxvLfrdFw7wCHAHiDoM2h4NRgjbaY7+B7HgOLZGkK187pZTZg=="],
 
-    "@galosandoval/shopfloor": ["@galosandoval/shopfloor@0.3.0", "", { "bin": { "shopfloor-implement": "dist/cli.js" } }, "sha512-0xg2HMtSF6bNe09w1uIKlnzaH++J09tpFqMHRbtV4N50lgejLb+DmCgtpBAM4rB48g8mUCl38CRxp2zPJuzl+Q=="],
+    "@galosandoval/shopfloor": ["@galosandoval/shopfloor@0.8.0", "", { "dependencies": { "galosandoval-skills": "github:galosandoval/skills#galosandoval-skills@1.1.0" }, "bin": { "shopfloor-implement": "dist/cli.js" } }, "sha512-ea8GRaTog7FBg7Uo+OVn19taNH003N2kFYtQJ04hZ/L3An16NEl03TKZIJnHap8H/g7xKibfwrjzHjXb24upwA=="],
 
     "@hookform/error-message": ["@hookform/error-message@2.0.1", "", { "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0", "react-hook-form": "^7.0.0" } }, "sha512-U410sAr92xgxT1idlu9WWOVjndxLdgPUHEB8Schr27C9eh7/xUnITWpCMF93s+lGiG++D4JnbSnrb5A21AdSNg=="],
 
@@ -1049,6 +1049,8 @@
     "function.prototype.name": ["function.prototype.name@1.1.8", "", { "dependencies": { "call-bind": "^1.0.8", "call-bound": "^1.0.3", "define-properties": "^1.2.1", "functions-have-names": "^1.2.3", "hasown": "^2.0.2", "is-callable": "^1.2.7" } }, "sha512-e5iwyodOHhbMr/yNrc7fDYG4qlbIvI5gajyzPnb5TCwyhjApznQh1BMFou9b30SevY43gCJKXycoCBjMbsuW0Q=="],
 
     "functions-have-names": ["functions-have-names@1.2.3", "", {}, "sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ=="],
+
+    "galosandoval-skills": ["galosandoval-skills@git+ssh://github:galosandoval/skills#ed2cc27d6d2ed685712c4d0fe9af0b7e93a9a3b8", {}, "ed2cc27d6d2ed685712c4d0fe9af0b7e93a9a3b8"],
 
     "geist": ["geist@1.4.2", "", { "peerDependencies": { "next": ">=13.2.0" } }, "sha512-OQUga/KUc8ueijck6EbtT07L4tZ5+TZgjw8PyWfxo16sL5FWk7gNViPNU8hgCFjy6bJi9yuTP+CRpywzaGN8zw=="],
 

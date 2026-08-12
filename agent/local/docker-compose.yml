@@ -34,7 +34,6 @@ services:
       DATABASE_PRISMA_URL: postgresql://postgres:postgres@db:5432/recipe_chat_test
       DATABASE_URL_NON_POOLING: postgresql://postgres:postgres@db:5432/recipe_chat_test
       HOST_REPO_DIR: /host-repo
-      STANDARDS_DIR: /standards
       # Guard budgets default in the run-policy contract (#556); these only pass
       # a maintainer's override through — empty when unset, which the contract's
       # resolver treats as "use the default". No idle/wall-clock number restated.
@@ -47,10 +46,6 @@ services:
       - type: bind
         source: ${HOST_GIT_DIR:?Set HOST_GIT_DIR}
         target: /host-repo/.git
-      - type: bind
-        source: ${STANDARDS_HOST_DIR:?Set STANDARDS_HOST_DIR}
-        target: /standards
-        read_only: true
       # The agent's output dir (#566): transcript, PR description, verify report,
       # and trajectory scorecard. Bind-mounted to a host dir so they survive the
       # container instead of vanishing when it is removed.

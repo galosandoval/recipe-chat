@@ -19,7 +19,6 @@ REPO="galosandoval/recipe-chat"
 HOST_REPO_DIR="${HOST_REPO_DIR:-/host-repo}"
 WORKDIR="/workdir/repo"
 export OUTPUT_DIR="/workdir/output"
-STANDARDS_MOUNT="${STANDARDS_DIR:-/standards}"
 
 mkdir -p "$OUTPUT_DIR"
 
@@ -45,14 +44,6 @@ echo "==> Running shared setup (#539): Prisma generate, migrate deploy, seed"
 bun run gen
 bun run migrate:deploy
 bun run seed
-
-if [ -d "$STANDARDS_MOUNT" ] && [ -n "$(ls -A "$STANDARDS_MOUNT" 2>/dev/null)" ]; then
-  export STANDARDS_DIR="$STANDARDS_MOUNT"
-  echo "==> Coding standards mounted at ${STANDARDS_DIR}"
-else
-  export STANDARDS_DIR=""
-  echo "==> No coding standards mounted; the prompt will skip that step"
-fi
 
 export ISSUE_NUMBER ISSUE_TITLE BRANCH CLAUDE_CODE_OAUTH_TOKEN
 

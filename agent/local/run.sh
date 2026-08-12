@@ -51,19 +51,8 @@ HOST_GIT_DIR="$(git -C "$REPO_ROOT" rev-parse --absolute-git-dir)"
 HOST_OUTPUT_DIR="$REPO_ROOT/.agent/local/runs/$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$HOST_OUTPUT_DIR"
 
-# Mount the maintainer's local skills rules if present; otherwise mount an
-# empty scratch dir so entrypoint.sh's "non-empty directory" check correctly
-# skips the standards step (docs/agents/domain.md / memory: skills live at
-# ~/Projects/skills, symlinked into ~/.claude/rules).
-DEFAULT_STANDARDS_DIR="$HOME/Projects/skills/rules"
-if [ -d "${LOCAL_STANDARDS_DIR:-$DEFAULT_STANDARDS_DIR}" ]; then
-  STANDARDS_HOST_DIR="${LOCAL_STANDARDS_DIR:-$DEFAULT_STANDARDS_DIR}"
-else
-  STANDARDS_HOST_DIR="$(mktemp -d)"
-fi
-
 export ISSUE_NUMBER GH_TOKEN CLAUDE_CODE_OAUTH_TOKEN NEXTAUTH_SECRET OPENAI_API_KEY
-export HOST_GIT_DIR STANDARDS_HOST_DIR HOST_OUTPUT_DIR
+export HOST_GIT_DIR HOST_OUTPUT_DIR
 
 cleanup() {
   echo "==> Tearing down the ephemeral pgvector service"
