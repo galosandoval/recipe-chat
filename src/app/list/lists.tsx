@@ -89,8 +89,6 @@ function ListByRecipeId({
     return ingredients
   }, {})
 
-  const { data: nameDictionary, isSuccess } = useRecipeNames(ids)
-
   const handleCheck = (checked: boolean, ingredientId: string) => {
     checkIngredient({ id: ingredientId, checked })
   }

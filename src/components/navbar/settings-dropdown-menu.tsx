@@ -31,7 +31,7 @@ import { useTheme } from 'next-themes'
 import { darkTheme, lightTheme } from '~/constants/theme'
 import { useState } from 'react'
 import { Dialog } from '~/components/dialog'
-import { Form } from '~/components/form/form'
+import { AppForm } from '~/components/form/form'
 import { FormSelect } from '~/components/form/form-select'
 import { api } from '~/trpc/react'
 import {
@@ -218,7 +218,7 @@ function PreferredUnitsDialog({
       formId='preferred-units-form'
       isLoading={status === 'pending'}
     >
-      <Form form={form} onSubmit={onSubmit} formId='preferred-units-form'>
+      <AppForm form={form} onSubmit={onSubmit} formId='preferred-units-form'>
         <div className='flex flex-col gap-4 py-2'>
           <FormSelect
             name='preferredWeightUnit'
@@ -239,7 +239,7 @@ function PreferredUnitsDialog({
             ]}
           />
         </div>
-      </Form>
+      </AppForm>
     </Dialog>
   )
 }
@@ -282,9 +282,9 @@ export function ParseAndAddRecipeDialogs({
         onOpenChange={onOpenChange}
         isLoading={status === 'pending'}
       >
-        <Form form={form} onSubmit={onSubmit} formId='parse-recipe-form'>
+        <AppForm form={form} onSubmit={onSubmit} formId='parse-recipe-form'>
           <FormInput name='url' label={t.recipes.url} />
-        </Form>
+        </AppForm>
       </Dialog>
 
       <CreateParsedRecipe

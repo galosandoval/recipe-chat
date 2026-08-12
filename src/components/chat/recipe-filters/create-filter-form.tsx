@@ -2,7 +2,7 @@ import z from 'zod'
 import { PlusIcon } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
 import { Button } from '~/components/button'
-import { Form } from '~/components/form/form'
+import { AppForm } from '~/components/form/form'
 import { useAppForm } from '~/hooks/use-app-form'
 import { FormInput } from '~/components/form/form-input'
 
@@ -39,7 +39,7 @@ export function CreateFilterForm({
   }
 
   return (
-    <Form onSubmit={addFilter} form={form} formId='create-filter-form'>
+    <AppForm onSubmit={addFilter} form={form} formId='create-filter-form'>
       <div className='flex items-start gap-2'>
         <FormInput
           name='name'
@@ -50,7 +50,7 @@ export function CreateFilterForm({
           {t.filters.add}
         </Button>
       </div>
-    </Form>
+    </AppForm>
   )
 }
 

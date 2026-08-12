@@ -7,7 +7,7 @@ import {
   type LinkedDataRecipeField
 } from '~/schemas/recipes-schema'
 import { api } from '~/trpc/react'
-import { Form } from '~/components/form/form'
+import { AppForm } from '~/components/form/form'
 import { FormTextarea } from '~/components/form/form-textarea'
 import { FormInput } from '~/components/form/form-input'
 import { Dialog } from '~/components/dialog'
@@ -74,7 +74,7 @@ export function CreateParsedRecipe({
       isLoading={isPending}
       submitIcon={<PlusIcon className='h-4 w-4' />}
     >
-      <Form
+      <AppForm
         onSubmit={onSubmit}
         className='flex flex-col gap-3'
         formId='create-recipe'
@@ -88,7 +88,7 @@ export function CreateParsedRecipe({
         </div>
         <FormTextarea name='ingredients' label={t.recipes.ingredients} />
         <FormTextarea name='instructions' label={t.recipes.instructions} />
-      </Form>
+      </AppForm>
     </Dialog>
   )
 }

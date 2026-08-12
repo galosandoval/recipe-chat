@@ -5,7 +5,7 @@ import { CirclePlusIcon } from 'lucide-react'
 import z from 'zod'
 import { useAppForm } from '~/hooks/use-app-form'
 import { BottomBar } from '~/components/bottom-bar'
-import { Form } from '~/components/form/form'
+import { AppForm } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
 import { Button } from '~/components/button'
 import { useTranslations } from '~/hooks/use-translations'
@@ -41,7 +41,7 @@ export function AddToPantryForm({
   const isDisabled = !form.formState.isValid
 
   return (
-    <Form
+    <AppForm
       className='flex w-full items-center md:rounded-md'
       onSubmit={onSubmit}
       formId='add-pantry-form'
@@ -61,6 +61,6 @@ export function AddToPantryForm({
           </Button>
         </div>
       </BottomBar>
-    </Form>
+    </AppForm>
   )
 }

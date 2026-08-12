@@ -16,7 +16,7 @@ import { NewRecipeTime, RecipeTime } from './recipe-time'
 import { Button } from '~/components/button'
 import { Card } from '~/components/card'
 import { Dialog } from '~/components/dialog'
-import { Form } from '~/components/form/form'
+import { AppForm } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
 import { FormTextarea } from '~/components/form/form-textarea'
 import { useRegisterFab } from '~/components/fab-stack/use-register-fab'
@@ -407,7 +407,7 @@ function RecipeEditMode({
 
   return (
     <div className='mx-auto flex w-full max-w-2xl flex-col gap-4 px-3 pt-16 pb-10'>
-      <Form
+      <AppForm
         formId={EDIT_FORM_ID}
         form={form}
         onSubmit={onSubmit}
@@ -450,7 +450,7 @@ function RecipeEditMode({
         >
           {t.recipes.delete}
         </Button>
-      </Form>
+      </AppForm>
 
       <DeleteRecipeDialog open={deleteOpen} onOpenChange={setDeleteOpen} />
 

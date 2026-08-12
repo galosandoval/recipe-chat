@@ -17,7 +17,7 @@ import { DrawerDialog } from '~/components/drawer-dialog'
 import { Dialog } from '~/components/dialog'
 import { Button } from '~/components/button'
 import { toast } from '~/components/toast'
-import { Form } from '~/components/form/form'
+import { AppForm } from '~/components/form/form'
 import { FormInput } from '~/components/form/form-input'
 import { Input } from '~/components/ui/input'
 import {
@@ -255,7 +255,11 @@ export function ManagePantryDialog({
         cancelText={t.common.cancel}
         isLoading={isPending}
       >
-        <Form form={form} formId={MANAGE_PANTRY_FORM_ID} onSubmit={handleSave}>
+        <AppForm
+          form={form}
+          formId={MANAGE_PANTRY_FORM_ID}
+          onSubmit={handleSave}
+        >
           {fields.length === 0 ? (
             <div className='text-muted-foreground'>{t.pantry.noItems}</div>
           ) : (
@@ -272,7 +276,7 @@ export function ManagePantryDialog({
               ))}
             </ul>
           )}
-        </Form>
+        </AppForm>
       </DrawerDialog>
 
       <Dialog
