@@ -40,6 +40,10 @@ cd "$WORKDIR"
 git config user.name "claude-code[local]"
 git config user.email "claude-code-local@users.noreply.github.com"
 git checkout --quiet "$BASE_BRANCH"
+# The orchestrator counts the run's commits as `main..HEAD`, so a local `main`
+# has to exist even when the run branch was cut from something else — a clone
+# only materializes the branch it checks out.
+git branch --quiet --force main origin/main
 git checkout --quiet -b "$BRANCH"
 
 echo "==> Installing dependencies"

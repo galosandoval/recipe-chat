@@ -21,6 +21,12 @@ services:
     build:
       context: ../..
       dockerfile: agent/local/Dockerfile
+      # BuildKit's build containers can't reach deb.debian.org on this setup
+      # (Docker Desktop): `docker run` resolves and connects fine, the build
+      # times out on every apt mirror. Host networking during the build is the
+      # standard escape hatch and costs nothing here — the image is local-only
+      # and never published.
+      network: host
     depends_on:
       db:
         condition: service_healthy
