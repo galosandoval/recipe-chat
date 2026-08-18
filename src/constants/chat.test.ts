@@ -42,6 +42,41 @@ describe('buildSystemPrompt', () => {
     expect(prompt).not.toMatch(/shopping list/i)
   })
 
+  describe('first visit (no filters, no profile, no saved recipes)', () => {
+    // The exact payload route.ts builds for a brand-new visitor: no userId, so
+    // tasteProfile is null and every list is empty. This turn must still return
+    // recipe cards — clicking the welcome CTA is the first thing a user does,
+    // and asking them questions instead is the whole bug.
+    const firstVisit = { filters: [], savedRecipes: [] }
+
+    it('never instructs the model to ask clarifying questions or stall', () => {
+      const prompt = buildSystemPrompt(firstVisit)
+
+      expect(prompt).not.toMatch(/ask 1–3/i)
+      expect(prompt).not.toMatch(/clarifying questions,/i)
+      expect(prompt).not.toMatch(/wait for the reply/i)
+    })
+
+    it('instructs the model to propose recipes anyway', () => {
+      const prompt = buildSystemPrompt(firstVisit)
+
+      expect(prompt).toMatch(/NEVER ask clarifying questions/i)
+      expect(prompt).toMatch(/open brief/i)
+      expect(prompt).toMatch(/generateRecipeOptions/)
+    })
+  })
+
+  it.each([
+    ['no context', { filters: [], savedRecipes: [] }],
+    ['filters only', { filters: ['vegetarian'], savedRecipes: [] }]
+  ])('carries the never-ask rule with %s', (_label, args) => {
+    expect(buildSystemPrompt(args)).toMatch(/NEVER ask clarifying questions/i)
+  })
+
+  // This gate only picks which steering the prompt uses — context-matched vs.
+  // open-brief. It never decides *whether* to answer: both branches propose
+  // recipes on the first turn. "Absent" here means "nothing to match against",
+  // not "too little to work with".
   describe('hasTasteProfile gate', () => {
     const defaultProfile = {
       cookingSkill: 'intermediate',

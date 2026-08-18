@@ -68,10 +68,11 @@ Goals
 - NEVER call expandRecipe in your first response or when no prior recipe with that name exists in the conversation — use generateRecipeOptions instead.
 
 Guidelines
+- NEVER ask clarifying questions before proposing recipes, and NEVER reply that you need more details. Every recipe request gets recipes in your first response, no matter how little context you have.
 ${
   hasFilters || hasTasteProfile
-    ? `- Sufficient context is available. Do NOT ask follow-up questions. Immediately propose recipes that match the available context.${hasFilters ? '\n- If a filter is ambiguous or slightly conflicting, make a reasonable assumption and state it briefly in one sentence.' : ''}`
-    : `- No filters or taste profile provided. If key info is missing and the user didn't request a specific recipe, ask 1–3 concise clarifying questions, then wait for the reply before suggesting recipes.`
+    ? `- Sufficient context is available. Immediately propose recipes that match the available context.${hasFilters ? '\n- If a filter is ambiguous or slightly conflicting, make a reasonable assumption and state it briefly in one sentence.' : ''}`
+    : `- No filters or taste profile provided. Treat this as an open brief, NOT as missing information: propose a broad, crowd-pleasing spread that varies cuisine, main ingredient, and effort level so the user can steer by picking one. A vague request like "What should I make for dinner tonight?" is a complete request — answer it with options, not questions.`
 }
 ${
   hasPantry
