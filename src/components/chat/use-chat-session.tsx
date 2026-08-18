@@ -133,6 +133,8 @@ export function useChatSession(options?: {
 
   /** Record a Recipe expanded from a Recipe Option onto its existing card. */
   const persistGenerated = (turn: MessageWithRecipes[], recipeId: string) => {
+    if (!isAuthenticated) return
+
     const promptMessage = turn.at(-2)
     const generatedMessage = turn.at(-1)
     if (!generatedMessage || !promptMessage) return
