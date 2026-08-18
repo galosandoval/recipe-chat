@@ -67,7 +67,9 @@ export function ChatPanel() {
 
           <ChatSessionProvider>
             <div className='flex min-h-0 flex-1 flex-col'>
-              <div className='min-h-0 flex-1 overflow-y-auto'>
+              {/* See `~/app/chat.tsx`: the scroller lives in
+                  {@link ScrollToBottomProvider}, not on this wrapper. */}
+              <div className='min-h-0 flex-1'>
                 <Interface />
               </div>
 

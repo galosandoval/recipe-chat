@@ -18,7 +18,10 @@ export function Chat({ seed }: { seed?: ResumeChatSeed }) {
   return (
     <ChatSessionProvider>
       <div className='flex min-h-0 flex-1 flex-col'>
-        <div className='min-h-0 flex-1 overflow-y-auto'>
+        {/* No `overflow-y-auto` here: {@link ScrollToBottomProvider} owns the
+            chat scroller. A second scroller on this wrapper painted its own
+            track against the app shell's edge and split scroll state in two. */}
+        <div className='min-h-0 flex-1'>
           <Interface />
         </div>
         <div className='sticky bottom-0 z-20 shrink-0'>

@@ -90,6 +90,9 @@ describe('FabStack', () => {
     const column = container.firstElementChild
     expect(column).toHaveClass('bottom-32')
     expect(column).not.toHaveClass('bottom-20')
+    // The composer is present on desktop too, so nothing may reset the offset
+    // back down at the `sm` breakpoint.
+    expect(column).not.toHaveClass('sm:bottom-6')
   })
 
   it('renders a custom `render` FAB instead of the default button', () => {
