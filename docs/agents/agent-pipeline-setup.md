@@ -135,10 +135,11 @@ local scripts never call any GitHub write command either.
   `BASE_BRANCH` to rehearse from another branch; the container only ever sees
   committed history, so a change to the pipeline itself has to be committed
   somewhere before it can be rehearsed.
-- **Runaway guards** — `--max-turns 150` (shared with CI) plus a local
-  45-minute wall-clock cap and a 10-minute idle cap (`LOCAL_WALL_CLOCK_MINUTES`
-  / `LOCAL_IDLE_MINUTES`), since there's no GitHub Actions workflow timeout to
-  fall back on locally.
+- **Runaway guards** — `--max-turns 150` plus a 45-minute wall-clock cap and a
+  15-minute idle cap (`LOCAL_WALL_CLOCK_MINUTES` / `LOCAL_IDLE_MINUTES`). All
+  three come from the run-policy contract and are enforced by the orchestrator
+  itself, so local and CI run identical guards; the workflow's
+  `timeout-minutes` is only a last-resort cap above them.
 
 ### How local `gh` reads work
 

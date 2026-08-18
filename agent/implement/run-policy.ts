@@ -12,12 +12,10 @@
  *
  * Every consumer now derives from here: `implement.ts` passes {@link
  * REQUIRED_ENV_VARS} / {@link MODEL} / {@link MAX_TURNS} / {@link
- * IDLE_MINUTES} into `@galosandoval/shopfloor`'s `runImplementAgent`, which
- * validates env and resolves the idle budget itself (#576 — no local copy of
- * that logic); the local supervisor reads the wall-clock budget from
- * {@link resolveWallClockMs} (the one guard the package doesn't own, since
- * `runImplementAgent` enforces no wall clock of its own); and the shell
- * consumers (entrypoint, workflow install step, image build) read {@link
+ * IDLE_MINUTES} / {@link WALL_CLOCK_MINUTES} into `@galosandoval/shopfloor`'s
+ * `runImplementAgent`, which validates env and resolves both runaway budgets
+ * itself (#576 — no local copy of that logic); and the shell consumers
+ * (entrypoint, workflow install step, image build) read {@link
  * PRESERVE_ENV_VARS} and {@link CLAUDE_CODE_CLI_VERSION} through the {@link
  * runPolicyCommand} CLI print mode instead of duplicating them. No IO here —
  * pure values and derivations.
@@ -41,7 +39,13 @@ export const MAX_TURNS = 150
  */
 export const CLAUDE_CODE_CLI_VERSION = '2.1.228'
 
-/** Wall-clock runaway budget, in minutes. Overridable via `LOCAL_WALL_CLOCK_MINUTES`. */
+/**
+ * Wall-clock runaway budget, in minutes. Overridable via
+ * `LOCAL_WALL_CLOCK_MINUTES`, which shopfloor reads itself. Enforced by the
+ * orchestrator since shopfloor 0.4.0; before that it was declared here and read
+ * by nothing but the local supervisor. The workflow's job `timeout-minutes`
+ * sits above this on purpose — see run-policy.test.ts.
+ */
 export const WALL_CLOCK_MINUTES = 45
 
 /**
@@ -96,24 +100,6 @@ export const PRESERVE_ENV_VARS = [
   ...REQUIRED_ENV_VARS,
   ...OPTIONAL_ENV_VARS
 ] as const
-
-/** Parse a minutes override, falling back to `fallbackMinutes` unless it is a positive number. */
-function resolveMinutesMs(
-  raw: string | undefined,
-  fallbackMinutes: number
-): number {
-  const parsed = Number(raw)
-  const minutes =
-    Number.isFinite(parsed) && parsed > 0 ? parsed : fallbackMinutes
-  return minutes * 60_000
-}
-
-/** Wall-clock budget in ms — the contract default unless `LOCAL_WALL_CLOCK_MINUTES` overrides it. */
-export function resolveWallClockMs(
-  env: Record<string, string | undefined>
-): number {
-  return resolveMinutesMs(env.LOCAL_WALL_CLOCK_MINUTES, WALL_CLOCK_MINUTES)
-}
 
 /**
  * The CLI print mode: a shell consumer runs `bun run-policy.ts <subcommand>` to
