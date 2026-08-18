@@ -1,27 +1,42 @@
 import * as fs from 'node:fs'
-import { runPreflight } from '@galosandoval/shopfloor'
+import { ImplementAgentError, runPreflight } from '@galosandoval/shopfloor'
 
 // Thin invocation of `@galosandoval/shopfloor`'s `runPreflight` (#576): the
 // package gathers the labeled issue's native parent/sub-issue links and the
 // open PRs targeting it, evaluates the leaf-issue refusal gate, and — on
-// refusal — swaps the labels and posts the explanatory comment. This script
-// owns only the workflow-specific `$GITHUB_OUTPUT` signal that tells the
-// `implement` job whether to run.
+// refusal — applies the transition table's `refused` row and posts the
+// explanatory comment. This script owns only the workflow-specific
+// `$GITHUB_OUTPUT` signal that tells the `implement` job whether to run.
+//
+// Two distinct outcomes, deliberately handled differently (shopfloor 0.16.0):
+// a *verdict* says this issue must not be implemented, which is a normal answer
+// and leaves `refused=true` for the workflow to act on; a *throw* says the
+// repository itself is not fit to be labelled — the label vocabulary is
+// missing or `gh` could not read it — so nothing was written and `refused`
+// stays unset, which skips the implement job and trips the workflow's
+// "pre-flight itself errored" step.
 
 const ISSUE_NUMBER = required('ISSUE_NUMBER')
 const REPO = required('GITHUB_REPOSITORY')
 
-const { verdict } = await runPreflight({
-  issueNumber: ISSUE_NUMBER,
-  repo: REPO
-})
+try {
+  const { verdict } = await runPreflight({
+    issueNumber: ISSUE_NUMBER,
+    repo: REPO
+  })
 
-if (verdict.refused) {
-  setOutput('refused', 'true')
-  console.log(`Pre-flight refused #${ISSUE_NUMBER}: ${verdict.reason}`)
-} else {
-  setOutput('refused', 'false')
-  console.log(`Pre-flight passed for #${ISSUE_NUMBER}.`)
+  if (verdict.refused) {
+    setOutput('refused', 'true')
+    console.log(`Pre-flight refused #${ISSUE_NUMBER}: ${verdict.reason}`)
+  } else {
+    setOutput('refused', 'false')
+    console.log(`Pre-flight passed for #${ISSUE_NUMBER}.`)
+  }
+} catch (error) {
+  const message =
+    error instanceof ImplementAgentError ? error.message : String(error)
+  console.error(`Pre-flight could not run: ${message}`)
+  process.exit(1)
 }
 
 function setOutput(name: string, value: string) {
