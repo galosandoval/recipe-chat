@@ -19,7 +19,11 @@ REPO="galosandoval/recipe-chat"
 HOST_REPO_DIR="${HOST_REPO_DIR:-/host-repo}"
 WORKDIR="/workdir/repo"
 export OUTPUT_DIR="/workdir/output"
-STANDARDS_MOUNT="${STANDARDS_DIR:-/standards}"
+# Branch the throwaway run branch is cut from. `main` by default, matching CI.
+# Overridable (`BASE_BRANCH`) so a change to the pipeline itself can be
+# rehearsed from the branch carrying it — the container only ever sees
+# committed history, so unmerged harness work is invisible without this.
+BASE_BRANCH="${BASE_BRANCH:-main}"
 
 mkdir -p "$OUTPUT_DIR"
 
@@ -35,7 +39,11 @@ git clone --quiet "$HOST_REPO_DIR" "$WORKDIR"
 cd "$WORKDIR"
 git config user.name "claude-code[local]"
 git config user.email "claude-code-local@users.noreply.github.com"
-git checkout --quiet main
+git checkout --quiet "$BASE_BRANCH"
+# The orchestrator counts the run's commits as `main..HEAD`, so a local `main`
+# has to exist even when the run branch was cut from something else — a clone
+# only materializes the branch it checks out.
+git branch --quiet --force main origin/main
 git checkout --quiet -b "$BRANCH"
 
 echo "==> Installing dependencies"
@@ -45,14 +53,6 @@ echo "==> Running shared setup (#539): Prisma generate, migrate deploy, seed"
 bun run gen
 bun run migrate:deploy
 bun run seed
-
-if [ -d "$STANDARDS_MOUNT" ] && [ -n "$(ls -A "$STANDARDS_MOUNT" 2>/dev/null)" ]; then
-  export STANDARDS_DIR="$STANDARDS_MOUNT"
-  echo "==> Coding standards mounted at ${STANDARDS_DIR}"
-else
-  export STANDARDS_DIR=""
-  echo "==> No coding standards mounted; the prompt will skip that step"
-fi
 
 export ISSUE_NUMBER ISSUE_TITLE BRANCH CLAUDE_CODE_OAUTH_TOKEN
 
@@ -83,7 +83,7 @@ AGENT_EXIT_CODE=$?
 set -e
 
 echo "==> Pushing whatever landed on ${BRANCH} back to the host repo"
-COMMITS_AHEAD="$(git rev-list --count main.."$BRANCH" 2>/dev/null || echo 0)"
+COMMITS_AHEAD="$(git rev-list --count "$BASE_BRANCH".."$BRANCH" 2>/dev/null || echo 0)"
 if [ "$COMMITS_AHEAD" -gt 0 ]; then
   git push "$HOST_REPO_DIR" "$BRANCH":"$BRANCH"
   echo "==> Pushed ${COMMITS_AHEAD} commit(s) to local branch ${BRANCH}"

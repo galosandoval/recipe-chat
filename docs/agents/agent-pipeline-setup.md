@@ -126,11 +126,15 @@ local scripts never call any GitHub write command either.
 - **`NEXTAUTH_SECRET`** / **`OPENAI_API_KEY`** — picked up from your shell env
   if exported, otherwise pulled straight out of the repo's local `.env` (the
   rest of `.env` — prod DB URL, Stripe keys — is never sourced or forwarded).
-- **Coding standards** — if `~/Projects/skills/skills/personal/coding-standards`
-  exists (this repo's convention, see `docs/agents/domain.md`), it's mounted
-  read-only and the agent conforms to it, same as CI. Absent, `run.sh` says so
-  and the prompt's standards step is skipped, same as CI's
-  empty-`STANDARDS_DIR` case. Override the path with `LOCAL_STANDARDS_DIR`.
+- **Coding standards** — nothing to set up (#601). The agent reads them from
+  the repository it's working in: `CLAUDE.md` at the root and the docs it links
+  under `docs/standards/`, same as CI. Procedure (the skills) arrives separately
+  with `bun install`, bundled by `@galosandoval/shopfloor` and loaded through the
+  Claude Code CLI's own `--plugin-dir`; there's no directory to clone or mount.
+- **Base branch** — the run branch is cut from `main`, matching CI. Set
+  `BASE_BRANCH` to rehearse from another branch; the container only ever sees
+  committed history, so a change to the pipeline itself has to be committed
+  somewhere before it can be rehearsed.
 - **Runaway guards** — `--max-turns 150` plus a 45-minute wall-clock cap and a
   15-minute idle cap (`LOCAL_WALL_CLOCK_MINUTES` / `LOCAL_IDLE_MINUTES`). All
   three come from the run-policy contract and are enforced by the orchestrator

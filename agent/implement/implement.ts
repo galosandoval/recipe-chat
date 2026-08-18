@@ -17,22 +17,18 @@ import {
 // package validates the env contract, spawns the Claude CLI, owns the runaway
 // guards, captures the transcript, and checks for a zero-commit run; this
 // script owns translating a failure into CI-glue (failure_reason.txt, exit 1).
+//
+// `pluginDirs` is deliberately unstated (#601): the package bundles the skills
+// plugin as a dependency and loads it via the CLI's own `--plugin-dir` when the
+// field is omitted. Stating a list would *replace* that bundled default, not add
+// to it. Coding standards are not procedure — they are per-repository, so ours
+// live in this repo's CLAUDE.md and the docs it links, which the agent reads.
 
 const ISSUE_NUMBER = process.env.ISSUE_NUMBER as string
 const ISSUE_TITLE = process.env.ISSUE_TITLE as string
 const BRANCH = process.env.BRANCH as string
 /** Subscription / flat-rate token — never `ANTHROPIC_API_KEY` (metered). */
 const CLAUDE_CODE_OAUTH_TOKEN = process.env.CLAUDE_CODE_OAUTH_TOKEN as string
-
-/**
- * Absolute path to the coding-standards skill (the skills repo's
- * `skills/personal/coding-standards`, cloned by the workflow or mounted by the
- * local runner). Optional: empty skips the prompt's standards step. A non-empty
- * path that does not resolve refuses the run (shopfloor >=0.5.0) rather than
- * pointing the agent at nothing. Lives outside the repo so it never enters a
- * commit.
- */
-const STANDARDS_DIR = process.env.STANDARDS_DIR ?? ''
 
 /**
  * Directory for agent outputs the PR needs but a commit must not contain (the
@@ -62,7 +58,6 @@ try {
     issueTitle: ISSUE_TITLE,
     branch: BRANCH,
     claudeCodeOAuthToken: CLAUDE_CODE_OAUTH_TOKEN,
-    standardsDir: STANDARDS_DIR,
     promptTemplate,
     prDescriptionFile: path.join(OUTPUT_DIR, 'pr_description.txt'),
     verifyReportFile: path.join(OUTPUT_DIR, 'verify_report.md'),

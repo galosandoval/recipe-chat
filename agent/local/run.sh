@@ -51,25 +51,10 @@ HOST_GIT_DIR="$(git -C "$REPO_ROOT" rev-parse --absolute-git-dir)"
 HOST_OUTPUT_DIR="$REPO_ROOT/.agent/local/runs/$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$HOST_OUTPUT_DIR"
 
-# Mount the maintainer's local coding-standards skill if present; otherwise
-# mount an empty scratch dir so entrypoint.sh's "non-empty directory" check
-# correctly skips the standards step (docs/agents/domain.md: skills live at
-# ~/Projects/skills, symlinked into ~/.claude/skills). Kept in step with the
-# workflow's STANDARDS_DIR — these are the same standards by two routes, and
-# when they last drifted apart CI spent months pointed at a dead path.
-#
-# The miss is announced rather than silent: the empty-dir fallback is a legal
-# "skip the standards step", which means a typo'd path degrades to a run with
-# no standards instead of tripping shopfloor's missing-directory refusal.
-DEFAULT_STANDARDS_DIR="$HOME/Projects/skills/skills/personal/coding-standards"
-STANDARDS_HOST_DIR="${LOCAL_STANDARDS_DIR:-$DEFAULT_STANDARDS_DIR}"
-if [ ! -d "$STANDARDS_HOST_DIR" ]; then
-  echo "==> No coding standards at ${STANDARDS_HOST_DIR} — running without them." >&2
-  STANDARDS_HOST_DIR="$(mktemp -d)"
-fi
-
 export ISSUE_NUMBER GH_TOKEN CLAUDE_CODE_OAUTH_TOKEN NEXTAUTH_SECRET OPENAI_API_KEY
-export HOST_GIT_DIR STANDARDS_HOST_DIR HOST_OUTPUT_DIR
+export HOST_GIT_DIR HOST_OUTPUT_DIR
+# Passed through empty unless set; entrypoint.sh defaults it to main.
+export BASE_BRANCH="${BASE_BRANCH:-}"
 
 cleanup() {
   echo "==> Tearing down the ephemeral pgvector service"

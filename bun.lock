@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "recipe-chat",
@@ -7,7 +8,7 @@
         "@ai-sdk/openai": "^1.3.23",
         "@ai-sdk/react": "^1.2.12",
         "@formatjs/intl-localematcher": "^0.6.1",
-        "@galosandoval/shopfloor": "0.6.0",
+        "@galosandoval/shopfloor": "0.16.0",
         "@hookform/error-message": "^2.0.1",
         "@paralleldrive/cuid2": "^2.2.2",
         "@prisma/client": "^6.18.0",
@@ -234,7 +235,7 @@
 
     "@formatjs/intl-localematcher": ["@formatjs/intl-localematcher@0.6.1", "", { "dependencies": { "tslib": "^2.8.0" } }, "sha512-ePEgLgVCqi2BBFnTMWPfIghu6FkbZnnBVhO2sSxvLfrdFw7wCHAHiDoM2h4NRgjbaY7+B7HgOLZGkK187pZTZg=="],
 
-    "@galosandoval/shopfloor": ["@galosandoval/shopfloor@0.6.0", "", { "bin": { "shopfloor-implement": "dist/cli.js" } }, "sha512-WkJKPcR0vcynQsCkvxpSsRJaKZrvfcuzjUe1CTPN8vUOFJkGz5I1zGmOlkPu1tiTQMEP4XnNr9meMQnqv9RqpA=="],
+    "@galosandoval/shopfloor": ["@galosandoval/shopfloor@0.16.0", "", { "dependencies": { "galosandoval-skills": "github:galosandoval/skills#galosandoval-skills@1.1.0" }, "bin": { "shopfloor-implement": "dist/cli.js", "shopfloor-doctor": "dist/doctor-cli.js", "shopfloor-init": "dist/init-cli.js", "shopfloor-authorize": "dist/authorize-cli.js" } }, "sha512-sp6U1JICwMhEpYU87JIAFMZSDOSjg78r3YPRIEIjqge5Mj2gIj+2fl7GLmLfsy7OwpjahjwArOjspwkg6bF8Zw=="],
 
     "@hookform/error-message": ["@hookform/error-message@2.0.1", "", { "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0", "react-hook-form": "^7.0.0" } }, "sha512-U410sAr92xgxT1idlu9WWOVjndxLdgPUHEB8Schr27C9eh7/xUnITWpCMF93s+lGiG++D4JnbSnrb5A21AdSNg=="],
 
@@ -1049,6 +1050,8 @@
     "function.prototype.name": ["function.prototype.name@1.1.8", "", { "dependencies": { "call-bind": "^1.0.8", "call-bound": "^1.0.3", "define-properties": "^1.2.1", "functions-have-names": "^1.2.3", "hasown": "^2.0.2", "is-callable": "^1.2.7" } }, "sha512-e5iwyodOHhbMr/yNrc7fDYG4qlbIvI5gajyzPnb5TCwyhjApznQh1BMFou9b30SevY43gCJKXycoCBjMbsuW0Q=="],
 
     "functions-have-names": ["functions-have-names@1.2.3", "", {}, "sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ=="],
+
+    "galosandoval-skills": ["galosandoval-skills@github:galosandoval/skills#11b4009", {}, "galosandoval-skills-11b4009", "sha512-hH+wTELr/ag4bIWJhqZQOAydQiV8R6xepO/nt43/Qz9W6WdaBGd50G/Lsi787vXisMsrlS7jNnVLiK4XkJIlew=="],
 
     "geist": ["geist@1.4.2", "", { "peerDependencies": { "next": ">=13.2.0" } }, "sha512-OQUga/KUc8ueijck6EbtT07L4tZ5+TZgjw8PyWfxo16sL5FWk7gNViPNU8hgCFjy6bJi9yuTP+CRpywzaGN8zw=="],
 

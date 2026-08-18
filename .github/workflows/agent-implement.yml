@@ -42,7 +42,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: '1.2.0'
+          bun-version: '1.3.14'
 
       - name: Pre-flight refusal gate
         id: preflight
@@ -67,15 +67,16 @@ jobs:
     # (wrong label/actor) leaves `refused` empty, so this stays skipped too.
     if: needs.preflight.outputs.refused == 'false'
     runs-on: ubuntu-latest
-    # Last-resort cap on the whole job, deliberately *above* the run policy's
-    # 45-minute wall-clock budget. Both runaway guards now live in the
-    # orchestrator (shopfloor >=0.4.0 enforces wall-clock; the idle guard since
-    # #556), so the in-process guard trips first and gets to SIGTERM the agent,
-    # flush uncommitted work, write failure_reason.txt, and upload the
-    # transcript. An equal cap would race that: GitHub's kill is abrupt and
-    # leaves the issue with no reason comment. This only fires if the
-    # orchestrator itself wedges.
-    timeout-minutes: 55
+    # Backstop cap on the whole job, deliberately above the run-policy's
+    # WALL_CLOCK_MINUTES = 45 (#556). Since shopfloor 0.4.0 that wall-clock
+    # budget is enforced by the orchestrator (SIGTERM, 30s, SIGKILL), and it
+    # covers the agent alone — the setup steps before it and the transcript
+    # upload / failure-reason steps after it are extra. Set equal, GitHub would
+    # kill the job first and the run would lose its own diagnosis; the margin
+    # here is what lets the guard fire and report. The idle guard (#556) lives
+    # in the orchestrator too, killing a hung run in minutes instead of at any
+    # of these caps.
+    timeout-minutes: 60
 
     services:
       # Same image/env pattern as .github/workflows/test.yml, so the agent can
@@ -142,7 +143,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: '1.2.0'
+          bun-version: '1.3.14'
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -184,14 +185,6 @@ jobs:
         # runner but keeps this self-contained (no Docker, no browser service).
         run: bunx playwright install --with-deps chromium
 
-      - name: Fetch coding standards
-        # Single source of truth: the coding standards live in the public skills
-        # repo (symlinked into ~/.claude/skills locally). CI can't resolve that
-        # symlink, so shallow-clone the repo and point the agent at the
-        # coding-standards skill via STANDARDS_DIR. Cloned under RUNNER_TEMP so
-        # the files never enter the repo tree or a commit.
-        run: git clone --depth 1 https://github.com/galosandoval/skills.git "${RUNNER_TEMP}/skills"
-
       - name: Run implementation agent
         id: implement
         env:
@@ -201,15 +194,6 @@ jobs:
           # The agent writes pr_description.txt / failure_reason.txt here, outside
           # the repo, so they never land in a commit.
           OUTPUT_DIR: ${{ runner.temp }}
-          # The coding-standards skill inside the repo cloned by the "Fetch
-          # coding standards" step. The standards used to live in a top-level
-          # rules/ directory; they moved when they became skills, and this path
-          # pointed at nothing for every run in between — the agent was told to
-          # read an empty directory and silently obliged. shopfloor >=0.5.0
-          # refuses a run whose STANDARDS_DIR does not resolve, so a future move
-          # fails loudly at startup instead of quietly producing unstandardized
-          # work.
-          STANDARDS_DIR: ${{ runner.temp }}/skills/skills/personal/coding-standards
           # App/suite paths the agent may exercise during TDD.
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

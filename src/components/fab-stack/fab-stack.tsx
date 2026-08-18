@@ -55,8 +55,11 @@ export function FabStack() {
   return (
     <div
       className={cn(
-        'fixed right-4 z-40 flex w-fit flex-col-reverse items-end gap-3 sm:right-6 sm:bottom-6',
-        shouldMoveForInput ? 'bottom-32' : 'bottom-20'
+        'fixed right-4 z-40 flex w-fit flex-col-reverse items-end gap-3 sm:right-6',
+        // The lifted offset has no `sm:` override: on desktop the composer is
+        // still there, so an unconditional `sm:bottom-6` would drop the FAB
+        // back onto the input bar.
+        shouldMoveForInput ? 'bottom-32' : 'bottom-20 sm:bottom-6'
       )}
     >
       <AnimatePresence>

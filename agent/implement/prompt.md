@@ -38,12 +38,10 @@ you'll touch; they show the established patterns to follow.
 
 # CODING STANDARDS
 
-If `{{STANDARDS_DIR}}` is non-empty, read `{{STANDARDS_DIR}}/SKILL.md` before
-writing code. Its table maps each file under `{{STANDARDS_DIR}}/references/` to
-the work it governs — read only the references that apply to the code in front
-of you, not the whole set. They are the project owner's TypeScript / React /
-Prisma conventions; treat them as binding. If `{{STANDARDS_DIR}}` is empty,
-proceed without it.
+Before writing code, read `CLAUDE.md` at the repo root and the standards docs it
+links under `docs/standards/`. Read only the ones governing the code you're
+changing (the index in `CLAUDE.md` says which is which). They are the project
+owner's TypeScript / React / Prisma conventions — treat them as binding.
 
 # DATABASE
 

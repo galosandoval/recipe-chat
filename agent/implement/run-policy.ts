@@ -33,9 +33,11 @@ export const MAX_TURNS = 150
 /**
  * Pinned Claude Code CLI version, consumed by both the workflow install step
  * and the local image build so the rehearsal runs the exact CLI CI runs.
- * Unpinned before #556, the two sides froze at different times.
+ * Unpinned before #556, the two sides froze at different times. Skills reach
+ * the agent through this CLI's own `--plugin-dir` discovery (#601), so the pin
+ * must stay at or past a version that behaviour was validated against.
  */
-export const CLAUDE_CODE_CLI_VERSION = '2.1.208'
+export const CLAUDE_CODE_CLI_VERSION = '2.1.228'
 
 /**
  * Wall-clock runaway budget, in minutes. Overridable via
@@ -81,8 +83,9 @@ export const REQUIRED_ENV_VARS = [
  * covers them and a local `sudo` drop never silently strips them.
  */
 export const OPTIONAL_ENV_VARS = [
-  'STANDARDS_DIR',
   'OUTPUT_DIR',
+  // Overrides the plugin dirs the run loads; unset, the bundled skills plugin.
+  'PLUGIN_DIRS',
   'AUTH_TRUST_HOST',
   'LOCAL_WALL_CLOCK_MINUTES',
   'LOCAL_IDLE_MINUTES'
