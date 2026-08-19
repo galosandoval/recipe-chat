@@ -8,6 +8,7 @@ import { useChatStore } from './chat-store'
 import { GenerateStatusAppMessage, ToolResultAppMessage } from './app-message'
 import { Avatar } from './avatar'
 import { FadeIn } from '~/components/motion/fade-in'
+import { MarkdownMessage } from './markdown-message'
 
 export const Message = function Message({
   message,
@@ -113,14 +114,13 @@ function Bubble({
         isUserMessage && 'bg-primary'
       )}
     >
-      <p
-        className={cn(
-          'text-secondary-foreground text-sm whitespace-pre-line',
-          isUserMessage && 'text-primary-foreground'
-        )}
-      >
-        {content}
-      </p>
+      {isUserMessage ? (
+        <p className='text-primary-foreground text-sm whitespace-pre-line'>
+          {content}
+        </p>
+      ) : (
+        <MarkdownMessage content={content} />
+      )}
       {children}
     </div>
   )
