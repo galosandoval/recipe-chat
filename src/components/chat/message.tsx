@@ -112,7 +112,7 @@ function Bubble({
   return (
     <div
       className={cn(
-        'bg-accent text-foreground flex flex-col rounded-md p-3 pb-4 text-sm sm:w-3/4',
+        'bg-bubble text-bubble-foreground flex flex-col rounded-md p-3 pb-4 text-sm sm:w-3/4',
         isUserMessage && 'bg-primary text-primary-foreground'
       )}
     >

@@ -44,7 +44,7 @@ const dark = readTokens(css, '\\.dark')
  */
 const SURFACES = ['background', 'bubble', 'card', 'popover', 'muted', 'accent']
 
-/** Container/content pairs, as `[outer, inner]` — see the elevation test. */
+/** Container/content pairs, as `[outer, inner]` — see the contrast test. */
 const NESTED_SURFACES: [outer: string, inner: string][] = [
   // message.tsx renders a Card (`bg-card`) inside the assistant bubble.
   ['bubble', 'card']
@@ -123,18 +123,24 @@ describe.each([
   )
 
   /**
-   * An inner surface must read as raised in *both* themes. Light was tuned by
-   * eye and dark derived from it, which once left `--card` darker than the
-   * bubble wrapping it: the same markup read as raised in light and as a hole
-   * punched in the surface in dark.
+   * Content pops by returning to the page's own lightness while the container
+   * holds a contrasting mid-tone — a card on a bubble reads as the page
+   * showing through, not as another layer stacked on top.
    *
-   * Note this is not "lightness grows with nesting depth" — `--bubble` is
-   * deliberately darker than the page in light mode, being a tint rather than
-   * a raised surface.
+   * Stated as distance from `--background` because the direction flips between
+   * themes: in light the card is *lighter* than the bubble, in dark it is
+   * *darker*. What holds in both is that the inner surface is the one nearer
+   * the page. Asserting "inner is lighter" instead reads correctly in light
+   * and flattens dark into a stack of ever-lighter greys.
    */
-  it.each(NESTED_SURFACES)("raises --%s's nested --%s above it", (o, i) => {
-    expect(at(i).l).toBeGreaterThan(at(o).l)
-  })
+  it.each(NESTED_SURFACES)(
+    "returns --%s's nested --%s toward the page",
+    (outer, inner) => {
+      const from = (name: string) => Math.abs(at(name).l - at('background').l)
+
+      expect(from(inner)).toBeLessThan(from(outer))
+    }
+  )
 
   it('keeps the hover tint distinguishable from the surface it covers', () => {
     // chat-history.tsx renders `bg-card hover:bg-accent`; a hover must lighten

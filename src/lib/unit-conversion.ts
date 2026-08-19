@@ -1,9 +1,16 @@
+import type { IngredientUnitType } from '@prisma/client'
+
 /**
  * Canonical units: grams (weight), milliliters (volume).
  * Count units are not converted (no canonical form).
  */
 
-export type UnitKind = 'weight' | 'volume' | 'count'
+/**
+ * How a unit is measured. Aliased to Prisma's `IngredientUnitType` rather than
+ * restated, so the two can't drift — the DB column and this module have to
+ * agree about what kinds exist.
+ */
+export type UnitKind = IngredientUnitType
 
 const WEIGHT_TO_GRAMS: Record<string, number> = {
   g: 1,

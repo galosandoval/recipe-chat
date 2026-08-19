@@ -8,6 +8,7 @@ import { getTools } from './tools'
 import { getTasteProfile } from '~/server/api/use-cases/taste-profile-use-case'
 import { recipesAccess } from '~/server/api/data-access/recipes-access'
 import { getPantryByUserId } from '~/server/api/use-cases/pantry-use-case'
+import type { StreamRole } from '~/schemas/messages-schema'
 
 /** Allow streaming responses up to 30 seconds. */
 export const maxDuration = 30
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
       .filter(({ role }) => role !== 'data')
       .map(({ content, role }) => ({
         content,
-        role: role as 'system' | 'user' | 'assistant'
+        role: role as StreamRole
       })),
     system,
     tools,
