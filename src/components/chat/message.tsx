@@ -148,12 +148,24 @@ function MarkdownMessage({ content }: { content: string }) {
         // makes h1/h2/h3 indistinguishable.
         'prose-h1:text-lg prose-h2:text-base prose-h3:text-sm',
         'prose-h1:font-semibold prose-h2:font-semibold prose-h3:font-medium',
-        // Inherit bubble colors instead of the plugin's gray scale.
-        'prose-headings:text-current prose-strong:text-current prose-li:marker:text-current',
-        'prose-a:text-current prose-a:underline',
+        // The plugin hard-codes a light-mode gray scale onto `.prose` itself,
+        // which beats the bubble's inherited color and leaves body text at
+        // gray-700 on a dark bubble. Point its own variables at the inherited
+        // color so both themes stay on the bubble's foreground token.
+        '[--tw-prose-body:inherit] [--tw-prose-headings:inherit]',
+        '[--tw-prose-bold:inherit] [--tw-prose-links:inherit]',
+        '[--tw-prose-lead:inherit] [--tw-prose-quotes:inherit]',
+        '[--tw-prose-captions:inherit] [--tw-prose-kbd:inherit]',
+        '[--tw-prose-bullets:inherit] [--tw-prose-counters:inherit]',
+        '[--tw-prose-code:inherit] [--tw-prose-pre-code:inherit]',
+        // Borders take the var as a border-color, where `inherit` would pick up
+        // the parent's border rather than the text color.
+        '[--tw-prose-hr:currentColor] [--tw-prose-quote-borders:currentColor]',
+        '[--tw-prose-td-borders:currentColor] [--tw-prose-th-borders:currentColor]',
+        'prose-a:underline',
         'prose-code:bg-foreground/10 prose-code:rounded prose-code:px-1 prose-code:py-0.5',
         'prose-code:before:content-none prose-code:after:content-none',
-        'prose-pre:bg-foreground/10 prose-pre:text-current'
+        'prose-pre:bg-foreground/10'
       )}
     >
       <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
