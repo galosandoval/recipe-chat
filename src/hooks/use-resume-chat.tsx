@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { api, type RouterOutputs } from '~/trpc/react'
 import { useChatStore } from '~/components/chat/chat-store'
@@ -79,9 +79,36 @@ export function useResumeChat(context: ChatContext, seed?: ResumeChatSeed) {
   }, [context.page, recipeId, setChatId, clearMessages])
 
   // Adopt the context's resumable chat once resolved; a blank result stays a
-  // fresh chat (messages already cleared above).
+  // fresh chat (messages already cleared above). A chat the user opened from
+  // Chat History wins over auto-resume for as long as this page stays in that
+  // chat's scope: the ref remembers which chat was adopted (not merely *that*
+  // one was), so every later run of this effect re-applies it instead of
+  // falling back to the context's most recent chat. Remembering the id is what
+  // makes the adoption survive a second effect pass — React's dev-only double
+  // invoke re-runs the clear effect above, which blanks `chatId` again.
+  const adopted = useRef<{ scopeKey: string; chatId: string } | null>(null)
+  const scopeKey = `${context.page}:${recipeId ?? ''}`
+
   useEffect(() => {
     if (!isSuccess) return
+
+    const { pendingChat, setPendingChat } = useChatStore.getState()
+    const isPendingHere =
+      pendingChat?.scope.page === context.page &&
+      pendingChat?.scope.recipeId === recipeId
+
+    if (pendingChat && isPendingHere) {
+      adopted.current = { scopeKey, chatId: pendingChat.chatId }
+      setPendingChat(null)
+    }
+
+    // A chat adopted under a different scope is stale — switching context is
+    // exactly when auto-resume should take over again.
+    if (adopted.current?.scopeKey === scopeKey) {
+      setChatId(adopted.current.chatId)
+      return
+    }
+
     setChatId(data?.id ?? '')
-  }, [isSuccess, data, setChatId])
+  }, [isSuccess, data, context.page, recipeId, scopeKey, setChatId])
 }

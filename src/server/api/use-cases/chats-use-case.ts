@@ -3,6 +3,7 @@ import { type z } from 'zod'
 import {
   chatContextToScope,
   type ChatContext,
+  type ChatScope,
   type Generated,
   type MessagesWithRecipes,
   type messagesWithRecipesSchema
@@ -34,6 +35,17 @@ async function embedMessageRecipes(
  */
 export async function getChats(userId: string, context?: ChatContext) {
   return await chatsAccess.getChatsByUserId(userId, chatContextToScope(context))
+}
+
+/**
+ * The Chat History list for a user, most-recent-first.
+ *
+ * @param scope - Restrict to one Chat Context, or `null` for every context.
+ * Note this differs from {@link getChats}, where an absent context falls back
+ * to the `recipes` scope: history's unscoped list is a real, distinct view.
+ */
+export async function getChatHistory(userId: string, scope: ChatScope | null) {
+  return await chatsAccess.getChatHistoryByUserId(userId, scope)
 }
 
 /**

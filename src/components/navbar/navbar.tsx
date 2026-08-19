@@ -1,11 +1,12 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { NavDropdownMenu } from './settings-dropdown-menu'
 import {
   ArrowBigLeft,
   CookingPotIcon,
+  HistoryIcon,
   LibraryBigIcon,
   MessageSquareIcon,
   PencilIcon
@@ -17,6 +18,14 @@ import { NavigationButton } from '~/components/navigation-button'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 import { useRecipeEditStore } from '~/app/recipes/[slug]/recipe-edit-store'
 import { useAppRouter } from '~/hooks/use-app-router'
+import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
+import {
+  chatContextToScope,
+  chatScopeToSearchParams
+} from '~/schemas/chats-schema'
+
+/** The Chat History route, which swaps the app header for a back header. */
+const CHAT_HISTORY_PATH = '/chat/history'
 
 export const Navbar = () => {
   const pathname = usePathname()
@@ -26,11 +35,13 @@ export const Navbar = () => {
     return <RecipeByIdNavbar />
   }
 
+  const isChatHistory = pathname === CHAT_HISTORY_PATH
+
   return (
     <div className='w-full'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
         <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border'>
-          <AppHeader />
+          {isChatHistory ? <ChatHistoryHeader /> : <AppHeader />}
         </div>
       </div>
     </div>
@@ -62,11 +73,71 @@ function AppHeader() {
 
   return (
     <nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4 py-1'>
-      <div></div>
-      <h1 className='text-base'>{t.nav.appName}</h1>
-      <div className='justify-self-end'>
+      <div className='justify-self-start'>
         <NavDropdownMenu />
       </div>
+      <h1 className='text-base'>{t.nav.appName}</h1>
+      <div className='justify-self-end'>
+        <ChatHistoryButton />
+      </div>
+    </nav>
+  )
+}
+
+/**
+ * Opens Chat History for whatever the user is looking at: the current section's
+ * chats everywhere, except on `/chat` — the one screen that isn't a section, so
+ * it links to the unscoped list of every context's chats.
+ */
+function ChatHistoryButton() {
+  const t = useTranslations()
+  const { data: session } = useSession()
+  const pathname = usePathname()
+  const context = useChatDrawerStore((s) => s.context)
+
+  if (!session) return null
+
+  const params =
+    pathname === '/chat'
+      ? ''
+      : chatScopeToSearchParams(chatContextToScope(context))
+  const href = params ? `${CHAT_HISTORY_PATH}?${params}` : CHAT_HISTORY_PATH
+
+  return (
+    <NavigationButton
+      href={href}
+      as={Button}
+      variant='ghost'
+      size='icon'
+      aria-label={t.chat.history.title}
+    >
+      <HistoryIcon />
+    </NavigationButton>
+  )
+}
+
+/**
+ * Chat History's own header: a back arrow in the app header's left slot, the
+ * same affordance the Recipe detail page uses to leave a drilled-into screen.
+ */
+function ChatHistoryHeader() {
+  const t = useTranslations()
+  const router = useRouter()
+
+  return (
+    <nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4 py-1'>
+      <div className='justify-self-start'>
+        <Button
+          variant='ghost'
+          size='icon'
+          aria-label={t.common.back}
+          onClick={() => router.back()}
+        >
+          <ArrowBigLeft />
+        </Button>
+      </div>
+      <h1 className='text-base'>{t.chat.history.title}</h1>
+      <div />
     </nav>
   )
 }

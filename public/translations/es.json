@@ -9,7 +9,8 @@
     "delete": "Borrar",
     "close": "Cerrar",
     "decrease": "Disminuir",
-    "increase": "Aumentar"
+    "increase": "Aumentar",
+    "back": "Atrás"
   },
   "nav": {
     "appName": "RecipeChat",
@@ -19,7 +20,6 @@
       "logout": "Cierra",
       "theme": "Tema",
       "startNewChat": "Nuevo chat",
-      "chats": "Chats",
       "editRecipe": "Editar receta",
       "addRecipe": "Agregar receta",
       "preferredUnits": "Unidades preferidas",
@@ -224,8 +224,10 @@
     "chatFormRecipeDetail": "Pregunta sobre $1",
     "chatFormList": "Pregunta sobre tu Lista de Compras",
     "chatFormPantry": "Que puedo hacer con lo que tengo?",
-    "chatsDrawer": {
-      "title": "Recientes chats"
+    "history": {
+      "title": "Historial de chats",
+      "untitled": "Chat sin título",
+      "empty": "Aún no hay chats. Inicia uno preguntando sobre una receta."
     }
   },
   "recipes": {

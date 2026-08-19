@@ -57,6 +57,41 @@ export class ChatsAccess extends DataAccess {
   }
 
   /**
+   * The Chat History list: a user's chats, most-recent-first, each carrying just
+   * what a history card renders — its opening user message and, for
+   * recipe-detail chats, the recipe it belongs to.
+   *
+   * @param scope - Restrict to one Chat Context, or `null` for every context
+   * (the unscoped `/chat` history).
+   */
+  async getChatHistoryByUserId(userId: string, scope: ChatScope | null) {
+    return this.prisma.chat.findMany({
+      where: {
+        userId,
+        ...(scope ? { page: scope.page, recipeId: scope.recipeId } : {})
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      },
+      select: {
+        id: true,
+        page: true,
+        recipeId: true,
+        updatedAt: true,
+        recipe: {
+          select: { name: true, slug: true }
+        },
+        messages: {
+          where: { role: 'user' },
+          orderBy: { createdAt: 'asc' },
+          take: 1,
+          select: { content: true }
+        }
+      }
+    })
+  }
+
+  /**
    * The most recent chat for a Chat Context, used to decide auto-resume. Returns
    * the chat regardless of freshness — the 2-hour rule is applied by the caller.
    */
