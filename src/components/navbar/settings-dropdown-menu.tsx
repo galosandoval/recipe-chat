@@ -17,16 +17,13 @@ import {
   CreditCardIcon,
   KeyRoundIcon,
   LogOutIcon,
-  MoonIcon,
   PlusIcon,
   RulerIcon,
   SettingsIcon,
-  SunIcon,
   UtensilsIcon,
   UserPlusIcon
 } from 'lucide-react'
-import { useTheme } from 'next-themes'
-import { darkTheme, lightTheme } from '~/constants/theme'
+import { useThemeCycle } from '~/hooks/use-theme-cycle'
 import { useState } from 'react'
 import { Dialog } from '~/components/dialog'
 import { AppForm } from '~/components/form/form'
@@ -281,19 +278,12 @@ export function ParseAndAddRecipeDialogs({
 }
 
 function useThemeToggleMenuItem() {
-  const { theme, setTheme } = useTheme()
-  const handleToggleTheme = () => {
-    if (theme === darkTheme) {
-      setTheme(lightTheme)
-    } else {
-      setTheme(darkTheme)
-    }
-  }
+  const { icon, label, cycleTheme } = useThemeCycle()
 
   return buildMenuItem({
-    label: 'nav.menu.theme',
-    icon: theme === darkTheme ? <SunIcon /> : <MoonIcon />,
-    onClick: handleToggleTheme
+    label,
+    icon,
+    onClick: cycleTheme
   })
 }
 

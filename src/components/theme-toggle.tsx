@@ -1,25 +1,16 @@
-import { MoonIcon, SunIcon } from 'lucide-react'
-import { useTheme } from 'next-themes'
 import { useTranslations } from '~/hooks/use-translations'
+import { useThemeCycle } from '~/hooks/use-theme-cycle'
 import { Button } from './button'
-import { darkTheme, lightTheme } from '~/constants/theme'
 
 export const ThemeToggle = () => {
   const t = useTranslations()
-  const { theme, setTheme } = useTheme()
-  const handleToggleTheme = () => {
-    if (theme === darkTheme) {
-      setTheme(lightTheme)
-    } else {
-      setTheme(darkTheme)
-    }
-  }
+  const { icon, cycleTheme } = useThemeCycle()
 
   return (
     <div className='relative w-full'>
-      <Button onClick={handleToggleTheme} className='w-full justify-between'>
+      <Button onClick={cycleTheme} className='w-full justify-between'>
         {t.nav.menu.theme}
-        {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+        {icon}
       </Button>
     </div>
   )
