@@ -3,7 +3,6 @@
 import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from '~/hooks/use-translations'
 import { usePathname } from 'next/navigation'
-import { ChatsDrawer } from '~/components/chats-drawer'
 import { useChatStore } from '~/components/chat/chat-store'
 import {
   LoginDrawerDialog,
@@ -16,7 +15,6 @@ import {
 } from '~/components/dropdown-menu'
 import {
   CreditCardIcon,
-  HistoryIcon,
   KeyRoundIcon,
   LogOutIcon,
   MoonIcon,
@@ -56,7 +54,6 @@ export function NavDropdownMenu() {
   const t = useTranslations()
   const [isSignUpOpen, setIsSignUpOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const [isChatsOpen, setIsChatsOpen] = useState(false)
   const [isAddRecipeOpen, setIsAddRecipeOpen] = useState(false)
   const [isPreferredUnitsOpen, setIsPreferredUnitsOpen] = useState(false)
   const pathname = usePathname()
@@ -70,9 +67,6 @@ export function NavDropdownMenu() {
   }
   const handleToggleLogin = () => {
     setIsLoginOpen((state) => !state)
-  }
-  const handleToggleDrawer = () => {
-    setIsChatsOpen((state) => !state)
   }
   const handleToggleAddRecipe = () => {
     setIsAddRecipeOpen((state) => !state)
@@ -102,15 +96,6 @@ export function NavDropdownMenu() {
         onClick: () => router.push('/subscription')
       }
     )
-  }
-
-  if (pathname.includes('chat') && isAuthenticated) {
-    items.push({
-      space: 'above',
-      icon: <HistoryIcon />,
-      label: 'nav.menu.chats',
-      onClick: handleToggleDrawer
-    })
   }
 
   if (!isAuthenticated) {
@@ -158,7 +143,6 @@ export function NavDropdownMenu() {
         onOpenChange={handleToggleAddRecipe}
       />
       <LoginDrawerDialog open={isLoginOpen} onOpenChange={handleToggleLogin} />
-      <ChatsDrawer open={isChatsOpen} onOpenChange={handleToggleDrawer} />
       <PreferredUnitsDialog
         open={isPreferredUnitsOpen}
         onOpenChange={setIsPreferredUnitsOpen}

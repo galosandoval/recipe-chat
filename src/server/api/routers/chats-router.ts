@@ -2,6 +2,7 @@ import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import { z } from 'zod'
 import {
   generated,
+  getChatHistory,
   getChats,
   getMessagesById,
   getResumableChat,
@@ -10,6 +11,7 @@ import {
 } from '~/server/api/use-cases/chats-use-case'
 import {
   chatContextSchema,
+  chatScopeSchema,
   generatedSchema,
   upsertChatSchema
 } from '~/schemas/chats-schema'
@@ -21,6 +23,16 @@ export const chatsRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       return getChats(input.userId, input.context)
+    }),
+
+  /**
+   * The Chat History list. A `null` scope means every Chat Context — the
+   * unscoped view `/chat` links to; a scope restricts it to one section.
+   */
+  getChatHistory: protectedProcedure
+    .input(z.object({ scope: chatScopeSchema.nullable() }))
+    .query(async ({ ctx, input }) => {
+      return getChatHistory(ctx.session.user.id, input.scope)
     }),
 
   getResumableChat: protectedProcedure

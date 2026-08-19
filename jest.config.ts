@@ -26,5 +26,75 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts']
 }
 
-// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-export default createJestConfig(config)
+/**
+ * ESM-only packages that must go through the SWC transform.
+ *
+ * `react-markdown` and its unified/remark/micromark dependency chain publish
+ * ESM only, so importing any component that renders markdown fails with
+ * "Unexpected token 'export'" while node_modules stays untransformed.
+ */
+const ESM_ONLY_PACKAGES = [
+  'react-markdown',
+  'remark-.*',
+  'mdast-.*',
+  'micromark.*',
+  'unified',
+  'unist-.*',
+  'hast-.*',
+  'vfile.*',
+  'bail',
+  'trough',
+  'devlop',
+  'zwitch',
+  'ccount',
+  'escape-string-regexp',
+  'longest-streak',
+  'markdown-table',
+  'trim-lines',
+  'is-plain-obj',
+  'web-namespaces',
+  'html-url-attributes',
+  'property-information',
+  'space-separated-tokens',
+  'comma-separated-tokens',
+  'character-entities.*',
+  'decode-named-character-reference',
+  'estree-util-is-identifier-name'
+].join('|')
+
+/**
+ * Widens next/jest's "don't transform node_modules" pattern to let
+ * {@link ESM_ONLY_PACKAGES} through.
+ *
+ * next/jest only lets a custom config *append* to transformIgnorePatterns,
+ * which cannot help: Jest skips a file matching any pattern, so its own
+ * node_modules pattern always wins. That pattern is either a bare
+ * '/node_modules/' or an allowlist of the form '/node_modules/(?!(a|b)/)' —
+ * rewrite whichever shape is generated so the markdown chain is transformed.
+ */
+const allowEsmPackages = (pattern: string) => {
+  if (pattern === '/node_modules/') {
+    return `/node_modules/(?!(${ESM_ONLY_PACKAGES})/)`
+  }
+  return pattern.replace(
+    /\(\?!\(([^)]*)\)\/\)/,
+    `(?!($1|${ESM_ONLY_PACKAGES})/)`
+  )
+}
+
+// createJestConfig is exported this way to ensure that next/jest can load the
+// Next.js config which is async.
+const withNextConfig = createJestConfig(config)
+
+const resolveConfig = async () => {
+  const jestConfig = await withNextConfig()
+
+  return {
+    ...jestConfig,
+    transformIgnorePatterns: (jestConfig.transformIgnorePatterns ?? []).map(
+      allowEsmPackages
+    )
+  }
+}
+
+export default resolveConfig

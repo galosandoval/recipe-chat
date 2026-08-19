@@ -67,6 +67,41 @@ export const RECIPES_CONTEXT: ChatContext = { page: 'recipes' }
  */
 export type ChatScope = { page: ChatContext['page']; recipeId: string | null }
 
+/**
+ * The wire form of a {@link ChatScope}. Chat History addresses a scope directly
+ * (via the `/chat/history` search params) rather than a full {@link ChatContext}
+ * — it only ever filters chats, and never needs the recipe snapshot a
+ * `recipe-detail` context carries for prompt-shaping.
+ */
+export const chatScopeSchema = z.object({
+  page: z.enum(['recipes', 'recipe-detail', 'list', 'pantry']),
+  recipeId: z.string().nullable()
+})
+
+/**
+ * Reads a {@link ChatScope} off a URL's search params. Returns `null` when no
+ * `page` param is present, which Chat History reads as "every context" — the
+ * unscoped list `/chat` links to.
+ */
+export function chatScopeFromParams(params: {
+  page?: string | null
+  recipeId?: string | null
+}): ChatScope | null {
+  const parsed = chatScopeSchema.safeParse({
+    page: params.page,
+    recipeId: params.recipeId ?? null
+  })
+  return parsed.success ? parsed.data : null
+}
+
+/** The `/chat/history` search-param string for a scope (empty for every context). */
+export function chatScopeToSearchParams(scope: ChatScope | null) {
+  if (!scope) return ''
+  const params = new URLSearchParams({ page: scope.page })
+  if (scope.recipeId) params.set('recipeId', scope.recipeId)
+  return params.toString()
+}
+
 export function chatContextToScope(context?: ChatContext): ChatScope {
   if (!context) return { page: 'recipes', recipeId: null }
   if (context.page === 'recipe-detail') {
