@@ -10,6 +10,13 @@ import { ease } from './transitions'
  * the entering route in with a small upward rise, so the transition reads as
  * intentional rather than a barely-there opacity blink.
  *
+ * Must wrap the page scroller (`<main>` in the root layout), never sit inside
+ * it: a downward `y` translate extends a scroll container's overflow region, so
+ * nesting this under `overflow-y-auto` flashed a scrollbar in for the duration
+ * of the enter on any page whose content is near full height (e.g. `/chat`'s
+ * welcome screen). Wrapping the scroller instead lets `body`'s `overflow-hidden`
+ * clip the rise.
+ *
  * Tradeoff: the `y` transform makes this a containing block for the duration of
  * the animation, so `sticky`/`fixed` chrome inside pages (the chat input bar,
  * FABs) shifts by up to the rise distance during the ~0.35s enter, then settles.
