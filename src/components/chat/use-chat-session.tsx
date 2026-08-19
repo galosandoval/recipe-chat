@@ -1,6 +1,12 @@
 'use client'
 
-import { createContext, useContext, useEffect, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  type ReactNode
+} from 'react'
 import { useChat } from '@ai-sdk/react'
 import { useSession } from 'next-auth/react'
 import { api } from '~/trpc/react'
@@ -34,6 +40,7 @@ import type {
   UpsertChatSchema
 } from '~/schemas/chats-schema'
 import type { GeneratedRecipe, RecipeDetails } from '~/schemas/messages-schema'
+import type { StreamRole } from '~/schemas/messages-schema'
 
 /**
  * The one interface every chat-screen component talks to. Reading state and
@@ -362,19 +369,26 @@ export function useChatSession(options?: {
     setChatFilterIds(null)
   }, [chatId, setChatFilterIds])
 
-  // Mirror the loaded Chat's Messages into the store. `isEmpty` is a dependency,
-  // not just `data`: re-entering a Chat Context clears the store and re-adopts
-  // the same chat in one commit (see `useResumeChat`), so with the Messages
-  // already cached the query result never changes identity and a data-keyed sync
-  // alone would leave the screen on its loader forever. Refilling is idempotent
-  // — the run this triggers sees a non-empty store and writes the same Messages.
-  const isEmpty = messages.length === 0
+  /** Whether the store holds no Messages — an empty store is a refill trigger. */
+  const isStoreEmpty = messages.length === 0
+  const syncedData = useRef<typeof data>(undefined)
+
+  // Mirror the loaded Chat's Messages into the store. An empty store triggers
+  // this alongside `data`, because re-entering a Chat Context clears the store
+  // and re-adopts the same chat in one commit (see `useResumeChat`): with the
+  // Messages already cached the query result never changes identity, so a
+  // data-keyed sync alone would leave the screen on its loader forever. Both
+  // triggers are also guards — writing on every empty-store *change* would
+  // clobber the first Message a user sends into a Chat whose cached Messages
+  // are empty, since sending it is itself what flips the store to non-empty.
   useEffect(() => {
-    if (queryStatus === 'success' && data) {
-      setMessages(transformStoredMessages(data.messages))
-      setChatFilterIds(data.filterIds ?? [])
-    }
-  }, [isEmpty, queryStatus, data, setMessages, setChatFilterIds])
+    if (queryStatus !== 'success' || !data) return
+    if (!isStoreEmpty && data === syncedData.current) return
+
+    syncedData.current = data
+    setMessages(transformStoredMessages(data.messages))
+    setChatFilterIds(data.filterIds ?? [])
+  }, [isStoreEmpty, queryStatus, data, setMessages, setChatFilterIds])
 
   useEffect(() => {
     if (error && queryStatus === 'error') {
@@ -395,7 +409,7 @@ export function useChatSession(options?: {
       prior.map((m) => ({
         id: m.id,
         content: m.content,
-        role: m.role as 'user' | 'assistant' | 'system',
+        role: m.role as StreamRole,
         createdAt: m.createdAt
       }))
     )
