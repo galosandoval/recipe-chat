@@ -9,6 +9,13 @@ import { Input } from '~/components/ui/input'
 import { BottomBar } from '~/components/bottom-bar'
 import { SendIcon, StopCircleIcon } from 'lucide-react'
 
+/**
+ * Stable id on the composer input so surfaces that don't own it — the signed-out
+ * landing hero's call to action — can focus it after scrolling the chat into
+ * view, without threading a ref through the chat tree.
+ */
+export const CHAT_COMPOSER_INPUT_ID = 'chat-composer-input'
+
 export function GenerateMessageForm() {
   const t = useTranslations()
   const input = useChatStore((s) => s.input)
@@ -43,6 +50,7 @@ export function GenerateMessageForm() {
       <BottomBar>
         <div className='flex w-full'>
           <Input
+            id={CHAT_COMPOSER_INPUT_ID}
             value={input}
             onChange={handleInputChange}
             placeholder={placeholder}

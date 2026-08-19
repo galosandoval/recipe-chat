@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "RecipeChat",
-    "description": "Conversa y resuelve la cena. RecipeChat convierte lo que tienes en el refrigerador en recetas a tu medida, y las lleva hasta tu lista de compras y tu despensa."
+    "description": "Conversa y resuelve la cena. RecipeChat convierte lo que tienes en el refrigerador en recetas a tu medida, y las lleva hasta tu Lista de Compras y tu despensa."
   },
   "common": {
     "cancel": "Cancelar",
@@ -447,6 +447,17 @@
       "startNewChat": "Nuevo chat",
       "signUp": "Registrarse",
       "login": "Iniciar sesión"
+    }
+  },
+  "landing": {
+    "hero": {
+      "headline": "Descubre qué cocinar esta noche",
+      "tagline": "Habla con un asistente de cocina, recibe recetas reales y conviértelas en tu Lista de Compras.",
+      "examplePrompt": "¿Qué puedo cocinar esta noche?",
+      "cta": "Pruébalo — sin crear una cuenta",
+      "signUpPrompt": "¿Quieres guardar tus recetas?",
+      "signUp": "Crea una cuenta",
+      "scrollCue": "Desplázate hasta el chat"
     }
   }
 }
