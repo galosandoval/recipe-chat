@@ -58,6 +58,14 @@ jest.mock('~/trpc/react', () => {
   const generatedMutate = jest.fn()
   const invalidate = jest.fn()
   const getData = jest.fn(() => [])
+  // Stands in for the getMessagesById cache entry: tests set it to a resolved
+  // chat, and its identity stays stable across renders exactly as a cached
+  // React Query result does.
+  const messagesQuery: { status: string; data: unknown; error: unknown } = {
+    status: 'idle',
+    data: undefined,
+    error: null
+  }
   const utils = {
     chats: { getMessagesById: { invalidate } },
     recipes: { invalidate },
@@ -70,7 +78,7 @@ jest.mock('~/trpc/react', () => {
         upsert: { useMutation: () => ({ mutate: upsertMutate }) },
         generated: { useMutation: () => ({ mutate: generatedMutate }) },
         getMessagesById: {
-          useQuery: () => ({ status: 'idle', data: undefined, error: null })
+          useQuery: () => messagesQuery
         }
       },
       filters: {
@@ -80,7 +88,8 @@ jest.mock('~/trpc/react', () => {
         }
       },
       __upsertMutate: upsertMutate,
-      __generatedMutate: generatedMutate
+      __generatedMutate: generatedMutate,
+      __messagesQuery: messagesQuery
     }
   }
 })
@@ -97,6 +106,11 @@ const upsertMutate = (api as unknown as { __upsertMutate: jest.Mock })
   .__upsertMutate
 const generatedMutate = (api as unknown as { __generatedMutate: jest.Mock })
   .__generatedMutate
+const messagesQuery = (
+  api as unknown as {
+    __messagesQuery: { status: string; data: unknown; error: unknown }
+  }
+).__messagesQuery
 
 function fireOnFinish(message: {
   content?: string
@@ -145,6 +159,9 @@ function assistantWithCard(name: string, id: string): MessageWithRecipes {
 
 beforeEach(() => {
   useChatStore.getState().reset()
+  messagesQuery.status = 'idle'
+  messagesQuery.data = undefined
+  messagesQuery.error = null
   transport.state.messages = []
   transport.state.status = 'ready'
   transport.append.mockClear()
@@ -277,6 +294,37 @@ describe('useChatSession', () => {
     expect(toast.error).toHaveBeenCalledWith('Recipe generation incomplete')
     expect(upsertMutate).not.toHaveBeenCalled()
     expect(generatedMutate).not.toHaveBeenCalled()
+  })
+
+  it('refills an emptied store from the already-cached Messages', () => {
+    // Re-entering /chat clears the store (useResumeChat) and re-adopts the same
+    // chat in the same commit, so the query result never changes identity. A
+    // sync keyed only on that result would leave the screen on its loader.
+    messagesQuery.status = 'success'
+    messagesQuery.data = {
+      messages: [
+        {
+          id: 'stored-1',
+          content: 'stored message',
+          role: 'user',
+          chatId: 'chat-1',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          recipes: []
+        }
+      ],
+      filterIds: []
+    }
+    useChatStore.setState({ chatId: 'chat-1' })
+
+    renderHook(() => useChatSession())
+    expect(useChatStore.getState().messages).toHaveLength(1)
+
+    act(() => useChatStore.getState().clearMessages())
+
+    expect(useChatStore.getState().messages.map((m) => m.id)).toEqual([
+      'stored-1'
+    ])
   })
 
   it('runs one stream-timeout watchdog that cleans up a stuck stream', () => {

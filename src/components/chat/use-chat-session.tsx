@@ -362,12 +362,19 @@ export function useChatSession(options?: {
     setChatFilterIds(null)
   }, [chatId, setChatFilterIds])
 
+  // Mirror the loaded Chat's Messages into the store. `isEmpty` is a dependency,
+  // not just `data`: re-entering a Chat Context clears the store and re-adopts
+  // the same chat in one commit (see `useResumeChat`), so with the Messages
+  // already cached the query result never changes identity and a data-keyed sync
+  // alone would leave the screen on its loader forever. Refilling is idempotent
+  // — the run this triggers sees a non-empty store and writes the same Messages.
+  const isEmpty = messages.length === 0
   useEffect(() => {
     if (queryStatus === 'success' && data) {
       setMessages(transformStoredMessages(data.messages))
       setChatFilterIds(data.filterIds ?? [])
     }
-  }, [queryStatus, data, setMessages, setChatFilterIds])
+  }, [isEmpty, queryStatus, data, setMessages, setChatFilterIds])
 
   useEffect(() => {
     if (error && queryStatus === 'error') {
