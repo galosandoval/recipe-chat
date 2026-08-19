@@ -1,23 +1,18 @@
 import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { toast } from '~/components/toast'
 import {
   darkTheme,
   lightTheme,
   systemTheme,
   type Theme
 } from '~/constants/theme'
-import { type TPaths } from '~/hooks/use-translations'
+import { useTranslations } from './use-translations'
 
 const nextTheme: Record<Theme, Theme> = {
   [lightTheme]: darkTheme,
   [darkTheme]: systemTheme,
   [systemTheme]: lightTheme
-}
-
-const themeLabels: Record<Theme, TPaths> = {
-  [lightTheme]: 'nav.menu.themeLight',
-  [darkTheme]: 'nav.menu.themeDark',
-  [systemTheme]: 'nav.menu.themeSystem'
 }
 
 const themeIcons: Record<Theme, React.ReactNode> = {
@@ -35,16 +30,20 @@ const themeIcons: Record<Theme, React.ReactNode> = {
 export function useThemeCycle() {
   const { theme, setTheme } = useTheme()
   const current = (theme ?? systemTheme) as Theme
+  const t = useTranslations()
 
   const cycleTheme = () => {
     const next = nextTheme[current]
+    if (!theme) {
+      throw new Error('Theme must be defined to cycle it')
+    }
+    toast.info(t.nav.menu.replace('themeChanged', theme))
     setTheme(next)
   }
 
   return {
     theme: current,
     icon: themeIcons[current],
-    label: themeLabels[current],
     cycleTheme
   }
 }

@@ -79,17 +79,17 @@ export function NavDropdownMenu() {
     items.push(
       {
         icon: <UtensilsIcon />,
-        label: 'nav.menu.tasteProfile',
+        label: t.nav.menu.tasteProfile,
         onClick: openTasteProfile
       },
       {
         icon: <RulerIcon />,
-        label: 'nav.menu.preferredUnits',
+        label: t.nav.menu.preferredUnits,
         onClick: handleTogglePreferredUnits
       },
       {
         icon: <CreditCardIcon />,
-        label: 'nav.menu.subscription',
+        label: t.nav.menu.subscription,
         onClick: () => router.push('/subscription')
       }
     )
@@ -100,12 +100,12 @@ export function NavDropdownMenu() {
     items.push(
       {
         icon: <KeyRoundIcon />,
-        label: 'nav.menu.login',
+        label: t.nav.menu.login,
         onClick: handleToggleLogin
       },
       {
         icon: <UserPlusIcon />,
-        label: 'nav.menu.signUp',
+        label: t.nav.menu.signUp,
         onClick: handleToggleSignUp
       }
     )
@@ -114,7 +114,7 @@ export function NavDropdownMenu() {
     // recipe items
     items.push({
       icon: <PlusIcon />,
-      label: 'nav.menu.addRecipe',
+      label: t.nav.menu.addRecipe,
       onClick: handleToggleAddRecipe,
       space: 'above'
     })
@@ -278,16 +278,18 @@ export function ParseAndAddRecipeDialogs({
 }
 
 function useThemeToggleMenuItem() {
-  const { icon, label, cycleTheme } = useThemeCycle()
+  const t = useTranslations()
+  const { icon, cycleTheme } = useThemeCycle()
 
   return buildMenuItem({
-    label,
+    label: t.nav.menu.theme,
     icon,
     onClick: cycleTheme
   })
 }
 
 function useLogoutMenuItem() {
+  const t = useTranslations()
   const { setChatId } = useChatStore()
   const pathname = usePathname()
   const { data: session } = useSession()
@@ -304,7 +306,7 @@ function useLogoutMenuItem() {
   }
 
   return buildMenuItem({
-    label: 'nav.menu.logout',
+    label: t.nav.menu.logout,
     icon: <LogOutIcon />,
     onClick: handleSignOut
   })

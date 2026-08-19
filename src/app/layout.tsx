@@ -6,13 +6,13 @@ import { cookies } from 'next/headers'
 
 import { auth } from '~/server/auth'
 import { Providers } from '~/components/providers'
-import { BottomNav, Navbar } from '~/components/navbar/navbar'
 import { getTranslations } from '~/lib/get-translations'
 import { ErrorBoundary } from '~/components/error-boundary'
 import { RouteTransition } from '~/components/motion/route-transition'
 import { AppFooter } from '~/app/app-footer'
 import { FabStack } from '~/components/fab-stack/fab-stack'
 import { LOCALE_COOKIE_NAME, getLocaleFromCookie } from '~/lib/locale'
+import { AppHeader, BottomNav } from '~/components/app-header/app-header'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies()
@@ -54,9 +54,7 @@ export default async function RootLayout({
             locale={locale}
           >
             <ErrorBoundary>
-              <header className='sticky top-0 z-30'>
-                <Navbar />
-              </header>
+              <AppHeader />
               <RouteTransition>
                 <main className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
                   {children}

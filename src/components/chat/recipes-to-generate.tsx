@@ -42,7 +42,7 @@ function Recipe({
   isGenerated: boolean
 }) {
   return (
-    <Card className='bg-background' contentClassName='flex flex-col h-full'>
+    <Card className='bg-card' contentClassName='flex flex-col h-full'>
       <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
       <p className='text-xs'>{recipe.description}</p>
       {!isGenerated && (
