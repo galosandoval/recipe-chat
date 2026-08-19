@@ -15,6 +15,7 @@ import { ThemeProvider } from './theme-provider'
 import { Toaster } from 'sonner'
 import { NavigationHandler } from './navigation-handler'
 import { MotionConfig } from 'motion/react'
+import { systemTheme } from '~/constants/theme'
 
 export const Providers = ({
   children,
@@ -35,7 +36,7 @@ export const Providers = ({
         <SessionProvider session={session}>
           <ThemeProvider
             attribute='class'
-            defaultTheme='system'
+            defaultTheme={systemTheme}
             enableSystem
             disableTransitionOnChange
           >
@@ -44,7 +45,15 @@ export const Providers = ({
             <MotionConfig reducedMotion='user'>
               <NavigationHandler />
               {children}
-              <Toaster position='top-right' />
+              <Toaster
+                position='top-right'
+                offset={12}
+                mobileOffset={12}
+                toastOptions={{
+                  unstyled: true,
+                  classNames: { toast: 'w-full' }
+                }}
+              />
               <Analytics />
             </MotionConfig>
           </ThemeProvider>

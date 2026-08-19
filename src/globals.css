@@ -125,7 +125,7 @@
   --background: oklch(0.985 0.02 95);
   --foreground: oklch(0.18 0.03 80);
 
-  /* Assistant chat bubble: sits below --card so nested cards read as raised. */
+  /* Assistant chat bubble: the mid-tone cards sit on, furthest from the page. */
   --bubble: oklch(0.95 0.02 95);
   --bubble-foreground: oklch(0.18 0.03 80);
 
@@ -190,11 +190,11 @@
   --background: oklch(0.16 0.03 80);
   --foreground: oklch(0.985 0.02 95);
 
-  /* Assistant chat bubble: sits below --card so nested cards read as raised. */
-  --bubble: oklch(0.18 0.03 80);
+  /* Assistant chat bubble: the mid-tone cards sit on, furthest from the page. */
+  --bubble: oklch(0.21 0.03 80);
   --bubble-foreground: oklch(0.985 0.02 95);
 
-  --card: oklch(0.2 0.03 80);
+  --card: oklch(0.17 0.03 80);
   --card-foreground: oklch(0.985 0.02 95);
 
   --popover: oklch(0.25 0.03 80);
