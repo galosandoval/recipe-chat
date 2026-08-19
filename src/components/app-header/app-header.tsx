@@ -214,23 +214,33 @@ function BottomNavTabs() {
   const isActive = (path: string) => pathname.includes(path)
   return (
     <nav className='mx-auto flex w-full justify-between gap-2 overflow-hidden px-3 py-1.5'>
-      {NAV_ITEMS.map((item) => (
-        <NavigationButton
-          href={item.value}
-          className={cn(
-            'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
-            // Active returns to the page's own tone rather than lifting above
-            // the bar, so it reads the same way a card does inside a bubble.
-            isActive(item.value) && 'bg-card text-card-foreground/75 rounded-md'
-          )}
-          as={Button}
-          variant={isActive(item.value) ? 'default' : 'ghost'}
-          key={item.value}
-        >
-          {item.icon}
-          <span className='text-xs'>{t.nav[item.label]}</span>
-        </NavigationButton>
-      ))}
+      {NAV_ITEMS.map((item) => {
+        const isCurrent = isActive(item.value)
+
+        return (
+          <NavigationButton
+            href={item.value}
+            aria-current={isCurrent ? 'page' : undefined}
+            className={cn(
+              'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
+              // A solid primary plate, not a tint: `bg-card` differs from
+              // `--background` by 0.005 lightness, and even `bg-accent` lands
+              // within a hair of the bar it sits on — and matches the hover
+              // state, so a hovered tab read as the current one. Primary clears
+              // the background by 5:1 in light and 9:1 in dark, and hover keeps
+              // the plate instead of washing it back to accent.
+              isCurrent &&
+                'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-semibold'
+            )}
+            as={Button}
+            variant='ghost'
+            key={item.value}
+          >
+            {item.icon}
+            <span className='text-xs'>{t.nav[item.label]}</span>
+          </NavigationButton>
+        )
+      })}
     </nav>
   )
 }
