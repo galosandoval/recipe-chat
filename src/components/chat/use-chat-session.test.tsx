@@ -53,11 +53,32 @@ jest.mock('@ai-sdk/react', () => {
   }
 })
 
+/**
+ * The mutable stand-in for the `getMessagesById` query result. `status` stays a
+ * `string` rather than React Query's union so tests can park it on `'idle'`.
+ */
+type MockMessagesQuery = { status: string; data: unknown; error: unknown }
+
+/** The `__`-prefixed handles the `~/trpc/react` mock exposes to assertions. */
+type MockApiHandles = {
+  __upsertMutate: jest.Mock
+  __generatedMutate: jest.Mock
+  __messagesQuery: MockMessagesQuery
+}
+
 jest.mock('~/trpc/react', () => {
   const upsertMutate = jest.fn()
   const generatedMutate = jest.fn()
   const invalidate = jest.fn()
   const getData = jest.fn(() => [])
+  // Stands in for the getMessagesById cache entry: tests set it to a resolved
+  // chat, and its identity stays stable across renders exactly as a cached
+  // React Query result does.
+  const messagesQuery: MockMessagesQuery = {
+    status: 'idle',
+    data: undefined,
+    error: null
+  }
   const utils = {
     chats: { getMessagesById: { invalidate } },
     recipes: { invalidate },
@@ -70,7 +91,7 @@ jest.mock('~/trpc/react', () => {
         upsert: { useMutation: () => ({ mutate: upsertMutate }) },
         generated: { useMutation: () => ({ mutate: generatedMutate }) },
         getMessagesById: {
-          useQuery: () => ({ status: 'idle', data: undefined, error: null })
+          useQuery: () => messagesQuery
         }
       },
       filters: {
@@ -80,7 +101,8 @@ jest.mock('~/trpc/react', () => {
         }
       },
       __upsertMutate: upsertMutate,
-      __generatedMutate: generatedMutate
+      __generatedMutate: generatedMutate,
+      __messagesQuery: messagesQuery
     }
   }
 })
@@ -93,10 +115,11 @@ const transport = (
   stop: jest.Mock
   setMessages: jest.Mock
 }
-const upsertMutate = (api as unknown as { __upsertMutate: jest.Mock })
-  .__upsertMutate
-const generatedMutate = (api as unknown as { __generatedMutate: jest.Mock })
-  .__generatedMutate
+const {
+  __upsertMutate: upsertMutate,
+  __generatedMutate: generatedMutate,
+  __messagesQuery: messagesQuery
+} = api as unknown as MockApiHandles
 
 function fireOnFinish(message: {
   content?: string
@@ -131,6 +154,18 @@ function card(name: string, id: string): RecipeDTO {
   }
 }
 
+function userMessage(id: string): MessageWithRecipes {
+  return {
+    id,
+    content: 'stored message',
+    role: 'user',
+    chatId: 'chat-1',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    recipes: []
+  }
+}
+
 function assistantWithCard(name: string, id: string): MessageWithRecipes {
   return {
     id: 'assistant-options',
@@ -145,6 +180,9 @@ function assistantWithCard(name: string, id: string): MessageWithRecipes {
 
 beforeEach(() => {
   useChatStore.getState().reset()
+  messagesQuery.status = 'idle'
+  messagesQuery.data = undefined
+  messagesQuery.error = null
   transport.state.messages = []
   transport.state.status = 'ready'
   transport.append.mockClear()
@@ -277,6 +315,42 @@ describe('useChatSession', () => {
     expect(toast.error).toHaveBeenCalledWith('Recipe generation incomplete')
     expect(upsertMutate).not.toHaveBeenCalled()
     expect(generatedMutate).not.toHaveBeenCalled()
+  })
+
+  it('refills an emptied store from the already-cached Messages', () => {
+    // Re-entering /chat clears the store (useResumeChat) and re-adopts the same
+    // chat in the same commit, so the query result never changes identity. A
+    // sync keyed only on that result would leave the screen on its loader.
+    messagesQuery.status = 'success'
+    messagesQuery.data = { messages: [userMessage('stored-1')], filterIds: [] }
+    useChatStore.setState({ chatId: 'chat-1' })
+
+    renderHook(() => useChatSession())
+    expect(useChatStore.getState().messages).toHaveLength(1)
+
+    act(() => useChatStore.getState().clearMessages())
+
+    expect(useChatStore.getState().messages.map((m) => m.id)).toEqual([
+      'stored-1'
+    ])
+  })
+
+  it('keeps the first Message sent into a Chat whose cached Messages are empty', () => {
+    // The store stays empty after the refill, so sending is itself what flips it
+    // to non-empty. Re-syncing on that flip would write the cached empty list
+    // back over the Message the user just sent.
+    messagesQuery.status = 'success'
+    messagesQuery.data = { messages: [], filterIds: [] }
+    useChatStore.setState({ chatId: 'chat-1' })
+
+    renderHook(() => useChatSession())
+    expect(useChatStore.getState().messages).toHaveLength(0)
+
+    act(() => useChatStore.getState().addMessage(userMessage('sent-1')))
+
+    expect(useChatStore.getState().messages.map((m) => m.id)).toEqual([
+      'sent-1'
+    ])
   })
 
   it('runs one stream-timeout watchdog that cleans up a stuck stream', () => {

@@ -1,4 +1,3 @@
-import { useTranslations, type TPaths } from '~/hooks/use-translations'
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -11,7 +10,7 @@ import { Fragment } from 'react'
 
 export type MenuItemProps =
   | {
-      label?: TPaths
+      label?: string
       icon?: React.ReactNode
       space?: 'above' | 'below'
       onClick?: () => void
@@ -29,7 +28,6 @@ export function DropdownMenu<T extends MenuItemProps | null>({
   title?: string
   trigger: React.ReactNode
 }) {
-  const t = useTranslations()
   return (
     <DropdownMenuUI>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
@@ -58,7 +56,7 @@ export function DropdownMenu<T extends MenuItemProps | null>({
               {item.space === 'above' && <DropdownMenuSeparator />}
               <DropdownMenuItem onClick={item.onClick}>
                 {item.icon}
-                {<span>{t.get(item.label ?? '')}</span>}
+                {item.label && <span>{item.label}</span>}
               </DropdownMenuItem>
               {item.space === 'below' && <DropdownMenuSeparator />}
             </Fragment>

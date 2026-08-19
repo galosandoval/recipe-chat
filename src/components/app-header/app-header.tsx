@@ -27,7 +27,7 @@ import {
 /** The Chat History route, which swaps the app header for a back header. */
 const CHAT_HISTORY_PATH = '/chat/history'
 
-export const Navbar = () => {
+export const AppHeader = () => {
   const pathname = usePathname()
   const slug = useRecipeSlug()
 
@@ -38,13 +38,15 @@ export const Navbar = () => {
   const isChatHistory = pathname === CHAT_HISTORY_PATH
 
   return (
-    <div className='w-full'>
-      <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
-        <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border'>
-          {isChatHistory ? <ChatHistoryHeader /> : <AppHeader />}
+    <header className='sticky top-0 z-30'>
+      <div className='w-full'>
+        <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
+          <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border'>
+            {isChatHistory ? <ChatHistoryHeader /> : <ChatHeader />}
+          </div>
         </div>
       </div>
-    </div>
+    </header>
   )
 }
 
@@ -68,7 +70,7 @@ export const BottomNav = () => {
   )
 }
 
-function AppHeader() {
+function ChatHeader() {
   const t = useTranslations()
 
   return (
@@ -217,8 +219,9 @@ function BottomNavTabs() {
           href={item.value}
           className={cn(
             'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
-            isActive(item.value) &&
-              'bg-accent text-accent-foreground/75 rounded-md'
+            // Active returns to the page's own tone rather than lifting above
+            // the bar, so it reads the same way a card does inside a bubble.
+            isActive(item.value) && 'bg-card text-card-foreground/75 rounded-md'
           )}
           as={Button}
           variant={isActive(item.value) ? 'default' : 'ghost'}

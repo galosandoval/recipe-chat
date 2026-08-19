@@ -99,13 +99,13 @@ export function SignUp({
       },
       messages: useChatStore.getState().messages
     })
-    const result = await toast.promise(newRecipePromise, {
-      loading: t.loading.loggingIn,
-      success: () => t.toast.loginSuccess,
-      error: () => t.error.somethingWentWrong
-    })
-    const newUser = await result.unwrap()
-    router.push(`recipes/${newUser.slug}}`)
+    try {
+      const newUser = await newRecipePromise
+      toast.success(t.toast.loginSuccess)
+      router.push(`recipes/${newUser.slug}}`)
+    } catch {
+      toast.error(t.error.somethingWentWrong)
+    }
   }
 
   return (
