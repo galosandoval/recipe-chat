@@ -8,7 +8,9 @@ import { useChatStore } from './chat-store'
 import { GenerateStatusAppMessage, ToolResultAppMessage } from './app-message'
 import { Avatar } from './avatar'
 import { FadeIn } from '~/components/motion/fade-in'
-import { MarkdownMessage } from './markdown-message'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import remarkBreaks from 'remark-breaks'
 
 export const Message = function Message({
   message,
@@ -110,20 +112,84 @@ function Bubble({
   return (
     <div
       className={cn(
-        'bg-accent flex flex-col rounded-md p-3 pb-4 sm:w-3/4',
-        isUserMessage && 'bg-primary'
+        'bg-accent text-foreground flex flex-col rounded-md p-3 pb-4 text-sm sm:w-3/4',
+        isUserMessage && 'bg-primary text-foreground'
       )}
     >
       {isUserMessage ? (
-        <p className='text-primary-foreground text-sm whitespace-pre-line'>
-          {content}
-        </p>
+        <p className='whitespace-pre-line'>{content}</p>
       ) : (
         <MarkdownMessage content={content} />
       )}
       {children}
     </div>
   )
+}
+
+/**
+ * Renders assistant chat content as markdown.
+ *
+ * The model often replies with headings, bold labels and nested lists; without
+ * this the raw `**` / `-` markers leak into the bubble. Colors and base size
+ * are inherited from the bubble, so only spacing and hierarchy are set here.
+ */
+function MarkdownMessage({ content }: { content: string }) {
+  return (
+    <div
+      className={cn(
+        'prose prose-sm max-w-none',
+        // Bubbles are tight - collapse the plugin's generous block spacing.
+        'prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5',
+        'prose-headings:mt-3 prose-headings:mb-1',
+        'prose-ul:pl-4 prose-ol:pl-4',
+        'prose-p:first:mt-0 prose-p:last:mb-0',
+        // Keep a readable hierarchy inside a small bubble; the plugin's default
+        // scale is far too large here, but flattening every level to body size
+        // makes h1/h2/h3 indistinguishable.
+        'prose-h1:text-lg prose-h2:text-base prose-h3:text-sm',
+        'prose-h1:font-semibold prose-h2:font-semibold prose-h3:font-medium',
+        // Inherit bubble colors instead of the plugin's gray scale.
+        'prose-headings:text-current prose-strong:text-current prose-li:marker:text-current',
+        'prose-a:text-current prose-a:underline',
+        'prose-code:bg-foreground/10 prose-code:rounded prose-code:px-1 prose-code:py-0.5',
+        'prose-code:before:content-none prose-code:after:content-none',
+        'prose-pre:bg-foreground/10 prose-pre:text-current'
+      )}
+    >
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+        {stabilizePartialMarkdown(content)}
+      </ReactMarkdown>
+    </div>
+  )
+}
+
+/** Emphasis pairs that visibly leak their raw markers while half-arrived. */
+const DANGLING_MARKERS = ['**', '~~']
+
+/**
+ * Makes a partially-streamed markdown string safe to parse.
+ *
+ * Assistant bubbles re-parse on every token flush, so the document is almost
+ * always incomplete: an unterminated ``` fence swallows the rest of the
+ * bubble, and a half-arrived `**bold` shows its raw markers until the closer
+ * lands. Closing the fence and dropping the unmatched marker keeps the bubble
+ * stable as tokens arrive. A complete document has balanced markers, so this
+ * is a no-op once the stream finishes.
+ */
+export function stabilizePartialMarkdown(content: string): string {
+  const fences = content
+    .split('\n')
+    .filter((line) => line.trimStart().startsWith('```')).length
+
+  if (fences % 2 === 1) return `${content}\n\`\`\``
+
+  return DANGLING_MARKERS.reduce((stable, marker) => {
+    const occurrences = stable.split(marker).length - 1
+    if (occurrences % 2 === 0) return stable
+
+    const last = stable.lastIndexOf(marker)
+    return stable.slice(0, last) + stable.slice(last + marker.length)
+  }, content)
 }
 
 export function AssistantMessage({ message }: { message: MessageWithRecipes }) {
