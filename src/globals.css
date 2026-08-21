@@ -24,6 +24,23 @@
   backdrop-filter: blur(8px); /* Adjust blur strength as needed */
 }
 
+/*
+  Reduced motion for scroll-reveals (see src/components/motion/reveal.tsx).
+  This is where reduced motion is honored, not in the component. The server
+  renders every reveal at its hidden state — inline `opacity: 0` — and
+  `useReducedMotion` can only answer on the client, which React refuses to patch
+  that attribute from. A JS branch therefore left the section permanently
+  invisible for exactly the visitors it meant to protect. Only CSS reaches the
+  server-rendered markup, and `!important` beats the inline styles Motion writes,
+  so the contents sit settled and static while the enter runs unseen.
+*/
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 @keyframes screenLoaderFadeIn {
   to {
     opacity: 1;

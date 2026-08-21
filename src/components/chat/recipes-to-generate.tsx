@@ -3,7 +3,7 @@ import { useChatStore } from './chat-store'
 import { useChatSessionContext } from './use-chat-session'
 import type { RecipeDTO } from '~/schemas/chats-schema'
 import { Button } from '~/components/button'
-import { Card } from '~/components/card'
+import { RecipeOptionCard } from './recipe-option-card'
 import { useState } from 'react'
 import { SendIcon } from 'lucide-react'
 
@@ -42,20 +42,20 @@ function Recipe({
   isGenerated: boolean
 }) {
   return (
-    <Card className='bg-card' contentClassName='flex flex-col h-full'>
-      <h3 className='text-secondary-foreground font-semibold'>{recipe.name}</h3>
-      <p className='text-xs'>{recipe.description}</p>
-      {!isGenerated && (
-        <div className='mt-auto flex justify-end self-end pt-2'>
+    <RecipeOptionCard
+      name={recipe.name}
+      description={recipe.description}
+      action={
+        !isGenerated && (
           <GenerateButton
             disabled={isStreaming}
             recipeId={recipe.id}
             recipeName={recipe.name}
             recipeDescription={recipe.description ?? ''}
           />
-        </div>
-      )}
-    </Card>
+        )
+      }
+    />
   )
 }
 

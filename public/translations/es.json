@@ -463,6 +463,21 @@
       "signUpPrompt": "¿Quieres guardar tus recetas?",
       "signUp": "Crea una cuenta",
       "scrollCue": "Desplázate hasta el chat"
+    },
+    "proof": {
+      "heading": "Mira lo que recibes",
+      "ask": "Tengo muslos de pollo y medio manojo de cilantro. ¿Cena en 30 minutos?",
+      "reply": "Aquí tienes dos que usan ambos. Elige una y te escribo la receta completa.",
+      "options": {
+        "first": {
+          "name": "Muslos de pollo al cilantro y limón",
+          "description": "Dorados en una sola sartén y terminados con limón y todo el cilantro."
+        },
+        "second": {
+          "name": "Pollo con arroz a la bandeja",
+          "description": "Todo en una bandeja, 25 minutos sin hacer nada y cilantro encima al final."
+        }
+      }
     }
   }
 }
