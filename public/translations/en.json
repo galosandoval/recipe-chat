@@ -451,7 +451,12 @@
     "hero": {
       "headline": "Know what to cook tonight",
       "tagline": "Chat with an AI cook, get real recipes, and turn them into a Grocery List.",
-      "examplePrompt": "What should I make for dinner tonight?",
+      "examplePrompts": {
+        "chickenThighs": "something with the chicken thighs in my fridge, not too spicy",
+        "onePan": "20 minutes, one pan, minimal cleanup",
+        "cilantro": "use up the half bunch of cilantro before it wilts",
+        "pantry": "an easy dinner from what's already in my pantry"
+      },
       "cta": "Try it — no account needed",
       "signUpPrompt": "Want to keep your recipes?",
       "signUp": "Create an account",
