@@ -106,7 +106,8 @@ export const BottomNav = () => {
   }
 
   return (
-    <div className='w-full'>
+    // At `md+` the sidebar owns the nav, so the bottom bar drops away entirely.
+    <div className='w-full md:hidden'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pb-3'>
         <div className='glass-element from-background/30 to-background text-foreground border-muted-foreground/20 w-full border-t bg-gradient-to-t sm:rounded-md sm:border'>
           <BottomNavTabs />
