@@ -1,16 +1,8 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
 import { usePathname, useRouter } from 'next/navigation'
 import { NavDropdownMenu } from './settings-dropdown-menu'
-import {
-  ArrowBigLeft,
-  CookingPotIcon,
-  HistoryIcon,
-  LibraryBigIcon,
-  MessageSquareIcon,
-  PencilIcon
-} from 'lucide-react'
+import { ArrowBigLeft, PencilIcon } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/button'
@@ -18,18 +10,19 @@ import { NavigationButton } from '~/components/navigation-button'
 import { useRecipeSlug } from '~/hooks/use-recipe-slug'
 import { useRecipeEditStore } from '~/app/recipes/[slug]/recipe-edit-store'
 import { useAppRouter } from '~/hooks/use-app-router'
-import { useChatDrawerStore } from '~/components/chat/chat-drawer-store'
+import { ChatHistoryButton } from './chat-history-button'
 import {
-  chatContextToScope,
-  chatScopeToSearchParams
-} from '~/schemas/chats-schema'
-
-/** The Chat History route, which swaps the app header for a back header. */
-const CHAT_HISTORY_PATH = '/chat/history'
+  ACTIVE_NAV_ITEM_CLASSES,
+  CHAT_HISTORY_PATH,
+  isNavItemCurrent,
+  NAV_ITEMS,
+  useNavChromeVisible
+} from './nav-shell'
 
 export const AppHeader = () => {
   const pathname = usePathname()
   const slug = useRecipeSlug()
+  const hasSidebar = useNavChromeVisible()
 
   if (pathname === `/recipes/${slug}`) {
     return <RecipeByIdNavbar />
@@ -38,10 +31,22 @@ export const AppHeader = () => {
   const isChatHistory = pathname === CHAT_HISTORY_PATH
 
   return (
-    <header className='sticky top-0 z-30'>
+    // At `md+` the sidebar carries the app name, sections, history, and
+    // settings, so the pill header has nothing left to hold — it drops out
+    // rather than floating a lost title across a wide viewport. Only when
+    // there is a sidebar to replace it, though: a signed-out visitor has no
+    // sidebar, so the header stays and keeps the settings menu reachable.
+    // Chat History keeps its back bar at every width, flush and full-width
+    // once there is a sidebar beside it.
+    <header
+      className={cn(
+        'sticky top-0 z-30',
+        hasSidebar && !isChatHistory && 'md:hidden'
+      )}
+    >
       <div className='w-full'>
-        <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
-          <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border'>
+        <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3 md:max-w-none md:pt-0'>
+          <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border md:rounded-none md:border-x-0 md:border-t-0'>
             {isChatHistory ? <ChatHistoryHeader /> : <ChatHeader />}
           </div>
         </div>
@@ -51,16 +56,14 @@ export const AppHeader = () => {
 }
 
 export const BottomNav = () => {
-  const { data } = useSession()
-  const pathname = usePathname()
-  const slug = useRecipeSlug()
+  const isVisible = useNavChromeVisible()
 
-  if (!data || pathname === `/recipes/${slug}`) {
+  if (!isVisible) {
     return null
   }
 
   return (
-    <div className='w-full'>
+    <div className='w-full md:hidden'>
       <div className='mx-auto flex w-full max-w-2xl justify-center sm:pb-3'>
         <div className='glass-element from-background/30 to-background text-foreground border-muted-foreground/20 w-full border-t bg-gradient-to-t sm:rounded-md sm:border'>
           <BottomNavTabs />
@@ -83,38 +86,6 @@ function ChatHeader() {
         <ChatHistoryButton />
       </div>
     </nav>
-  )
-}
-
-/**
- * Opens Chat History for whatever the user is looking at: the current section's
- * chats everywhere, except on `/chat` — the one screen that isn't a section, so
- * it links to the unscoped list of every context's chats.
- */
-function ChatHistoryButton() {
-  const t = useTranslations()
-  const { data: session } = useSession()
-  const pathname = usePathname()
-  const context = useChatDrawerStore((s) => s.context)
-
-  if (!session) return null
-
-  const params =
-    pathname === '/chat'
-      ? ''
-      : chatScopeToSearchParams(chatContextToScope(context))
-  const href = params ? `${CHAT_HISTORY_PATH}?${params}` : CHAT_HISTORY_PATH
-
-  return (
-    <NavigationButton
-      href={href}
-      as={Button}
-      variant='ghost'
-      size='icon'
-      aria-label={t.chat.history.title}
-    >
-      <HistoryIcon />
-    </NavigationButton>
   )
 }
 
@@ -190,54 +161,28 @@ function RecipeByIdEditButton() {
   )
 }
 
-const NAV_ITEMS = [
-  {
-    value: '/chat',
-    icon: <MessageSquareIcon />,
-    label: 'chat'
-  },
-  {
-    value: '/recipes',
-    icon: <CookingPotIcon />,
-    label: 'recipes'
-  },
-  {
-    value: '/lists',
-    icon: <LibraryBigIcon />,
-    label: 'lists'
-  }
-] as const
-
 function BottomNavTabs() {
   const pathname = usePathname()
   const t = useTranslations()
-  const isActive = (path: string) => pathname.includes(path)
   return (
     <nav className='mx-auto flex w-full justify-between gap-2 overflow-hidden px-3 py-1.5'>
-      {NAV_ITEMS.map((item) => {
-        const isCurrent = isActive(item.value)
+      {NAV_ITEMS.map(({ value, Icon, label }) => {
+        const isCurrent = isNavItemCurrent(pathname, value)
 
         return (
           <NavigationButton
-            href={item.value}
+            href={value}
             aria-current={isCurrent ? 'page' : undefined}
             className={cn(
               'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
-              // A solid primary plate, not a tint: `bg-card` differs from
-              // `--background` by 0.005 lightness, and even `bg-accent` lands
-              // within a hair of the bar it sits on — and matches the hover
-              // state, so a hovered tab read as the current one. Primary clears
-              // the background by 5:1 in light and 9:1 in dark, and hover keeps
-              // the plate instead of washing it back to accent.
-              isCurrent &&
-                'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-semibold'
+              isCurrent && ACTIVE_NAV_ITEM_CLASSES
             )}
             as={Button}
             variant='ghost'
-            key={item.value}
+            key={value}
           >
-            {item.icon}
-            <span className='text-xs'>{t.nav[item.label]}</span>
+            <Icon />
+            <span className='text-xs'>{t.nav[label]}</span>
           </NavigationButton>
         )
       })}
