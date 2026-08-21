@@ -41,13 +41,18 @@ import { CreateParsedRecipe } from '~/app/recipes/create-recipe-button'
 import { TasteProfileDrawer } from '~/components/taste-profile/taste-profile-drawer'
 import { useTasteProfileDrawerStore } from '~/components/taste-profile/taste-profile-drawer-store'
 import { useAppRouter } from '~/hooks/use-app-router'
+import { cn } from '~/lib/utils'
 
 const preferredUnitsFormSchema = z.object({
   preferredWeightUnit: z.string(),
   preferredVolumeUnit: z.string()
 })
 
-export function NavDropdownMenu() {
+export function NavDropdownMenu({
+  showLabel = false
+}: {
+  showLabel?: boolean
+}) {
   const t = useTranslations()
   const [isSignUpOpen, setIsSignUpOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
@@ -124,8 +129,13 @@ export function NavDropdownMenu() {
     <>
       <DropdownMenu
         trigger={
-          <Button variant='ghost' size='icon'>
+          <Button
+            className={cn(showLabel && 'w-full justify-start gap-3')}
+            variant='ghost'
+            size={showLabel ? 'default' : 'icon'}
+          >
             <SettingsIcon />
+            {showLabel && <span>{t.nav.settings}</span>}
           </Button>
         }
         items={items}

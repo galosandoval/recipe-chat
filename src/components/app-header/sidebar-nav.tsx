@@ -60,7 +60,7 @@ export function SidebarNav() {
 
       <div className='mt-auto flex flex-col items-start gap-1 px-3 pb-4'>
         <ChatHistoryButton showLabel />
-        <NavDropdownMenu />
+        <NavDropdownMenu showLabel />
       </div>
     </aside>
   )
