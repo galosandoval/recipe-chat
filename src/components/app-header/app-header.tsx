@@ -144,10 +144,15 @@ function ChatHistoryHeader() {
   )
 }
 
+/**
+ * The Recipe detail's own header. Stays a `<header>` like the app header so it
+ * exposes the same `banner` landmark — a `<nav>` here would hide the back and
+ * edit controls from anything scoping to the banner.
+ */
 function RecipeByIdNavbar() {
   const router = useAppRouter()
   return (
-    <nav>
+    <header>
       <div className='absolute inset-x-0 top-0 z-30 mx-auto flex w-full max-w-2xl flex-1 justify-between bg-transparent p-3'>
         <Button
           variant='outline'
@@ -160,7 +165,7 @@ function RecipeByIdNavbar() {
 
         <RecipeByIdEditButton />
       </div>
-    </nav>
+    </header>
   )
 }
 
