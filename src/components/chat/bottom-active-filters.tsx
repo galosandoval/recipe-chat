@@ -33,7 +33,7 @@ export function BottomActiveFilters() {
 
   return (
     <div className='w-full'>
-      <div className='glass-background mx-auto flex max-w-2xl items-center gap-2 overflow-x-auto px-3 py-1 sm:rounded'>
+      <div className='glass-background mx-auto flex max-w-2xl items-center gap-2 overflow-x-auto px-3 py-1 sm:rounded md:max-w-3xl'>
         <h3 className='mt-0 mb-0 text-xs font-semibold'>{t.filters.title}:</h3>
         {usePantry && (
           <div className='bg-secondary text-foreground flex items-center gap-1 rounded p-2 py-1 text-xs whitespace-nowrap'>

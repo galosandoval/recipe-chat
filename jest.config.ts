@@ -34,6 +34,10 @@ const config: Config = {
  * "Unexpected token 'export'" while node_modules stays untransformed.
  */
 const ESM_ONLY_PACKAGES = [
+  // next-auth v5 (beta) and its @auth/core dependency publish ESM only, so any
+  // test rendering `SessionProvider` fails on "Unexpected token 'export'".
+  'next-auth',
+  '@auth/core',
   'react-markdown',
   'remark-.*',
   'mdast-.*',

@@ -13,6 +13,7 @@ import { AppFooter } from '~/app/app-footer'
 import { FabStack } from '~/components/fab-stack/fab-stack'
 import { LOCALE_COOKIE_NAME, getLocaleFromCookie } from '~/lib/locale'
 import { AppHeader, BottomNav } from '~/components/app-header/app-header'
+import { SidebarNav } from '~/components/app-header/sidebar-nav'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies()
@@ -47,25 +48,30 @@ export default async function RootLayout({
       className={`${GeistSans.variable}`}
     >
       <body className='h-svh overflow-hidden'>
-        <div className='mx-auto flex h-full w-full max-w-2xl flex-col'>
-          <Providers
-            session={session}
-            translations={translations}
-            locale={locale}
-          >
-            <ErrorBoundary>
-              <AppHeader />
-              <RouteTransition>
-                <main className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
-                  {children}
-                </main>
-              </RouteTransition>
-              <AppFooter />
-              <BottomNav />
-              <FabStack />
-            </ErrorBoundary>
-          </Providers>
-        </div>
+        <Providers
+          session={session}
+          translations={translations}
+          locale={locale}
+        >
+          <ErrorBoundary>
+            {/* One column on phones; a sidebar plus a wider reading column at
+                `md+`, where `BottomNav` steps aside for `SidebarNav`. */}
+            <div className='flex h-full w-full'>
+              <SidebarNav />
+              <div className='mx-auto flex h-full w-full max-w-2xl min-w-0 flex-1 flex-col md:max-w-3xl'>
+                <AppHeader />
+                <RouteTransition>
+                  <main className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
+                    {children}
+                  </main>
+                </RouteTransition>
+                <AppFooter />
+                <BottomNav />
+              </div>
+            </div>
+            <FabStack />
+          </ErrorBoundary>
+        </Providers>
       </body>
     </html>
   )
