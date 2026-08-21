@@ -453,7 +453,12 @@
     "hero": {
       "headline": "Descubre qué cocinar esta noche",
       "tagline": "Habla con un asistente de cocina, recibe recetas reales y conviértelas en tu Lista de Compras.",
-      "examplePrompt": "¿Qué puedo cocinar esta noche?",
+      "examplePrompts": {
+        "chickenThighs": "algo con los muslos de pollo que tengo en el refri, no muy picante",
+        "onePan": "20 minutos, una sola sartén, poco que lavar",
+        "cilantro": "para aprovechar el medio manojo de cilantro antes de que se marchite",
+        "pantry": "una cena fácil con lo que ya tengo en la despensa"
+      },
       "cta": "Pruébalo — sin crear una cuenta",
       "signUpPrompt": "¿Quieres guardar tus recetas?",
       "signUp": "Crea una cuenta",
