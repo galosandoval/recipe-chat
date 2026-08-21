@@ -38,15 +38,61 @@ export const AppHeader = () => {
   const isChatHistory = pathname === CHAT_HISTORY_PATH
 
   return (
-    <header className='sticky top-0 z-30'>
+    // The default chat header is redundant at `md+` once the sidebar owns the
+    // nav, settings, and history affordances, so it drops away there. The chat
+    // history back-header stays, but goes full-width instead of a centered pill.
+    <header className={cn('sticky top-0 z-30', !isChatHistory && 'md:hidden')}>
       <div className='w-full'>
-        <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3'>
-          <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border'>
+        <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3 md:max-w-none md:pt-0'>
+          <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border md:rounded-none md:border-x-0'>
             {isChatHistory ? <ChatHistoryHeader /> : <ChatHeader />}
           </div>
         </div>
       </div>
     </header>
+  )
+}
+
+/**
+ * The desktop nav shell (issue #615): at `md+` the Chat/Recipes/Lists tabs, the
+ * settings menu, and the chat-history affordance live in a persistent left
+ * sidebar instead of the bottom bar. Hidden below `md` (the bottom bar owns nav
+ * there) and, like {@link BottomNav}, absent when signed out or on the
+ * chrome-hidden recipe detail screen.
+ */
+export const AppSidebar = () => {
+  const { data } = useSession()
+  const pathname = usePathname()
+  const slug = useRecipeSlug()
+  const t = useTranslations()
+
+  if (!data || pathname === `/recipes/${slug}`) {
+    return null
+  }
+
+  return (
+    <aside className='hidden shrink-0 md:flex'>
+      <div className='glass-element border-muted-foreground/20 flex h-full w-60 flex-col gap-4 border-r p-4'>
+        <h1 className='px-3 text-lg font-semibold'>{t.nav.appName}</h1>
+        <nav className='flex flex-col gap-1'>
+          {NAV_ITEMS.map((item) => (
+            <NavTab
+              key={item.value}
+              item={item}
+              className='text-card-foreground/75 hover:bg-accent hover:text-accent-foreground/75 flex w-full items-center justify-start gap-3 rounded-md px-3 py-2 transition-colors [&_svg]:size-5'
+              activeClassName='bg-card text-card-foreground/75'
+            >
+              {item.icon}
+              <span className='text-sm'>{t.nav[item.label]}</span>
+            </NavTab>
+          ))}
+        </nav>
+        <div className='mt-auto flex flex-col gap-1'>
+          <ChatHistoryButton />
+          <NavDropdownMenu />
+        </div>
+      </div>
+    </aside>
   )
 }
 
@@ -209,28 +255,55 @@ const NAV_ITEMS = [
 ] as const
 
 function BottomNavTabs() {
-  const pathname = usePathname()
   const t = useTranslations()
-  const isActive = (path: string) => pathname.includes(path)
   return (
     <nav className='mx-auto flex w-full justify-between gap-2 overflow-hidden px-3 py-1.5'>
       {NAV_ITEMS.map((item) => (
-        <NavigationButton
-          href={item.value}
-          className={cn(
-            'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
-            // Active returns to the page's own tone rather than lifting above
-            // the bar, so it reads the same way a card does inside a bubble.
-            isActive(item.value) && 'bg-card text-card-foreground/75 rounded-md'
-          )}
-          as={Button}
-          variant={isActive(item.value) ? 'default' : 'ghost'}
+        <NavTab
           key={item.value}
+          item={item}
+          className='text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5'
+          // Active returns to the page's own tone rather than lifting above the
+          // bar, so it reads the same way a card does inside a bubble.
+          activeClassName='bg-card text-card-foreground/75 rounded-md'
         >
           {item.icon}
           <span className='text-xs'>{t.nav[item.label]}</span>
-        </NavigationButton>
+        </NavTab>
       ))}
     </nav>
+  )
+}
+
+/**
+ * One nav affordance, shared by the bottom bar and the sidebar. Owns the active
+ * state (`pathname` match) so both surfaces keep the same active treatment and
+ * `aria-current="page"`; the caller supplies the layout via `className` and the
+ * per-surface active tone via `activeClassName`.
+ */
+function NavTab({
+  item,
+  className,
+  activeClassName,
+  children
+}: {
+  item: (typeof NAV_ITEMS)[number]
+  className: string
+  activeClassName: string
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
+  const isActive = pathname.includes(item.value)
+
+  return (
+    <NavigationButton
+      href={item.value}
+      as={Button}
+      variant={isActive ? 'default' : 'ghost'}
+      aria-current={isActive ? 'page' : undefined}
+      className={cn(className, isActive && activeClassName)}
+    >
+      {children}
+    </NavigationButton>
   )
 }

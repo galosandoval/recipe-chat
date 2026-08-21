@@ -12,7 +12,11 @@ import { RouteTransition } from '~/components/motion/route-transition'
 import { AppFooter } from '~/app/app-footer'
 import { FabStack } from '~/components/fab-stack/fab-stack'
 import { LOCALE_COOKIE_NAME, getLocaleFromCookie } from '~/lib/locale'
-import { AppHeader, BottomNav } from '~/components/app-header/app-header'
+import {
+  AppHeader,
+  AppSidebar,
+  BottomNav
+} from '~/components/app-header/app-header'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies()
@@ -47,25 +51,30 @@ export default async function RootLayout({
       className={`${GeistSans.variable}`}
     >
       <body className='h-svh overflow-hidden'>
-        <div className='mx-auto flex h-full w-full max-w-2xl flex-col'>
-          <Providers
-            session={session}
-            translations={translations}
-            locale={locale}
-          >
-            <ErrorBoundary>
-              <AppHeader />
-              <RouteTransition>
-                <main className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
-                  {children}
-                </main>
-              </RouteTransition>
-              <AppFooter />
-              <BottomNav />
-              <FabStack />
-            </ErrorBoundary>
-          </Providers>
-        </div>
+        <Providers
+          session={session}
+          translations={translations}
+          locale={locale}
+        >
+          <ErrorBoundary>
+            <div className='flex h-full w-full'>
+              <AppSidebar />
+              {/* Below `md` this stays a centered phone column; at `md+` the
+                  sidebar sits beside it and the reading column widens. */}
+              <div className='mx-auto flex h-full w-full max-w-2xl flex-col md:max-w-4xl'>
+                <AppHeader />
+                <RouteTransition>
+                  <main className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
+                    {children}
+                  </main>
+                </RouteTransition>
+                <AppFooter />
+                <BottomNav />
+                <FabStack />
+              </div>
+            </div>
+          </ErrorBoundary>
+        </Providers>
       </body>
     </html>
   )
