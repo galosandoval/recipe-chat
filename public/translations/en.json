@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "RecipeChat",
-    "description": "Chat your way to dinner. RecipeChat turns what's in your fridge into tailored recipes, then carries them through to your grocery list and pantry."
+    "description": "Chat your way to dinner. RecipeChat turns what's in your fridge into tailored recipes, then carries them through to your Grocery List and pantry."
   },
   "common": {
     "cancel": "Cancel",
@@ -445,6 +445,17 @@
       "startNewChat": "New chat",
       "signUp": "Sign up",
       "login": "Login"
+    }
+  },
+  "landing": {
+    "hero": {
+      "headline": "Know what to cook tonight",
+      "tagline": "Chat with an AI cook, get real recipes, and turn them into a Grocery List.",
+      "examplePrompt": "What should I make for dinner tonight?",
+      "cta": "Try it — no account needed",
+      "signUpPrompt": "Want to keep your recipes?",
+      "signUp": "Create an account",
+      "scrollCue": "Scroll to the chat"
     }
   }
 }

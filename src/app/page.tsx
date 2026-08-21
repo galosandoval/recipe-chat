@@ -1,15 +1,16 @@
 import { redirect } from 'next/navigation'
 import { auth } from '~/server/auth'
-import { Chat } from './chat'
+import { Landing } from './landing'
 
 export default async function Home() {
   const session = await auth()
   // First-run onboarding is now an in-app overlay (auto-opened by
   // TasteProfileDrawer), so authed users go straight to chat regardless of
-  // whether they've completed their taste profile yet.
+  // whether they've completed their taste profile yet. Signed-out visitors get
+  // the marketing landing hero stacked above the same live chat.
   if (session?.user) {
     redirect('/chat')
   }
 
-  return <Chat />
+  return <Landing />
 }
