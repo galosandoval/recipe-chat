@@ -478,6 +478,28 @@
           "description": "Todo en una bandeja, 25 minutos sin hacer nada y cilantro encima al final."
         }
       }
+    },
+    "kitchen": {
+      "heading": "Conoce tu cocina",
+      "description": "Las sugerencias se basan en tu perfil de sabor, en lo que ya tienes en tu despensa y en los filtros que dejas activos.",
+      "tasteProfile": {
+        "skill": "Intermedio",
+        "cuisines": {
+          "first": "Mexicana",
+          "second": "Tailandesa"
+        },
+        "dietary": "Sin cacahuate"
+      }
+    },
+    "loop": {
+      "heading": "Del chat a la Lista de Compras y a la despensa",
+      "description": "Elige una receta y sus ingredientes llegan a tu Lista de Compras. Márcalos en la tienda y pasan a tu despensa, listos para la siguiente pregunta.",
+      "reply": "Guardé Muslos de Pollo con Cilantro y Limón. Agregué a tu Lista de Compras todo lo que te falta.",
+      "items": {
+        "first": "muslos de pollo",
+        "second": "cilantro",
+        "third": "limones"
+      }
     }
   }
 }
