@@ -3,13 +3,15 @@
 import { useRef } from 'react'
 import { Chat } from './chat'
 import { LandingHero } from './landing-hero'
+import { LandingProof } from './landing-proof'
 import { SignUpDrawerDialog } from '~/components/auth/auth-drawer-dialogs'
 import { CHAT_COMPOSER_INPUT_ID } from '~/components/chat/generate-message-form'
 import { useTranslations } from '~/hooks/use-translations'
 
 /**
- * Signed-out `/`: a marketing hero stacked above the live chat, both full-height
- * so the visitor reads the pitch first and scrolls into a working chat. The
+ * Signed-out `/`: a marketing hero, then the "ask → answer" proof section,
+ * stacked above the live chat — the hero and the chat both full-height, so the
+ * visitor reads the pitch first and scrolls into a working chat. The
  * chat's composer is `sticky` inside its own full-height section, so it pins to
  * the bottom only while the chat is on screen and never floats over the hero.
  *
@@ -52,6 +54,7 @@ export function Landing() {
         onScrollCue={scrollToChat}
         signUp={signUp}
       />
+      <LandingProof />
       <div ref={chatRef} className='flex min-h-full flex-col'>
         <Chat />
       </div>

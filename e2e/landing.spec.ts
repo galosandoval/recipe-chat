@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import en from '../public/translations/en.json'
 import { verifyShot } from './verify-shot'
 
@@ -49,4 +49,83 @@ test.describe('with reduced motion', () => {
     await expect(page.getByText(prompts[1])).toHaveCount(0)
     await expect(page.getByText(prompts[2])).toHaveCount(0)
   })
+})
+
+// Issue #610 — the "ask → answer" proof section below the hero. The two specs
+// below assert what a unit test can't see: that the section is actually
+// *painted*, not just in the DOM. Reveals start at `opacity: 0` and are
+// server-rendered that way, so a section that never settles reads as blank to a
+// visitor while every text assertion still passes.
+const proof = en.landing.proof
+
+/** Settled opacity of the reveal wrapper the given text sits inside. */
+async function revealOpacity(page: Page, text: string) {
+  return page
+    .getByText(text)
+    .first()
+    .evaluate((el) => {
+      const reveal = el.closest('[data-reveal]')
+      if (!reveal) throw new Error('text is not inside a [data-reveal] wrapper')
+      return getComputedStyle(reveal).opacity
+    })
+}
+
+test('the proof section settles the exchange and both Recipe Options', async ({
+  page
+}) => {
+  await page.emulateMedia({ colorScheme: 'light' })
+  await page.goto('/')
+
+  await page
+    .getByRole('heading', { name: proof.heading })
+    .scrollIntoViewIfNeeded()
+
+  await expect(page.getByText(proof.ask)).toBeVisible()
+  await expect(page.getByText(proof.options.first.name)).toBeVisible()
+  await expect(page.getByText(proof.options.second.name)).toBeVisible()
+
+  // The staggered reveal has finished — nothing is left mid-animation.
+  await expect
+    .poll(() => revealOpacity(page, proof.options.second.name))
+    .toBe('1')
+  await verifyShot(page, '.agent/verify/issue-610/proof-section.png')
+})
+
+// The theme follows the OS setting (next-themes, `defaultTheme: 'system'`), so
+// emulating a dark color scheme is what a visitor on a dark phone gets. The
+// section is themed entirely through tokens; this is the shot that proves it.
+test('the proof section reads in the dark theme', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.goto('/')
+
+  await expect(page.locator('html')).toHaveClass(/dark/)
+
+  await page
+    .getByRole('heading', { name: proof.heading })
+    .scrollIntoViewIfNeeded()
+  await expect(page.getByText(proof.ask)).toBeVisible()
+  await expect(page.getByText(proof.options.first.name)).toBeVisible()
+
+  await expect
+    .poll(() => revealOpacity(page, proof.options.second.name))
+    .toBe('1')
+  await verifyShot(page, '.agent/verify/issue-610/proof-section-dark.png')
+})
+
+test('the proof section renders static under reduced motion', async ({
+  page
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+
+  // Fully opaque before anything scrolls it into view: no entrance ran, and
+  // nothing is waiting on one to become visible.
+  expect(await revealOpacity(page, proof.ask)).toBe('1')
+  expect(await revealOpacity(page, proof.options.first.name)).toBe('1')
+
+  await page
+    .getByRole('heading', { name: proof.heading })
+    .scrollIntoViewIfNeeded()
+  await expect(page.getByText(proof.options.second.name)).toBeVisible()
+  await verifyShot(page, '.agent/verify/issue-610/proof-reduced-motion.png')
 })

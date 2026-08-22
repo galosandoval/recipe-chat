@@ -461,6 +461,21 @@
       "signUpPrompt": "Want to keep your recipes?",
       "signUp": "Create an account",
       "scrollCue": "Scroll to the chat"
+    },
+    "proof": {
+      "heading": "See what comes back",
+      "ask": "I have chicken thighs and half a bunch of cilantro. Dinner in 30 minutes?",
+      "reply": "Here are two that use both. Pick one and I'll write out the full recipe.",
+      "options": {
+        "first": {
+          "name": "Cilantro-Lime Chicken Thighs",
+          "description": "Seared in one skillet, finished with lime and the whole bunch of cilantro."
+        },
+        "second": {
+          "name": "Sheet-Pan Chicken and Rice",
+          "description": "Everything on one pan, hands off for 25 minutes, cilantro on top at the end."
+        }
+      }
     }
   }
 }
