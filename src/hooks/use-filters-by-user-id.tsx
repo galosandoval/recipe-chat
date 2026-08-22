@@ -2,7 +2,7 @@
 
 import { api } from '~/trpc/react'
 import { useUserId } from './use-user-id'
-import type { Filter } from '@prisma/client'
+import type { Filter } from '~/generated/prisma/client'
 
 export const useFiltersByUserId = (select?: (data: Filter[]) => Filter[]) => {
   const userId = useUserId()

@@ -1,4 +1,4 @@
-import { type Recipe } from '@prisma/client'
+import { type Recipe } from '~/generated/prisma/client'
 import { RecipesAccess, recipesAccess } from '../data-access/recipes-access'
 import { IngredientsAccess } from '../data-access/ingredients-access'
 import { InstructionsAccess } from '../data-access/instructions-access'

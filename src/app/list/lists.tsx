@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Ingredient, Recipe } from '@prisma/client'
+import type { Ingredient, Recipe } from '~/generated/prisma/client'
 import {
   getIngredientDisplayText,
   getIngredientDisplayTextInPreferredUnits,

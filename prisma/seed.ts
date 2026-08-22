@@ -1,8 +1,8 @@
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 import { hash } from 'bcryptjs'
 import { slugify } from '~/lib/utils'
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 /**
  * Seed credentials. The plaintext password is what the e2e auth fixture and a

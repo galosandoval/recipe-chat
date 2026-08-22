@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 import { slugify } from '~/lib/utils'
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 // The column was added NOT NULL DEFAULT gen_random_uuid()::text, so unprocessed
 // rows still hold a raw UUID. Idempotency guard: only humanize slugs that still

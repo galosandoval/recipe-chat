@@ -1,4 +1,4 @@
-import { type SubscriptionTier } from '@prisma/client'
+import { type SubscriptionTier } from '~/generated/prisma/client'
 
 export const PRICE_ID_TO_TIER: Record<string, SubscriptionTier> = {
   [process.env.STRIPE_STARTER_PRICE_ID]: 'STARTER',

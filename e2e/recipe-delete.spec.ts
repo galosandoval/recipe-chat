@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 import { verifyShot } from './verify-shot'
 
 /**
@@ -21,7 +21,7 @@ const SEED_USERNAME = 'alice@prisma.io'
 const FIXTURE_NAME = 'E2E DELETE FIXTURE STEW'
 const FIXTURE_SLUG = 'e2e-delete-fixture-stew'
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 /** Remove the fixture Recipe and its children, ignoring what isn't there. */
 async function removeFixtureRecipe() {

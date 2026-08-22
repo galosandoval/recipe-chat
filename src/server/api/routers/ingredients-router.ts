@@ -1,4 +1,4 @@
-import type { Ingredient } from '@prisma/client'
+import type { Ingredient } from '~/generated/prisma/client'
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 import { getAllIngredients } from '~/server/api/use-cases/ingredients-use-case'
 import { parseIngredientName } from '~/lib/parse-ingredient'

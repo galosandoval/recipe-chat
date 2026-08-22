@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import { screen, fireEvent, waitFor } from '@testing-library/react'
 import { renderWithTranslations, en } from '~/lib/test-translations'
-import type { Filter } from '@prisma/client'
+import type { Filter } from '~/generated/prisma/client'
 
 const mockSave = jest.fn()
 const mockInvalidate = jest.fn()

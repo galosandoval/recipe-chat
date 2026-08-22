@@ -1,4 +1,4 @@
-import type { SubscriptionTier } from '@prisma/client'
+import type { SubscriptionTier } from '~/generated/prisma/client'
 
 const TIER_LEVEL: Record<SubscriptionTier, number> = {
   FREE: 0,

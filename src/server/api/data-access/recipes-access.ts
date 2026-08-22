@@ -1,4 +1,4 @@
-import { type Prisma, type Recipe } from '@prisma/client'
+import { type Prisma, type Recipe } from '~/generated/prisma/client'
 import { DataAccess } from './data-access'
 import type { CreateRecipe, RecipeWriteInput } from '~/schemas/recipes-schema'
 import { toRecipeWriteData } from '~/schemas/recipes-schema'

@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import { type PrismaClient } from '~/generated/prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 
 /**
  * Postgres advisory-lock key shared by every backend integration test. A single
@@ -10,24 +11,6 @@ import { PrismaClient } from '@prisma/client'
 export const DB_SERIAL_LOCK_KEY = 4011502
 
 /**
- * Pin the lock client to a single Postgres connection. A session-level advisory
- * lock lives on the connection that acquired it, so acquire and release must run
- * on the *same* connection — a multi-connection pool could release on a different
- * one and leave the lock dangling.
- */
-function singleConnectionUrl(): string {
-  const base = process.env.DATABASE_PRISMA_URL
-  if (!base) {
-    throw new Error(
-      'DATABASE_PRISMA_URL must be set for backend integration tests'
-    )
-  }
-  const url = new URL(base)
-  url.searchParams.set('connection_limit', '1')
-  return url.toString()
-}
-
-/**
  * A dedicated, single-connection Prisma client used only to hold the cross-worker
  * advisory lock. Kept separate from `testPrisma` (which pools connections for the
  * suites' actual queries) so the lock's session is never shared or recycled.
@@ -36,7 +19,11 @@ let lockClient: PrismaClient | null = null
 
 function client(): PrismaClient {
   if (!lockClient) {
-    lockClient = new PrismaClient({ datasourceUrl: singleConnectionUrl() })
+    // Pinned to a single Postgres connection: a session-level advisory lock
+    // lives on the connection that acquired it, so acquire and release must run
+    // on the *same* one — a multi-connection pool could release on a different
+    // connection and leave the lock dangling.
+    lockClient = createPrismaClient({ maxConnections: 1 })
   }
   return lockClient
 }

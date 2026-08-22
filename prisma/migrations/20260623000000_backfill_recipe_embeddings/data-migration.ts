@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 import { embedRecipeById } from '../../../src/server/api/use-cases/embed-recipe-use-case'
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 const BATCH_SIZE = 25
 

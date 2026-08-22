@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 import { initialFilters } from '~/lib/stock-filters'
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 /**
  * This one-time migration is to add stock filters for each user

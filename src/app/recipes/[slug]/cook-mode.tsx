@@ -9,7 +9,7 @@ import {
   TimerIcon,
   XIcon
 } from 'lucide-react'
-import type { Ingredient } from '@prisma/client'
+import type { Ingredient } from '~/generated/prisma/client'
 import { Button } from '~/components/button'
 import { toast } from '~/components/toast'
 import { useRegisterFab } from '~/components/fab-stack/use-register-fab'

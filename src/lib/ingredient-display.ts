@@ -1,4 +1,4 @@
-import type { IngredientUnitType } from '@prisma/client'
+import type { IngredientUnitType } from '~/generated/prisma/client'
 import {
   type UnitKind,
   getUnitKind,

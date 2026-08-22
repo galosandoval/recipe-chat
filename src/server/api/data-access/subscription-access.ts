@@ -1,4 +1,7 @@
-import { type SubscriptionTier, type SubscriptionStatus } from '@prisma/client'
+import {
+  type SubscriptionTier,
+  type SubscriptionStatus
+} from '~/generated/prisma/client'
 import { DataAccess } from './data-access'
 
 /** The user fields the Stripe webhook path reads to resolve and update a subscription. */

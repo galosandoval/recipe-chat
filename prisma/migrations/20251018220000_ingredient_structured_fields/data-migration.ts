@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 import { parseIngredientName } from '../../../src/lib/parse-ingredient'
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 const BATCH_SIZE = 50
 

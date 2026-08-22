@@ -3,8 +3,9 @@ import { execSync } from 'node:child_process'
 /**
  * Playwright globalSetup (#523): bring the dedicated e2e database to a known
  * fixture before any spec — or the app server — boots. `migrate reset` drops the
- * schema, re-applies migrations, and runs `prisma/seed.ts`, so every local run
- * starts from the same seeded user + recipe.
+ * schema and re-applies migrations; Prisma 7 no longer seeds as part of reset,
+ * so `db seed` runs explicitly after it. Every local run therefore starts from
+ * the same seeded user + recipe.
  *
  * Env comes from `.env.e2e.local` (loaded by the `test:e2e` script via
  * dotenv-cli). CI is different: it preps a fresh Postgres service with explicit
@@ -15,9 +16,8 @@ export default function globalSetup() {
   if (process.env.CI) return
 
   assertDisposableDatabase()
-  execSync('bunx prisma migrate reset --force --skip-generate', {
-    stdio: 'inherit'
-  })
+  execSync('bunx prisma migrate reset --force', { stdio: 'inherit' })
+  execSync('bunx prisma db seed', { stdio: 'inherit' })
 }
 
 /**

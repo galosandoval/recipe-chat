@@ -60,3 +60,5 @@ next-env.d.ts
 # agent:local rehearsal outputs preserved on the host (#566) — transcript,
 # reports, and scorecard per run; inspection-only, never committed.
 /.agent/local/runs/
+# prisma
+/src/generated/

@@ -1,9 +1,8 @@
-import { type PrismaClient } from '@prisma/client'
-import type { ITXClientDenyList } from '@prisma/client/runtime/library'
+import { type Prisma, type PrismaClient } from '~/generated/prisma/client'
 import { prisma as db } from '~/server/db'
 
 /** A Prisma client usable either standalone or as a transaction client. */
-export type Db = Omit<PrismaClient, ITXClientDenyList>
+export type Db = Prisma.TransactionClient
 
 /**
  * Base for the data-access layer. Defaults to the app's Prisma singleton, so

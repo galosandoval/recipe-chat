@@ -6,6 +6,7 @@ const config = {
   },
   plugins: ['@typescript-eslint', 'react-compiler'],
   extends: ['next/core-web-vitals'],
+  ignorePatterns: ['src/generated/'],
   rules: {
     // These opinionated rules are enabled in stylistic-type-checked above.
     // Feel free to reconfigure them to your own preference.
