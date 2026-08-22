@@ -73,6 +73,7 @@ async function revealOpacity(page: Page, text: string) {
 test('the proof section settles the exchange and both Recipe Options', async ({
   page
 }) => {
+  await page.emulateMedia({ colorScheme: 'light' })
   await page.goto('/')
 
   await page
@@ -88,6 +89,27 @@ test('the proof section settles the exchange and both Recipe Options', async ({
     .poll(() => revealOpacity(page, proof.options.second.name))
     .toBe('1')
   await verifyShot(page, '.agent/verify/issue-610/proof-section.png')
+})
+
+// The theme follows the OS setting (next-themes, `defaultTheme: 'system'`), so
+// emulating a dark color scheme is what a visitor on a dark phone gets. The
+// section is themed entirely through tokens; this is the shot that proves it.
+test('the proof section reads in the dark theme', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.goto('/')
+
+  await expect(page.locator('html')).toHaveClass(/dark/)
+
+  await page
+    .getByRole('heading', { name: proof.heading })
+    .scrollIntoViewIfNeeded()
+  await expect(page.getByText(proof.ask)).toBeVisible()
+  await expect(page.getByText(proof.options.first.name)).toBeVisible()
+
+  await expect
+    .poll(() => revealOpacity(page, proof.options.second.name))
+    .toBe('1')
+  await verifyShot(page, '.agent/verify/issue-610/proof-section-dark.png')
 })
 
 test('the proof section renders static under reduced motion', async ({

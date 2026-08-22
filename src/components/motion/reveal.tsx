@@ -3,38 +3,48 @@
 import { motion } from 'motion/react'
 import { fadeRiseTransition, fadeRiseVariants } from './transitions'
 
+/** What starts the entrance: the viewport, or the enclosing Reveal's own. */
+const viewportTrigger = {
+  initial: 'hidden',
+  whileInView: 'visible',
+  viewport: { once: true, amount: 0.3 }
+} as const
+
 /**
  * Scroll-triggered section entrance: fades and gently rises its contents into
  * place the first time the section scrolls into view, then leaves them settled.
  * Unlike {@link FadeIn} (which animates on mount), this waits for the viewport,
  * so it's the primitive the marketing landing sections stack on.
  *
- * Honors `prefers-reduced-motion` in CSS rather than JS — the `data-reveal` rule
- * in globals.css pins the contents at their final, static state. That has to be
- * CSS: `useReducedMotion` can only answer on the client, so the server renders
- * the hidden state as inline `opacity: 0` either way, and React leaves that
- * attribute in place when a static branch hydrates over it. Branching in JS left
- * the section permanently invisible for exactly the visitors it protects. The
- * enter still runs for them, unseen and pinned; nothing waits on it to appear.
+ * `prefers-reduced-motion` is honored in CSS, not here — the `[data-reveal]`
+ * rule in globals.css carries it, and the comment there explains why it can't
+ * live in JS.
  */
 export function Reveal({
   children,
   className,
-  delay
+  delay,
+  trigger = 'viewport'
 }: {
   children: React.ReactNode
   className?: string
   /** Seconds to hold before rising in — how sibling Reveals stagger. */
   delay?: number
+  /**
+   * `viewport` (the default) waits to be scrolled to. `parent` has no trigger
+   * of its own: Motion propagates the enclosing Reveal's variant down, so a
+   * group of siblings arrives off the section's single entrance instead of each
+   * one waiting for the scroll to reach it — which is what keeps a stagger in
+   * order down a one-column phone layout.
+   */
+  trigger?: 'viewport' | 'parent'
 }) {
   return (
     <motion.div
       data-reveal
       className={className}
       variants={fadeRiseVariants}
-      initial='hidden'
-      whileInView='visible'
-      viewport={{ once: true, amount: 0.3 }}
+      {...(trigger === 'viewport' ? viewportTrigger : {})}
       transition={{ ...fadeRiseTransition, delay }}
     >
       {children}

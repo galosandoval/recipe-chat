@@ -1,18 +1,22 @@
 'use client'
 
-import { BotMessageSquareIcon, SendIcon, UserCircleIcon } from 'lucide-react'
+import { BotMessageSquareIcon, UserCircleIcon } from 'lucide-react'
 import { useTranslations } from '~/hooks/use-translations'
-import { Button } from '~/components/button'
 import { ChatMessage } from '~/components/chat/message'
+import { GenerateRecipeButton } from '~/components/chat/generate-recipe-button'
 import { RecipeOptionCard } from '~/components/chat/recipe-option-card'
 import { Reveal } from '~/components/motion/reveal'
-import { RevealItem } from '~/components/motion/reveal-item'
 
 /** Seconds between two steps of the exchange, so they arrive one after another. */
-const STEP_S = 0.12
+const STEP_SECONDS = 0.12
 
 /** The reply is the exchange's second step, so the options pick up at the third. */
 const FIRST_OPTION_STEP = 2
+
+/** How long the given step of the exchange holds before it rises in. */
+function stepDelay(step: number) {
+  return step * STEP_SECONDS
+}
 
 /**
  * The landing page's aha moment, directly below the hero: a staged exchange
@@ -47,51 +51,29 @@ export function LandingProof() {
         />
       </Reveal>
 
-      <Reveal className='w-full max-w-md' delay={STEP_S}>
+      <Reveal className='w-full max-w-md' delay={stepDelay(1)}>
         <ChatMessage
           content={t.landing.proof.reply}
           icon={<BotMessageSquareIcon />}
         >
           <div className='grid grid-cols-1 items-stretch gap-2 pt-3 sm:grid-cols-2'>
             {options.map((option, index) => (
-              <RevealItem
+              <Reveal
                 key={option.name}
-                delay={(FIRST_OPTION_STEP + index) * STEP_S}
+                trigger='parent'
+                delay={stepDelay(FIRST_OPTION_STEP + index)}
                 className='h-full'
               >
                 <RecipeOptionCard
                   name={option.name}
                   description={option.description}
-                  action={<GenerateButtonMock />}
+                  action={<GenerateRecipeButton isDecorative />}
                 />
-              </RevealItem>
+              </Reveal>
             ))}
           </div>
         </ChatMessage>
       </Reveal>
     </section>
-  )
-}
-
-/**
- * The Recipe Option's Generate button itself, with nothing behind it — the real
- * one needs a chat session, and the live chat below is where a visitor presses
- * it for real. Rendering the actual button rather than a lookalike is what keeps
- * this card indistinguishable from the chat's as `Button` changes. Hidden from
- * assistive tech and out of the tab order so it isn't offered as pressable.
- */
-function GenerateButtonMock() {
-  const t = useTranslations()
-
-  return (
-    <Button
-      aria-hidden='true'
-      tabIndex={-1}
-      size='sm'
-      variant='outline'
-      icon={<SendIcon className='size-4' />}
-    >
-      {t.chat.generate}
-    </Button>
   )
 }

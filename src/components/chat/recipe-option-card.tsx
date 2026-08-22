@@ -20,7 +20,7 @@ export function RecipeOptionCard({
   return (
     <Card className='bg-card' contentClassName='flex flex-col h-full'>
       <h3 className='text-secondary-foreground font-semibold'>{name}</h3>
-      <p className='text-xs'>{description}</p>
+      {description && <p className='text-xs'>{description}</p>}
       {action && (
         <div className='mt-auto flex justify-end self-end pt-2'>{action}</div>
       )}

@@ -33,4 +33,18 @@ describe('Reveal', () => {
       'data-reveal'
     )
   })
+
+  // A `parent`-triggered Reveal is a step of an enclosing one, so it carries the
+  // same reduced-motion marker rather than falling through unprotected.
+  it('marks a parent-triggered reveal too', () => {
+    render(
+      <Reveal trigger='parent'>
+        <p>one step</p>
+      </Reveal>
+    )
+
+    expect(screen.getByText('one step').parentElement).toHaveAttribute(
+      'data-reveal'
+    )
+  })
 })

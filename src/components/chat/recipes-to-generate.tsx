@@ -1,11 +1,9 @@
-import { useTranslations } from '~/hooks/use-translations'
 import { useChatStore } from './chat-store'
 import { useChatSessionContext } from './use-chat-session'
 import type { RecipeDTO } from '~/schemas/chats-schema'
-import { Button } from '~/components/button'
+import { GenerateRecipeButton } from './generate-recipe-button'
 import { RecipeOptionCard } from './recipe-option-card'
 import { useState } from 'react'
-import { SendIcon } from 'lucide-react'
 
 export function RecipesToGenerate({ recipes }: { recipes: RecipeDTO[] }) {
   const { isStreaming } = useChatSessionContext()
@@ -70,7 +68,6 @@ function GenerateButton({
   recipeName: string
   recipeDescription: string
 }) {
-  const t = useTranslations()
   const { generateRecipe } = useChatSessionContext()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -79,15 +76,10 @@ function GenerateButton({
     generateRecipe(recipeId, recipeName, recipeDescription)
   }
   return (
-    <Button
-      size='sm'
+    <GenerateRecipeButton
       disabled={disabled}
       isLoading={disabled && isLoading}
       onClick={handleGenerate}
-      variant='outline'
-      icon={<SendIcon className='size-4' />}
-    >
-      {t.chat.generate}
-    </Button>
+    />
   )
 }
