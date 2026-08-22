@@ -6,17 +6,10 @@ import { ChatMessage } from '~/components/chat/message'
 import { GenerateRecipeButton } from '~/components/chat/generate-recipe-button'
 import { RecipeOptionCard } from '~/components/chat/recipe-option-card'
 import { Reveal } from '~/components/motion/reveal'
-
-/** Seconds between two steps of the exchange, so they arrive one after another. */
-const STEP_SECONDS = 0.12
+import { stepDelay } from './landing-section'
 
 /** The reply is the exchange's second step, so the options pick up at the third. */
 const FIRST_OPTION_STEP = 2
-
-/** How long the given step of the exchange holds before it rises in. */
-function stepDelay(step: number) {
-  return step * STEP_SECONDS
-}
 
 /**
  * The landing page's aha moment, directly below the hero: a staged exchange

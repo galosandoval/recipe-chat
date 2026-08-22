@@ -476,6 +476,29 @@
           "description": "Everything on one pan, hands off for 25 minutes, cilantro on top at the end."
         }
       }
+    },
+    "kitchen": {
+      "heading": "It knows your kitchen",
+      "description": "Suggestions are shaped by your taste profile, what's already in your pantry, and the filters you keep on.",
+      "tasteProfile": {
+        "skill": "Intermediate",
+        "household": "4",
+        "cuisines": {
+          "first": "Mexican",
+          "second": "Thai"
+        },
+        "dietary": "Peanut-free"
+      }
+    },
+    "loop": {
+      "heading": "Chat to Grocery List to Pantry",
+      "description": "Pick a recipe and its ingredients land on your Grocery List. Check them off at the store and they move into your pantry — ready for the next ask.",
+      "reply": "Saved Cilantro-Lime Chicken Thighs. I added everything you're missing to your Grocery List.",
+      "items": {
+        "first": "chicken thighs",
+        "second": "cilantro",
+        "third": "limes"
+      }
     }
   }
 }

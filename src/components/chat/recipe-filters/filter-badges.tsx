@@ -5,9 +5,7 @@ import { toast } from '~/components/toast'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
-import { cn } from '~/lib/utils'
-import { Badge } from '~/components/badge'
-import { CheckCircleIcon, CircleIcon } from 'lucide-react'
+import { FilterBadge } from './filter-badge'
 import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
 import { LoadingFilterBadges } from './loading'
 import { useChatStore } from '../chat-store'
@@ -46,42 +44,23 @@ export function FilterBadges() {
       {labeledFilters.map((filter) => (
         <FilterBadge
           key={filter.id}
-          filter={filter}
-          chatFilterIds={chatFilterIds}
-          onCheck={handleCheck}
+          name={filter.name}
+          checked={isChecked(filter, chatFilterIds)}
+          onClick={() => handleCheck(filter.id, !filter.checked)}
         />
       ))}
     </div>
   )
 }
 
-function FilterBadge({
-  filter,
-  chatFilterIds,
-  onCheck
-}: {
-  filter: Filter
-  chatFilterIds: string[] | null
-  onCheck: (id: string, checked: boolean) => void
-}) {
-  const checked =
-    chatFilterIds !== null ? chatFilterIds.includes(filter.id) : filter.checked
-
-  const icon = checked ? (
-    <CheckCircleIcon className='size-5' />
-  ) : (
-    <CircleIcon className='text-primary size-5' />
-  )
-
-  return (
-    <Badge
-      icon={icon}
-      label={filter.name}
-      variant='outline'
-      onClick={() => onCheck(filter.id, !filter.checked)}
-      className={cn('select-none', checked && 'border-primary text-primary')}
-    />
-  )
+/**
+ * Whether a filter is narrowing this chat: the chat's own selection when it has
+ * one, falling back to the filter's saved state.
+ */
+function isChecked(filter: Filter, chatFilterIds: string[] | null) {
+  return chatFilterIds !== null
+    ? chatFilterIds.includes(filter.id)
+    : filter.checked
 }
 
 function useActivateFilter() {
