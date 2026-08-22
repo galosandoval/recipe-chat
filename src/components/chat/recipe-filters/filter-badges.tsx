@@ -46,7 +46,9 @@ export function FilterBadges() {
           key={filter.id}
           name={filter.name}
           checked={isChecked(filter, chatFilterIds)}
-          onClick={() => handleCheck(filter.id, !filter.checked)}
+          onClick={() =>
+            handleCheck(filter.id, !isChecked(filter, chatFilterIds))
+          }
         />
       ))}
     </div>

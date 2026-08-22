@@ -27,13 +27,17 @@ describe('LandingKitchen', () => {
 
     for (const chip of [
       profile.skill,
-      profile.household,
       profile.cuisines.first,
       profile.cuisines.second,
       profile.dietary
     ]) {
       expect(screen.getByText(chip)).toBeInTheDocument()
     }
+
+    // The household size isn't copy, so it lives in the component, not the catalog.
+    expect(
+      screen.getByText(en.valueProps.household).parentElement
+    ).toHaveTextContent(/\d+/)
   })
 
   it('shows the pantry option on', () => {

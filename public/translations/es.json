@@ -484,7 +484,6 @@
       "description": "Las sugerencias se basan en tu perfil de sabor, en lo que ya tienes en tu despensa y en los filtros que dejas activos.",
       "tasteProfile": {
         "skill": "Intermedio",
-        "household": "4",
         "cuisines": {
           "first": "Mexicana",
           "second": "Tailandesa"

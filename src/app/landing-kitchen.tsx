@@ -1,13 +1,19 @@
 'use client'
 
 import { FilterIcon, SettingsIcon, UtensilsIcon } from 'lucide-react'
-import { Badge } from '~/components/badge'
 import { FilterBadge } from '~/components/chat/recipe-filters/filter-badge'
 import { Reveal } from '~/components/motion/reveal'
-import { Toggle } from '~/components/toggle'
+import { DecorativeToggle } from '~/components/toggle'
 import { useTranslations } from '~/hooks/use-translations'
-import { LandingCard } from './landing-card'
-import { LandingSection, stepDelay } from './landing-section'
+import { LandingCard, LandingChip } from './landing-card'
+import { LandingSection } from './landing-section'
+import { stepDelay } from './landing-step-delay'
+
+/**
+ * How many the sample cook feeds. Lives here rather than in the catalog because
+ * a household size isn't copy — only the row's label gets translated.
+ */
+const HOUSEHOLD_SIZE = 4
 
 /**
  * The landing page's "it knows your kitchen" section: three compact cards
@@ -15,9 +21,9 @@ import { LandingSection, stepDelay } from './landing-section'
  * Profile, the use-my-pantry option, and their Filters. The point is that a
  * suggestion here is grounded in this kitchen, not a generic chatbot's guess.
  *
- * Built from the chat's own {@link Badge}, {@link Toggle} and
+ * Built from the chat's own {@link LandingChip}, {@link DecorativeToggle} and
  * {@link FilterBadge} so it can't drift from the surfaces it stands in for.
- * Entirely static: the copy comes from the translation catalog, the Toggle and
+ * Entirely static: the copy comes from the translation catalog, the toggle and
  * the pills are decorative, and nothing here reads or writes a profile.
  * {@link Reveal} carries the reduced-motion handling — the section renders
  * settled and static when the visitor asks for less motion.
@@ -56,18 +62,18 @@ function TasteProfileCard() {
     >
       <div className='flex flex-col gap-3'>
         <ProfileRow label={t.valueProps.skill}>
-          <ProfileChip label={profile.skill} />
+          <LandingChip label={profile.skill} />
         </ProfileRow>
         <ProfileRow label={t.valueProps.household}>
-          <ProfileChip label={profile.household} />
+          <LandingChip label={String(HOUSEHOLD_SIZE)} />
         </ProfileRow>
         <ProfileRow label={t.valueProps.cuisines}>
           {cuisines.map((cuisine) => (
-            <ProfileChip key={cuisine} label={cuisine} />
+            <LandingChip key={cuisine} label={cuisine} />
           ))}
         </ProfileRow>
         <ProfileRow label={t.valueProps.dietary}>
-          <ProfileChip label={profile.dietary} />
+          <LandingChip label={profile.dietary} />
         </ProfileRow>
       </div>
     </LandingCard>
@@ -83,12 +89,7 @@ function PantryOptionCard() {
       icon={<SettingsIcon size={16} />}
       label={t.valueProps.chatOptions}
     >
-      <Toggle
-        pressed
-        id='landingUsePantry'
-        label={t.valueProps.usePantry}
-        isDecorative
-      />
+      <DecorativeToggle pressed label={t.valueProps.usePantry} />
     </LandingCard>
   )
 }
@@ -130,13 +131,4 @@ function ProfileRow({
       <div className='flex flex-wrap justify-end gap-1'>{children}</div>
     </div>
   )
-}
-
-/**
- * A Taste Profile value as the chat welcome shows it. No `capitalize` here,
- * unlike the real summary: these values are copy, already cased by the
- * translator, and capitalizing would re-case hyphenated words like "Peanut-free".
- */
-function ProfileChip({ label }: { label: string }) {
-  return <Badge variant='muted' labelClassName='text-xs' label={label} />
 }

@@ -482,7 +482,6 @@
       "description": "Suggestions are shaped by your taste profile, what's already in your pantry, and the filters you keep on.",
       "tasteProfile": {
         "skill": "Intermediate",
-        "household": "4",
         "cuisines": {
           "first": "Mexican",
           "second": "Thai"

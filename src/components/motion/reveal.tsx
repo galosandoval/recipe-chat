@@ -26,7 +26,8 @@ export function Reveal({
   delay,
   trigger = 'viewport'
 }: {
-  children: React.ReactNode
+  /** Optional so a Reveal can be a bare surface — e.g. a fill that arrives on cue. */
+  children?: React.ReactNode
   className?: string
   /** Seconds to hold before rising in — how sibling Reveals stagger. */
   delay?: number

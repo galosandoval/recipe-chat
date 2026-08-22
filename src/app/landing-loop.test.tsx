@@ -4,10 +4,10 @@ import { renderWithTranslations, en } from '~/lib/test-translations'
 import { LandingLoop } from './landing-loop'
 
 // `motion/react` is mocked globally (see jest.setup.ts), so Reveal's children
-// render as plain DOM here — which is the point: every row arrives checked in
-// the document rather than waiting on a scroll animation, which is also exactly
-// what a visitor asking for reduced motion sees (globals.css settles the
-// reveals, so the ticks are simply already there).
+// render as plain DOM here — which is the point: every row arrives ticked in the
+// document rather than waiting on a scroll animation, which is also exactly what
+// a visitor asking for reduced motion sees (globals.css settles the reveals, so
+// the ticks are simply already there).
 const items = Object.values(en.landing.loop.items)
 
 describe('LandingLoop', () => {
@@ -37,10 +37,13 @@ describe('LandingLoop', () => {
     }
   })
 
-  it('renders every Grocery List row checked', () => {
+  it('ticks every Grocery List row off with the list page own checked mark', () => {
     const { container } = renderWithTranslations(<LandingLoop />)
 
-    expect(container.querySelectorAll('[data-state="on"]')).toHaveLength(
+    // The rows render unchecked and the tick lands on top of them, so a settled
+    // reveal — not `data-state=on` — is what says the row ended up checked.
+    expect(container.querySelectorAll('[data-state="on"]')).toHaveLength(0)
+    expect(container.querySelectorAll('svg.lucide-circle-check')).toHaveLength(
       items.length
     )
   })

@@ -1,3 +1,4 @@
+import { Badge } from '~/components/badge'
 import { SectionHeader } from '~/components/chat/section-header'
 import { Card } from '~/components/ui/card'
 
@@ -20,4 +21,14 @@ export function LandingCard({
       <div className='px-4'>{children}</div>
     </Card>
   )
+}
+
+/**
+ * A value inside a {@link LandingCard} — a Taste Profile entry, a pantry item —
+ * as the chat welcome and the pantry show it. No `capitalize` here, unlike the
+ * real Taste Profile summary: these values are copy, already cased by the
+ * translator, and capitalizing would re-case hyphenated words like "Peanut-free".
+ */
+export function LandingChip({ label }: { label: string }) {
+  return <Badge variant='muted' labelClassName='text-xs' label={label} />
 }

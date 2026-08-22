@@ -2,22 +2,11 @@
 
 import { Reveal } from '~/components/motion/reveal'
 
-/** Seconds between two steps of a section, so they arrive one after another. */
-const STEP_SECONDS = 0.12
-
-/**
- * How long the given step of a landing section holds before it rises in. Step 0
- * is the section's own entrance, so its contents stagger from step 1 up.
- */
-export function stepDelay(step: number) {
-  return step * STEP_SECONDS
-}
-
 /**
  * The shell every landing section below the hero shares: a centered column at
  * reading width, its heading and supporting line, and the single {@link Reveal}
  * whose entrance the section's contents stagger off (pass them
- * `trigger='parent'` with a {@link stepDelay}).
+ * `trigger='parent'` with a `stepDelay` from ./landing-step-delay).
  */
 export function LandingSection({
   heading,

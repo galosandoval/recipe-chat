@@ -3,19 +3,19 @@
 import {
   ArrowDownIcon,
   BotMessageSquareIcon,
-  CheckIcon,
+  CircleCheckIcon,
   CircleIcon,
   PackageIcon,
   ShoppingCartIcon
 } from 'lucide-react'
-import { Badge } from '~/components/badge'
 import { ChatMessage } from '~/components/chat/message'
 import { IngredientItemDisplay } from '~/components/ingredient-item-display'
 import { Reveal } from '~/components/motion/reveal'
-import { Toggle } from '~/components/toggle'
+import { DecorativeToggle } from '~/components/toggle'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
-import { LandingCard } from './landing-card'
-import { LandingSection, stepDelay } from './landing-section'
+import { LandingCard, LandingChip } from './landing-card'
+import { LandingSection } from './landing-section'
+import { stepDelay } from './landing-step-delay'
 
 /** The chat reply is step one and the Grocery List step two; its rows tick from the third. */
 const FIRST_ROW_STEP = 3
@@ -25,7 +25,7 @@ const FIRST_ROW_STEP = 3
  * the unit's key live here rather than in the catalog because neither is copy —
  * only the unit's label and the item's name get translated.
  */
-const items = [
+const LIST_ITEMS = [
   { key: 'first', quantity: 1.5, unitKey: 'lb', unitType: 'weight' },
   { key: 'second', quantity: 1, unitKey: 'bunch', unitType: 'count' },
   { key: 'third', quantity: 2, unitKey: 'piece', unitType: 'count' }
@@ -38,7 +38,7 @@ const items = [
  * answers "and then what?" — the product carries a recipe through to shopping
  * and to what's on hand, rather than stopping at generation.
  *
- * Built from the real {@link ChatMessage}, {@link Toggle} row and
+ * Built from the real {@link ChatMessage}, {@link DecorativeToggle} row and
  * {@link IngredientItemDisplay} so it can't drift from the pages it stands in
  * for. Entirely static: the rows are decorative and nothing here reads a list.
  * Each tick is a {@link Reveal} like every other entrance here, which is what
@@ -66,7 +66,10 @@ export function LandingLoop() {
 
       <HandoffArrow />
 
-      <Reveal trigger='parent' delay={stepDelay(FIRST_ROW_STEP + items.length)}>
+      <Reveal
+        trigger='parent'
+        delay={stepDelay(FIRST_ROW_STEP + LIST_ITEMS.length)}
+      >
         <PantryCard />
       </Reveal>
     </LandingSection>
@@ -80,16 +83,11 @@ function GroceryListCard() {
   return (
     <LandingCard icon={<ShoppingCartIcon size={16} />} label={t.nav.list}>
       <div className='flex flex-col gap-2'>
-        {items.map((item, index) => (
-          <Toggle
+        {LIST_ITEMS.map((item, index) => (
+          <TickingRow
             key={item.key}
-            id={`landingGrocery-${item.key}`}
-            pressed
-            isDecorative
-            label={<IngredientItemDisplay ingredient={toIngredient(item, t)} />}
-            iconSlot={
-              <TickingCheck delay={stepDelay(FIRST_ROW_STEP + index)} />
-            }
+            item={item}
+            delay={stepDelay(FIRST_ROW_STEP + index)}
           />
         ))}
       </div>
@@ -104,13 +102,8 @@ function PantryCard() {
   return (
     <LandingCard icon={<PackageIcon size={16} />} label={t.nav.pantry}>
       <div className='flex flex-wrap gap-2'>
-        {items.map((item) => (
-          <Badge
-            key={item.key}
-            variant='muted'
-            labelClassName='text-xs'
-            label={t.landing.loop.items[item.key]}
-          />
+        {LIST_ITEMS.map((item) => (
+          <LandingChip key={item.key} label={t.landing.loop.items[item.key]} />
         ))}
       </div>
     </LandingCard>
@@ -118,17 +111,52 @@ function PantryCard() {
 }
 
 /**
- * A checkbox with its check rising in on cue — the row ticking itself off with
- * no state to flip. The check lands over the circle rather than replacing it, so
- * nothing shifts as it arrives, and it's a {@link Reveal} so a visitor who asked
- * for less motion simply finds the row already checked.
+ * A Grocery List row that checks itself off on cue: it renders unchecked, then
+ * the checked row's accent fill and its {@link CircleCheckIcon} arrive together
+ * on top of it — the row going from unticked to ticked with no state to flip.
+ * Both halves are {@link Reveal}s, so a visitor who asked for less motion simply
+ * finds the row already checked.
+ */
+function TickingRow({
+  item,
+  delay
+}: {
+  item: (typeof LIST_ITEMS)[number]
+  delay: number
+}) {
+  const t = useTranslations()
+
+  return (
+    <div className='relative overflow-hidden rounded-md'>
+      <Reveal
+        trigger='parent'
+        delay={delay}
+        className='bg-accent absolute inset-0'
+      />
+      <DecorativeToggle
+        pressed={false}
+        className='relative'
+        label={<IngredientItemDisplay ingredient={toIngredient(item, t)} />}
+        icon={<TickingCheck delay={delay} />}
+      />
+    </div>
+  )
+}
+
+/**
+ * The row's checkbox mid-tick: the unchecked circle with the list page's own
+ * checked mark landing over it, so nothing shifts as it arrives.
  */
 function TickingCheck({ delay }: { delay: number }) {
   return (
     <span className='relative flex size-4 shrink-0 items-center justify-center'>
       <CircleIcon className='absolute inset-0' />
-      <Reveal trigger='parent' delay={delay} className='flex'>
-        <CheckIcon className='size-3!' />
+      <Reveal
+        trigger='parent'
+        delay={delay}
+        className='absolute inset-0 flex items-center justify-center'
+      >
+        <CircleCheckIcon />
       </Reveal>
     </span>
   )
@@ -145,7 +173,7 @@ function HandoffArrow() {
 }
 
 /** Shapes a sample item as the ingredient the real list and pantry rows display. */
-function toIngredient(item: (typeof items)[number], t: Translations) {
+function toIngredient(item: (typeof LIST_ITEMS)[number], t: Translations) {
   return {
     quantity: item.quantity,
     unit: t.pantry.units[item.unitKey],
