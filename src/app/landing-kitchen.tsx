@@ -58,7 +58,7 @@ function TasteProfileCard() {
   return (
     <LandingCard
       icon={<UtensilsIcon size={16} />}
-      label={t.valueProps.yourTasteProfile}
+      label={t.valueProps.tasteProfile}
     >
       <div className='flex flex-col gap-3'>
         <ProfileRow label={t.valueProps.skill}>

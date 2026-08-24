@@ -202,7 +202,7 @@ function TasteProfileSummary() {
     <div className='flex w-full flex-col pt-2'>
       <SectionHeader
         icon={<UtensilsIcon size={16} />}
-        label={t.valueProps.yourTasteProfile}
+        label={t.valueProps.tasteProfile}
         actionComp={editLink}
       />
       <div className='flex flex-col gap-3 px-4'>
