@@ -345,7 +345,9 @@
     "pastDueWarning": "Your payment is past due. Please update your payment method.",
     "freeFeatures": "Basic recipe chat, Save up to 10 recipes",
     "starterFeatures": "Unlimited saved recipes, Full chat history, Aisle-sorted Grocery List, Staples management, Cook mode, Recipe remixing",
-    "premiumFeatures": "Everything in Starter, 7-day meal planning, Fridge-first recipe suggestions, Multi-user household sync, Customizable video editing, Private clubs and groups, Direct-to-cart grocery integration, Nutrition sync with Apple Health and Google Fit, Priority support"
+    "premiumFeatures": "Everything in Starter, 7-day meal planning, Fridge-first recipe suggestions, Multi-user household sync, Customizable video editing, Private clubs and groups, Direct-to-cart grocery integration, Nutrition sync with Apple Health and Google Fit, Priority support",
+    "unavailableTitle": "Subscriptions coming soon",
+    "unavailableMessage": "Subscriptions aren't available yet. Every feature is free to use in the meantime."
   },
   "error": {
     "error": "Error: ",

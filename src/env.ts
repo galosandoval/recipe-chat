@@ -13,7 +13,10 @@ const envVariables = z.object({
   STRIPE_WEBHOOK_SECRET: z.string(),
   STRIPE_STARTER_PRICE_ID: z.string(),
   STRIPE_PREMIUM_PRICE_ID: z.string(),
-  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string()
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string(),
+  // Optional so a deployment with subscriptions off is not forced to define it;
+  // absent means disabled (see `~/lib/billing-config`).
+  NEXT_PUBLIC_SUBSCRIPTIONS_ENABLED: z.string().optional()
 })
 
 envVariables.parse(process.env)

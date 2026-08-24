@@ -42,6 +42,7 @@ import { TasteProfileDrawer } from '~/components/taste-profile/taste-profile-dra
 import { useTasteProfileDrawerStore } from '~/components/taste-profile/taste-profile-drawer-store'
 import { useAppRouter } from '~/hooks/use-app-router'
 import { cn } from '~/lib/utils'
+import { areSubscriptionsEnabled } from '~/lib/billing-config'
 
 const preferredUnitsFormSchema = z.object({
   preferredWeightUnit: z.string(),
@@ -91,13 +92,16 @@ export function NavDropdownMenu({
         icon: <RulerIcon />,
         label: t.nav.menu.preferredUnits,
         onClick: handleTogglePreferredUnits
-      },
-      {
+      }
+    )
+
+    if (areSubscriptionsEnabled()) {
+      items.push({
         icon: <CreditCardIcon />,
         label: t.nav.menu.subscription,
         onClick: () => router.push('/subscription')
-      }
-    )
+      })
+    }
   }
 
   if (!isAuthenticated) {

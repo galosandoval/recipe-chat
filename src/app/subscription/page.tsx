@@ -9,6 +9,7 @@ import { toast } from '~/components/toast'
 import { CheckIcon } from 'lucide-react'
 import { Button } from '~/components/button'
 import { formatTierPrice } from '~/lib/stripe-config'
+import { areSubscriptionsEnabled } from '~/lib/billing-config'
 import type { Locale } from '~/i18n-config'
 
 const TIERS = ['FREE', 'STARTER', 'PREMIUM'] as const
@@ -17,6 +18,33 @@ type Tier = (typeof TIERS)[number]
 const TIER_ORDER: Record<Tier, number> = { FREE: 0, STARTER: 1, PREMIUM: 2 }
 
 export default function SubscriptionPage() {
+  console.log('are sub enabled', areSubscriptionsEnabled())
+  if (!areSubscriptionsEnabled()) return <SubscriptionsUnavailable />
+
+  return <SubscriptionTiers />
+}
+
+/**
+ * Shown instead of the Tier grid when this deployment has Subscriptions off, so
+ * a bookmark or a stale link lands on a plain message rather than prices that
+ * cannot be bought.
+ */
+function SubscriptionsUnavailable() {
+  const t = useTranslations()
+
+  return (
+    <main className='mx-auto w-full max-w-3xl px-4 py-8'>
+      <h1 className='mb-2 text-2xl font-bold'>
+        {t.subscription.unavailableTitle}
+      </h1>
+      <p className='text-muted-foreground'>
+        {t.subscription.unavailableMessage}
+      </p>
+    </main>
+  )
+}
+
+function SubscriptionTiers() {
   const t = useTranslations()
   const session = useSession()
   const searchParams = useSearchParams()
