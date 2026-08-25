@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 
 /**
  * A dedicated Prisma client for fixtures and assertions in backend integration
@@ -9,7 +9,7 @@ import { PrismaClient } from '@prisma/client'
  * layer under test writes through. Kept separate only so suite bookkeeping
  * (truncate, fixtures) is never confused with the code under test.
  */
-export const testPrisma = new PrismaClient()
+export const testPrisma = createPrismaClient()
 
 /** Wipe the tables these tests touch. RecipeVector cascades from Recipe. */
 export async function truncateAll() {

@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 async function main() {
   // Pre-migration recipes had no `saved` value, so treat them all as saved.

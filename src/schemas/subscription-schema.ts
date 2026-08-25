@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { SubscriptionTier } from '@prisma/client'
+import type { SubscriptionTier } from '~/generated/prisma/client'
 
 /**
  * The tiers a user can actually check out into — every {@link SubscriptionTier}

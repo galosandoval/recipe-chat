@@ -1,4 +1,4 @@
-import type { Recipe } from '@prisma/client'
+import type { Recipe } from '~/generated/prisma/client'
 import type { FetchStatus } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'

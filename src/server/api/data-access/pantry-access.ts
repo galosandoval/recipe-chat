@@ -1,4 +1,4 @@
-import { type Pantry } from '@prisma/client'
+import { type Pantry } from '~/generated/prisma/client'
 import { DataAccess } from './data-access'
 
 export class PantryAccess extends DataAccess {

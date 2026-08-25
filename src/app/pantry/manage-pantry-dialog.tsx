@@ -12,7 +12,7 @@ import {
   SaveIcon,
   XIcon
 } from 'lucide-react'
-import type { Ingredient } from '@prisma/client'
+import type { Ingredient } from '~/generated/prisma/client'
 import { DrawerDialog } from '~/components/drawer-dialog'
 import { Dialog } from '~/components/dialog'
 import { Button } from '~/components/button'

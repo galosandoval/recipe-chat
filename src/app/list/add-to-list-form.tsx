@@ -9,7 +9,7 @@ import { Button } from '~/components/button'
 import { useTranslations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
-import type { Ingredient } from '@prisma/client'
+import type { Ingredient } from '~/generated/prisma/client'
 import { toast } from '~/components/toast'
 
 const formSchema = z.object({

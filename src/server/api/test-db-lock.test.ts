@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 import {
   DB_SERIAL_LOCK_KEY,
   acquireDbSerialLock,
@@ -17,9 +17,7 @@ import {
  * Pinned to a single connection so its advisory lock behaves like the helper's.
  */
 function rivalSession() {
-  const url = new URL(process.env.DATABASE_PRISMA_URL as string)
-  url.searchParams.set('connection_limit', '1')
-  return new PrismaClient({ datasourceUrl: url.toString() })
+  return createPrismaClient({ maxConnections: 1 })
 }
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 50))

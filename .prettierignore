@@ -1,5 +1,6 @@
 # Build output / generated
 .next/
+src/generated/
 out/
 build/
 coverage/

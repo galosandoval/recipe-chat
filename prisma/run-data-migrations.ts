@@ -1,9 +1,9 @@
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { findDataMigrations } from './find-data-migrations'
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 const MIGRATIONS_DIR = path.join(__dirname, 'migrations')
 

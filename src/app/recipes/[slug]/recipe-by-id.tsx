@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { type Instruction } from '@prisma/client'
+import { type Instruction } from '~/generated/prisma/client'
 import { api } from '~/trpc/react'
 import { useAppForm } from '~/hooks/use-app-form'
 import { useTranslations } from '~/hooks/use-translations'

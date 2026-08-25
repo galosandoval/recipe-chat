@@ -1,5 +1,5 @@
-import type { Ingredient, Instruction } from '@prisma/client'
-import type { Recipe } from '@prisma/client'
+import type { Ingredient, Instruction } from '~/generated/prisma/client'
+import type { Recipe } from '~/generated/prisma/client'
 import { z } from 'zod'
 
 export const recipeUrlSchema = (urlError: string) =>

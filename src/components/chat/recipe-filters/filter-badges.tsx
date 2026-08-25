@@ -1,6 +1,6 @@
 'use client'
 
-import type { Filter } from '@prisma/client'
+import type { Filter } from '~/generated/prisma/client'
 import { toast } from '~/components/toast'
 import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'

@@ -3,7 +3,7 @@ import { compare } from 'bcryptjs'
 import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '~/server/db'
 import { z } from 'zod'
-import type { SubscriptionTier } from '@prisma/client'
+import type { SubscriptionTier } from '~/generated/prisma/client'
 
 const credentialsSchema = z.object({
   email: z.string().email(),

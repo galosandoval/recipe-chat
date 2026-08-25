@@ -1,4 +1,4 @@
-import { type Message } from '@prisma/client'
+import { type Message } from '~/generated/prisma/client'
 import { DataAccess } from './data-access'
 
 export class MessagesAccess extends DataAccess {

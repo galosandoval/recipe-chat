@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Message, Recipe } from '@prisma/client'
+import type { Message, Recipe } from '~/generated/prisma/client'
 import type { RouterOutputs } from '~/trpc/react'
 import {
   messageSchema,

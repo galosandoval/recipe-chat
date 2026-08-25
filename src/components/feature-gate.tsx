@@ -1,6 +1,6 @@
 'use client'
 
-import type { SubscriptionTier } from '@prisma/client'
+import type { SubscriptionTier } from '~/generated/prisma/client'
 import type { ReactNode } from 'react'
 import { useSession } from 'next-auth/react'
 import {

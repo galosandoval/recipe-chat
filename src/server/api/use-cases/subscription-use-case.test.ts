@@ -3,13 +3,16 @@
  */
 import type Stripe from 'stripe'
 import {
+  createCheckoutSession,
+  createPortalSession,
   handleStripeEvent,
   type HandleStripeEventResult
 } from '~/server/api/use-cases/subscription-use-case'
-import type {
-  SubscriptionEventAccess,
-  SubscriptionEventUser,
-  UpdateSubscriptionData
+import {
+  subscriptionAccess,
+  type SubscriptionEventAccess,
+  type SubscriptionEventUser,
+  type UpdateSubscriptionData
 } from '~/server/api/data-access/subscription-access'
 import {
   PERIOD_END_UNIX,
@@ -38,6 +41,15 @@ jest.mock('~/lib/stripe-config', () => ({
   }
 }))
 
+// The checkout and portal paths reach the database through the module
+// singleton rather than the injected seam handleStripeEvent uses; only the
+// one read those two paths make is faked here.
+jest.mock('~/server/api/data-access/subscription-access', () => ({
+  subscriptionAccess: {
+    getSubscriptionInfo: jest.fn()
+  }
+}))
+
 /** In-memory adapter implementing the data-access seam — the test-side port. */
 class FakeSubscriptionAccess implements SubscriptionEventAccess {
   private readonly usersByCustomer = new Map<string, SubscriptionEventUser>()
@@ -62,6 +74,8 @@ class FakeSubscriptionAccess implements SubscriptionEventAccess {
     return this.writes[this.writes.length - 1]
   }
 }
+
+const mockedAccess = jest.mocked(subscriptionAccess)
 
 // handleStripeEvent never touches the Stripe client on the webhook path; a bare
 // stub proves the seam accepts an injected client without any network.
@@ -246,5 +260,61 @@ describe('handleStripeEvent', () => {
 
       expect(access.lastWrite.data.subscriptionTier).toBe(tier)
     })
+  })
+})
+
+const APP_URL = 'https://recipechat.test'
+const ORIGINAL_APP_URL = process.env.NEXTAUTH_URL
+
+/** A Stripe double whose only job is to record the session args handed to it. */
+function sessionSpy() {
+  const create = jest.fn().mockResolvedValue({ url: 'https://stripe.test' })
+  return { create }
+}
+
+beforeEach(() => {
+  process.env.NEXTAUTH_URL = APP_URL
+  mockedAccess.getSubscriptionInfo.mockResolvedValue({
+    stripeCustomerId: TEST_CUSTOMER_ID,
+    stripeSubscriptionId: null,
+    subscriptionTier: 'FREE',
+    subscriptionStatus: null,
+    currentPeriodEnd: null
+  })
+})
+
+afterEach(() => {
+  process.env.NEXTAUTH_URL = ORIGINAL_APP_URL
+})
+
+describe('createPortalSession', () => {
+  it('returns customers to the unprefixed subscription path the app serves', async () => {
+    const { create } = sessionSpy()
+
+    await createPortalSession('user_alice', {
+      billingPortal: { sessions: { create } }
+    } as unknown as Stripe)
+
+    expect(create).toHaveBeenCalledWith({
+      customer: TEST_CUSTOMER_ID,
+      return_url: `${APP_URL}/subscription`
+    })
+  })
+})
+
+describe('createCheckoutSession', () => {
+  it('sends customers back to the unprefixed subscription path', async () => {
+    const { create } = sessionSpy()
+
+    await createCheckoutSession('user_alice', { tier: 'STARTER' }, {
+      checkout: { sessions: { create } }
+    } as unknown as Stripe)
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success_url: `${APP_URL}/subscription?success=true`,
+        cancel_url: `${APP_URL}/subscription?canceled=true`
+      })
+    )
   })
 })

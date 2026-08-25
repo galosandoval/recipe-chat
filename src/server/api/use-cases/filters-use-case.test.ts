@@ -4,7 +4,7 @@
 import { randomUUID } from 'crypto'
 import { saveFilters } from '~/server/api/use-cases/filters-use-case'
 import { testPrisma, truncateAll, createTestUser } from '~/server/api/test-db'
-import type { Filter } from '@prisma/client'
+import type { Filter } from '~/generated/prisma/client'
 
 /** A cuid-length id (idSchema requires >= 24 chars). */
 function filterId() {

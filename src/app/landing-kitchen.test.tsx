@@ -22,7 +22,7 @@ describe('LandingKitchen', () => {
     const profile = en.landing.kitchen.tasteProfile
 
     expect(
-      screen.getByRole('heading', { name: en.valueProps.yourTasteProfile })
+      screen.getByRole('heading', { name: en.valueProps.tasteProfile })
     ).toBeInTheDocument()
 
     for (const chip of [

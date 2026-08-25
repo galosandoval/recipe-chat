@@ -135,7 +135,6 @@
     "tasteProfile": "Perfil de Sabor",
     "tasteProfileQuizPrompt": "Toma el cuestionario para personalizar tu experiencia.",
     "takeQuiz": "Tomar el Cuestionario",
-    "yourTasteProfile": "Tu Perfil de Sabor",
     "skill": "Habilidad",
     "cuisines": "Cocinas",
     "goals": "Objetivos",
@@ -348,7 +347,9 @@
     "pastDueWarning": "Tu pago está vencido. Por favor actualiza tu método de pago.",
     "freeFeatures": "Chat de recetas básico, Guarda hasta 10 recetas",
     "starterFeatures": "Recetas guardadas ilimitadas, Historial de chat completo, Lista de Compras organizada por pasillo, Gestión de productos básicos, Modo cocina, Remix de recetas",
-    "premiumFeatures": "Todo en Starter, Planificación de comidas de 7 días, Sugerencias basadas en lo que tienes, Sincronización para el hogar, Edición de video personalizable, Clubes y grupos privados, Integración directa con supermercados, Sincronización nutricional con Apple Health y Google Fit, Soporte prioritario"
+    "premiumFeatures": "Todo en Starter, Planificación de comidas de 7 días, Sugerencias basadas en lo que tienes, Sincronización para el hogar, Edición de video personalizable, Clubes y grupos privados, Integración directa con supermercados, Sincronización nutricional con Apple Health y Google Fit, Soporte prioritario",
+    "unavailableTitle": "Suscripciones próximamente",
+    "unavailableMessage": "Las suscripciones aún no están disponibles. Mientras tanto, todas las funciones son gratis."
   },
   "error": {
     "error": "Error: ",

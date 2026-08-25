@@ -1,4 +1,4 @@
-import { type List, type PrismaClient } from '@prisma/client'
+import { type List, type PrismaClient } from '~/generated/prisma/client'
 import { DataAccess } from './data-access'
 
 export class ListsAccess extends DataAccess {

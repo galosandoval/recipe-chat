@@ -1,4 +1,4 @@
-import { type Recipe } from '@prisma/client'
+import { type Recipe } from '~/generated/prisma/client'
 import { DataAccess } from './data-access'
 import {
   buildSignature,

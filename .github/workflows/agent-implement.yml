@@ -197,6 +197,10 @@ jobs:
           # App/suite paths the agent may exercise during TDD.
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # `next.config.ts` validates the environment before `next build`, which
+          # the verify phase runs; without these the agent's build fails.
+          NEXTAUTH_URL: http://localhost:3000
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY || 'ci-placeholder' }}
           # The verify phase boots the same `next start` production build, so
           # Auth.js would reject the untrusted host and break the e2e login the
           # same way the PR e2e gate would. Trust the host explicitly here too.

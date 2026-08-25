@@ -1,4 +1,4 @@
-import type { Ingredient } from '@prisma/client'
+import type { Ingredient } from '~/generated/prisma/client'
 import { ArchiveIcon } from 'lucide-react'
 import { Button } from '~/components/button'
 import { toast } from '~/components/toast'

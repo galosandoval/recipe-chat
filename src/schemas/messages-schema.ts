@@ -1,5 +1,5 @@
 import z from 'zod'
-import type { Role } from '@prisma/client'
+import type { Role } from '~/generated/prisma/client'
 
 export const generatedRecipeSchema = z.object({
   name: z.string().min(1).describe('Name of the recipe.'),
@@ -48,7 +48,7 @@ export const generatedRecipeSchema = z.object({
  * Written as a `Record<Role, true>` so the compiler enforces the mirror in
  * both directions: a role Prisma doesn't have is rejected, and a role Prisma
  * gains is a missing-key error here. A type-only import keeps
- * `@prisma/client` out of the client bundle.
+ * the generated Prisma client out of the client bundle.
  */
 const roleKeys: Record<Role, true> = {
   system: true,

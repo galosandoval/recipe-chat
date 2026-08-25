@@ -1,4 +1,4 @@
-import { type Ingredient } from '@prisma/client'
+import { type Ingredient } from '~/generated/prisma/client'
 import { DataAccess } from './data-access'
 
 export class IngredientsAccess extends DataAccess {

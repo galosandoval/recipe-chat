@@ -3,9 +3,9 @@
 //
 // The runner records success on exit 0 and may re-run on failure — so a second run
 // against an already-migrated DB MUST be a no-op.
-import { PrismaClient } from '@prisma/client'
+import { createPrismaClient } from '~/server/prisma-client'
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 const BATCH_SIZE = 50
 

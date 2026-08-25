@@ -1,7 +1,11 @@
-// import './src/env.js'
+import type { NextConfig } from 'next'
+import { parseEnv } from './src/env'
 
-/** @type {import("next").NextConfig} */
-const config = {
+// Fails the build when a deployment is missing a variable it needs, instead of
+// failing at a customer's click.
+parseEnv()
+
+const config: NextConfig = {
   experimental: { reactCompiler: true },
   devIndicators: false,
   images: {

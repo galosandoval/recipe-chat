@@ -8,7 +8,7 @@
  */
 
 import { initTRPC, TRPCError } from '@trpc/server'
-import type { SubscriptionTier } from '@prisma/client'
+import type { SubscriptionTier } from '~/generated/prisma/client'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 
