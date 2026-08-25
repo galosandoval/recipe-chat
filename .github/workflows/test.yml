@@ -31,7 +31,9 @@ jobs:
       # created by `prisma migrate deploy` against this database.
       DATABASE_PRISMA_URL: postgresql://postgres:postgres@localhost:5432/recipe_chat_test
       DATABASE_URL_NON_POOLING: postgresql://postgres:postgres@localhost:5432/recipe_chat_test
-
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      NEXTAUTH_URL: http://localhost:3000
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
