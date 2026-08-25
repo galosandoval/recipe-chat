@@ -15,6 +15,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "gate": "bun run typecheck && bun run lint && bun run test",
     "format": "prettier --write .",
     "seed": "bunx prisma db seed",
     "push": "bunx prisma db push",

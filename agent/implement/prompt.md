@@ -70,8 +70,8 @@ Everything below is a fact about this repository and the machine you are on.
 Everything is Bun. Install dependencies with `bun install`; run scripts with
 `bun run <script>` and one-off binaries with `bunx <bin>`.
 
-**This work is not done until `bun run typecheck && bun run lint && bun run test`
-passes.** The harness runs that gate itself after you finish and hands you back
+**This work is not done until `bun run gate` passes** — one script, and it is
+`typecheck && lint && test`. The harness runs that gate itself after you finish and hands you back
 the failures if it is red, so a run that stops short of green costs an attempt
 rather than ending one.
 

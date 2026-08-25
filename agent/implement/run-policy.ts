@@ -55,11 +55,19 @@ export const MAX_ITERATIONS = 3
 
 /**
  * The quality gate the harness runs after every spawn — this repo's own
- * vocabulary, which is why the package ships none. `test:e2e` is deliberately
- * absent: the verify phase is best-effort by contract and must never fail a
- * run, and a flaky browser run in the gate would burn iterations instead.
+ * vocabulary, which is why the package ships none.
+ *
+ * Deliberately a script name rather than the three commands spelled out: the
+ * gate is `typecheck && lint && test`, and stating that here would be a fourth
+ * copy of names `package.json` already owns, free to drift from what a human
+ * runs locally. `package.json`'s `gate` script is the one definition; this
+ * names it, and `run-policy.test.ts` holds the name to a script that exists.
+ *
+ * `test:e2e` is deliberately outside it: the verify phase is best-effort by
+ * contract and must never fail a run, and a flaky browser run in the gate
+ * would burn iterations instead.
  */
-export const GATE_COMMAND = 'bun run typecheck && bun run lint && bun run test'
+export const GATE_COMMAND = 'bun run gate'
 
 /**
  * The three variables shopfloor 1.0.0 **refuses by name** on the step that runs
