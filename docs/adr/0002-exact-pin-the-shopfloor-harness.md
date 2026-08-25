@@ -61,3 +61,27 @@ alone: `0.5.0` started _comparing_ `cliVersion` (`2.1.208`) against the running
 `warn`, and the workflow installs exactly the pinned version, so a mismatch can
 only mean the install step drifted — worth a warning in the log, not worth
 refusing a run over. Revisit if that warning ever fires.
+
+## Addendum — 2026-08-25, at `1.0.0` (#637)
+
+The decision above said to revisit when shopfloor reached `1.0.0`, where a minor
+stops being allowed to change run behavior and a caret range starts meaning what
+it says. It has, and **the exact pin stays.**
+
+What `1.0.0` actually demanded of this repo is the argument: deleting four
+adapter scripts and 323 lines of workflow, removing three environment variables
+the run now refuses **by name**, and re-writing the prompt. A caret range would
+not have helped with any of it — the release is a migration, not a bump — and
+the failure mode it protects against is unchanged: this pipeline only ever runs
+unattended, so a version that arrives without someone reading the changelog
+arrives on a machine nobody is watching.
+
+One thing did change, and it argues the same way: from `1.0.0` the harness
+**writes to this repository during a run** — the branch, the draft PR, the
+issue's labels, and its own handoff commits. An unattended upgrade to something
+holding a write-scoped PAT is a larger thing to do accidentally than it was.
+
+The pin now lives in two places — `package.json` and the `npx` invocations in
+`.github/workflows/agent-implement.yml` — and `run-policy.test.ts` holds them
+equal, so a bump that moved only one of them fails rather than silently running
+a harness nobody chose.

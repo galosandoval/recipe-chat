@@ -13,17 +13,69 @@ The pipeline's quality gate depends on these `package.json` scripts (added in th
 
 Plus the existing `bun run lint` and `bun run test`.
 
+## The loop (`@galosandoval/shopfloor` 1.0.0, #637)
+
+`.github/workflows/agent-implement.yml` is two jobs. `admit` installs nothing and
+answers "may this event start a run?" — classification, the spend gate, the
+in-flight check, the attempt ceiling. `run-phase` does this repo's setup (pgvector
+service, `bun install`, the pinned Claude CLI, `gen` / `migrate:deploy` / `seed`,
+the Playwright browser) and then runs **one** step: `shopfloor-run-phase`. The
+branch, the draft PR, the issue's labels, the verify comment, the handoff trail,
+and every terminal transition live inside that verb.
+
+The loop has two edges:
+
+- **Human** — someone adds **`ready-for-agent`** to a leaf issue. That label, not
+  `agent:implement`, is what starts a run; `agent:implement` says which _phase_
+  owns the issue once one does.
+- **Machine** — the `Test` workflow completes red on an `agent/issue-<N>` branch.
+  The next attempt is spawned with a written handoff from the previous one. It is
+  fenced three ways inside the package: same repository (not a fork), head commit
+  authored by `claude-code[bot]`, and no `Shopfloor-Loop: closed` trailer on that
+  commit. `test.yml` runs on pushes to `agent/**` for this reason — a failed
+  attempt pushes its handoff commit without opening a PR, and without a push
+  trigger CI would never run on it.
+
+Both edges depend on `AGENT_PAT`: a push made with `GITHUB_TOKEN` fires no
+downstream event, so the loop would run once and stop. `workflow_run` also fires
+only from a workflow file on the **default branch**, so the machine edge stays
+dead until this file is on `main`.
+
 ## Labels
 
-The pipeline state machine uses these labels (created in this slice):
+The vocabulary is owned by the package (six names, fixed) and created by
+`shopfloor init`:
 
-- `agent:implement` — maintainer go/spend trigger; added to a ready leaf issue.
-- `agent:in-progress` — set while the agent runs; always cleared on completion.
-- `agent:blocked` — run refused or failed; see the issue comment for the reason.
+- `ready-for-agent` — the entry label. Adding it is the go/spend trigger, and
+  re-adding it is how a human retries.
+- `ready-for-human` — every terminal outcome sets it, from an exhaustive
+  transition table. (Before 1.0.0 this swap sat behind `|| true` against a label
+  that did not exist, and had never once fired.)
+- `agent:implement` — the implement phase owns this issue.
+- `agent:in-progress` — a run is in flight; its `labeled` timeline events are
+  also how the attempt ceiling is counted.
+- `agent:blocked` — a run refused or something is broken; a human must unblock.
+- `agent:exhausted` — the attempt ceiling (3) was spent with the gate still red.
+  The accumulated trail is posted once, as one comment.
 
-`ready-for-agent` / `ready-for-human` (pre-existing) are the upstream triage labels. On a
-successful run, `ready-for-agent` is swapped for `ready-for-human` when the draft PR opens,
-signaling the issue now needs human review/merge.
+## Run policy
+
+`agent/implement/run-policy.ts` is the single contract: model, turn cap, both
+runaway budgets, the CLI pin, the gate command, the iteration ceiling, and the
+required-env list. The workflow states none of them itself — one step writes
+`bun agent/implement/run-policy.ts github-env` into `$GITHUB_ENV`, which is where
+the harness reads them.
+
+The gate the harness runs after every spawn is
+`bun run typecheck && bun run lint && bun run test`. On a red gate it respawns
+with the failing command and a tail of its output appended to the prompt, up to
+`MAX_ITERATIONS`, all sharing the one wall-clock budget. `test:e2e` is
+deliberately not in the gate — verify is best-effort and must never fail a run.
+
+A green gate is necessary but no longer sufficient: the run's trajectory is
+graded from its transcript, and an attempt that committed before its gate passed
+or never went red before green re-enters the loop or lands `agent:blocked`. A
+missing or unreadable transcript blocks the run too.
 
 ## End-to-end harness + verify phase (#523)
 
@@ -51,8 +103,8 @@ The pipeline gains a **Playwright e2e harness** and the agent's **verify phase**
 
 ### Agent verify phase
 
-Appended to the existing `implement` job (no new job/workflow/label/secret).
-After the green-gate commits and before the draft PR:
+Part of the phase the harness runs. After the green-gate commits and before the
+draft PR:
 
 1. The agent (see `prompt.md`'s VERIFY section) judges UI-verifiability from the
    acceptance criteria.
@@ -64,20 +116,21 @@ After the green-gate commits and before the draft PR:
 3. Writes a verify report to `OUTPUT_DIR/verify_report.md` (outside the repo,
    like `pr_description.txt`).
 
-The workflow pushes the branch (capturing that push's commit SHA), opens the
-draft PR, then runs `post-verify.ts`, which builds one **PR** comment (report +
-inline screenshots + run link via the pure `verify-comment.ts` helper) and
-posts it with `gh pr comment` — not on the issue, since the issue already links
-the PR via `Closes #N`. Verify is **best-effort**: a failed boot/browser run
-never fails the run or loses the green implement commits; the comment says
-verification couldn't complete and why.
+The harness pushes the branch, opens the draft PR, and posts one **PR** comment
+(report + inline screenshots + run link) — not on the issue, since the issue
+already links the PR via `Closes #N`. Verify is **best-effort**: a failed
+boot/browser run never fails the run or loses the green implement commits; the
+comment says verification couldn't complete and why.
 
-Screenshot URLs are pinned to the push commit's **SHA**, not the branch name.
-Immediately after the comment step, a "Strip verify screenshots off the branch
-tip" step removes `.agent/verify/issue-<N>/` in a follow-up commit and pushes
-it. Because the PR comment's URLs are SHA-pinned, the images keep rendering
-even though the branch tip (and eventually `main`) no longer carries the PNGs.
-The `e2e/` spec itself is not stripped — it's meant to stay.
+Screenshot URLs are pinned to the push commit's **SHA**, not the branch name, so
+stripping the PNGs afterwards leaves the images rendering. Stripping them is
+still the workflow's job, not the harness's: 1.0.0's cleanup commit removes only
+its own attempt trail (`run-phase.ts` says so in as many words — "Nothing strips
+the verify screenshots yet"), so `agent-implement.yml` keeps a "Strip verify
+screenshots off the branch tip" step. That commit carries the
+`Shopfloor-Loop: closed` trailer, without which its own CI run going red would
+read as another failed attempt and spend one. The `e2e/` spec itself is not
+stripped; it's meant to stay.
 
 ### PR e2e gate
 
@@ -86,77 +139,6 @@ The `e2e/` spec itself is not stripped — it's meant to stay.
 `prisma/**`, `e2e/**`, `playwright.config.*`). Docs/config/pure-styling PRs skip
 it. The `e2e` job needs `NEXTAUTH_SECRET` + `OPENAI_API_KEY` (already required
 secrets) to boot the app; a real misconfig fails it loudly.
-
-## Local Docker rehearsal (`agent:local`, #541)
-
-`bun run agent:local -- <issue-number>` runs the whole `agent:implement`
-pipeline locally inside Docker — a faithful CI rehearsal (full quality gate +
-verify/e2e) fully isolated from the host, with no GitHub side effects. See
-`agent/local/run.sh` (host-side orchestration) and `agent/local/entrypoint.sh`
-(the in-container flow) for the mechanics; this section covers maintainer
-setup.
-
-### What it does
-
-1. Reads the issue's title via `gh` (using the maintainer's own already-logged-in
-   token — no new secret to provision, and it's never used to push).
-2. Brings up an ephemeral `pgvector/pgvector:pg16` service, created fresh and
-   torn down every run.
-3. Clones the host repo's **git history only** (never the working tree) into
-   the container, checks out `main`, and cuts `agent/local-<timestamp>`.
-4. Runs the shared setup (#539: `bun run gen && bun run migrate:deploy && bun
-run seed`) and the shared orchestrator (#540: `agent/implement/implement.ts`)
-   with the full quality gate plus the verify/e2e phase.
-5. Pushes the resulting branch back into the host repo's `.git` and tears the
-   database down. The host's working tree and current branch are never
-   touched — only a new branch ref appears, for you to inspect with
-   `git log agent/local-<timestamp>`.
-
-No draft PR, no label changes, no `gh pr create` / `gh issue edit` — the
-agent's own prompt already forbids opening a PR or closing the issue, and the
-local scripts never call any GitHub write command either.
-
-### Setup
-
-- **Docker** (with Compose v2) running locally.
-- **`CLAUDE_CODE_OAUTH_TOKEN`** exported in your shell (same subscription
-  token as the CI secret — run `claude setup-token`).
-- **`gh auth login`** done on the host (its token is forwarded in for reads
-  only; see "How local `gh` reads work" below).
-- **`NEXTAUTH_SECRET`** / **`OPENAI_API_KEY`** — picked up from your shell env
-  if exported, otherwise pulled straight out of the repo's local `.env` (the
-  rest of `.env` — prod DB URL, Stripe keys — is never sourced or forwarded).
-- **Coding standards** — nothing to set up (#601). The agent reads them from
-  the repository it's working in: `CLAUDE.md` at the root and the docs it links
-  under `docs/standards/`, same as CI. Procedure (the skills) arrives separately
-  with `bun install`, bundled by `@galosandoval/shopfloor` and loaded through the
-  Claude Code CLI's own `--plugin-dir`; there's no directory to clone or mount.
-- **Base branch** — the run branch is cut from `main`, matching CI. Set
-  `BASE_BRANCH` to rehearse from another branch; the container only ever sees
-  committed history, so a change to the pipeline itself has to be committed
-  somewhere before it can be rehearsed.
-- **Runaway guards** — `--max-turns 150` plus a 45-minute wall-clock cap and a
-  15-minute idle cap (`LOCAL_WALL_CLOCK_MINUTES` / `LOCAL_IDLE_MINUTES`). All
-  three come from the run-policy contract and are enforced by the orchestrator
-  itself, so local and CI run identical guards; the workflow's
-  `timeout-minutes` is only a last-resort cap above them.
-
-### How local `gh` reads work
-
-`gh` has no true anonymous mode — even public-repo reads need a token. Rather
-than provision a separate secret for local-only use, `run.sh` forwards the
-maintainer's own `gh auth token` into the container as `GH_TOKEN`. It's used
-exclusively for reads (the issue view at the top of the run, and whatever the
-agent itself reads via `gh` while exploring): nothing in the local scripts or
-the agent's prompt ever calls a `gh` write command, so despite the token
-technically being able to push, the local rehearsal never does.
-
-### CI is unchanged
-
-None of the above touches CI: `.github/workflows/agent-implement.yml` still
-installs tools per step, no Docker, no published image, same `AGENT_PAT` /
-`CLAUDE_CODE_OAUTH_TOKEN` secrets. `agent/local/` exists only for this local
-path.
 
 ## Required repo secrets
 

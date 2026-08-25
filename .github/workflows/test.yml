@@ -5,6 +5,12 @@ on:
     branches:
       - main
       - development
+      # The agent's own branches (#637). This is the machine edge of the
+      # `agent:implement` loop: a failed attempt pushes its handoff commit
+      # without opening a PR, so without a push trigger here CI never runs on
+      # it and the retrigger — the whole point of the outer loop — never fires.
+      # Branches that do have a PR run this twice; that is the cost.
+      - 'agent/**'
   pull_request:
 
 jobs:
