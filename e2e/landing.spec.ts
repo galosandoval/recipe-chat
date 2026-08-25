@@ -58,6 +58,18 @@ test.describe('with reduced motion', () => {
 // visitor while every text assertion still passes.
 const proof = en.landing.proof
 
+/**
+ * The Recipe Option card bearing this name, addressed by its heading.
+ *
+ * A bare `getByText(name)` is ambiguous: the loop section further down the page
+ * names a recipe in its reply copy, so the same string appears in a `<p>` there
+ * and Playwright's strict mode rejects the two-element match. Only the option
+ * card renders the name as a heading.
+ */
+function optionCard(page: Page, name: string) {
+  return page.getByRole('heading', { name })
+}
+
 /** Settled opacity of the reveal wrapper the given text sits inside. */
 async function revealOpacity(page: Page, text: string) {
   return page
@@ -81,8 +93,8 @@ test('the proof section settles the exchange and both Recipe Options', async ({
     .scrollIntoViewIfNeeded()
 
   await expect(page.getByText(proof.ask)).toBeVisible()
-  await expect(page.getByText(proof.options.first.name)).toBeVisible()
-  await expect(page.getByText(proof.options.second.name)).toBeVisible()
+  await expect(optionCard(page, proof.options.first.name)).toBeVisible()
+  await expect(optionCard(page, proof.options.second.name)).toBeVisible()
 
   // The staggered reveal has finished — nothing is left mid-animation.
   await expect
@@ -104,7 +116,7 @@ test('the proof section reads in the dark theme', async ({ page }) => {
     .getByRole('heading', { name: proof.heading })
     .scrollIntoViewIfNeeded()
   await expect(page.getByText(proof.ask)).toBeVisible()
-  await expect(page.getByText(proof.options.first.name)).toBeVisible()
+  await expect(optionCard(page, proof.options.first.name)).toBeVisible()
 
   await expect
     .poll(() => revealOpacity(page, proof.options.second.name))
