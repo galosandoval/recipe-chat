@@ -63,7 +63,7 @@ export async function createPortalSession(userId: string, stripe: Stripe) {
 
   const session = await stripe.billingPortal.sessions.create({
     customer: info.stripeCustomerId,
-    return_url: `${process.env.NEXTAUTH_URL}/en/subscription`
+    return_url: `${process.env.NEXTAUTH_URL}/subscription`
   })
 
   return { url: session.url }
