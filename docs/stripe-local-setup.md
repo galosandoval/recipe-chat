@@ -40,9 +40,11 @@ NEXT_PUBLIC_SUBSCRIPTIONS_ENABLED="true"
 - `STRIPE_WEBHOOK_SECRET` — Generated in the next step
 - `NEXT_PUBLIC_SUBSCRIPTIONS_ENABLED` — Master switch for the whole Subscription surface. `"true"` enables it; **anything else — unset, empty, `"1"`, `"TRUE"` — means disabled**. Set it to `"true"` in development; it is **off in production**.
 
+`src/env.ts` validates the environment when the build starts (`next.config.ts` calls it), so a missing variable fails the build instead of a customer's click. The Stripe five above are checked **only when `NEXT_PUBLIC_SUBSCRIPTIONS_ENABLED` is `"true"`** — a deployment with the flag off defines none of them.
+
 ### The Subscriptions flag
 
-`NEXT_PUBLIC_SUBSCRIPTIONS_ENABLED` is read in exactly one place, `src/lib/billing-config.ts`, and every surface asks that module instead of the environment. When the flag is off:
+`NEXT_PUBLIC_SUBSCRIPTIONS_ENABLED` is read in exactly one place at runtime, `src/lib/billing-config.ts`, and every surface asks that module instead of the environment. (Build-time env validation in `src/env.ts` compares it separately — it validates whatever environment it is handed, so it cannot go through a module that reads `process.env` directly.) When the flag is off:
 
 - The settings menu omits the Subscription entry, and `/subscription` renders a "not available yet" message instead of the Tier grid.
 - `createCheckout` and `createPortalSession` throw before any Stripe client is constructed.
@@ -128,7 +130,7 @@ Subscriptions are disabled in production. Turning them back on is **the last ste
 That checklist covers, in order:
 
 1. **Stripe account artifacts** — live-mode products and prices, live keys, a registered live webhook endpoint plus its signing secret, and a configured billing portal.
-2. **Code gaps** — the locale-prefixed billing-portal return URL, re-enabling env validation (flag-aware, plus `NEXTAUTH_URL`), webhook idempotency and event ordering, `checkout.session.completed` handling, session Tier freshness, and downgrade/lapse behavior.
+2. **Code gaps** — the locale-prefixed billing-portal return URL, webhook idempotency and event ordering, `checkout.session.completed` handling, session Tier freshness, and downgrade/lapse behavior.
 3. **Product gaps** — at least one genuinely gated feature, defined Free-Tier limits, and pricing copy reviewed in both locales.
 4. **Production variables**, then a manual live-mode smoke test, then `NEXT_PUBLIC_SUBSCRIPTIONS_ENABLED="true"`.
 

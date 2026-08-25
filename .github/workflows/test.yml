@@ -110,6 +110,10 @@ jobs:
       # e2e job loudly (unlike the agent's best-effort verify phase).
       NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # `next.config.ts` validates the environment before `next build` runs, so
+      # the build inside the Playwright webServer needs these too.
+      NEXTAUTH_URL: http://localhost:3000
+      UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY || 'ci-placeholder' }}
       # `next start` (production) makes Auth.js reject any request whose host
       # isn't trusted, so every /api/auth/session call 500s and the auth fixture
       # never reaches /chat. Dev and Vercel auto-trust the host; a bare runner

@@ -62,7 +62,7 @@ async function main() {
             'A twist on the beloved British favorite, delightfully simple and absolutely delicious for breakfast, brunch, lunch, or even dinner.',
 
           // Unsplash, not the original source host: `images.unsplash.com` is
-          // allowlisted in `next.config.mjs` `remotePatterns`, so `next/image`
+          // allowlisted in `next.config.ts` `remotePatterns`, so `next/image`
           // renders it. An unconfigured host throws and trips the error boundary.
           imgUrl:
             'https://images.unsplash.com/photo-1504674900247-0877df9cc836',
