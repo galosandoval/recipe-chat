@@ -50,15 +50,18 @@ next-env.d.ts
 .claude/worktrees
 
 # playwright e2e (artifacts + the auth storageState are regenerated each run;
-# the committed proof under .agent/verify/ is intentionally NOT ignored)
+# the committed proof under .agent/verify/ is intentionally NOT ignored, and
+# neither is the agent's attempt trail under .agent/attempts/ — the harness
+# commits it to the branch so the next attempt can read it)
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 /e2e/.auth/
 
-# agent:local rehearsal outputs preserved on the host (#566) — transcript,
-# reports, and scorecard per run; inspection-only, never committed.
-/.agent/local/runs/
+# Leftover outputs from the retired `agent:local` Docker rehearsal (#637 deleted
+# the rehearsal itself; these are old run artifacts, inspection-only).
+/.agent/local/
+
 # prisma
 /src/generated/

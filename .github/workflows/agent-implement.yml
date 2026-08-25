@@ -1,82 +1,97 @@
 name: Agent — Implement
 
-# Slice 2b (#510): the real test-driven implementation agent. Adding
-# `agent:implement` to a leaf issue fires this workflow, which runs the Claude
-# Code CLI directly (#540 — the ephemeral runner is the isolation boundary)
-# against a Postgres + pgvector service DB, does red-green-refactor, runs the
-# repo's quality gate, commits when green, and opens a draft PR linked to the
-# issue. No Docker, no GHCR image, no ANTHROPIC_API_KEY.
+# The `agent:implement` pipeline, on `@galosandoval/shopfloor` 1.0.0 (#637).
 #
-# Slice 3 (#511): a `preflight` job refuses non-leaf / already-PR'd issues
-# *before* any branch or PR work, and the `implement` job runs only when
-# pre-flight passes. Failure / zero-commit handling and the `always()` clear of
-# `agent:in-progress` live in the implement job.
+# The loop has two edges: a human labelling an issue `ready-for-agent`, and CI
+# completing on a branch the agent pushed. Everything between them — the
+# branch, the draft PR, the issue's labels, the handoff trail, the attempt
+# ceiling — is a typed, tested function inside the package. What used to be 323
+# lines of sequencing here is now two jobs: `admit` (does this event get to
+# spend?) and one `shopfloor-run-phase` step surrounded by the setup this
+# repository needs.
+#
+# `workflow_run` fires only from a workflow file on the default branch, so the
+# machine edge stays dead until this file is on `main`.
 
 on:
   issues:
     types: [labeled]
+  workflow_run:
+    # Our own test suite, by name (.github/workflows/test.yml). It runs on
+    # pushes to `agent/**` as well as on pull requests, so a failed attempt
+    # that pushed a handoff commit without opening a PR still retriggers.
+    workflows: ['Test']
+    types: [completed]
+
+# One run per branch: a second event while a run is in flight would put two
+# agents on one branch. Keyed on the branch rather than the issue, because
+# `github.event.issue` is null on a `workflow_run` event — an issue-keyed group
+# degrades to `run_id`, which is unique per run and excludes nothing, leaving
+# the one edge that fires with no human on it with no mutual exclusion at all.
+concurrency:
+  group: agent-implement-${{ github.event.workflow_run.head_branch || format('agent/issue-{0}', github.event.issue.number) || github.run_id }}
+  cancel-in-progress: false
 
 jobs:
-  preflight:
-    # Run only for the go/spend label, and only when the maintainer added it.
-    # The repo is public, so an unguarded trigger would let anyone spend the
-    # maintainer's subscription. A skipped job is the "does nothing" no-op, and
-    # because `implement` needs this job, skipping here skips the whole run.
-    if: github.event.label.name == 'agent:implement' && github.actor == 'galosandoval'
+  # Nothing is installed here but `npx` and `gh`. This job answers "may this
+  # event start a run?" — classification, the spend gate (a live collaborator
+  # permission probe that refuses on uncertainty, replacing an untested
+  # `github.actor ==` line), the in-flight check, and the attempt ceiling —
+  # before the runner pays for anything. An event the loop does not run on
+  # exits zero, so ordinary label traffic never paints the repo red.
+  #
+  # It writes exactly once: a spent ceiling lands `agent:exhausted` and posts
+  # the accumulated attempt trail here, because the job below is gated on this
+  # verdict and so never runs to do it.
+  admit:
+    # Filters the human edge without filtering the machine edge out of
+    # existence: `github.event.label` is null on a workflow_run event, so a
+    # bare label condition would make that trigger fire a job that never runs.
+    # Redundant with what `shopfloor-admit` decides, and worth a line anyway —
+    # it keeps ordinary label traffic from starting a runner at all.
+    if: >-
+      github.event_name != 'issues' ||
+      github.event.label.name == 'ready-for-agent'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Surfaces the refusal verdict to the implement job's `if`.
     outputs:
-      refused: ${{ steps.preflight.outputs.refused }}
-    env:
-      # AGENT_PAT so the label swap + comment fire downstream events like the
-      # rest of the pipeline (GITHUB_TOKEN-driven label events don't).
-      GH_TOKEN: ${{ secrets.AGENT_PAT }}
-      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      admitted: ${{ steps.admit.outputs.admitted }}
     steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: '1.3.14'
-
-      - name: Pre-flight refusal gate
-        id: preflight
-        # Refuses (remove agent:implement, add agent:blocked, comment) when the
-        # issue is a PRD, a native sub-issue, or already has an open PR, and
-        # sets `refused=true/false`. No branch/PR is created on refusal.
-        run: bun agent/implement/run-preflight.ts
-
-      - name: Mark blocked if pre-flight itself errored
-        if: failure()
+      - id: admit
         env:
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          # AGENT_PAT, not GITHUB_TOKEN: the permission probe reads
+          # collaborator permission, and the `agent:exhausted` write has to
+          # fire downstream events like the rest of the pipeline.
+          GH_TOKEN: ${{ secrets.AGENT_PAT }}
         run: |
-          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
-            --remove-label "agent:implement" \
-            --add-label "agent:blocked" || true
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$(printf '`agent:implement` pre-flight check failed to run.\n\n**Run:** %s\n\nRe-add `agent:implement` to retry.' "$RUN_URL")" || true
+          # The bin exits non-zero on a real refusal so a caller who ignores
+          # stdout is still stopped by it. This job does not ignore stdout — it
+          # gates the expensive job on the verdict — so a refusal here is a
+          # skip rather than a red workflow. A run already in flight, or a
+          # spent ceiling, is ordinary traffic, and a check that paints the
+          # repository red for ordinary traffic is a check people delete.
+          set +e
+          verdict="$(npx --yes -p @galosandoval/shopfloor@1.0.0 shopfloor-admit)"
+          set -e
+          echo "$verdict"
+          echo "admitted=$(echo "$verdict" | jq -r '.admitted')" >> "$GITHUB_OUTPUT"
 
-  implement:
-    needs: preflight
-    # Only proceed when pre-flight ran and explicitly passed. A skipped pre-flight
-    # (wrong label/actor) leaves `refused` empty, so this stays skipped too.
-    if: needs.preflight.outputs.refused == 'false'
+  run-phase:
+    needs: admit
+    if: needs.admit.outputs.admitted == 'true'
     runs-on: ubuntu-latest
     # Backstop cap on the whole job, deliberately above the run-policy's
-    # WALL_CLOCK_MINUTES = 45 (#556). Since shopfloor 0.4.0 that wall-clock
-    # budget is enforced by the orchestrator (SIGTERM, 30s, SIGKILL), and it
-    # covers the agent alone — the setup steps before it and the transcript
-    # upload / failure-reason steps after it are extra. Set equal, GitHub would
-    # kill the job first and the run would lose its own diagnosis; the margin
-    # here is what lets the guard fire and report. The idle guard (#556) lives
-    # in the orchestrator too, killing a hung run in minutes instead of at any
-    # of these caps.
-    timeout-minutes: 60
+    # WALL_CLOCK_MINUTES = 45. That budget is enforced by the orchestrator
+    # (SIGTERM, 30s, SIGKILL) and covers the agent alone — the setup steps
+    # before it and the transcript upload after it are extra. Set equal, GitHub
+    # would kill the job first and the run would lose its own diagnosis; the
+    # margin here is what lets the guard fire and report. Held to that by
+    # agent/implement/run-policy.test.ts.
+    timeout-minutes: 75
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
 
     services:
       # Same image/env pattern as .github/workflows/test.yml, so the agent can
@@ -96,49 +111,26 @@ jobs:
           --health-retries 5
 
     env:
-      # AGENT_PAT (not GITHUB_TOKEN): GitHub does not fire downstream workflows
-      # from GITHUB_TOKEN-driven label events, and pushing under
-      # .github/workflows/ needs the PAT's `workflow` scope.
+      # AGENT_PAT (not GITHUB_TOKEN): a push made with the built-in token fires
+      # no downstream events, so the machine edge would be dead; and pushing
+      # under .github/workflows/ needs the PAT's `workflow` scope.
       GH_TOKEN: ${{ secrets.AGENT_PAT }}
-      ISSUE_NUMBER: ${{ github.event.issue.number }}
-      ISSUE_TITLE: ${{ github.event.issue.title }}
       # The integration suite + any TDD against the DB connect here; the
       # pgvector extension + HNSW index are created by `prisma migrate deploy`.
       DATABASE_PRISMA_URL: postgresql://postgres:postgres@localhost:5432/recipe_chat_test
       DATABASE_URL_NON_POOLING: postgresql://postgres:postgres@localhost:5432/recipe_chat_test
+      # The harness writes the transcript, PR description, verify report, and
+      # failure reason here — outside the repo, so they never land in a commit.
+      OUTPUT_DIR: ${{ runner.temp }}
 
     steps:
-      - name: Checkout main
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main
           token: ${{ secrets.AGENT_PAT }}
+          # The harness locates or creates `agent/issue-<n>` itself and counts
+          # the run's commits against the base branch.
           fetch-depth: 0
-
-      - name: Start — remove agent:implement, add agent:in-progress
-        run: |
-          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
-            --remove-label "agent:implement" \
-            --remove-label "agent:blocked" \
-            --add-label "agent:in-progress"
-
-      - name: Compute branch name
-        id: branch
-        run: |
-          slug=$(printf '%s' "$ISSUE_TITLE" \
-            | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' \
-            | cut -c1-50 \
-            | sed -E 's/-+$//')
-          echo "name=agent/issue-${ISSUE_NUMBER}-${slug}" >> "$GITHUB_OUTPUT"
-
-      - name: Create branch
-        env:
-          BRANCH: ${{ steps.branch.outputs.name }}
-        run: |
-          git config user.name "claude-code[bot]"
-          git config user.email "claude-code[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -150,13 +142,20 @@ jobs:
         with:
           node-version: 22
 
+      - name: Publish the run-policy contract to the environment
+        # The model, the turn cap, both runaway budgets, the CLI pin, the gate
+        # command, the iteration ceiling, and the required-env list all reach
+        # the harness as env vars. Written from agent/implement/run-policy.ts
+        # so this file names no budget of its own and the two cannot disagree.
+        run: bun agent/implement/run-policy.ts github-env >> "$GITHUB_ENV"
+
       - name: Install dependencies
         run: bun install
 
       - name: Install Claude Code CLI
-        # Pinned to the version the run-policy contract declares (#556), read
-        # straight from the module so this step and agent/local/Dockerfile can
-        # never freeze at different CLI versions. bun's global installs skip
+        # Pinned to the version the run-policy contract declares, read straight
+        # from the module, so the install and the harness's `cli-version` check
+        # can never freeze at different versions. bun's global installs skip
         # lifecycle scripts (`--trust` only affects a project's package.json,
         # not `-g`), so the postinstall that fetches the real platform-native
         # binary must run explicitly — otherwise `claude` is left as a stub that
@@ -175,153 +174,76 @@ jobs:
 
       - name: Seed the database
         # The prompt tells the agent the DB is already seeded with the user
-        # `alice@prisma.io` (verify phase re-seeds after the gate truncates it).
+        # `alice@prisma.io` (verify re-seeds after the gate truncates it).
         run: bun run seed
 
       - name: Install Playwright browser
         # The agent's VERIFY phase runs `bun run test:e2e` (headless Chromium)
         # against the booted app. Install the browser + OS deps here so the
         # agent doesn't need sudo. --with-deps is a no-op on an already-set-up
-        # runner but keeps this self-contained (no Docker, no browser service).
+        # runner but keeps this self-contained.
         run: bunx playwright install --with-deps chromium
 
-      - name: Run implementation agent
-        id: implement
+      - name: Run the phase
+        # The whole of the loop, in one step. It reads GITHUB_EVENT_PATH
+        # itself, so nothing here names an issue, a title, a branch, or a
+        # phase — 1.0.0 refuses all four by name, before admission.
         env:
           # Subscription / flat-rate token — not ANTHROPIC_API_KEY.
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          BRANCH: ${{ steps.branch.outputs.name }}
-          # The agent writes pr_description.txt / failure_reason.txt here, outside
-          # the repo, so they never land in a commit.
-          OUTPUT_DIR: ${{ runner.temp }}
+          PROMPT_FILE: agent/implement/prompt.md
           # App/suite paths the agent may exercise during TDD.
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          # `next.config.ts` validates the environment before `next build`, which
-          # the verify phase runs; without these the agent's build fails.
+          # `next.config.ts` validates the environment before `next build`,
+          # which the verify phase runs; without these the agent's build fails.
           NEXTAUTH_URL: http://localhost:3000
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY || 'ci-placeholder' }}
           # The verify phase boots the same `next start` production build, so
           # Auth.js would reject the untrusted host and break the e2e login the
           # same way the PR e2e gate would. Trust the host explicitly here too.
           AUTH_TRUST_HOST: true
-        run: bun agent/implement/implement.ts
+        run: npx --yes -p @galosandoval/shopfloor@1.0.0 shopfloor-run-phase
+
+      - name: Strip verify screenshots off the branch tip
+        # Still ours (#637). The harness strips its own attempt trail in the
+        # commit that closes the loop and says so in `run-phase.ts`: "Nothing
+        # strips the verify screenshots yet … that place does not exist." So
+        # without this step the PNGs the agent committed for their raw URLs
+        # ride the branch into the PR and into `main`.
+        #
+        # Safe to run after the fact: the harness pinned the comment's image
+        # URLs to the commit it pushed, so they keep rendering once the tip no
+        # longer carries the files. `success()` because a failed run has no PR
+        # and no comment — its branch is evidence, not a deliverable.
+        #
+        # The `Shopfloor-Loop: closed` trailer is load-bearing: this commit is
+        # a push onto an agent branch, which runs `Test`, and a red run on a
+        # bot-authored commit *without* the trailer is exactly what the machine
+        # edge answers. Unmarked, this step could spend an attempt re-running
+        # the agent on work already handed to a human.
+        if: success()
+        run: |
+          if [ -z "$(git ls-files -- '.agent/verify')" ]; then
+            echo "No committed verify screenshots on this branch."
+            exit 0
+          fi
+          git config user.name "claude-code[bot]"
+          git config user.email "claude-code[bot]@users.noreply.github.com"
+          git rm -rq -- '.agent/verify'
+          git commit --no-verify -m "chore: drop verify screenshots (posted to the PR)" -m "Shopfloor-Loop: closed"
+          git push origin HEAD
 
       - name: Upload agent transcript
         # Observability (#532): the agent's full Claude Code session record —
-        # every tool call with untruncated arguments — copied to RUNNER_TEMP by
-        # implement.ts. Runs on failure too (`always()`) so blocked runs stay
-        # auditable, and never fails the run (`continue-on-error`): a missing
-        # transcript only warns. The file lives outside the repo tree, so it is
+        # every tool call with untruncated arguments. Runs on failure too
+        # (`always()`) so blocked runs stay auditable, and never fails the run
+        # (`continue-on-error`). The file lives outside the repo tree, so it is
         # never in a commit.
         if: always()
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: agent-transcript-${{ github.event.issue.number }}
+          name: agent-transcript-${{ github.run_id }}
           path: ${{ runner.temp }}/transcript.jsonl
           if-no-files-found: warn
-
-      - name: Push branch
-        id: push_branch
-        if: success()
-        env:
-          BRANCH: ${{ steps.branch.outputs.name }}
-        run: |
-          git push -u origin "$BRANCH"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Open draft PR
-        id: open_pr
-        if: steps.push_branch.outcome == 'success'
-        env:
-          BRANCH: ${{ steps.branch.outputs.name }}
-        run: |
-          # PR body = agent-written description with `Closes #N` prepended so the
-          # PR links the issue and merging auto-closes it.
-          body_file="${RUNNER_TEMP}/pr_body.txt"
-          {
-            printf 'Closes #%s\n\n' "$ISSUE_NUMBER"
-            cat "${RUNNER_TEMP}/pr_description.txt"
-          } > "$body_file"
-          url=$(gh pr create --draft --repo "$GITHUB_REPOSITORY" \
-            --base main \
-            --head "$BRANCH" \
-            --title "$ISSUE_TITLE" \
-            --body-file "$body_file")
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-          echo "number=$(basename "$url")" >> "$GITHUB_OUTPUT"
-
-      - name: PR opened — swap ready-for-agent for ready-for-human
-        if: steps.open_pr.outcome == 'success'
-        run: |
-          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
-            --remove-label "ready-for-agent" \
-            --add-label "ready-for-human" || true
-
-      - name: Post verify proof to the PR
-        # Runs once the draft PR exists (so there's a PR to comment on) and the
-        # push commit's raw.githubusercontent URLs resolve: read the agent's
-        # verify report, enumerate the committed screenshots under
-        # .agent/verify/issue-<N>/, and post one PR comment with the report +
-        # inline images + a run link. Best-effort — the script swallows errors,
-        # and the agent's verify phase never fails its step, so a verify hiccup
-        # still yields a comment and never loses the green implement commits.
-        if: steps.open_pr.outcome == 'success'
-        env:
-          PR_NUMBER: ${{ steps.open_pr.outputs.number }}
-          SHA: ${{ steps.push_branch.outputs.sha }}
-          OUTPUT_DIR: ${{ runner.temp }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: bun agent/implement/post-verify.ts
-
-      - name: Post trajectory scorecard to the PR
-        # Observability (#566): grade the run's own trajectory over the captured
-        # transcript and post the scorecard as a PR comment, alongside the verify
-        # report. Deterministic and advisory — findings never fail the run, and
-        # the runner swallows its own errors, so a malformed/missing transcript
-        # degrades to "no scorecard", never a red build. Runs once the draft PR
-        # exists so there is a PR to comment on.
-        if: steps.open_pr.outcome == 'success'
-        continue-on-error: true
-        env:
-          PR_NUMBER: ${{ steps.open_pr.outputs.number }}
-          OUTPUT_DIR: ${{ runner.temp }}
-        run: bun agent/implement/run-trajectory-check.ts
-
-      - name: Strip verify screenshots off the branch tip
-        # The PR comment's images are pinned to the push commit SHA above, so
-        # they keep rendering even after this follow-up commit removes the
-        # PNGs — the branch tip (and eventually main) never carries them.
-        # Runs regardless of whether the comment itself posted (best-effort,
-        # decoupled by the SHA pin) — only skipped if no PR exists to comment
-        # on in the first place.
-        if: steps.open_pr.outcome == 'success'
-        env:
-          BRANCH: ${{ steps.branch.outputs.name }}
-        run: |
-          dir=".agent/verify/issue-${ISSUE_NUMBER}"
-          if [ -d "$dir" ] && [ -n "$(ls -A "$dir" 2>/dev/null)" ]; then
-            git rm -rf "$dir"
-            git commit -m "chore: drop verify screenshots (posted to PR)"
-            git push origin "$BRANCH"
-          fi
-
-      - name: Mark blocked on failure
-        if: failure()
-        env:
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          reason="(no reason file written — see the workflow logs)"
-          if [ -f "${RUNNER_TEMP}/failure_reason.txt" ]; then
-            reason=$(cat "${RUNNER_TEMP}/failure_reason.txt")
-          fi
-          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
-            --add-label "agent:blocked" || true
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$(printf '`agent:implement` run failed.\n\n**Reason:** %s\n\n**Run:** %s\n\nRe-add `agent:implement` to retry.' "$reason" "$RUN_URL")" || true
-
-      - name: Always — clear agent:in-progress
-        if: always()
-        run: |
-          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
-            --remove-label "agent:in-progress" || true
