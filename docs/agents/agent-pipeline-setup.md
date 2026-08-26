@@ -6,12 +6,18 @@ the repo plumbing; the workflow + agent come in later slices. Everything below i
 
 ## Quality-gate scripts
 
-The pipeline's quality gate depends on these `package.json` scripts (added in this slice):
+The gate is one `package.json` script, so a human and the harness run the same
+thing by construction:
+
+- `bun run gate` → `bun run typecheck && bun run lint && bun run test`
+
+`run-policy.ts`'s `GATE_COMMAND` names that script rather than restating the
+three commands, and `run-policy.test.ts` fails if the script stops existing.
+Its parts, and the formatter beside them:
 
 - `bun run typecheck` → `tsc --noEmit`
+- `bun run lint`, `bun run test`
 - `bun run format` → `prettier --write .` (idempotent; respects `.prettierignore`)
-
-Plus the existing `bun run lint` and `bun run test`.
 
 ## The loop (`@galosandoval/shopfloor` 1.0.0, #637)
 
@@ -66,8 +72,8 @@ required-env list. The workflow states none of them itself — one step writes
 `bun agent/implement/run-policy.ts github-env` into `$GITHUB_ENV`, which is where
 the harness reads them.
 
-The gate the harness runs after every spawn is
-`bun run typecheck && bun run lint && bun run test`. On a red gate it respawns
+The gate the harness runs after every spawn is `bun run gate`
+(typecheck + lint + test). On a red gate it respawns
 with the failing command and a tail of its output appended to the prompt, up to
 `MAX_ITERATIONS`, all sharing the one wall-clock budget. `test:e2e` is
 deliberately not in the gate — verify is best-effort and must never fail a run.
@@ -76,6 +82,14 @@ A green gate is necessary but no longer sufficient: the run's trajectory is
 graded from its transcript, and an attempt that committed before its gate passed
 or never went red before green re-enters the loop or lands `agent:blocked`. A
 missing or unreadable transcript blocks the run too.
+
+The verb grades that scorecard but posts it nowhere, so one step after it —
+`bun agent/implement/run-trajectory-check.ts` — renders the same grade as a PR
+comment (#566). Advisory and best-effort: it never fails a run, and a missing
+transcript degrades to "no scorecard".
+
+There is no local rehearsal of any of this. `agent/local/` was retired with the
+`1.0.0` upgrade — see [ADR 0003](../adr/0003-retire-the-local-agent-rehearsal.md).
 
 ## End-to-end harness + verify phase (#523)
 

@@ -21,6 +21,10 @@ const workflow = readFileSync(
   'utf8'
 )
 
+const packageJson = JSON.parse(
+  readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8')
+)
+
 /** The `github-env` output, with the union narrowed once for every test. */
 function githubEnv(): string {
   const result = runPolicyCommand(['github-env'])
@@ -101,6 +105,19 @@ describe('run-policy contract', () => {
       }
     })
 
+    // The gate names a package.json script instead of restating the three
+    // commands it runs, so `bun run gate` locally and the harness's inner loop
+    // are the same gate by construction. The failure that buys is a renamed or
+    // deleted script: the harness would run it, get "script not found", read a
+    // red gate, and burn every iteration re-spawning the agent against a gate
+    // that cannot pass.
+    it('runs a package.json script that exists', () => {
+      const script = GATE_COMMAND.replace(/^bun run /, '')
+
+      expect(GATE_COMMAND).toMatch(/^bun run [\w:-]+$/)
+      expect(Object.keys(packageJson.scripts)).toContain(script)
+    })
+
     it('reports an error for an unknown subcommand', () => {
       const result = runPolicyCommand(['nope'])
       expect('error' in result).toBe(true)
@@ -137,9 +154,7 @@ describe('run-policy contract', () => {
     // package.json — two pins, one decision, and a bump that moved only one of
     // them would run a harness nobody chose.
     it('invokes the harness version package.json pins', () => {
-      const pinned = JSON.parse(
-        readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8')
-      ).dependencies['@galosandoval/shopfloor']
+      const pinned = packageJson.dependencies['@galosandoval/shopfloor']
 
       const invocations = [
         ...workflow.matchAll(/@galosandoval\/shopfloor@(\S+)/g)
