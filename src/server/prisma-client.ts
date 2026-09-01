@@ -8,6 +8,40 @@ type CreatePrismaClientOptions = Prisma.PrismaClientBaseOptions & {
   maxConnections?: number
 }
 
+/** Hosts that serve plain TCP, where forcing TLS would break the connection. */
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '0.0.0.0'])
+
+/**
+ * Decide whether the adapter must turn TLS on for `url`.
+ *
+ * Prisma 6's Rust engine negotiated TLS by default; `node-postgres` — which
+ * owns the connection since the move to driver adapters — defaults to plain
+ * TCP instead. Managed Postgres (Neon, and Vercel Postgres on top of it)
+ * refuses insecure connections with SQLSTATE 28000, which Prisma reports as
+ * `P1010 "User was denied access on the database"` — an authentication error
+ * for what is really a missing `sslmode`. Vercel's injected
+ * `DATABASE_PRISMA_URL` carries no `sslmode`, and the storage integration
+ * rewrites that variable, so the default cannot live in the environment.
+ *
+ * An explicit `sslmode` in the URL always wins, and local databases are left
+ * on plain TCP.
+ */
+function needsTls(url: string): boolean {
+  let host: string
+
+  try {
+    host = new URL(url).hostname
+  } catch {
+    // Not a parseable URL — leave the connection exactly as given rather than
+    // layering a guess on top of a string `pg` may still understand.
+    return false
+  }
+
+  if (/[?&]sslmode=/.test(url)) return false
+
+  return !LOCAL_HOSTS.has(host)
+}
+
 /**
  * Build a Prisma client wired to the `pg` driver adapter.
  *
@@ -30,7 +64,14 @@ export function createPrismaClient({
     )
   }
 
-  const adapter = new PrismaPg({ connectionString: url, max: maxConnections })
+  const adapter = new PrismaPg({
+    connectionString: url,
+    max: maxConnections,
+    // Managed providers terminate the handshake before presenting a
+    // certificate chain the public CA bundle can verify, so verification is
+    // off; the transport is still encrypted.
+    ...(needsTls(url) ? { ssl: { rejectUnauthorized: false } } : {})
+  })
 
   return new PrismaClient({ ...options, adapter })
 }
