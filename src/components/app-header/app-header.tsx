@@ -170,7 +170,7 @@ function BottomNavTabs() {
   const pathname = usePathname()
   const t = useTranslations()
   return (
-    <nav className='mx-auto flex w-full justify-between gap-2 overflow-hidden px-3 py-1.5'>
+    <nav className='mx-auto flex w-full justify-between gap-2 overflow-hidden px-3 py-1'>
       {NAV_ITEMS.map(({ value, Icon, label }) => {
         const isCurrent = isNavItemCurrent(pathname, value)
 
@@ -179,7 +179,7 @@ function BottomNavTabs() {
             href={value}
             aria-current={isCurrent ? 'page' : undefined}
             className={cn(
-              'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-14 flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
+              'text-card-foreground/75 active:bg-accent hover:bg-accent hover:text-accent-foreground/75 flex h-10 flex-1 items-center justify-center rounded-md px-1 py-1 transition-colors duration-75 active:scale-[99%] [&_svg]:size-5',
               isCurrent && ACTIVE_NAV_ITEM_CLASSES
             )}
             as={Button}

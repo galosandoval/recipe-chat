@@ -49,6 +49,13 @@ it('gives only the current item a filled plate', () => {
   expect(document.querySelectorAll('[aria-current="page"]')).toHaveLength(1)
 })
 
+/** Same height as the bottom bar's tabs — the two are one chrome at two widths. */
+it('keeps the items at the shortened height', () => {
+  renderSidebar('/recipes')
+
+  expect(itemFor(en.nav.recipes).className).toContain('h-10')
+})
+
 it('reaches the settings menu and chat history from the sidebar', () => {
   renderSidebar('/recipes')
 

@@ -47,6 +47,19 @@ it('gives only the current tab a filled plate', () => {
   expect(document.querySelectorAll('[aria-current="page"]')).toHaveLength(1)
 })
 
+/**
+ * The tab height is a density decision, not a styling accident: the bar was a
+ * step taller than it needed to be and cost content height on short phones.
+ * Pin it, the same way the active plate is pinned above. 40px is a deliberate
+ * call to go under the 44px tap-target minimum for the density; the sidebar
+ * items match it.
+ */
+it('keeps the tabs at the shortened height', () => {
+  renderNav('/recipes')
+
+  expect(tabFor(en.nav.recipes).className).toContain('h-10')
+})
+
 /** At `md+` the sidebar owns navigation, so the two must never both show. */
 it('stops rendering at md, where the sidebar takes over', () => {
   const { container } = renderNav('/recipes')

@@ -6,7 +6,10 @@ import { useTranslations, type Translations } from '~/hooks/use-translations'
 import { useUserId } from '~/hooks/use-user-id'
 import { api } from '~/trpc/react'
 import { FilterBadge } from './filter-badge'
-import { useFiltersByUserId } from '~/hooks/use-filters-by-user-id'
+import {
+  isChatFilterChecked,
+  useFiltersByUserId
+} from '~/hooks/use-filters-by-user-id'
 import { LoadingFilterBadges } from './loading'
 import { useChatStore } from '../chat-store'
 
@@ -14,6 +17,7 @@ export function FilterBadges() {
   const { data, status, fetchStatus } = useFiltersByUserId()
   const filters = data ?? []
   const chatFilterIds = useChatStore((s) => s.chatFilterIds)
+  const setChatFilterIds = useChatStore((s) => s.setChatFilterIds)
 
   const t = useTranslations()
   const { mutate: activateFilter } = useActivateFilter()
@@ -22,6 +26,15 @@ export function FilterBadges() {
   )
 
   const handleCheck = (id: string, checked: boolean) => {
+    // A resumed Chat's selection shadows the saved state, so a toggle has to
+    // land there too or the badge won't move.
+    if (chatFilterIds !== null) {
+      setChatFilterIds(
+        checked
+          ? [...new Set([...chatFilterIds, id])]
+          : chatFilterIds.filter((filterId) => filterId !== id)
+      )
+    }
     activateFilter({ checked, filterId: id })
   }
 
@@ -45,24 +58,14 @@ export function FilterBadges() {
         <FilterBadge
           key={filter.id}
           name={filter.name}
-          checked={isChecked(filter, chatFilterIds)}
+          checked={isChatFilterChecked(filter, chatFilterIds)}
           onClick={() =>
-            handleCheck(filter.id, !isChecked(filter, chatFilterIds))
+            handleCheck(filter.id, !isChatFilterChecked(filter, chatFilterIds))
           }
         />
       ))}
     </div>
   )
-}
-
-/**
- * Whether a filter is narrowing this chat: the chat's own selection when it has
- * one, falling back to the filter's saved state.
- */
-function isChecked(filter: Filter, chatFilterIds: string[] | null) {
-  return chatFilterIds !== null
-    ? chatFilterIds.includes(filter.id)
-    : filter.checked
 }
 
 function useActivateFilter() {

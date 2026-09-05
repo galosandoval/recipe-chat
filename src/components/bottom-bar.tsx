@@ -1,7 +1,7 @@
 export function BottomBar({ children }: { children: React.ReactNode }) {
   return (
     <div className='flex w-full items-center md:rounded-md'>
-      <div className='bg-accent/55 glass-element mx-auto flex w-full max-w-2xl items-center gap-1.5 p-3 sm:mb-2 sm:rounded-lg md:max-w-3xl'>
+      <div className='bg-accent/55 glass-element mx-auto flex w-full max-w-2xl items-center gap-1.5 px-3 py-1 sm:mb-2 sm:rounded-lg md:max-w-3xl'>
         {children}
       </div>
     </div>
