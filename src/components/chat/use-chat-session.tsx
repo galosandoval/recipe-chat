@@ -15,7 +15,8 @@ import { useChatDrawerStore } from './chat-drawer-store'
 import { useUserId } from '~/hooks/use-user-id'
 import {
   useFiltersByUserId,
-  selectActiveFilters
+  selectActiveFilters,
+  selectChatFilters
 } from '~/hooks/use-filters-by-user-id'
 import { useTranslations } from '~/hooks/use-translations'
 import { toast } from '~/components/toast'
@@ -258,12 +259,10 @@ export function useChatSession(options?: {
       const chatFilterIds = useChatStore.getState().chatFilterIds
       const context = useChatDrawerStore.getState().context
       const usePantry = useChatStore.getState().usePantry
-      const activeFilterNames =
-        chatFilterIds !== null
-          ? (filters ?? [])
-              .filter((f) => chatFilterIds.includes(f.id))
-              .map((f) => f.name)
-          : selectActiveFilters(filters ?? []).map((f) => f.name)
+      const activeFilterNames = selectChatFilters(
+        filters ?? [],
+        chatFilterIds
+      ).map((f) => f.name)
       return {
         messages: messages
           .filter((m) => m.content.length > 0)

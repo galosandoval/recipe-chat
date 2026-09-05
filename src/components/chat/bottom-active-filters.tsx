@@ -1,7 +1,7 @@
 import { useChatStore } from './chat-store'
 import {
   useFiltersByUserId,
-  selectActiveFilters
+  selectChatFilters
 } from '~/hooks/use-filters-by-user-id'
 import { useTranslations } from '~/hooks/use-translations'
 import { PackageIcon } from 'lucide-react'
@@ -11,12 +11,7 @@ function useActiveFilters() {
   const chatFilterIds = useChatStore((s) => s.chatFilterIds)
   const { data: allFilters = [], status } = useFiltersByUserId()
 
-  const activeFilters =
-    chatFilterIds !== null
-      ? allFilters.filter((f) => chatFilterIds.includes(f.id))
-      : selectActiveFilters(allFilters)
-
-  return { data: activeFilters, status }
+  return { data: selectChatFilters(allFilters, chatFilterIds), status }
 }
 
 export function BottomActiveFilters() {
