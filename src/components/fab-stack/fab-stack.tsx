@@ -52,6 +52,15 @@ export function FabStack() {
   const shouldMoveForInput =
     pathname === '/lists' || (messages.length > 0 && pathname === '/chat')
 
+  const hasNoBottomElement = pathname.includes('/recipes/')
+
+  let bottom = 'bottom-16 sm:bottom-6'
+  if (hasNoBottomElement) {
+    bottom = 'bottom-3'
+  } else if (!hasNoBottomElement && shouldMoveForInput) {
+    bottom = 'bottom-28'
+  }
+
   return (
     <div
       className={cn(
@@ -59,7 +68,7 @@ export function FabStack() {
         // The lifted offset has no `sm:` override: on desktop the composer is
         // still there, so an unconditional `sm:bottom-6` would drop the FAB
         // back onto the input bar.
-        shouldMoveForInput ? 'bottom-32' : 'bottom-20 sm:bottom-6'
+        bottom
       )}
     >
       <AnimatePresence>

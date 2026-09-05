@@ -18,9 +18,15 @@ export function Chat({ seed }: { seed?: ResumeChatSeed }) {
   return (
     <ChatSessionProvider>
       <div className='flex min-h-0 flex-1 flex-col'>
-        {/* No `overflow-y-auto` here: {@link ScrollToBottomProvider} owns the
-            chat scroller. A second scroller on this wrapper painted its own
-            track against the app shell's edge and split scroll state in two. */}
+        {/* This wrapper constrains height and nothing else: no
+            `overflow-y-auto`, because {@link ScrollToBottomProvider} owns the
+            single chat scroller for both chat states. A second scroller here
+            painted its own track against the app shell's edge and split scroll
+            state in two.
+
+            Load-bearing: the layout's `main` is itself scrollable for every
+            other route, and this subtree is sized to fill it exactly, so while
+            a chat surface is mounted `main` has no overflow to compete for. */}
         <div className='min-h-0 flex-1'>
           <Interface />
         </div>

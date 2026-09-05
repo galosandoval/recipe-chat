@@ -67,8 +67,10 @@ export function ChatPanel() {
 
           <ChatSessionProvider>
             <div className='flex min-h-0 flex-1 flex-col'>
-              {/* See `~/app/chat.tsx`: the scroller lives in
-                  {@link ScrollToBottomProvider}, not on this wrapper. */}
+              {/* See `~/app/chat.tsx`: this wrapper only constrains height —
+                  the one scroller, shared by both chat states, lives in
+                  {@link ScrollToBottomProvider}. In the drawer there is no
+                  outer scroller behind it to absorb any spill. */}
               <div className='min-h-0 flex-1'>
                 <Interface />
               </div>

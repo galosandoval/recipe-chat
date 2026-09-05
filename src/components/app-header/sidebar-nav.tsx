@@ -47,7 +47,7 @@ export function SidebarNav() {
               as={Button}
               variant='ghost'
               className={cn(
-                'text-card-foreground/75 hover:bg-accent hover:text-accent-foreground/75 h-11 w-full justify-start gap-3 transition-colors duration-75 [&_svg]:size-5',
+                'text-card-foreground/75 hover:bg-accent hover:text-accent-foreground/75 h-10 w-full justify-start gap-3 transition-colors duration-75 [&_svg]:size-5',
                 isCurrent && ACTIVE_NAV_ITEM_CLASSES
               )}
             >

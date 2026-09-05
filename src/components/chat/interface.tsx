@@ -20,33 +20,35 @@ export const Interface = () => {
     }
   }, [chatId, reset])
 
-  if (isNewChat) {
-    return (
-      <div className='flex flex-col gap-4'>
-        <ChatWelcome />
-      </div>
-    )
-  }
-
   return (
-    <ScrollToBottomProvider>
-      <div className='flex flex-1 flex-col gap-4'>
-        <Chat messages={messages} />
-      </div>
+    <ScrollToBottomProvider startAtBottom={!isNewChat}>
+      <InterfaceContent isNewChat={isNewChat} messages={messages} />
     </ScrollToBottomProvider>
   )
 }
 
-function Chat({ messages }: { messages: MessageWithRecipes[] }) {
-  if (messages.length) {
-    return (
-      <div className='bg-background h-full'>
-        <Messages data={messages as []} />
-      </div>
-    )
+/**
+ * The chat's two states — welcome screen and messages — both rendered inside
+ * the one scroller. The welcome screen used to render outside it with no
+ * scroller of its own, so its overflow escaped the fixed-height chat wrapper
+ * and slid under the composer.
+ */
+function InterfaceContent({
+  isNewChat,
+  messages
+}: {
+  isNewChat: boolean
+  messages: MessageWithRecipes[]
+}) {
+  if (isNewChat) {
+    return <ChatWelcome />
   }
 
-  return <ScreenLoader />
+  if (!messages.length) {
+    return <ScreenLoader />
+  }
+
+  return <Messages data={messages} />
 }
 
 function Messages({ data }: { data: MessageWithRecipes[] }) {

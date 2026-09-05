@@ -7,17 +7,23 @@ import { useTranslations } from '~/hooks/use-translations'
 import { PackageIcon } from 'lucide-react'
 import { Badge } from '../badge'
 
-export function BottomActiveFilters() {
-  const { data: allFilters, status } = useFiltersByUserId()
+function useActiveFilters() {
   const chatFilterIds = useChatStore((s) => s.chatFilterIds)
-  const t = useTranslations()
-  const messages = useChatStore((state) => state.messages)
-  const usePantry = useChatStore((state) => state.usePantry)
+  const { data: allFilters = [], status } = useFiltersByUserId()
 
   const activeFilters =
     chatFilterIds !== null
-      ? (allFilters ?? []).filter((f) => chatFilterIds.includes(f.id))
-      : selectActiveFilters(allFilters ?? [])
+      ? allFilters.filter((f) => chatFilterIds.includes(f.id))
+      : selectActiveFilters(allFilters)
+
+  return { data: activeFilters, status }
+}
+
+export function BottomActiveFilters() {
+  const { data, status } = useActiveFilters()
+  const t = useTranslations()
+  const messages = useChatStore((state) => state.messages)
+  const usePantry = useChatStore((state) => state.usePantry)
 
   if (status === 'error') {
     return <div>{t.error.somethingWentWrong}</div>
@@ -26,7 +32,7 @@ export function BottomActiveFilters() {
   if (
     messages.length === 0 ||
     status === 'pending' ||
-    (activeFilters.length === 0 && !usePantry)
+    (data.length === 0 && !usePantry)
   ) {
     return null
   }
@@ -41,7 +47,7 @@ export function BottomActiveFilters() {
             {t.nav.pantry}
           </div>
         )}
-        {activeFilters.map((f) => (
+        {data.map((f) => (
           <Badge key={f.id} label={f.name} variant='outline' />
         ))}
       </div>

@@ -16,6 +16,7 @@ import { Toaster } from 'sonner'
 import { NavigationHandler } from './navigation-handler'
 import { MotionConfig } from 'motion/react'
 import { systemTheme } from '~/constants/theme'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 export const Providers = ({
   children,
@@ -57,7 +58,7 @@ export const Providers = ({
               <Analytics />
             </MotionConfig>
           </ThemeProvider>
-          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+          <ReactQueryDevtools initialIsOpen={false} />
         </SessionProvider>
       </TranslationsContext.Provider>
     </TRPCReactProvider>
