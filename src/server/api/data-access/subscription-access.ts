@@ -13,7 +13,11 @@ export type SubscriptionEventUser = {
   subscriptionStatus: SubscriptionStatus | null
   /** When the last Stripe event applied to this user was created, for ordering. */
   lastStripeEventAt: Date | null
-  /** The id of the last Stripe event applied to this user, for idempotency. */
+  /**
+   * The id of the last Stripe event applied to this user. Idempotency is keyed
+   * on the `ProcessedStripeEvent` record, not this field; kept as a breadcrumb
+   * of the most recent write.
+   */
   lastStripeEventId: string | null
 }
 
@@ -37,6 +41,8 @@ export interface SubscriptionEventAccess {
   getUserByStripeCustomerId(
     customerId: string
   ): Promise<SubscriptionEventUser | null>
+  /** True when this Stripe event id was already applied — a duplicate delivery. */
+  hasProcessedEvent(eventId: string): Promise<boolean>
   updateSubscription(
     userId: string,
     data: UpdateSubscriptionData
@@ -71,10 +77,29 @@ export class SubscriptionAccess
     })
   }
 
+  async hasProcessedEvent(eventId: string): Promise<boolean> {
+    const processed = await this.prisma.processedStripeEvent.findUnique({
+      where: { id: eventId },
+      select: { id: true }
+    })
+    return processed !== null
+  }
+
+  /**
+   * Apply the subscription change and record the event id in one transaction, so
+   * a crash can never leave a state change without its idempotency record (which
+   * would let the same event re-apply on retry). Recording the id is what makes
+   * a later redelivery of any past event — not just the last — a no-op.
+   */
   async updateSubscription(userId: string, data: UpdateSubscriptionData) {
-    return await this.prisma.user.update({
-      where: { id: userId },
-      data
+    const { lastStripeEventId } = data
+    return await this.transaction(async (tx) => {
+      if (lastStripeEventId) {
+        await tx.processedStripeEvent.create({
+          data: { id: lastStripeEventId }
+        })
+      }
+      return await tx.user.update({ where: { id: userId }, data })
     })
   }
 

@@ -50,6 +50,17 @@ model User {
     updatedAt             DateTime            @updatedAt
 }
 
+/**
+ * One row per Stripe event already applied to a subscription, keyed by the
+ * Stripe event `id`. The webhook path checks this before writing so a retry or
+ * out-of-order redelivery of any event — not just the last one applied — is a
+ * no-op. Event ids are globally unique, so this dedupes across all users.
+ */
+model ProcessedStripeEvent {
+    id          String   @id
+    processedAt DateTime @default(now())
+}
+
 // Simple enum for features
 enum Feature {
     generateChat

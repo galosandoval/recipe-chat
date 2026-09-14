@@ -107,13 +107,14 @@ export async function handleStripeEvent(
 ): Promise<HandleStripeEventResult> {
   const { access } = deps
   // Stripe retries deliveries and does not guarantee ordering. Two guards make
-  // every write idempotent and order-safe: the event `id` dedupes an exact
-  // redelivery (`duplicate_event`), and the event `created` time rejects a write
-  // strictly older than the last one applied (`stale_event`), so neither a
-  // retry nor a late delivery can move a user's Tier backwards. Keying
-  // idempotency on the id rather than the timestamp lets a distinct event that
-  // ties the last one's `created` second — Stripe fires several per second at
-  // checkout — still apply.
+  // every write idempotent and order-safe: a processed-event record keyed by the
+  // event `id` dedupes any redelivery (`duplicate_event`), and the event
+  // `created` time rejects a write strictly older than the last one applied
+  // (`stale_event`), so neither a retry nor a late delivery can move a user's
+  // Tier backwards. Keying idempotency on the recorded id — not just the last id
+  // or the timestamp — lets distinct events that tie a `created` second (Stripe
+  // fires several per second at checkout) still apply, while a retry of any past
+  // event, not only the most recent, stays a no-op.
   const eventAt = new Date(event.created * 1000)
 
   switch (event.type) {
@@ -189,9 +190,9 @@ async function resolveUser(
 /**
  * Resolve, guard, and write in one place so every event branch is idempotent
  * and order-safe. Returns `unknown_customer` when the customer maps to no user,
- * `duplicate_event` when this exact event id was already applied to that user,
- * `stale_event` when the event is strictly older than the last one applied, and
- * otherwise writes with the event's id and timestamp.
+ * `duplicate_event` when this event id was already applied, `stale_event` when
+ * the event is strictly older than the last one applied, and otherwise writes
+ * with the event's id and timestamp.
  */
 async function guardedWrite(
   user: SubscriptionEventUser | null,
@@ -201,7 +202,7 @@ async function guardedWrite(
   access: SubscriptionEventAccess
 ): Promise<HandleStripeEventResult> {
   if (!user) return { status: 'ignored', reason: 'unknown_customer' }
-  if (user.lastStripeEventId && eventId === user.lastStripeEventId) {
+  if (await access.hasProcessedEvent(eventId)) {
     return { status: 'ignored', reason: 'duplicate_event' }
   }
   if (user.lastStripeEventAt && eventAt < user.lastStripeEventAt) {

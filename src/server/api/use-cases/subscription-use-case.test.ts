@@ -55,6 +55,7 @@ jest.mock('~/server/api/data-access/subscription-access', () => ({
 class FakeSubscriptionAccess implements SubscriptionEventAccess {
   private readonly usersByCustomer = new Map<string, SubscriptionEventUser>()
   private readonly usersById = new Map<string, SubscriptionEventUser>()
+  private readonly processedEvents = new Set<string>()
   readonly writes: Array<{ userId: string; data: UpdateSubscriptionData }> = []
 
   seed(user: SubscriptionEventUser) {
@@ -68,12 +69,19 @@ class FakeSubscriptionAccess implements SubscriptionEventAccess {
     return this.usersByCustomer.get(customerId) ?? null
   }
 
+  async hasProcessedEvent(eventId: string) {
+    return this.processedEvents.has(eventId)
+  }
+
   async updateSubscription(userId: string, data: UpdateSubscriptionData) {
     this.writes.push({ userId, data })
     // Persist the write so successive events see the updated state — this is
     // what makes idempotency and ordering observable across two deliveries.
     const user = this.usersById.get(userId)
     if (user) Object.assign(user, data)
+    // Record the event id in the same step as the write, mirroring production's
+    // transaction, so any later redelivery of it is deduped.
+    if (data.lastStripeEventId) this.processedEvents.add(data.lastStripeEventId)
     return undefined
   }
 
@@ -308,6 +316,45 @@ describe('handleStripeEvent', () => {
         reason: 'stale_event'
       })
       expect(access.writes).toHaveLength(0)
+    })
+
+    it('ignores a redelivery of an earlier same-second event without moving the tier back', async () => {
+      // At checkout Stripe fires created + updated in the same second. Once both
+      // are applied, a retry of the earlier `created` must stay a no-op. Keying
+      // idempotency on only the last event id would miss it — its id no longer
+      // ties the last one, and its `created` second is not strictly older — so
+      // it would wrongly re-apply and drop the tier back to the starter plan.
+      const access = new FakeSubscriptionAccess().seed(knownUser())
+
+      await run(
+        subscriptionCreatedEvent({
+          eventId: 'evt_created',
+          priceId: STARTER_PRICE_ID
+        }),
+        access
+      )
+      await run(
+        subscriptionUpdatedEvent({
+          eventId: 'evt_updated',
+          priceId: PREMIUM_PRICE_ID,
+          status: 'active'
+        }),
+        access
+      )
+
+      const redelivered = await run(
+        subscriptionCreatedEvent({
+          eventId: 'evt_created',
+          priceId: STARTER_PRICE_ID
+        }),
+        access
+      )
+
+      expect(redelivered).toEqual<HandleStripeEventResult>({
+        status: 'ignored',
+        reason: 'duplicate_event'
+      })
+      expect(access.lastWrite.data.subscriptionTier).toBe('PREMIUM')
     })
 
     it('applies a distinct event that shares a timestamp with the last one', async () => {
