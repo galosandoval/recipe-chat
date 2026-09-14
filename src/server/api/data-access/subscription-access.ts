@@ -1,8 +1,10 @@
 import {
+  Prisma,
   type SubscriptionTier,
   type SubscriptionStatus
 } from '~/generated/prisma/client'
 import { DataAccess } from './data-access'
+import { DuplicateStripeEventError } from './subscription-errors'
 
 /** The user fields the Stripe webhook path reads to resolve and update a subscription. */
 export type SubscriptionEventUser = {
@@ -93,14 +95,29 @@ export class SubscriptionAccess
    */
   async updateSubscription(userId: string, data: UpdateSubscriptionData) {
     const { lastStripeEventId } = data
-    return await this.transaction(async (tx) => {
-      if (lastStripeEventId) {
-        await tx.processedStripeEvent.create({
-          data: { id: lastStripeEventId }
-        })
+    try {
+      return await this.transaction(async (tx) => {
+        if (lastStripeEventId) {
+          await tx.processedStripeEvent.create({
+            data: { id: lastStripeEventId }
+          })
+        }
+        return await tx.user.update({ where: { id: userId }, data })
+      })
+    } catch (error) {
+      // A concurrent delivery that recorded this event id first makes the insert
+      // collide on the primary key (P2002). Translate that race into the domain
+      // duplicate so the use case can treat it as the no-op it is; the whole
+      // transaction has rolled back, so nothing was written.
+      if (
+        lastStripeEventId &&
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new DuplicateStripeEventError(lastStripeEventId)
       }
-      return await tx.user.update({ where: { id: userId }, data })
-    })
+      throw error
+    }
   }
 
   /** The email Stripe bills to — usernames are email addresses. */

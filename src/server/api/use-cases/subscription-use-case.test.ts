@@ -14,6 +14,7 @@ import {
   type SubscriptionEventUser,
   type UpdateSubscriptionData
 } from '~/server/api/data-access/subscription-access'
+import { DuplicateStripeEventError } from '~/server/api/data-access/subscription-errors'
 import {
   EVENT_CREATED_UNIX,
   PERIOD_END_UNIX,
@@ -384,6 +385,35 @@ describe('handleStripeEvent', () => {
         userId: 'user_alice'
       })
       expect(access.lastWrite.data.subscriptionTier).toBe('PREMIUM')
+    })
+
+    it('treats a write that loses the processed-event race as a duplicate no-op', async () => {
+      // Two concurrent deliveries of the same event can both pass the dedupe
+      // read before either records the id; the loser then collides on the
+      // processed-event record. That collision must resolve to the same
+      // duplicate_event no-op a sequential redelivery gets, not a thrown error
+      // that makes Stripe retry.
+      const access: SubscriptionEventAccess = {
+        async getUserByStripeCustomerId() {
+          return knownUser()
+        },
+        async hasProcessedEvent() {
+          return false
+        },
+        async updateSubscription() {
+          throw new DuplicateStripeEventError('evt_TEST123')
+        }
+      }
+
+      const result = await handleStripeEvent(
+        subscriptionCreatedEvent({ priceId: STARTER_PRICE_ID }),
+        { stripe: fakeStripe, access }
+      )
+
+      expect(result).toEqual<HandleStripeEventResult>({
+        status: 'ignored',
+        reason: 'duplicate_event'
+      })
     })
 
     it('applies an event newer than what is stored', async () => {

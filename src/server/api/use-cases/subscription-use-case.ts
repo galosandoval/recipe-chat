@@ -6,6 +6,7 @@ import {
   type SubscriptionEventUser,
   type UpdateSubscriptionData
 } from '~/server/api/data-access/subscription-access'
+import { DuplicateStripeEventError } from '~/server/api/data-access/subscription-errors'
 import { PRICE_ID_TO_TIER, TIER_TO_PRICE_ID } from '~/lib/stripe-config'
 import { type CreateCheckoutSchema } from '~/schemas/subscription-schema'
 
@@ -209,11 +210,22 @@ async function guardedWrite(
     return { status: 'ignored', reason: 'stale_event' }
   }
 
-  await access.updateSubscription(user.id, {
-    ...data,
-    lastStripeEventAt: eventAt,
-    lastStripeEventId: eventId
-  })
+  try {
+    await access.updateSubscription(user.id, {
+      ...data,
+      lastStripeEventAt: eventAt,
+      lastStripeEventId: eventId
+    })
+  } catch (error) {
+    // A concurrent redelivery can pass the `hasProcessedEvent` read above and
+    // only collide when it records the event id, so the same duplicate the read
+    // would have caught surfaces here instead. Resolve it to the same no-op
+    // rather than letting it become a retry-inducing error.
+    if (error instanceof DuplicateStripeEventError) {
+      return { status: 'ignored', reason: 'duplicate_event' }
+    }
+    throw error
+  }
   return { status: 'updated', userId: user.id }
 }
 
