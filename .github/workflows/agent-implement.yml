@@ -164,11 +164,16 @@ jobs:
       # pgvector extension + HNSW index are created by `prisma migrate deploy`.
       DATABASE_PRISMA_URL: postgresql://postgres:postgres@localhost:5432/recipe_chat_test
       DATABASE_URL_NON_POOLING: postgresql://postgres:postgres@localhost:5432/recipe_chat_test
-      # The harness writes the transcript, PR description, verify report, and
-      # failure reason here — outside the repo, so they never land in a commit.
-      OUTPUT_DIR: ${{ runner.temp }}
 
     steps:
+      # The harness writes the transcript, PR description, verify report, and
+      # failure reason here — outside the repo, so they never land in a commit.
+      # `runner.temp` is not a context a job-level `env:` can read, so the
+      # runner's own `RUNNER_TEMP` is exported here instead, before any step
+      # that reads OUTPUT_DIR.
+      - name: Resolve output dir
+        run: echo "OUTPUT_DIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
