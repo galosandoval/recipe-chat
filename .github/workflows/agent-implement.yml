@@ -227,12 +227,34 @@ jobs:
         # `alice@prisma.io` (verify re-seeds after the gate truncates it).
         run: bun run seed
 
+      # The agent's VERIFY phase runs `bun run test:e2e` (headless Chromium)
+      # against the booted app. Install the browser + OS deps here so the agent
+      # doesn't need sudo.
+      # The browser binaries are ~100MB of download on every run and they only
+      # change when the pinned Playwright version does, so key the cache on the
+      # version resolved by `bun install` rather than on a lockfile hash. The
+      # apt-installed OS deps do not live under ~/.cache/ms-playwright, hence
+      # the second step: a cache hit still needs `install-deps`, just not the
+      # download. `issues`/`workflow_run` events run on the default branch, so
+      # these runs read and write `main`'s cache scope and prime each other.
+      - name: Resolve the Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the Playwright browser
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
       - name: Install Playwright browser
-        # The agent's VERIFY phase runs `bun run test:e2e` (headless Chromium)
-        # against the booted app. Install the browser + OS deps here so the
-        # agent doesn't need sudo. --with-deps is a no-op on an already-set-up
-        # runner but keeps this self-contained.
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: bunx playwright install --with-deps chromium
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: bunx playwright install-deps chromium
 
       - name: Run the phase
         # The whole of the loop, in one step. It reads GITHUB_EVENT_PATH
