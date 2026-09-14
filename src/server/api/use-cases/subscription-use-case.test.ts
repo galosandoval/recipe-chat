@@ -98,6 +98,7 @@ function knownUser(
     subscriptionTier: 'FREE',
     subscriptionStatus: null,
     lastStripeEventAt: null,
+    lastStripeEventId: null,
     ...overrides
   }
 }
@@ -127,7 +128,8 @@ describe('handleStripeEvent', () => {
           subscriptionTier: 'STARTER',
           subscriptionStatus: 'ACTIVE',
           currentPeriodEnd: new Date(PERIOD_END_UNIX * 1000),
-          lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000)
+          lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000),
+          lastStripeEventId: 'evt_TEST123'
         }
       })
     })
@@ -193,7 +195,8 @@ describe('handleStripeEvent', () => {
         subscriptionTier: 'FREE',
         subscriptionStatus: 'CANCELED',
         currentPeriodEnd: null,
-        lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000)
+        lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000),
+        lastStripeEventId: 'evt_TEST123'
       })
     })
   })
@@ -213,7 +216,8 @@ describe('handleStripeEvent', () => {
       expect(access.lastWrite.data).toEqual({
         subscriptionTier: 'PREMIUM',
         subscriptionStatus: 'PAST_DUE',
-        lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000)
+        lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000),
+        lastStripeEventId: 'evt_TEST123'
       })
     })
   })
@@ -273,7 +277,7 @@ describe('handleStripeEvent', () => {
       })
       expect(second).toEqual<HandleStripeEventResult>({
         status: 'ignored',
-        reason: 'stale_event'
+        reason: 'duplicate_event'
       })
       // The redelivery is a no-op: one write, tier unchanged from the first.
       expect(access.writes).toHaveLength(1)
@@ -304,6 +308,35 @@ describe('handleStripeEvent', () => {
         reason: 'stale_event'
       })
       expect(access.writes).toHaveLength(0)
+    })
+
+    it('applies a distinct event that shares a timestamp with the last one', async () => {
+      // Stripe fires several events in the same second at checkout; a distinct,
+      // later event must not be dropped just because its `created` second ties
+      // the last one applied.
+      const access = new FakeSubscriptionAccess().seed(knownUser())
+
+      await run(
+        subscriptionCreatedEvent({
+          eventId: 'evt_created',
+          priceId: STARTER_PRICE_ID
+        }),
+        access
+      )
+      const result = await run(
+        subscriptionUpdatedEvent({
+          eventId: 'evt_updated',
+          priceId: PREMIUM_PRICE_ID,
+          status: 'active'
+        }),
+        access
+      )
+
+      expect(result).toEqual<HandleStripeEventResult>({
+        status: 'updated',
+        userId: 'user_alice'
+      })
+      expect(access.lastWrite.data.subscriptionTier).toBe('PREMIUM')
     })
 
     it('applies an event newer than what is stored', async () => {

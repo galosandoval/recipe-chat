@@ -88,7 +88,11 @@ export type HandleStripeEventResult =
   | { status: 'updated'; userId: string }
   | {
       status: 'ignored'
-      reason: 'unhandled_event' | 'unknown_customer' | 'stale_event'
+      reason:
+        | 'unhandled_event'
+        | 'unknown_customer'
+        | 'stale_event'
+        | 'duplicate_event'
     }
 
 /**
@@ -102,10 +106,14 @@ export async function handleStripeEvent(
   deps: StripeEventDeps
 ): Promise<HandleStripeEventResult> {
   const { access } = deps
-  // Stripe retries deliveries and does not guarantee ordering. The event's
-  // `created` time stamps every write and gates it: a redelivered event carries
-  // the same timestamp (not strictly newer) and a late event an older one, so
-  // both are skipped rather than moving a user's Tier backwards.
+  // Stripe retries deliveries and does not guarantee ordering. Two guards make
+  // every write idempotent and order-safe: the event `id` dedupes an exact
+  // redelivery (`duplicate_event`), and the event `created` time rejects a write
+  // strictly older than the last one applied (`stale_event`), so neither a
+  // retry nor a late delivery can move a user's Tier backwards. Keying
+  // idempotency on the id rather than the timestamp lets a distinct event that
+  // ties the last one's `created` second — Stripe fires several per second at
+  // checkout — still apply.
   const eventAt = new Date(event.created * 1000)
 
   switch (event.type) {
@@ -114,6 +122,7 @@ export async function handleStripeEvent(
         event.data.object as Stripe.Subscription,
         access,
         'ACTIVE',
+        event.id,
         eventAt
       )
 
@@ -122,6 +131,7 @@ export async function handleStripeEvent(
         event.data.object as Stripe.Subscription,
         access,
         subscriptionStatusFor(event.data.object as Stripe.Subscription),
+        event.id,
         eventAt
       )
 
@@ -129,6 +139,7 @@ export async function handleStripeEvent(
       return revokeSubscription(
         event.data.object as Stripe.Subscription,
         access,
+        event.id,
         eventAt
       )
 
@@ -136,6 +147,7 @@ export async function handleStripeEvent(
       return markPaymentFailed(
         event.data.object as Stripe.Invoice,
         access,
+        event.id,
         eventAt
       )
 
@@ -175,25 +187,31 @@ async function resolveUser(
 }
 
 /**
- * Resolve, order-guard, and write in one place so every event branch is
- * idempotent and order-safe. Returns `unknown_customer` when the customer maps
- * to no user, `stale_event` when the event is not strictly newer than the last
- * one applied to that user, and otherwise writes with the event's timestamp.
+ * Resolve, guard, and write in one place so every event branch is idempotent
+ * and order-safe. Returns `unknown_customer` when the customer maps to no user,
+ * `duplicate_event` when this exact event id was already applied to that user,
+ * `stale_event` when the event is strictly older than the last one applied, and
+ * otherwise writes with the event's id and timestamp.
  */
 async function guardedWrite(
   user: SubscriptionEventUser | null,
+  eventId: string,
   eventAt: Date,
-  data: Omit<UpdateSubscriptionData, 'lastStripeEventAt'>,
+  data: Omit<UpdateSubscriptionData, 'lastStripeEventAt' | 'lastStripeEventId'>,
   access: SubscriptionEventAccess
 ): Promise<HandleStripeEventResult> {
   if (!user) return { status: 'ignored', reason: 'unknown_customer' }
-  if (user.lastStripeEventAt && eventAt <= user.lastStripeEventAt) {
+  if (user.lastStripeEventId && eventId === user.lastStripeEventId) {
+    return { status: 'ignored', reason: 'duplicate_event' }
+  }
+  if (user.lastStripeEventAt && eventAt < user.lastStripeEventAt) {
     return { status: 'ignored', reason: 'stale_event' }
   }
 
   await access.updateSubscription(user.id, {
     ...data,
-    lastStripeEventAt: eventAt
+    lastStripeEventAt: eventAt,
+    lastStripeEventId: eventId
   })
   return { status: 'updated', userId: user.id }
 }
@@ -202,11 +220,13 @@ async function applySubscription(
   subscription: Stripe.Subscription,
   access: SubscriptionEventAccess,
   status: 'ACTIVE' | 'INCOMPLETE',
+  eventId: string,
   eventAt: Date
 ): Promise<HandleStripeEventResult> {
   const user = await resolveUser(subscription.customer, access)
   return guardedWrite(
     user,
+    eventId,
     eventAt,
     {
       stripeSubscriptionId: subscription.id,
@@ -221,11 +241,13 @@ async function applySubscription(
 async function revokeSubscription(
   subscription: Stripe.Subscription,
   access: SubscriptionEventAccess,
+  eventId: string,
   eventAt: Date
 ): Promise<HandleStripeEventResult> {
   const user = await resolveUser(subscription.customer, access)
   return guardedWrite(
     user,
+    eventId,
     eventAt,
     {
       stripeSubscriptionId: null,
@@ -240,11 +262,13 @@ async function revokeSubscription(
 async function markPaymentFailed(
   invoice: Stripe.Invoice,
   access: SubscriptionEventAccess,
+  eventId: string,
   eventAt: Date
 ): Promise<HandleStripeEventResult> {
   const user = await resolveUser(invoice.customer, access)
   return guardedWrite(
     user,
+    eventId,
     eventAt,
     {
       subscriptionTier: user?.subscriptionTier ?? 'FREE',

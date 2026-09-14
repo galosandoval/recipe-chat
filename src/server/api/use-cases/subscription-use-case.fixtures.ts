@@ -27,6 +27,8 @@ type SubscriptionOverrides = {
   currentPeriodEnd?: number | null
   /** `event.created` in Unix seconds — drives the ordering guard. */
   createdAt?: number
+  /** `event.id` — keys idempotency; distinct ids are distinct deliveries. */
+  eventId?: string
 }
 
 function subscription(
@@ -71,10 +73,11 @@ function invoice(overrides: { customer?: string | null } = {}): Stripe.Invoice {
 function event(
   type: string,
   object: unknown,
-  created = EVENT_CREATED_UNIX
+  created = EVENT_CREATED_UNIX,
+  id = 'evt_TEST123'
 ): Stripe.Event {
   return {
-    id: 'evt_TEST123',
+    id,
     object: 'event',
     type,
     created,
@@ -88,7 +91,8 @@ export function subscriptionCreatedEvent(
   return event(
     'customer.subscription.created',
     subscription(overrides),
-    overrides.createdAt
+    overrides.createdAt,
+    overrides.eventId
   )
 }
 
@@ -98,7 +102,8 @@ export function subscriptionUpdatedEvent(
   return event(
     'customer.subscription.updated',
     subscription(overrides),
-    overrides.createdAt
+    overrides.createdAt,
+    overrides.eventId
   )
 }
 
@@ -108,17 +113,23 @@ export function subscriptionDeletedEvent(
   return event(
     'customer.subscription.deleted',
     subscription(overrides),
-    overrides.createdAt
+    overrides.createdAt,
+    overrides.eventId
   )
 }
 
 export function paymentFailedEvent(
-  overrides: { customer?: string | null; createdAt?: number } = {}
+  overrides: {
+    customer?: string | null
+    createdAt?: number
+    eventId?: string
+  } = {}
 ) {
   return event(
     'invoice.payment_failed',
     invoice(overrides),
-    overrides.createdAt
+    overrides.createdAt,
+    overrides.eventId
   )
 }
 
