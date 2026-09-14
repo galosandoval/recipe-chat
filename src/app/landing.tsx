@@ -18,6 +18,12 @@ import { useTranslations } from '~/hooks/use-translations'
  * chat's composer is `sticky` inside its own full-height section, so it pins to
  * the bottom only while the chat is on screen and never floats over the hero.
  *
+ * The chat section is `h-full`, not `min-h-full`: a `min-height`-only section is
+ * still auto-height, and an auto-height column flex container sizes to its
+ * items' max-content (a `flex-1 basis-0` child does not collapse there). The
+ * section grew to the full message list, the chat's own scroller went inert, and
+ * the tail of the last message sat permanently under the sticky composer.
+ *
  * Signed-in users never see this — they're redirected to `/chat` (see the `/`
  * page), which keeps the Onboarding Tour's first spotlight above the fold.
  */
@@ -60,7 +66,7 @@ export function Landing() {
       <LandingProof />
       <LandingKitchen />
       <LandingLoop />
-      <div ref={chatRef} className='flex min-h-full flex-col'>
+      <div ref={chatRef} className='flex h-full flex-col'>
         <Chat />
       </div>
     </div>
