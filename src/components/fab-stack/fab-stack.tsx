@@ -34,7 +34,10 @@ const ROUTE_ENTRANCE_WINDOW_MS = (ROUTE_ENTRANCE_DELAY + durations.base) * 1000
 export function FabStack() {
   const fabs = useFabStackStore((s) => s.fabs)
   const messages = useChatStore((s) => s.messages)
-  const pathname = usePathname()
+  // `usePathname` is typed non-null but returns null when no App Router context
+  // is mounted (notably under jsdom in unit tests); coalesce so the layout math
+  // below never dereferences null.
+  const pathname = usePathname() ?? ''
 
   // A fresh navigation makes the newly-registered FABs wait for the route
   // transition; anything toggled later in the same page session animates
