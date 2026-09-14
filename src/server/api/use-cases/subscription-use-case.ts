@@ -125,7 +125,12 @@ export async function handleStripeEvent(
         access,
         'ACTIVE',
         event.id,
-        eventAt
+        eventAt,
+        // `created` is causally the first event for a subscription: Stripe never
+        // emits it after an `updated`/`deleted` for the same subscription. So a
+        // delivery that finds state already at or after its own `created` second
+        // is out of order and must not overwrite it.
+        true
       )
 
     case 'customer.subscription.updated':
@@ -134,7 +139,8 @@ export async function handleStripeEvent(
         access,
         subscriptionStatusFor(event.data.object as Stripe.Subscription),
         event.id,
-        eventAt
+        eventAt,
+        false
       )
 
     case 'customer.subscription.deleted':
@@ -192,21 +198,33 @@ async function resolveUser(
  * Resolve, guard, and write in one place so every event branch is idempotent
  * and order-safe. Returns `unknown_customer` when the customer maps to no user,
  * `duplicate_event` when this event id was already applied, `stale_event` when
- * the event is strictly older than the last one applied, and otherwise writes
- * with the event's id and timestamp.
+ * the event is older than the last one applied, and otherwise writes with the
+ * event's id and timestamp.
+ *
+ * `rejectConcurrent` widens the ordering guard from strictly-older (`<`) to
+ * older-or-same-second (`<=`) for an event that is causally first — a `created`
+ * event delivered after a same-second `updated` is out of order and must not
+ * overwrite the newer state. Later event types leave it `false` so a genuine
+ * same-second progression (the checkout `created` -> `updated`) still applies.
  */
 async function guardedWrite(
   user: SubscriptionEventUser | null,
   eventId: string,
   eventAt: Date,
   data: Omit<UpdateSubscriptionData, 'lastStripeEventAt' | 'lastStripeEventId'>,
-  access: SubscriptionEventAccess
+  access: SubscriptionEventAccess,
+  rejectConcurrent = false
 ): Promise<HandleStripeEventResult> {
   if (!user) return { status: 'ignored', reason: 'unknown_customer' }
   if (await access.hasProcessedEvent(eventId)) {
     return { status: 'ignored', reason: 'duplicate_event' }
   }
-  if (user.lastStripeEventAt && eventAt < user.lastStripeEventAt) {
+  if (
+    user.lastStripeEventAt &&
+    (rejectConcurrent
+      ? eventAt <= user.lastStripeEventAt
+      : eventAt < user.lastStripeEventAt)
+  ) {
     return { status: 'ignored', reason: 'stale_event' }
   }
 
@@ -234,7 +252,8 @@ async function applySubscription(
   access: SubscriptionEventAccess,
   status: 'ACTIVE' | 'INCOMPLETE',
   eventId: string,
-  eventAt: Date
+  eventAt: Date,
+  rejectConcurrent: boolean
 ): Promise<HandleStripeEventResult> {
   const user = await resolveUser(subscription.customer, access)
   return guardedWrite(
@@ -247,7 +266,8 @@ async function applySubscription(
       subscriptionStatus: status,
       currentPeriodEnd: periodEndFromSubscription(subscription)
     },
-    access
+    access,
+    rejectConcurrent
   )
 }
 

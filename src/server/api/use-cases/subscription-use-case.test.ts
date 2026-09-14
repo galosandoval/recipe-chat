@@ -387,6 +387,38 @@ describe('handleStripeEvent', () => {
       expect(access.lastWrite.data.subscriptionTier).toBe('PREMIUM')
     })
 
+    it('does not let a same-second created delivered after an update move the tier back', async () => {
+      // At checkout Stripe fires `created` then `updated` in the same second,
+      // but does not guarantee delivery order. When the `updated` (PREMIUM)
+      // arrives first and the earlier `created` (STARTER) is delivered after,
+      // the late `created` must not overwrite the newer state — `created` is
+      // causally the first event for a subscription, so a delivery of it that
+      // finds state already at or after its own second is out of order.
+      const access = new FakeSubscriptionAccess().seed(knownUser())
+
+      await run(
+        subscriptionUpdatedEvent({
+          eventId: 'evt_updated',
+          priceId: PREMIUM_PRICE_ID,
+          status: 'active'
+        }),
+        access
+      )
+      const late = await run(
+        subscriptionCreatedEvent({
+          eventId: 'evt_created',
+          priceId: STARTER_PRICE_ID
+        }),
+        access
+      )
+
+      expect(late).toEqual<HandleStripeEventResult>({
+        status: 'ignored',
+        reason: 'stale_event'
+      })
+      expect(access.lastWrite.data.subscriptionTier).toBe('PREMIUM')
+    })
+
     it('treats a write that loses the processed-event race as a duplicate no-op', async () => {
       // Two concurrent deliveries of the same event can both pass the dedupe
       // read before either records the id; the loser then collides on the
