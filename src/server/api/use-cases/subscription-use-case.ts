@@ -3,7 +3,8 @@ import type Stripe from 'stripe'
 import {
   subscriptionAccess,
   type SubscriptionEventAccess,
-  type SubscriptionEventUser
+  type SubscriptionEventUser,
+  type UpdateSubscriptionData
 } from '~/server/api/data-access/subscription-access'
 import { PRICE_ID_TO_TIER, TIER_TO_PRICE_ID } from '~/lib/stripe-config'
 import { type CreateCheckoutSchema } from '~/schemas/subscription-schema'
@@ -85,7 +86,10 @@ export type StripeEventDeps = {
  */
 export type HandleStripeEventResult =
   | { status: 'updated'; userId: string }
-  | { status: 'ignored'; reason: 'unhandled_event' | 'unknown_customer' }
+  | {
+      status: 'ignored'
+      reason: 'unhandled_event' | 'unknown_customer' | 'stale_event'
+    }
 
 /**
  * The one seam that maps a verified Stripe event to a subscription-state change.
@@ -98,30 +102,42 @@ export async function handleStripeEvent(
   deps: StripeEventDeps
 ): Promise<HandleStripeEventResult> {
   const { access } = deps
+  // Stripe retries deliveries and does not guarantee ordering. The event's
+  // `created` time stamps every write and gates it: a redelivered event carries
+  // the same timestamp (not strictly newer) and a late event an older one, so
+  // both are skipped rather than moving a user's Tier backwards.
+  const eventAt = new Date(event.created * 1000)
 
   switch (event.type) {
     case 'customer.subscription.created':
       return applySubscription(
         event.data.object as Stripe.Subscription,
         access,
-        'ACTIVE'
+        'ACTIVE',
+        eventAt
       )
 
     case 'customer.subscription.updated':
       return applySubscription(
         event.data.object as Stripe.Subscription,
         access,
-        subscriptionStatusFor(event.data.object as Stripe.Subscription)
+        subscriptionStatusFor(event.data.object as Stripe.Subscription),
+        eventAt
       )
 
     case 'customer.subscription.deleted':
       return revokeSubscription(
         event.data.object as Stripe.Subscription,
-        access
+        access,
+        eventAt
       )
 
     case 'invoice.payment_failed':
-      return markPaymentFailed(event.data.object as Stripe.Invoice, access)
+      return markPaymentFailed(
+        event.data.object as Stripe.Invoice,
+        access,
+        eventAt
+      )
 
     default:
       return { status: 'ignored', reason: 'unhandled_event' }
@@ -158,49 +174,82 @@ async function resolveUser(
   return access.getUserByStripeCustomerId(customerId)
 }
 
+/**
+ * Resolve, order-guard, and write in one place so every event branch is
+ * idempotent and order-safe. Returns `unknown_customer` when the customer maps
+ * to no user, `stale_event` when the event is not strictly newer than the last
+ * one applied to that user, and otherwise writes with the event's timestamp.
+ */
+async function guardedWrite(
+  user: SubscriptionEventUser | null,
+  eventAt: Date,
+  data: Omit<UpdateSubscriptionData, 'lastStripeEventAt'>,
+  access: SubscriptionEventAccess
+): Promise<HandleStripeEventResult> {
+  if (!user) return { status: 'ignored', reason: 'unknown_customer' }
+  if (user.lastStripeEventAt && eventAt <= user.lastStripeEventAt) {
+    return { status: 'ignored', reason: 'stale_event' }
+  }
+
+  await access.updateSubscription(user.id, {
+    ...data,
+    lastStripeEventAt: eventAt
+  })
+  return { status: 'updated', userId: user.id }
+}
+
 async function applySubscription(
   subscription: Stripe.Subscription,
   access: SubscriptionEventAccess,
-  status: 'ACTIVE' | 'INCOMPLETE'
+  status: 'ACTIVE' | 'INCOMPLETE',
+  eventAt: Date
 ): Promise<HandleStripeEventResult> {
   const user = await resolveUser(subscription.customer, access)
-  if (!user) return { status: 'ignored', reason: 'unknown_customer' }
-
-  await access.updateSubscription(user.id, {
-    stripeSubscriptionId: subscription.id,
-    subscriptionTier: resolveTierFromSubscription(subscription),
-    subscriptionStatus: status,
-    currentPeriodEnd: periodEndFromSubscription(subscription)
-  })
-  return { status: 'updated', userId: user.id }
+  return guardedWrite(
+    user,
+    eventAt,
+    {
+      stripeSubscriptionId: subscription.id,
+      subscriptionTier: resolveTierFromSubscription(subscription),
+      subscriptionStatus: status,
+      currentPeriodEnd: periodEndFromSubscription(subscription)
+    },
+    access
+  )
 }
 
 async function revokeSubscription(
   subscription: Stripe.Subscription,
-  access: SubscriptionEventAccess
+  access: SubscriptionEventAccess,
+  eventAt: Date
 ): Promise<HandleStripeEventResult> {
   const user = await resolveUser(subscription.customer, access)
-  if (!user) return { status: 'ignored', reason: 'unknown_customer' }
-
-  await access.updateSubscription(user.id, {
-    stripeSubscriptionId: null,
-    subscriptionTier: 'FREE',
-    subscriptionStatus: 'CANCELED',
-    currentPeriodEnd: null
-  })
-  return { status: 'updated', userId: user.id }
+  return guardedWrite(
+    user,
+    eventAt,
+    {
+      stripeSubscriptionId: null,
+      subscriptionTier: 'FREE',
+      subscriptionStatus: 'CANCELED',
+      currentPeriodEnd: null
+    },
+    access
+  )
 }
 
 async function markPaymentFailed(
   invoice: Stripe.Invoice,
-  access: SubscriptionEventAccess
+  access: SubscriptionEventAccess,
+  eventAt: Date
 ): Promise<HandleStripeEventResult> {
   const user = await resolveUser(invoice.customer, access)
-  if (!user) return { status: 'ignored', reason: 'unknown_customer' }
-
-  await access.updateSubscription(user.id, {
-    subscriptionTier: user.subscriptionTier,
-    subscriptionStatus: 'PAST_DUE'
-  })
-  return { status: 'updated', userId: user.id }
+  return guardedWrite(
+    user,
+    eventAt,
+    {
+      subscriptionTier: user?.subscriptionTier ?? 'FREE',
+      subscriptionStatus: 'PAST_DUE'
+    },
+    access
+  )
 }

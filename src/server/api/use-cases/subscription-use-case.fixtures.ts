@@ -16,12 +16,17 @@ export const UNKNOWN_PRICE_ID = 'price_unmapped_test'
 /** Fixed Unix seconds so the persisted `currentPeriodEnd` Date is deterministic. */
 export const PERIOD_END_UNIX = 1782000000
 
+/** Fixed `created` time (Unix seconds) stamped on every fixture event by default. */
+export const EVENT_CREATED_UNIX = 1781000000
+
 type SubscriptionOverrides = {
   id?: string
   customer?: string
   priceId?: string
   status?: Stripe.Subscription.Status
   currentPeriodEnd?: number | null
+  /** `event.created` in Unix seconds — drives the ordering guard. */
+  createdAt?: number
 }
 
 function subscription(
@@ -63,11 +68,16 @@ function invoice(overrides: { customer?: string | null } = {}): Stripe.Invoice {
   } as unknown as Stripe.Invoice
 }
 
-function event(type: string, object: unknown): Stripe.Event {
+function event(
+  type: string,
+  object: unknown,
+  created = EVENT_CREATED_UNIX
+): Stripe.Event {
   return {
     id: 'evt_TEST123',
     object: 'event',
     type,
+    created,
     data: { object }
   } as unknown as Stripe.Event
 }
@@ -75,25 +85,41 @@ function event(type: string, object: unknown): Stripe.Event {
 export function subscriptionCreatedEvent(
   overrides: SubscriptionOverrides = {}
 ) {
-  return event('customer.subscription.created', subscription(overrides))
+  return event(
+    'customer.subscription.created',
+    subscription(overrides),
+    overrides.createdAt
+  )
 }
 
 export function subscriptionUpdatedEvent(
   overrides: SubscriptionOverrides = {}
 ) {
-  return event('customer.subscription.updated', subscription(overrides))
+  return event(
+    'customer.subscription.updated',
+    subscription(overrides),
+    overrides.createdAt
+  )
 }
 
 export function subscriptionDeletedEvent(
   overrides: SubscriptionOverrides = {}
 ) {
-  return event('customer.subscription.deleted', subscription(overrides))
+  return event(
+    'customer.subscription.deleted',
+    subscription(overrides),
+    overrides.createdAt
+  )
 }
 
 export function paymentFailedEvent(
-  overrides: { customer?: string | null } = {}
+  overrides: { customer?: string | null; createdAt?: number } = {}
 ) {
-  return event('invoice.payment_failed', invoice(overrides))
+  return event(
+    'invoice.payment_failed',
+    invoice(overrides),
+    overrides.createdAt
+  )
 }
 
 /** An event type the webhook does not handle — must be an explicit no-op. */

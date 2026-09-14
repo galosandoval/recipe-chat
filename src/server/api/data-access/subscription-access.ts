@@ -11,6 +11,8 @@ export type SubscriptionEventUser = {
   stripeSubscriptionId: string | null
   subscriptionTier: SubscriptionTier
   subscriptionStatus: SubscriptionStatus | null
+  /** When the last Stripe event applied to this user was created, for ordering. */
+  lastStripeEventAt: Date | null
 }
 
 export type UpdateSubscriptionData = {
@@ -18,6 +20,8 @@ export type UpdateSubscriptionData = {
   subscriptionTier: SubscriptionTier
   subscriptionStatus: SubscriptionStatus | null
   currentPeriodEnd?: Date | null
+  /** The `created` time of the Stripe event that produced this write. */
+  lastStripeEventAt?: Date | null
 }
 
 /**
@@ -49,7 +53,8 @@ export class SubscriptionAccess
         stripeCustomerId: true,
         stripeSubscriptionId: true,
         subscriptionTier: true,
-        subscriptionStatus: true
+        subscriptionStatus: true,
+        lastStripeEventAt: true
       }
     })
   }

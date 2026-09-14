@@ -15,6 +15,7 @@ import {
   type UpdateSubscriptionData
 } from '~/server/api/data-access/subscription-access'
 import {
+  EVENT_CREATED_UNIX,
   PERIOD_END_UNIX,
   PREMIUM_PRICE_ID,
   STARTER_PRICE_ID,
@@ -53,11 +54,13 @@ jest.mock('~/server/api/data-access/subscription-access', () => ({
 /** In-memory adapter implementing the data-access seam — the test-side port. */
 class FakeSubscriptionAccess implements SubscriptionEventAccess {
   private readonly usersByCustomer = new Map<string, SubscriptionEventUser>()
+  private readonly usersById = new Map<string, SubscriptionEventUser>()
   readonly writes: Array<{ userId: string; data: UpdateSubscriptionData }> = []
 
   seed(user: SubscriptionEventUser) {
     if (user.stripeCustomerId)
       this.usersByCustomer.set(user.stripeCustomerId, user)
+    this.usersById.set(user.id, user)
     return this
   }
 
@@ -67,6 +70,10 @@ class FakeSubscriptionAccess implements SubscriptionEventAccess {
 
   async updateSubscription(userId: string, data: UpdateSubscriptionData) {
     this.writes.push({ userId, data })
+    // Persist the write so successive events see the updated state — this is
+    // what makes idempotency and ordering observable across two deliveries.
+    const user = this.usersById.get(userId)
+    if (user) Object.assign(user, data)
     return undefined
   }
 
@@ -90,6 +97,7 @@ function knownUser(
     stripeSubscriptionId: null,
     subscriptionTier: 'FREE',
     subscriptionStatus: null,
+    lastStripeEventAt: null,
     ...overrides
   }
 }
@@ -118,7 +126,8 @@ describe('handleStripeEvent', () => {
           stripeSubscriptionId: 'sub_TEST123',
           subscriptionTier: 'STARTER',
           subscriptionStatus: 'ACTIVE',
-          currentPeriodEnd: new Date(PERIOD_END_UNIX * 1000)
+          currentPeriodEnd: new Date(PERIOD_END_UNIX * 1000),
+          lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000)
         }
       })
     })
@@ -183,7 +192,8 @@ describe('handleStripeEvent', () => {
         stripeSubscriptionId: null,
         subscriptionTier: 'FREE',
         subscriptionStatus: 'CANCELED',
-        currentPeriodEnd: null
+        currentPeriodEnd: null,
+        lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000)
       })
     })
   })
@@ -202,7 +212,8 @@ describe('handleStripeEvent', () => {
       })
       expect(access.lastWrite.data).toEqual({
         subscriptionTier: 'PREMIUM',
-        subscriptionStatus: 'PAST_DUE'
+        subscriptionStatus: 'PAST_DUE',
+        lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000)
       })
     })
   })
@@ -245,6 +256,82 @@ describe('handleStripeEvent', () => {
         reason: 'unhandled_event'
       })
       expect(access.writes).toHaveLength(0)
+    })
+  })
+
+  describe('idempotency and ordering', () => {
+    it('leaves the same stored state when the same event is delivered twice', async () => {
+      const access = new FakeSubscriptionAccess().seed(knownUser())
+      const event = subscriptionCreatedEvent({ priceId: STARTER_PRICE_ID })
+
+      const first = await run(event, access)
+      const second = await run(event, access)
+
+      expect(first).toEqual<HandleStripeEventResult>({
+        status: 'updated',
+        userId: 'user_alice'
+      })
+      expect(second).toEqual<HandleStripeEventResult>({
+        status: 'ignored',
+        reason: 'stale_event'
+      })
+      // The redelivery is a no-op: one write, tier unchanged from the first.
+      expect(access.writes).toHaveLength(1)
+      expect(access.lastWrite.data.subscriptionTier).toBe('STARTER')
+    })
+
+    it('does not overwrite state with an event older than what is stored', async () => {
+      const access = new FakeSubscriptionAccess().seed(
+        knownUser({
+          subscriptionTier: 'PREMIUM',
+          subscriptionStatus: 'ACTIVE',
+          stripeSubscriptionId: 'sub_TEST123',
+          lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000)
+        })
+      )
+
+      const result = await run(
+        subscriptionUpdatedEvent({
+          priceId: STARTER_PRICE_ID,
+          status: 'active',
+          createdAt: EVENT_CREATED_UNIX - 1000
+        }),
+        access
+      )
+
+      expect(result).toEqual<HandleStripeEventResult>({
+        status: 'ignored',
+        reason: 'stale_event'
+      })
+      expect(access.writes).toHaveLength(0)
+    })
+
+    it('applies an event newer than what is stored', async () => {
+      const access = new FakeSubscriptionAccess().seed(
+        knownUser({
+          subscriptionTier: 'STARTER',
+          subscriptionStatus: 'ACTIVE',
+          lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000)
+        })
+      )
+
+      const result = await run(
+        subscriptionUpdatedEvent({
+          priceId: PREMIUM_PRICE_ID,
+          status: 'active',
+          createdAt: EVENT_CREATED_UNIX + 1000
+        }),
+        access
+      )
+
+      expect(result).toEqual<HandleStripeEventResult>({
+        status: 'updated',
+        userId: 'user_alice'
+      })
+      expect(access.lastWrite.data).toMatchObject({
+        subscriptionTier: 'PREMIUM',
+        lastStripeEventAt: new Date((EVENT_CREATED_UNIX + 1000) * 1000)
+      })
     })
   })
 

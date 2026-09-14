@@ -43,6 +43,7 @@ model User {
     subscriptionTier      SubscriptionTier    @default(FREE)
     subscriptionStatus    SubscriptionStatus?
     currentPeriodEnd      DateTime?
+    lastStripeEventAt     DateTime?
     tasteProfile          TasteProfile?
     createdAt             DateTime            @default(now())
     updatedAt             DateTime            @updatedAt
