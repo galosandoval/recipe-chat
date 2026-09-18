@@ -1,6 +1,6 @@
 name: Agent — Implement
 
-# The `agent:implement` pipeline, on `@galosandoval/shopfloor` 1.0.0 (#637).
+# The `agent:implement` pipeline, on `@galosandoval/shopfloor` 1.1.0.
 #
 # The loop has two edges: a human labelling an issue `ready-for-agent`, and CI
 # completing on a branch the agent pushed. Everything between them — the
@@ -97,7 +97,7 @@ jobs:
           # itself failed, and what its spend gate reports when it cannot
           # answer — fails this job loudly.
           set +e
-          verdict="$(npx --yes -p @galosandoval/shopfloor@1.0.0 shopfloor-admit)"
+          verdict="$(npx --yes -p @galosandoval/shopfloor@1.1.0 shopfloor-admit)"
           set -e
           echo "$verdict"
 
@@ -275,7 +275,7 @@ jobs:
           # Auth.js would reject the untrusted host and break the e2e login the
           # same way the PR e2e gate would. Trust the host explicitly here too.
           AUTH_TRUST_HOST: true
-        run: npx --yes -p @galosandoval/shopfloor@1.0.0 shopfloor-run-phase
+        run: npx --yes -p @galosandoval/shopfloor@1.1.0 shopfloor-run-phase
 
       - name: Post trajectory scorecard to the PR
         # Observability (#566), still ours under 1.0.0 (#637). The closure gate
