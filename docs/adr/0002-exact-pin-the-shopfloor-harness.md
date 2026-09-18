@@ -85,3 +85,20 @@ The pin now lives in two places — `package.json` and the `npx` invocations in
 `.github/workflows/agent-implement.yml` — and `run-policy.test.ts` holds them
 equal, so a bump that moved only one of them fails rather than silently running
 a harness nobody chose.
+
+## Addendum — 2026-09-18, at `1.1.0`
+
+The first bump under real semver, and the pin behaved as designed: a minor
+arrived with one documented behavior change and it was read before it landed.
+
+`1.1.0` renders the agent's `stream-json` output as job-log lines instead of
+passing the raw JSONL through stdout. **Nothing here parsed that stdout** — the
+`admit` job parses its own verdict JSON from a different bin, and
+`run-trajectory-check.ts` reads the transcript artifact (`transcript.jsonl`),
+which is unchanged and is where an audit was always supposed to read from. So
+the upgrade is a pin bump in the two places that hold it and no config change.
+
+The pin stays. Under `1.x` a caret range would now mean what it says, and the
+argument against it is the one the `1.0.0` addendum made: this pipeline runs
+unattended, holding a write-scoped PAT, and a release nobody read arrives on a
+machine nobody is watching.
