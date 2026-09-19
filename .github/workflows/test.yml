@@ -161,6 +161,13 @@ jobs:
   # job runs and `jest.setup.ts` serializes), so a change to e.g. the chat route
   # or the Stripe webhook is real backend behavior a user hits. Leaving them out
   # here is the #648 failure mode — a backend surface invisible to a CI gate.
+  #
+  # The app-boot config is the same kind of surface. `next.config.ts` calls
+  # `parseEnv()` (from `src/env.ts`) at module scope, and the e2e job's webServer
+  # runs `next build`/`next start`, so a change to either can only fail in a
+  # running app — the jsdom suites mock the environment and never boot Next.
+  # Left unwatched, a boot-breaking config change skips e2e: green in CI, red the
+  # moment the app starts. `test.yml.test.ts` pins that this filter watches both.
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -177,7 +184,9 @@ jobs:
             backend:
               - 'src/server/**'
               - 'src/app/api/**'
+              - 'src/env.ts'
               - 'prisma/**'
+              - 'next.config.*'
               - 'e2e/**'
               - 'playwright.config.*'
 

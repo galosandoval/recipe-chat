@@ -134,6 +134,17 @@ describe('the e2e gate watches every backend surface (#648)', () => {
   it('watches the route-handler surface under src/app/api', () => {
     expect(changesJob).toMatch(/- 'src\/app\/api/)
   })
+
+  // `next.config.ts` calls `parseEnv()` at module scope and imports `src/env.ts`,
+  // and the e2e job's webServer runs `next build`/`next start` — so a change to
+  // the boot config or the env schema can only fail in a running app. The jsdom
+  // suites mock the environment and never boot Next, so nothing but the e2e gate
+  // exercises this surface. Left unwatched, a boot-breaking config change skips
+  // e2e entirely: green in CI, red the moment the app starts — the #648 mode.
+  it('watches the app-boot config surface (next.config.ts, src/env.ts)', () => {
+    expect(changesJob).toMatch(/- 'next\.config\./)
+    expect(changesJob).toMatch(/- 'src\/env\.ts'/)
+  })
 })
 
 /**
