@@ -19,7 +19,7 @@ Its parts, and the formatter beside them:
 - `bun run lint`, `bun run test`
 - `bun run format` → `prettier --write .` (idempotent; respects `.prettierignore`)
 
-## The loop (`@galosandoval/shopfloor` 1.1.0)
+## The loop (`@galosandoval/shopfloor` 2.0.0)
 
 `.github/workflows/agent-implement.yml` is two jobs. `admit` installs nothing and
 answers "may this event start a run?" — classification, the spend gate, the

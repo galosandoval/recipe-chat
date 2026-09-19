@@ -102,3 +102,42 @@ The pin stays. Under `1.x` a caret range would now mean what it says, and the
 argument against it is the one the `1.0.0` addendum made: this pipeline runs
 unattended, holding a write-scoped PAT, and a release nobody read arrives on a
 machine nobody is watching.
+
+## Addendum — 2026-09-18, at `2.0.0`
+
+The first major, and the release the whole argument was written for: the notes
+had to be read before the pin moved, because this one changes what a run is
+allowed to do.
+
+`2.0.0` adds a third **gating** trajectory invariant, `commit-before-stop`. A
+run whose transcript carries no `git commit` no longer closes as a success — it
+re-enters the inner loop carrying the violation, or lands `agent:blocked` when
+`MAX_ITERATIONS` is spent. It comes from a sibling pipeline where an agent
+implemented an issue, passed the gate, and then ended its turn waiting for a
+backgrounded browser run to report; a headless spawn has no turn after that one,
+so the working tree went in the bin and the branch kept the handoff commit and
+nothing else. Two gating invariants watched it happen: `gate-before-commit`
+passes _vacuously_ with no commits, and `red-before-green` grades
+`not-evaluable` with no first commit to measure against.
+
+**Breaking in two ways, and only one reaches here.** `TrajectoryInvariantId` and
+`GatingTrajectoryInvariantId` each gain a member, so an exhaustive `switch` over
+either stops compiling — `run-trajectory-check.ts` is this repo's only
+TypeScript consumer of the package, it calls `runTrajectoryCheck` and prints
+what comes back, and it switches on nothing. The behavior change is the half
+that lands, and it is the half we want.
+
+It should not fire here. `agent/implement/prompt.md` has carried a **HEADLESS**
+section since the pipeline was built — commit once the gate is green, do not
+wait for approval, do not ask questions — which is exactly the instruction the
+sibling pipeline's prompt was missing. What that section did not cover is
+waiting on a _background command_ rather than on a human, so the prompt now says
+that too, and `2.0.0` is the backstop underneath it rather than the fix.
+
+`2.0.0` also repins its bundled skills plugin to `galosandoval/skills#v2.0.0`,
+whose `/implement` no longer ends on "wait for the user to approve the work
+before committing" — an instruction with no one to satisfy it in an unattended
+run. Skills reach the agent through the CLI's own `--plugin-dir` discovery, so
+that arrives with the package and needs no config here.
+
+The pin stays, and a major is the easiest version of this argument to make.

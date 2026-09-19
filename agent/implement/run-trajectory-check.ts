@@ -7,12 +7,12 @@ import { MAX_TURNS } from './run-policy'
 /**
  * Thin invocation of `@galosandoval/shopfloor`'s `runTrajectoryCheck`
  * (#566, relocated in shopfloor#38): the package reads the captured session
- * transcript, grades it against its four process invariants, and renders the
+ * transcript, grades it against its five process invariants, and renders the
  * scorecard. The checker itself used to live here — it graded a run using facts
  * the harness owns (`MAX_TURNS`, the command policy's rule set, the implement
  * phase's TDD contract), so it moved to where those facts are.
  *
- * This script only surfaces the result. Under shopfloor 1.1.0 (#637) the
+ * This script only surfaces the result. Under shopfloor 2.0.0 the
  * closure gate inside `runPhase` grades the same scorecard and can hold a run
  * open on it, but it does not post it anywhere — so without this step the
  * grading is invisible to the human reading the PR, which is the whole of

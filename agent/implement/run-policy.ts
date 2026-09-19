@@ -7,7 +7,7 @@
  * module, and "local is a faithful CI rehearsal" was an invariant maintained by
  * hand that had already slipped.
  *
- * Under `@galosandoval/shopfloor` 1.1.0 there is one consumer: the
+ * Under `@galosandoval/shopfloor` 2.0.0 there is one consumer: the
  * workflow's `shopfloor-run-phase` step. (The `admit` job runs
  * `shopfloor-admit` ahead of it, but admission happens before a run policy
  * exists and reads nothing from here.) Every value below reaches the run as an
@@ -45,7 +45,7 @@ export const WALL_CLOCK_MINUTES = 45
 export const IDLE_MINUTES = 15
 
 /**
- * How many times one run may respawn the agent (shopfloor 1.1.0's inner loop):
+ * How many times one run may respawn the agent (shopfloor 2.0.0's inner loop):
  * the harness runs {@link GATE_COMMAND} itself after each spawn and, on a red
  * gate or a trajectory that fails to close, respawns with the failure appended
  * to the prompt. All iterations share the one wall-clock budget above, so this
@@ -70,7 +70,7 @@ export const MAX_ITERATIONS = 3
 export const GATE_COMMAND = 'bun run gate'
 
 /**
- * The three variables shopfloor 1.1.0 **refuses by name** on the step that runs
+ * The three variables shopfloor 2.0.0 **refuses by name** on the step that runs
  * `shopfloor-run-phase`: the webhook payload names the issue and its title, and
  * the branch is `agent/issue-<n>`. Exported so both the contract's own lists
  * and the workflow YAML can be held to it — a run that still exports one of
