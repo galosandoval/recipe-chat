@@ -106,6 +106,13 @@ Use red-green-refactor:
 Run the quality gate before every commit and only commit when it is clean. If a
 step fails, fix the cause and rerun the whole gate from the top.
 
+**Run the RED test bare — never piped.** The trajectory checker reads RED off
+the exit status of the tool call itself, so `bun run test` must be the whole
+command. Appending `| tail -20`, `; echo done`, or `|| true` makes the shell
+exit 0, the failing run reads as a success, and the attempt is graded as though
+it never went red — a green gate afterwards still blocks the run. Same for the
+gate run before a commit.
+
 Deleting or weakening a failing test to reach green is not reaching green: the
 run's trajectory is graded against the transcript, and an attempt that commits
 before its gate passed, or that never went red before going green, does not
