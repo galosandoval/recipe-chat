@@ -14,7 +14,21 @@
  * Normalizes `\` to `/` first so a Windows-style path matches the same as a
  * POSIX one.
  */
+/**
+ * The `src/`-relative path segments that mark a suite as DB-backed.
+ *
+ * The one source for the boundary. {@link isDbBackedSuitePath} matches on these,
+ * and `package.json`'s `test:unit`/`test:integration` split — which cannot
+ * import this module (JSON) — encodes the same segments as `src/<segment>`
+ * arguments. `db-backed-suite-path.test.ts` binds those scripts back to this
+ * array, so adding a segment here is the single edit that keeps the predicate,
+ * the CI split, and the advisory-lock boundary in `jest.setup.ts` in step.
+ */
+export const DB_BACKED_PATH_SEGMENTS = ['server/api', 'app/api'] as const
+
 export function isDbBackedSuitePath(suitePath: string): boolean {
   const normalized = suitePath.replace(/\\/g, '/')
-  return normalized.includes('/server/api/') || normalized.includes('/app/api/')
+  return DB_BACKED_PATH_SEGMENTS.some((segment) =>
+    normalized.includes(`/${segment}/`)
+  )
 }
