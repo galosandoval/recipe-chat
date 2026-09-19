@@ -1,0 +1,200 @@
+/**
+ * @jest-environment node
+ */
+import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { isDbBackedSuitePath } from '~/lib/db-backed-suite-path'
+import { parseEnv } from '~/env'
+
+/**
+ * The CI↔gate parity contract (#648).
+ *
+ * `bun run gate` runs `typecheck && lint && test`, and the harness runs that
+ * same gate after every agent spawn (`agent/implement/run-policy.ts`'s
+ * `GATE_COMMAND`). For two weeks CI ran only `bun run test:integration`
+ * (`src/server/api`), leaving 53 of 68 jest suites invisible: a null
+ * `usePathname()` under jsdom took out 96 tests and CI stayed green because it
+ * never executed the component suites. This file is the durable statement of
+ * the invariant that let that happen — nothing may be green in CI and red under
+ * `bun run gate`. It reads the workflow YAML and lists jest suites, because the
+ * relationship spans `test.yml`, `package.json`, and `run-policy.ts` and lives
+ * nowhere in TypeScript otherwise.
+ */
+const repoRoot = join(__dirname, '..', '..')
+
+const workflow = readFileSync(join(__dirname, 'test.yml'), 'utf8')
+
+const packageJson = JSON.parse(
+  readFileSync(join(repoRoot, 'package.json'), 'utf8')
+) as { scripts: Record<string, string> }
+
+/**
+ * The absolute suite paths a `package.json` test script resolves, via
+ * `jest --listTests` — the same resolution CI performs, so the sets compared
+ * below are exactly what each job would run rather than a guess parsed off the
+ * script string.
+ */
+function listSuites(scriptName: string): Set<string> {
+  const script = packageJson.scripts[scriptName]
+  if (!script) throw new Error(`no package.json script named ${scriptName}`)
+  const output = execSync(`${script} --listTests`, {
+    cwd: repoRoot,
+    encoding: 'utf8'
+  })
+  return new Set(output.trim().split('\n').filter(Boolean))
+}
+
+describe('CI runs the same suites as the gate (#648)', () => {
+  // The load-bearing invariant: `test:unit` ∪ `test:integration` must equal the
+  // full `test` run, or a suite is green in CI only because no job executed it.
+  it('covers every suite the gate runs across the unit and integration jobs', () => {
+    const full = listSuites('test')
+    const unit = listSuites('test:unit')
+    const integration = listSuites('test:integration')
+
+    const union = new Set([...unit, ...integration])
+    expect(union).toEqual(full)
+  })
+
+  // Two jobs, not one, is the stated decision — so the halves must be disjoint:
+  // a suite in both would double-run, and a suite in neither would vanish.
+  it('splits the suites cleanly, with no suite in both halves', () => {
+    const unit = listSuites('test:unit')
+    const integration = listSuites('test:integration')
+
+    const overlap = [...unit].filter((suite) => integration.has(suite))
+    expect(overlap).toEqual([])
+  })
+
+  // The union above only guarantees the gate if CI actually invokes those two
+  // scripts. Assert the workflow runs each, so narrowing a script narrows what
+  // CI covers rather than silently diverging from it.
+  it('invokes both halves of the gate from the workflow', () => {
+    expect(workflow).toMatch(/bun run test:unit/)
+    expect(workflow).toMatch(/bun run test:integration/)
+  })
+
+  // The DB-free half of `bun run gate` is `typecheck && lint`; CI has to run
+  // both or a type error / lint break is green in CI and red under the gate.
+  it('runs typecheck and lint alongside the unit suites', () => {
+    expect(workflow).toMatch(/bun run typecheck/)
+    expect(workflow).toMatch(/bun run lint/)
+  })
+
+  // The split has to fall on the DB boundary, not on the `src/server/api`
+  // directory. `jest.setup.ts` serializes every DB-backed suite behind the
+  // Postgres advisory lock, so those suites connect to the database just to
+  // acquire it. Any one of them landing in the DB-free `unit` job (no service
+  // container) fails there — union parity alone does not catch it, because the
+  // suite still runs *somewhere*. `requiresDb` is the *same* predicate
+  // `jest.setup.ts` uses to decide serialization, imported from one definition
+  // so the serialization boundary and this CI-split boundary cannot drift.
+  const requiresDb = isDbBackedSuitePath
+
+  it('keeps every DB-backed suite out of the DB-free unit job', () => {
+    const unit = listSuites('test:unit')
+
+    const strandedWithoutDb = [...unit].filter(requiresDb)
+    expect(strandedWithoutDb).toEqual([])
+  })
+
+  it('runs every DB-backed suite in the DB-backed integration job', () => {
+    const full = listSuites('test')
+    const integration = listSuites('test:integration')
+
+    const dbBacked = [...full].filter(requiresDb)
+    const missing = dbBacked.filter((suite) => !integration.has(suite))
+    expect(missing).toEqual([])
+  })
+})
+
+/**
+ * The e2e gate sees every backend surface (#648).
+ *
+ * The e2e job (boot the app + a browser) runs only when the `changes` job's path
+ * filter marks a change as backend, so docs/styling pushes skip its cost. #648's
+ * root cause was a backend surface left invisible to a CI gate: the route
+ * handlers under `src/app/api` hit the database (`jest.setup.ts` serializes them
+ * behind the advisory lock, and the `integration` job runs them), yet the e2e
+ * filter watched only `src/server/**`. A change to `src/app/api/chat/route.ts`
+ * or the Stripe webhook route — real backend behavior a user hits — skipped the
+ * browser gate entirely. The e2e filter must watch the same route-handler
+ * surface the gate's `integration` job runs, so no backend change slips past
+ * e2e unexercised.
+ */
+describe('the e2e gate watches every backend surface (#648)', () => {
+  // The `changes` job spans from its own key to the `e2e` job key; bound the
+  // search to it so a `src/app/api` mention elsewhere can't mask a missing glob.
+  const changesJob = workflow.slice(
+    workflow.indexOf('  changes:'),
+    workflow.indexOf('  e2e:')
+  )
+
+  it('watches the route-handler surface under src/app/api', () => {
+    expect(changesJob).toMatch(/- 'src\/app\/api/)
+  })
+
+  // `next.config.ts` calls `parseEnv()` at module scope and imports `src/env.ts`,
+  // and the e2e job's webServer runs `next build`/`next start` — so a change to
+  // the boot config or the env schema can only fail in a running app. The jsdom
+  // suites mock the environment and never boot Next, so nothing but the e2e gate
+  // exercises this surface. Left unwatched, a boot-breaking config change skips
+  // e2e entirely: green in CI, red the moment the app starts — the #648 mode.
+  it('watches the app-boot config surface (next.config.ts, src/env.ts)', () => {
+    expect(changesJob).toMatch(/- 'next\.config\./)
+    expect(changesJob).toMatch(/- 'src\/env\.ts'/)
+  })
+
+  // `src/middleware.ts` runs in the real Next runtime on every non-`/api`,
+  // non-static request (locale detection + cookie). No jest suite executes it —
+  // the jsdom suites never boot Next — so the only gate that exercises it is
+  // e2e. Left unwatched, a middleware change that breaks page loads is green in
+  // CI (no jest coverage, e2e skipped) and red the moment the app serves a
+  // request: the #648 mode, a backend surface invisible to a CI gate.
+  it('watches the middleware surface (src/middleware.ts)', () => {
+    expect(changesJob).toMatch(/- 'src\/middleware\.ts'/)
+  })
+})
+
+/**
+ * The DB-free `unit` job can actually run `next lint` (#648).
+ *
+ * `bun run lint` is `next lint`, which loads `next.config.ts`; that file calls
+ * `parseEnv()` at module scope, so lint aborts before it inspects a single file
+ * when the environment is missing a required variable. The `integration` and
+ * `e2e` jobs set those variables, but the DB-free `unit` job ran typecheck +
+ * lint + the unit suites with no `env:` block, so its lint step crashed in CI
+ * with "Invalid environment variables" while `bun run gate` stayed green locally
+ * (where the vars are set). That is precisely the CI-green / gate-red divergence
+ * #648 exists to close: the whole DB-free half of the suite never executed
+ * because lint failed the job first.
+ */
+describe('the DB-free unit job can run `next lint` (#648)', () => {
+  const unitJob = workflow.slice(
+    workflow.indexOf('  unit:'),
+    workflow.indexOf('  integration:')
+  )
+
+  // The variables `next.config.ts` actually requires, read from the real schema
+  // (`src/env.ts`) rather than hard-coded, so this cannot drift from it. NODE_ENV
+  // is excluded because `next lint` sets it, so CI never has to.
+  function requiredLintEnvVars(): string[] {
+    try {
+      parseEnv({})
+      return []
+    } catch (error) {
+      const message = (error as Error).message
+      return [...message.matchAll(/^ {2}(\w+):/gm)]
+        .map((match) => match[1])
+        .filter((name) => name !== 'NODE_ENV')
+    }
+  }
+
+  it.each(requiredLintEnvVars())(
+    'sets %s so `next lint` can load next.config.ts',
+    (name) => {
+      expect(unitJob).toMatch(new RegExp(`${name}:`))
+    }
+  )
+})
