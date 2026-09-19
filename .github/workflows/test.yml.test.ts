@@ -145,6 +145,16 @@ describe('the e2e gate watches every backend surface (#648)', () => {
     expect(changesJob).toMatch(/- 'next\.config\./)
     expect(changesJob).toMatch(/- 'src\/env\.ts'/)
   })
+
+  // `src/middleware.ts` runs in the real Next runtime on every non-`/api`,
+  // non-static request (locale detection + cookie). No jest suite executes it —
+  // the jsdom suites never boot Next — so the only gate that exercises it is
+  // e2e. Left unwatched, a middleware change that breaks page loads is green in
+  // CI (no jest coverage, e2e skipped) and red the moment the app serves a
+  // request: the #648 mode, a backend surface invisible to a CI gate.
+  it('watches the middleware surface (src/middleware.ts)', () => {
+    expect(changesJob).toMatch(/- 'src\/middleware\.ts'/)
+  })
 })
 
 /**

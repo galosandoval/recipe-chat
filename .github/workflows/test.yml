@@ -168,6 +168,13 @@ jobs:
   # running app — the jsdom suites mock the environment and never boot Next.
   # Left unwatched, a boot-breaking config change skips e2e: green in CI, red the
   # moment the app starts. `test.yml.test.ts` pins that this filter watches both.
+  #
+  # `src/middleware.ts` is the same kind of surface again: it runs in the real
+  # Next runtime on every non-`/api`, non-static request (locale detection +
+  # cookie), and no jest suite executes it — only the e2e gate does. A middleware
+  # change that breaks page loads would be green in CI (no jest coverage, e2e
+  # skipped) and red the moment the app serves a request. `test.yml.test.ts` pins
+  # that this filter watches it too.
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -184,6 +191,7 @@ jobs:
             backend:
               - 'src/server/**'
               - 'src/app/api/**'
+              - 'src/middleware.ts'
               - 'src/env.ts'
               - 'prisma/**'
               - 'next.config.*'
