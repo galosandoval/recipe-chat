@@ -190,7 +190,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Publish the run-policy contract to the environment
         # The model, the turn cap, both runaway budgets, the CLI pin, the gate
