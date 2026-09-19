@@ -107,3 +107,30 @@ describe('CI runs the same suites as the gate (#648)', () => {
     expect(missing).toEqual([])
   })
 })
+
+/**
+ * The e2e gate sees every backend surface (#648).
+ *
+ * The e2e job (boot the app + a browser) runs only when the `changes` job's path
+ * filter marks a change as backend, so docs/styling pushes skip its cost. #648's
+ * root cause was a backend surface left invisible to a CI gate: the route
+ * handlers under `src/app/api` hit the database (`jest.setup.ts` serializes them
+ * behind the advisory lock, and the `integration` job runs them), yet the e2e
+ * filter watched only `src/server/**`. A change to `src/app/api/chat/route.ts`
+ * or the Stripe webhook route — real backend behavior a user hits — skipped the
+ * browser gate entirely. The e2e filter must watch the same route-handler
+ * surface the gate's `integration` job runs, so no backend change slips past
+ * e2e unexercised.
+ */
+describe('the e2e gate watches every backend surface (#648)', () => {
+  // The `changes` job spans from its own key to the `e2e` job key; bound the
+  // search to it so a `src/app/api` mention elsewhere can't mask a missing glob.
+  const changesJob = workflow.slice(
+    workflow.indexOf('  changes:'),
+    workflow.indexOf('  e2e:')
+  )
+
+  it('watches the route-handler surface under src/app/api', () => {
+    expect(changesJob).toMatch(/- 'src\/app\/api/)
+  })
+})

@@ -139,6 +139,12 @@ jobs:
   # Detects whether a change touches backend surfaces, so the e2e gate (which
   # boots the app + a browser) only pays its cost when user-facing behavior
   # could have changed. Docs/config/pure-styling PRs skip e2e.
+  #
+  # The route handlers under `src/app/api` are backend too, not just
+  # `src/server`: they hit the database (the same DB boundary the `integration`
+  # job runs and `jest.setup.ts` serializes), so a change to e.g. the chat route
+  # or the Stripe webhook is real backend behavior a user hits. Leaving them out
+  # here is the #648 failure mode — a backend surface invisible to a CI gate.
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -154,6 +160,7 @@ jobs:
           filters: |
             backend:
               - 'src/server/**'
+              - 'src/app/api/**'
               - 'prisma/**'
               - 'e2e/**'
               - 'playwright.config.*'
