@@ -25,13 +25,21 @@ on:
 # different needs and different failure modes, so they run as two jobs:
 #
 #   unit         no DB. typecheck + lint + `bun run test:unit` (everything
-#                except src/server/api and e2e). Measured ~7s for the jest run;
-#                the whole DB-free half of `bun run gate` with no service
+#                except the DB-backed suites and e2e). Measured ~7s for the jest
+#                run; the whole DB-free half of `bun run gate` with no service
 #                container to wait on.
-#   integration  Postgres + pgvector. `bun run test:integration` (src/server/api),
-#                serialized behind the advisory lock in `jest.setup.ts`. Measured
-#                ~6s. Kept separate so a DB/migration failure reads as a DB
-#                failure, not a component failure.
+#   integration  Postgres + pgvector. `bun run test:integration` (the DB-backed
+#                suites under src/server/api AND src/app/api), serialized behind
+#                the advisory lock in `jest.setup.ts`. Measured ~6s. Kept
+#                separate so a DB/migration failure reads as a DB failure, not a
+#                component failure.
+#
+# The split falls on the DB boundary, not on one directory. `jest.setup.ts`
+# serializes every suite whose path contains `/server/api/` OR `/app/api/`
+# behind the Postgres advisory lock, so those suites connect to the database
+# just to acquire it — they must run in the `integration` job, never the DB-free
+# `unit` one. `test.yml.test.ts` pins that: no DB-backed suite may land in
+# `test:unit`, and every one must run in `test:integration`.
 #
 # `test:unit` ∪ `test:integration` == `bun run test` (jest ignores e2e), so
 # together they run every suite the agent's gate does. If you narrow either
@@ -75,7 +83,7 @@ jobs:
 
   integration:
     # The DB-backed half of `bun run gate`: the backend suites under
-    # src/server/api that hit a real Postgres + pgvector.
+    # src/server/api and src/app/api that hit a real Postgres + pgvector.
     runs-on: ubuntu-latest
 
     services:

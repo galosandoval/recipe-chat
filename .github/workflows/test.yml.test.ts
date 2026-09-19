@@ -79,4 +79,29 @@ describe('CI runs the same suites as the gate (#648)', () => {
     expect(workflow).toMatch(/bun run typecheck/)
     expect(workflow).toMatch(/bun run lint/)
   })
+
+  // The split has to fall on the DB boundary, not on the `src/server/api`
+  // directory. `jest.setup.ts` serializes every suite whose path contains
+  // `/server/api/` OR `/app/api/` behind the Postgres advisory lock, so those
+  // suites connect to the database just to acquire it. Any one of them landing
+  // in the DB-free `unit` job (no service container) fails there — union parity
+  // alone does not catch it, because the suite still runs *somewhere*.
+  const requiresDb = (suitePath: string) =>
+    suitePath.includes('/server/api/') || suitePath.includes('/app/api/')
+
+  it('keeps every DB-backed suite out of the DB-free unit job', () => {
+    const unit = listSuites('test:unit')
+
+    const strandedWithoutDb = [...unit].filter(requiresDb)
+    expect(strandedWithoutDb).toEqual([])
+  })
+
+  it('runs every DB-backed suite in the DB-backed integration job', () => {
+    const full = listSuites('test')
+    const integration = listSuites('test:integration')
+
+    const dbBacked = [...full].filter(requiresDb)
+    const missing = dbBacked.filter((suite) => !integration.has(suite))
+    expect(missing).toEqual([])
+  })
 })
