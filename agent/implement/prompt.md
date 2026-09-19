@@ -111,6 +111,12 @@ run's trajectory is graded against the transcript, and an attempt that commits
 before its gate passed, or that never went red before going green, does not
 close as a success no matter what the gate says afterwards.
 
+Neither does an attempt that never commits at all. A green gate measures your
+working tree, and this run discards its working tree — so an attempt that does
+the work and then ends a turn waiting for something (a background command, a
+notification) leaves the branch with nothing and costs the whole attempt.
+There is no turn after the one you stop on. Commit first, then verify.
+
 # COMMIT
 
 Make one or more commits on `{{BRANCH}}` with conventional-commit messages

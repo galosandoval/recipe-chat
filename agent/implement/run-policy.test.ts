@@ -35,7 +35,7 @@ function githubEnv(): string {
 
 describe('run-policy contract', () => {
   describe('required env vars', () => {
-    // shopfloor 1.1.0 refuses ISSUE_NUMBER / ISSUE_TITLE / BRANCH by name
+    // shopfloor 2.0.0 refuses ISSUE_NUMBER / ISSUE_TITLE / BRANCH by name
     // before admission — the payload settles all three. Requiring one here
     // would demand a variable whose presence aborts the run.
     it('names none of the vars the payload owns', () => {
@@ -164,7 +164,7 @@ describe('run-policy contract', () => {
       for (const invoked of invocations) expect(invoked).toBe(pinned)
     })
 
-    // The failure this guards is the one shopfloor 1.1.0 refuses by name: a
+    // The failure this guards is the one shopfloor 2.0.0 refuses by name: a
     // workflow still exporting a payload-owned variable aborts every run
     // before admission. It reads as ordinary YAML, so nothing but this notices.
     it('exports none of the vars the payload owns', () => {
