@@ -34,7 +34,12 @@ const ROUTE_ENTRANCE_WINDOW_MS = (ROUTE_ENTRANCE_DELAY + durations.base) * 1000
 export function FabStack() {
   const fabs = useFabStackStore((s) => s.fabs)
   const messages = useChatStore((s) => s.messages)
-  const pathname = usePathname()
+  // `usePathname` answers null wherever there is no App Router context around
+  // the tree — which is every jsdom render, so an unguarded read here throws on
+  // any suite that happens to mount a FAB. `app-footer.tsx` coalesces for the
+  // same reason; the empty string is in no branch below, so it lands on the
+  // resting offset.
+  const pathname = usePathname() ?? ''
 
   // A fresh navigation makes the newly-registered FABs wait for the route
   // transition; anything toggled later in the same page session animates
