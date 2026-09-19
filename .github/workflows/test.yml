@@ -13,8 +13,69 @@ on:
       - 'agent/**'
   pull_request:
 
+# CI's gate must equal the agent's gate. `agent/implement/run-policy.ts` runs
+# `GATE_COMMAND = 'bun run gate'` (typecheck && lint && test) after every spawn;
+# this workflow has to cover the same ground so nothing can be green here and red
+# there. It never ran the component suites before (#648): the old single job ran
+# only `bun run test:integration` (src/server/api), leaving 53 of 68 suites
+# invisible — a null `usePathname()` under jsdom took out 96 tests and CI stayed
+# green for two weeks.
+#
+# The split is deliberate, not a fast-path shortcut. The two halves have
+# different needs and different failure modes, so they run as two jobs:
+#
+#   unit         no DB. typecheck + lint + `bun run test:unit` (everything
+#                except src/server/api and e2e). Measured ~7s for the jest run;
+#                the whole DB-free half of `bun run gate` with no service
+#                container to wait on.
+#   integration  Postgres + pgvector. `bun run test:integration` (src/server/api),
+#                serialized behind the advisory lock in `jest.setup.ts`. Measured
+#                ~6s. Kept separate so a DB/migration failure reads as a DB
+#                failure, not a component failure.
+#
+# `test:unit` ∪ `test:integration` == `bun run test` (jest ignores e2e), so
+# together they run every suite the agent's gate does. If you narrow either
+# command, you are narrowing what `GATE_COMMAND` transitively guarantees — keep
+# them equal.
 jobs:
-  test:
+  unit:
+    # The DB-free half of `bun run gate`: typecheck, lint, and the component /
+    # non-backend jest suites. No Postgres service, nothing to wait on.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.14'
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: bun install
+
+      # `tsc --noEmit` resolves the generated Prisma types, so the client has to
+      # exist before typecheck runs even though no query executes here.
+      - name: Generate Prisma client
+        run: bun run gen
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Run unit tests
+        run: bun run test:unit
+
+  integration:
+    # The DB-backed half of `bun run gate`: the backend suites under
+    # src/server/api that hit a real Postgres + pgvector.
     runs-on: ubuntu-latest
 
     services:
@@ -64,7 +125,7 @@ jobs:
       - name: Apply migrations to the test database
         run: bun run migrate:deploy
 
-      - name: Run tests
+      - name: Run integration tests
         run: bun run test:integration
 
   # Detects whether a change touches backend surfaces, so the e2e gate (which
