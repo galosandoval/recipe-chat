@@ -4,6 +4,7 @@
 import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { isDbBackedSuitePath } from '~/lib/db-backed-suite-path'
 
 /**
  * The CI↔gate parity contract (#648).
@@ -81,13 +82,14 @@ describe('CI runs the same suites as the gate (#648)', () => {
   })
 
   // The split has to fall on the DB boundary, not on the `src/server/api`
-  // directory. `jest.setup.ts` serializes every suite whose path contains
-  // `/server/api/` OR `/app/api/` behind the Postgres advisory lock, so those
-  // suites connect to the database just to acquire it. Any one of them landing
-  // in the DB-free `unit` job (no service container) fails there — union parity
-  // alone does not catch it, because the suite still runs *somewhere*.
-  const requiresDb = (suitePath: string) =>
-    suitePath.includes('/server/api/') || suitePath.includes('/app/api/')
+  // directory. `jest.setup.ts` serializes every DB-backed suite behind the
+  // Postgres advisory lock, so those suites connect to the database just to
+  // acquire it. Any one of them landing in the DB-free `unit` job (no service
+  // container) fails there — union parity alone does not catch it, because the
+  // suite still runs *somewhere*. `requiresDb` is the *same* predicate
+  // `jest.setup.ts` uses to decide serialization, imported from one definition
+  // so the serialization boundary and this CI-split boundary cannot drift.
+  const requiresDb = isDbBackedSuitePath
 
   it('keeps every DB-backed suite out of the DB-free unit job', () => {
     const unit = listSuites('test:unit')
