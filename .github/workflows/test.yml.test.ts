@@ -5,6 +5,7 @@ import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { isDbBackedSuitePath } from '~/lib/db-backed-suite-path'
+import { parseEnv } from '~/env'
 
 /**
  * The CI↔gate parity contract (#648).
@@ -133,4 +134,46 @@ describe('the e2e gate watches every backend surface (#648)', () => {
   it('watches the route-handler surface under src/app/api', () => {
     expect(changesJob).toMatch(/- 'src\/app\/api/)
   })
+})
+
+/**
+ * The DB-free `unit` job can actually run `next lint` (#648).
+ *
+ * `bun run lint` is `next lint`, which loads `next.config.ts`; that file calls
+ * `parseEnv()` at module scope, so lint aborts before it inspects a single file
+ * when the environment is missing a required variable. The `integration` and
+ * `e2e` jobs set those variables, but the DB-free `unit` job ran typecheck +
+ * lint + the unit suites with no `env:` block, so its lint step crashed in CI
+ * with "Invalid environment variables" while `bun run gate` stayed green locally
+ * (where the vars are set). That is precisely the CI-green / gate-red divergence
+ * #648 exists to close: the whole DB-free half of the suite never executed
+ * because lint failed the job first.
+ */
+describe('the DB-free unit job can run `next lint` (#648)', () => {
+  const unitJob = workflow.slice(
+    workflow.indexOf('  unit:'),
+    workflow.indexOf('  integration:')
+  )
+
+  // The variables `next.config.ts` actually requires, read from the real schema
+  // (`src/env.ts`) rather than hard-coded, so this cannot drift from it. NODE_ENV
+  // is excluded because `next lint` sets it, so CI never has to.
+  function requiredLintEnvVars(): string[] {
+    try {
+      parseEnv({})
+      return []
+    } catch (error) {
+      const message = (error as Error).message
+      return [...message.matchAll(/^ {2}(\w+):/gm)]
+        .map((match) => match[1])
+        .filter((name) => name !== 'NODE_ENV')
+    }
+  }
+
+  it.each(requiredLintEnvVars())(
+    'sets %s so `next lint` can load next.config.ts',
+    (name) => {
+      expect(unitJob).toMatch(new RegExp(`${name}:`))
+    }
+  )
 })

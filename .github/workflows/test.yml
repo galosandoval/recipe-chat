@@ -50,6 +50,22 @@ jobs:
     # The DB-free half of `bun run gate`: typecheck, lint, and the component /
     # non-backend jest suites. No Postgres service, nothing to wait on.
     runs-on: ubuntu-latest
+
+    env:
+      # `bun run lint` is `next lint`, which loads `next.config.ts`; that file
+      # calls `parseEnv()` at module scope, so lint aborts with "Invalid
+      # environment variables" before it inspects a file if any required var is
+      # missing. No query runs in this DB-free job, so these are inert
+      # placeholders — present and non-empty is all `parseEnv` checks — not the
+      # real secrets the integration/e2e jobs use. `next lint` sets NODE_ENV
+      # itself, so it is not listed. Keep in sync with `src/env.ts`'s baseEnv;
+      # `test.yml.test.ts` pins that this job supplies every var it requires.
+      DATABASE_PRISMA_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+      DATABASE_URL_NON_POOLING: postgresql://placeholder:placeholder@localhost:5432/placeholder
+      NEXTAUTH_SECRET: ci-placeholder
+      NEXTAUTH_URL: http://localhost:3000
+      OPENAI_API_KEY: ci-placeholder
+      UNSPLASH_ACCESS_KEY: ci-placeholder
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
