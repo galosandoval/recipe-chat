@@ -60,6 +60,23 @@ describe('FabStack', () => {
     expect(labels).toEqual(['Chat', 'Edit'])
   })
 
+  it('renders without a router context, where the pathname is null', () => {
+    // Every jsdom render is one: nothing puts an App Router above the tree, so
+    // `usePathname` answers null and an unguarded read throws for any suite
+    // that mounts a FAB rather than for this component's own tests.
+    mockUsePathname.mockReturnValue(null as unknown as string)
+    useFabStackStore.getState().register({
+      id: 'chat',
+      priority: 0,
+      ariaLabel: 'Open chat',
+      icon: null,
+      onClick: () => {}
+    })
+
+    expect(() => render(<FabStack />)).not.toThrow()
+    expect(screen.getByRole('button', { name: 'Open chat' })).toBeVisible()
+  })
+
   it('sits at the resting offset on routes without a bottom input footer', () => {
     mockUsePathname.mockReturnValue('/recipes/pasta')
     useFabStackStore.getState().register({
