@@ -126,11 +126,7 @@ export async function handleStripeEvent(
         'ACTIVE',
         event.id,
         eventAt,
-        // `created` is causally the first event for a subscription: Stripe never
-        // emits it after an `updated`/`deleted` for the same subscription. So a
-        // delivery that finds state already at or after its own `created` second
-        // is out of order and must not overwrite it.
-        true
+        'created'
       )
 
     case 'customer.subscription.updated':
@@ -140,7 +136,7 @@ export async function handleStripeEvent(
         subscriptionStatusFor(event.data.object as Stripe.Subscription),
         event.id,
         eventAt,
-        false
+        'updated'
       )
 
     case 'customer.subscription.deleted':
@@ -202,10 +198,12 @@ async function resolveUser(
  * event's id and timestamp.
  *
  * `rejectConcurrent` widens the ordering guard from strictly-older (`<`) to
- * older-or-same-second (`<=`) for an event that is causally first — a `created`
- * event delivered after a same-second `updated` is out of order and must not
- * overwrite the newer state. Later event types leave it `false` so a genuine
- * same-second progression (the checkout `created` -> `updated`) still applies.
+ * older-or-same-second (`<=`) for a `created` that is causally first for the
+ * subscription already on record — one delivered after a same-second `updated`
+ * is out of order and must not overwrite the newer state. It stays `false` for
+ * later event types and for a `created` bearing a new subscription id, so a
+ * genuine same-second progression (checkout `created` -> `updated`) and a
+ * same-second re-subscribe both still apply.
  */
 async function guardedWrite(
   user: SubscriptionEventUser | null,
@@ -253,9 +251,16 @@ async function applySubscription(
   status: 'ACTIVE' | 'INCOMPLETE',
   eventId: string,
   eventAt: Date,
-  rejectConcurrent: boolean
+  eventKind: 'created' | 'updated'
 ): Promise<HandleStripeEventResult> {
   const user = await resolveUser(subscription.customer, access)
+  // A `created` is causally first for its subscription, so a same-second
+  // delivery is out of order — but only when it is for the subscription already
+  // on record. A `created` bearing a new subscription id is a re-subscribe and
+  // must apply even if it ties the last event's second, or a paying user is
+  // stranded on the tier the cancellation left behind.
+  const rejectConcurrent =
+    eventKind === 'created' && user?.stripeSubscriptionId === subscription.id
   return guardedWrite(
     user,
     eventId,

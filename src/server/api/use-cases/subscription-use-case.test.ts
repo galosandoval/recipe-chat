@@ -419,6 +419,40 @@ describe('handleStripeEvent', () => {
       expect(access.lastWrite.data.subscriptionTier).toBe('PREMIUM')
     })
 
+    it('applies a same-second re-subscribe created delivered after a cancellation', async () => {
+      // A same-second `created` is only out of order when it is for the
+      // subscription already on record (the late half of one checkout). A
+      // `created` for a NEW subscription id — a re-subscribe in the same second
+      // as the prior cancellation — is causally first for that subscription and
+      // must apply, or a paying user is stranded on FREE.
+      const access = new FakeSubscriptionAccess().seed(
+        knownUser({
+          subscriptionTier: 'PREMIUM',
+          subscriptionStatus: 'ACTIVE',
+          stripeSubscriptionId: 'sub_OLD123'
+        })
+      )
+
+      await run(
+        subscriptionDeletedEvent({ id: 'sub_OLD123', eventId: 'evt_canceled' }),
+        access
+      )
+      const resubscribe = await run(
+        subscriptionCreatedEvent({
+          id: 'sub_NEW456',
+          eventId: 'evt_resubscribe',
+          priceId: PREMIUM_PRICE_ID
+        }),
+        access
+      )
+
+      expect(resubscribe).toEqual<HandleStripeEventResult>({
+        status: 'updated',
+        userId: 'user_alice'
+      })
+      expect(access.lastWrite.data.subscriptionTier).toBe('PREMIUM')
+    })
+
     it('treats a write that loses the processed-event race as a duplicate no-op', async () => {
       // Two concurrent deliveries of the same event can both pass the dedupe
       // read before either records the id; the loser then collides on the
