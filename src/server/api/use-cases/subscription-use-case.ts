@@ -211,6 +211,16 @@ async function resolveUser(
  * even with a newer timestamp: applying it would resurrect a canceled (FREE)
  * user to a paid tier or flip CANCELED to PAST_DUE. A genuine re-subscribe
  * arrives as a new `created`, which never sets this flag, so it still applies.
+ *
+ * `forSubscriptionId`, when set, rejects a write targeting a subscription the
+ * user has already moved off of: after a cancel-then-resubscribe the user is on
+ * a new subscription id, but Stripe can still deliver a trailing `updated` or
+ * `deleted` for the old one — even with a newer timestamp. Applying it would
+ * point the user back at the dead subscription and move their Tier backward, so
+ * an event whose subscription id is not the user's current one is out of order.
+ * It is left unset for a `created` (causally first, so it establishes the id) and
+ * for `payment_failed` (which carries no subscription id), and skipped when the
+ * user has no subscription id on record yet.
  */
 async function guardedWrite(
   user: SubscriptionEventUser | null,
@@ -219,13 +229,21 @@ async function guardedWrite(
   data: Omit<UpdateSubscriptionData, 'lastStripeEventAt' | 'lastStripeEventId'>,
   access: SubscriptionEventAccess,
   rejectConcurrent = false,
-  rejectIfCanceled = false
+  rejectIfCanceled = false,
+  forSubscriptionId?: string
 ): Promise<HandleStripeEventResult> {
   if (!user) return { status: 'ignored', reason: 'unknown_customer' }
   if (await access.hasProcessedEvent(eventId)) {
     return { status: 'ignored', reason: 'duplicate_event' }
   }
   if (rejectIfCanceled && user.subscriptionStatus === 'CANCELED') {
+    return { status: 'ignored', reason: 'stale_event' }
+  }
+  if (
+    forSubscriptionId !== undefined &&
+    user.stripeSubscriptionId !== null &&
+    user.stripeSubscriptionId !== forSubscriptionId
+  ) {
     return { status: 'ignored', reason: 'stale_event' }
   }
   if (
@@ -286,7 +304,10 @@ async function applySubscription(
     rejectConcurrent,
     // An `updated` for an already-canceled subscription is out of order; a
     // `created` re-subscribe is not, so only guard the update.
-    eventKind === 'updated'
+    eventKind === 'updated',
+    // Guard an `updated` against the subscription the user has moved off of; a
+    // `created` establishes the current id, so it is never a mismatch.
+    eventKind === 'updated' ? subscription.id : undefined
   )
 }
 
@@ -307,7 +328,12 @@ async function revokeSubscription(
       subscriptionStatus: 'CANCELED',
       currentPeriodEnd: null
     },
-    access
+    access,
+    false,
+    false,
+    // A `deleted` for a subscription the user has already replaced must not
+    // cancel the new one; guard it against the current subscription id.
+    subscription.id
   )
 }
 

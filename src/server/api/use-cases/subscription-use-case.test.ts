@@ -515,6 +515,53 @@ describe('handleStripeEvent', () => {
       expect(access.lastWrite.data.subscriptionStatus).toBe('CANCELED')
     })
 
+    it('ignores an updated for a subscription the user has already moved off of', async () => {
+      // After a cancel-then-resubscribe, the user is on a new subscription id.
+      // Stripe can still deliver a trailing `updated` for the old, superseded
+      // subscription — queued before the switch but arriving after it, and with a
+      // newer timestamp. Applying it would point the user back at the dead
+      // subscription and move their Tier backward, so an event for a subscription
+      // that is not the user's current one is out of order and must be ignored.
+      const access = new FakeSubscriptionAccess().seed(
+        knownUser({
+          subscriptionTier: 'PREMIUM',
+          subscriptionStatus: 'ACTIVE',
+          stripeSubscriptionId: 'sub_OLD123',
+          lastStripeEventAt: new Date(EVENT_CREATED_UNIX * 1000)
+        })
+      )
+
+      await run(
+        subscriptionDeletedEvent({ id: 'sub_OLD123', eventId: 'evt_canceled' }),
+        access
+      )
+      await run(
+        subscriptionCreatedEvent({
+          id: 'sub_NEW456',
+          eventId: 'evt_resubscribe',
+          priceId: PREMIUM_PRICE_ID,
+          createdAt: EVENT_CREATED_UNIX + 10
+        }),
+        access
+      )
+      const late = await run(
+        subscriptionUpdatedEvent({
+          id: 'sub_OLD123',
+          eventId: 'evt_late_update',
+          priceId: STARTER_PRICE_ID,
+          status: 'active',
+          createdAt: EVENT_CREATED_UNIX + 20
+        }),
+        access
+      )
+
+      expect(late).toEqual<HandleStripeEventResult>({
+        status: 'ignored',
+        reason: 'stale_event'
+      })
+      expect(access.lastWrite.data.subscriptionTier).toBe('PREMIUM')
+    })
+
     it('treats a write that loses the processed-event race as a duplicate no-op', async () => {
       // Two concurrent deliveries of the same event can both pass the dedupe
       // read before either records the id; the loser then collides on the
