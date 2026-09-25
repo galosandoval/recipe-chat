@@ -453,6 +453,68 @@ describe('handleStripeEvent', () => {
       expect(access.lastWrite.data.subscriptionTier).toBe('PREMIUM')
     })
 
+    it('does not let a later updated resurrect a canceled subscription', async () => {
+      // customer.subscription.deleted is terminal for a subscription. Stripe can
+      // still deliver an updated for that same subscription afterward — queued
+      // before the cancellation but arriving after it, or simply reordered.
+      // Applying it would move a canceled (FREE) user back up to a paid tier. A
+      // re-subscribe always arrives as a new `created`, never as an updated, so a
+      // post-cancellation updated is out of order and must be ignored — even when
+      // its own timestamp is newer than the cancellation's.
+      const access = new FakeSubscriptionAccess().seed(
+        knownUser({
+          subscriptionTier: 'PREMIUM',
+          subscriptionStatus: 'ACTIVE',
+          stripeSubscriptionId: 'sub_TEST123'
+        })
+      )
+
+      await run(subscriptionDeletedEvent({ eventId: 'evt_canceled' }), access)
+      const late = await run(
+        subscriptionUpdatedEvent({
+          eventId: 'evt_late_update',
+          priceId: PREMIUM_PRICE_ID,
+          status: 'active',
+          createdAt: EVENT_CREATED_UNIX + 1000
+        }),
+        access
+      )
+
+      expect(late).toEqual<HandleStripeEventResult>({
+        status: 'ignored',
+        reason: 'stale_event'
+      })
+      expect(access.lastWrite.data.subscriptionTier).toBe('FREE')
+    })
+
+    it('does not let a later payment_failed reactivate a canceled subscription', async () => {
+      // A payment_failed for a subscription already canceled is out of order for
+      // the same reason: the subscription's lifecycle ended at the cancellation,
+      // so a late invoice event must not flip it from CANCELED to PAST_DUE.
+      const access = new FakeSubscriptionAccess().seed(
+        knownUser({
+          subscriptionTier: 'PREMIUM',
+          subscriptionStatus: 'ACTIVE',
+          stripeSubscriptionId: 'sub_TEST123'
+        })
+      )
+
+      await run(subscriptionDeletedEvent({ eventId: 'evt_canceled' }), access)
+      const late = await run(
+        paymentFailedEvent({
+          eventId: 'evt_late_pf',
+          createdAt: EVENT_CREATED_UNIX + 1000
+        }),
+        access
+      )
+
+      expect(late).toEqual<HandleStripeEventResult>({
+        status: 'ignored',
+        reason: 'stale_event'
+      })
+      expect(access.lastWrite.data.subscriptionStatus).toBe('CANCELED')
+    })
+
     it('treats a write that loses the processed-event race as a duplicate no-op', async () => {
       // Two concurrent deliveries of the same event can both pass the dedupe
       // read before either records the id; the loser then collides on the

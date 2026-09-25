@@ -204,6 +204,13 @@ async function resolveUser(
  * later event types and for a `created` bearing a new subscription id, so a
  * genuine same-second progression (checkout `created` -> `updated`) and a
  * same-second re-subscribe both still apply.
+ *
+ * `rejectIfCanceled` rejects a write whose user is already `CANCELED` — the
+ * terminal state a `deleted` leaves behind. A `deleted` is causally last for a
+ * subscription, so a later `updated` or `payment_failed` for it is out of order,
+ * even with a newer timestamp: applying it would resurrect a canceled (FREE)
+ * user to a paid tier or flip CANCELED to PAST_DUE. A genuine re-subscribe
+ * arrives as a new `created`, which never sets this flag, so it still applies.
  */
 async function guardedWrite(
   user: SubscriptionEventUser | null,
@@ -211,11 +218,15 @@ async function guardedWrite(
   eventAt: Date,
   data: Omit<UpdateSubscriptionData, 'lastStripeEventAt' | 'lastStripeEventId'>,
   access: SubscriptionEventAccess,
-  rejectConcurrent = false
+  rejectConcurrent = false,
+  rejectIfCanceled = false
 ): Promise<HandleStripeEventResult> {
   if (!user) return { status: 'ignored', reason: 'unknown_customer' }
   if (await access.hasProcessedEvent(eventId)) {
     return { status: 'ignored', reason: 'duplicate_event' }
+  }
+  if (rejectIfCanceled && user.subscriptionStatus === 'CANCELED') {
+    return { status: 'ignored', reason: 'stale_event' }
   }
   if (
     user.lastStripeEventAt &&
@@ -272,7 +283,10 @@ async function applySubscription(
       currentPeriodEnd: periodEndFromSubscription(subscription)
     },
     access,
-    rejectConcurrent
+    rejectConcurrent,
+    // An `updated` for an already-canceled subscription is out of order; a
+    // `created` re-subscribe is not, so only guard the update.
+    eventKind === 'updated'
   )
 }
 
@@ -312,6 +326,9 @@ async function markPaymentFailed(
       subscriptionTier: user?.subscriptionTier ?? 'FREE',
       subscriptionStatus: 'PAST_DUE'
     },
-    access
+    access,
+    false,
+    // A payment_failed for an already-canceled subscription is out of order.
+    true
   )
 }
