@@ -102,7 +102,7 @@ export function SignUp({
     try {
       const newUser = await newRecipePromise
       toast.success(t.toast.loginSuccess)
-      router.push(`recipes/${newUser.slug}}`)
+      router.push(`/recipes/${newUser.slug}`)
     } catch {
       toast.error(t.error.somethingWentWrong)
     }
