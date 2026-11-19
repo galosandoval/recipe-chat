@@ -1,4 +1,5 @@
 import { TextEncoder, TextDecoder } from 'node:util'
+import { isDbBackedSuitePath } from '~/lib/db-backed-suite-path'
 
 // Backend integration suites hit a real Postgres DB — the use-case/data-access
 // layer under src/server/api/** and the route-handler tests under src/app/api/**
@@ -12,9 +13,10 @@ import { TextEncoder, TextDecoder } from 'node:util'
 // otherwise double-acquire the same session.
 const isIntegrationTest = () => {
   const path = (expect.getState().testPath ?? '').replace(/\\/g, '/')
-  const isBackendPath =
-    path.includes('/server/api/') || path.includes('/app/api/')
-  return isBackendPath && !path.endsWith('/test-db-lock.test.ts')
+  // Same DB boundary the CI split enforces (`test.yml.test.ts`), read from the
+  // one shared definition so the two cannot drift. The lock's own meta-test
+  // drives acquire/release itself, so it opts out of auto-serialization.
+  return isDbBackedSuitePath(path) && !path.endsWith('/test-db-lock.test.ts')
 }
 
 beforeEach(async () => {

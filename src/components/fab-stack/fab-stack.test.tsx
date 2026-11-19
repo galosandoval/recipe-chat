@@ -89,8 +89,8 @@ describe('FabStack', () => {
     const { container } = render(<FabStack />)
 
     const column = container.firstElementChild
-    expect(column).toHaveClass('bottom-20')
-    expect(column).not.toHaveClass('bottom-32')
+    expect(column).toHaveClass('bottom-3')
+    expect(column).not.toHaveClass('bottom-28')
   })
 
   it('lifts the FAB column above the sticky lists footer input on mobile', () => {
@@ -105,8 +105,8 @@ describe('FabStack', () => {
     const { container } = render(<FabStack />)
 
     const column = container.firstElementChild
-    expect(column).toHaveClass('bottom-32')
-    expect(column).not.toHaveClass('bottom-20')
+    expect(column).toHaveClass('bottom-28')
+    expect(column).not.toHaveClass('bottom-3')
     // The composer is present on desktop too, so nothing may reset the offset
     // back down at the `sm` breakpoint.
     expect(column).not.toHaveClass('sm:bottom-6')

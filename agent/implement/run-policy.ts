@@ -66,6 +66,12 @@ export const MAX_ITERATIONS = 3
  * `test:e2e` is deliberately outside it: the verify phase is best-effort by
  * contract and must never fail a run, and a flaky browser run in the gate
  * would burn iterations instead.
+ *
+ * `.github/workflows/test.yml` is the other side of this: its `unit` +
+ * `integration` jobs run the same `typecheck`, `lint`, `test:unit`, and
+ * `test:integration` this command runs, so nothing can be green in CI and red
+ * here (#648). Narrowing either one narrows what this gate guarantees — keep
+ * them equal.
  */
 export const GATE_COMMAND = 'bun run gate'
 
