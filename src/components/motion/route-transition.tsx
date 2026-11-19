@@ -66,7 +66,10 @@ export function RouteTransition({
         transition={{ duration: 0.35, ease }}
       >
         {isLanding ? (
-          <div className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
+          <div
+            data-landing-scroll
+            className='flex min-h-0 flex-1 flex-col overflow-y-auto'
+          >
             {pinnedHeader}
             <main className='flex min-h-0 flex-1 flex-col'>{children}</main>
           </div>

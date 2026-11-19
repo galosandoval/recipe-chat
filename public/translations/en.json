@@ -461,7 +461,8 @@
       "cta": "Try it — no account needed",
       "signUpPrompt": "Want to keep your recipes?",
       "signUp": "Create an account",
-      "scrollCue": "Scroll to the chat"
+      "scrollCue": "Scroll to the chat",
+      "backToTop": "Back to the top"
     },
     "proof": {
       "heading": "See what comes back",

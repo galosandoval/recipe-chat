@@ -65,6 +65,26 @@ test('the hero composer mock cycles through example prompts', async ({
   await verifyShot(page, '.agent/verify/issue-609/cycled-prompt.png')
 })
 
+test('the public chat chevron returns to the hero', async ({ page }) => {
+  await page.goto('/')
+
+  const hero = page.getByRole('heading', { name: en.landing.hero.headline })
+  const backToTop = page.getByRole('button', {
+    name: en.landing.hero.backToTop
+  })
+  await expect(backToTop).not.toBeInViewport()
+  await page.getByRole('button', { name: en.landing.hero.scrollCue }).click()
+  await expect(backToTop).toBeInViewport({ ratio: 1 })
+  await backToTop.click()
+
+  await expect
+    .poll(() =>
+      page.locator('[data-landing-scroll]').evaluate((el) => el.scrollTop)
+    )
+    .toBe(0)
+  await expect(hero).toBeInViewport({ ratio: 1 })
+})
+
 test.describe('with reduced motion', () => {
   test('shows one prompt and never advances', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
