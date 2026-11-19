@@ -58,7 +58,7 @@ export const AppHeader = () => {
 
 function HeaderNav({ children }: { children: ReactNode }) {
   return (
-    <nav className='glass-element from-background to-background/30 text-foreground sm:border-muted-foreground/20 grid w-full grid-cols-3 place-items-center items-center rounded-none border-x-0 border-t-0 border-b bg-transparent bg-gradient-to-b px-4 py-1 sm:rounded-md sm:border'>
+    <nav className='glass-element from-background to-background/30 text-foreground sm:border-muted-foreground/20 grid w-full grid-cols-3 place-items-center items-center rounded-none border-x-0 border-t-0 border-b bg-transparent bg-gradient-to-b px-4 py-1 sm:rounded-md sm:border md:hidden'>
       {children}
     </nav>
   )
