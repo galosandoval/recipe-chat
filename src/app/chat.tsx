@@ -10,7 +10,13 @@ import { useChatStore } from '~/components/chat/chat-store'
 import { useResumeChat, type ResumeChatSeed } from '~/hooks/use-resume-chat'
 import { RECIPES_CONTEXT } from '~/schemas/chats-schema'
 
-export function Chat({ seed }: { seed?: ResumeChatSeed }) {
+export function Chat({
+  seed,
+  aboveComposer
+}: {
+  seed?: ResumeChatSeed
+  aboveComposer?: React.ReactNode
+}) {
   // Resolve the general `/chat` context's resumable chat from the server and
   // keep the chats-drawer filter synced to it.
   useResumeChat(RECIPES_CONTEXT, seed)
@@ -30,7 +36,8 @@ export function Chat({ seed }: { seed?: ResumeChatSeed }) {
         <div className='min-h-0 flex-1'>
           <Interface />
         </div>
-        <div className='sticky bottom-0 z-20 shrink-0'>
+        {aboveComposer}
+        <div className='sticky bottom-0 z-20 mx-auto w-full max-w-2xl shrink-0 md:max-w-3xl'>
           <BottomActiveFilters />
           <GenerateMessageForm />
         </div>

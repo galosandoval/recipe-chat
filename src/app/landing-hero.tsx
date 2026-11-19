@@ -34,7 +34,7 @@ export function LandingHero({
 
   return (
     <section className='relative flex min-h-full flex-col items-center justify-center gap-8 px-6 py-16 text-center'>
-      <Reveal className='flex w-full max-w-md flex-col items-center gap-6'>
+      <Reveal className='flex w-full max-w-lg flex-col items-center gap-6'>
         <div className='flex flex-col gap-3'>
           <h1 className='text-3xl font-semibold tracking-tight text-balance sm:text-4xl'>
             {t.landing.hero.headline}

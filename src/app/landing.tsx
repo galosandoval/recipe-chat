@@ -1,6 +1,8 @@
 'use client'
 
 import { useRef } from 'react'
+import { ChevronUpIcon } from 'lucide-react'
+import { useReducedMotion } from 'motion/react'
 import { Chat } from './chat'
 import { LandingHero } from './landing-hero'
 import { LandingProof } from './landing-proof'
@@ -29,7 +31,18 @@ import { useTranslations } from '~/hooks/use-translations'
  */
 export function Landing() {
   const t = useTranslations()
+  const prefersReducedMotion = useReducedMotion()
+  const landingRef = useRef<HTMLDivElement>(null)
   const chatRef = useRef<HTMLDivElement>(null)
+
+  const scrollToHero = () => {
+    const landing = landingRef.current
+    landing?.focus({ preventScroll: true })
+    landing?.closest('[data-landing-scroll]')?.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? 'instant' : 'smooth'
+    })
+  }
 
   const scrollToChat = () => {
     chatRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -57,7 +70,7 @@ export function Landing() {
   )
 
   return (
-    <div className='h-full'>
+    <div ref={landingRef} tabIndex={-1} className='h-full outline-none'>
       <LandingHero
         onStart={startChat}
         onScrollCue={scrollToChat}
@@ -67,7 +80,18 @@ export function Landing() {
       <LandingKitchen />
       <LandingLoop />
       <div ref={chatRef} className='flex h-full flex-col'>
-        <Chat />
+        <Chat
+          aboveComposer={
+            <button
+              type='button'
+              aria-label={t.landing.hero.backToTop}
+              onClick={scrollToHero}
+              className='text-muted-foreground hover:text-foreground mb-8 flex size-11 shrink-0 items-center justify-center self-center rounded-md transition-colors'
+            >
+              <ChevronUpIcon aria-hidden='true' />
+            </button>
+          }
+        />
       </div>
     </div>
   )

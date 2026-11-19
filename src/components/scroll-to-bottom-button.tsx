@@ -119,7 +119,12 @@ export function ScrollToBottomProvider({
           tabIndex={0}
           className='h-full touch-pan-y overflow-y-auto overscroll-contain'
         >
-          <div ref={contentRef}>{children}</div>
+          <div
+            ref={contentRef}
+            className='mx-auto w-full max-w-2xl md:max-w-3xl'
+          >
+            {children}
+          </div>
         </div>
         <ScrollToBottomButton />
       </div>
@@ -131,7 +136,7 @@ function ScrollToBottomButton() {
   const { scrollToBottom, atBottom } = useContext(ScrollToBottomContext)
 
   return (
-    <div className='absolute bottom-4 z-10 mx-auto w-full max-w-2xl px-3 md:max-w-3xl'>
+    <div className='pointer-events-none absolute inset-x-0 bottom-4 z-10 mx-auto w-full max-w-2xl px-3 md:max-w-3xl'>
       <div
         className={cn(
           'w-fit transition-all duration-300',

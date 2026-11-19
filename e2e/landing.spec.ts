@@ -18,6 +18,36 @@ test.use({
   viewport: { width: 390, height: 844 }
 })
 
+test('the landing scrollbar reaches the top right corner', async ({ page }) => {
+  await page.setViewportSize({ width: 1047, height: 821 })
+  await page.goto('/')
+
+  const landing = page.getByRole('main').locator('..')
+  await expect
+    .poll(() => landing.evaluate((main) => main.getBoundingClientRect().top))
+    .toBe(0)
+  const edges = await landing.evaluate((main) => ({
+    landingRight: main.getBoundingClientRect().right,
+    viewportRight: window.innerWidth,
+    chatRight: main
+      .querySelector('.overscroll-contain')
+      ?.getBoundingClientRect().right,
+    landingContentRight: main.getBoundingClientRect().left + main.clientWidth
+  }))
+
+  expect(edges.landingRight).toBe(edges.viewportRight)
+  expect(edges.chatRight).toBe(edges.landingContentRight)
+
+  await page.getByRole('button', { name: en.landing.hero.cta }).click()
+  await expect
+    .poll(() => landing.evaluate((scroller) => scroller.scrollTop))
+    .toBeGreaterThan(0)
+  await expect(page.getByRole('banner')).toBeInViewport({ ratio: 1 })
+  await expect(page.locator('#chat-composer-input')).toBeInViewport({
+    ratio: 1
+  })
+})
+
 test('the hero composer mock cycles through example prompts', async ({
   page
 }) => {
@@ -33,6 +63,26 @@ test('the hero composer mock cycles through example prompts', async ({
     timeout: 15_000
   })
   await verifyShot(page, '.agent/verify/issue-609/cycled-prompt.png')
+})
+
+test('the public chat chevron returns to the hero', async ({ page }) => {
+  await page.goto('/')
+
+  const hero = page.getByRole('heading', { name: en.landing.hero.headline })
+  const backToTop = page.getByRole('button', {
+    name: en.landing.hero.backToTop
+  })
+  await expect(backToTop).not.toBeInViewport()
+  await page.getByRole('button', { name: en.landing.hero.scrollCue }).click()
+  await expect(backToTop).toBeInViewport({ ratio: 1 })
+  await backToTop.click()
+
+  await expect
+    .poll(() =>
+      page.locator('[data-landing-scroll]').evaluate((el) => el.scrollTop)
+    )
+    .toBe(0)
+  await expect(hero).toBeInViewport({ ratio: 1 })
 })
 
 test.describe('with reduced motion', () => {

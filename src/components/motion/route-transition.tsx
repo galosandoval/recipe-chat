@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { motion } from 'motion/react'
+import { cn } from '~/lib/utils'
 import { ease } from './transitions'
 
 /**
@@ -10,7 +11,7 @@ import { ease } from './transitions'
  * the entering route in with a small upward rise, so the transition reads as
  * intentional rather than a barely-there opacity blink.
  *
- * Must wrap the page scroller (`<main>` in the root layout), never sit inside
+ * Must wrap the page scroller, never sit inside
  * it: a downward `y` translate extends a scroll container's overflow region, so
  * nesting this under `overflow-y-auto` flashed a scrollbar in for the duration
  * of the enter on any page whose content is near full height (e.g. `/chat`'s
@@ -35,18 +36,49 @@ import { ease } from './transitions'
  * committing, so this mounts with real content (which then fades) rather than an
  * empty shell that pops once data streams in.
  */
-export function RouteTransition({ children }: { children: React.ReactNode }) {
+export function RouteTransition({
+  header,
+  children
+}: {
+  header: React.ReactNode
+  children: React.ReactNode
+}) {
   const pathname = usePathname()
+  const isLanding = pathname === '/'
+  const hasFullWidthScroller = isLanding || pathname === '/chat'
+  const pinnedHeader = (
+    <div className='sticky top-0 z-30 mx-auto w-full max-w-2xl shrink-0 md:max-w-3xl'>
+      {header}
+    </div>
+  )
 
   return (
-    <motion.div
-      key={pathname}
-      className='flex min-h-0 flex-1 flex-col'
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease }}
-    >
-      {children}
-    </motion.div>
+    <>
+      {!isLanding && pinnedHeader}
+      <motion.div
+        key={pathname}
+        className={cn(
+          'mx-auto flex min-h-0 w-full flex-1 flex-col',
+          !hasFullWidthScroller && 'max-w-2xl md:max-w-3xl'
+        )}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease }}
+      >
+        {isLanding ? (
+          <div
+            data-landing-scroll
+            className='flex min-h-0 flex-1 flex-col overflow-y-auto'
+          >
+            {pinnedHeader}
+            <main className='flex min-h-0 flex-1 flex-col'>{children}</main>
+          </div>
+        ) : (
+          <main className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
+            {children}
+          </main>
+        )}
+      </motion.div>
+    </>
   )
 }
