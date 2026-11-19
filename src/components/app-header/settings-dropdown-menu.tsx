@@ -79,7 +79,7 @@ export function NavDropdownMenu({
   }
 
   const isAuthenticated = !!session.data
-  const items: MenuItemProps[] = [useThemeToggleMenuItem(), useLogoutMenuItem()]
+  const items: MenuItemProps[] = [useThemeToggleMenuItem()]
 
   if (isAuthenticated) {
     items.push(
@@ -108,14 +108,15 @@ export function NavDropdownMenu({
     // auth items
     items.push(
       {
-        icon: <KeyRoundIcon />,
-        label: t.nav.menu.login,
-        onClick: handleToggleLogin
-      },
-      {
         icon: <UserPlusIcon />,
         label: t.nav.menu.signUp,
         onClick: handleToggleSignUp
+      },
+      {
+        icon: <KeyRoundIcon />,
+        label: t.nav.menu.login,
+        onClick: handleToggleLogin,
+        space: 'above'
       }
     )
   }
@@ -128,6 +129,9 @@ export function NavDropdownMenu({
       space: 'above'
     })
   }
+
+  // should be at the end
+  items.push(useLogoutMenuItem())
 
   return (
     <>
@@ -322,6 +326,7 @@ function useLogoutMenuItem() {
   return buildMenuItem({
     label: t.nav.menu.logout,
     icon: <LogOutIcon />,
-    onClick: handleSignOut
+    onClick: handleSignOut,
+    space: 'above'
   })
 }
