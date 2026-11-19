@@ -18,6 +18,7 @@ import {
   NAV_ITEMS,
   useNavChromeVisible
 } from './nav-shell'
+import { ReactNode } from 'react'
 
 export const AppHeader = () => {
   const pathname = usePathname()
@@ -41,14 +42,12 @@ export const AppHeader = () => {
     <header
       className={cn(
         'sticky top-0 z-30',
-        hasSidebar && !isChatHistory && 'md:hidden'
+        hasSidebar && !isChatHistory && 'x:hidden'
       )}
     >
       <div className='w-full'>
-        <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3 md:max-w-none md:pt-0'>
-          <div className='glass-element from-background to-background/30 text-foreground border-muted-foreground/20 w-full border-b bg-gradient-to-b sm:rounded-md sm:border md:rounded-none md:border-x-0 md:border-t-0'>
-            {isChatHistory ? <ChatHistoryHeader /> : <ChatHeader />}
-          </div>
+        <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3 md:max-w-none'>
+          {isChatHistory ? <ChatHistoryHeader /> : <ChatHeader />}
         </div>
       </div>
     </header>
@@ -77,7 +76,7 @@ function ChatHeader() {
   const t = useTranslations()
 
   return (
-    <nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4 py-1'>
+    <HeaderNav>
       <div className='justify-self-start'>
         <NavDropdownMenu />
       </div>
@@ -85,7 +84,7 @@ function ChatHeader() {
       <div className='justify-self-end'>
         <ChatHistoryButton />
       </div>
-    </nav>
+    </HeaderNav>
   )
 }
 
@@ -98,7 +97,7 @@ function ChatHistoryHeader() {
   const router = useRouter()
 
   return (
-    <nav className='grid w-full grid-cols-3 place-items-center items-center bg-transparent px-4 py-1'>
+    <HeaderNav>
       <div className='justify-self-start'>
         <Button
           variant='ghost'
@@ -111,7 +110,7 @@ function ChatHistoryHeader() {
       </div>
       <h1 className='text-base'>{t.chat.history.title}</h1>
       <div />
-    </nav>
+    </HeaderNav>
   )
 }
 
@@ -191,6 +190,14 @@ function BottomNavTabs() {
           </NavigationButton>
         )
       })}
+    </nav>
+  )
+}
+
+function HeaderNav({ children }: { children: ReactNode }) {
+  return (
+    <nav className='glass-element from-background to-background/30 text-foreground sm:border-muted-foreground/20 grid w-full grid-cols-3 place-items-center items-center rounded-none border-x-0 border-t-0 border-b bg-transparent bg-gradient-to-b px-4 py-1 sm:rounded-md sm:border'>
+      {children}
     </nav>
   )
 }
