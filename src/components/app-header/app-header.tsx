@@ -47,10 +47,20 @@ export const AppHeader = () => {
     >
       <div className='w-full'>
         <div className='mx-auto flex w-full max-w-2xl justify-center sm:pt-3 md:max-w-none'>
-          {isChatHistory ? <ChatHistoryHeader /> : <ChatHeader />}
+          <HeaderNav>
+            {isChatHistory ? <ChatHistoryHeader /> : <ChatHeader />}
+          </HeaderNav>
         </div>
       </div>
     </header>
+  )
+}
+
+function HeaderNav({ children }: { children: ReactNode }) {
+  return (
+    <nav className='glass-element from-background to-background/30 text-foreground sm:border-muted-foreground/20 grid w-full grid-cols-3 place-items-center items-center rounded-none border-x-0 border-t-0 border-b bg-transparent bg-gradient-to-b px-4 py-1 sm:rounded-md sm:border'>
+      {children}
+    </nav>
   )
 }
 
@@ -76,7 +86,7 @@ function ChatHeader() {
   const t = useTranslations()
 
   return (
-    <HeaderNav>
+    <>
       <div className='justify-self-start'>
         <NavDropdownMenu />
       </div>
@@ -84,7 +94,7 @@ function ChatHeader() {
       <div className='justify-self-end'>
         <ChatHistoryButton />
       </div>
-    </HeaderNav>
+    </>
   )
 }
 
@@ -97,7 +107,7 @@ function ChatHistoryHeader() {
   const router = useRouter()
 
   return (
-    <HeaderNav>
+    <>
       <div className='justify-self-start'>
         <Button
           variant='ghost'
@@ -110,7 +120,7 @@ function ChatHistoryHeader() {
       </div>
       <h1 className='text-base'>{t.chat.history.title}</h1>
       <div />
-    </HeaderNav>
+    </>
   )
 }
 
@@ -190,14 +200,6 @@ function BottomNavTabs() {
           </NavigationButton>
         )
       })}
-    </nav>
-  )
-}
-
-function HeaderNav({ children }: { children: ReactNode }) {
-  return (
-    <nav className='glass-element from-background to-background/30 text-foreground sm:border-muted-foreground/20 grid w-full grid-cols-3 place-items-center items-center rounded-none border-x-0 border-t-0 border-b bg-transparent bg-gradient-to-b px-4 py-1 sm:rounded-md sm:border'>
-      {children}
     </nav>
   )
 }
