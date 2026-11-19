@@ -67,11 +67,6 @@ it('stops rendering at md, where the sidebar takes over', () => {
   expect(container.firstElementChild?.className).toContain('md:hidden')
 })
 
-/**
- * The header is only allowed to step aside at `md+` when a sidebar is there to
- * replace it — a signed-out visitor has none, so hiding it would strand the
- * settings menu on desktop.
- */
 it('keeps the header at md for a signed-out visitor', () => {
   const { container } = renderWithTranslations(
     <RouteProvider url='/' session={null}>
@@ -85,12 +80,13 @@ it('keeps the header at md for a signed-out visitor', () => {
   expect(screen.queryByRole('button', { name: 'settings-menu' })).toBeTruthy()
 })
 
-it('drops the header at md once the sidebar carries the nav', () => {
-  const { container } = renderWithTranslations(
+it('keeps the chat header at md alongside the sidebar', () => {
+  renderWithTranslations(
     <RouteProvider url='/chat'>
       <AppHeader />
     </RouteProvider>
   )
 
-  expect(container.querySelector('header')?.className).toContain('md:hidden')
+  expect(screen.getByRole('banner').classList.contains('md:hidden')).toBe(false)
+  expect(screen.queryByRole('button', { name: 'settings-menu' })).toBeTruthy()
 })
