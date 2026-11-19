@@ -30,7 +30,7 @@ export function Chat({ seed }: { seed?: ResumeChatSeed }) {
         <div className='min-h-0 flex-1'>
           <Interface />
         </div>
-        <div className='sticky bottom-0 z-20 shrink-0'>
+        <div className='sticky bottom-0 z-20 mx-auto w-full max-w-2xl shrink-0 md:max-w-3xl'>
           <BottomActiveFilters />
           <GenerateMessageForm />
         </div>

@@ -58,18 +58,13 @@ export default async function RootLayout({
                 `md+`, where `BottomNav` steps aside for `SidebarNav`. */}
             <div className='flex h-full w-full'>
               <SidebarNav />
-              <div className='mx-auto flex h-full w-full max-w-2xl min-w-0 flex-1 flex-col md:max-w-3xl'>
-                <AppHeader />
-                <RouteTransition>
-                  {/* The app's scroller for every route but the chat
-                      surfaces, which size themselves to fill this exactly and
-                      own their own single scroller (see `~/app/chat.tsx`), so
-                      the two never compete for the same overflow. */}
-                  <main className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
-                    {children}
-                  </main>
+              <div className='flex h-full min-w-0 flex-1 flex-col'>
+                <RouteTransition header={<AppHeader />}>
+                  {children}
                 </RouteTransition>
-                <AppFooter />
+                <div className='mx-auto w-full max-w-2xl shrink-0 md:max-w-3xl'>
+                  <AppFooter />
+                </div>
                 <BottomNav />
               </div>
             </div>
